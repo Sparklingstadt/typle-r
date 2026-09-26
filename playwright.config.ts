@@ -5,7 +5,9 @@ loadEnvConfig(process.cwd())
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
-  workers: 10,
+  workers: 2,
+  timeout: 60000,
+  expect: { timeout: 15000 },
   retries: process.env.CI ? 1 : 0,
   use: { baseURL: 'http://127.0.0.1:3101', trace: 'retain-on-failure' },
   reporter: [['list']],

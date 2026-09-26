@@ -1,6 +1,6 @@
 {
   "name": "typle-r",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",
@@ -16,7 +16,8 @@
     "db:baseline": "node scripts/migrate.cjs --baseline",
     "postinstall": "prisma generate",
     "prebuild": "prisma generate",
-    "dev:local": "next dev --hostname 127.0.0.1 --port 3000"
+    "dev:local": "next dev --hostname 127.0.0.1 --port 3000",
+    "dev:lan": "node scripts/dev-lan.cjs"
   },
   "dependencies": {
     "@next/env": "16.3.4",

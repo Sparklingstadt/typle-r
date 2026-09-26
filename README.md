@@ -2,6 +2,16 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
+## v0.10.0 — 国名193か国・LAN起動
+
+国名193か国を追加し、LAN内の別端末からの練習・記録保存と `npm run dev:lan` に対応しました。
+
+本番: https://typle-r-six.vercel.app
+
+リポジトリ: https://github.com/Sparklingstadt/typle-r （非公開）
+
+本番はGitHub認証とNeon DB、ローカル/LANは開発用アカウントとDocker DBを使用します。開発ログインは本番では無効です。
+
 ## Sparklingstadt private copy
 
 `liyur-qie/typle-r` の履歴を保持した独立した非公開コピーです。
@@ -16,7 +26,7 @@ npm run dev:local
 
 http://localhost:3000/local-login を開き「練習を始める」を押します。このMacのチェックアウトの `.env.local` は設定済みです。新規クローンでは上記のセットアップ後、`.env.local` に `LOCAL_DEVELOPMENT_LOGIN=1` を設定し、`npm run db:seed -- --owner github:0` を実行してください。DBは `docker compose --env-file .env.local up -d --wait` で再開できます。
 
-開発ログインは `NODE_ENV=development`、`LOCAL_DEVELOPMENT_LOGIN=1`、`AUTH_URL` がHTTPのloopback、`AUTH_SECRET` 設定済みのすべてを満たす場合だけ有効です。専用アカウント `github:0` を使用し、GitHubアカウントとは分離します。本番ビルドでは無効です。GitHub OAuthを使用する場合は `LOCAL_DEVELOPMENT_LOGIN=0` とし、従来どおりOAuthの設定を行ってください。
+開発ログインは `NODE_ENV=development`、`LOCAL_DEVELOPMENT_LOGIN=1`、`AUTH_URL` がHTTPのloopbackまたは明示指定したLAN内IPv4、`AUTH_SECRET` 設定済みのすべてを満たす場合だけ有効です。専用アカウント `github:0` を使用し、GitHubアカウントとは分離します。本番ビルドでは無効です。GitHub OAuthを使用する場合は `LOCAL_DEVELOPMENT_LOGIN=0` とし、従来どおりOAuthの設定を行ってください。
 
 ## v0.9.0 — 練習画面の改善とE2E拡充
 
@@ -119,7 +129,7 @@ npm run dev
 
 [ローカルアプリ](http://localhost:3000) を開いてGitHubでログインします。通常の停止は `docker compose --env-file .env.local stop`、再開は `up -d --wait` です。`down -v` は保存データを削除するため使用しないでください。
 
-## Neon / Vercelへの切り替え（デプロイ保留中）
+## Neon / Vercelの構成
 
 Vercel MarketplaceでNeonを接続し、サーバー用の環境変数を設定します。
 
@@ -129,7 +139,7 @@ Vercel MarketplaceでNeonを接続し、サーバー用の環境変数を設定�
 - `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`: 本番用OAuth Appの認証情報
 - `AUTH_URL`: 本番URL。本番OAuth callbackは `<本番URL>/api/auth/callback/github`
 
-対象DBの環境変数を使って `npm run db:migrate` を実行してからデプロイします。DockerのDBからNeonへのデータコピーは自動ではありません。必要な場合はバックアップと復元を別途行います。Neon接続とVercelデプロイは今回未検証です。
+対象DBの環境変数を使って `npm run db:migrate` を実行してからデプロイします。DockerのDBからNeonへのデータコピーは自動ではありません。必要な場合はバックアップと復元を別途行います。本番への反映は検証済みのコミットからVercel CLIで行います。
 
 公式資料: [Auth.js GitHub](https://authjs.dev/getting-started/providers/github)、[Prisma](https://www.prisma.io/docs/orm/v7)、[PostgreSQL Docker image](https://hub.docker.com/_/postgres)。
 
@@ -152,13 +162,13 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-単体テストは入力判定、記録、移行、形式検証と実PostgreSQL上のPrismaクエリを検証します。E2Eは上限10 workersでファイル内も並列実行します。テストごとにランダムなアカウントIDを使用します。本番ビルドをポート3101で起動し、実PostgreSQLとAPIを通して作成・編集・練習・再読み込み・削除、アカウント分離、401/403/409応答を確認します。テスト専用秘密値で署名したセッションを使うため、GitHub OAuth画面の実ログインは別途確認が必要です。テストユーザーの行だけを終了後に削除します。
+単体テストは入力判定、記録、移行、形式検証と実PostgreSQL上のPrismaクエリを検証します。E2Eは上限2 workersでファイル内も並列実行します。テストごとにランダムなアカウントIDを使用します。本番ビルドをポート3101で起動し、実PostgreSQLとAPIを通して作成・編集・練習・再読み込み・削除、アカウント分離、401/403/409応答を確認します。テスト専用秘密値で署名したセッションを使うため、GitHub OAuth画面の実ログインは別途確認が必要です。テストユーザーの行だけを終了後に削除します。
 
 元リポジトリではGitHub ActionsのCIを停止していました。この独立コピーにはCI定義を引き継いでいます。開発ビルド `.next` と本番ビルド `.next-production` は分離しています。
 
 ## リリース
 
-バージョンを更新し検証後、Git/SSHでコミットとタグをpush、GitHub CLIでリリースを作成します。Vercelへのデプロイは現在保留しています。`vercel.json` の `git.deploymentEnabled=false` でGit連携の自動デプロイも停止しています。再開時にこの設定を戻してください。
+バージョンを更新し検証後、Git/SSHでコミットとタグをpush、GitHub CLIでリリースを作成します。`vercel.json` の `git.deploymentEnabled=false` でGit連携の自動デプロイを停止し、承認されたリリースをVercel CLIから明示的にデプロイします。
 
 ## 依存関係の監査
 
@@ -173,3 +183,9 @@ UIはshadcn/ui（Radix / Nova）とTailwind CSS 4で構成しています。設�
 ### 国名データの出典・検証
 
 [提供されたZIP](https://chatgpt.com/library/share/libfile_e75c8143a78c8191804af85bfd9d46a9?account_id=personal)と同じファイルの生成データ193行を利用しています。中国語名・拼音・日本語名は元資料の表記を維持しています。`tests/countries.test.cjs` で元データとのSHA-256一致と193件の重複なしを検証します。
+
+### LAN内の別端末から利用
+
+`.env.local` の `AUTH_URL` を `http://<このMacのLAN IP>:3000`、`LOCAL_DEVELOPMENT_LAN_HOST` を同じIPに設定し、`npm run dev:lan` で起動します。別端末から同じURLの `/local-login` を開いてください。LAN用の開発ログインは明示指定したプライベートIPv4に限って有効で、本番では無効です。接続できるLAN内の利用者は、同じローカル練習用データを利用できます。DBポートは引き続きloopbackのみで待ち受けます。
+
+`dev:lan` は `.env.local` のLANアドレスと `AUTH_URL` のポートを使用します。IPアドレスが変わった場合はこの2設定を更新してください。

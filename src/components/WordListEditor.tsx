@@ -1,4 +1,5 @@
 "use client"
+import { randomId } from "../lib/randomId"
 import { useRef, useState } from "react"
 import { ArrowUp, ArrowDown, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -33,7 +34,7 @@ export default function WordListEditor({ initial, onSave, onCancel }: {
   return <form onSubmit={async event => {
     event.preventDefault()
     if (saving) return
-    draftId.current ??= initial?.id ?? crypto.randomUUID()
+    draftId.current ??= initial?.id ?? randomId()
     setSaving(true)
     try { await onSave({ id: draftId.current, name, words: words.map(({ key, ...word }) => ({ ...word, input: word.input || word.display })),
       records: initial?.records ?? [], createdAt: initial?.createdAt ?? new Date().toISOString() }) } finally { setSaving(false) }
@@ -94,7 +95,7 @@ export default function WordListEditor({ initial, onSave, onCancel }: {
     </TableRow>)}
       </TableBody>
     </Table>
-    <Button onClick={() => setWords(current => [...current, { key: crypto.randomUUID(), display: "", input: "", annotation: "" }])}>単語を追加</Button>
+    <Button onClick={() => setWords(current => [...current, { key: randomId(), display: "", input: "", annotation: "" }])}>単語を追加</Button>
     <div className="flex gap-3">
       <Button type="submit" disabled={saving} variant="default">{saving ? "保存中…" : "保存"}</Button>
       <Button onClick={onCancel}>キャンセル</Button>

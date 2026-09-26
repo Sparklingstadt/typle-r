@@ -37,7 +37,7 @@ async function seedWorkspace(client, ownerId) {
   if (!/^github:\d+$/.test(ownerId ?? '')) throw new Error('Specify --owner github:<numeric GitHub user ID>')
   for (let attempt = 0; attempt < 5; attempt++) {
     try {
-      return await client.$transaction(tx => applySeed(tx, ownerId), { isolationLevel: 'Serializable' })
+      return await client.$transaction(tx => applySeed(tx, ownerId), { isolationLevel: 'Serializable', maxWait: 30000, timeout: 60000 })
     } catch (error) {
       if (!['P2034', 'P2002', 'P2025'].includes(error.code) || attempt === 4) throw error
     }

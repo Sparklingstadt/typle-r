@@ -1,4 +1,5 @@
 "use client"
+import { randomId } from "./randomId"
 import { useEffect, useRef, useState } from 'react'
 import type { SavedWordList } from './wordLists'
 import type { WorkspaceUpdate } from './workspaceClient'
@@ -37,7 +38,7 @@ export function usePractice(wordLists: SavedWordList[], update: WorkspaceUpdate)
     const next = typeInput(session, list?.words ?? [], value, Date.now())
     setSession(next)
     if (next.finishedAt !== null && list) {
-      const record = makeRecord(next, list.words.length, crypto.randomUUID())
+      const record = makeRecord(next, list.words.length, randomId())
       completedRecord.current = record
       saveRecord(record)
     }
