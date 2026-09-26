@@ -24,10 +24,12 @@ export default function AccountBar() {
             <DropdownMenu.Item asChild className="flex cursor-pointer items-center rounded-md px-3 py-2 text-sm outline-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground">
               <Link href="/devices">Manage devices</Link>
             </DropdownMenu.Item>
+            <DropdownMenu.Item className="flex cursor-pointer items-center rounded-md px-3 py-2 text-sm outline-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground" onSelect={() => { void signOut({ callbackUrl: '/home' }) }}>
+              Logout
+            </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
       </DropdownMenu.Root>
-      <Button size="sm" onClick={() => signOut({ callbackUrl: '/home' })}>ログアウト</Button>
     </> : <Button variant="outline" onClick={() => signIn('github')}>GitHubでログイン</Button>}
   </div>
 }

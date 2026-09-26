@@ -20,6 +20,24 @@ async function seed(page: import('@playwright/test').Page, lists: unknown[]) {
   expect(response.status()).toBe(200)
 }
 
+test('user menu signs out and returns to home', async ({ page }) => {
+  await page.goto('/home')
+  const menu = page.getByRole('button', { name: 'User menu', exact: true })
+  await expect(menu).toBeVisible()
+  await expect(page.getByRole('button', { name: /Logout|ログアウト/ })).toHaveCount(0)
+  await menu.click()
+  await expect(page.getByRole('menuitem', { name: 'Manage devices' })).toBeVisible()
+  await expect(page.getByRole('menuitem', { name: 'Logout', exact: true })).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(menu).toBeFocused()
+  await menu.press('Enter')
+  await page.getByRole('menuitem', { name: 'Logout', exact: true }).click()
+  await expect(page).toHaveURL(/\/home$/)
+  await expect(page.getByRole('button', { name: 'GitHubでログイン' })).toBeVisible()
+  await page.reload()
+  await expect(page.getByRole('button', { name: 'GitHubでログイン' })).toBeVisible()
+})
+
 
 test('create, reorder, edit, play, reload and delete records', async ({ page }) => {
   const errors: string[] = []
