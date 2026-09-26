@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = (phase) => ({
-  // Keep development output separate from production verification and serving.
-  distDir: phase === 'phase-development-server' ? '.next' : '.next-production',
+  // Keep local development and verification separate; Vercel expects .next.
+  distDir: phase === 'phase-development-server' || process.env.VERCEL === '1' ? '.next' : '.next-production',
 });
 
 export default nextConfig;
