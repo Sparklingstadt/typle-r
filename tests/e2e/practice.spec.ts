@@ -104,7 +104,7 @@ test('damaged storage is not overwritten', async ({ page }) => {
 test('supporting pages, root redirect and GitHub link', async ({ page }) => {
   await page.goto('/')
   await expect(page).toHaveURL(/\/home$/)
-  await expect(page.getByRole('link', { name: 'GitHub', exact: true })).toHaveAttribute('href', 'https://github.com/liyur-qie/typle-r')
+  await expect(page.getByRole('link', { name: 'GitHub', exact: true })).toHaveAttribute('href', 'https://github.com/Sparklingstadt/typle-r')
   for (const [path, title] of [['/guide', '使い方'], ['/about', 'Typleについて'], ['/rankings', '自分のベスト記録']]) {
     await page.goto(path)
     await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible()
