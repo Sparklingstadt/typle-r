@@ -376,7 +376,10 @@ for (const theme of ['light', 'dark']) {
     await seed(page, [{ id: 'theme', name: 'Theme practice', createdAt: '2026-09-27', records: [], words: [{ display: 'hello', input: 'hello', annotation: 'あいさつ' }] }])
     await page.setViewportSize({ width: 390, height: 900 })
     await page.goto('/play')
-    await page.getByRole('combobox', { name: 'カラーテーマ' }).selectOption(theme)
+    await expect(page.getByRole('button', { name: 'ダークモード', exact: true })).toBeVisible()
+    if (await page.getByRole('button', { name: 'ダークモード', exact: true }).getAttribute('aria-pressed') !== String(theme === 'dark')) {
+      await page.getByRole('button', { name: 'ダークモード', exact: true }).click()
+    }
     const display = page.locator('#wordDisplay')
     await expect(display).toHaveText('hello')
     const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
@@ -404,7 +407,7 @@ for (const theme of ['light', 'dark']) {
     await expect(page.getByRole('alertdialog')).toBeVisible()
     await page.screenshot({ path: testInfo.outputPath(`dialog-${theme}.png`), fullPage: true })
     await page.getByRole('alertdialog').getByRole('button', { name: 'キャンセル' }).click()
-    await expect(page.getByRole('combobox', { name: 'カラーテーマ' })).toHaveValue(theme)
+    await expect(page.getByRole('button', { name: 'ダークモード', exact: true })).toHaveAttribute('aria-pressed', String(theme === 'dark'))
   })
 }
 
