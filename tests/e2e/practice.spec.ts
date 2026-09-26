@@ -342,3 +342,31 @@ test('save and delete notifications stack and animate before being dismissed', a
   await page.mouse.move(0, 0)
   await expect(deleted).toHaveCount(0, { timeout: 8000 })
 })
+
+for (const format of ['csv', 'tsv'] as const) {
+  test(`${format} import validates, previews, appends and persists words`, async ({ page }) => {
+    await seed(page, [])
+    await page.goto('/create')
+    const file = page.getByLabel('CSV・TSVファイルから追加', { exact: true })
+    await file.setInputFiles({ name: 'bad.csv', mimeType: 'text/csv', buffer: Buffer.from('input,display\na,') })
+    await expect(page.getByRole('region', { name: 'ファイルから単語を追加' }).getByRole('alert')).toContainText('input と display は必須')
+    await expect(page.getByRole('textbox', { name: '表示する単語 1', exact: true })).toHaveValue('')
+    const text = format === 'csv' ? 'input,display,annotation\r\nJapan,"日本,Japan","国名 ""country"""' : 'input\tdisplay\nJapan\t日本'
+    await file.setInputFiles({ name: `Imported.${format}`, mimeType: 'text/plain', buffer: Buffer.from(text) })
+    await expect(page.getByRole('region', { name: 'ファイルから単語を追加' }).getByRole('status')).toContainText('1件を追加しました')
+    await expect(page.getByRole('textbox', { name: '単語リスト名', exact: true })).toHaveValue('Imported')
+    await expect(page.getByRole('textbox', { name: '入力する文字 1', exact: true })).toHaveValue('Japan')
+    await file.setInputFiles({ name: 'more.tsv', mimeType: 'text/plain', buffer: Buffer.from('display\tinput\nフランス\tFrance') })
+    await expect(page.getByRole('textbox', { name: '入力する文字 2', exact: true })).toHaveValue('France')
+    await page.getByRole('button', { name: '保存', exact: true }).click()
+    await expect(page).toHaveURL(/\/edit$/)
+    await page.reload()
+    await page.getByRole('button', { name: 'Imported を編集', exact: true }).click()
+    await expect(page.getByRole('textbox', { name: '表示する単語 1', exact: true })).toHaveValue(format === 'csv' ? '日本,Japan' : '日本')
+    await expect(page.getByRole('textbox', { name: '表示する単語 2', exact: true })).toHaveValue('フランス')
+    await page.getByRole('button', { name: '入力', exact: true }).first().click()
+    await expect(page.getByRole('textbox', { name: '入力する文字 1', exact: true })).toHaveValue('Japan')
+    await page.getByRole('button', { name: '補足', exact: true }).first().click()
+    await expect(page.getByRole('textbox', { name: '補足 1', exact: true })).toHaveValue(format === 'csv' ? '国名 "country"' : '')
+  })
+}

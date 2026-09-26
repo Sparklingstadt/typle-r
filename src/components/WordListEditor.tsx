@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { ButtonGroup } from "@/components/ui/button-group"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import TextField from "@/components/ui/TextField"
+import WordListImport from "./WordListImport"
 import type { SavedWordList } from "@/lib/wordLists"
 
 export default function WordListEditor({ initial, onSave, onCancel }: {
@@ -39,6 +40,15 @@ export default function WordListEditor({ initial, onSave, onCancel }: {
     try { await onSave({ id: draftId.current, name, words: words.map(({ key, ...word }) => ({ ...word, input: word.input || word.display })),
       records: initial?.records ?? [], createdAt: initial?.createdAt ?? new Date().toISOString() }) } finally { setSaving(false) }
   }} className="space-y-6">
+    <WordListImport disabled={saving} onImport={(imported, filename) => {
+      const current = words.length === 1 && !words[0].input && !words[0].display && !words[0].annotation ? [] : words
+      if (current.length + imported.length > 1000) throw new Error("単語は1リストにつき1,000件までです。")
+      const added = imported.map(word => ({ ...word, key: randomId() }))
+      setWords([...current, ...added])
+      setName(value => value.trim() ? value : filename)
+      setExpandedInputs(value => new Set([...value, ...added.map(word => word.key)]))
+      setExpandedAnnotations(value => new Set([...value, ...added.filter(word => word.annotation).map(word => word.key)]))
+    }} />
     <TextField label="単語リスト名" required value={name} onChange={event => setName(event.target.value)} />
     <p>表示する単語と、正解として入力する文字を指定します。ログイン中のアカウントに保存されます。</p>
     <Table aria-label="単語の追加・編集" className="block w-full md:table md:table-fixed">
