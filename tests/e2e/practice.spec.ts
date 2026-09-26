@@ -496,3 +496,38 @@ test('CSV import preserves existing records and exact strings after a failed sav
   ])
   expect(saved[1].records).toEqual([])
 })
+
+for (const width of [390, 1440]) {
+  test(`word list CSV download and reimport preserve saved words at ${width}px`, async ({ page }, testInfo) => {
+    const words = [
+      { input: ' zi ', display: ' 字,日本 ', annotation: '意味\r\n"引用"' },
+      { input: 'zi', display: '字', annotation: '' },
+      { input: 'zi', display: '字', annotation: '' },
+    ]
+    const list = { id: 'export', name: '中国語', createdAt: '2026-09-27', words, records: [{ date: '2026-09-27', time: 1 }] }
+    await seed(page, [list])
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/edit')
+    const before = await (await page.request.get('/api/workspace')).json()
+    const downloadPromise = page.waitForEvent('download')
+    await page.getByRole('button', { name: '中国語 をCSVエクスポート', exact: true }).click()
+    const download = await downloadPromise
+    expect(download.suggestedFilename()).toBe('中国語.csv')
+    expect(await download.failure()).toBeNull()
+    const path = testInfo.outputPath(download.suggestedFilename())
+    await download.saveAs(path)
+    expect(await (await page.request.get('/api/workspace')).json()).toEqual(before)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    await page.screenshot({ path: testInfo.outputPath('export.png'), fullPage: true })
+    await page.goto('/create')
+    await page.getByLabel('CSV・TSVファイルから追加', { exact: true }).setInputFiles(path)
+    await expect(page.getByRole('region', { name: 'ファイルから単語を追加' }).getByRole('status')).toContainText('3件を追加しました')
+    await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('再取り込み')
+    await page.getByRole('button', { name: '保存', exact: true }).click()
+    await expect(page).toHaveURL(/\/edit$/)
+    const saved = (await (await page.request.get('/api/workspace')).json()).lists
+    expect(saved[0]).toEqual(list)
+    expect(saved[1].words).toEqual(words)
+    expect(saved[1].records).toEqual([])
+  })
+}
