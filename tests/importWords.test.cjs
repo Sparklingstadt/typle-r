@@ -21,3 +21,18 @@ test('invalid imports fail rather than partially importing', () => {
   assert.throws(() => parseWordFile('input,display\n' + 'a'.repeat(1001) + ',b', ','), /文字数/)
   assert.throws(() => parseWordFile('a'.repeat(1024 * 1024 + 1), ','), /1 MiB/)
 })
+
+test('CSV preserves whitespace and duplicates through JSON save while rejecting empty records', () => {
+  const { saveList, encodeLists, decodeLists } = require('../src/lib/wordLists.ts')
+  const words = parseWordFile('display,input,anotation\r\n" 字 "," zi "," a\r\nb "\r\n字,zi,\r\n字,zi,', ',')
+  const list = { id: 'csv', name: 'CSV', createdAt: '2026-09-27', records: [], words }
+  assert.deepEqual(decodeLists(encodeLists(saveList([], list, false)))[0].words, [
+    { display: ' 字 ', input: ' zi ', annotation: ' a\r\nb ' },
+    { display: '字', input: 'zi', annotation: '' },
+    { display: '字', input: 'zi', annotation: '' },
+  ])
+  for (const row of [',,', '"","",""', '  ,  ,']) {
+    assert.throws(() => parseWordFile('display,input,annotation\na,b,\n' + row, ','), /3行目/)
+  }
+  assert.throws(() => parseWordFile('display,input,annotation,anotation\na,b,c,d', ','), /重複/)
+})

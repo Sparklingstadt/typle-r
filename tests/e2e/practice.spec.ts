@@ -456,3 +456,40 @@ test('devices persist, are locked during practice, and survive rename and deleti
   await page.goto('/play')
   await expect(page.getByLabel('使用端末', { exact: true })).toHaveValue('')
 })
+
+test('CSV import preserves existing records and exact strings after a failed save and retry', async ({ page }) => {
+  const existing = { id: 'csv-existing', name: 'Existing', createdAt: '2026-09-27', words: [{ display: 'Old', input: 'old', annotation: '' }], records: [{ date: '2026-09-27', time: 1 }] }
+  await seed(page, [existing])
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/create')
+  await page.getByLabel('CSV・TSVファイルから追加', { exact: true }).setInputFiles({ name: 'words.csv', mimeType: 'text/csv', buffer: Buffer.from('\ufeffdisplay,input,annotation\r\n" 字 ",zi,"意味,補足\r\n""引用"""\r\n字,zi,\r\n字,zi,') })
+  await expect(page.getByRole('textbox', { name: '表示する単語 1', exact: true })).toHaveValue(' 字 ')
+  expect((await (await page.request.get('/api/workspace')).json()).lists).toEqual([existing])
+  await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('Existing')
+  await page.getByRole('button', { name: '保存', exact: true }).click()
+  await expect(page.getByRole('alert').filter({ hasText: '同じ名前' })).toBeVisible()
+  await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('CSV Chinese')
+  let fail = true
+  await page.route('**/api/workspace', async route => {
+    if (route.request().method() === 'PUT' && fail) {
+      fail = false
+      await route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: '一時的な保存エラー' }) })
+    } else await route.continue()
+  })
+  await page.getByRole('button', { name: '保存', exact: true }).click()
+  await expect(page.getByRole('alert').filter({ hasText: '一時的な保存エラー' })).toBeVisible()
+  await expect(page.getByRole('textbox', { name: '単語リスト名', exact: true })).toHaveValue('CSV Chinese')
+  await page.getByRole('button', { name: '保存', exact: true }).click()
+  await expect(page).toHaveURL(/\/edit$/)
+  await page.reload()
+  await expect(page.getByRole('button', { name: 'CSV Chinese を編集', exact: true })).toBeVisible()
+  const saved = (await (await page.request.get('/api/workspace')).json()).lists
+  expect(saved).toHaveLength(2)
+  expect(saved[0]).toEqual(existing)
+  expect(saved[1].words).toEqual([
+    { display: ' 字 ', input: 'zi', annotation: '意味,補足\r\n"引用"' },
+    { display: '字', input: 'zi', annotation: '' },
+    { display: '字', input: 'zi', annotation: '' },
+  ])
+  expect(saved[1].records).toEqual([])
+})

@@ -11,8 +11,9 @@ export function parseWordFile(source: string, delimiter: "," | "\t"): WordList["
   const fail = () => { throw new Error(`${line}行目の引用符の形式が正しくありません。`) }
   const field = () => { cells.push(value); value = ""; closed = false }
   const row = () => {
+    const explicit = closed
     field()
-    if (cells.some(cell => cell.trim())) rows.push({ cells, line: start })
+    if (cells.length > 1 || cells.some(cell => cell.trim()) || explicit) rows.push({ cells, line: start })
     cells = []
   }
   for (let i = 0; i < text.length; i++) {
@@ -33,7 +34,7 @@ export function parseWordFile(source: string, delimiter: "," | "\t"): WordList["
   }
   if (quoted) fail()
   row()
-  const header = rows.shift()?.cells.map(cell => cell.trim()) ?? []
+  const header = rows.shift()?.cells.map(cell => cell.trim() === "anotation" ? "annotation" : cell.trim()) ?? []
   if (!header.includes("input") || !header.includes("display")) throw new Error("見出しに input と display が必要です。annotation は省略できます。")
   if (new Set(header).size !== header.length) throw new Error("見出しのカラム名が重複しています。")
   if (header.some(name => !["input", "display", "annotation"].includes(name))) throw new Error("カラム名は input、display、annotation を使用してください。")
@@ -41,9 +42,9 @@ export function parseWordFile(source: string, delimiter: "," | "\t"): WordList["
   if (rows.length > 1000) throw new Error("単語は1リストにつき1,000件までです。")
   return rows.map(({ cells, line }) => {
     if (cells.length !== header.length) throw new Error(`${line}行目のカラム数が見出しと一致しません。`)
-    const get = (name: string) => (cells[header.indexOf(name)] ?? "").trim()
+    const get = (name: string) => (cells[header.indexOf(name)] ?? "")
     const word = { input: get("input"), display: get("display"), annotation: get("annotation") }
-    if (!word.input || !word.display) throw new Error(`${line}行目の input と display は必須です。`)
+    if (!word.input.trim() || !word.display.trim()) throw new Error(`${line}行目の input と display は必須です。`)
     if (word.input.length > 1000 || word.display.length > 1000 || word.annotation.length > 2000) throw new Error(`${line}行目が文字数の上限を超えています（input・display: 1,000文字、annotation: 2,000文字）。`)
     return word
   })

@@ -47,9 +47,8 @@ export function encodeLists(lists: SavedWordList[]) {
 export function saveList(lists: SavedWordList[], list: SavedWordList, editing: boolean) {
   if (editing && !lists.some(item => item.id === list.id)) throw new Error("この単語リストは削除されています。画面を開き直してください。")
   validateList(list, lists.filter(item => item.id !== list.id))
-  const normalized = { ...list, name: list.name.trim(), words: list.words.map(word => ({
-    ...word, display: word.display.trim(), input: word.input.trim(), annotation: word.annotation.trim(),
-  })) }
+  // Whitespace can be meaningful in imported typing strings and annotations.
+  const normalized = { ...list, name: list.name.trim() }
   if (!editing && lists.some(item => item.id === list.id)) return lists.map(item => item.id === list.id ? { ...normalized, records: item.records } : item)
   return editing ? lists.map(item => item.id === list.id ? { ...normalized, records: item.records } : item) : [...lists, normalized]
 }
