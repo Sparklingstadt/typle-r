@@ -1,12 +1,15 @@
 "use client"
 import { randomId } from "../lib/randomId"
-import { useRef, useState } from "react"
+import { useId, useRef, useState } from "react"
 import { ArrowUp, ArrowDown, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ButtonGroup } from "@/components/ui/button-group"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import TextField from "@/components/ui/TextField"
 import WordListImport from "./WordListImport"
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
+import SortableWordRow from "./SortableWordRow"
 import type { SavedWordList } from "@/lib/wordLists"
 
 export default function WordListEditor({ initial, onSave, onCancel }: {
@@ -14,6 +17,11 @@ export default function WordListEditor({ initial, onSave, onCancel }: {
   onSave: (list: SavedWordList) => Promise<boolean>
   onCancel: () => void
 }) {
+  const dragId = useId()
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  )
   const [name, setName] = useState(initial?.name ?? "")
   const [words, setWords] = useState(() => (initial?.words ?? [{ display: "", input: "", annotation: "" }]).map((word, index) => ({ ...word, key: `initial-${index}` })))
 
@@ -51,16 +59,27 @@ export default function WordListEditor({ initial, onSave, onCancel }: {
     }} />
     <TextField label="単語リスト名" required value={name} onChange={event => setName(event.target.value)} />
     <p>表示する単語と、正解として入力する文字を指定します。ログイン中のアカウントに保存されます。</p>
+    <p className="text-sm text-muted-foreground">順番の横のハンドルをドラッグして並べ替えられます。キーボードではハンドルでスペースキー、上下矢印キー、スペースキーの順に操作します。</p>
+    <DndContext id={dragId} sensors={sensors} collisionDetection={closestCenter}
+      accessibility={{ screenReaderInstructions: { draggable: "スペースキーで単語を持ち上げ、上下矢印キーで移動し、スペースキーで確定します。Escapeキーでキャンセルします。" } }}
+      onDragEnd={({ active, over }) => {
+        if (saving || !over || active.id === over.id) return
+        setWords(current => {
+          const from = current.findIndex(word => word.key === active.id)
+          const to = current.findIndex(word => word.key === over.id)
+          return from < 0 || to < 0 ? current : arrayMove(current, from, to)
+        })
+      }}>
+    <SortableContext items={words.map(word => word.key)} strategy={verticalListSortingStrategy}>
     <Table aria-label="単語の追加・編集" className="block w-full md:table md:table-fixed">
       <TableHeader className="sr-only md:not-sr-only md:table-header-group"><TableRow>
-        <TableHead scope="col" className="w-12">順番</TableHead>
+        <TableHead scope="col" className="w-24">順番</TableHead>
         <TableHead scope="col">単語</TableHead>
         <TableHead scope="col">入力・補足</TableHead>
         <TableHead scope="col" className="w-32">操作</TableHead>
       </TableRow></TableHeader>
       <TableBody className="block md:table-row-group">
-    {words.map((word, index) => <TableRow key={word.key} className="grid grid-cols-[2rem_minmax(0,1fr)] items-start py-2 md:table-row md:py-0 align-top">
-      <TableHead scope="row" className="pt-4">{index + 1}</TableHead>
+    {words.map((word, index) => <SortableWordRow key={word.key} id={word.key} index={index} disabled={saving || words.length < 2}>
       <TableCell className="min-w-0 whitespace-normal">
       <TextField label={`表示する単語 ${index + 1}`} hideLabel placeholder="単語を入力" required value={word.display}
         onChange={event => setWords(current => current.map(item => item.key === word.key ? {
@@ -102,9 +121,11 @@ export default function WordListEditor({ initial, onSave, onCancel }: {
         <Button size="icon-lg" variant="outline" className="text-destructive hover:text-destructive" disabled={words.length === 1} onClick={() => setWords(current => current.filter(item => item.key !== word.key))} aria-label={`単語 ${index + 1} を削除`} title="削除"><Trash2 className="size-5" aria-hidden="true" /></Button>
       </ButtonGroup>
       </TableCell>
-    </TableRow>)}
+    </SortableWordRow>)}
       </TableBody>
     </Table>
+    </SortableContext>
+    </DndContext>
     <Button onClick={() => setWords(current => [...current, { key: randomId(), display: "", input: "", annotation: "" }])}>単語を追加</Button>
     <div className="flex gap-3">
       <Button type="submit" disabled={saving} variant="default">{saving ? "保存中…" : "保存"}</Button>
