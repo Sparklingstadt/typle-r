@@ -56,7 +56,7 @@ export default function WordListEditor({ initial, onSave, onCancel }: {
         <TableHead scope="col" className="w-12">順番</TableHead>
         <TableHead scope="col">単語</TableHead>
         <TableHead scope="col">入力・補足</TableHead>
-        <TableHead scope="col" className="w-28">操作</TableHead>
+        <TableHead scope="col" className="w-32">操作</TableHead>
       </TableRow></TableHeader>
       <TableBody className="block md:table-row-group">
     {words.map((word, index) => <TableRow key={word.key} className="grid grid-cols-[2rem_minmax(0,1fr)] items-start py-2 md:table-row md:py-0 align-top">
@@ -97,9 +97,9 @@ export default function WordListEditor({ initial, onSave, onCancel }: {
       </TableCell>
       <TableCell className="col-start-2 min-w-0">
       <ButtonGroup aria-label={`単語 ${index + 1} の操作`}>
-        <Button size="icon" variant="outline" disabled={index === 0} onClick={() => move(index, -1)} aria-label={`単語 ${index + 1} を上へ`} title="上へ"><ArrowUp aria-hidden="true" /></Button>
-        <Button size="icon" variant="outline" disabled={index === words.length - 1} onClick={() => move(index, 1)} aria-label={`単語 ${index + 1} を下へ`} title="下へ"><ArrowDown aria-hidden="true" /></Button>
-        <Button size="icon" variant="outline" className="text-destructive hover:text-destructive" disabled={words.length === 1} onClick={() => setWords(current => current.filter(item => item.key !== word.key))} aria-label={`単語 ${index + 1} を削除`} title="削除"><Trash2 aria-hidden="true" /></Button>
+        <Button size="icon-lg" variant="outline" disabled={index === 0} onClick={() => move(index, -1)} aria-label={`単語 ${index + 1} を上へ`} title="上へ"><ArrowUp className="size-5" aria-hidden="true" /></Button>
+        <Button size="icon-lg" variant="outline" disabled={index === words.length - 1} onClick={() => move(index, 1)} aria-label={`単語 ${index + 1} を下へ`} title="下へ"><ArrowDown className="size-5" aria-hidden="true" /></Button>
+        <Button size="icon-lg" variant="outline" className="text-destructive hover:text-destructive" disabled={words.length === 1} onClick={() => setWords(current => current.filter(item => item.key !== word.key))} aria-label={`単語 ${index + 1} を削除`} title="削除"><Trash2 className="size-5" aria-hidden="true" /></Button>
       </ButtonGroup>
       </TableCell>
     </TableRow>)}
