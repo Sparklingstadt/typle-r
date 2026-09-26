@@ -1,4 +1,7 @@
 "use client"
+import { useState } from "react"
+import { deviceLabel, type PracticeDevice } from "@/lib/devices"
+import DeviceSelector from "@/components/DeviceSelector"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 import { Input } from "@/components/ui/input"
@@ -15,17 +18,24 @@ import Page from "@/components/Page/Page"
 import PageContainer from "@/components/PageContainer/PageContainer"
 
 export default function Play() {
-  const { lists, ready, error, update } = useWordLists()
+  const { lists, devices, accountId, ready, error, update } = useWordLists()
   if (!ready) return <Page><PageContainer><p>読み込み中…</p></PageContainer></Page>
-  return <Practice wordLists={lists} error={error} update={update} />
+  return <Practice key={accountId} accountId={accountId ?? ""} devices={devices} wordLists={lists} error={error} update={update} />
 }
 
-function Practice({ wordLists, error, update }: {
+function Practice({ wordLists, error, update, devices, accountId }: {
+  devices: PracticeDevice[]
+  accountId: string
   wordLists: SavedWordList[]
   error: string
   update: WorkspaceUpdate
 }) {
-  const { list, selected, session, composition, startComposition, endComposition, changeInput, saved, input, word, finished, result, restart, retrySave } = usePractice(wordLists, update)
+  const storageKey = `typle-r:device:${accountId}`
+  const [deviceId, setDeviceId] = useState(() => {
+    try { return localStorage.getItem(storageKey) ?? '' } catch { return '' }
+  })
+  const device = devices.find(item => item.id === deviceId)
+  const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, saved, input, word, finished, result, restart, retrySave } = usePractice(wordLists, update, device)
   const typedCharacters = Array.from(composition ?? session.input)
   const selectedRecords = wordLists.find(item => item.id === list?.id)?.records ?? []
 
@@ -71,6 +81,7 @@ function Practice({ wordLists, error, update }: {
         <h2 className="text-xl">おつかれさまでした！</h2>
         <Table aria-label="練習結果の詳細">
           <TableBody>
+            <TableRow><TableHead scope="row">端末</TableHead><TableCell className="whitespace-normal break-words">{deviceLabel(practiceDevice)}</TableCell></TableRow>
             <TableRow><TableHead scope="row">完了した単語数</TableHead><TableCell>{list.words.length} 単語</TableCell></TableRow>
             <TableRow><TableHead scope="row">所要時間</TableHead><TableCell>{result.time.toFixed(2)} 秒</TableCell></TableRow>
             <TableRow><TableHead scope="row">ミス数</TableHead><TableCell>{result.mistakes} 文字</TableCell></TableRow>
@@ -81,6 +92,11 @@ function Practice({ wordLists, error, update }: {
         {!saved && <Button onClick={retrySave}>記録の保存を再試行</Button>}
       </CardContent></Card>}
     </>}
+    {!finished && <DeviceSelector devices={session.startedAt !== null ? (practiceDevice ? [practiceDevice] : []) : devices} selectedId={(session.startedAt !== null ? practiceDevice : device)?.id ?? ''} disabled={session.startedAt !== null} onChange={id => {
+      setDeviceId(id)
+      try { localStorage.setItem(storageKey, id) } catch { /* Selection still works when browser storage is unavailable. */ }
+      input.current?.focus()
+    }} />}
     <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
     <section className="min-w-0" aria-label="選択中リストのベスト記録">
       <h2 className="mb-3 text-xl">ベスト記録</h2>

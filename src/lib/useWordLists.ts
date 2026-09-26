@@ -3,6 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import samples from '@/json/WordListsResponse.json'
 import countries from '@/json/Countries.json'
+
+import type { PracticeDevice } from './devices'
 import { type SavedWordList } from './wordLists'
 import { readWorkspace, writeWorkspace, WorkspaceError, type WorkspaceState } from './workspaceClient'
 
@@ -12,6 +14,7 @@ const changedEvent = 'typle-r:cloud-changed'
 export function useWordLists() {
   const { data: session, status } = useSession()
   const accountId = session?.user?.id
+  const [devices, setDevices] = useState<PracticeDevice[]>([])
   const [lists, setLists] = useState<SavedWordList[]>([])
   const [ready, setReady] = useState(false)
   const [error, setError] = useState('')
@@ -22,6 +25,7 @@ export function useWordLists() {
     setIdentity(accountId)
     setSaving(false)
     setLists([])
+    setDevices([])
     setReady(false)
     setError('')
   }
@@ -36,6 +40,7 @@ export function useWordLists() {
     if (data.accountId !== accountId || currentGeneration !== generation.current) throw new Error('ログイン状態が変わりました。画面を開き直してください。')
     if (state.current && state.current.revision > data.revision) return state.current
     state.current = data
+    setDevices(data.devices)
     setLists(data.revision === 0 ? defaults : data.lists)
     return state.current
   }, [accountId])
@@ -63,7 +68,7 @@ export function useWordLists() {
     }
   }, [load, status])
 
-  async function update(change: (current: SavedWordList[]) => SavedWordList[], useDefaults = true): Promise<boolean> {
+  async function update(change: (current: SavedWordList[]) => SavedWordList[], useDefaults = true, changeDevices?: (current: PracticeDevice[]) => PracticeDevice[]): Promise<boolean> {
     const previous = state.current
     if (!ready || busy.current || !accountId || !previous || previous.accountId !== accountId) return false
     const currentGeneration = generation.current
@@ -71,10 +76,11 @@ export function useWordLists() {
     setSaving(true)
     try {
       const next = change(previous.revision === 0 && useDefaults ? defaults : previous.lists)
-      const data = await writeWorkspace({ lists: next, revision: previous.revision, accountId })
+      const data = await writeWorkspace({ lists: next, devices: changeDevices ? changeDevices(previous.devices) : previous.devices, revision: previous.revision, accountId })
       if (currentGeneration !== generation.current || data.accountId !== accountId) throw new Error('ログイン状態が変わりました。')
       state.current = data
       setLists(data.lists)
+      setDevices(data.devices)
       setError('')
       window.dispatchEvent(new Event(changedEvent))
       return true
@@ -87,5 +93,5 @@ export function useWordLists() {
       return false
     } finally { if (currentGeneration === generation.current) { busy.current = false; setSaving(false) } }
   }
-  return { lists, ready: status === 'unauthenticated' || (status === 'authenticated' && ready), error, saving, update, reload: load }
+  return { lists, devices, accountId, updateDevices: (change: (current: PracticeDevice[]) => PracticeDevice[]) => update(current => current, true, change), ready: status === 'unauthenticated' || (status === 'authenticated' && ready), error, saving, update, reload: load }
 }

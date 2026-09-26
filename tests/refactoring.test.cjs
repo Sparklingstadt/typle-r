@@ -19,7 +19,7 @@ test('record ordering and deletion preserve other lists and legacy records', () 
 })
 
 test('workspace transport validates responses and preserves conflict status', async t => {
-  const state = { accountId: 'github:1', revision: 1, lists: [] }
+  const state = { accountId: 'github:1', revision: 1, lists: [], devices: [] }
   const fetch = t.mock.method(global, 'fetch', async () => Response.json(state))
   assert.deepEqual(await readWorkspace(), state)
   await writeWorkspace(state)

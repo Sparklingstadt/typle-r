@@ -1,6 +1,7 @@
+import { decodeDevices, type PracticeDevice } from './devices'
 import { decodeLists, type SavedWordList } from './wordLists'
 
-export type WorkspaceState = { lists: SavedWordList[]; revision: number; accountId: string }
+export type WorkspaceState = { lists: SavedWordList[]; devices: PracticeDevice[]; revision: number; accountId: string }
 export type WorkspaceUpdate = (change: (lists: SavedWordList[]) => SavedWordList[], useDefaults?: boolean) => Promise<boolean>
 
 export class WorkspaceError extends Error {
@@ -16,7 +17,7 @@ async function requestWorkspace(init?: RequestInit): Promise<WorkspaceState> {
   if (!Number.isSafeInteger(data.revision) || data.revision < 0 || typeof data.accountId !== 'string') {
     throw new Error('サーバーからのデータが不正です。')
   }
-  return { accountId: data.accountId, revision: data.revision,
+  return { accountId: data.accountId, revision: data.revision, devices: decodeDevices(data.devices ?? []),
     lists: decodeLists(JSON.stringify({ version: 1, lists: data.lists })) }
 }
 
