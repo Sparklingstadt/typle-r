@@ -1,6 +1,6 @@
 {
   "name": "typle-r",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",
@@ -20,6 +20,9 @@
     "dev:lan": "node scripts/dev-lan.cjs"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@next/env": "16.3.4",
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
