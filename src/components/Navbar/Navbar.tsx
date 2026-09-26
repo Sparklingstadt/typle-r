@@ -1,6 +1,7 @@
 import NavbarList from "./NavbarList";
 import AccountBar from "@/components/AccountBar";
 import Link from "next/link";
+import ThemeSwitcher from "@/components/ThemeSwitcher";
 
 export default function Navbar(){
   return (
@@ -9,6 +10,7 @@ export default function Navbar(){
         <Link href="/" className="shrink-0 rounded-sm text-xl font-semibold focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-4">Typle</Link>
         <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-x-4 gap-y-2">
           <NavbarList />
+          <ThemeSwitcher />
           <AccountBar />
         </div>
       </div>

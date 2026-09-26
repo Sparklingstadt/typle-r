@@ -34,11 +34,11 @@ function Practice({ wordLists, error, update }: {
     {!list?.words.length ? <p>単語がありません。単語リストを作成してください。</p> : <>
       {!finished && <>
         <div className="relative -mx-5 sm:-mx-8 lg:-mx-16">
-        {word?.annotation && <p className="absolute inset-x-4 top-2 z-10 text-base text-center text-white break-words">{word.annotation}</p>}
-        <div id="wordDisplay" className="bg-gray-900 text-white h-28 px-8 text-4xl leading-none text-center whitespace-nowrap overflow-x-auto flex items-center justify-center">
+        {word?.annotation && <p className="absolute inset-x-4 top-2 z-10 text-base text-center text-foreground break-words">{word.annotation}</p>}
+        <div id="wordDisplay" className="bg-muted text-foreground h-28 px-8 text-4xl leading-none text-center whitespace-nowrap overflow-x-auto flex items-center justify-center">
           {Array.from(word?.display ?? "").map((char, index) => {
             const typed = typedCharacters[index]
-            return <span key={index} className={typed === undefined ? "" : typed === char ? "text-green-400 underline" : "text-red-400 underline"}>{char}</span>
+            return <span key={index} className={typed === undefined ? "" : typed === char ? "text-green-700 dark:text-green-400 underline" : "text-red-700 dark:text-red-400 underline"}>{char}</span>
           })}
         </div>
         </div>

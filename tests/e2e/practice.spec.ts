@@ -370,3 +370,40 @@ for (const format of ['csv', 'tsv'] as const) {
     await expect(page.getByRole('textbox', { name: '補足 1', exact: true })).toHaveValue(format === 'csv' ? '国名 "country"' : '')
   })
 }
+
+for (const theme of ['light', 'dark']) {
+  test(`typing, annotations, editor and deletion dialog remain usable in ${theme} theme`, async ({ page }, testInfo) => {
+    await seed(page, [{ id: 'theme', name: 'Theme practice', createdAt: '2026-09-27', records: [], words: [{ display: 'hello', input: 'hello', annotation: 'あいさつ' }] }])
+    await page.setViewportSize({ width: 390, height: 900 })
+    await page.goto('/play')
+    await page.getByRole('combobox', { name: 'カラーテーマ' }).selectOption(theme)
+    const display = page.locator('#wordDisplay')
+    await expect(display).toHaveText('hello')
+    const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
+    await input.fill('hx')
+    const colors = await page.evaluate(() => {
+      const display = document.querySelector('#wordDisplay')!
+      return {
+        normal: getComputedStyle(display).color,
+        correct: getComputedStyle(display.children[0]).color,
+        incorrect: getComputedStyle(display.children[1]).color,
+        annotation: getComputedStyle(display.previousElementSibling!).color,
+      }
+    })
+    expect(colors.annotation).toBe(colors.normal)
+    expect(colors.correct).not.toBe(colors.normal)
+    expect(colors.incorrect).not.toBe(colors.correct)
+    await page.screenshot({ path: testInfo.outputPath(`practice-${theme}.png`), fullPage: true })
+    await input.fill('hello')
+    await expect(page.getByLabel('練習結果', { exact: true })).toContainText('練習記録を保存しました。')
+    await page.goto('/edit')
+    await page.getByRole('button', { name: 'Theme practice を編集', exact: true }).click()
+    await expect(page.getByRole('textbox', { name: '単語リスト名', exact: true })).toHaveValue('Theme practice')
+    await page.getByRole('button', { name: 'キャンセル', exact: true }).click()
+    await page.getByRole('button', { name: 'Theme practice を削除', exact: true }).click()
+    await expect(page.getByRole('alertdialog')).toBeVisible()
+    await page.screenshot({ path: testInfo.outputPath(`dialog-${theme}.png`), fullPage: true })
+    await page.getByRole('alertdialog').getByRole('button', { name: 'キャンセル' }).click()
+    await expect(page.getByRole('combobox', { name: 'カラーテーマ' })).toHaveValue(theme)
+  })
+}
