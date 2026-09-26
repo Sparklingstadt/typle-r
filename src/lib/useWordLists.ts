@@ -2,10 +2,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import samples from '@/json/WordListsResponse.json'
+import countries from '@/json/Countries.json'
 import { type SavedWordList } from './wordLists'
 import { readWorkspace, writeWorkspace, WorkspaceError, type WorkspaceState } from './workspaceClient'
 
-const defaults: SavedWordList[] = samples.map((list, index) => ({ ...list, id: `sample-${index + 1}`, records: [] }))
+const defaults: SavedWordList[] = [...samples.map((list, index) => ({ ...list, id: `sample-${index + 1}`, records: [] })), countries]
 const changedEvent = 'typle-r:cloud-changed'
 
 export function useWordLists() {

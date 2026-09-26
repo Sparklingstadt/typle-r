@@ -3,7 +3,7 @@
   "version": "0.9.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --hostname 127.0.0.1",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings 0",
@@ -15,7 +15,8 @@
     "db:generate": "prisma generate",
     "db:baseline": "node scripts/migrate.cjs --baseline",
     "postinstall": "prisma generate",
-    "prebuild": "prisma generate"
+    "prebuild": "prisma generate",
+    "dev:local": "next dev --hostname 127.0.0.1 --port 3000"
   },
   "dependencies": {
     "@next/env": "16.3.4",

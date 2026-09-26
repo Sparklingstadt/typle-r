@@ -2,9 +2,12 @@ const { loadEnvConfig } = require('@next/env')
 const { PrismaClient } = require('@prisma/client')
 const { PrismaPg } = require('@prisma/adapter-pg')
 
+const countries = require('../src/json/Countries.json')
+
 const templates = [
   { id: 'seed-test-1', name: 'Test 1', words: ['hoge', 'foo', 'bar'] },
   { id: 'seed-test-2', name: 'test 2', words: ['one', 'two', 'three'] },
+  countries,
 ]
 
 async function applySeed(tx, ownerId) {
@@ -18,7 +21,8 @@ async function applySeed(tx, ownerId) {
   const createdAt = new Date().toISOString()
   const additions = missing.map(template => ({
     id: template.id, name: template.name, createdAt, records: [],
-    words: template.words.map(word => ({ display: word, input: word, annotation: '' })),
+    words: template.words.map(word => typeof word === 'string'
+      ? { display: word, input: word, annotation: '' } : { ...word }),
   }))
   if (existing) {
     await tx.workspace.update({ where: { ownerId, revision: existing.revision },
