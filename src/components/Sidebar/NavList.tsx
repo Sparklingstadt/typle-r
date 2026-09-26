@@ -2,11 +2,12 @@
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { House, Keyboard, History, Plus, Trophy, Pencil } from "lucide-react"
+import { House, Keyboard, History, Plus, Trophy, Pencil, Monitor } from "lucide-react"
 
 const routes = [
   { name: "ホーム", path: "/home", icon: House },
   { name: "遊ぶ", path: "/play", icon: Keyboard },
+  { name: "端末", path: "/devices", icon: Monitor },
   { name: "記録", path: "/records", icon: History },
   { name: "作成", path: "/create", icon: Plus },
   { name: "ベスト記録", path: "/rankings", icon: Trophy },

@@ -1,3 +1,4 @@
+import { decodeDevices } from './devices'
 import { decodeLists } from './wordLists'
 
 export const MAX_WORKSPACE_BYTES = 1024 * 1024
@@ -11,5 +12,6 @@ export function validateWorkspaceRequest(value: unknown) {
     list.words.some(word => word.input.length > 1000 || word.display.length > 1000 || word.annotation.length > 2000))) {
     throw new Error('Workspace too large')
   }
-  return { lists, revision: Number(body.revision) }
+  return { lists, revision: Number(body.revision),
+    ...(body.devices === undefined ? {} : { devices: decodeDevices(body.devices) }) }
 }

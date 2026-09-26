@@ -51,7 +51,7 @@ export async function PUT(request: Request) {
       body = validateWorkspaceRequest(raw)
     }
     catch { return response({ error: '保存データの形式やサイズを確認してください。' }, 400) }
-    const result = await database().write(owner, body.lists, body.revision)
+    const result = await database().write(owner, body.lists, body.revision, body.devices)
     if (!result) return response({ error: '別の画面で更新されています。最新データを読み込んでから再試行してください。' }, 409)
     return response({ ...result, accountId: owner })
   } catch {

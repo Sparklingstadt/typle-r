@@ -8,6 +8,7 @@ import Page from "@/components/Page/Page"
 import PageContainer from "@/components/PageContainer/PageContainer"
 import { useWordLists } from "@/lib/useWordLists"
 
+import { deviceLabel } from "@/lib/devices"
 import { recentRecords, removeRecord } from "@/lib/records"
 
 export default function Records() {
@@ -20,10 +21,11 @@ export default function Records() {
     {error && <Alert variant="destructive" className="my-4"><AlertDescription>{error}</AlertDescription></Alert>}
     {!ready ? <p>読み込み中…</p> : !rows.length ? <p className="my-6">まだ記録がありません。<Link className="underline" href="/play">練習を始める</Link></p> :
       <div className="overflow-x-auto my-6"><Table className="w-full text-left">
-        <TableHeader><TableRow>{['リスト', '所要時間', '単語数', 'ミス数', '正確率', '日時', '操作'].map(title => <TableHead className="p-3" key={title}>{title}</TableHead>)}</TableRow></TableHeader>
+        <TableHeader><TableRow>{['リスト', '所要時間', '単語数', 'ミス数', '正確率', '端末', '日時', '操作'].map(title => <TableHead className="p-3" key={title}>{title}</TableHead>)}</TableRow></TableHeader>
         <TableBody>{rows.map(({ list, record, index }) => <TableRow className="border-t" key={`${list.id}-${record.id ?? index}`}>
           <TableCell className="p-3 font-medium">{list.name}</TableCell><TableCell>{record.time.toFixed(2)} 秒</TableCell><TableCell>{record.wordCount ?? '—'}</TableCell>
           <TableCell>{record.mistakes ?? '—'}</TableCell><TableCell>{record.accuracy === undefined ? '—' : `${record.accuracy}%`}</TableCell>
+          <TableCell className="whitespace-normal break-words">{deviceLabel(record.device)}</TableCell>
           <TableCell>{new Date(record.date).toLocaleString('ja-JP')}</TableCell>
           <TableCell><DeleteConfirmation label={`${list.name} の ${new Date(record.date).toLocaleString('ja-JP')} の記録を削除`}
             description={`${list.name} の ${new Date(record.date).toLocaleString('ja-JP')} の練習記録を削除します。`}

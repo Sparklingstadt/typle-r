@@ -1,3 +1,5 @@
+import type { PracticeDevice } from "../lib/devices"
+
 export type WordList = {
   id?: string,
   name: string,
@@ -12,6 +14,7 @@ export type WordList = {
     date: string,
     mistakes?: number,
     accuracy?: number,
+    device?: PracticeDevice,
     wordCount?: number
   }[],
   createdAt: string

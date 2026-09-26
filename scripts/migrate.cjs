@@ -6,8 +6,8 @@ function run(args) {
   if (result.status !== 0) process.exit(result.status || 1)
 }
 if (process.argv.includes('--baseline')) {
-  // Never mark a different schema as applied: first verify the existing database.
-  run(['migrate', 'diff', '--from-config-datasource', '--to-schema', 'prisma/schema.prisma', '--exit-code'])
+  // Compare the legacy database with migration 0001, before applying later migrations.
+  run(['migrate', 'diff', '--from-config-datasource', '--to-schema', 'prisma/baseline.prisma', '--exit-code'])
   run(['migrate', 'resolve', '--applied', '0001_workspaces'])
 }
 run(['migrate', 'deploy'])

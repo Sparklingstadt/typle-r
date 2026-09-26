@@ -1,3 +1,4 @@
+import type { PracticeDevice } from "./devices"
 import type { SavedWordList } from "./wordLists"
 import { sessionResult, TypingSession } from "./typing"
 
@@ -7,12 +8,13 @@ export type PracticeRecord = {
   date: string
   mistakes: number
   accuracy: number
+  device?: PracticeDevice
   wordCount: number
 }
 
-export function makeRecord(session: TypingSession, wordCount: number, id: string): PracticeRecord {
+export function makeRecord(session: TypingSession, wordCount: number, id: string, device?: PracticeDevice): PracticeRecord {
   if (session.finishedAt === null || session.startedAt === null) throw new Error("練習が完了していません。")
-  return { ...sessionResult(session), id, wordCount, date: new Date(session.finishedAt).toISOString() }
+  return { ...(device ? { device: { ...device } } : {}), ...sessionResult(session), id, wordCount, date: new Date(session.finishedAt).toISOString() }
 }
 
 export function addRecord(lists: SavedWordList[], listId: string, record: PracticeRecord) {

@@ -1,0 +1,16 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Workspace {
+  ownerId   String   @id @map("owner_id") @db.Text
+  lists     Json     @default("[]") @db.JsonB
+  revision  Int      @default(1)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("typle_workspaces")
+}

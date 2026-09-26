@@ -1,14 +1,16 @@
 "use client"
 import { randomId } from "./randomId"
 import { useEffect, useRef, useState } from 'react'
+import type { PracticeDevice } from './devices'
 import type { SavedWordList } from './wordLists'
 import type { WorkspaceUpdate } from './workspaceClient'
 import { addRecord, makeRecord, type PracticeRecord } from './records'
 import { newSession, sessionResult, typeInput } from './typing'
 
-export function usePractice(wordLists: SavedWordList[], update: WorkspaceUpdate) {
+export function usePractice(wordLists: SavedWordList[], update: WorkspaceUpdate, device?: PracticeDevice) {
   const [list, setList] = useState<SavedWordList | undefined>(wordLists[0])
   const selected = wordLists.findIndex(item => item.id === list?.id)
+  const [practiceDevice, setPracticeDevice] = useState<PracticeDevice | undefined>()
   const [session, setSession] = useState(newSession)
   const [composition, setComposition] = useState<string | null>(null)
   const composing = useRef(false)
@@ -25,6 +27,7 @@ export function usePractice(wordLists: SavedWordList[], update: WorkspaceUpdate)
   function restart(index = selected) {
     setList(wordLists[index])
     setSession(newSession())
+    setPracticeDevice(undefined)
     setComposition(null)
     composing.current = false
     committedComposition.current = null
@@ -36,9 +39,11 @@ export function usePractice(wordLists: SavedWordList[], update: WorkspaceUpdate)
   function enter(value: string) {
     if (completedRecord.current) return
     const next = typeInput(session, list?.words ?? [], value, Date.now())
+    const snapshot = session.startedAt === null ? (device ? { ...device } : undefined) : practiceDevice
+    if (session.startedAt === null && next.startedAt !== null) setPracticeDevice(snapshot)
     setSession(next)
     if (next.finishedAt !== null && list) {
-      const record = makeRecord(next, list.words.length, randomId())
+      const record = makeRecord(next, list.words.length, randomId(), snapshot)
       completedRecord.current = record
       saveRecord(record)
     }
@@ -70,5 +75,5 @@ export function usePractice(wordLists: SavedWordList[], update: WorkspaceUpdate)
       if (!duplicate) enter(value)
     }
   }
-  return { list, selected, session, composition, startComposition, endComposition, changeInput, saved, input, word, finished, result, restart, retrySave }
+  return { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, saved, input, word, finished, result, restart, retrySave }
 }
