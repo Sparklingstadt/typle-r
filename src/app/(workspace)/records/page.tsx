@@ -17,7 +17,7 @@ export default function Records() {
   const rows = recentRecords(lists)
   return <Page><PageContainer>
     <h1 className="text-2xl mb-6">練習記録</h1>
-    <p>ログイン中のアカウントに保存した記録です。単語数は練習時点の値です。</p>
+    <p>現在の保存先（未ログイン時はこのブラウザー、ログイン時はアカウント）の記録です。単語数は練習時点の値です。</p>
     {error && <Alert variant="destructive" className="my-4"><AlertDescription>{error}</AlertDescription></Alert>}
     {!ready ? <p>読み込み中…</p> : !rows.length ? <p className="my-6">まだ記録がありません。<Link className="underline" href="/play">練習を始める</Link></p> :
       <div className="overflow-x-auto my-6"><Table className="w-full text-left">
