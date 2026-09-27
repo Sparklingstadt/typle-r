@@ -58,7 +58,7 @@ export default function WordListEditor({ initial, onSave, onCancel }: {
       setExpandedAnnotations(value => new Set([...value, ...added.filter(word => word.annotation).map(word => word.key)]))
     }} />
     <TextField label="単語リスト名" required value={name} onChange={event => setName(event.target.value)} />
-    <p>表示する単語と、正解として入力する文字を指定します。ログイン中のアカウントに保存されます。</p>
+    <p>表示する単語と、正解として入力する文字を指定します。未ログイン時はこのブラウザーに、ログイン時はアカウントに保存されます。</p>
     <p className="text-sm text-muted-foreground">順番の横のハンドルをドラッグして並べ替えられます。キーボードではハンドルでスペースキー、上下矢印キー、スペースキーの順に操作します。</p>
     <DndContext id={dragId} sensors={sensors} collisionDetection={closestCenter}
       accessibility={{ screenReaderInstructions: { draggable: "スペースキーで単語を持ち上げ、上下矢印キーで移動し、スペースキーで確定します。Escapeキーでキャンセルします。" } }}

@@ -12,10 +12,9 @@ export default function LegacyImport({ update, disabled }: {
   const { data: session } = useSession()
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
-  if (!session?.user) return null
   return <section className="mt-8 space-y-3" aria-label="以前のデータを移行">
     <h2 className="text-xl">以前のデータを移行</h2>
-    <p>このブラウザーに残るv0.1.xの単語リストと記録を、{session.user.name ?? '現在のアカウント'} に追加します。元のデータは残ります。同じデータを再度移行しても重複しません。</p>
+    <p>このブラウザーに残るv0.1.xの単語リストと記録を、{session?.user ? session.user.name ?? '現在のアカウント' : 'このブラウザー'} に追加します。元のデータは残ります。同じデータを再度移行しても重複しません。</p>
     <Button disabled={disabled || busy} variant="outline" onClick={async () => {
       setBusy(true)
       setMessage('')
@@ -26,7 +25,7 @@ export default function LegacyImport({ update, disabled }: {
         if (await update(current => mergeLegacy(current, incoming), false)) setMessage('移行しました。元のデータはこのブラウザーに残しています。')
       } catch { setMessage('保存データを読み込めません。元のデータは変更していません。') }
       finally { setBusy(false) }
-    }}>{busy ? '移行中…' : 'このアカウントへ移行する'}</Button>
+    }}>{busy ? '移行中…' : session?.user ? 'このアカウントへ移行する' : 'このブラウザーへ移行する'}</Button>
     {message && <p role="status">{message}</p>}
   </section>
 }

@@ -1,6 +1,7 @@
 "use client"
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
+import { GUEST_ACCOUNT_ID, GUEST_STORAGE_KEY, readGuestWorkspace, saveGuestWorkspace } from './guestWorkspace'
 import samples from '@/json/WordListsResponse.json'
 import countries from '@/json/Countries.json'
 
@@ -13,7 +14,7 @@ const changedEvent = 'typle-r:cloud-changed'
 
 export function useWordLists() {
   const { data: session, status } = useSession()
-  const accountId = session?.user?.id
+  const accountId = status === 'loading' ? undefined : session?.user?.id ?? GUEST_ACCOUNT_ID
   const [devices, setDevices] = useState<PracticeDevice[]>([])
   const [lists, setLists] = useState<SavedWordList[]>([])
   const [ready, setReady] = useState(false)
@@ -36,9 +37,9 @@ export function useWordLists() {
   const load = useCallback(async () => {
     if (!accountId) return
     const currentGeneration = generation.current
-    const data = await readWorkspace()
+    const data = accountId === GUEST_ACCOUNT_ID ? readGuestWorkspace() : await readWorkspace()
     if (data.accountId !== accountId || currentGeneration !== generation.current) throw new Error('ログイン状態が変わりました。画面を開き直してください。')
-    if (state.current && state.current.revision > data.revision) return state.current
+    if (accountId !== GUEST_ACCOUNT_ID && state.current && state.current.revision > data.revision) return state.current
     state.current = data
     setDevices(data.devices)
     setLists(data.revision === 0 ? defaults : data.lists)
@@ -50,23 +51,28 @@ export function useWordLists() {
     state.current = null
     busy.current = false
     let active = true
-    if (status !== 'authenticated') return
+    if (!accountId) return
     function refresh() {
       if (busy.current) return
       load().then(() => { if (active) setError('') }).catch(reason => {
         if (active) setError(reason instanceof Error ? reason.message : '読み込みに失敗しました。')
       }).finally(() => { if (active) setReady(true) })
     }
+    function storageChanged(event: StorageEvent) {
+      if (accountId === GUEST_ACCOUNT_ID && (event.key === GUEST_STORAGE_KEY || event.key === null)) refresh()
+    }
     refresh()
+    window.addEventListener('storage', storageChanged)
     window.addEventListener('focus', refresh)
     window.addEventListener(changedEvent, refresh)
     return () => {
       active = false
       generation.current = effectGeneration + 1
+      window.removeEventListener('storage', storageChanged)
       window.removeEventListener('focus', refresh)
       window.removeEventListener(changedEvent, refresh)
     }
-  }, [load, status])
+  }, [load, accountId])
 
   async function update(change: (current: SavedWordList[]) => SavedWordList[], useDefaults = true, changeDevices?: (current: PracticeDevice[]) => PracticeDevice[]): Promise<boolean> {
     const previous = state.current
@@ -76,7 +82,8 @@ export function useWordLists() {
     setSaving(true)
     try {
       const next = change(previous.revision === 0 && useDefaults ? defaults : previous.lists)
-      const data = await writeWorkspace({ lists: next, devices: changeDevices ? changeDevices(previous.devices) : previous.devices, revision: previous.revision, accountId })
+      const write = accountId === GUEST_ACCOUNT_ID ? saveGuestWorkspace : writeWorkspace
+      const data = await write({ lists: next, devices: changeDevices ? changeDevices(previous.devices) : previous.devices, revision: previous.revision, accountId })
       if (currentGeneration !== generation.current || data.accountId !== accountId) throw new Error('ログイン状態が変わりました。')
       state.current = data
       setLists(data.lists)
@@ -93,5 +100,5 @@ export function useWordLists() {
       return false
     } finally { if (currentGeneration === generation.current) { busy.current = false; setSaving(false) } }
   }
-  return { lists, devices, accountId, updateDevices: (change: (current: PracticeDevice[]) => PracticeDevice[]) => update(current => current, true, change), ready: status === 'unauthenticated' || (status === 'authenticated' && ready), error, saving, update, reload: load }
+  return { lists, devices, accountId, updateDevices: (change: (current: PracticeDevice[]) => PracticeDevice[]) => update(current => current, true, change), ready: status !== 'loading' && ready, error, saving, update, reload: load }
 }

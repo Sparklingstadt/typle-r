@@ -21,7 +21,7 @@ export default function Home() {
       <Button asChild variant="outline"><Link href="/create">リストを作成</Link></Button>
       <Button asChild variant="outline"><Link href="/records">記録を見る</Link></Button>
     </nav>
-    <p className="mt-8">GitHubでログインすると、単語リストと練習記録をアカウントごとに保存できます。同じアカウントで別の端末から利用できます。</p>
+    <p className="mt-8">ログインせずにすべての練習・編集機能を利用できます。単語リスト・練習記録・端末はこのブラウザーに保存されます。GitHubでログインすると、別の保存先であるアカウントに切り替わり、端末間で同期できます。ブラウザーのデータは自動で移行されません。</p>
     <LegacyImport update={update} disabled={!ready || saving} />
     <p className="mt-4"><Link className="underline" href="/guide">使い方</Link> ／ <Link className="underline" href="/about">Typleについて</Link></p>
   </PageContainer></Page>

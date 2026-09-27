@@ -30,6 +30,6 @@ export default function AccountBar() {
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
       </DropdownMenu.Root>
-    </> : <Button variant="outline" onClick={() => signIn('github')}>GitHubでログイン</Button>}
+    </> : <><span className="text-muted-foreground">ブラウザー保存</span><Button variant="outline" onClick={() => signIn('github')}>GitHubでログイン</Button></>}
   </div>
 }
