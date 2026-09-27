@@ -1,5 +1,6 @@
 "use client"
-import { useState } from "react"
+import { Suspense, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { deviceLabel, type PracticeDevice } from "@/lib/devices"
 import DeviceSelector from "@/components/DeviceSelector"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -17,16 +18,25 @@ import type { WorkspaceUpdate } from "@/lib/workspaceClient"
 import Page from "@/components/Page/Page"
 import PageContainer from "@/components/PageContainer/PageContainer"
 
+const loading = <Page><PageContainer><p>読み込み中…</p></PageContainer></Page>
+
+// `?list=<id>` preselects a list, e.g. from the home dashboard. Reading it needs a Suspense boundary for prerendering.
 export default function Play() {
-  const { lists, devices, accountId, ready, error, update } = useWordLists()
-  if (!ready) return <Page><PageContainer><p>読み込み中…</p></PageContainer></Page>
-  return <Practice key={accountId} accountId={accountId ?? ""} devices={devices} wordLists={lists} error={error} update={update} />
+  return <Suspense fallback={loading}><PlayWorkspace /></Suspense>
 }
 
-function Practice({ wordLists, error, update, devices, accountId }: {
+function PlayWorkspace() {
+  const listId = useSearchParams().get('list')
+  const { lists, devices, accountId, ready, error, update } = useWordLists()
+  if (!ready) return loading
+  return <Practice key={accountId} accountId={accountId ?? ""} devices={devices} wordLists={lists} listId={listId} error={error} update={update} />
+}
+
+function Practice({ wordLists, listId, error, update, devices, accountId }: {
   devices: PracticeDevice[]
   accountId: string
   wordLists: SavedWordList[]
+  listId: string | null
   error: string
   update: WorkspaceUpdate
 }) {
@@ -35,7 +45,7 @@ function Practice({ wordLists, error, update, devices, accountId }: {
     try { return localStorage.getItem(storageKey) ?? '' } catch { return '' }
   })
   const device = devices.find(item => item.id === deviceId)
-  const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, saved, input, word, finished, result, restart, retrySave } = usePractice(wordLists, update, device)
+  const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, saved, input, word, finished, result, restart, retrySave } = usePractice(wordLists, update, device, listId)
   const typedCharacters = Array.from(composition ?? session.input)
   const selectedRecords = wordLists.find(item => item.id === list?.id)?.records ?? []
 
