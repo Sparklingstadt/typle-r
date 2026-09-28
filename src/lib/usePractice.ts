@@ -7,8 +7,8 @@ import type { WorkspaceUpdate } from './workspaceClient'
 import { addRecord, makeRecord, type PracticeRecord } from './records'
 import { newSession, sessionResult, typeInput } from './typing'
 
-export function usePractice(wordLists: SavedWordList[], update: WorkspaceUpdate, device?: PracticeDevice) {
-  const [list, setList] = useState<SavedWordList | undefined>(wordLists[0])
+export function usePractice(wordLists: SavedWordList[], update: WorkspaceUpdate, device?: PracticeDevice, initialListId?: string | null) {
+  const [list, setList] = useState<SavedWordList | undefined>(() => wordLists.find(item => item.id === initialListId) ?? wordLists[0])
   const selected = wordLists.findIndex(item => item.id === list?.id)
   const [practiceDevice, setPracticeDevice] = useState<PracticeDevice | undefined>()
   const [session, setSession] = useState(newSession)
