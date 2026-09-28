@@ -1,4 +1,5 @@
 import { auth } from '@/auth'
+import * as Sentry from '@sentry/nextjs'
 import { database } from '@/lib/database'
 import { MAX_WORKSPACE_BYTES, validateWorkspaceRequest } from '@/lib/workspaceRequest'
 
@@ -20,7 +21,8 @@ export async function GET() {
     const owner = await ownerId()
     if (!owner) return response({ error: 'ログインしてください。' }, 401)
     return response({ ...await database().read(owner), accountId: owner })
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error, { tags: { operation: 'workspace.read' } })
     return response({ error: 'DBに接続できません。しばらくしてから再試行してください。' }, 503)
   }
 }
@@ -54,7 +56,8 @@ export async function PUT(request: Request) {
     const result = await database().write(owner, body.lists, body.revision, body.devices)
     if (!result) return response({ error: '別の画面で更新されています。最新データを読み込んでから再試行してください。' }, 409)
     return response({ ...result, accountId: owner })
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error, { tags: { operation: 'workspace.write' } })
     return response({ error: '保存できませんでした。入力内容を残したまま再試行できます。' }, 503)
   }
 }
