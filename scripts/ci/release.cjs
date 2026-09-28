@@ -48,7 +48,15 @@ function run(mode) {
     validatePolicy({ event, sha, repository,
       parentLine: git('rev-list', '--parents', '-n', '1', sha),
       commits: git('rev-list', '--count', `${event.before}..${sha}`),
-      repo: JSON.parse(gh('api', `repos/${repository}`)),
+      repo: (() => {
+        // REST omits merge settings for a read-only GITHUB_TOKEN. GraphQL
+        // exposes these repository configuration fields to read-only callers.
+        const [owner, name] = repository.split('/')
+        const result = JSON.parse(gh('api', 'graphql', '-f', `owner=${owner}`, '-f', `name=${name}`,
+          '-f', 'query=query($owner:String!,$name:String!){repository(owner:$owner,name:$name){allow_squash_merge:squashMergeAllowed allow_merge_commit:mergeCommitAllowed allow_rebase_merge:rebaseMergeAllowed}}'))
+        assert.ok(!result.errors, 'Could not read repository merge settings')
+        return result.data.repository
+      })(),
       prs: pages(`commits/${sha}/pulls?per_page=100`),
     })
     console.log('Verified a merged PR, single-parent commit, and squash-only repository settings.')
