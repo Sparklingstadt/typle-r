@@ -1,7 +1,11 @@
 "use client"
 import { randomId } from "../lib/randomId"
-import { useId, useRef, useState } from "react"
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react"
+import { flushSync } from "react-dom"
 import { ArrowUp, ArrowDown, Trash2 } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { ButtonGroup } from "@/components/ui/button-group"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
@@ -12,8 +16,14 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import SortableWordRow from "./SortableWordRow"
 import type { SavedWordList } from "@/lib/wordLists"
 
-export default function WordListEditor({ initial, onSave, onCancel }: {
+const emptyWord = () => ({ display: "", input: "", annotation: "" })
+const snapshot = (name: string, words: SavedWordList["words"]) =>
+  JSON.stringify([name, words.map(word => [word.display, word.input, word.annotation])])
+const displayId = (key: string) => `word-display-${key}`
+
+export default function WordListEditor({ initial, error, onSave, onCancel }: {
   initial?: SavedWordList
+  error?: string
   onSave: (list: SavedWordList) => Promise<boolean>
   onCancel: () => void
 }) {
@@ -23,12 +33,43 @@ export default function WordListEditor({ initial, onSave, onCancel }: {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
   const [name, setName] = useState(initial?.name ?? "")
-  const [words, setWords] = useState(() => (initial?.words ?? [{ display: "", input: "", annotation: "" }]).map((word, index) => ({ ...word, key: `initial-${index}` })))
+  const [words, setWords] = useState(() => (initial?.words ?? [emptyWord()]).map((word, index) => ({ ...word, key: `initial-${index}` })))
+  const [initialSnapshot] = useState(() => snapshot(initial?.name ?? "", initial?.words ?? [emptyWord()]))
+  const dirty = snapshot(name, words) !== initialSnapshot
 
   const draftId = useRef<string | undefined>(undefined)
   const [saving, setSaving] = useState(false)
   const [expandedAnnotations, setExpandedAnnotations] = useState<Set<string>>(() => new Set())
   const [expandedInputs, setExpandedInputs] = useState<Set<string>>(() => new Set())
+  const [confirmingCancel, setConfirmingCancel] = useState(false)
+  // Save errors are rendered next to the actions; bring them into view after each failed save.
+  const [failedSaves, setFailedSaves] = useState(0)
+  const errorRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (failedSaves) errorRef.current?.scrollIntoView({ block: "nearest" })
+  }, [failedSaves])
+
+  // Enter moves to the next word instead of submitting; the last filled word gets a new row.
+  function handleKeyDown(event: KeyboardEvent<HTMLFormElement>) {
+    if (event.key !== "Enter" || event.nativeEvent.isComposing || event.keyCode === 229) return
+    const target = event.target
+    if (!(target instanceof HTMLInputElement) || target.type === "file") return
+    event.preventDefault()
+    if (event.ctrlKey || event.metaKey) {
+      event.currentTarget.requestSubmit()
+      return
+    }
+    if (saving) return
+    const index = words.findIndex(word => word.key === target.dataset.wordKey)
+    if (index < words.length - 1) {
+      document.getElementById(displayId(words[index + 1].key))?.focus()
+      return
+    }
+    if (!words[index]?.display) return
+    const key = randomId()
+    flushSync(() => setWords(current => [...current, { ...emptyWord(), key }]))
+    document.getElementById(displayId(key))?.focus()
+  }
 
   function move(index: number, offset: number) {
     setWords(current => {
@@ -40,13 +81,16 @@ export default function WordListEditor({ initial, onSave, onCancel }: {
     })
   }
 
-  return <form onSubmit={async event => {
+  return <form onKeyDown={handleKeyDown} onSubmit={async event => {
     event.preventDefault()
     if (saving) return
     draftId.current ??= initial?.id ?? randomId()
     setSaving(true)
-    try { await onSave({ id: draftId.current, name, words: words.map(({ key, ...word }) => ({ ...word, input: word.input || word.display })),
-      records: initial?.records ?? [], createdAt: initial?.createdAt ?? new Date().toISOString() }) } finally { setSaving(false) }
+    try {
+      const saved = await onSave({ id: draftId.current, name, words: words.map(({ key, ...word }) => ({ ...word, input: word.input || word.display })),
+        records: initial?.records ?? [], createdAt: initial?.createdAt ?? new Date().toISOString() })
+      if (!saved) setFailedSaves(count => count + 1)
+    } finally { setSaving(false) }
   }} className="space-y-6">
     <WordListImport disabled={saving} onImport={(imported, filename) => {
       const current = words.length === 1 && !words[0].input && !words[0].display && !words[0].annotation ? [] : words
@@ -59,7 +103,7 @@ export default function WordListEditor({ initial, onSave, onCancel }: {
     }} />
     <TextField label="単語リスト名" required value={name} onChange={event => setName(event.target.value)} />
     <p>表示する単語と、正解として入力する文字を指定します。未ログイン時はこのブラウザーに、ログイン時はアカウントに保存されます。</p>
-    <p className="text-sm text-muted-foreground">順番の横のハンドルをドラッグして並べ替えられます。キーボードではハンドルでスペースキー、上下矢印キー、スペースキーの順に操作します。</p>
+    <p className="text-sm text-muted-foreground">Enterキーで次の単語へ移動し、最後の単語では新しい行を追加します。Ctrl（Macは⌘）+Enterで保存します。順番の横のハンドルをドラッグして並べ替えられます。キーボードではハンドルでスペースキー、上下矢印キー、スペースキーの順に操作します。</p>
     <DndContext id={dragId} sensors={sensors} collisionDetection={closestCenter}
       accessibility={{ screenReaderInstructions: { draggable: "スペースキーで単語を持ち上げ、上下矢印キーで移動し、スペースキーで確定します。Escapeキーでキャンセルします。" } }}
       onDragEnd={({ active, over }) => {
@@ -81,7 +125,7 @@ export default function WordListEditor({ initial, onSave, onCancel }: {
       <TableBody className="block md:table-row-group">
     {words.map((word, index) => <SortableWordRow key={word.key} id={word.key} index={index} disabled={saving || words.length < 2}>
       <TableCell className="min-w-0 whitespace-normal">
-      <TextField label={`表示する単語 ${index + 1}`} hideLabel placeholder="単語を入力" required value={word.display}
+      <TextField id={displayId(word.key)} data-word-key={word.key} label={`表示する単語 ${index + 1}`} hideLabel placeholder="単語を入力" required value={word.display}
         onChange={event => setWords(current => current.map(item => item.key === word.key ? {
           ...item, display: event.target.value,
           input: item.input === item.display ? event.target.value : item.input,
@@ -105,12 +149,12 @@ export default function WordListEditor({ initial, onSave, onCancel }: {
         })}>補足</Button>
       </ButtonGroup>
       <div id={`input-${word.key}`} hidden={!expandedInputs.has(word.key)}>
-        <TextField label={`入力する文字 ${index + 1}`} hideLabel value={word.input} placeholder={word.display || '入力する文字'}
+        <TextField data-word-key={word.key} label={`入力する文字 ${index + 1}`} hideLabel value={word.input} placeholder={word.display || '入力する文字'}
           onChange={event => setWords(current => current.map(item => item.key === word.key ? { ...item, input: event.target.value } : item))} />
         <p className="mt-2 text-sm text-muted-foreground">空欄の場合は表示する単語と同じ文字を使います。</p>
       </div>
       <div id={`annotation-${word.key}`} hidden={!expandedAnnotations.has(word.key)}>
-        <TextField label={`補足 ${index + 1}`} hideLabel placeholder="補足を入力" value={word.annotation}
+        <TextField data-word-key={word.key} label={`補足 ${index + 1}`} hideLabel placeholder="補足を入力" value={word.annotation}
           onChange={event => setWords(current => current.map(item => item.key === word.key ? { ...item, annotation: event.target.value } : item))} />
       </div>
       </TableCell>
@@ -126,10 +170,23 @@ export default function WordListEditor({ initial, onSave, onCancel }: {
     </Table>
     </SortableContext>
     </DndContext>
-    <Button onClick={() => setWords(current => [...current, { key: randomId(), display: "", input: "", annotation: "" }])}>単語を追加</Button>
+    <Button onClick={() => setWords(current => [...current, { ...emptyWord(), key: randomId() }])}>単語を追加</Button>
+    {error && <Alert ref={errorRef} variant="destructive" className="scroll-my-6"><AlertDescription>{error}</AlertDescription></Alert>}
     <div className="flex gap-3">
       <Button type="submit" disabled={saving} variant="default">{saving ? "保存中…" : "保存"}</Button>
-      <Button onClick={onCancel}>キャンセル</Button>
+      <Button onClick={() => dirty ? setConfirmingCancel(true) : onCancel()}>キャンセル</Button>
     </div>
+    <AlertDialog open={confirmingCancel} onOpenChange={setConfirmingCancel}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>保存していない変更があります</AlertDialogTitle>
+          <AlertDialogDescription>このまま戻ると、入力した内容は失われます。</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>編集を続ける</AlertDialogCancel>
+          <AlertDialogAction variant="destructive" onClick={onCancel}>破棄して戻る</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </form>
 }

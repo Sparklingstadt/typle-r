@@ -19,8 +19,8 @@ export default function Edit() {
   const [editing, setEditing] = useState<SavedWordList | null>(null)
   return <Page><PageContainer>
     <h1 className="text-2xl mb-6">単語リストの編集</h1>
-    {error && <Alert variant="destructive" className="my-4"><AlertDescription>{error}</AlertDescription></Alert>}
-    {!ready ? <p>読み込み中…</p> : editing ? <WordListEditor key={editing.id} initial={editing} onCancel={() => setEditing(null)} onSave={async list => {
+    {error && !editing && <Alert variant="destructive" className="my-4"><AlertDescription>{error}</AlertDescription></Alert>}
+    {!ready ? <p>読み込み中…</p> : editing ? <WordListEditor key={editing.id} initial={editing} error={error} onCancel={() => setEditing(null)} onSave={async list => {
       const saved = await update(current => saveList(current, list, true))
       if (saved) { setEditing(null); notify(`「${list.name}」を更新しました。`) }
       return saved
