@@ -38,6 +38,23 @@ function run(mode) {
   const gh = (...args) => command('gh', args)
   const api = path => JSON.parse(gh('api', `repos/${repository}/${path}`))
   const pages = path => JSON.parse(gh('api', '--paginate', '--slurp', `repos/${repository}/${path}`)).flat()
+  const readMergeSettings = () => {
+        // REST omits merge settings for a read-only GITHUB_TOKEN. GraphQL
+        // exposes these repository configuration fields to read-only callers.
+        const [owner, name] = repository.split('/')
+        const result = JSON.parse(gh('api', 'graphql', '-f', `owner=${owner}`, '-f', `name=${name}`,
+          '-f', 'query=query($owner:String!,$name:String!){repository(owner:$owner,name:$name){allow_squash_merge:squashMergeAllowed allow_merge_commit:mergeCommitAllowed allow_rebase_merge:rebaseMergeAllowed}}'))
+        assert.ok(!result.errors, 'Could not read repository merge settings')
+        return result.data.repository
+  }
+  if (mode === 'settings') {
+    const repo = readMergeSettings()
+    assert.equal(repo.allow_squash_merge, true)
+    assert.equal(repo.allow_merge_commit, false)
+    assert.equal(repo.allow_rebase_merge, false)
+    console.log('Read-only merge settings check passed')
+    return
+  }
   const assertCurrent = () => assert.equal(api('git/ref/heads/main').object.sha, sha,
     'main has advanced: do not release or redeploy an older run. Finish each release before merging the next PR.')
   assert.equal(git('rev-parse', 'HEAD'), sha, 'Checkout must match the verified push SHA')
@@ -48,7 +65,7 @@ function run(mode) {
     validatePolicy({ event, sha, repository,
       parentLine: git('rev-list', '--parents', '-n', '1', sha),
       commits: git('rev-list', '--count', `${event.before}..${sha}`),
-      repo: JSON.parse(gh('api', `repos/${repository}`)),
+      repo: readMergeSettings(),
       prs: pages(`commits/${sha}/pulls?per_page=100`),
     })
     console.log('Verified a merged PR, single-parent commit, and squash-only repository settings.')

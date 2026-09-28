@@ -28,6 +28,10 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
+      - name: Check read-only access to squash settings
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/ci/release.cjs settings
       - name: Check release policy on main push
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
