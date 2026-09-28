@@ -132,11 +132,6 @@ jobs:
           node scripts/ci/release.cjs check
       - name: Install pinned Vercel CLI
         run: npm install --global vercel@60.1.3
-      - name: Pull production settings
-        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
-      # vercel.json runs db:migrate before the production build.
-      - name: Build production artifact and migrate database
-        run: vercel build --prod --token="$VERCEL_TOKEN"
       - name: Recheck release before production deployment
         env:
           GH_TOKEN: ${{ github.token }}
@@ -147,7 +142,7 @@ jobs:
         env:
           SOURCE_SHA: ${{ needs.release.outputs.sha }}
         run: |
-          url=$(vercel deploy --prebuilt --prod --yes --token="$VERCEL_TOKEN" --meta "githubCommitSha=$SOURCE_SHA")
+          url=$(vercel deploy --prod --yes --token="$VERCEL_TOKEN" --meta "githubCommitSha=$SOURCE_SHA")
           echo "url=$url" >> "$GITHUB_OUTPUT"
           printf 'Production deployment: %s\n' "$url" >> "$GITHUB_STEP_SUMMARY"
       - name: Check production home and authentication boundary
