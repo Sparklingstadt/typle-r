@@ -169,7 +169,7 @@ Vercel MarketplaceでNeonを接続し、サーバー用の環境変数を設定�
 - `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`: 本番用OAuth Appの認証情報
 - `AUTH_URL`: 本番URL。本番OAuth callbackは `<本番URL>/api/auth/callback/github`
 
-対象DBの環境変数を使って `npm run db:migrate` を実行してからデプロイします。DockerのDBからNeonへのデータコピーは自動ではありません。必要な場合はバックアップと復元を別途行います。本番への反映は検証済みのコミットからVercel CLIで行います。
+対象DBの環境変数を使って `npm run db:migrate` を実行してからデプロイします。DockerのDBからNeonへのデータコピーは自動ではありません。必要な場合はバックアップと復元を別途行います。本番への反映は検証済みのコミットからGitHub Actions内のVercel CLIで行います。
 
 公式資料: [Auth.js GitHub](https://authjs.dev/getting-started/providers/github)、[Prisma](https://www.prisma.io/docs/orm/v7)、[PostgreSQL Docker image](https://hub.docker.com/_/postgres)。
 
@@ -198,7 +198,7 @@ npm run test:e2e
 
 ## リリース
 
-バージョンを更新し検証後、Git/SSHでコミットとタグをpush、GitHub CLIでリリースを作成します。`vercel.json` の `git.deploymentEnabled=false` でGit連携の自動デプロイを停止し、承認されたリリースをVercel CLIから明示的にデプロイします。
+必須の順序は **PR作成 → squash merge → マージ後のverify → GitHub Release作成 → Vercel本番デプロイ** です。`package.json` と `package-lock.json` のバージョンをPR内で更新します。mainへの直接push、手動タグ・Release作成、手動デプロイは行いません。`vercel.json` の `git.deploymentEnabled=false` は維持し、GitHub ActionsがReleaseとデプロイを順番に実行します。初回設定・Secrets・復旧手順は [リリース運用](docs/release-workflow.md) を参照してください。
 
 ## 依存関係の監査
 
