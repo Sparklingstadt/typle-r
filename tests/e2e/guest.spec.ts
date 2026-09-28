@@ -1,5 +1,12 @@
 import { test, expect } from '@playwright/test'
 const key = 'typle-r:guest-workspace:v1'
+async function importWords(page: import('@playwright/test').Page, files: Parameters<import('@playwright/test').Locator['setInputFiles']>[0]) {
+  await page.getByRole('button', { name: 'CSV・TSVを読み込む', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'CSV・TSVから読み込む' })
+  await dialog.getByLabel('CSV・TSVファイルを選択', { exact: true }).setInputFiles(files)
+  await dialog.getByRole('button', { name: /語を追加$|語で置き換える$/ }).click()
+  await expect(dialog).toHaveCount(0)
+}
 
 test('guest can create, import, export, edit, practice, manage devices and delete without cloud persistence', async ({ page }) => {
   const requests: string[] = []
@@ -7,8 +14,9 @@ test('guest can create, import, export, edit, practice, manage devices and delet
   page.on('request', request => { if (request.url().includes('/api/workspace')) requests.push(request.method()) })
   page.on('pageerror', error => errors.push(error.message))
   await page.goto('/create')
-  await page.getByLabel('CSV・TSVファイルから追加', { exact: true }).setInputFiles({ name: 'Guest.csv', mimeType: 'text/csv', buffer: Buffer.from('input,display,annotation\na,First,one\nb,Second,two') })
-  await page.getByRole('button', { name: '単語 2 を上へ', exact: true }).click()
+  await importWords(page, { name: 'Guest.csv', mimeType: 'text/csv', buffer: Buffer.from('input,display,annotation\na,First,one\nb,Second,two') })
+  await page.getByRole('button', { name: '単語 2 の操作', exact: true }).click()
+  await page.getByRole('menuitem', { name: '上へ移動', exact: true }).click()
   await page.getByRole('button', { name: '保存', exact: true }).click()
   await expect(page).toHaveURL(/\/edit$/)
   await page.reload()

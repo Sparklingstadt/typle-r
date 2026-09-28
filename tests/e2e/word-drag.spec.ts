@@ -19,7 +19,6 @@ for (const mobile of [false, true]) {
       if (i > 1) await page.getByRole('button', { name: '単語を追加', exact: true }).click()
       await page.getByRole('textbox', { name: `表示する単語 ${i}`, exact: true }).fill(`Word ${i}`)
     }
-    await page.getByRole('button', { name: '補足', exact: true }).first().click()
     await page.getByRole('textbox', { name: '補足 1', exact: true }).fill('Attached note')
     const handles = () => page.getByRole('button', { name: /をドラッグして並べ替え/ })
     await handles().first().scrollIntoViewIfNeeded()

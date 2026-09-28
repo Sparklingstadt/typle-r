@@ -4,10 +4,13 @@ import type { WordList } from "../types/WordList"
 export type SavedWordList = WordList & { id: string }
 export const STORAGE_KEY = "typle-r:word-lists:v1"
 
+export const NAME_REQUIRED_ERROR = "単語リスト名を入力してください。"
+export const DUPLICATE_NAME_ERROR = "同じ名前の単語リストがあります。別の名前を指定してください。"
+
 export function validateList(list: WordList, others: WordList[] = []) {
-  if (!list.name.trim()) throw new Error("単語リスト名を入力してください。")
+  if (!list.name.trim()) throw new Error(NAME_REQUIRED_ERROR)
   if (others.some(other => other.name.trim().toLocaleLowerCase() === list.name.trim().toLocaleLowerCase())) {
-    throw new Error("同じ名前の単語リストがあります。別の名前を指定してください。")
+    throw new Error(DUPLICATE_NAME_ERROR)
   }
   if (!list.words.length) throw new Error("単語を1つ以上追加してください。")
   if (list.words.some(word => !word.display.trim() || !word.input.trim())) {
