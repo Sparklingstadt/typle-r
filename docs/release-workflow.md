@@ -20,7 +20,7 @@ Releaseイベントで別のworkflowを起動する方式ではないため、GI
    policyは直接push後の公開を拒否しますが、pushそのものを取り消す機能ではありません。
 3. **Settings → Environments** で`production`を作成し、deployment branchをmainに限定します。
    以下の3つをEnvironment secretsへ登録します（repository secretsでも動作します）。
-   - `VERCEL_TOKEN`: 対象Vercelプロジェクトを操作できるトークン。
+   - `VERCEL_TOKEN`: 対象チームを操作できる90日期限のトークン（CLIの制約によりチームスコープを使用）。
    - `VERCEL_ORG_ID`: 対象チームID。
    - `VERCEL_PROJECT_ID`: 対象プロジェクトID。
    IDは対象のVercel設定や、正しく紐付け済みの`.vercel/project.json`で確認します。
@@ -48,20 +48,20 @@ CI用Vercelトークンは90日期限で作成しています。期限前にSecr
 ## 毎回の開発
 
 1. mainから作業ブランチを作り、コード変更とバージョン更新を行います。
-   `npm version 0.18.1 --no-git-tag-version`のように、未使用の安定版`X.Y.Z`を指定します。
+   `npm version 0.18.2 --no-git-tag-version`のように、未使用の安定版`X.Y.Z`を指定します。
    package.jsonとpackage-lock.jsonを両方コミットしてください。
-   この変更案は既存v0.18.0の次のv0.18.1を用意しています。
 2. PRを作成し、verifyの結果と変更内容を確認します。
 3. squash mergeします。前のmainのRelease・デプロイが完了するまでは次のPRをマージしません。
 4. マージ後のpolicyがPRとの対応・1コミットのpush・1親コミット・squash専用設定を確認します。
 5. verifyが一時PostgreSQLでDB更新・型チェック・単体/DBテスト・Lint・ビルド・E2Eを実行します。
 6. 成功したSHAに対して`v<package.jsonのversion>`のタグと公開済みの通常Releaseを作ります。
    Release notesはGitHubの自動生成を使います。公開済みとは非draftの意味で、repoの非公開設定は変えません。
-7. 同じSHAをチェックアウトし、ReleaseのタグのSHAを再確認した上で、Vercel設定を取得します。
-   Vercel CLI 60.1.3で本番ビルドし、`--prebuilt --prod`でデプロイします。
+7. 同じSHAをチェックアウトし、ReleaseのタグのSHAを再確認します。
+   Vercel CLI 60.1.3の`vercel deploy --prod`でソースを送り、Vercel内で本番ビルド・デプロイします。
+   読み出し不可のSecretが`[SENSITIVE]`になるため、Actionsでは`vercel pull`・`vercel build`を行いません。
 8. 本番ホームの成功応答と、匿名APIアクセスの401を確認します。
 
-verifyのDBは一時DBですが、deploy内の`vercel build --prod`は本番環境変数を使います。
+verifyのDBは一時DBですが、deployから起動するVercel上のビルドは本番環境変数を使います。
 `vercel.json`に従い、ここで本番DBへmigrationが適用されます。DB更新に成功した後で
 ビルドやデプロイが失敗することもあるため、migrationは旧アプリと互換性のある変更にします。
 DBの自動ロールバックは行いません。
