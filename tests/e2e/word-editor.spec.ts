@@ -1,0 +1,105 @@
+import { test, expect, type Page } from '@playwright/test'
+const key = 'typle-r:guest-workspace:v1'
+const display = (page: Page, n: number) => page.getByRole('textbox', { name: `表示する単語 ${n}`, exact: true })
+const displays = (page: Page) => page.getByRole('textbox', { name: /^表示する単語 \d+$/ })
+
+test('Enter moves between words and adds rows instead of saving', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  await page.goto('/create')
+  const name = page.getByRole('textbox', { name: '単語リスト名', exact: true })
+  await name.fill('Enter list')
+  await name.press('Enter')
+  await expect(display(page, 1)).toBeFocused()
+  await display(page, 1).fill('one')
+  await display(page, 1).press('Enter')
+  await expect(page).toHaveURL(/\/create$/)
+  await expect(display(page, 2)).toBeFocused()
+  // An empty last word does not add more rows.
+  await display(page, 2).press('Enter')
+  await expect(displays(page)).toHaveCount(2)
+  await display(page, 2).fill('two')
+  // Enter that confirms IME conversion is ignored.
+  await display(page, 2).dispatchEvent('keydown', { key: 'Enter', isComposing: true })
+  await expect(displays(page)).toHaveCount(2)
+  await display(page, 1).press('Enter')
+  await expect(display(page, 2)).toBeFocused()
+  await page.getByRole('button', { name: '入力', exact: true }).first().click()
+  const input = page.getByRole('textbox', { name: '入力する文字 1', exact: true })
+  await input.fill('ichi')
+  await input.press('Enter')
+  await expect(display(page, 2)).toBeFocused()
+  expect(await page.evaluate(k => localStorage.getItem(k), key)).toBeNull()
+  await display(page, 2).press('Control+Enter')
+  await expect(page).toHaveURL(/\/edit$/)
+  const saved = await page.evaluate(k => JSON.parse(localStorage.getItem(k) ?? 'null'), key)
+  expect(saved.lists.find((list: { name: string }) => list.name === 'Enter list').words).toEqual([
+    { display: 'one', input: 'ichi', annotation: '' },
+    { display: 'two', input: 'two', annotation: '' },
+  ])
+  expect(errors).toEqual([])
+})
+
+test('save errors are shown next to the save button', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 })
+  await page.goto('/create')
+  await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('Test 1')
+  for (let n = 1; n <= 10; n++) {
+    await display(page, n).fill(`word ${n}`)
+    await display(page, n).press('Enter')
+  }
+  await display(page, 11).fill('word 11')
+  const save = page.getByRole('button', { name: '保存', exact: true })
+  await save.scrollIntoViewIfNeeded()
+  await save.click()
+  const alert = page.getByRole('alert').filter({ hasText: '同じ名前の単語リストがあります' })
+  await expect(alert).toBeInViewport()
+  await expect(alert).toHaveCount(1)
+  await expect(save).toBeInViewport()
+  await expect(page).toHaveURL(/\/create$/)
+  // Saving from the top of a long list scrolls the error into view.
+  await page.getByRole('textbox', { name: '単語リスト名', exact: true }).press('Control+Enter')
+  await expect(alert).toBeInViewport()
+})
+
+test('cancel asks before discarding unsaved changes', async ({ page }) => {
+  await page.goto('/create')
+  await page.getByRole('button', { name: 'キャンセル', exact: true }).click()
+  await expect(page).toHaveURL(/\/edit$/)
+  await expect(page.getByRole('alertdialog')).toHaveCount(0)
+
+  await page.goto('/create')
+  const name = page.getByRole('textbox', { name: '単語リスト名', exact: true })
+  await name.fill('Draft')
+  await name.fill('')
+  await page.getByRole('button', { name: 'キャンセル', exact: true }).click()
+  await expect(page).toHaveURL(/\/edit$/)
+
+  await page.goto('/create')
+  await name.fill('Draft')
+  await display(page, 1).fill('keep me')
+  await page.getByRole('button', { name: 'キャンセル', exact: true }).click()
+  const dialog = page.getByRole('alertdialog')
+  await expect(dialog).toContainText('保存していない変更があります')
+  await expect(dialog.getByRole('button', { name: '編集を続ける', exact: true })).toBeFocused()
+  await dialog.getByRole('button', { name: '編集を続ける', exact: true }).click()
+  await expect(dialog).toHaveCount(0)
+  await expect(page).toHaveURL(/\/create$/)
+  await expect(display(page, 1)).toHaveValue('keep me')
+  await page.getByRole('button', { name: 'キャンセル', exact: true }).click()
+  await dialog.getByRole('button', { name: '破棄して戻る', exact: true }).click()
+  await expect(page).toHaveURL(/\/edit$/)
+  await expect(page.getByRole('button', { name: 'Draft を編集', exact: true })).toHaveCount(0)
+
+  await page.getByRole('button', { name: 'Test 1 を編集', exact: true }).click()
+  await page.getByRole('button', { name: 'キャンセル', exact: true }).click()
+  await expect(page.getByRole('alertdialog')).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Test 1 を編集', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Test 1 を編集', exact: true }).click()
+  await display(page, 1).fill('changed')
+  await page.getByRole('button', { name: 'キャンセル', exact: true }).click()
+  await expect(page.getByRole('alertdialog')).toBeVisible()
+  await page.getByRole('alertdialog').getByRole('button', { name: '破棄して戻る', exact: true }).click()
+  await page.getByRole('button', { name: 'Test 1 を編集', exact: true }).click()
+  await expect(display(page, 1)).not.toHaveValue('changed')
+})

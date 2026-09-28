@@ -1,5 +1,4 @@
 "use client"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useRouter } from "next/navigation"
 import Page from "@/components/Page/Page"
 import PageContainer from "@/components/PageContainer/PageContainer"
@@ -14,8 +13,7 @@ export default function Create() {
   const { ready, error, update } = useWordLists()
   return <Page><PageContainer>
     <h1 className="text-2xl mb-6">単語リストを作成</h1>
-    {error && <Alert variant="destructive" className="my-4"><AlertDescription>{error}</AlertDescription></Alert>}
-    {ready ? <WordListEditor onCancel={() => router.push('/edit')} onSave={async list => {
+    {ready ? <WordListEditor error={error} onCancel={() => router.push('/edit')} onSave={async list => {
       const saved = await update(current => saveList(current, list, false))
       if (saved) { notify(`「${list.name}」を作成しました。`); router.push('/edit') }
       return saved
