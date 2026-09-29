@@ -1,0 +1,69 @@
+import { Trash2, Trophy } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { deviceLabel } from '@/lib/devices'
+import { LOW_ACCURACY } from '@/lib/dashboard'
+import { formatAccuracy, recordTimeParts, secondsPerWord, type RecordRow as Row } from '@/lib/records'
+import { cn } from '@/lib/utils'
+
+// Shared by the column labels and the rows so the numbers line up under their headings.
+export const recordColumns = 'sm:grid-cols-[3.25rem_minmax(0,1fr)_7rem_4.75rem_5.25rem_3rem_2.5rem] sm:gap-x-4'
+
+export function clock(date: string) {
+  return new Date(date).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
+}
+
+export function BestBadge() {
+  return <span title="このリストのベスト記録（正確率の高い順、同率なら所要時間の短い順で1位）"
+    className="inline-flex h-5 shrink-0 items-center gap-1 rounded-full bg-amber-100 px-2 text-xs font-bold text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+    <Trophy className="size-3" aria-hidden="true" />ベスト
+  </span>
+}
+
+export function RecordTime({ seconds, className }: { seconds: number; className?: string }) {
+  return <span className={cn('tabular-nums', className)} title={`${seconds.toFixed(2)} 秒`}>
+    {recordTimeParts(seconds).map(([value, unit]) => <span key={unit}>{value}<span className="ml-px text-[0.8em] font-normal text-muted-foreground">{unit}</span></span>)}
+  </span>
+}
+
+// With one list selected, every row belongs to it, so the device becomes the row's title instead of the repeated list name.
+export default function RecordRow({ row, showList, disabled, onDelete }: { row: Row; showList: boolean; disabled: boolean; onDelete: () => void }) {
+  const { list, record, best } = row
+  const perWord = secondsPerWord(record)
+  const low = record.accuracy !== undefined && record.accuracy < LOW_ACCURACY
+  const time = clock(record.date)
+  const device = record.device ? deviceLabel(record.device) : '端末の記録なし'
+  const title = showList ? list.name : device
+  return <li data-record-key={row.key}
+    className={cn('grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 px-4 py-3 sm:gap-y-0 sm:px-5', recordColumns)}>
+    <span className="hidden text-sm text-muted-foreground tabular-nums sm:block">{time}</span>
+    <div className="min-w-0">
+      <div className="flex min-w-0 items-center gap-2">
+        <h3 className={cn('truncate font-medium', !showList && !record.device && 'text-muted-foreground')} title={title}>{title}</h3>
+        {best && <BestBadge />}
+      </div>
+      <p className="truncate text-[13px] text-muted-foreground">
+        <span className="tabular-nums sm:hidden">{time} · </span>
+        {record.wordCount !== undefined && <span className="tabular-nums">{record.wordCount}語{showList && ' · '}</span>}
+        {showList && device}
+      </p>
+    </div>
+    <p className="col-start-1 row-start-2 flex flex-wrap items-baseline gap-x-3 gap-y-0.5 text-sm tabular-nums sm:contents">
+      <span className="sm:text-right"><span className="sr-only">所要時間 </span><RecordTime seconds={record.time} className="text-base font-bold sm:text-[15px]" /></span>
+      <span className={cn('sm:text-right', low && 'font-medium text-amber-700 dark:text-amber-400')} title={low ? `正確率が${LOW_ACCURACY}%未満です` : undefined}>
+        <span className="sr-only">正確率 </span>{formatAccuracy(record.accuracy)}
+      </span>
+      <span className="hidden sm:inline sm:text-right">
+        <span className="sr-only">1語あたり </span>{perWord === null ? '—' : <>{perWord.toFixed(2)}<span className="ml-px text-[0.8em] text-muted-foreground">秒/語</span></>}
+      </span>
+      <span className="text-muted-foreground sm:text-right sm:text-foreground">
+        <span className="sm:sr-only">ミス </span>{record.mistakes ?? '—'}
+      </span>
+    </p>
+    <div className="col-start-2 row-span-2 row-start-1 -mr-2 sm:col-start-7 sm:row-span-1 sm:mr-0 sm:justify-self-end">
+      <Button variant="ghost" size="icon-lg" className="size-10 text-muted-foreground hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20"
+        disabled={disabled} data-delete-record aria-label={`${list.name}（${new Date(record.date).toLocaleDateString('ja-JP')} ${time}）の記録を削除`} title="削除" onClick={onDelete}>
+        <Trash2 aria-hidden="true" />
+      </Button>
+    </div>
+  </li>
+}

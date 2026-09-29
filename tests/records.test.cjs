@@ -21,3 +21,54 @@ test('completed records survive reload and editing; retry never duplicates', () 
   assert.throws(() => addRecord([], 'a', record))
   assert.throws(() => makeRecord(newSession(), 1, 'incomplete'))
 })
+
+const { recordRows, filterRows, groupByDay, recordTimeParts, secondsPerWord, formatAccuracy, NO_DEVICE } = require('../src/lib/records.ts')
+const mac = { id: 'mac', name: 'MacBook Air', layout: 'JIS' }
+// Local-time dates, so day grouping does not depend on the machine's time zone.
+const at = (day, hour) => new Date(2026, 8, day, hour).toISOString()
+const historyLists = () => [
+  { id: 'a', name: 'A', createdAt: '2026-09-01', words: [], records: [
+    { id: 'a1', time: 5, date: at(28, 9), mistakes: 1, accuracy: 95, wordCount: 5, device: mac },
+    { id: 'a2', time: 4, date: at(29, 20), mistakes: 0, accuracy: 100, wordCount: 5, device: { ...mac, name: 'Old name' } },
+    { time: 3, date: at(27, 8) },
+  ] },
+  { id: 'b', name: 'B', createdAt: '2026-09-01', words: [], records: [
+    { id: 'b1', time: 70, date: at(29, 10), mistakes: 2, accuracy: 90, wordCount: 20 },
+  ] },
+]
+
+test('record rows are newest first and mark the current best of each list', () => {
+  const rows = recordRows(historyLists())
+  assert.deepEqual(rows.map(row => row.key), ['a-a2', 'b-b1', 'a-a1', 'a-2-' + at(27, 8)])
+  // Accuracy ranks first, so the older 3-second run without accuracy is not the best.
+  assert.deepEqual(rows.filter(row => row.best).map(row => row.key), ['a-a2', 'b-b1'])
+})
+
+test('filters match lists and devices by id, including records without a device', () => {
+  const rows = recordRows(historyLists())
+  assert.deepEqual(filterRows(rows, { list: 'a', device: null }).map(row => row.key), ['a-a2', 'a-a1', 'a-2-' + at(27, 8)])
+  // The device was renamed between runs; both records still belong to it.
+  assert.deepEqual(filterRows(rows, { list: null, device: 'mac' }).map(row => row.key), ['a-a2', 'a-a1'])
+  assert.deepEqual(filterRows(rows, { list: null, device: NO_DEVICE }).map(row => row.key), ['b-b1', 'a-2-' + at(27, 8)])
+  assert.deepEqual(filterRows(rows, { list: 'b', device: 'mac' }), [])
+})
+
+test('rows are grouped by local day with the practice time of each day', () => {
+  const groups = groupByDay(recordRows(historyLists()))
+  assert.deepEqual(groups.map(group => [group.day.getDate(), group.rows.length, group.seconds]), [[29, 2, 74], [28, 1, 5], [27, 1, 3]])
+})
+
+test('times keep hundredths and split minutes without showing 60 seconds', () => {
+  assert.deepEqual(recordTimeParts(3.021), [['3.02', '秒']])
+  assert.deepEqual(recordTimeParts(59.999), [['1', '分'], ['00.00', '秒']])
+  assert.deepEqual(recordTimeParts(128.89), [['2', '分'], ['08.89', '秒']])
+  assert.deepEqual(recordTimeParts(476.85), [['7', '分'], ['56.85', '秒']])
+})
+
+test('per-word speed and accuracy fall back to a dash for older records', () => {
+  assert.equal(secondsPerWord({ time: 70, date: at(29, 10), wordCount: 20 }), 3.5)
+  assert.equal(secondsPerWord({ time: 3, date: at(27, 8) }), null)
+  assert.equal(formatAccuracy(90.17), '90.2%')
+  assert.equal(formatAccuracy(100), '100%')
+  assert.equal(formatAccuracy(undefined), '—')
+})
