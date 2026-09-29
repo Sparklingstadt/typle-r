@@ -48,17 +48,18 @@ P1 = 迷い・手戻りが起きる／P2 = 見た目・情報設計（データ�
 
 ## 実装メモ
 
-試作は作業ツリーにあり、コミットしていない。
+試作はブランチ `claude/records-design-review` にある（リリース前のためバージョンは据え置き）。
 
 - 主な変更箇所: `src/app/(workspace)/records/page.tsx`、`src/components/Records/RecordRow.tsx`、`src/components/Records/FilterMenu.tsx`、`src/components/Records/ListSummary.tsx`、`src/lib/records.ts`、`src/components/DeleteConfirmation.tsx`
 - `recordRows()` が全リストの記録を新しい順に並べ、各リストの1位（`bestRecords(records, 1)`）に `best` を付ける。`filterRows()`・`groupByDay()`（日付は閲覧者の現地時間）・`recordTimeParts()`・`formatAccuracy()` を `src/lib/records.ts` に追加。
 - 絞り込みは `useSearchParams` と `router.replace(..., { scroll: false })` で URL に保存する。`/play` と同じく Suspense で包む。
 - `DeleteConfirmation` に `children`（説明とボタンの間に出す中身）を追加。
 - 削除後のフォーカスは、開いたときの行の位置を覚えておき、`onCloseAutoFocus` で同じ位置の `[data-delete-record]` に移す。
-- typecheck・lint は通過。単体テストは DB を使う2件（PostgreSQL が必要）以外は通過。
+- typecheck・lint は通過。単体テストは DB を使う2件（PostgreSQL が必要）以外は通過。E2E は `guest.spec.ts` が通過（`practice.spec.ts` は DB が必要なため未実行）。
+- 一覧が表から list になったため、`guest.spec.ts`・`practice.spec.ts` の記録の探し方（`role="listitem"`）と空の状態の文言を更新済み。
 
 ## 実装する場合の残作業
 
-- `tests/e2e/guest.spec.ts` は記録を `role="row"` で探しているため、一覧（`li`）に合わせて直す。/records の E2E（絞り込みと URL、ベスト削除の確認文、削除後のフォーカス、390px で横スクロールしないこと）を追加する。
+- バージョンを上げて PR にする。/records の E2E（絞り込みと URL、ベスト削除の確認文、削除後のフォーカス、390px で横スクロールしないこと）と、追加した関数の単体テストを足す。
 - 練習結果の「記録を見る」を `/records?list=<id>` にする。ホームの「リスト別の推移」からも同じリンクを張る。
 - 未対応: 削除の取り消し（通知に「元に戻す」）。通知はアプリ全体の `SaveNotification` のため、今回は1行に短くするだけにした。アプリ全体のヘッダー・サイドバーのモバイル対応（/create・/play・/devices のレビューと共通）。
