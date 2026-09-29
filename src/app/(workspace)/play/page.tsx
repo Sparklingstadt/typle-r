@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { ArrowRight, ChevronDown, ChevronsUpDown, ChevronUp, CircleAlert, Gauge, List, MousePointerClick, Plus, RotateCcw, Search, Target, Timer, X } from "lucide-react"
 import type { PracticeDevice } from "@/lib/devices"
+import { useSelectedDevice } from "@/lib/deviceSelection"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
@@ -90,10 +91,7 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
   error: string
   update: WorkspaceUpdate
 }) {
-  const storageKey = `typle-r:device:${accountId}`
-  const [deviceId, setDeviceId] = useState(() => {
-    try { return localStorage.getItem(storageKey) ?? '' } catch { return '' }
-  })
+  const [deviceId, chooseDevice] = useSelectedDevice(accountId)
   const device = devices.find(item => item.id === deviceId)
   const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave } = usePractice(wordLists, update, device, listId)
   const [pickerOpen, setPickerOpen] = useState(false)
@@ -163,11 +161,6 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
     if (!running) switchTo(index)
     else if (index !== selected) setPendingSwitch(index)
   }
-  function chooseDevice(id: string) {
-    setDeviceId(id)
-    try { localStorage.setItem(storageKey, id) } catch { /* Selection still works when browser storage is unavailable. */ }
-  }
-
   const filteredLists = wordLists.filter(item => item.name.toLowerCase().includes(query.trim().toLowerCase()))
   const next = words.slice(session.index + 1, session.index + 4)
   const remaining = words.length - session.index - 1 - next.length

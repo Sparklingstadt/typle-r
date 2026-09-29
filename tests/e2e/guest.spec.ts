@@ -8,6 +8,14 @@ async function importWords(page: import('@playwright/test').Page, files: Paramet
   await expect(dialog).toHaveCount(0)
 }
 
+async function addDevice(page: import('@playwright/test').Page, name: string) {
+  await page.getByRole('button', { name: '端末を追加', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: '端末を追加' })
+  await dialog.getByRole('textbox', { name: '端末名', exact: true }).fill(name)
+  await dialog.getByRole('button', { name: '追加する', exact: true }).click()
+  await expect(dialog).toHaveCount(0)
+}
+
 test('guest can create, import, export, edit, practice, manage devices and delete without cloud persistence', async ({ page }) => {
   const requests: string[] = []
   const errors: string[] = []
@@ -27,15 +35,14 @@ test('guest can create, import, export, edit, practice, manage devices and delet
   await page.getByRole('button', { name: 'Guest saved をCSVエクスポート', exact: true }).click()
   expect((await download).suggestedFilename()).toBe('Guest saved.csv')
   await page.goto('/devices')
-  await page.getByLabel('端末名', { exact: true }).fill('Guest Mac')
-  await page.getByRole('button', { name: '端末を保存', exact: true }).click()
+  await addDevice(page, 'Guest Mac')
   await expect(page.getByRole('heading', { name: 'Guest Mac', exact: true })).toBeVisible()
   await page.reload()
   await expect(page.getByRole('heading', { name: 'Guest Mac', exact: true })).toBeVisible()
   await page.goto('/play')
   await page.getByRole('button', { name: 'Guest saved を選択', exact: true }).click()
-  await page.getByRole('button', { name: '使用端末：未選択', exact: true }).click()
-  await page.getByRole('menuitemradio', { name: 'Guest Mac', exact: true }).click()
+  // The first device added becomes the one this browser practises with.
+  await expect(page.getByRole('button', { name: '使用端末：Guest Mac', exact: true })).toBeEnabled()
   const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
   await expect(input).toBeFocused()
   await input.pressSequentially('b')
@@ -97,14 +104,13 @@ test('GitHub session uses a separate workspace and signing out restores guest da
   await page.route('**/api/auth/session', route => route.fulfill({ json: loggedIn ? { user: { id: 'github:123', name: 'Cloud' }, expires: '2099-01-01' } : {} }))
   await page.route('**/api/workspace', route => route.fulfill({ json: { accountId: 'github:123', revision: 1, lists: [], devices: [] } }))
   await page.goto('/devices')
-  await page.getByLabel('端末名', { exact: true }).fill('Local only')
-  await page.getByRole('button', { name: '端末を保存', exact: true }).click()
+  await addDevice(page, 'Local only')
   await expect(page.getByRole('heading', { name: 'Local only', exact: true })).toBeVisible()
   const before = await page.evaluate(key => localStorage.getItem(key), key)
   loggedIn = true
   await page.reload()
   await expect(page.getByRole('button', { name: 'User menu' })).toBeVisible()
-  await expect(page.getByText('端末はまだ登録されていません。')).toBeVisible()
+  await expect(page.getByRole('heading', { name: '端末はまだ登録されていません', exact: true })).toBeVisible()
   expect(await page.evaluate(key => localStorage.getItem(key), key)).toBe(before)
   loggedIn = false
   await page.reload()
@@ -115,10 +121,9 @@ test('guest changes propagate between tabs and deleted storage resets the worksp
   await page.goto('/devices')
   const other = await context.newPage()
   await other.goto('/devices')
-  await expect(other.getByText('端末はまだ登録されていません。')).toBeVisible()
-  await page.getByLabel('端末名', { exact: true }).fill('Shared tab device')
-  await page.getByRole('button', { name: '端末を保存', exact: true }).click()
+  await expect(other.getByRole('heading', { name: '端末はまだ登録されていません', exact: true })).toBeVisible()
+  await addDevice(page, 'Shared tab device')
   await expect(other.getByRole('heading', { name: 'Shared tab device', exact: true })).toBeVisible()
   await page.evaluate(key => localStorage.removeItem(key), key)
-  await expect(other.getByText('端末はまだ登録されていません。')).toBeVisible()
+  await expect(other.getByRole('heading', { name: '端末はまだ登録されていません', exact: true })).toBeVisible()
 })
