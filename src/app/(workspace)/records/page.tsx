@@ -15,7 +15,7 @@ import { GUEST_ACCOUNT_ID } from "@/lib/guestWorkspace"
 import { useWordLists } from "@/lib/useWordLists"
 import { deviceLabel } from "@/lib/devices"
 import { formatDay, formatDuration, formatWeekday } from "@/lib/dashboard"
-import { bestRecords, filterRows, formatAccuracy, groupByDay, NO_DEVICE, recordRows, removeRecord, type RecordFilter, type RecordRow as Row } from "@/lib/records"
+import { bestRecords, filterRows, formatAccuracy, groupByDay, NO_DEVICE, recordRows, recordTimeParts, removeRecord, type RecordFilter, type RecordRow as Row } from "@/lib/records"
 import type { SavedWordList } from "@/lib/wordLists"
 import { cn } from "@/lib/utils"
 
@@ -97,7 +97,8 @@ function RecordHistory({ lists, saving, update }: {
   const all = useMemo(() => recordRows(lists), [lists])
   const { listOptions, deviceOptions } = useMemo(() => filterOptions(all, lists), [all, lists])
   const selectedList = lists.find(list => list.id === filter.list)
-  const rows = useMemo(() => filterRows(all, filter), [all, filter.list, filter.device]) // eslint-disable-line react-hooks/exhaustive-deps
+  const { list: listId, device: deviceId } = filter
+  const rows = useMemo(() => filterRows(all, { list: listId, device: deviceId }), [all, listId, deviceId])
   const groups = groupByDay(rows.slice(0, shown))
   const filtered = Boolean(filter.list || filter.device)
   const missing = rows.slice(0, shown).some(({ record }) => record.accuracy === undefined || record.wordCount === undefined)
@@ -185,7 +186,7 @@ function DeleteDetails({ row, now }: { row: Row; now: Date }) {
     </dl>
     {best && <p className="flex gap-2 rounded-lg bg-amber-50 px-3.5 py-2.5 text-[13px] text-amber-900 dark:bg-amber-950/50 dark:text-amber-200">
       <Trophy className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-      <span>このリストのベスト記録です。{next ? <>削除すると、ベストは {next.time.toFixed(2)}秒（{formatAccuracy(next.accuracy)}）になります。</> : '削除すると、このリストの記録はなくなります。'}</span>
+      <span>このリストのベスト記録です。{next ? <>削除すると、ベストは {recordTimeParts(next.time).map(part => part.join('')).join('')}（{formatAccuracy(next.accuracy)}）になります。</> : '削除すると、このリストの記録はなくなります。'}</span>
     </p>}
   </div>
 }

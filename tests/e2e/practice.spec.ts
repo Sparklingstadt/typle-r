@@ -520,8 +520,9 @@ test('devices persist, are locked during practice, and survive rename and deleti
   await expect(page.getByRole('heading', { name: '端末はまだ登録されていません', exact: true })).toBeVisible()
   await page.goto('/records')
   await page.reload()
-  await expect(page.getByRole('cell', { name: 'MacBook（JIS）', exact: true })).toHaveCount(1)
-  await expect(page.getByRole('cell', { name: '未記録', exact: true })).toHaveCount(1)
+  // Records keep the device name from when they were practised, even after it is renamed and deleted.
+  await expect(page.getByRole('listitem').filter({ hasText: 'MacBook（JIS）' })).toHaveCount(1)
+  await expect(page.getByRole('listitem').filter({ hasText: '端末の記録なし' })).toHaveCount(1)
   await page.goto('/rankings')
   await expect(page.getByRole('cell', { name: 'MacBook（JIS）', exact: true })).toBeVisible()
   await page.goto('/play')

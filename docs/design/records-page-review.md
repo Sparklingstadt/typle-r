@@ -48,18 +48,14 @@ P1 = 迷い・手戻りが起きる／P2 = 見た目・情報設計（データ�
 
 ## 実装メモ
 
-試作はブランチ `claude/records-design-review` にある（リリース前のためバージョンは据え置き）。
-
 - 主な変更箇所: `src/app/(workspace)/records/page.tsx`、`src/components/Records/RecordRow.tsx`、`src/components/Records/FilterMenu.tsx`、`src/components/Records/ListSummary.tsx`、`src/lib/records.ts`、`src/components/DeleteConfirmation.tsx`
-- `recordRows()` が全リストの記録を新しい順に並べ、各リストの1位（`bestRecords(records, 1)`）に `best` を付ける。`filterRows()`・`groupByDay()`（日付は閲覧者の現地時間）・`recordTimeParts()`・`formatAccuracy()` を `src/lib/records.ts` に追加。
+- `recordRows()` が全リストの記録を新しい順に並べ、各リストの1位（`bestRecords(records, 1)`）に `best` を付ける。`filterRows()`・`groupByDay()`（日付は閲覧者の現地時間）・`recordTimeParts()`・`formatAccuracy()` を `src/lib/records.ts` に追加。`recordTimeParts()` は先に1/100秒へ丸めるので、59.999秒は「60.00秒」ではなく「1分00.00秒」になる。
 - 絞り込みは `useSearchParams` と `router.replace(..., { scroll: false })` で URL に保存する。`/play` と同じく Suspense で包む。
 - `DeleteConfirmation` に `children`（説明とボタンの間に出す中身）を追加。
 - 削除後のフォーカスは、開いたときの行の位置を覚えておき、`onCloseAutoFocus` で同じ位置の `[data-delete-record]` に移す。
-- typecheck・lint は通過。単体テストは DB を使う2件（PostgreSQL が必要）以外は通過。E2E は `guest.spec.ts` が通過（`practice.spec.ts` は DB が必要なため未実行）。
-- 一覧が表から list になったため、`guest.spec.ts`・`practice.spec.ts` の記録の探し方（`role="listitem"`）と空の状態の文言を更新済み。
+- テスト: `tests/records.test.cjs` に並び順・ベスト・絞り込み（改名した端末と端末なし）・日付のまとまり・時間の表記、`tests/e2e/records.spec.ts` に日付の見出し・URL の絞り込み・リストのまとめ・ベスト削除の確認と削除後のフォーカス・50件ずつの表示・390px・空の状態を追加。一覧が表から list になったため、`guest.spec.ts`・`practice.spec.ts` の記録の探し方（`role="listitem"`）と空の状態の文言を更新。
 
-## 実装する場合の残作業
+## 実装状況
 
-- バージョンを上げて PR にする。/records の E2E（絞り込みと URL、ベスト削除の確認文、削除後のフォーカス、390px で横スクロールしないこと）と、追加した関数の単体テストを足す。
-- 練習結果の「記録を見る」を `/records?list=<id>` にする。ホームの「リスト別の推移」からも同じリンクを張る。
-- 未対応: 削除の取り消し（通知に「元に戻す」）。通知はアプリ全体の `SaveNotification` のため、今回は1行に短くするだけにした。アプリ全体のヘッダー・サイドバーのモバイル対応（/create・/play・/devices のレビューと共通）。
+- v0.23.0: 改善案を実装（日付ごとのまとまり、1行＝1記録、リスト・端末の絞り込みと URL、リストのまとめと「練習する」、ベストのバッジ、削除確認の中身とベストの変化、削除後のフォーカス、短い通知、50件ずつの表示、空の状態、390px のカード）。使い方ページの「記録」の説明を更新。
+- 未対応: 練習結果の「記録を見る」とホームの「リスト別の推移」から `/records?list=<id>` へのリンク。削除の取り消し（通知に「元に戻す」。通知はアプリ全体の `SaveNotification` のため、今回は1行に短くするだけにした）。アプリ全体のヘッダー・サイドバーのモバイル対応（/create・/play・/devices のレビューと共通）。

@@ -72,9 +72,10 @@ export function groupByDay(rows: RecordRow[]) {
 
 // Seconds keep two decimals so close runs stay distinguishable; a minute or more is split into 分 and 秒.
 export function recordTimeParts(seconds: number): [string, string][] {
-  if (seconds < 60) return [[seconds.toFixed(2), '秒']]
-  const minutes = Math.floor(seconds / 60)
-  return [[String(minutes), '分'], [(seconds - minutes * 60).toFixed(2).padStart(5, '0'), '秒']]
+  // Round first so 59.999 becomes 1分00.00秒 rather than 60.00秒.
+  const hundredths = Math.round(seconds * 100)
+  if (hundredths < 6000) return [[(hundredths / 100).toFixed(2), '秒']]
+  return [[String(Math.floor(hundredths / 6000)), '分'], [(hundredths % 6000 / 100).toFixed(2).padStart(5, '0'), '秒']]
 }
 
 export function secondsPerWord(record: StoredRecord) {
