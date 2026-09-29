@@ -1,8 +1,8 @@
 "use client"
 import { randomId } from "../lib/randomId"
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react"
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react"
 import { flushSync } from "react-dom"
-import { ArrowDown, ArrowDownToLine, ArrowUp, ArrowUpToLine, CircleAlert, GripVertical, HardDrive, MoreHorizontal, Plus, Trash2 } from "lucide-react"
+import { ArrowDown, ArrowDownToLine, ArrowUp, ArrowUpToLine, ChevronLeft, CircleAlert, GripVertical, HardDrive, Info, MoreHorizontal, Plus, Trash2 } from "lucide-react"
 import { DropdownMenu } from "radix-ui"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
@@ -15,6 +15,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import SortableWordRow, { WORD_ROW_COLUMNS } from "./SortableWordRow"
 import { DUPLICATE_NAME_ERROR, type SavedWordList } from "@/lib/wordLists"
+import { currentRecordCount } from "@/lib/listOverview"
 
 type Word = SavedWordList["words"][number]
 const MAX_WORDS = 1000
@@ -36,13 +37,17 @@ function FieldError({ id, message, alert }: { id: string; message: string; alert
   </p>
 }
 
-export default function WordListEditor({ title, storage, initial, error, onSave, onCancel }: {
+export default function WordListEditor({ title, description = "タイピングで表示する単語と、正解として入力する文字を登録します。", storage, initial, error, onSave, onCancel, onDirtyChange, cancelRequest = 0 }: {
   title: string
+  description?: ReactNode
   storage?: "browser" | "account"
   initial?: SavedWordList
   error?: string
   onSave: (list: SavedWordList) => Promise<boolean>
   onCancel: () => void
+  onDirtyChange?: (dirty: boolean) => void
+  /** Increment to leave the editor as if キャンセル was pressed: unsaved changes are confirmed first. */
+  cancelRequest?: number
 }) {
   const baseId = useId()
   const nameId = `${baseId}-name`
@@ -63,6 +68,15 @@ export default function WordListEditor({ title, storage, initial, error, onSave,
   const [submitted, setSubmitted] = useState(false)
   const [notice, setNotice] = useState("")
   const [confirmingCancel, setConfirmingCancel] = useState(false)
+
+  useEffect(() => { onDirtyChange?.(dirty) }, [dirty, onDirtyChange])
+  // Closing or reloading the tab would lose the changes; the browser asks first.
+  useEffect(() => {
+    if (!dirty) return
+    const warn = (event: BeforeUnloadEvent) => event.preventDefault()
+    window.addEventListener("beforeunload", warn)
+    return () => window.removeEventListener("beforeunload", warn)
+  }, [dirty])
 
   // Errors appear after the first save attempt and then follow the user's edits.
   const problems: { id: string; message: string }[] = []
@@ -125,6 +139,12 @@ export default function WordListEditor({ title, storage, initial, error, onSave,
     if (dirty) setConfirmingCancel(true)
     else onCancel()
   }
+  // Asked from outside (the browser's back button): only unsaved changes need an answer.
+  const [seenCancelRequest, setSeenCancelRequest] = useState(cancelRequest)
+  if (cancelRequest !== seenCancelRequest) {
+    setSeenCancelRequest(cancelRequest)
+    if (dirty) setConfirmingCancel(true)
+  }
 
   // Enter moves to the next word instead of submitting; the last filled word gets a new row.
   // Alt+Arrow keys move the current word. Ctrl/Cmd+Enter saves.
@@ -152,6 +172,9 @@ export default function WordListEditor({ title, storage, initial, error, onSave,
   }
 
   const filled = words.filter(isFilled)
+  // Changing the word count changes the task: runs at the old count stay, but no longer count towards the best.
+  const ranked = initial ? currentRecordCount(initial) : 0
+  const recount = ranked > 0 && filled.length !== initial?.words.length
   return <form noValidate onKeyDown={handleKeyDown} onSubmit={async event => {
     event.preventDefault()
     if (saving) return
@@ -168,10 +191,11 @@ export default function WordListEditor({ title, storage, initial, error, onSave,
       if (!saved) setFailure(current => ({ count: current.count + 1, name }))
     } finally { setSaving(false) }
   }}>
+    <Button variant="ghost" size="lg" className="-ml-2.5 mb-2 text-muted-foreground" onClick={cancel}><ChevronLeft aria-hidden="true" />単語リスト</Button>
     <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div className="space-y-1">
         <h1 className="text-2xl font-bold">{title}</h1>
-        <p className="text-sm text-muted-foreground">タイピングで表示する単語と、正解として入力する文字を登録します。</p>
+        <p className="text-sm text-muted-foreground">{description}</p>
       </div>
       {storage && <span className="inline-flex h-7 items-center gap-1.5 rounded-full border bg-card px-3 text-xs font-medium text-muted-foreground"
         title={storage === "browser" ? "未ログインのため、このブラウザーのLocalStorageに保存します。" : "ログイン中のアカウントに保存します。"}>
@@ -299,6 +323,10 @@ export default function WordListEditor({ title, storage, initial, error, onSave,
     </div>
 
     <div className="sticky bottom-0 z-20 -mx-4 mt-6 border-t bg-background/95 px-4 py-3 shadow-[0_-4px_12px_rgb(0_0_0/0.05)] backdrop-blur sm:bottom-4 sm:mx-0 sm:mb-4 sm:rounded-xl sm:border sm:px-5 sm:shadow-lg">
+      {recount && initial && <p className="mb-2.5 flex gap-2 rounded-lg bg-amber-50 px-3 py-2 text-[13px] text-amber-900 dark:bg-amber-950/50 dark:text-amber-200">
+        <Info className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+        <span>単語数が{initial.words.length.toLocaleString()}語から{filled.length.toLocaleString()}語に変わります。{initial.words.length.toLocaleString()}語で練習した記録（{ranked}件）は残りますが、ベスト記録の順位には含まれなくなります。</span>
+      </p>}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <div className="flex min-w-0 basis-full flex-wrap items-center gap-x-2 gap-y-1 text-sm sm:flex-1 sm:basis-auto">
           {shown.length ? <>
