@@ -16,7 +16,8 @@ export function usePractice(wordLists: SavedWordList[], update: WorkspaceUpdate,
   const composing = useRef(false)
   const committedComposition = useRef<string | null>(null)
   const completedRecord = useRef<PracticeRecord | null>(null)
-  const [saved, setSaved] = useState(false)
+  const [record, setRecord] = useState<PracticeRecord | null>(null)
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'failed'>('idle')
   const input = useRef<HTMLInputElement>(null)
   const word = list?.words[session.index]
   const finished = session.finishedAt !== null
@@ -32,7 +33,8 @@ export function usePractice(wordLists: SavedWordList[], update: WorkspaceUpdate,
     composing.current = false
     committedComposition.current = null
     completedRecord.current = null
-    setSaved(false)
+    setRecord(null)
+    setSaveState('idle')
     input.current?.focus()
   }
 
@@ -45,13 +47,16 @@ export function usePractice(wordLists: SavedWordList[], update: WorkspaceUpdate,
     if (next.finishedAt !== null && list) {
       const record = makeRecord(next, list.words.length, randomId(), snapshot)
       completedRecord.current = record
+      setRecord(record)
       saveRecord(record)
     }
   }
 
   function saveRecord(record: PracticeRecord) {
-    if (list) void update(current => addRecord(current, list.id, record)).then(value => {
-      if (completedRecord.current === record) setSaved(value)
+    if (!list) return
+    setSaveState('saving')
+    void update(current => addRecord(current, list.id, record)).then(value => {
+      if (completedRecord.current === record) setSaveState(value ? 'saved' : 'failed')
     })
   }
   function retrySave() {
@@ -75,5 +80,5 @@ export function usePractice(wordLists: SavedWordList[], update: WorkspaceUpdate,
       if (!duplicate) enter(value)
     }
   }
-  return { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, saved, input, word, finished, result, restart, retrySave }
+  return { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave }
 }

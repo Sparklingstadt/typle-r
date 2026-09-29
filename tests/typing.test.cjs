@@ -22,3 +22,27 @@ test('empty lists and unicode input are handled', () => {
   assert.equal(typeInput(s, [], 'a', 0), s)
   assert.equal(typeInput(s, [{ input: 'あ😀' }], 'あ😀', 0).attempts, 2)
 })
+test('compareInput marks everything after the first mismatch as an error', () => {
+  const { compareInput } = require('../src/lib/typing.ts')
+  assert.deepEqual(compareInput('hoge', '').states, ['current', 'pending', 'pending', 'pending'])
+  assert.deepEqual(compareInput('hoge', 'ho').states, ['done', 'done', 'current', 'pending'])
+  // The fourth character matches by position but follows a mistake, so it stays an error.
+  const typo = compareInput('hoge', 'hoxe')
+  assert.deepEqual(typo.states, ['done', 'done', 'error', 'error'])
+  assert.equal(typo.errorIndex, 2)
+  assert.deepEqual(compareInput('hoge', 'hx').states, ['done', 'error', 'current-error', 'pending'])
+  const extra = compareInput('ab', 'abc')
+  assert.deepEqual(extra.states, ['done', 'done'])
+  assert.deepEqual(extra.extra, ['c'])
+  assert.equal(extra.errorIndex, 2)
+  assert.deepEqual(compareInput('あ😀', 'あ😀').states, ['done', 'done'])
+  assert.equal(compareInput('あ😀', 'あ😀').errorIndex, -1)
+})
+test('typingSpeed counts correct characters per minute after one second', () => {
+  const { typingSpeed } = require('../src/lib/typing.ts')
+  const s = { index: 0, input: '', startedAt: 1000, finishedAt: null, attempts: 12, mistakes: 2 }
+  assert.equal(typingSpeed({ ...s, startedAt: null }, 5000), null)
+  assert.equal(typingSpeed(s, 1500), null)
+  assert.equal(typingSpeed(s, 3000), 300)
+  assert.equal(typingSpeed({ ...s, finishedAt: 31000 }, 99999), 20)
+})
