@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader,
   AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel,
@@ -7,11 +7,13 @@ import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader,
 
 // Uncontrolled by default with its own 削除 button. Pass `open` to control it from a page whose rows unmount on
 // deletion; `onCloseAutoFocus` then decides where focus goes, since the row that opened it may be gone.
-export default function DeleteConfirmation({ label = '削除', title = '削除してもよろしいですか？', description, onConfirm, open: controlledOpen, onOpenChange, onCloseAutoFocus }: {
+export default function DeleteConfirmation({ label = '削除', title = '削除してもよろしいですか？', description, children, onConfirm, open: controlledOpen, onOpenChange, onCloseAutoFocus }: {
   /** Accessible name of the built-in 削除 button (uncontrolled use). */
   label?: string
   title?: string
   description: string
+  /** Details of what is deleted, shown between the description and the buttons. */
+  children?: ReactNode
   onConfirm: () => Promise<boolean>
   open?: boolean
   onOpenChange?: (open: boolean) => void
@@ -35,6 +37,7 @@ export default function DeleteConfirmation({ label = '削除', title = '削除�
         <AlertDialogTitle>{title}</AlertDialogTitle>
         <AlertDialogDescription>{description} この操作は取り消せません。</AlertDialogDescription>
       </AlertDialogHeader>
+      {children}
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       <AlertDialogFooter>
         <AlertDialogCancel disabled={busy}>キャンセル</AlertDialogCancel>
