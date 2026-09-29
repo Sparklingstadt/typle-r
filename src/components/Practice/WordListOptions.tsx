@@ -1,7 +1,7 @@
 import { useId } from 'react'
 import { Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { bestRecords } from '@/lib/records'
+import { listBest } from '@/lib/records'
 import type { SavedWordList } from '@/lib/wordLists'
 
 export default function WordListOptions({ lists, selectedId, onSelect, label }: {
@@ -13,7 +13,7 @@ export default function WordListOptions({ lists, selectedId, onSelect, label }: 
   const id = useId()
   return <ul aria-label={label} className="grid gap-1">
     {lists.map((list, index) => {
-      const best = bestRecords(list.records, 1)[0]
+      const best = listBest(list)
       const selected = list.id === selectedId
       return <li key={list.id}>
         <button type="button" aria-pressed={selected} aria-label={`${list.name} ${selected ? 'を選択中' : 'を選択'}`} aria-describedby={`${id}-${index}`} onClick={() => onSelect(list.id)}

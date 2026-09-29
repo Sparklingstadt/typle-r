@@ -15,7 +15,7 @@ import { GUEST_ACCOUNT_ID } from "@/lib/guestWorkspace"
 import { useWordLists } from "@/lib/useWordLists"
 import { deviceLabel } from "@/lib/devices"
 import { formatDay, formatDuration, formatWeekday } from "@/lib/dashboard"
-import { bestRecords, filterRows, formatAccuracy, groupByDay, NO_DEVICE, recordRows, recordTimeParts, removeRecord, type RecordFilter, type RecordRow as Row } from "@/lib/records"
+import { deviceOptions, filterRows, formatAccuracy, formatRecordTime, groupByDay, listBest, recordRows, removeRecord, type RecordFilter, type RecordRow as Row } from "@/lib/records"
 import type { SavedWordList } from "@/lib/wordLists"
 import { cn } from "@/lib/utils"
 
@@ -65,16 +65,7 @@ function useFilter(): [RecordFilter, (next: RecordFilter) => void] {
 
 function filterOptions(rows: Row[], lists: SavedWordList[]) {
   const listOptions: FilterOption[] = lists.map(list => ({ value: list.id, label: list.name, count: list.records.length }))
-  // Devices come from the records themselves, so deleted or renamed devices can still be picked (by id, with the latest name).
-  const devices = new Map<string, FilterOption>()
-  for (const { record } of rows) {
-    const value = record.device?.id ?? NO_DEVICE
-    const option = devices.get(value)
-    if (option) option.count++
-    else devices.set(value, { value, label: record.device ? deviceLabel(record.device) : '端末の記録なし', count: 1 })
-  }
-  const deviceOptions = [...devices.values()].sort((a, b) => Number(a.value === NO_DEVICE) - Number(b.value === NO_DEVICE) || b.count - a.count)
-  return { listOptions, deviceOptions }
+  return { listOptions, deviceOptions: deviceOptions(rows.map(row => row.record)) }
 }
 
 function dayHeading(day: Date, now: Date) {
@@ -95,7 +86,7 @@ function RecordHistory({ lists, saving, update }: {
   const [deleting, setDeleting] = useState<{ open: boolean; row: Row | null; position: number }>({ open: false, row: null, position: 0 })
   const deleted = useRef(false)
   const all = useMemo(() => recordRows(lists), [lists])
-  const { listOptions, deviceOptions } = useMemo(() => filterOptions(all, lists), [all, lists])
+  const { listOptions, deviceOptions: devicesOptions } = useMemo(() => filterOptions(all, lists), [all, lists])
   const selectedList = lists.find(list => list.id === filter.list)
   const { list: listId, device: deviceId } = filter
   const rows = useMemo(() => filterRows(all, { list: listId, device: deviceId }), [all, listId, deviceId])
@@ -122,7 +113,7 @@ function RecordHistory({ lists, saving, update }: {
   return <div className="space-y-6">
     <div className="flex flex-wrap items-center gap-2">
       <FilterMenu name="リスト" allLabel="すべてのリスト" value={filter.list} options={listOptions} onChange={list => changeFilter({ ...filter, list })} />
-      <FilterMenu name="端末" allLabel="すべての端末" value={filter.device} options={deviceOptions} onChange={device => changeFilter({ ...filter, device })} />
+      <FilterMenu name="端末" allLabel="すべての端末" value={filter.device} options={devicesOptions} onChange={device => changeFilter({ ...filter, device })} />
       {filtered && <Button variant="ghost" size="lg" className="text-muted-foreground" onClick={() => changeFilter({ list: null, device: null })}>絞り込みを解除</Button>}
       <p id="record-count" tabIndex={-1} aria-live="polite" className="ml-auto text-sm text-muted-foreground tabular-nums outline-none">{filtered ? `${rows.length}件 / 全${all.length}件` : `${all.length}件`}</p>
     </div>
@@ -175,7 +166,7 @@ function RecordHistory({ lists, saving, update }: {
 
 function DeleteDetails({ row, now }: { row: Row; now: Date }) {
   const { list, record, best } = row
-  const next = best ? bestRecords(list.records.filter(item => item !== record), 1)[0] : undefined
+  const next = best ? listBest({ ...list, records: list.records.filter(item => item !== record) }) : undefined
   return <div className="space-y-3">
     <dl className="grid gap-1 rounded-lg border bg-muted/40 px-3.5 py-3 text-sm">
       <dt className="sr-only">リスト</dt><dd className="font-medium [overflow-wrap:anywhere]">{list.name}</dd>
@@ -186,7 +177,7 @@ function DeleteDetails({ row, now }: { row: Row; now: Date }) {
     </dl>
     {best && <p className="flex gap-2 rounded-lg bg-amber-50 px-3.5 py-2.5 text-[13px] text-amber-900 dark:bg-amber-950/50 dark:text-amber-200">
       <Trophy className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-      <span>このリストのベスト記録です。{next ? <>削除すると、ベストは {recordTimeParts(next.time).map(part => part.join('')).join('')}（{formatAccuracy(next.accuracy)}）になります。</> : '削除すると、このリストの記録はなくなります。'}</span>
+      <span>このリストのベスト記録です。{next ? <>削除すると、ベストは {formatRecordTime(next.time)}（{formatAccuracy(next.accuracy)}）になります。</> : '削除すると、このリストの記録はなくなります。'}</span>
     </p>}
   </div>
 }

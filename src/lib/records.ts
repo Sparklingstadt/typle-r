@@ -1,4 +1,4 @@
-import type { PracticeDevice } from "./devices"
+import { deviceLabel, type PracticeDevice } from "./devices"
 import type { SavedWordList } from "./wordLists"
 import { sessionResult, TypingSession } from "./typing"
 
@@ -30,8 +30,29 @@ export function recentRecords(lists: SavedWordList[]) {
     .sort((a, b) => Date.parse(b.record.date) - Date.parse(a.record.date))
 }
 
-export function bestRecords(records: StoredRecord[], limit = 5) {
-  return [...records].sort((a, b) => (b.accuracy ?? -1) - (a.accuracy ?? -1) || a.time - b.time).slice(0, limit)
+// accuracy: the higher accuracy wins and time breaks ties (records without accuracy come last). speed: the reverse.
+export type RankOrder = 'accuracy' | 'speed'
+
+export function rankRecords(records: StoredRecord[], order: RankOrder = 'accuracy') {
+  return [...records].sort(order === 'accuracy'
+    ? (a, b) => (b.accuracy ?? -1) - (a.accuracy ?? -1) || a.time - b.time
+    : (a, b) => a.time - b.time || (b.accuracy ?? -1) - (a.accuracy ?? -1))
+}
+
+export function bestRecords(records: StoredRecord[], limit = 5, order: RankOrder = 'accuracy') {
+  return rankRecords(records, order).slice(0, limit)
+}
+
+// Editing a list changes the task, so only runs at its current word count are compared. Records without a word
+// count predate that field and cannot be matched. With no matching run, every record is compared instead.
+export function comparableRecords(list: Pick<SavedWordList, 'words' | 'records'>, records: StoredRecord[] = list.records) {
+  const same = records.filter(record => record.wordCount === list.words.length)
+  return same.length ? same : records
+}
+
+// The record every screen shows as a list's best: ベスト記録, the practice result, 練習記録 and the home dashboard.
+export function listBest(list: Pick<SavedWordList, 'words' | 'records'>) {
+  return bestRecords(comparableRecords(list), 1)[0]
 }
 
 export function removeRecord(lists: SavedWordList[], listId: string, record: StoredRecord) {
@@ -47,14 +68,30 @@ export const NO_DEVICE = 'none'
 
 // Every record with its list, newest first. `best` marks the record that currently ranks first in its list.
 export function recordRows(lists: SavedWordList[]): RecordRow[] {
-  const best = new Set(lists.flatMap(list => bestRecords(list.records, 1)))
+  const best = new Set(lists.flatMap(list => listBest(list) ?? []))
   return recentRecords(lists).map(({ list, record, index }) =>
     ({ list, record, index, key: `${list.id}-${record.id ?? `${index}-${record.date}`}`, best: best.has(record) }))
 }
 
+export function matchesDevice(record: StoredRecord, device: string | null) {
+  return !device || (device === NO_DEVICE ? !record.device : record.device?.id === device)
+}
+
 export function filterRows(rows: RecordRow[], filter: RecordFilter) {
-  return rows.filter(row => (!filter.list || row.list.id === filter.list) &&
-    (!filter.device || (filter.device === NO_DEVICE ? !row.record.device : row.record.device?.id === filter.device)))
+  return rows.filter(row => (!filter.list || row.list.id === filter.list) && matchesDevice(row.record, filter.device))
+}
+
+// Devices come from the records themselves, so deleted or renamed devices can still be picked (by id, with the
+// newest name). Records without a device are grouped last.
+export function deviceOptions(records: StoredRecord[]) {
+  const options = new Map<string, { value: string; label: string; count: number }>()
+  for (const record of [...records].sort((a, b) => Date.parse(b.date) - Date.parse(a.date))) {
+    const value = record.device?.id ?? NO_DEVICE
+    const option = options.get(value)
+    if (option) option.count++
+    else options.set(value, { value, label: record.device ? deviceLabel(record.device) : '端末の記録なし', count: 1 })
+  }
+  return [...options.values()].sort((a, b) => Number(a.value === NO_DEVICE) - Number(b.value === NO_DEVICE) || b.count - a.count)
 }
 
 // Days follow the viewer's local calendar, like the home dashboard.
@@ -76,6 +113,10 @@ export function recordTimeParts(seconds: number): [string, string][] {
   const hundredths = Math.round(seconds * 100)
   if (hundredths < 6000) return [[(hundredths / 100).toFixed(2), '秒']]
   return [[String(Math.floor(hundredths / 6000)), '分'], [(hundredths % 6000 / 100).toFixed(2).padStart(5, '0'), '秒']]
+}
+
+export function formatRecordTime(seconds: number) {
+  return recordTimeParts(seconds).map(part => part.join('')).join('')
 }
 
 export function secondsPerWord(record: StoredRecord) {

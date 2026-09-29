@@ -13,11 +13,15 @@ import { cn } from '@/lib/utils'
 type SaveState = 'idle' | 'saving' | 'saved' | 'failed'
 
 // Ranks use the same order as the best records (accuracy first, then time), so only rank 1 is shown as an improvement.
-function comparison(record: PracticeRecord | null, records: SavedWordList['records'], saveState: SaveState) {
-  const ranked = bestRecords(records, Infinity)
+// Like ベスト記録, only runs at this word count are compared: a run from before the list was edited is a different task.
+function comparison(record: PracticeRecord | null, records: SavedWordList['records'], wordCount: number, saveState: SaveState) {
+  const ranked = bestRecords(records.filter(item => item.wordCount === wordCount), Infinity)
   const rank = record && saveState === 'saved' ? ranked.findIndex(item => item.id === record.id) + 1 : 0
   const previous = ranked.find(item => item.id !== record?.id)
-  if (!previous) return { rank, note: 'このリストの最初の記録', improved: false, best: false }
+  if (!previous) {
+    const earlier = records.some(item => item.id !== record?.id)
+    return { rank, note: earlier ? `今の${wordCount}語では最初の記録` : 'このリストの最初の記録', improved: false, best: false }
+  }
   if (rank === 1 && record) {
     const difference = record.time - previous.time
     return { rank, best: true, improved: true, note: difference < 0 ? `ベスト比 −${(-difference).toFixed(2)} 秒` : '正確率でベストを更新' }
@@ -41,7 +45,7 @@ export default function PracticeResult({ listName, wordCount, result, correct, s
 }) {
   const again = useRef<HTMLButtonElement>(null)
   useEffect(() => { again.current?.focus({ preventScroll: true }) }, [])
-  const { rank, note, improved, best } = comparison(record, records, saveState)
+  const { rank, note, improved, best } = comparison(record, records, wordCount, saveState)
   const tiles = [
     { term: '所要時間', value: result.time.toFixed(2), unit: '秒', note, good: improved, icon: improved && note.startsWith('ベスト比') },
     { term: '正確率', value: String(result.accuracy), unit: '%', note: `ミス ${result.mistakes} 文字` },

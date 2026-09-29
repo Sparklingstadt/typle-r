@@ -2,13 +2,13 @@ import Link from 'next/link'
 import { Keyboard, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { formatDay } from '@/lib/dashboard'
-import { bestRecords, formatAccuracy } from '@/lib/records'
+import { formatAccuracy, listBest } from '@/lib/records'
 import type { SavedWordList } from '@/lib/wordLists'
 import { RecordTime } from '@/components/Records/RecordRow'
 
 // Shown while one list is selected: how that list is going, and the way back to practising it.
 export default function ListSummary({ list, now }: { list: SavedWordList; now: Date }) {
-  const best = bestRecords(list.records, 1)[0]
+  const best = listBest(list)
   const last = list.records.reduce<string | null>((latest, record) => !latest || Date.parse(record.date) > Date.parse(latest) ? record.date : latest, null)
   return <section aria-labelledby="list-summary-heading" className="grid gap-4 rounded-xl border bg-card p-4 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center sm:gap-6 sm:p-5">
     <div className="min-w-0">
@@ -23,7 +23,7 @@ export default function ListSummary({ list, now }: { list: SavedWordList; now: D
         <span className="ml-2 text-xs text-muted-foreground">{formatDay(new Date(best.date), now)}</span></p>
     </div>}
     <div className="flex flex-wrap gap-2">
-      <Button asChild variant="outline" className="grow sm:grow-0"><Link href="/rankings">ベスト記録</Link></Button>
+      <Button asChild variant="outline" className="grow sm:grow-0"><Link href={`/rankings?list=${encodeURIComponent(list.id)}`}>ベスト記録</Link></Button>
       <Button asChild className="grow sm:grow-0"><Link href={`/play?list=${encodeURIComponent(list.id)}`}><Keyboard aria-hidden="true" />練習する</Link></Button>
     </div>
   </section>

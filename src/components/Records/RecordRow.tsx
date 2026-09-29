@@ -13,7 +13,7 @@ export function clock(date: string) {
 }
 
 export function BestBadge() {
-  return <span title="このリストのベスト記録（正確率の高い順、同率なら所要時間の短い順で1位）"
+  return <span title="このリストのベスト記録（今の単語数の記録のうち、正確率の高い順、同率なら所要時間の短い順で1位）"
     className="inline-flex h-5 shrink-0 items-center gap-1 rounded-full bg-amber-100 px-2 text-xs font-bold text-amber-800 dark:bg-amber-950 dark:text-amber-300">
     <Trophy className="size-3" aria-hidden="true" />ベスト
   </span>
