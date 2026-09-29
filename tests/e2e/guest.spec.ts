@@ -49,7 +49,7 @@ test('guest can create, import, export, edit, practice, manage devices and delet
   await input.pressSequentially('a')
   await expect(page.getByLabel('練習結果', { exact: true })).toContainText('練習記録を保存しました。')
   await page.goto('/rankings')
-  await expect(page.getByRole('table', { name: 'Guest saved のベスト記録', exact: true })).toContainText('Guest Mac')
+  await expect(page.getByRole('table', { name: 'Guest saved の上位の記録', exact: true })).toContainText('Guest Mac')
   await page.goto('/records')
   await page.reload()
   await expect(page.getByRole('listitem').filter({ hasText: 'Guest saved' })).toContainText('Guest Mac')

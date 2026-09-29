@@ -132,7 +132,7 @@ test('supporting pages, root redirect and GitHub link', async ({ page }) => {
   await page.goto('/')
   await expect(page).toHaveURL(/\/home$/)
   await expect(page.getByRole('link', { name: 'GitHub', exact: true })).toHaveAttribute('href', 'https://github.com/Sparklingstadt/typle-r')
-  for (const [path, title] of [['/guide', '使い方'], ['/about', 'Typleについて'], ['/rankings', '自分のベスト記録']]) {
+  for (const [path, title] of [['/guide', '使い方'], ['/about', 'Typleについて'], ['/rankings', 'ベスト記録']]) {
     await page.goto(path)
     await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible()
   }
@@ -373,8 +373,12 @@ test('best five records sort by accuracy then time and refresh after practice', 
   await expect(table).not.toContainText('9.00 秒')
   await page.reload()
   await expect(table).not.toContainText('9.00 秒')
-  await page.goto('/rankings')
-  await expect(page.getByRole('table', { name: 'Best のベスト記録', exact: true }).locator('tbody tr')).toHaveCount(5)
+  await page.getByRole('link', { name: 'すべてのベスト記録', exact: true }).click()
+  await expect(page).toHaveURL(/\/rankings\?list=best$/)
+  const ranking = page.getByRole('table', { name: 'Best の上位の記録', exact: true })
+  await expect(ranking.locator('tbody tr')).toHaveCount(5)
+  await page.getByRole('button', { name: 'すべて表示（7件）', exact: true }).click()
+  await expect(ranking.locator('tbody tr')).toHaveCount(7)
 })
 
 test('save and delete notifications stack and animate before being dismissed', async ({ page }) => {
@@ -523,8 +527,11 @@ test('devices persist, are locked during practice, and survive rename and deleti
   // Records keep the device name from when they were practised, even after it is renamed and deleted.
   await expect(page.getByRole('listitem').filter({ hasText: 'MacBook（JIS）' })).toHaveCount(1)
   await expect(page.getByRole('listitem').filter({ hasText: '端末の記録なし' })).toHaveCount(1)
-  await page.goto('/rankings')
-  await expect(page.getByRole('cell', { name: 'MacBook（JIS）', exact: true })).toBeVisible()
+  await page.goto('/rankings?list=devices')
+  // The deleted device keeps the name it had when practised, marked as deleted.
+  const deviceCell = page.getByRole('table', { name: 'Devices practice の上位の記録', exact: true }).getByRole('cell').filter({ hasText: 'MacBook' })
+  await expect(deviceCell).toHaveAttribute('title', 'MacBook（JIS）')
+  await expect(deviceCell).toContainText('削除済み')
   await page.goto('/play')
   await expect(page.getByRole('button', { name: '使用端末：未選択', exact: true })).toBeVisible()
 })

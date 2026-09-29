@@ -15,6 +15,7 @@ import { useWordLists } from "@/lib/useWordLists"
 import type { SavedWordList } from "@/lib/wordLists"
 import { usePractice } from "@/lib/usePractice"
 import { compareInput, typingSpeed, type TypingSession } from "@/lib/typing"
+import { comparableRecords } from "@/lib/records"
 import { cn } from "@/lib/utils"
 import type { WorkspaceUpdate } from "@/lib/workspaceClient"
 import Page from "@/components/Page/Page"
@@ -106,7 +107,9 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
   const started = session.startedAt !== null
   const running = started && !finished
   const words = list?.words ?? []
-  const selectedRecords = wordLists.find(item => item.id === list?.id)?.records ?? []
+  const selectedList = wordLists.find(item => item.id === list?.id)
+  const selectedRecords = selectedList?.records ?? []
+  const bestCandidates = selectedList ? comparableRecords(selectedList) : []
   // Colour only committed text: IME composition (romaji, pinyin) is shown in the input but never judged.
   const comparison = compareInput(word?.input ?? '', session.input)
   const hasError = comparison.errorIndex >= 0
@@ -265,9 +268,9 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
             <h2 className="shrink-0 text-[15px] font-bold">ベスト記録</h2>
             <span className="truncate text-xs text-muted-foreground">{list.name}</span>
           </div>
-          <p className="text-xs text-muted-foreground">正確率が高い順・同じなら速い順</p>
-          <PracticeBestRecords records={selectedRecords} highlightId={saveState === 'saved' ? record?.id : undefined} />
-          <Link href="/rankings" className="inline-flex w-fit items-center gap-1 rounded-sm px-2 pt-1 text-[13px] font-medium outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">すべてのベスト記録<ArrowRight className="size-3.5" aria-hidden="true" /></Link>
+          <p className="text-xs text-muted-foreground">正確率が高い順・同じなら速い順{bestCandidates.length < selectedRecords.length && `・今の${selectedList?.words.length}語の記録`}</p>
+          <PracticeBestRecords records={bestCandidates} highlightId={saveState === 'saved' ? record?.id : undefined} />
+          <Link href={`/rankings?list=${encodeURIComponent(list.id)}`} className="inline-flex w-fit items-center gap-1 rounded-sm px-2 pt-1 text-[13px] font-medium outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">すべてのベスト記録<ArrowRight className="size-3.5" aria-hidden="true" /></Link>
         </Card>
       </aside>
     </div>}

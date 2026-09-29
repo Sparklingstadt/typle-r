@@ -51,18 +51,23 @@ P1 = 迷い・手戻りが起きる／P2 = 見た目・情報設計（データ�
 
 ## 実装メモ
 
-- 試作: `src/components/Rankings/RankingsProposal.tsx`（Figma の After はこの試作から書き出した。デモ用に `?list=`・`?device=`・`?order=speed`・`?include=1`・`?all=1`・`?q=`・`?mock=loading` で状態を再現できる）
-- 主な変更箇所: `src/app/(workspace)/rankings/page.tsx`、`src/lib/records.ts`、`src/components/Practice/PracticeBestRecords.tsx`・`src/app/(workspace)/play/page.tsx`（単語リスト欄のベスト）、`src/app/(workspace)/records/page.tsx`（`?list=` の絞り込み）
-- 比べる記録: `record.wordCount === list.words.length` の記録で順位を付ける。単語数のない古い記録は「単語数が違う記録」に含める。今の単語数の記録がなければ全件で順位を付ける。/play の結果画面の「自己ベスト更新」とベスト記録も同じ関数を使うと、/rankings と食い違わない
+- Figma の After は、実装前に作った試作ページ（実装時に削除）から書き出した
+- 比べる記録: `record.wordCount === list.words.length` の記録で順位を付ける。単語数のない古い記録は「単語数が違う記録」に含める。今の単語数の記録がなければ全件で順位を付ける。/play の結果画面の「自己ベスト更新」とベスト記録も同じ考え方にすると、/rankings と食い違わない
 - 並べ方: 正確率を優先は既存の `bestRecords`（正確率 → 時間、正確率なしは最後）。速さを優先は時間 → 正確率。`bestRecords` に並べ方の引数を足して共有する
 - 「更新」: 自己ベストの日時が直近7日以内で、それより前の記録があるとき
 - 端末の絞り込み: `record.device?.id` で数える（/devices の `deviceUsage` と同じ考え方）。削除した端末は記録に残るスナップショットの名前で出す
 - 推移グラフは `TrendChart` と `speedScale` をそのまま使える。60秒以上の時間の表記はホームの `formatDuration` とは別に、小数2桁を残す書式が要る
-- 順位の基準と端末の選択は、URL に持たせるか画面内の状態にするかを決める（試作は画面内。共有や再読み込みで保つなら URL）
 
 ## 実装状況
 
-- 未実装（デザイン案のみ）
+v0.24.0 で実装。
+
+- 画面: `src/app/(workspace)/rankings/page.tsx`（URL の `?list=`・`?device=`・`?order=speed` を読み書き）、`src/components/Rankings/`（一覧 `RankingList`・詳細 `RankingDetail`・上位の記録 `TopRecords`）。旧 `BestRecordsTable` は削除
+- ロジック: `src/lib/records.ts` に `rankRecords`・`comparableRecords`・`listBest`・`deviceOptions` など、`src/lib/rankings.ts` に一覧・詳細用の集計（`listRanking`・`sortRankings`・`rankingStats`）
+- 同じ基準に合わせた画面: /play（単語リスト欄のベスト、ベスト記録、結果の順位と「今の◯語では最初の記録」）、/records（ベストの印、削除時の次のベスト、リストのカード。「ベスト記録」は `/rankings?list=<id>` を開く）、ホーム（リストごとのベスト）
+- 決めたこと: 順位の基準と端末は URL に持たせる（共有・再読み込みで保つ）。「含めて表示」と「すべて表示」は画面内の状態で、リストを切り替えると閉じる。1280px 未満でリストを開くと履歴に積むので、ブラウザーの戻るで一覧に戻れる。一覧と詳細を切り替えたときは、詳細の見出し・直前のリストにフォーカスを移す
+- 試作からの変更: 端末メニューは /records と同じ `FilterMenu` にした（削除した端末は見出しで分けず、名前に「（削除済み）」を付ける）。モバイルの一覧では、開いていないリストを選択中として強調しない。一覧の回数は、その端末で練習した回数（単語数が違う記録も含む）
+- テスト: `tests/rankings.test.cjs`（並べ方・比べる記録・端末・「更新」・並び順・統計）、`tests/e2e/rankings.spec.ts`（1440px の操作と URL、390px の一覧⇄詳細と戻る、/play・/records との一致、空・読み込みエラー）
 
 ## 対象外
 

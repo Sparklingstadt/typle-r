@@ -1,4 +1,4 @@
-import { bestRecords } from './records'
+import { listBest } from './records'
 import type { SavedWordList } from './wordLists'
 
 type StoredRecord = SavedWordList['records'][number]
@@ -113,7 +113,7 @@ export function listTrends(lists: SavedWordList[]): ListTrend[] {
       // Seconds per word stays comparable after words are added to or removed from a list.
       speed: trend(records.flatMap(record => record.wordCount ? [{ date: record.date, value: record.time / record.wordCount }] : [])),
       accuracy: trend(records.flatMap(record => record.accuracy === undefined ? [] : [{ date: record.date, value: record.accuracy }])),
-      best: bestRecords(list.records, 1)[0],
+      best: listBest(list)!,
     }
   }).sort((a, b) => b.lastPracticed.getTime() - a.lastPracticed.getTime())
 }
