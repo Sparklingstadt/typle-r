@@ -1,22 +1,29 @@
 "use client"
-import { Suspense, useState } from "react"
+import { Suspense, useEffect, useRef, useState } from "react"
+import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { deviceLabel, type PracticeDevice } from "@/lib/devices"
-import DeviceSelector from "@/components/DeviceSelector"
+import { ArrowRight, ChevronDown, ChevronsUpDown, ChevronUp, CircleAlert, Gauge, List, MousePointerClick, Plus, RotateCcw, Search, Target, Timer, X } from "lucide-react"
+import type { PracticeDevice } from "@/lib/devices"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
+import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { useWordLists } from "@/lib/useWordLists"
 import type { SavedWordList } from "@/lib/wordLists"
 import { usePractice } from "@/lib/usePractice"
-import BestRecordsTable from "@/components/BestRecordsTable"
+import { compareInput, typingSpeed, type TypingSession } from "@/lib/typing"
+import { cn } from "@/lib/utils"
 import type { WorkspaceUpdate } from "@/lib/workspaceClient"
 import Page from "@/components/Page/Page"
 import PageContainer from "@/components/PageContainer/PageContainer"
+import TargetText from "@/components/Practice/TargetText"
+import Kbd from "@/components/Practice/Kbd"
+import DeviceMenu from "@/components/Practice/DeviceMenu"
+import WordListOptions from "@/components/Practice/WordListOptions"
+import PracticeBestRecords from "@/components/Practice/PracticeBestRecords"
+import PracticeResult from "@/components/Practice/PracticeResult"
 
 const loading = <Page><PageContainer><p>読み込み中…</p></PageContainer></Page>
 
@@ -32,6 +39,49 @@ function PlayWorkspace() {
   return <Practice key={accountId} accountId={accountId ?? ""} devices={devices} wordLists={lists} listId={listId} error={error} update={update} />
 }
 
+// Ticks only while a session is running, for the live elapsed time and speed.
+function useNow(active: boolean) {
+  const [now, setNow] = useState(0)
+  useEffect(() => {
+    if (!active) return
+    const timer = window.setInterval(() => setNow(Date.now()), 200)
+    return () => window.clearInterval(timer)
+  }, [active])
+  return now
+}
+
+function formatClock(milliseconds: number) {
+  const seconds = Math.max(0, milliseconds) / 1000
+  return `${Math.floor(seconds / 60)}:${(seconds % 60).toFixed(1).padStart(4, '0')}`
+}
+
+// Owns the ticking clock, so only these four values re-render every 200ms instead of the whole page.
+function LiveStats({ session, accuracy }: { session: TypingSession; accuracy: number }) {
+  const running = session.startedAt !== null && session.finishedAt === null
+  const now = useNow(running)
+  const elapsed = running && now > (session.startedAt ?? 0) ? now - (session.startedAt ?? 0) : 0
+  const speed = running ? typingSpeed(session, now) : null
+  const stats = [
+    { icon: Timer, term: '経過', value: formatClock(elapsed) },
+    { icon: Gauge, term: '速度', value: speed === null ? '—' : String(speed), unit: '打/分' },
+    { icon: Target, term: '正確率', value: session.attempts ? `${Math.round(accuracy * 10) / 10}%` : '—' },
+    { icon: X, term: 'ミス', value: String(session.mistakes) },
+  ]
+  return <dl aria-label="練習中の記録" className="mx-4 mb-4 grid grid-cols-4 rounded-xl border bg-muted/40 px-1 py-2.5 text-center sm:mx-6 sm:mb-5 sm:px-2 sm:py-3">
+    {stats.map(stat => <div key={stat.term} className="grid gap-0.5">
+      <dt className="inline-flex items-center justify-center gap-1 text-[11px] text-muted-foreground sm:text-xs"><stat.icon className="size-3" aria-hidden="true" />{stat.term}</dt>
+      <dd className="text-base font-medium tabular-nums sm:text-xl">{stat.value}{stat.unit && <span className="ml-0.5 text-[11px] font-normal text-muted-foreground sm:text-xs">{stat.unit}</span>}</dd>
+    </div>)}
+  </dl>
+}
+
+// Shorter text gets the large size; anything over 24 characters wraps as a left-aligned paragraph.
+function wordSize(text: string) {
+  const length = Array.from(text).length
+  if (length > 24) return 'text-xl leading-relaxed text-left sm:text-[26px] max-w-[34em]'
+  return length > 10 ? 'text-[32px] leading-tight sm:text-[44px]' : 'text-[44px] leading-tight sm:text-[64px]'
+}
+
 function Practice({ wordLists, listId, error, update, devices, accountId }: {
   devices: PracticeDevice[]
   accountId: string
@@ -45,88 +95,217 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
     try { return localStorage.getItem(storageKey) ?? '' } catch { return '' }
   })
   const device = devices.find(item => item.id === deviceId)
-  const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, saved, input, word, finished, result, restart, retrySave } = usePractice(wordLists, update, device, listId)
-  const typedCharacters = Array.from(composition ?? session.input)
+  const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave } = usePractice(wordLists, update, device, listId)
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const [pendingSwitch, setPendingSwitch] = useState<number | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [showAll, setShowAll] = useState(false)
+  const [inputFocused, setInputFocused] = useState(false)
+  const [focusedOnce, setFocusedOnce] = useState(false)
+  const allWords = useRef<HTMLUListElement>(null)
+  const pickerOpener = useRef<HTMLElement | null>(null)
+  const started = session.startedAt !== null
+  const running = started && !finished
+  const words = list?.words ?? []
   const selectedRecords = wordLists.find(item => item.id === list?.id)?.records ?? []
+  // Colour only committed text: IME composition (romaji, pinyin) is shown in the input but never judged.
+  const comparison = compareInput(word?.input ?? '', session.input)
+  const hasError = comparison.errorIndex >= 0
+  const dialogOpen = pickerOpen || pendingSwitch !== null || menuOpen
+  const showResume = focusedOnce && !inputFocused && !finished && !dialogOpen && words.length > 0
 
-  return <Page className="pb-12"><PageContainer className={finished ? undefined : "pt-0 sm:pt-0 lg:pt-0"}>
-    {error && <Alert variant="destructive" className="my-4"><AlertDescription>{error}</AlertDescription></Alert>}
-    {!list?.words.length ? <p>単語がありません。単語リストを作成してください。</p> : <>
-      {!finished && <>
-        <div className="relative -mx-5 sm:-mx-8 lg:-mx-16">
-        {word?.annotation && <p className="absolute inset-x-4 top-2 z-10 text-base text-center text-foreground break-words">{word.annotation}</p>}
-        <div id="wordDisplay" className="bg-muted text-foreground h-28 px-8 text-4xl leading-none text-center whitespace-nowrap overflow-x-auto flex items-center justify-center">
-          {Array.from(word?.display ?? "").map((char, index) => {
-            const typed = typedCharacters[index]
-            return <span key={index} className={typed === undefined ? "" : typed === char ? "text-green-700 dark:text-green-400 underline" : "text-red-700 dark:text-red-400 underline"}>{char}</span>
-          })}
-        </div>
-        </div>
-      </>}
-      <div className="-mx-5 sm:-mx-8 lg:-mx-16">
-      <Input ref={input} id="wordInputField" className={`border rounded-none h-28 px-8 py-0 w-full text-4xl md:text-4xl leading-none text-center focus-visible:border-input focus-visible:ring-0 aria-invalid:border-input aria-invalid:ring-0 dark:aria-invalid:border-input ${finished ? "hidden" : ""}`}
-        placeholder="ここに単語を入力"
-        value={composition ?? session.input} disabled={finished} autoComplete="off" autoCapitalize="off" spellCheck={false}
-        aria-label="表示された文字を入力" aria-invalid={!!session.input && !word?.input.startsWith(session.input)}
-        onPaste={event => event.preventDefault()} onDrop={event => event.preventDefault()}
-        onCompositionStart={startComposition}
-        onCompositionEnd={event => endComposition(event.currentTarget.value)}
-        onChange={event => changeInput(event.target.value, (event.nativeEvent as InputEvent).isComposing)} />
-      </div>
-      {!finished && <ul className="mt-4 flex flex-wrap gap-2" aria-label="単語の進捗">
-        {list.words.map((item, index) => {
-          const completed = finished || index < session.index
-          return <li key={index} className="max-w-full">
-            <Badge variant="secondary"
-              className={`h-auto max-w-full whitespace-normal break-all px-3 py-1 text-sm ${completed ? 'bg-green-100 text-green-800 border-green-300' : ''}`}
-              aria-current={!finished && index === session.index ? 'step' : undefined}>
-              {item.display}<span className="sr-only">{completed ? '（完了）' : index === session.index ? '（入力中）' : '（未入力）'}</span>
-            </Badge>
-          </li>
-        })}
-      </ul>}
-      {finished ? <h1 className="text-2xl mb-6">練習完了：{list.name}</h1>
-        : <p className="my-4" role="status">{`${session.index + 1} / ${list.words.length} 単語`}</p>}
-      {finished && <Card aria-label="練習結果" className="my-6"><CardContent className="space-y-2">
-        <h2 className="text-xl">おつかれさまでした！</h2>
-        <Table aria-label="練習結果の詳細">
-          <TableBody>
-            <TableRow><TableHead scope="row">端末</TableHead><TableCell className="whitespace-normal break-words">{deviceLabel(practiceDevice)}</TableCell></TableRow>
-            <TableRow><TableHead scope="row">完了した単語数</TableHead><TableCell>{list.words.length} 単語</TableCell></TableRow>
-            <TableRow><TableHead scope="row">所要時間</TableHead><TableCell>{result.time.toFixed(2)} 秒</TableCell></TableRow>
-            <TableRow><TableHead scope="row">ミス数</TableHead><TableCell>{result.mistakes} 文字</TableCell></TableRow>
-            <TableRow><TableHead scope="row">正確率</TableHead><TableCell>{result.accuracy}%</TableCell></TableRow>
-          </TableBody>
-        </Table>
-        <p role="status">{saved ? "練習記録を保存しました。" : "記録はまだ保存されていません。"}</p>
-        {!saved && <Button onClick={retrySave}>記録の保存を再試行</Button>}
-      </CardContent></Card>}
-    </>}
-    {!finished && <DeviceSelector devices={session.startedAt !== null ? (practiceDevice ? [practiceDevice] : []) : devices} selectedId={(session.startedAt !== null ? practiceDevice : device)?.id ?? ''} disabled={session.startedAt !== null} onChange={id => {
-      setDeviceId(id)
-      try { localStorage.setItem(storageKey, id) } catch { /* Selection still works when browser storage is unavailable. */ }
+  useEffect(() => {
+    const box = allWords.current
+    const current = box?.querySelector<HTMLElement>('[aria-current="step"]')
+    if (box && current) box.scrollTop = current.offsetTop - 48
+  }, [showAll, session.index])
+
+  // While the input has lost focus, any printable key or Enter outside another control brings it back.
+  useEffect(() => {
+    if (!showResume) return
+    function resume(event: KeyboardEvent) {
+      if (event.defaultPrevented || event.isComposing || event.metaKey || event.ctrlKey || event.altKey) return
+      if (event.target instanceof Element && event.target.closest('input, textarea, select, button, a, [contenteditable="true"]')) return
+      if (event.key.length !== 1 && event.key !== 'Enter') return
+      event.preventDefault()
       input.current?.focus()
-    }} />}
-    <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-    <section className="min-w-0" aria-label="選択中リストのベスト記録">
-      <h2 className="mb-3 text-xl">ベスト記録</h2>
-      <BestRecordsTable records={selectedRecords} label="ベスト記録 上位5件" />
-    </section>
-    <section className="min-w-0" aria-label="単語リストの選択">
-    <h2 className="mb-3 text-xl">単語リスト</h2>
-    <Table aria-label="単語リスト">
-      <TableHeader><TableRow><TableHead scope="col">単語リスト名</TableHead><TableHead scope="col" className="w-24 text-right">選択</TableHead></TableRow></TableHeader>
-      <TableBody>
-        {wordLists.map((item, index) => <TableRow key={item.id}>
-          <TableHead scope="row" className="whitespace-normal break-all">{item.name}</TableHead>
-          <TableCell className="text-right">
-            <Button variant={index === selected ? "default" : "outline"}
-              aria-label={`${item.name} ${index === selected ? 'を選択中' : 'を選択'}`} aria-pressed={index === selected} onClick={() => restart(index)}>{index === selected ? '選択中' : '選択'}</Button>
-          </TableCell>
-        </TableRow>)}
-      </TableBody>
-    </Table>
-    </section>
-    </div>
-  </PageContainer></Page>
+    }
+    document.addEventListener('keydown', resume)
+    return () => document.removeEventListener('keydown', resume)
+  }, [showResume, input])
+
+  // After a dialog or menu closes, typing continues in the input; on the result screen focus returns to the trigger.
+  function focusPractice(event: Event) {
+    if (finished) return
+    event.preventDefault()
+    input.current?.focus()
+  }
+  // The picker is opened from buttons that are not its Radix trigger, so remember where focus should return.
+  function openPicker() {
+    pickerOpener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    setPickerOpen(true)
+  }
+  function closePicker(event: Event) {
+    event.preventDefault()
+    if (finished) pickerOpener.current?.focus()
+    else input.current?.focus()
+  }
+  function switchTo(index: number) {
+    setShowAll(false)
+    restart(index)
+  }
+  function requestSwitch(id: string) {
+    const index = wordLists.findIndex(item => item.id === id)
+    setPickerOpen(false)
+    setQuery('')
+    if (index < 0) return
+    if (!running) switchTo(index)
+    else if (index !== selected) setPendingSwitch(index)
+  }
+  function chooseDevice(id: string) {
+    setDeviceId(id)
+    try { localStorage.setItem(storageKey, id) } catch { /* Selection still works when browser storage is unavailable. */ }
+  }
+
+  const filteredLists = wordLists.filter(item => item.name.toLowerCase().includes(query.trim().toLowerCase()))
+  const next = words.slice(session.index + 1, session.index + 4)
+  const remaining = words.length - session.index - 1 - next.length
+  const progressText = `${finished ? words.length : session.index + 1} / ${words.length} 語`
+  const feedback = hasError
+    ? <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{comparison.errorIndex + 1}文字目から違います。Backspace で直してください。</span>
+    : composition !== null ? <span>変換中の文字は、確定してから判定します</span>
+    : <span className="hidden flex-wrap items-center justify-center gap-x-4 gap-y-1 sm:flex"><span className="inline-flex items-center gap-1.5"><Kbd>Backspace</Kbd>1文字戻る</span><span className="inline-flex items-center gap-1.5"><Kbd>Esc</Kbd>最初からやり直す</span></span>
+
+  return <main className="mx-auto my-6 w-11/12 max-w-7xl pb-12 sm:my-8">
+    {error && <Alert variant="destructive" className="mb-4"><AlertDescription>{error}</AlertDescription></Alert>}
+    {!list?.words.length ? <Card className="px-5 py-8 text-base sm:px-8"><p>単語がありません。<Link href="/create" className="underline">単語リストを作成</Link>してください。</p></Card> :
+    <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <Card className="min-w-0 gap-0 self-stretch py-0 text-base">
+        <div className="flex h-14 items-center gap-1.5 border-b px-2 sm:h-16 sm:gap-3 sm:px-3">
+          <button type="button" onClick={openPicker} aria-haspopup="dialog" aria-label={`単語リストを切り替える（現在: ${list.name}）`}
+            className="flex h-10 min-w-0 items-center gap-2 rounded-lg px-1.5 text-muted-foreground outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 sm:px-2.5">
+            <List className="hidden size-4 shrink-0 sm:block" aria-hidden="true" />
+            <span className="truncate text-[15px] font-bold text-foreground sm:text-base">{list.name}</span>
+            <span className="hidden shrink-0 text-[13px] sm:inline">{words.length}語</span>
+            <ChevronsUpDown className="size-4 shrink-0" aria-hidden="true" />
+          </button>
+          <span className="flex-1" />
+          <DeviceMenu devices={devices} device={running ? practiceDevice : device} locked={running} onChange={chooseDevice} onOpenChange={setMenuOpen} onCloseAutoFocus={focusPractice} />
+          <Button variant="ghost" size="lg" className="shrink-0 px-2 sm:px-2.5" onClick={() => restart()} aria-label="最初からやり直す" aria-keyshortcuts="Escape" title="最初からやり直す（Esc）">
+            <RotateCcw aria-hidden="true" /><span className="hidden sm:inline">やり直す</span><Kbd className="hidden sm:inline-flex">Esc</Kbd>
+          </Button>
+        </div>
+        <div className="flex items-center gap-3 px-4 pt-3 text-sm font-medium tabular-nums sm:px-6 sm:pt-4">
+          <div role="progressbar" aria-label="単語の進捗" aria-valuemin={0} aria-valuemax={words.length} aria-valuenow={finished ? words.length : session.index} aria-valuetext={progressText} className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+            <div className="h-full rounded-full bg-primary transition-[width] motion-reduce:transition-none" style={{ width: `${(finished ? 1 : session.index / words.length) * 100}%` }} />
+          </div>
+          <span aria-hidden="true">{progressText}</span>
+        </div>
+        {finished ? <PracticeResult listName={list.name} wordCount={words.length} result={result} correct={session.attempts - session.mistakes} speed={typingSpeed(session, 0)}
+          device={practiceDevice} record={record} records={selectedRecords} saveState={saveState} onRestart={() => restart()} onRetry={retrySave} onChooseList={openPicker} />
+        : <>
+          <div className="relative flex min-h-44 flex-1 flex-col items-center justify-center gap-3 px-4 pt-6 pb-2 text-center sm:min-h-52 sm:gap-3.5 sm:px-6 sm:pt-11">
+            {word?.annotation && <p className="max-w-full text-base break-words text-foreground">{word.annotation}</p>}
+            {word && word.display === word.input
+              ? <TargetText id="wordDisplay" {...comparison} className={wordSize(word.display)} />
+              : word && <>
+                <p id="wordDisplay" className={cn('m-0 max-w-full font-medium whitespace-pre-wrap [overflow-wrap:anywhere]', wordSize(word.display))}>{word.display}</p>
+                <div className="flex max-w-full flex-wrap items-center justify-center gap-2.5">
+                  <span className="rounded-full border px-2 text-xs text-muted-foreground">入力する文字</span>
+                  <TargetText {...comparison} className="text-2xl tracking-wide sm:text-3xl" />
+                </div>
+              </>}
+            {showResume && <button type="button" onClick={() => input.current?.focus()} className="absolute inset-0 z-10 grid place-items-center bg-card/70 outline-none backdrop-blur-sm">
+              <span className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"><MousePointerClick className="size-4" aria-hidden="true" />クリックまたは任意のキーで再開</span>
+            </button>}
+          </div>
+          <div className="flex flex-col items-center gap-2.5 px-4 pt-2 pb-4 sm:px-6 sm:pb-5">
+            <Input ref={input} id="wordInputField" placeholder="ここに入力" value={composition ?? session.input} autoComplete="off" autoCapitalize="off" spellCheck={false}
+              aria-label="表示された文字を入力" aria-invalid={hasError} aria-describedby="practice-feedback"
+              className={cn('h-13 w-full max-w-[440px] rounded-[10px] border-2 text-center text-[22px] md:text-2xl focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring/35 aria-invalid:ring-4 aria-invalid:focus-visible:border-destructive aria-invalid:focus-visible:ring-destructive/20 sm:h-14', composition !== null && 'underline decoration-dotted underline-offset-6')}
+              onPaste={event => event.preventDefault()} onDrop={event => event.preventDefault()}
+              onFocus={() => { setInputFocused(true); setFocusedOnce(true) }} onBlur={() => setInputFocused(false)}
+              onKeyDown={event => { if (event.key === 'Escape' && composition === null && !event.nativeEvent.isComposing) { event.preventDefault(); restart() } }}
+              onCompositionStart={startComposition}
+              onCompositionEnd={event => endComposition(event.currentTarget.value)}
+              onChange={event => changeInput(event.target.value, (event.nativeEvent as InputEvent).isComposing)} />
+            <p id="practice-feedback" aria-live="polite" className="flex min-h-5 flex-wrap items-center justify-center text-xs text-muted-foreground">{feedback}</p>
+          </div>
+          <LiveStats session={session} accuracy={result.accuracy} />
+          <div className="flex min-h-14 flex-wrap items-center gap-2 border-t px-4 py-2.5 sm:pr-3 sm:pl-6">
+            <span className="text-xs text-muted-foreground">次の単語</span>
+            {next.map((item, index) => <span key={index} className="inline-flex h-7 max-w-full items-center truncate rounded-full border px-3 text-[13px] text-muted-foreground">{item.display}</span>)}
+            {!next.length && <span className="text-xs text-muted-foreground">これが最後の単語です</span>}
+            {remaining > 0 && <span className="text-xs text-neutral-400 dark:text-neutral-500">ほか {remaining} 語</span>}
+            <span className="flex-1" />
+            <Button variant="ghost" size="lg" aria-expanded={showAll} aria-controls="all-words" onClick={() => { setShowAll(value => !value); input.current?.focus() }}>
+              すべての単語を表示{showAll ? <ChevronUp aria-hidden="true" /> : <ChevronDown aria-hidden="true" />}
+            </Button>
+            {showAll && <ul id="all-words" ref={allWords} aria-label="すべての単語" className="relative mt-1.5 flex max-h-44 basis-full flex-wrap gap-1.5 overflow-y-auto border-t border-dashed pt-2.5 pb-1">
+              {words.map((item, index) => {
+                const done = index < session.index
+                return <li key={index} className="max-w-full">
+                  <span aria-current={index === session.index ? 'step' : undefined}
+                    className={cn('inline-flex min-h-7 max-w-full items-center rounded-full border px-3 text-[13px] break-all text-muted-foreground',
+                      done && 'border-transparent bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300',
+                      index === session.index && 'border-transparent bg-primary text-primary-foreground')}>
+                    {item.display}<span className="sr-only">{done ? '（完了）' : index === session.index ? '（入力中）' : '（未入力）'}</span>
+                  </span>
+                </li>
+              })}
+            </ul>}
+          </div>
+        </>}
+      </Card>
+      <aside aria-label="単語リストとベスト記録" className="grid min-w-0 gap-6">
+        <Card className="gap-1 p-3">
+          <div className="flex items-center gap-2 pl-2">
+            <h2 className="text-[15px] font-bold">単語リスト</h2>
+            <span className="flex-1" />
+            <Button variant="ghost" size="lg" asChild><Link href="/create"><Plus aria-hidden="true" />作成</Link></Button>
+          </div>
+          <WordListOptions label="単語リスト" lists={wordLists} selectedId={list.id} onSelect={requestSwitch} />
+        </Card>
+        <Card className="gap-2 px-4 pt-4 pb-3">
+          <div className="flex min-w-0 items-baseline gap-2">
+            <h2 className="shrink-0 text-[15px] font-bold">ベスト記録</h2>
+            <span className="truncate text-xs text-muted-foreground">{list.name}</span>
+          </div>
+          <p className="text-xs text-muted-foreground">正確率が高い順・同じなら速い順</p>
+          <PracticeBestRecords records={selectedRecords} highlightId={saveState === 'saved' ? record?.id : undefined} />
+          <Link href="/rankings" className="inline-flex w-fit items-center gap-1 rounded-sm px-2 pt-1 text-[13px] font-medium outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">すべてのベスト記録<ArrowRight className="size-3.5" aria-hidden="true" /></Link>
+        </Card>
+      </aside>
+    </div>}
+    <Dialog open={pickerOpen} onOpenChange={open => { setPickerOpen(open); if (!open) setQuery('') }}>
+      <DialogContent className="max-w-md" onCloseAutoFocus={closePicker}>
+        <DialogHeader>
+          <DialogTitle>単語リストを選ぶ</DialogTitle>
+          <DialogDescription>練習の途中で別のリストを選ぶと、中断してよいか確認します。</DialogDescription>
+        </DialogHeader>
+        <label className="flex h-10 items-center gap-2 rounded-lg border px-3 text-muted-foreground focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+          <Search className="size-4 shrink-0" aria-hidden="true" />
+          <input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="リスト名で絞り込む" aria-label="リスト名で絞り込む" autoComplete="off"
+            className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" />
+        </label>
+        {filteredLists.length ? <WordListOptions label="単語リストの候補" lists={filteredLists} selectedId={list?.id} onSelect={requestSwitch} />
+          : <p className="px-1 py-2 text-sm text-muted-foreground">一致するリストがありません。</p>}
+      </DialogContent>
+    </Dialog>
+    <AlertDialog open={pendingSwitch !== null} onOpenChange={open => { if (!open) setPendingSwitch(null) }}>
+      <AlertDialogContent onCloseAutoFocus={focusPractice}>
+        <AlertDialogHeader>
+          <AlertDialogTitle>練習を中断しますか？</AlertDialogTitle>
+          <AlertDialogDescription>
+            「{list?.name}」の進捗（{session.index} / {words.length} 語）は記録されません。「{pendingSwitch === null ? '' : wordLists[pendingSwitch]?.name}」に切り替えます。
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>練習を続ける</AlertDialogCancel>
+          <AlertDialogAction onClick={() => { if (pendingSwitch !== null) switchTo(pendingSwitch) }}>中断して切り替える</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </main>
 }

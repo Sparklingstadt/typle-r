@@ -37,3 +37,27 @@ export function sessionResult(session: TypingSession) {
     accuracy: session.attempts ? Math.round((session.attempts - session.mistakes) / session.attempts * 10000) / 100 : 100,
   }
 }
+
+export type CharacterState = 'done' | 'current' | 'error' | 'current-error' | 'pending'
+
+// Compare only committed input with the characters to type. Everything from the first mismatch on is an error,
+// so a later character that happens to match is not shown as correct.
+export function compareInput(target: string, typed: string) {
+  const characters = Array.from(target)
+  const actual = Array.from(typed)
+  let errorIndex = actual.findIndex((char, index) => index < characters.length && char !== characters[index])
+  if (errorIndex === -1 && actual.length > characters.length) errorIndex = characters.length
+  const states = characters.map((_, index): CharacterState => {
+    if (index < actual.length) return errorIndex === -1 || index < errorIndex ? 'done' : 'error'
+    if (index === actual.length) return errorIndex === -1 ? 'current' : 'current-error'
+    return 'pending'
+  })
+  return { characters, states, extra: actual.slice(characters.length), errorIndex }
+}
+
+// Correctly typed characters per minute (committed characters for IME input); null until a second has passed.
+export function typingSpeed(session: TypingSession, now: number) {
+  if (session.startedAt === null) return null
+  const elapsed = (session.finishedAt ?? now) - session.startedAt
+  return elapsed < 1000 ? null : Math.round((session.attempts - session.mistakes) / (elapsed / 60000))
+}
