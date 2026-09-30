@@ -1,7 +1,13 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { ArrowRight, Cloud, Command, HardDrive, History, Keyboard, List, Monitor, Plus, TriangleAlert, Trophy, type LucideIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ColorLegend, GuideSection, Keys, PageLink, Points, Topic, guideLink } from "@/components/Guide/GuideParts"
+
+export const metadata: Metadata = {
+  title: "使い方 | Typle",
+  description: "Typleの練習の始め方、単語リストの作り方、記録の見方、データの保存先、キーボード操作をまとめています。",
+}
 
 const contents = [
   { id: "practice", title: "練習する" },

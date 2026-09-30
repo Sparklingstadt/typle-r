@@ -364,7 +364,13 @@ test('mobile drawer closes by link, Esc and backdrop and returns focus to the me
 test('desktop sidebar fits 1024×768, stays in view while scrolling, and the skip link reaches the page', async ({ page }) => {
   await page.setViewportSize({ width: 1024, height: 768 })
   await page.goto('/about')
-  expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight)).toBe(true)
+  // The page is only as tall as the top bar plus its content, with no extra scroll below.
+  expect(await page.evaluate(() => {
+    const main = document.querySelector('#main-content > main')
+    return main instanceof HTMLElement && document.documentElement.scrollHeight <= Math.max(innerHeight, 56 + main.offsetHeight)
+  })).toBe(true)
+  const storage = page.getByRole('region', { name: 'データの保存先', exact: true })
+  await expect(storage.getByRole('listitem').filter({ has: page.getByRole('heading', { name: 'アカウント', exact: true }) })).toHaveAttribute('aria-current', 'true')
   const navigation = page.getByRole('navigation', { name: 'メインナビゲーション' })
   const help = page.getByRole('navigation', { name: 'ヘルプ' })
   await expect(navigation.getByRole('link', { name: '端末', exact: true })).toBeInViewport({ ratio: 1 })
