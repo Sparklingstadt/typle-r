@@ -56,7 +56,7 @@ export default function About() {
       <Section id="storage-heading" title="データの保存先">
         <p className="max-w-2xl text-sm text-muted-foreground">ログインは任意です。ログインしているかどうかで保存先が変わり、2つのデータは別々に保存されます（自動では移行しません）。</p>
         <StorageComparison />
-        <p className="text-sm"><Link href="/guide#storage" className="underline underline-offset-3 hover:text-muted-foreground">使い方の「保存について」</Link>に詳しい説明があります。</p>
+        <p className="text-sm"><Link href="/guide#storage" className="underline underline-offset-3 hover:text-muted-foreground">使い方の「保存先とデータ」</Link>に詳しい説明があります。</p>
       </Section>
 
       <Section id="reports-heading" title="不具合の報告">
