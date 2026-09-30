@@ -57,12 +57,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="bg-muted/40 font-sans text-foreground antialiased">
       <AuthProvider>
       <Navbar />
-      <div className="min-h-screen flex">
-      <Sidebar />
-      <div className="min-w-0 flex-1">
-        { children }
+      <div className="flex min-h-[calc(100dvh-3.5rem)]">
+        <Sidebar />
+        <div id="main-content" tabIndex={-1} className="min-w-0 flex-1 outline-none">
+          { children }
+        </div>
       </div>
-    </div>
       </AuthProvider>
       </body>
     </html>

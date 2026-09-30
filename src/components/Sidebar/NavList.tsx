@@ -1,26 +1,53 @@
 "use client"
-import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useId } from "react"
 import { usePathname } from "next/navigation"
-import { House, Keyboard, History, Plus, Trophy, Pencil, Monitor } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { helpNavigation, isCurrentPath, mainNavigation, type NavLink } from "./navigation"
 
-const routes = [
-  { name: "ホーム", path: "/home", icon: House },
-  { name: "遊ぶ", path: "/play", icon: Keyboard },
-  { name: "端末", path: "/devices", icon: Monitor },
-  { name: "記録", path: "/records", icon: History },
-  { name: "作成", path: "/create", icon: Plus },
-  { name: "ベスト記録", path: "/rankings", icon: Trophy },
-  { name: "編集", path: "/edit", icon: Pencil },
-]
+const itemClass = (current: boolean) => cn(
+  "relative flex h-10 items-center gap-3 rounded-md px-3 text-sm outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-4 [&_svg]:shrink-0",
+  current
+    ? "bg-accent font-medium text-foreground before:absolute before:inset-y-2.5 before:left-0 before:w-[3px] before:rounded-full before:bg-primary"
+    : "text-foreground/80 hover:bg-accent/60 hover:text-foreground [&_svg]:text-muted-foreground hover:[&_svg]:text-foreground"
+)
 
-export default function NavList({ onNavigate, collapsed = false }: { onNavigate?: () => void; collapsed?: boolean }) {
+function Item({ link, pathname, onNavigate }: { link: NavLink; pathname: string; onNavigate?: () => void }) {
+  const current = !link.external && isCurrentPath(pathname, link.path)
+  const Icon = link.icon
+  const content = <><Icon aria-hidden="true" /><span className="min-w-0 truncate">{link.name}</span></>
+  return <li>
+    {link.external
+      ? <a href={link.path} className={itemClass(false)} onClick={onNavigate}>{content}</a>
+      : <Link href={link.path} className={itemClass(current)} onClick={onNavigate} aria-current={current ? "page" : undefined}>{content}</Link>}
+  </li>
+}
+
+function GroupLabel({ id, children }: { id: string; children: React.ReactNode }) {
+  return <p id={id} className="px-3 pt-4 pb-1 text-xs font-medium text-muted-foreground">{children}</p>
+}
+
+/** The sidebar's contents, shared by the desktop sidebar and the mobile drawer. */
+export default function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname()
-  return <nav aria-label="メインナビゲーション"><ul className="grid grid-cols-1 gap-1 p-1 lg:p-3">
-    {routes.map(route => <li key={route.path}>
-      <Button asChild variant={pathname === route.path ? 'secondary' : 'ghost'} className={`w-full gap-3 ${collapsed ? 'justify-center px-0 lg:justify-start lg:px-4' : 'justify-start'}`}>
-        <Link href={route.path} title={route.name} onClick={onNavigate} aria-current={pathname === route.path ? 'page' : undefined}><route.icon aria-hidden="true" /><span className={collapsed ? 'sr-only lg:not-sr-only' : undefined}>{route.name}</span></Link>
-      </Button>
-    </li>)}
-  </ul></nav>
+  const id = useId()
+  return <div className="flex min-h-full flex-col gap-4">
+    <nav aria-label="メインナビゲーション">
+      {mainNavigation.map((group, index) => {
+        const labelId = `${id}-group-${index}`
+        return <div key={group.label ?? index} role={group.label ? "group" : undefined} aria-labelledby={group.label ? labelId : undefined}>
+          {group.label && <GroupLabel id={labelId}>{group.label}</GroupLabel>}
+          <ul className="grid gap-0.5">
+            {group.links.map(link => <Item key={link.path} link={link} pathname={pathname} onNavigate={onNavigate} />)}
+          </ul>
+        </div>
+      })}
+    </nav>
+    <nav aria-labelledby={`${id}-help`} className="mt-auto border-t pt-1">
+      <GroupLabel id={`${id}-help`}>ヘルプ</GroupLabel>
+      <ul className="grid gap-0.5">
+        {helpNavigation.map(link => <Item key={link.path} link={link} pathname={pathname} onNavigate={onNavigate} />)}
+      </ul>
+    </nav>
+  </div>
 }

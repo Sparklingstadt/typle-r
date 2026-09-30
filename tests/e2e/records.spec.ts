@@ -131,5 +131,5 @@ test('on a phone every record fits the screen without horizontal scrolling', asy
 test('without records the page explains how to get one', async ({ page }) => {
   await page.goto('/records')
   await expect(page.getByRole('heading', { name: 'まだ練習記録がありません' })).toBeVisible()
-  await expect(page.getByRole('link', { name: '練習する' })).toHaveAttribute('href', '/play')
+  await expect(page.getByRole('main').getByRole('link', { name: '練習する' })).toHaveAttribute('href', '/play')
 })

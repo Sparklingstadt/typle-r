@@ -12,7 +12,8 @@
     @apply bg-background text-foreground;
   }
   html {
-    @apply font-sans;
+    /* Keep scrolled-to rows and focused fields clear of the sticky top bar. */
+    @apply font-sans scroll-pt-18;
   }
 }
 

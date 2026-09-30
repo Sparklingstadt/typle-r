@@ -105,7 +105,7 @@ function DeviceForm({ device, devices, records, offerUse, saving, error, onCance
         aria-describedby={`${id}-use-help`} className="mt-0.5 size-4 shrink-0 cursor-pointer accent-primary" />
       <div className="grid gap-0.5">
         <label htmlFor={`${id}-use`} className="cursor-pointer">このブラウザーで練習に使う端末にする</label>
-        <p id={`${id}-use-help`} className="text-xs text-muted-foreground">「遊ぶ」で練習したとき、この端末が記録に残ります。</p>
+        <p id={`${id}-use-help`} className="text-xs text-muted-foreground">「練習する」で練習したとき、この端末が記録に残ります。</p>
       </div>
     </div>}
     {formError && <Alert variant="destructive"><CircleAlert aria-hidden="true" /><AlertDescription>{formError}</AlertDescription></Alert>}

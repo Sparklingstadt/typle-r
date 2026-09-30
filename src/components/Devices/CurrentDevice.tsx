@@ -43,7 +43,7 @@ export default function CurrentDevice({ devices, device, onChange }: {
       </div>
     </div>
     <p className="mt-3 text-[13px] text-muted-foreground sm:pl-14">
-      {device ? '「遊ぶ」で練習すると、この端末が記録に残ります。' : '未選択のときは、練習記録に端末を残しません。'}
+      {device ? '「練習する」で練習すると、この端末が記録に残ります。' : '未選択のときは、練習記録に端末を残しません。'}
       ブラウザーごとに覚えるので、パソコンごとに選んでおけます。
     </p>
   </section>
