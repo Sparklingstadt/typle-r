@@ -111,7 +111,7 @@ test('GitHub session uses a separate workspace and signing out restores guest da
   const before = await page.evaluate(key => localStorage.getItem(key), key)
   loggedIn = true
   await page.reload()
-  await expect(page.getByRole('button', { name: 'User menu' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'アカウントメニュー' })).toBeVisible()
   await expect(page.getByRole('heading', { name: '端末はまだ登録されていません', exact: true })).toBeVisible()
   expect(await page.evaluate(key => localStorage.getItem(key), key)).toBe(before)
   loggedIn = false

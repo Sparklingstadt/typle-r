@@ -187,7 +187,7 @@ function EmptyState() {
     <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground"><History className="size-6" aria-hidden="true" /></span>
     <div className="space-y-1.5">
       <h2 className="font-bold">まだ練習記録がありません</h2>
-      <p className="max-w-md text-sm text-balance text-muted-foreground">「遊ぶ」でリストを最後まで入力すると、所要時間・正確率・ミス・使った端末がここに残ります。</p>
+      <p className="max-w-md text-sm text-balance text-muted-foreground">「練習する」でリストを最後まで入力すると、所要時間・正確率・ミス・使った端末がここに残ります。</p>
     </div>
     <Button asChild><Link href="/play"><Keyboard aria-hidden="true" />練習する</Link></Button>
   </div>

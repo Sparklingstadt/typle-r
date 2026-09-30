@@ -25,7 +25,7 @@ export default function Devices() {
       <div className="space-y-1">
         <h1 className="text-2xl font-bold">端末</h1>
         <p className="text-sm text-muted-foreground">
-          練習に使うパソコンやキーボードを登録します。<Link href="/play" className="underline underline-offset-3 hover:text-foreground">遊ぶ</Link>で選ぶと、どの端末で練習したかが記録に残ります。
+          練習に使うパソコンやキーボードを登録します。「<Link href="/play" className="underline underline-offset-3 hover:text-foreground">練習する</Link>」で選ぶと、どの端末で練習したかが記録に残ります。
         </p>
       </div>
       {workspace.ready && <span className="inline-flex h-7 items-center gap-1.5 rounded-full border bg-card px-3 text-xs font-medium text-muted-foreground"
@@ -173,7 +173,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
     <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground"><Monitor className="size-6" aria-hidden="true" /></span>
     <div className="space-y-1.5">
       <h3 className="font-bold">端末はまだ登録されていません</h3>
-      <p className="max-w-md text-sm text-balance text-muted-foreground">登録した端末を「遊ぶ」で選ぶと、どの端末で練習したかが記録に残り、端末ごとの記録を見比べられます。</p>
+      <p className="max-w-md text-sm text-balance text-muted-foreground">登録した端末を「練習する」で選ぶと、どの端末で練習したかが記録に残り、端末ごとの記録を見比べられます。</p>
     </div>
     <Button onClick={onAdd}><Plus aria-hidden="true" />端末を追加</Button>
     <p className="text-xs text-muted-foreground">例：MacBook Air（JIS）、デスクトップ＋HHKB（US）</p>

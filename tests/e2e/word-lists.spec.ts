@@ -31,7 +31,8 @@ test('lists show their words and use, and can be searched and ordered', async ({
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/edit')
   await expect(page.getByRole('heading', { level: 1, name: '単語リスト', exact: true })).toBeVisible()
-  await expect(page.getByText('このブラウザーに保存')).toBeVisible()
+  await expect(page.getByRole('main').getByText('このブラウザーに保存')).toBeVisible()
+  await expect(page.getByRole('banner', { name: 'トップバー' })).toContainText('このブラウザーに保存')
   // Newest first by default.
   expect(await rowNames(page)).toEqual([lists()[2].name, 'Kana', 'Fruits'])
   await expect(row(page, 'fruits')).toContainText('apple・banana・cherry・grape・lemon・melon ほか1語')
@@ -106,7 +107,7 @@ test('the editor has its own URL, asks before going back with changes, and retur
 test('the sidebar link asks before dropping changes, and later edits still return to the lists', async ({ page }) => {
   await seed(page)
   await page.goto('/edit')
-  const sidebar = page.getByRole('navigation', { name: 'メインナビゲーション' }).getByRole('link', { name: '編集', exact: true })
+  const sidebar = page.getByRole('navigation', { name: 'メインナビゲーション' }).getByRole('link', { name: '単語リスト', exact: true })
   await page.getByRole('button', { name: 'Kana を編集', exact: true }).click()
   await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('Kana 2')
   await sidebar.click()
