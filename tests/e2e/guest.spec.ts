@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { readFileSync } from 'node:fs'
 const key = 'typle-r:guest-workspace:v1'
 async function importWords(page: import('@playwright/test').Page, files: Parameters<import('@playwright/test').Locator['setInputFiles']>[0]) {
   await page.getByRole('button', { name: 'CSV・TSVを読み込む', exact: true }).click()
@@ -128,4 +129,38 @@ test('guest changes propagate between tabs and deleted storage resets the worksp
   await expect(other.getByRole('heading', { name: 'Shared tab device', exact: true })).toBeVisible()
   await page.evaluate(key => localStorage.removeItem(key), key)
   await expect(other.getByRole('heading', { name: '端末はまだ登録されていません', exact: true })).toBeVisible()
+})
+
+test('about page explains features and storage, marks the browser as the current place, and opens GitHub in a new tab', async ({ page }) => {
+  const { version } = JSON.parse(readFileSync('package.json', 'utf8'))
+  await page.goto('/about')
+  await expect(page).toHaveTitle('Typleについて | Typle')
+  await expect(page.getByRole('heading', { name: 'Typleについて', exact: true, level: 1 })).toBeVisible()
+  const features = page.getByRole('region', { name: 'できること', exact: true })
+  for (const [name, path] of [['リストを作成', '/create'], ['練習する', '/play'], ['ベスト記録', '/rankings']]) {
+    await expect(features.getByRole('link', { name, exact: true })).toHaveAttribute('href', path)
+  }
+  const storage = page.getByRole('region', { name: 'データの保存先', exact: true })
+  const browser = storage.getByRole('listitem').filter({ has: page.getByRole('heading', { name: 'このブラウザー', exact: true }) })
+  const account = storage.getByRole('listitem').filter({ has: page.getByRole('heading', { name: 'アカウント', exact: true }) })
+  await expect(browser).toHaveAttribute('aria-current', 'true')
+  await expect(browser).toContainText('今の保存先')
+  await expect(account).not.toHaveAttribute('aria-current', /.*/)
+  await expect(storage.getByText('今の保存先', { exact: true })).toHaveCount(1)
+  const version_ = page.getByRole('region', { name: 'バージョンと開発', exact: true })
+  await expect(version_).toContainText(`v${version}`)
+  const github = version_.getByRole('link', { name: /^GitHub\s*（新しいタブで開く）$/ })
+  await expect(github).toHaveAttribute('target', '_blank')
+  await expect(github).toHaveAttribute('rel', 'noopener noreferrer')
+  await expect(version_).toContainText('非公開のリポジトリです')
+  await features.getByRole('link', { name: '練習する', exact: true }).focus()
+  await page.keyboard.press('Enter')
+  await expect(page).toHaveURL(/\/play$/)
+  await page.goto('/about')
+  await storage.getByRole('link', { name: '使い方の「保存について」', exact: true }).click()
+  await expect(page).toHaveURL(/\/guide#storage$/)
+  await expect(page.getByRole('heading', { name: '保存について', exact: true })).toBeInViewport()
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/about')
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
 })
