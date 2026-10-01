@@ -4,6 +4,7 @@ import { Noto_Sans_JP } from "next/font/google";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import Navbar from "@/components/Navbar/Navbar";
 import AuthProvider from "@/components/AuthProvider";
+import { WorkspaceProvider } from "@/lib/useWordLists";
 import { THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme/bootstrap";
 
 const notoSans = Noto_Sans_JP({
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body className="bg-muted/40 font-sans text-foreground antialiased">
       <AuthProvider>
+      <WorkspaceProvider>
       <Navbar />
       <div className="flex min-h-[calc(100dvh-3.5rem)]">
         <Sidebar />
@@ -63,6 +65,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           { children }
         </div>
       </div>
+      </WorkspaceProvider>
       </AuthProvider>
       </body>
     </html>

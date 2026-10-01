@@ -1,4 +1,4 @@
-import { BookOpen, ExternalLink, History, House, Info, Keyboard, List, Monitor, Plus, Trophy, type LucideIcon } from "lucide-react"
+import { BookOpen, ExternalLink, History, House, Info, Keyboard, List, Monitor, Plus, Trophy, UsersRound, type LucideIcon } from "lucide-react"
 
 export type NavLink = { name: string; path: string; icon: LucideIcon; external?: boolean }
 export type NavGroup = { label?: string; links: NavLink[] }
@@ -15,7 +15,10 @@ export const mainNavigation: NavGroup[] = [
     { name: "単語リスト", path: "/edit", icon: List },
     { name: "リストを作成", path: "/create", icon: Plus },
   ] },
-  { label: "設定", links: [{ name: "端末", path: "/devices", icon: Monitor }] },
+  { label: "設定", links: [
+    { name: "プロファイル", path: "/profiles", icon: UsersRound },
+    { name: "端末", path: "/devices", icon: Monitor },
+  ] },
 ]
 
 export const helpNavigation: NavLink[] = [

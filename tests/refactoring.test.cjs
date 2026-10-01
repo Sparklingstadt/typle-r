@@ -19,17 +19,22 @@ test('record ordering and deletion preserve other lists and legacy records', () 
 })
 
 test('workspace transport validates responses and preserves conflict status', async t => {
-  const state = { accountId: 'github:1', revision: 1, lists: [], devices: [] }
+  const state = { accountId: 'github:1', revision: 1, lists: [], devices: [], profiles: [{ id: 'default', name: 'メイン', listCount: 0, recordCount: 0 }], profileId: 'default' }
   const fetch = t.mock.method(global, 'fetch', async () => Response.json(state))
-  assert.deepEqual(await readWorkspace(), state)
+  assert.deepEqual(await readWorkspace('zh'), state)
+  assert.equal(fetch.mock.calls[0].arguments[0], '/api/workspace?profile=zh')
   await writeWorkspace(state)
   const [, options] = fetch.mock.calls[1].arguments
+  // A server from before profiles reads as the first profile.
+  fetch.mock.mockImplementation(async () => Response.json({ accountId: 'github:1', revision: 1, lists: [], devices: [] }))
+  assert.deepEqual(await readWorkspace('default'), state)
+  assert.equal(fetch.mock.calls[2].arguments[0], '/api/workspace')
   assert.equal(options.method, 'PUT')
   assert.deepEqual(JSON.parse(options.body), state)
   fetch.mock.mockImplementation(async () => Response.json({ error: 'conflict' }, { status: 409 }))
   await assert.rejects(writeWorkspace(state), error => error instanceof WorkspaceError && error.status === 409)
-  fetch.mock.mockImplementation(async () => Response.json({ ...state, revision: -1 }))
-  await assert.rejects(readWorkspace())
-  fetch.mock.mockImplementation(async () => Response.json({ ...state, lists: [{}] }))
-  await assert.rejects(readWorkspace())
+  for (const invalid of [{ revision: -1 }, { lists: [{}] }, { profileId: 'zh' }, { profiles: [] }]) {
+    fetch.mock.mockImplementation(async () => Response.json({ ...state, ...invalid }))
+    await assert.rejects(readWorkspace('default'))
+  }
 })
