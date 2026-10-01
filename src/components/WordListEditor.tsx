@@ -16,6 +16,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import SortableWordRow, { WORD_ROW_COLUMNS } from "./SortableWordRow"
 import { DUPLICATE_NAME_ERROR, type SavedWordList } from "@/lib/wordLists"
 import { currentRecordCount } from "@/lib/listOverview"
+import { holdUnsavedChanges } from "@/lib/unsavedChanges"
 
 type Word = SavedWordList["words"][number]
 const MAX_WORDS = 1000
@@ -70,12 +71,16 @@ export default function WordListEditor({ title, description = "タイピング�
   const [confirmingCancel, setConfirmingCancel] = useState(false)
 
   useEffect(() => { onDirtyChange?.(dirty) }, [dirty, onDirtyChange])
-  // Closing or reloading the tab would lose the changes; the browser asks first.
+  // Closing or reloading the tab would lose the changes; the browser asks first, and profiles cannot be switched.
   useEffect(() => {
     if (!dirty) return
     const warn = (event: BeforeUnloadEvent) => event.preventDefault()
     window.addEventListener("beforeunload", warn)
-    return () => window.removeEventListener("beforeunload", warn)
+    const release = holdUnsavedChanges()
+    return () => {
+      window.removeEventListener("beforeunload", warn)
+      release()
+    }
   }, [dirty])
 
   // Errors appear after the first save attempt and then follow the user's edits.

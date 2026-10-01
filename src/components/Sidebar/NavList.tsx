@@ -3,6 +3,7 @@ import Link from "next/link"
 import { useId } from "react"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import ProfileSwitcher from "@/components/Profiles/ProfileSwitcher"
 import { helpNavigation, isCurrentPath, mainNavigation, type NavLink } from "./navigation"
 
 const itemClass = (current: boolean) => cn(
@@ -32,6 +33,7 @@ export default function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname()
   const id = useId()
   return <div className="flex min-h-full flex-col gap-4">
+    <ProfileSwitcher onNavigate={onNavigate} />
     <nav aria-label="メインナビゲーション">
       {mainNavigation.map((group, index) => {
         const labelId = `${id}-group-${index}`
