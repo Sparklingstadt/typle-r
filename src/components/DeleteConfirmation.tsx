@@ -21,6 +21,7 @@ export default function DeleteConfirmation({ label, title, description, children
   onCloseAutoFocus?: (event: Event) => void
 }) {
   const t = useTranslations('common.delete')
+  const form = useTranslations('common.form')
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -42,7 +43,7 @@ export default function DeleteConfirmation({ label, title, description, children
       {children}
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       <AlertDialogFooter>
-        <AlertDialogCancel disabled={busy}>{t('cancel')}</AlertDialogCancel>
+        <AlertDialogCancel disabled={busy}>{form('cancel')}</AlertDialogCancel>
         <AlertDialogAction variant="destructive" disabled={busy} onClick={async event => {
           event.preventDefault()
           if (busy) return

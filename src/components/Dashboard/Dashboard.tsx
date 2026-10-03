@@ -6,7 +6,6 @@ import { Check, Clock, Keyboard, Minus, Plus, Sparkles, Target, TrendingDown, Tr
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import TrendChart from "@/components/Dashboard/TrendChart"
-import { unitSpace } from "@/components/Records/RecordRow"
 import { useFormat } from "@/i18n/useFormat"
 import {
   accuracyScale, listTrends, nextLists, speedScale, summarize, addDays,
@@ -55,7 +54,7 @@ const pointDifference = (t: T, difference: number) => {
 
 function Stat({ label, parts, delta }: { label: string; parts: [string, string][]; delta: Delta }) {
   // Languages that put a space between a number and its unit get a little more room; a percent sign stays attached.
-  const spaced = unitSpace(useFormat()) !== ''
+  const spaced = useFormat().unitSpace !== ''
   return <div className="flex flex-col gap-2 rounded-xl p-3 ring-1 ring-foreground/10 sm:p-4">
     <dt className="text-[13px] text-muted-foreground">{label}</dt>
     <dd className="flex flex-wrap items-baseline gap-x-0.5">

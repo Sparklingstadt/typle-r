@@ -1,11 +1,4 @@
 {
-  "loading": "Chargement…",
-  "storage": {
-    "browser": "Enregistré dans ce navigateur",
-    "account": "Enregistré sur votre compte",
-    "browserDetail": "Vous n’êtes pas connecté : les données sont enregistrées dans le LocalStorage de ce navigateur.",
-    "accountDetail": "Les données sont enregistrées sur le compte avec lequel vous êtes connecté."
-  },
   "page": {
     "title": "Listes de mots",
     "description": "Créez et modifiez les listes de mots pour vos entraînements. Exportez une liste en CSV pour l’importer dans un autre navigateur ou compte.",
@@ -85,7 +78,6 @@
   "editor": {
     "back": "Listes de mots",
     "description": "Ajoutez les mots affichés pendant la frappe et le texte à saisir comme bonne réponse.",
-    "nameRequired": "Saisissez un nom pour la liste de mots.",
     "displayRequired": "Saisissez un mot à afficher ou supprimez cette ligne (les lignes vides ne peuvent pas être enregistrées).",
     "inputBlank": "Le texte à saisir ne contient que des espaces. Laissez-le vide pour utiliser le mot affiché.",
     "basics": "Informations générales",
@@ -125,8 +117,6 @@
     "unsaved": "Modifications non enregistrées",
     "noChanges": "Aucune modification",
     "wordTotal": "· {count, plural, one {# mot} other {# mots}}",
-    "cancel": "Annuler",
-    "saving": "Enregistrement…",
     "save": "Enregistrer",
     "discardTitle": "Vous avez des modifications non enregistrées",
     "discardDescription": "Si vous revenez en arrière maintenant, vos saisies seront perdues.",
@@ -138,8 +128,6 @@
     "title": "Importer depuis un CSV/TSV",
     "description": "La première ligne contient les noms de colonnes. display est obligatoire ; input et annotation sont facultatifs. L’ordre des colonnes est libre.",
     "fileLabel": "Choisir un fichier CSV ou TSV",
-    "fileType": "Choisissez un fichier CSV ou TSV.",
-    "fileEncoding": "Choisissez un fichier enregistré en UTF-8.",
     "readFailed": "Impossible de lire le fichier.",
     "addFailed": "Impossible d’ajouter les mots.",
     "bytes": "{value} o",
@@ -162,10 +150,8 @@
     "example": "Exemple de format",
     "sample": "display,input,annotation\nBonjour,bonjour,salutation\nÉté,ete,",
     "loadedStatus": "{count, plural, one {# mot chargé} other {# mots chargés}}.",
-    "cancel": "Annuler",
     "add": "Ajouter {count, plural, one {# mot} other {# mots}}",
-    "replaceWith": "Remplacer par {count, plural, one {# mot} other {# mots}}",
-    "loading": "Chargement…"
+    "replaceWith": "Remplacer par {count, plural, one {# mot} other {# mots}}"
   },
   "legacy": {
     "title": "Migrer les données d’une ancienne version",

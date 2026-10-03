@@ -1,19 +1,11 @@
 {
   "title": "練習記録",
   "intro": "これまでの練習を新しい順に表示します。リストごとの上位は<rankings>ベスト記録</rankings>、推移は<home>ホーム</home>で見られます。",
-  "loading": "読み込み中…",
-  "storage": {
-    "guest": "このブラウザーに保存",
-    "account": "アカウントに保存",
-    "guestDetail": "未ログインのため、このブラウザーのLocalStorageに保存します。",
-    "accountDetail": "ログイン中のアカウントに保存します。"
-  },
   "filter": {
     "list": "リスト",
     "allLists": "すべてのリスト",
     "device": "端末",
     "allDevices": "すべての端末",
-    "noDevice": "端末の記録なし",
     "clear": "絞り込みを解除",
     "count": "{count}件",
     "filteredCount": "{count}件 / 全{total}件"
@@ -42,7 +34,6 @@
   "row": {
     "best": "ベスト",
     "bestTitle": "このリストのベスト記録（今の単語数の記録のうち、正確率の高い順、同率なら所要時間の短い順で1位）",
-    "noDevice": "端末の記録なし",
     "words": "{count}語",
     "seconds": "{value} 秒",
     "duration": "所要時間",

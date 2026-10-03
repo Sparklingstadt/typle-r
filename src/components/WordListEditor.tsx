@@ -3,7 +3,7 @@ import { randomId } from "../lib/randomId"
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react"
 import { flushSync } from "react-dom"
 import { useTranslations } from "next-intl"
-import { ArrowDown, ArrowDownToLine, ArrowUp, ArrowUpToLine, ChevronLeft, CircleAlert, GripVertical, HardDrive, Info, MoreHorizontal, Plus, Trash2 } from "lucide-react"
+import { ArrowDown, ArrowDownToLine, ArrowUp, ArrowUpToLine, ChevronLeft, CircleAlert, GripVertical, Info, MoreHorizontal, Plus, Trash2 } from "lucide-react"
 import { DropdownMenu } from "radix-ui"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
@@ -19,6 +19,7 @@ import type { SavedWordList } from "@/lib/wordLists"
 import { AppError, type ErrorKey } from "@/lib/appError"
 import { currentRecordCount } from "@/lib/listOverview"
 import { holdUnsavedChanges } from "@/lib/unsavedChanges"
+import PageStorageBadge from "@/components/PageStorageBadge"
 
 type Word = SavedWordList["words"][number]
 const MAX_WORDS = 1000
@@ -55,7 +56,8 @@ export default function WordListEditor({ title, description, storage, initial, e
   cancelRequest?: number
 }) {
   const t = useTranslations("wordLists.editor")
-  const tStorage = useTranslations("wordLists.storage")
+  const form = useTranslations("common.form")
+  const errors = useTranslations("errors")
   const baseId = useId()
   const nameId = `${baseId}-name`
   const displayId = (key: string) => `${baseId}-display-${key}`
@@ -91,7 +93,7 @@ export default function WordListEditor({ title, description, storage, initial, e
 
   // Errors appear after the first save attempt and then follow the user's edits.
   const problems: { id: string; message: string }[] = []
-  if (!name.trim()) problems.push({ id: nameId, message: t("nameRequired") })
+  if (!name.trim()) problems.push({ id: nameId, message: errors("listNameRequired") })
   for (const word of words) {
     if (!word.display.trim()) problems.push({ id: displayId(word.key), message: t("displayRequired") })
     else if (word.input && !word.input.trim()) problems.push({ id: inputId(word.key), message: t("inputBlank") })
@@ -208,10 +210,7 @@ export default function WordListEditor({ title, description, storage, initial, e
         <h1 className="text-2xl font-bold">{title}</h1>
         <p className="text-sm text-muted-foreground">{description ?? t("description")}</p>
       </div>
-      {storage && <span className="inline-flex h-7 items-center gap-1.5 rounded-full border bg-card px-3 text-xs font-medium text-muted-foreground"
-        title={storage === "browser" ? tStorage("browserDetail") : tStorage("accountDetail")}>
-        <HardDrive className="size-3.5" aria-hidden="true" />{storage === "browser" ? tStorage("browser") : tStorage("account")}
-      </span>}
+      {storage && <PageStorageBadge guest={storage === "browser"} />}
     </header>
 
     <div className="space-y-6">
@@ -352,9 +351,9 @@ export default function WordListEditor({ title, description, storage, initial, e
           </> : <span className="text-muted-foreground">{t("noChanges")}</span>}
           <span className={shown.length || serverError ? "text-muted-foreground max-sm:hidden" : "text-muted-foreground"}>{t("wordTotal", { count: words.length })}</span>
         </div>
-        <Button variant="ghost" onClick={cancel}>{t("cancel")}</Button>
+        <Button variant="ghost" onClick={cancel}>{form("cancel")}</Button>
         <Button type="submit" disabled={saving} className="flex-1 sm:flex-none">
-          {saving ? t("saving") : t("save")}<span aria-hidden="true" className="hidden text-xs font-normal opacity-60 sm:inline">Ctrl+Enter</span>
+          {saving ? form("saving") : t("save")}<span aria-hidden="true" className="hidden text-xs font-normal opacity-60 sm:inline">Ctrl+Enter</span>
         </Button>
       </div>
     </div>

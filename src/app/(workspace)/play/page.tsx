@@ -29,8 +29,8 @@ import PracticeBestRecords from "@/components/Practice/PracticeBestRecords"
 import PracticeResult from "@/components/Practice/PracticeResult"
 
 function Loading() {
-  const t = useTranslations('practice')
-  return <Page><PageContainer><p>{t('loading')}</p></PageContainer></Page>
+  const common = useTranslations('common')
+  return <Page><PageContainer><p>{common('loading')}</p></PageContainer></Page>
 }
 
 // `?list=<id>` preselects a list, e.g. from the home dashboard. Reading it needs a Suspense boundary for prerendering.

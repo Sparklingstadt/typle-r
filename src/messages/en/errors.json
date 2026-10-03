@@ -26,6 +26,8 @@
   "savedDataCorrupted": "The saved data is corrupted. The original data has not been changed.",
   "listDeleted": "This word list has been deleted. Please reopen this page.",
   "listLimit": "You can save up to {max} word lists.",
+  "importFileType": "Choose a CSV or TSV file.",
+  "importFileEncoding": "Choose a file saved in UTF-8.",
   "importTooLarge": "The file must be 1 MiB or less.",
   "importQuote": "Line {line}: the quotation marks are not formatted correctly.",
   "importHeaderRequired": "The header needs input and display. annotation is optional.",

@@ -12,5 +12,6 @@
     "two": "{first}{firstUnit}{second}{secondUnit}"
   },
   "noDevice": "未記録",
+  "noDeviceRecorded": "端末の記録なし",
   "deviceWithLayout": "{name}（{layout}）"
 }

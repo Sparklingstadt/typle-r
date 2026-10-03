@@ -7,9 +7,21 @@
     "label": "削除",
     "title": "削除してもよろしいですか？",
     "description": "{description} この操作は取り消せません。",
-    "cancel": "キャンセル",
     "confirm": "削除する",
     "deleting": "削除中…",
     "failed": "削除できませんでした。もう一度お試しください。"
+  },
+  "storage": {
+    "guest": "このブラウザーに保存",
+    "account": "アカウントに保存",
+    "guestDetail": "未ログインのため、このブラウザーのLocalStorageに保存します。",
+    "accountDetail": "ログイン中のアカウントに保存します。"
+  },
+  "form": {
+    "cancel": "キャンセル",
+    "saving": "保存中…",
+    "save": "変更を保存",
+    "add": "追加する",
+    "saveFailed": "保存できませんでした。もう一度お試しください。"
   }
 }

@@ -6,11 +6,11 @@ import { localDevelopmentEnabled } from './lib/localDevelopment'
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [GitHub, ...(localDevelopmentEnabled() ? [Credentials({
     id: 'local-development',
-    name: 'このMacで練習',
+    name: 'このMacで練習', // i18n-ignore: development-only sign-in
     credentials: { secret: { type: 'password' } },
     authorize(credentials) {
       if (!localDevelopmentEnabled() || credentials.secret !== process.env.AUTH_SECRET) return null
-      return { id: 'github:0', name: 'ローカル練習用' }
+      return { id: 'github:0', name: 'ローカル練習用' } // i18n-ignore: the development account's stored name
     },
   })] : [])],
   session: { strategy: 'jwt' },

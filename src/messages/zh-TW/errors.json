@@ -26,6 +26,8 @@
   "savedDataCorrupted": "儲存的資料已損毀。原始資料未被變更。",
   "listDeleted": "此單字清單已被刪除。請重新開啟頁面。",
   "listLimit": "最多可以儲存 {max} 個單字清單。",
+  "importFileType": "請選擇 CSV 或 TSV 檔案。",
+  "importFileEncoding": "請選擇以 UTF-8 格式儲存的檔案。",
   "importTooLarge": "檔案大小不得超過 1 MiB。",
   "importQuote": "第 {line} 行的引號格式不正確。",
   "importHeaderRequired": "標題列需要包含 input 與 display。annotation 可以省略。",

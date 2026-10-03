@@ -26,6 +26,8 @@
   "savedDataCorrupted": "保存的数据已损坏。原始数据未被更改。",
   "listDeleted": "此单词列表已被删除。请重新打开页面。",
   "listLimit": "最多可以保存 {max} 个单词列表。",
+  "importFileType": "请选择 CSV 或 TSV 文件。",
+  "importFileEncoding": "请选择以 UTF-8 格式保存的文件。",
   "importTooLarge": "文件大小不能超过 1 MiB。",
   "importQuote": "第 {line} 行的引号格式不正确。",
   "importHeaderRequired": "标题行需要包含 input 和 display。annotation 可以省略。",

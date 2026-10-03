@@ -1,18 +1,10 @@
 {
   "title": "Best records",
   "intro": "Your personal best for each word list. Choose a list to see its top records and how your time has changed.",
-  "loading": "Loading…",
   "reload": "Reload",
-  "storage": {
-    "guest": "Saved in this browser",
-    "account": "Saved to your account",
-    "guestDetail": "You are not signed in, so data is saved in this browser’s LocalStorage.",
-    "accountDetail": "Saved to the account you are signed in with."
-  },
   "filter": {
     "device": "Device",
     "allDevices": "All devices",
-    "noDevice": "No device recorded",
     "deleted": "{name} (deleted)"
   },
   "order": {
@@ -117,7 +109,6 @@
     "rankNumber": "Rank {rank}",
     "deleted": "Deleted",
     "deletedSuffix": " (deleted)",
-    "noDevice": "No device recorded",
     "otherWords": "Recorded at a different word count",
     "words": "{count, plural, one {# word} other {# words}}",
     "unknownWords": "? words",

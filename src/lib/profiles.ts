@@ -1,12 +1,12 @@
 import { AppError, type ErrorKey, type ErrorValues } from './appError'
-import { DEFAULT_PROFILE_NAME } from './defaultProfileName'
 import { decodeDevices, type PracticeDevice } from './devices'
 import { decodeLists, type SavedWordList } from './wordLists'
 
 // A profile keeps its own word lists and records (e.g. everyday typing, Chinese, Korean). Devices are shared by the account.
 // The first profile's lists stay in the workspace's `lists` column, so clients that predate profiles still read and write it.
 export const DEFAULT_PROFILE_ID = 'default'
-export { DEFAULT_PROFILE_NAME }
+// Stored with the workspace (older clients read it too), so it stays fixed; useWordLists shows it in the reader's language.
+export const DEFAULT_PROFILE_NAME = 'メイン' // i18n-ignore: stored data
 export const MAX_PROFILES = 10
 export const MAX_PROFILE_NAME = 50
 

@@ -4,7 +4,7 @@ import { DropdownMenu } from 'radix-ui'
 import { Check, ChevronDown, Keyboard, Monitor } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
-import { useFormat } from '@/i18n/useFormat'
+import { useDeviceOptions } from './useDeviceOptions'
 import type { PracticeDevice } from '@/lib/devices'
 
 const item = 'relative flex cursor-pointer items-center gap-2 rounded-md py-2 pr-3 pl-8 text-sm outline-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground'
@@ -16,8 +16,7 @@ export default function CurrentDevice({ devices, device, onChange }: {
   onChange: (id: string) => void
 }) {
   const t = useTranslations('devices.current')
-  const format = useFormat()
-  const label = device ? format.device(device) : t('notSelected')
+  const { label, options } = useDeviceOptions(devices, device)
   return <section aria-labelledby="current-device-heading" className="rounded-xl border bg-card p-4 sm:p-5">
     <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-x-4">
       <span className="grid size-10 place-items-center rounded-lg bg-muted text-muted-foreground"><Monitor className="size-5" aria-hidden="true" /></span>
@@ -34,7 +33,7 @@ export default function CurrentDevice({ devices, device, onChange }: {
             <DropdownMenu.Content align="end" sideOffset={6} className="z-50 w-72 max-w-[calc(100vw-2rem)] rounded-lg border bg-popover p-1 text-popover-foreground shadow-md">
               <DropdownMenu.Label className="px-2 pt-1.5 pb-1 text-xs text-muted-foreground">{t('heading')}</DropdownMenu.Label>
               <DropdownMenu.RadioGroup value={device?.id ?? 'none'} onValueChange={value => onChange(value === 'none' ? '' : value)}>
-                {[{ id: 'none', label: t('none') }, ...devices.map(option => ({ id: option.id, label: format.device(option) }))].map(option =>
+                {options.map(option =>
                   <DropdownMenu.RadioItem key={option.id} value={option.id} className={item}>
                     <DropdownMenu.ItemIndicator className="absolute left-2.5 inline-flex"><Check className="size-4" aria-hidden="true" /></DropdownMenu.ItemIndicator>
                     <span className="truncate">{option.label}</span>

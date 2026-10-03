@@ -15,6 +15,13 @@
     /* Keep scrolled-to rows and focused fields clear of the sticky top bar. */
     @apply font-sans scroll-pt-18;
   }
+  /* Chinese needs its own glyph shapes. The system's Chinese fonts cost nothing to load, unlike web fonts. */
+  html:lang(zh-CN) body {
+    --font-noto-sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC";
+  }
+  html:lang(zh-TW) body {
+    --font-noto-sans: "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC";
+  }
 }
 
 @theme inline {

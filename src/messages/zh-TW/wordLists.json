@@ -1,11 +1,4 @@
 {
-  "loading": "載入中…",
-  "storage": {
-    "browser": "儲存在此瀏覽器",
-    "account": "儲存至帳號",
-    "browserDetail": "由於尚未登入，資料會儲存在此瀏覽器的 LocalStorage 中。",
-    "accountDetail": "儲存至目前登入的帳號。"
-  },
   "page": {
     "title": "單字清單",
     "description": "建立及編輯練習用的單字清單。匯出為 CSV 後，可在其他瀏覽器或帳號中匯入。",
@@ -85,7 +78,6 @@
   "editor": {
     "back": "單字清單",
     "description": "登錄打字時顯示的單字，以及作為正確答案輸入的文字。",
-    "nameRequired": "請輸入單字清單名稱。",
     "displayRequired": "請輸入要顯示的單字，或刪除此列（空白列無法儲存）。",
     "inputBlank": "輸入的文字只有空白。留空則與顯示的單字相同。",
     "basics": "基本資訊",
@@ -125,8 +117,6 @@
     "unsaved": "有未儲存的變更",
     "noChanges": "沒有變更",
     "wordTotal": "· {count, plural, other {# 個單字}}",
-    "cancel": "取消",
-    "saving": "儲存中…",
     "save": "儲存",
     "discardTitle": "有尚未儲存的變更",
     "discardDescription": "如果現在返回，輸入的內容將會遺失。",
@@ -138,8 +128,6 @@
     "title": "從 CSV/TSV 匯入",
     "description": "第一列為欄位名稱。display 為必填，input、annotation 可省略。欄位順序不限。",
     "fileLabel": "選擇 CSV/TSV 檔案",
-    "fileType": "請選擇 CSV 或 TSV 檔案。",
-    "fileEncoding": "請選擇以 UTF-8 格式儲存的檔案。",
     "readFailed": "無法讀取檔案。",
     "addFailed": "無法新增單字。",
     "bytes": "{value} B",
@@ -162,10 +150,8 @@
     "example": "格式範例",
     "sample": "display,input,annotation\n你好,nihao,問候\n謝謝,xiexie,",
     "loadedStatus": "已讀取 {count} 個單字。",
-    "cancel": "取消",
     "add": "新增 {count} 個單字",
-    "replaceWith": "以 {count} 個單字取代",
-    "loading": "讀取中…"
+    "replaceWith": "以 {count} 個單字取代"
   },
   "legacy": {
     "title": "移轉舊版資料",

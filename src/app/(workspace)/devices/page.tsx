@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { Check, HardDrive, History, Monitor, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Check, History, Monitor, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useFormat } from '@/i18n/useFormat'
 import { useWordLists } from '@/lib/useWordLists'
@@ -18,6 +18,7 @@ import DeleteConfirmation from '@/components/DeleteConfirmation'
 import { useSaveNotification } from '@/components/SaveNotification'
 import CurrentDevice from '@/components/Devices/CurrentDevice'
 import DeviceDialog, { type DeviceDialogState } from '@/components/Devices/DeviceDialog'
+import PageStorageBadge from '@/components/PageStorageBadge'
 
 export default function Devices() {
   const workspace = useWordLists()
@@ -32,10 +33,7 @@ export default function Devices() {
           {t.rich('description', { link: chunks => <Link href="/play" className="underline underline-offset-3 hover:text-foreground">{chunks}</Link> })}
         </p>
       </div>
-      {workspace.ready && <span className="inline-flex h-7 items-center gap-1.5 rounded-full border bg-card px-3 text-xs font-medium text-muted-foreground"
-        title={t(guest ? 'storage.guestDetail' : 'storage.accountDetail')}>
-        <HardDrive className="size-3.5" aria-hidden="true" />{t(guest ? 'storage.guest' : 'storage.account')}
-      </span>}
+      {workspace.ready && <PageStorageBadge guest={guest} />}
     </header>
     {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
     {!workspace.ready ? <div role="status" className="space-y-3"><p>{common('loading')}</p><Skeleton className="h-20 w-full" /><Skeleton className="h-40 w-full" /></div>
@@ -62,8 +60,8 @@ function DeviceManager({ accountId, devices, lists, saving, error, updateDevices
   const deleteDescription = (device: PracticeDevice, item: DeviceUsage | undefined, current: boolean) => t('deleteDescription', {
     removal: t('deleteRemoval', { name: device.name }),
     records: item ? t('deleteRecords', { count: item.count }) : t('deleteNoRecords'),
-    selection: current ? t('deleteSelection') : '',
-  }).trim()
+    current: current ? 'yes' : 'no',
+  })
   const [dialog, setDialog] = useState<DeviceDialogState>({ open: false, device: null, session: 0 })
   const [deleting, setDeleting] = useState<{ open: boolean; device: PracticeDevice | null }>({ open: false, device: null })
   const [highlight, setHighlight] = useState<string | null>(null)

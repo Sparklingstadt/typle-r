@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ArrowRightLeft, Check, Cloud, HardDrive, Pencil, Plus, Trash2 } from 'lucide-react'
+import { ArrowRightLeft, Check, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useWordLists, type Workspace } from '@/lib/useWordLists'
 import { GUEST_ACCOUNT_ID } from '@/lib/guestWorkspace'
@@ -15,14 +15,13 @@ import DeleteConfirmation from '@/components/DeleteConfirmation'
 import { useSaveNotification } from '@/components/SaveNotification'
 import ProfileDialog, { type ProfileDialogState } from '@/components/Profiles/ProfileDialog'
 import ProfileMark from '@/components/Profiles/ProfileMark'
-import { useProfileName } from '@/components/Profiles/useProfileName'
+import PageStorageBadge from '@/components/PageStorageBadge'
 
 export default function Profiles() {
   const workspace = useWordLists()
   const t = useTranslations('profiles')
   const common = useTranslations('common')
   const guest = workspace.accountId === GUEST_ACCOUNT_ID
-  const StorageIcon = guest ? HardDrive : Cloud
   return <main className="mx-auto w-full max-w-4xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
     <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div className="space-y-1">
@@ -31,10 +30,7 @@ export default function Profiles() {
           {t.rich('description', { link: chunks => <Link href="/devices" className="underline underline-offset-3 hover:text-foreground">{chunks}</Link> })}
         </p>
       </div>
-      {workspace.ready && <span className="inline-flex h-7 items-center gap-1.5 rounded-full border bg-card px-3 text-xs font-medium text-muted-foreground"
-        title={t(guest ? 'storage.guestDetail' : 'storage.accountDetail')}>
-        <StorageIcon className="size-3.5" aria-hidden="true" />{t(guest ? 'storage.guest' : 'storage.account')}
-      </span>}
+      {workspace.ready && <PageStorageBadge guest={guest} />}
     </header>
     {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
     {!workspace.ready || !workspace.profile ? <div role="status" className="space-y-3"><p>{common('loading')}</p><Skeleton className="h-40 w-full" /></div>
@@ -54,7 +50,6 @@ function ProfileManager({ workspace }: { workspace: Workspace }) {
   const { lists, profileId, saving, error, selectProfile, updateProfiles } = workspace
   const notify = useSaveNotification()
   const t = useTranslations('profiles')
-  const displayName = useProfileName()
   // The profile in use counts what is on screen, including the samples shown before the first save.
   const profiles = workspace.profiles.map(profile => profile.id === profileId
     ? { ...profile, listCount: lists.length, recordCount: lists.reduce((total, list) => total + list.records.length, 0) } : profile)
@@ -67,10 +62,10 @@ function ProfileManager({ workspace }: { workspace: Workspace }) {
   const full = profiles.length >= MAX_PROFILES
   const first = profiles[0]
   const deleteDescription = (profile: ProfileSummary, current: boolean) => t('deleteDescription', {
-    removal: t('deleteRemoval', { name: displayName(profile), lists: profile.listCount, records: profile.recordCount }),
-    others: t('deleteOthers'),
-    selection: current ? t('deleteSelection', { first: displayName(first) }) : '',
-  }).trim()
+    removal: t('deleteRemoval', { name: profile.name, lists: profile.listCount, records: profile.recordCount }),
+    first: first.name,
+    current: current ? 'yes' : 'no',
+  })
 
   // Briefly mark the row that was just added or renamed, and bring it into view.
   useEffect(() => {
@@ -111,7 +106,7 @@ function ProfileManager({ workspace }: { workspace: Workspace }) {
 
   function switchTo(profile: ProfileSummary) {
     selectProfile(profile.id)
-    notify(t('switched', { name: displayName(profile) }))
+    notify(t('switched', { name: profile.name }))
   }
 
   return <div className="space-y-3">
@@ -125,7 +120,7 @@ function ProfileManager({ workspace }: { workspace: Workspace }) {
       {profiles.map((profile, index) => {
         const current = profile.id === profileId
         const removable = profile.id !== DEFAULT_PROFILE_ID
-        const name = displayName(profile)
+        const { name } = profile
         return <li key={profile.id} data-profile-id={profile.id}
           className={cn('grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-4 py-3.5 transition-colors duration-700 motion-reduce:transition-none sm:gap-x-4 sm:px-5',
             highlight === profile.id && 'bg-green-50 duration-0 dark:bg-green-950/40')}>
@@ -142,7 +137,7 @@ function ProfileManager({ workspace }: { workspace: Workspace }) {
             {!current && <Button variant="outline" className="mr-1" disabled={saving} aria-label={t('switchLabel', { name })}
               onClick={() => switchTo(profile)}><ArrowRightLeft aria-hidden="true" /><span className="hidden sm:inline">{t('switch')}</span></Button>}
             <Button variant="ghost" size="icon-lg" className="size-10 text-muted-foreground" disabled={saving}
-              aria-label={t('renameLabel', { name })} title={t('rename')} onClick={() => openDialog({ id: profile.id, name })}><Pencil aria-hidden="true" /></Button>
+              aria-label={t('renameLabel', { name })} title={t('rename')} onClick={() => openDialog(profile)}><Pencil aria-hidden="true" /></Button>
             {removable ? <Button variant="ghost" size="icon-lg" className="size-10 text-muted-foreground hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20" disabled={saving}
               aria-label={t('deleteLabel', { name })} title={t('delete')} onClick={() => { remember(); deleted.current = false; setDeleting({ open: true, profile }) }}><Trash2 aria-hidden="true" /></Button>
               : <span className="size-10" />}
@@ -151,14 +146,14 @@ function ProfileManager({ workspace }: { workspace: Workspace }) {
       })}
     </ul>
     <p className="text-[13px] text-muted-foreground">
-      {t('note', { first: displayName(first) })}
+      {t('note', { first: first.name })}
     </p>
 
     <ProfileDialog state={dialog} profiles={profiles} saving={saving} error={error} onSave={save} onCloseAutoFocus={restoreFocus}
       onOpenChange={open => setDialog(current => ({ ...current, open }))} />
 
     {deleting.profile && <DeleteConfirmation open={deleting.open} onOpenChange={open => setDeleting(current => ({ ...current, open }))}
-      title={t('deleteTitle', { name: displayName(deleting.profile) })}
+      title={t('deleteTitle', { name: deleting.profile.name })}
       description={deleteDescription(deleting.profile, deleting.profile.id === profileId)}
       onCloseAutoFocus={event => {
         if (!deleted.current) return restoreFocus(event)
@@ -171,7 +166,7 @@ function ProfileManager({ workspace }: { workspace: Workspace }) {
         const saved = await updateProfiles(current => removeProfile(current, profile.id))
         if (saved) {
           deleted.current = true
-          notify(t('deleted', { name: displayName(profile) }))
+          notify(t('deleted', { name: profile.name }))
         }
         return saved
       }} />}

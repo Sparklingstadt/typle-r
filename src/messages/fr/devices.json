@@ -1,12 +1,6 @@
 {
   "title": "Appareils",
   "description": "Enregistrez les ordinateurs et claviers sur lesquels vous vous entraînez. Choisissez-en un dans « <link>S’entraîner</link> » et vos résultats indiqueront l’appareil utilisé.",
-  "storage": {
-    "guest": "Enregistré dans ce navigateur",
-    "account": "Enregistré sur votre compte",
-    "guestDetail": "Vous n’êtes pas connecté : les données sont enregistrées dans le LocalStorage de ce navigateur.",
-    "accountDetail": "Enregistré sur le compte connecté."
-  },
   "usage": "{count, plural, one {# entraînement} other {# entraînements}} · dernier {day}",
   "neverUsed": "Pas encore utilisé",
   "listHeading": "Appareils enregistrés",
@@ -23,11 +17,10 @@
   "saved": "Appareil « {name} » enregistré.",
   "deleted": "Appareil « {name} » supprimé.",
   "deleteTitle": "Supprimer l’appareil « {name} » ?",
-  "deleteDescription": "{removal} {records} {selection}",
+  "deleteDescription": "{removal} {records}{current, select, yes { L’appareil utilisé pour l’entraînement dans ce navigateur repassera à « Non sélectionné ».} other {}}",
   "deleteRemoval": "« {name} » sera retiré de la liste.",
   "deleteRecords": "Les {count, plural, one {# résultat} other {# résultats}} obtenus sur cet appareil ne seront pas supprimés et garderont le nom de l’appareil au moment de l’entraînement.",
   "deleteNoRecords": "Aucun résultat n’a été obtenu sur cet appareil.",
-  "deleteSelection": "L’appareil utilisé pour l’entraînement dans ce navigateur repassera à « Non sélectionné ».",
   "empty": {
     "title": "Aucun appareil enregistré",
     "description": "Choisissez un appareil enregistré dans « S’entraîner » : vos résultats indiqueront l’appareil utilisé et vous pourrez les comparer par appareil.",
@@ -35,10 +28,8 @@
   },
   "current": {
     "heading": "Appareil utilisé pour l’entraînement dans ce navigateur",
-    "notSelected": "Non sélectionné",
     "change": "Modifier",
     "changeLabel": "Modifier l’appareil utilisé pour l’entraînement dans ce navigateur (actuel : {device})",
-    "none": "Non sélectionné (ne pas enregistrer l’appareil)",
     "practice": "S’entraîner",
     "noteSelected": "Lorsque vous vous entraînez dans « S’entraîner », cet appareil est enregistré avec vos résultats. Chaque navigateur mémorise son propre choix : vous pouvez en choisir un par ordinateur.",
     "noteUnselected": "Tant qu’aucun appareil n’est sélectionné, aucun n’est enregistré avec vos résultats. Chaque navigateur mémorise son propre choix : vous pouvez en choisir un par ordinateur."
@@ -57,21 +48,18 @@
     "layoutHelp": "Noter la disposition ou les réglages aide à distinguer les résultats lorsque vous les comparez.",
     "renameNote": "Même si vous le renommez, vos résultats passés ({count, plural, one {# entraînement} other {# entraînements}}) garderont le nom utilisé à ce moment-là.",
     "use": "Utiliser cet appareil pour l’entraînement dans ce navigateur",
-    "useHelp": "Lorsque vous vous entraînez dans « S’entraîner », cet appareil est enregistré avec vos résultats.",
-    "saveFailed": "Échec de l’enregistrement. Veuillez réessayer.",
-    "cancel": "Annuler",
-    "saving": "Enregistrement…",
-    "save": "Enregistrer",
-    "add": "Ajouter"
+    "useHelp": "Lorsque vous vous entraînez dans « S’entraîner », cet appareil est enregistré avec vos résultats."
   },
   "menu": {
     "label": "Appareil : {device}",
-    "notSelected": "Non sélectionné",
     "locked": "Impossible de changer d’appareil pendant l’entraînement",
     "change": "Changer d’appareil",
     "unselected": "Appareil : non sélectionné",
     "heading": "Appareil (modifiable uniquement avant de commencer)",
-    "none": "Non sélectionné (ne pas enregistrer l’appareil)",
     "manage": "Gérer les appareils"
+  },
+  "choice": {
+    "notSelected": "Non sélectionné",
+    "none": "Non sélectionné (ne pas enregistrer l’appareil)"
   }
 }

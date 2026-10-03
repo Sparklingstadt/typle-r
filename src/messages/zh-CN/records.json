@@ -1,19 +1,11 @@
 {
   "title": "练习记录",
   "intro": "按时间从新到旧显示所有练习。各列表的前几名请在<rankings>最佳记录</rankings>中查看，变化趋势请在<home>首页</home>查看。",
-  "loading": "加载中…",
-  "storage": {
-    "guest": "保存在此浏览器",
-    "account": "保存到账号",
-    "guestDetail": "由于未登录，数据保存在此浏览器的 LocalStorage 中。",
-    "accountDetail": "保存到当前登录的账号。"
-  },
   "filter": {
     "list": "列表",
     "allLists": "所有列表",
     "device": "设备",
     "allDevices": "所有设备",
-    "noDevice": "未记录设备",
     "clear": "清除筛选",
     "count": "{count, plural, other {# 条}}",
     "filteredCount": "{count, number} 条 / 共 {total, number} 条"
@@ -42,7 +34,6 @@
   "row": {
     "best": "最佳",
     "bestTitle": "此列表的最佳记录（在当前单词数的记录中，按正确率从高到低、正确率相同时按用时从短到长排名第一）",
-    "noDevice": "未记录设备",
     "words": "{count, plural, other {# 个单词}}",
     "seconds": "{value} 秒",
     "duration": "用时",

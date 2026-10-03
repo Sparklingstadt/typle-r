@@ -1,19 +1,11 @@
 {
   "title": "Practice history",
   "intro": "Your practice runs, newest first. See each list’s top records in <rankings>Best records</rankings> and your progress on <home>Home</home>.",
-  "loading": "Loading…",
-  "storage": {
-    "guest": "Saved in this browser",
-    "account": "Saved to your account",
-    "guestDetail": "You are not signed in, so data is saved in this browser’s LocalStorage.",
-    "accountDetail": "Saved to the account you are signed in with."
-  },
   "filter": {
     "list": "List",
     "allLists": "All lists",
     "device": "Device",
     "allDevices": "All devices",
-    "noDevice": "No device recorded",
     "clear": "Clear filters",
     "count": "{count, plural, one {# record} other {# records}}",
     "filteredCount": "{count, number} of {total, plural, one {# record} other {# records}}"
@@ -42,7 +34,6 @@
   "row": {
     "best": "Best",
     "bestTitle": "This list’s best record (first among records at the current word count, by highest accuracy, then shortest time)",
-    "noDevice": "No device recorded",
     "words": "{count, plural, one {# word} other {# words}}",
     "seconds": "{value} s",
     "duration": "Duration",

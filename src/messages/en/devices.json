@@ -1,12 +1,6 @@
 {
   "title": "Devices",
   "description": "Register the computers and keyboards you practise on. Choose one in “<link>Practice</link>” and your records will show which device you used.",
-  "storage": {
-    "guest": "Saved in this browser",
-    "account": "Saved to your account",
-    "guestDetail": "You are not signed in, so this is saved to this browser’s LocalStorage.",
-    "accountDetail": "Saved to the account you are signed in with."
-  },
   "usage": "Practised {count, plural, one {# time} other {# times}} · last {day}",
   "neverUsed": "Not practised yet",
   "listHeading": "Registered devices",
@@ -23,11 +17,10 @@
   "saved": "Saved the device “{name}”.",
   "deleted": "Deleted the device “{name}”.",
   "deleteTitle": "Delete the device “{name}”?",
-  "deleteDescription": "{removal} {records} {selection}",
+  "deleteDescription": "{removal} {records}{current, select, yes { The device this browser uses for practice will go back to “Not selected”.} other {}}",
   "deleteRemoval": "“{name}” will be removed from the list.",
   "deleteRecords": "The {count, plural, one {# record} other {# records}} practised on this device will not be deleted and will keep the device name used at the time.",
   "deleteNoRecords": "There are no records practised on this device.",
-  "deleteSelection": "The device this browser uses for practice will go back to “Not selected”.",
   "empty": {
     "title": "No devices registered yet",
     "description": "Choose a registered device in “Practice” and your records will show which device you used, so you can compare records by device.",
@@ -35,10 +28,8 @@
   },
   "current": {
     "heading": "Device this browser uses for practice",
-    "notSelected": "Not selected",
     "change": "Change",
     "changeLabel": "Change the device this browser uses for practice (current: {device})",
-    "none": "Not selected (don’t record a device)",
     "practice": "Practice",
     "noteSelected": "When you practise in “Practice”, this device is saved with your records. Each browser remembers its own choice, so you can pick one per computer.",
     "noteUnselected": "While nothing is selected, no device is saved with your records. Each browser remembers its own choice, so you can pick one per computer."
@@ -57,21 +48,18 @@
     "layoutHelp": "Noting the layout or settings makes it easier to tell records apart when comparing them.",
     "renameNote": "Even if you rename it, your past records ({count, plural, one {# time} other {# times}}) keep the name used at the time.",
     "use": "Use this device for practice in this browser",
-    "useHelp": "When you practise in “Practice”, this device is saved with your records.",
-    "saveFailed": "Could not save. Please try again.",
-    "cancel": "Cancel",
-    "saving": "Saving…",
-    "save": "Save changes",
-    "add": "Add"
+    "useHelp": "When you practise in “Practice”, this device is saved with your records."
   },
   "menu": {
     "label": "Device: {device}",
-    "notSelected": "Not selected",
     "locked": "You can’t change the device during practice",
     "change": "Change device",
     "unselected": "Device: not selected",
     "heading": "Device (can be changed only before you start)",
-    "none": "Not selected (don’t record a device)",
     "manage": "Manage devices"
+  },
+  "choice": {
+    "notSelected": "Not selected",
+    "none": "Not selected (don’t record a device)"
   }
 }

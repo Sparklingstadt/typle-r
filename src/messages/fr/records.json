@@ -1,19 +1,11 @@
 {
   "title": "Historique",
   "intro": "Vos entraînements, du plus récent au plus ancien. Les meilleurs résultats de chaque liste sont dans <rankings>Meilleurs résultats</rankings>, et votre progression sur l’<home>Accueil</home>.",
-  "loading": "Chargement…",
-  "storage": {
-    "guest": "Enregistré dans ce navigateur",
-    "account": "Enregistré sur votre compte",
-    "guestDetail": "Vous n’êtes pas connecté : les données sont enregistrées dans le LocalStorage de ce navigateur.",
-    "accountDetail": "Enregistré sur le compte avec lequel vous êtes connecté."
-  },
   "filter": {
     "list": "Liste",
     "allLists": "Toutes les listes",
     "device": "Appareil",
     "allDevices": "Tous les appareils",
-    "noDevice": "Aucun appareil enregistré",
     "clear": "Effacer les filtres",
     "count": "{count, plural, one {# résultat} other {# résultats}}",
     "filteredCount": "{count, number} sur {total, plural, one {# résultat} other {# résultats}}"
@@ -42,7 +34,6 @@
   "row": {
     "best": "Meilleur",
     "bestTitle": "Meilleur résultat de cette liste (premier parmi les résultats au nombre de mots actuel : précision la plus élevée, puis temps le plus court)",
-    "noDevice": "Aucun appareil enregistré",
     "words": "{count, plural, one {# mot} other {# mots}}",
     "seconds": "{value} s",
     "duration": "Temps",

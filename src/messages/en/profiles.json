@@ -2,12 +2,6 @@
   "title": "Profiles",
   "defaultName": "Main",
   "description": "Use separate profiles for different goals, such as everyday practice, Chinese or Korean, to keep their word lists and practice records apart. <link>Devices</link> are shared by all profiles.",
-  "storage": {
-    "guest": "Saved in this browser",
-    "account": "Saved to your account",
-    "guestDetail": "You are not signed in, so this is saved to this browser’s LocalStorage.",
-    "accountDetail": "Saved to the account you are signed in with."
-  },
   "counts": {
     "lists": "{count, plural, one {# word list} other {# word lists}}",
     "records": "Practised {count, plural, one {# time} other {# times}}"
@@ -31,10 +25,8 @@
   "deleteLabel": "Delete {name}",
   "note": "Each browser remembers the profile in use, so you can keep a different profile open on each computer. The first profile ({first}) cannot be deleted.",
   "deleteTitle": "Delete the profile “{name}”?",
-  "deleteDescription": "{removal} {others} {selection}",
+  "deleteDescription": "{removal} Devices and other profiles are not affected.{current, select, yes { This browser will switch to “{first}”.} other {}}",
   "deleteRemoval": "This deletes the profile “{name}” with its {lists, plural, one {# word list} other {# word lists}} and {records, plural, one {# practice record} other {# practice records}}.",
-  "deleteOthers": "Devices and other profiles are not affected.",
-  "deleteSelection": "This browser will switch to “{first}”.",
   "dialog": {
     "addTitle": "Add profile",
     "renameTitle": "Rename profile",
@@ -44,12 +36,7 @@
     "namePlaceholder": "e.g. Chinese",
     "nameHelp": "Shown in the switcher in the sidebar. Handy for separating practice by goal.",
     "use": "Switch to the new profile",
-    "useHelp": "Each browser remembers which profile is in use.",
-    "saveFailed": "Could not save. Please try again.",
-    "cancel": "Cancel",
-    "saving": "Saving…",
-    "save": "Save changes",
-    "add": "Add"
+    "useHelp": "Each browser remembers which profile is in use."
   },
   "switcher": {
     "loading": "Loading profiles",

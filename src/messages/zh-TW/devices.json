@@ -1,12 +1,6 @@
 {
   "title": "裝置",
   "description": "登錄練習時使用的電腦和鍵盤。在「<link>開始練習</link>」中選擇後，紀錄中會保留練習時使用的裝置。",
-  "storage": {
-    "guest": "儲存在此瀏覽器",
-    "account": "儲存至帳號",
-    "guestDetail": "由於尚未登入，資料會儲存在此瀏覽器的 LocalStorage 中。",
-    "accountDetail": "儲存至目前登入的帳號。"
-  },
   "usage": "練習 {count} 次 · 最近 {day}",
   "neverUsed": "尚未練習",
   "listHeading": "已登錄的裝置",
@@ -23,11 +17,10 @@
   "saved": "已儲存裝置「{name}」。",
   "deleted": "已刪除裝置「{name}」。",
   "deleteTitle": "要刪除裝置「{name}」嗎？",
-  "deleteDescription": "{removal}{records}{selection}",
+  "deleteDescription": "{removal}{records}{current, select, yes {此瀏覽器練習時使用的裝置將恢復為「未選擇」。} other {}}",
   "deleteRemoval": "將從清單中刪除「{name}」。",
   "deleteRecords": "在此裝置上練習的 {count} 次紀錄不會被刪除，並保留練習時的裝置名稱。",
   "deleteNoRecords": "沒有在此裝置上練習的紀錄。",
-  "deleteSelection": "此瀏覽器練習時使用的裝置將恢復為「未選擇」。",
   "empty": {
     "title": "尚未登錄任何裝置",
     "description": "在「開始練習」中選擇已登錄的裝置後，紀錄中會保留練習時使用的裝置，方便依裝置比較紀錄。",
@@ -35,10 +28,8 @@
   },
   "current": {
     "heading": "此瀏覽器練習時使用的裝置",
-    "notSelected": "未選擇",
     "change": "變更",
     "changeLabel": "變更此瀏覽器練習時使用的裝置（目前：{device}）",
-    "none": "未選擇（不記錄裝置）",
     "practice": "開始練習",
     "noteSelected": "在「開始練習」中練習時，紀錄中會保留此裝置。每個瀏覽器會分別記住選擇，因此可以為每台電腦分別選擇。",
     "noteUnselected": "未選擇時，練習紀錄中不會保留裝置。每個瀏覽器會分別記住選擇，因此可以為每台電腦分別選擇。"
@@ -57,21 +48,18 @@
     "layoutHelp": "寫下鍵盤配置或設定的差異，比較紀錄時更容易辨識。",
     "renameNote": "即使變更名稱，過去的練習紀錄（{count} 次）仍會保留練習時的名稱。",
     "use": "設為此瀏覽器練習時使用的裝置",
-    "useHelp": "在「開始練習」中練習時，紀錄中會保留此裝置。",
-    "saveFailed": "無法儲存。請再試一次。",
-    "cancel": "取消",
-    "saving": "正在儲存…",
-    "save": "儲存變更",
-    "add": "新增"
+    "useHelp": "在「開始練習」中練習時，紀錄中會保留此裝置。"
   },
   "menu": {
     "label": "使用裝置：{device}",
-    "notSelected": "未選擇",
     "locked": "練習中無法變更裝置",
     "change": "變更使用裝置",
     "unselected": "裝置：未選擇",
     "heading": "使用裝置（僅能在開始練習前變更）",
-    "none": "未選擇（不記錄裝置）",
     "manage": "管理裝置"
+  },
+  "choice": {
+    "notSelected": "未選擇",
+    "none": "未選擇（不記錄裝置）"
   }
 }

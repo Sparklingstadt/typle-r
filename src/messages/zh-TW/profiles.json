@@ -2,12 +2,6 @@
   "title": "設定檔",
   "defaultName": "主要",
   "description": "依目的分開設定檔（例如日常練習、中文、韓文），即可分別儲存單字清單與練習紀錄。<link>裝置</link>由所有設定檔共用。",
-  "storage": {
-    "guest": "儲存在此瀏覽器",
-    "account": "儲存至帳號",
-    "guestDetail": "由於尚未登入，資料會儲存在此瀏覽器的 LocalStorage 中。",
-    "accountDetail": "儲存至目前登入的帳號。"
-  },
   "counts": {
     "lists": "單字清單 {count, number} 個",
     "records": "練習 {count, number} 次"
@@ -31,10 +25,8 @@
   "deleteLabel": "刪除 {name}",
   "note": "每個瀏覽器會分別記住使用中的設定檔，因此可以在不同電腦上開啟不同的設定檔。第一個設定檔（{first}）無法刪除。",
   "deleteTitle": "要刪除設定檔「{name}」嗎？",
-  "deleteDescription": "{removal}{others}{selection}",
+  "deleteDescription": "{removal}裝置與其他設定檔不受影響。{current, select, yes {此瀏覽器將切換至「{first}」。} other {}}",
   "deleteRemoval": "將刪除設定檔「{name}」及其 {lists, number} 個單字清單與 {records, number} 次練習紀錄。",
-  "deleteOthers": "裝置與其他設定檔不受影響。",
-  "deleteSelection": "此瀏覽器將切換至「{first}」。",
   "dialog": {
     "addTitle": "新增設定檔",
     "renameTitle": "重新命名設定檔",
@@ -44,12 +36,7 @@
     "namePlaceholder": "例：中文",
     "nameHelp": "會顯示在側邊欄的切換選單中。依練習目的分開會很方便。",
     "use": "切換至新增的設定檔",
-    "useHelp": "每個瀏覽器會分別記住切換狀態。",
-    "saveFailed": "無法儲存。請再試一次。",
-    "cancel": "取消",
-    "saving": "正在儲存…",
-    "save": "儲存變更",
-    "add": "新增"
+    "useHelp": "每個瀏覽器會分別記住切換狀態。"
   },
   "switcher": {
     "loading": "正在載入設定檔",

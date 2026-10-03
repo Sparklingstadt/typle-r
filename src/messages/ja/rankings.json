@@ -1,18 +1,10 @@
 {
   "title": "ベスト記録",
   "intro": "単語リストごとの自己ベストです。リストを選ぶと、上位の記録と所要時間の推移を表示します。",
-  "loading": "読み込み中…",
   "reload": "再読み込み",
-  "storage": {
-    "guest": "このブラウザーに保存",
-    "account": "アカウントに保存",
-    "guestDetail": "未ログインのため、このブラウザーのLocalStorageに保存します。",
-    "accountDetail": "ログイン中のアカウントに保存します。"
-  },
   "filter": {
     "device": "端末",
     "allDevices": "すべての端末",
-    "noDevice": "端末の記録なし",
     "deleted": "{name}（削除済み）"
   },
   "order": {
@@ -117,7 +109,6 @@
     "rankNumber": "{rank}位",
     "deleted": "削除済み",
     "deletedSuffix": "（削除済み）",
-    "noDevice": "端末の記録なし",
     "otherWords": "単語数が今と違う記録",
     "words": "{count}語",
     "unknownWords": "?語",

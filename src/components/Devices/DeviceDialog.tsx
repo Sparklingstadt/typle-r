@@ -50,6 +50,7 @@ function DeviceForm({ device, devices, records, offerUse, saving, error, onCance
 }) {
   const id = useId()
   const t = useTranslations('devices.dialog')
+  const form = useTranslations('common.form')
   const errors = useTranslations('errors')
   const draftId = useRef(device?.id ?? '')
   const [name, setName] = useState(device?.name ?? '')
@@ -61,7 +62,7 @@ function DeviceForm({ device, devices, records, offerUse, saving, error, onCance
   const message = problem && errors(problem.key, problem.values)
   const nameError = problem?.field === 'name' ? message : ''
   const layoutError = problem?.field === 'layout' ? message : ''
-  const formError = problem?.field === 'form' ? message : failed ? error || t('saveFailed') : ''
+  const formError = problem?.field === 'form' ? message : failed ? error || form('saveFailed') : ''
 
   return <form noValidate className="grid gap-5" onSubmit={async event => {
     event.preventDefault()
@@ -114,8 +115,8 @@ function DeviceForm({ device, devices, records, offerUse, saving, error, onCance
     </div>}
     {formError && <Alert variant="destructive"><CircleAlert aria-hidden="true" /><AlertDescription>{formError}</AlertDescription></Alert>}
     <DialogFooter>
-      <Button type="button" variant="outline" disabled={saving} onClick={onCancel}>{t('cancel')}</Button>
-      <Button type="submit" disabled={saving}>{saving ? t('saving') : t(editing ? 'save' : 'add')}</Button>
+      <Button type="button" variant="outline" disabled={saving} onClick={onCancel}>{form('cancel')}</Button>
+      <Button type="submit" disabled={saving}>{saving ? form('saving') : form(editing ? 'save' : 'add')}</Button>
     </DialogFooter>
   </form>
 }

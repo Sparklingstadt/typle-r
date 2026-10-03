@@ -1,19 +1,11 @@
 {
   "title": "練習紀錄",
   "intro": "依時間由新到舊顯示所有練習。各清單的前幾名請在<rankings>最佳紀錄</rankings>中查看，變化趨勢請在<home>首頁</home>查看。",
-  "loading": "載入中…",
-  "storage": {
-    "guest": "儲存在此瀏覽器",
-    "account": "儲存至帳號",
-    "guestDetail": "由於尚未登入，資料會儲存在此瀏覽器的 LocalStorage 中。",
-    "accountDetail": "儲存至目前登入的帳號。"
-  },
   "filter": {
     "list": "清單",
     "allLists": "所有清單",
     "device": "裝置",
     "allDevices": "所有裝置",
-    "noDevice": "未記錄裝置",
     "clear": "清除篩選",
     "count": "{count, plural, other {# 筆}}",
     "filteredCount": "{count, number} 筆 / 共 {total, number} 筆"
@@ -42,7 +34,6 @@
   "row": {
     "best": "最佳",
     "bestTitle": "此清單的最佳紀錄（在目前單字數的紀錄中，依正確率由高到低、正確率相同時依用時由短到長排名第一）",
-    "noDevice": "未記錄裝置",
     "words": "{count, plural, other {# 個單字}}",
     "seconds": "{value} 秒",
     "duration": "用時",

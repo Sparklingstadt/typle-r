@@ -14,18 +14,13 @@ type Words = WordList["words"]
 export type ImportMode = "append" | "replace"
 type Parsed = { name: string; size: number; words: Words }
 
-/** A file this dialog cannot read; `key` names its message under wordLists.import. */
-class FileError extends Error {
-  constructor(readonly key: "fileType" | "fileEncoding") { super(key) }
-}
-
 async function readWordFile(file: File): Promise<Parsed> {
   const extension = file.name.split(".").pop()?.toLowerCase()
-  if (extension !== "csv" && extension !== "tsv") throw new FileError("fileType")
+  if (extension !== "csv" && extension !== "tsv") throw new AppError("importFileType")
   if (file.size > MAX_IMPORT_BYTES) throw new AppError("importTooLarge")
   let text: string
   try { text = new TextDecoder("utf-8", { fatal: true }).decode(await file.arrayBuffer()) }
-  catch { throw new FileError("fileEncoding") }
+  catch { throw new AppError("importFileEncoding") }
   return { name: file.name, size: file.size, words: parseWordFile(text, extension === "tsv" ? "\t" : ",") }
 }
 
@@ -45,6 +40,7 @@ export default function WordListImport({ onImport, disabled, existingCount }: {
   const inputRef = useRef<HTMLInputElement>(null)
   const helpId = useId()
   const t = useTranslations("wordLists.import")
+  const common = useTranslations("common")
   const errorText = useErrorText()
   const formatSize = (bytes: number) => bytes < 1024 ? t("bytes", { value: bytes }) : t("kilobytes", { value: Math.ceil(bytes / 1024) })
 
@@ -54,7 +50,7 @@ export default function WordListImport({ onImport, disabled, existingCount }: {
     if (!file) return
     setBusy(true); setError(""); setParsed(null)
     try { setParsed(await readWordFile(file)) }
-    catch (cause) { setError(cause instanceof FileError ? t(cause.key) : errorText(cause, t("readFailed"))) }
+    catch (cause) { setError(errorText(cause, t("readFailed"))) }
     finally { setBusy(false) }
   }
 
@@ -135,10 +131,10 @@ export default function WordListImport({ onImport, disabled, existingCount }: {
           <pre className="overflow-x-auto rounded-lg bg-muted px-3 py-2 text-xs leading-5">{t("sample")}</pre>
         </div>
       </>}
-      <p role="status" className="sr-only">{busy ? t("loading") : parsed ? t("loadedStatus", { count }) : ""}</p>
+      <p role="status" className="sr-only">{busy ? common("loading") : parsed ? t("loadedStatus", { count }) : ""}</p>
       {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
       <DialogFooter>
-        <DialogClose asChild><Button variant="ghost">{t("cancel")}</Button></DialogClose>
+        <DialogClose asChild><Button variant="ghost">{common("form.cancel")}</Button></DialogClose>
         {parsed && <Button onClick={confirm}>{existingCount && mode === "replace" ? t("replaceWith", { count }) : t("add", { count })}</Button>}
       </DialogFooter>
     </DialogContent>

@@ -1,11 +1,4 @@
 {
-  "loading": "Loading…",
-  "storage": {
-    "browser": "Saved in this browser",
-    "account": "Saved to your account",
-    "browserDetail": "You are not signed in, so everything is saved in this browser’s local storage.",
-    "accountDetail": "Saved to the account you are signed in with."
-  },
   "page": {
     "title": "Word lists",
     "description": "Create and edit the word lists you practice with. Export a list as CSV to import it in another browser or account.",
@@ -85,7 +78,6 @@
   "editor": {
     "back": "Word lists",
     "description": "Add the words shown while typing and the text to type as the answer.",
-    "nameRequired": "Enter a name for the word list.",
     "displayRequired": "Enter a word to display, or delete this row (empty rows cannot be saved).",
     "inputBlank": "The text to type is only spaces. Leave it empty to use the displayed word.",
     "basics": "Basic information",
@@ -125,8 +117,6 @@
     "unsaved": "Unsaved changes",
     "noChanges": "No changes",
     "wordTotal": "· {count, plural, one {# word} other {# words}}",
-    "cancel": "Cancel",
-    "saving": "Saving…",
     "save": "Save",
     "discardTitle": "You have unsaved changes",
     "discardDescription": "If you go back now, your changes will be lost.",
@@ -138,8 +128,6 @@
     "title": "Import from CSV/TSV",
     "description": "The first row holds the column names. display is required; input and annotation are optional. Columns can be in any order.",
     "fileLabel": "Choose a CSV or TSV file",
-    "fileType": "Choose a CSV or TSV file.",
-    "fileEncoding": "Choose a file saved in UTF-8.",
     "readFailed": "Could not read the file.",
     "addFailed": "Could not add the words.",
     "bytes": "{value} B",
@@ -162,10 +150,8 @@
     "example": "Example",
     "sample": "display,input,annotation\nApple,apple,fruit\nNew York,new york,",
     "loadedStatus": "Loaded {count, plural, one {# word} other {# words}}.",
-    "cancel": "Cancel",
     "add": "Add {count, plural, one {# word} other {# words}}",
-    "replaceWith": "Replace with {count, plural, one {# word} other {# words}}",
-    "loading": "Loading…"
+    "replaceWith": "Replace with {count, plural, one {# word} other {# words}}"
   },
   "legacy": {
     "title": "Move data from an earlier version",

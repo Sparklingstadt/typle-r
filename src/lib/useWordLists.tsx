@@ -1,5 +1,5 @@
 "use client"
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
@@ -11,7 +11,7 @@ import countries from '@/json/Countries.json'
 
 import type { PracticeDevice } from './devices'
 import { useSelectedProfile } from './profileSelection'
-import { DEFAULT_PROFILE_ID, type ProfileDraft, type ProfileSummary } from './profiles'
+import { DEFAULT_PROFILE_ID, DEFAULT_PROFILE_NAME, type ProfileDraft, type ProfileSummary } from './profiles'
 import { type SavedWordList } from './wordLists'
 import { readWorkspace, writeWorkspace, WorkspaceError, type WorkspaceState, type WorkspaceWrite } from './workspaceClient'
 
@@ -33,6 +33,7 @@ function useWorkspace() {
   const [ready, setReady] = useState(false)
   const [failure, setFailure] = useState<Failure>(null)
   const t = useTranslations('errors')
+  const tProfiles = useTranslations('profiles')
   const errorText = useErrorText()
   const [saving, setSaving] = useState(false)
   const key = accountId && `${accountId}\n${profileId}`
@@ -143,13 +144,16 @@ function useWorkspace() {
     })
   }
 
+  // The first profile keeps its stored initial name until renamed; it is shown in the reader's language.
+  const shownProfiles = useMemo(() => profiles.map(profile => profile.id === DEFAULT_PROFILE_ID && profile.name === DEFAULT_PROFILE_NAME
+    ? { ...profile, name: tProfiles('defaultName') } : profile), [profiles, tProfiles])
   const loaded = status !== 'loading' && ready
   const error = failure ? errorText(failure.reason, t(failure.fallback)) : ''
   /** Which error is shown, for screens that place some errors next to a field. */
   const errorKey = failure?.reason instanceof AppError ? failure.reason.key : null
   return {
-    lists, devices, accountId, profiles, profileId,
-    profile: profiles.find(profile => profile.id === profileId),
+    lists, devices, accountId, profiles: shownProfiles, profileId,
+    profile: shownProfiles.find(profile => profile.id === profileId),
     selectProfile: (id: string) => { if (!busy.current) chooseProfile(id) },
     updateProfiles,
     updateDevices: (change: (current: PracticeDevice[]) => PracticeDevice[]) => update(current => current, true, change),

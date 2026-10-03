@@ -1,24 +1,21 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Noto_Sans_JP, Noto_Sans_SC, Noto_Sans_TC } from "next/font/google";
+import { Noto_Sans_JP } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import Navbar from "@/components/Navbar/Navbar";
 import AuthProvider from "@/components/AuthProvider";
 import { WorkspaceProvider } from "@/lib/useWordLists";
 import { THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme/bootstrap";
-import { openGraphLocales, type Locale } from "@/i18n/config";
+import { openGraphLocales } from "@/i18n/config";
+import { clientMessages, type Messages } from "@/i18n/messages";
 
 const notoSans = Noto_Sans_JP({
   subsets: ["latin"],
   variable: "--font-noto-sans",
   display: "swap",
 });
-// Chinese needs its own glyph shapes; these load only when that language is chosen.
-const notoSansSC = Noto_Sans_SC({ preload: false, variable: "--font-noto-sans", display: "swap" });
-const notoSansTC = Noto_Sans_TC({ preload: false, variable: "--font-noto-sans", display: "swap" });
-const fonts: Partial<Record<Locale, string>> = { "zh-CN": notoSansSC.variable, "zh-TW": notoSansTC.variable };
 
 const siteUrl = process.env.AUTH_URL
   || (process.env.VERCEL_PROJECT_PRODUCTION_URL
@@ -66,8 +63,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <head>
         <script id="theme-bootstrap" dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP_SCRIPT }} />
       </head>
-      <body className={`${fonts[locale] ?? ""} bg-muted/40 font-sans text-foreground antialiased`}>
-      <NextIntlClientProvider>
+      <body className="bg-muted/40 font-sans text-foreground antialiased">
+      <NextIntlClientProvider messages={clientMessages(await getMessages() as Messages)}>
       <AuthProvider>
       <WorkspaceProvider>
       <Navbar />

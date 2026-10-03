@@ -7,7 +7,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useHasUnsavedChanges } from '@/lib/unsavedChanges'
 import { useWordLists } from '@/lib/useWordLists'
 import ProfileMark from './ProfileMark'
-import { useProfileName } from './useProfileName'
 
 const item = 'relative flex cursor-pointer items-center gap-2.5 rounded-md py-2 pr-3 pl-8 text-sm outline-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50'
 
@@ -16,10 +15,9 @@ export default function ProfileSwitcher({ onNavigate }: { onNavigate?: () => voi
   const { profiles, profile, profileId, selectProfile, ready, saving } = useWordLists()
   const unsaved = useHasUnsavedChanges()
   const t = useTranslations('profiles.switcher')
-  const displayName = useProfileName()
   if (ready && !profile) return null
   if (!ready || !profile) return <div className="flex h-12 items-center gap-2.5 px-2"><Skeleton className="size-8 rounded-md" /><Skeleton className="h-4 w-24" /><span className="sr-only">{t('loading')}</span></div>
-  const name = displayName(profile)
+  const name = profile.name
   return <DropdownMenu.Root>
     <DropdownMenu.Trigger aria-label={t('label', { name })}
       className="flex h-12 w-full items-center gap-2.5 rounded-lg border bg-card px-2 text-left outline-none hover:bg-accent/60 focus-visible:ring-3 focus-visible:ring-ring/50 data-[state=open]:bg-accent">
@@ -38,8 +36,8 @@ export default function ProfileSwitcher({ onNavigate }: { onNavigate?: () => voi
         <DropdownMenu.RadioGroup value={profileId} onValueChange={id => { selectProfile(id); onNavigate?.() }}>
           {profiles.map((option, index) => <DropdownMenu.RadioItem key={option.id} value={option.id} disabled={saving || unsaved} className={item}>
             <DropdownMenu.ItemIndicator className="absolute left-2.5 inline-flex"><Check className="size-4" aria-hidden="true" /></DropdownMenu.ItemIndicator>
-            <ProfileMark name={displayName(option)} index={index} small />
-            <span className="truncate">{displayName(option)}</span>
+            <ProfileMark name={option.name} index={index} small />
+            <span className="truncate">{option.name}</span>
           </DropdownMenu.RadioItem>)}
         </DropdownMenu.RadioGroup>
         <DropdownMenu.Separator className="my-1 h-px bg-border" />

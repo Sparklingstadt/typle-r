@@ -1,11 +1,4 @@
 {
-  "loading": "読み込み中…",
-  "storage": {
-    "browser": "このブラウザーに保存",
-    "account": "アカウントに保存",
-    "browserDetail": "未ログインのため、このブラウザーのLocalStorageに保存します。",
-    "accountDetail": "ログイン中のアカウントに保存します。"
-  },
   "page": {
     "title": "単語リスト",
     "description": "練習に使う単語リストを作成・編集します。CSVで書き出すと、別のブラウザーやアカウントで読み込めます。",
@@ -85,7 +78,6 @@
   "editor": {
     "back": "単語リスト",
     "description": "タイピングで表示する単語と、正解として入力する文字を登録します。",
-    "nameRequired": "単語リスト名を入力してください。",
     "displayRequired": "表示する単語を入力するか、この行を削除してください（空の行は保存できません）。",
     "inputBlank": "入力する文字が空白だけです。空欄にすると表示する単語と同じになります。",
     "basics": "基本情報",
@@ -125,8 +117,6 @@
     "unsaved": "未保存の変更があります",
     "noChanges": "変更はありません",
     "wordTotal": "・ {count, plural, other {#語}}",
-    "cancel": "キャンセル",
-    "saving": "保存中…",
     "save": "保存",
     "discardTitle": "保存していない変更があります",
     "discardDescription": "このまま戻ると、入力した内容は失われます。",
@@ -138,8 +128,6 @@
     "title": "CSV・TSVから読み込む",
     "description": "1行目は列名です。display は必須、input・annotation は省略できます。列の順番は自由です。",
     "fileLabel": "CSV・TSVファイルを選択",
-    "fileType": "CSVまたはTSVファイルを選択してください。",
-    "fileEncoding": "UTF-8形式で保存したファイルを選択してください。",
     "readFailed": "ファイルを読み込めませんでした。",
     "addFailed": "単語を追加できませんでした。",
     "bytes": "{value} B",
@@ -162,10 +150,8 @@
     "example": "書式の例",
     "sample": "display,input,annotation\n日本,nihon,にほん\nアメリカ,amerika,",
     "loadedStatus": "{count}語を読み込みました。",
-    "cancel": "キャンセル",
     "add": "{count}語を追加",
-    "replaceWith": "{count}語で置き換える",
-    "loading": "読み込み中…"
+    "replaceWith": "{count}語で置き換える"
   },
   "legacy": {
     "title": "以前のデータを移行",

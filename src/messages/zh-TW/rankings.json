@@ -1,18 +1,10 @@
 {
   "title": "最佳紀錄",
   "intro": "每個單字清單的個人最佳。選擇清單後，會顯示前幾名的紀錄與用時的變化趨勢。",
-  "loading": "載入中…",
   "reload": "重新載入",
-  "storage": {
-    "guest": "儲存在此瀏覽器",
-    "account": "儲存至帳號",
-    "guestDetail": "由於尚未登入，資料會儲存在此瀏覽器的 LocalStorage 中。",
-    "accountDetail": "儲存至目前登入的帳號。"
-  },
   "filter": {
     "device": "裝置",
     "allDevices": "所有裝置",
-    "noDevice": "未記錄裝置",
     "deleted": "{name}（已刪除）"
   },
   "order": {
@@ -117,7 +109,6 @@
     "rankNumber": "第 {rank} 名",
     "deleted": "已刪除",
     "deletedSuffix": "（已刪除）",
-    "noDevice": "未記錄裝置",
     "otherWords": "單字數與目前不同的紀錄",
     "words": "{count, plural, other {# 個單字}}",
     "unknownWords": "? 個單字",

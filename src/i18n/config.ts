@@ -10,10 +10,10 @@ export function isLocale(value: unknown): value is Locale {
 
 // Each language is named in itself, so it can be found whatever language the screen is in.
 export const localeNames: Record<Locale, string> = {
-  ja: '日本語',
+  ja: '日本語', // i18n-ignore
   en: 'English',
-  'zh-CN': '简体中文',
-  'zh-TW': '繁體中文',
+  'zh-CN': '简体中文', // i18n-ignore
+  'zh-TW': '繁體中文', // i18n-ignore
   ru: 'Русский',
   fr: 'Français',
 }

@@ -7,9 +7,21 @@
     "label": "Delete",
     "title": "Are you sure you want to delete this?",
     "description": "{description} This cannot be undone.",
-    "cancel": "Cancel",
     "confirm": "Delete",
     "deleting": "Deleting…",
     "failed": "Could not delete. Please try again."
+  },
+  "storage": {
+    "guest": "Saved in this browser",
+    "account": "Saved to your account",
+    "guestDetail": "You are not signed in, so this is saved to this browser’s LocalStorage.",
+    "accountDetail": "Saved to the account you are signed in with."
+  },
+  "form": {
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "save": "Save changes",
+    "add": "Add",
+    "saveFailed": "Could not save. Please try again."
   }
 }

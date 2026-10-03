@@ -1,11 +1,4 @@
 {
-  "loading": "正在加载…",
-  "storage": {
-    "browser": "保存在此浏览器",
-    "account": "保存到账号",
-    "browserDetail": "由于未登录，数据将保存在此浏览器的 LocalStorage 中。",
-    "accountDetail": "保存到当前登录的账号。"
-  },
   "page": {
     "title": "单词列表",
     "description": "创建和编辑用于练习的单词列表。导出为 CSV 后，可在其他浏览器或账号中导入。",
@@ -85,7 +78,6 @@
   "editor": {
     "back": "单词列表",
     "description": "登记打字时显示的单词，以及作为正确答案输入的文字。",
-    "nameRequired": "请输入单词列表名称。",
     "displayRequired": "请输入要显示的单词，或删除此行（空行无法保存）。",
     "inputBlank": "输入的文字只有空格。留空则与显示的单词相同。",
     "basics": "基本信息",
@@ -125,8 +117,6 @@
     "unsaved": "有未保存的更改",
     "noChanges": "没有更改",
     "wordTotal": "· {count, plural, other {# 个单词}}",
-    "cancel": "取消",
-    "saving": "正在保存…",
     "save": "保存",
     "discardTitle": "有未保存的更改",
     "discardDescription": "如果现在返回，输入的内容将会丢失。",
@@ -138,8 +128,6 @@
     "title": "从 CSV/TSV 导入",
     "description": "第一行为列名。display 为必填，input、annotation 可省略。列的顺序不限。",
     "fileLabel": "选择 CSV/TSV 文件",
-    "fileType": "请选择 CSV 或 TSV 文件。",
-    "fileEncoding": "请选择以 UTF-8 格式保存的文件。",
     "readFailed": "无法读取文件。",
     "addFailed": "无法添加单词。",
     "bytes": "{value} B",
@@ -162,10 +150,8 @@
     "example": "格式示例",
     "sample": "display,input,annotation\n你好,nihao,问候\n谢谢,xiexie,",
     "loadedStatus": "已读取 {count} 个单词。",
-    "cancel": "取消",
     "add": "添加 {count} 个单词",
-    "replaceWith": "替换为 {count} 个单词",
-    "loading": "正在读取…"
+    "replaceWith": "替换为 {count} 个单词"
   },
   "legacy": {
     "title": "迁移旧版数据",

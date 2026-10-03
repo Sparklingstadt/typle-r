@@ -26,6 +26,8 @@
   "savedDataCorrupted": "保存データが壊れています。元のデータは変更していません。",
   "listDeleted": "この単語リストは削除されています。画面を開き直してください。",
   "listLimit": "単語リストは{max}件まで保存できます。",
+  "importFileType": "CSVまたはTSVファイルを選択してください。",
+  "importFileEncoding": "UTF-8形式で保存したファイルを選択してください。",
   "importTooLarge": "ファイルは1 MiB以内にしてください。",
   "importQuote": "{line}行目の引用符の形式が正しくありません。",
   "importHeaderRequired": "見出しに input と display が必要です。annotation は省略できます。",

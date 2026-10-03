@@ -40,6 +40,7 @@ function ProfileForm({ profile, profiles, saving, error, onCancel, onSave }: {
 }) {
   const id = useId()
   const t = useTranslations('profiles.dialog')
+  const form = useTranslations('common.form')
   const errors = useTranslations('errors')
   const draftId = useRef(profile?.id ?? '')
   const [name, setName] = useState(profile?.name ?? '')
@@ -49,7 +50,7 @@ function ProfileForm({ profile, profiles, saving, error, onCancel, onSave }: {
   const editing = profile !== null
   const message = problem && errors(problem.key, problem.values)
   const nameError = problem?.field === 'name' ? message : ''
-  const formError = problem?.field === 'form' ? message : failed ? error || t('saveFailed') : ''
+  const formError = problem?.field === 'form' ? message : failed ? error || form('saveFailed') : ''
 
   return <form noValidate className="grid gap-5" onSubmit={async event => {
     event.preventDefault()
@@ -90,8 +91,8 @@ function ProfileForm({ profile, profiles, saving, error, onCancel, onSave }: {
     </div>}
     {formError && <Alert variant="destructive"><CircleAlert aria-hidden="true" /><AlertDescription>{formError}</AlertDescription></Alert>}
     <DialogFooter>
-      <Button type="button" variant="outline" disabled={saving} onClick={onCancel}>{t('cancel')}</Button>
-      <Button type="submit" disabled={saving}>{saving ? t('saving') : t(editing ? 'save' : 'add')}</Button>
+      <Button type="button" variant="outline" disabled={saving} onClick={onCancel}>{form('cancel')}</Button>
+      <Button type="submit" disabled={saving}>{saving ? form('saving') : form(editing ? 'save' : 'add')}</Button>
     </DialogFooter>
   </form>
 }

@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
 import { DropdownMenu } from "radix-ui"
-import { Check, ChevronDown, CircleAlert, Download, HardDrive, ListPlus, Plus, RotateCw, Search, X } from "lucide-react"
+import { Check, ChevronDown, CircleAlert, Download, ListPlus, Plus, RotateCw, Search, X } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -20,6 +20,7 @@ import { useFormat } from "@/i18n/useFormat"
 import { randomId } from "@/lib/randomId"
 import { duplicateList, LIST_ORDERS, listOverviews, matchesQuery, MAX_LISTS, sortOverviews, type ListOrder, type ListOverview } from "@/lib/listOverview"
 import { saveList, type SavedWordList } from "@/lib/wordLists"
+import PageStorageBadge from "@/components/PageStorageBadge"
 
 type Workspace = ReturnType<typeof useWordLists>
 
@@ -31,15 +32,6 @@ export default function Edit() {
   </main>
 }
 
-function StorageBadge({ accountId }: { accountId?: string }) {
-  const t = useTranslations('wordLists.storage')
-  const guest = accountId === GUEST_ACCOUNT_ID
-  return <span className="inline-flex h-7 items-center gap-1.5 rounded-full border bg-card px-3 text-xs font-medium text-muted-foreground"
-    title={guest ? t('browserDetail') : t('accountDetail')}>
-    <HardDrive className="size-3.5" aria-hidden="true" />{guest ? t('browser') : t('account')}
-  </span>
-}
-
 function Header({ accountId }: { accountId?: string }) {
   const t = useTranslations('wordLists.page')
   return <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
@@ -47,14 +39,14 @@ function Header({ accountId }: { accountId?: string }) {
       <h1 className="text-2xl font-bold">{t('title')}</h1>
       <p className="text-sm text-muted-foreground">{t('description')}</p>
     </div>
-    {accountId && <StorageBadge accountId={accountId} />}
+    {accountId && <PageStorageBadge guest={accountId === GUEST_ACCOUNT_ID} />}
   </header>
 }
 
 function LoadingState() {
-  const t = useTranslations('wordLists')
+  const common = useTranslations('common')
   return <div role="status">
-    <span className="sr-only">{t('loading')}</span>
+    <span className="sr-only">{common('loading')}</span>
     <div className="mb-6 space-y-2"><Skeleton className="h-8 w-40" /><Skeleton className="h-4 w-96 max-w-full" /></div>
     <Skeleton className="mb-3 h-11 w-full" />
     <div className="divide-y rounded-xl border bg-card">

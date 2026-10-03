@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
 import { RadioGroup } from "radix-ui"
-import { CircleAlert, HardDrive, Info, Keyboard, Plus, RotateCw, Trophy } from "lucide-react"
+import { CircleAlert, Info, Keyboard, Plus, RotateCw, Trophy } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -19,6 +19,7 @@ import { deviceOptions, matchesDevice, NO_DEVICE, type RankOrder } from "@/lib/r
 import { listRanking, sortRankings, type ListSort } from "@/lib/rankings"
 import type { SavedWordList } from "@/lib/wordLists"
 import { cn } from "@/lib/utils"
+import PageStorageBadge from "@/components/PageStorageBadge"
 
 // Matches Tailwind's `xl`, where the list and the detail sit side by side.
 const WIDE = '(min-width: 80rem)'
@@ -43,10 +44,7 @@ export default function Rankings() {
         <h1 className="text-2xl font-bold">{t('title')}</h1>
         <p className="text-sm text-muted-foreground">{t('intro')}</p>
       </div>
-      {workspace.ready && <span className="inline-flex h-7 items-center gap-1.5 rounded-full border bg-card px-3 text-xs font-medium text-muted-foreground"
-        title={t(workspace.accountId === GUEST_ACCOUNT_ID ? 'storage.guestDetail' : 'storage.accountDetail')}>
-        <HardDrive className="size-3.5" aria-hidden="true" />{t(workspace.accountId === GUEST_ACCOUNT_ID ? 'storage.guest' : 'storage.account')}
-      </span>}
+      {workspace.ready && <PageStorageBadge guest={workspace.accountId === GUEST_ACCOUNT_ID} />}
     </header>
     {workspace.error && <Alert variant="destructive" className="mb-6 border-destructive/40 bg-destructive/5">
       <CircleAlert aria-hidden="true" />
@@ -79,7 +77,7 @@ function RankingsView({ lists, devices }: { lists: SavedWordList[]; devices: Pra
   const focusAfter = useRef<{ detail: true } | { list: string } | null>(null)
 
   const devicesOptions = useMemo(() => deviceOptions(lists.flatMap(list => list.records)).map(({ value, device, count }) => {
-    const label = device ? format.device(device) : t('filter.noDevice')
+    const label = format.recordDevice(device)
     return { value, count, label: value === NO_DEVICE || devices.some(item => item.id === value) ? label : t('filter.deleted', { name: label }) }
   }), [lists, devices, format, t])
   const device = devicesOptions.some(option => option.value === params.get('device')) ? params.get('device') : null
@@ -180,9 +178,9 @@ function EmptyState() {
 }
 
 function LoadingState() {
-  const t = useTranslations('rankings')
+  const common = useTranslations('common')
   return <div role="status" className="space-y-4">
-    <span className="sr-only">{t('loading')}</span>
+    <span className="sr-only">{common('loading')}</span>
     <div className="flex gap-2"><Skeleton className="h-9 w-36 rounded-full" /><Skeleton className="h-9 w-52 rounded-full" /></div>
     <div className="xl:grid xl:grid-cols-[320px_minmax(0,1fr)] xl:gap-6">
       <div className="space-y-3 rounded-xl border bg-card p-3">

@@ -2,8 +2,8 @@
 import { Suspense, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useLocale, useTranslations } from "next-intl"
-import { HardDrive, History, Keyboard, Trophy } from "lucide-react"
+import { useTranslations } from "next-intl"
+import { History, Keyboard, Trophy } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -19,6 +19,7 @@ import { dayKind } from "@/lib/dashboard"
 import { deviceOptions, filterRows, formatAccuracy, groupByDay, listBest, recordRows, removeRecord, type RecordFilter, type RecordRow as Row } from "@/lib/records"
 import type { SavedWordList } from "@/lib/wordLists"
 import { cn } from "@/lib/utils"
+import PageStorageBadge from "@/components/PageStorageBadge"
 
 const PAGE_SIZE = 50
 
@@ -28,8 +29,8 @@ export default function Records() {
 }
 
 function Loading() {
-  const t = useTranslations('records')
-  return <div role="status" className="space-y-3"><span className="sr-only">{t('loading')}</span><Skeleton className="h-9 w-72" /><Skeleton className="h-64 w-full" /></div>
+  const common = useTranslations('common')
+  return <div role="status" className="space-y-3"><span className="sr-only">{common('loading')}</span><Skeleton className="h-9 w-72" /><Skeleton className="h-64 w-full" /></div>
 }
 
 function RecordsPage() {
@@ -47,10 +48,7 @@ function RecordsPage() {
           })}
         </p>
       </div>
-      {workspace.ready && <span className="inline-flex h-7 items-center gap-1.5 rounded-full border bg-card px-3 text-xs font-medium text-muted-foreground"
-        title={t(workspace.accountId === GUEST_ACCOUNT_ID ? 'storage.guestDetail' : 'storage.accountDetail')}>
-        <HardDrive className="size-3.5" aria-hidden="true" />{t(workspace.accountId === GUEST_ACCOUNT_ID ? 'storage.guest' : 'storage.account')}
-      </span>}
+      {workspace.ready && <PageStorageBadge guest={workspace.accountId === GUEST_ACCOUNT_ID} />}
     </header>
     {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
     {!workspace.ready ? <Loading /> : <RecordHistory key={workspace.accountId} lists={workspace.lists} saving={workspace.saving} update={workspace.update} />}
@@ -88,7 +86,6 @@ function RecordHistory({ lists, saving, update }: {
 }) {
   const t = useTranslations('records')
   const format = useFormat()
-  const locale = useLocale()
   const notify = useSaveNotification()
   const [filter, setFilter] = useFilter()
   const [now] = useState(() => new Date())
@@ -99,7 +96,7 @@ function RecordHistory({ lists, saving, update }: {
   const all = useMemo(() => recordRows(lists), [lists])
   const listOptions = useMemo<FilterOption[]>(() => lists.map(list => ({ value: list.id, label: list.name, count: list.records.length })), [lists])
   const devicesOptions = useMemo<FilterOption[]>(() => deviceOptions(all.map(row => row.record)).map(({ value, device, count }) =>
-    ({ value, count, label: device ? format.device(device) : t('filter.noDevice') })), [all, format, t])
+    ({ value, count, label: format.recordDevice(device) })), [all, format])
   const selectedList = lists.find(list => list.id === filter.list)
   const { list: listId, device: deviceId } = filter
   const rows = useMemo(() => filterRows(all, { list: listId, device: deviceId }), [all, listId, deviceId])
@@ -168,7 +165,7 @@ function RecordHistory({ lists, saving, update }: {
         if (saved) {
           deleted.current = true
           const date = new Date(row.record.date)
-          notify(t('delete.done', { name: row.list.name, date: new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric' }).format(date), time: format.clock(date) }))
+          notify(t('delete.done', { name: row.list.name, date: format.monthDay(date), time: format.clock(date) }))
         }
         return saved
       }}>

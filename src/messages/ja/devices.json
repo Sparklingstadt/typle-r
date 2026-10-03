@@ -1,12 +1,6 @@
 {
   "title": "端末",
   "description": "練習に使うパソコンやキーボードを登録します。「<link>練習する</link>」で選ぶと、どの端末で練習したかが記録に残ります。",
-  "storage": {
-    "guest": "このブラウザーに保存",
-    "account": "アカウントに保存",
-    "guestDetail": "未ログインのため、このブラウザーのLocalStorageに保存します。",
-    "accountDetail": "ログイン中のアカウントに保存します。"
-  },
   "usage": "練習 {count}回 · 最終 {day}",
   "neverUsed": "まだ練習していません",
   "listHeading": "登録済みの端末",
@@ -23,11 +17,10 @@
   "saved": "端末「{name}」を保存しました。",
   "deleted": "端末「{name}」を削除しました。",
   "deleteTitle": "端末「{name}」を削除しますか？",
-  "deleteDescription": "{removal}{records}{selection}",
+  "deleteDescription": "{removal}{records}{current, select, yes {このブラウザーで練習に使う端末は「未選択」に戻ります。} other {}}",
   "deleteRemoval": "一覧から「{name}」を削除します。",
   "deleteRecords": "この端末で練習した{count}回分の記録は削除されず、練習した時点の端末名のまま残ります。",
   "deleteNoRecords": "この端末で練習した記録はありません。",
-  "deleteSelection": "このブラウザーで練習に使う端末は「未選択」に戻ります。",
   "empty": {
     "title": "端末はまだ登録されていません",
     "description": "登録した端末を「練習する」で選ぶと、どの端末で練習したかが記録に残り、端末ごとの記録を見比べられます。",
@@ -35,10 +28,8 @@
   },
   "current": {
     "heading": "このブラウザーで練習に使う端末",
-    "notSelected": "未選択",
     "change": "変更",
     "changeLabel": "このブラウザーで練習に使う端末を変更（現在：{device}）",
-    "none": "未選択（端末を記録しない）",
     "practice": "練習する",
     "noteSelected": "「練習する」で練習すると、この端末が記録に残ります。ブラウザーごとに覚えるので、パソコンごとに選んでおけます。",
     "noteUnselected": "未選択のときは、練習記録に端末を残しません。ブラウザーごとに覚えるので、パソコンごとに選んでおけます。"
@@ -57,21 +48,18 @@
     "layoutHelp": "配列や設定の違いを書いておくと、記録を見比べるときの目印になります。",
     "renameNote": "名前を変えても、これまでの練習記録（{count}回）には練習した時点の名前が残ります。",
     "use": "このブラウザーで練習に使う端末にする",
-    "useHelp": "「練習する」で練習したとき、この端末が記録に残ります。",
-    "saveFailed": "保存できませんでした。もう一度お試しください。",
-    "cancel": "キャンセル",
-    "saving": "保存中…",
-    "save": "変更を保存",
-    "add": "追加する"
+    "useHelp": "「練習する」で練習したとき、この端末が記録に残ります。"
   },
   "menu": {
     "label": "使用端末：{device}",
-    "notSelected": "未選択",
     "locked": "練習中は端末を変更できません",
     "change": "使用端末を変更",
     "unselected": "端末：未選択",
     "heading": "使用端末（練習の開始前だけ変更できます）",
-    "none": "未選択（端末を記録しない）",
     "manage": "端末を管理"
+  },
+  "choice": {
+    "notSelected": "未選択",
+    "none": "未選択（端末を記録しない）"
   }
 }

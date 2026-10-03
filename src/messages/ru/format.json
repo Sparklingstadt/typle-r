@@ -12,5 +12,6 @@
     "two": "{first} {firstUnit} {second} {secondUnit}"
   },
   "noDevice": "Не записано",
+  "noDeviceRecorded": "Устройство не записано",
   "deviceWithLayout": "{name} ({layout})"
 }

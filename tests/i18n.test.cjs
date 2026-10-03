@@ -40,6 +40,13 @@ test('every language has the same message files and keys as Japanese', () => {
   }
 })
 
+// messages.ts loads the areas listed by the message type, so a new file must be added to messageTypes.ts too.
+test('every message file is part of the message type', () => {
+  const types = fs.readFileSync(path.join(__dirname, '../src/i18n/messageTypes.ts'), 'utf8')
+  const listed = [...types.matchAll(/from '@\/messages\/ja\/(\w+)\.json'/g)].map(match => `${match[1]}.json`)
+  assert.deepEqual(listed.sort(), [...namespaces].sort())
+})
+
 test('messages are valid ICU and use the same placeholders in every language', () => {
   for (const file of namespaces) {
     const base = read('ja', file)
@@ -55,12 +62,8 @@ test('messages are valid ICU and use the same placeholders in every language', (
   }
 })
 
-// Screen text belongs in src/messages. Comments and the sample word lists (src/json) may still be Japanese.
-const allowed = new Set([
-  'src/i18n/config.ts', // language names, each written in its own language
-  'src/auth.ts', // the development-only local account's name
-  'src/lib/defaultProfileName.ts', // stored data; shown through the profiles.defaultName message
-])
+// Screen text belongs in src/messages. Comments and the sample word lists (src/json) may still be Japanese, and a
+// literal that is data rather than screen text (a stored name, a language's own name) is marked `// i18n-ignore`.
 
 test('source files have no hard-coded Japanese text', () => {
   const japanese = /[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]/u
@@ -70,11 +73,14 @@ test('source files have no hard-coded Japanese text', () => {
       const file = path.join(dir, entry.name)
       const relative = path.relative(path.join(__dirname, '..'), file).split(path.sep).join('/')
       if (entry.isDirectory()) { if (relative !== 'src/messages' && relative !== 'src/json') walk(file); continue }
-      if (!/\.tsx?$/.test(entry.name) || allowed.has(relative)) continue
-      const source = ts.createSourceFile(file, fs.readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true)
+      if (!/\.tsx?$/.test(entry.name)) continue
+      const text = fs.readFileSync(file, 'utf8')
+      const lines = text.split('\n')
+      const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true)
       const visit = node => {
         if ((ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateHead(node) || ts.isTemplateMiddle(node) || ts.isTemplateTail(node) || ts.isJsxText(node)) && japanese.test(node.text)) {
-          found.push(`${relative}:${source.getLineAndCharacterOfPosition(node.getStart()).line + 1} ${node.text.trim().slice(0, 40)}`)
+          const line = source.getLineAndCharacterOfPosition(node.getStart()).line
+          if (!lines[line].includes('// i18n-ignore')) found.push(`${relative}:${line + 1} ${node.text.trim().slice(0, 40)}`)
         }
         ts.forEachChild(node, visit)
       }

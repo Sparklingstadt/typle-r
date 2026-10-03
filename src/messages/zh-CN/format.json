@@ -12,5 +12,6 @@
     "two": "{first}{firstUnit}{second}{secondUnit}"
   },
   "noDevice": "未记录",
+  "noDeviceRecorded": "未记录设备",
   "deviceWithLayout": "{name}（{layout}）"
 }

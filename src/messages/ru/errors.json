@@ -26,6 +26,8 @@
   "savedDataCorrupted": "Сохранённые данные повреждены. Исходные данные не изменены.",
   "listDeleted": "Этот список слов был удалён. Откройте страницу заново.",
   "listLimit": "Можно сохранить не более {max} списков слов.",
+  "importFileType": "Выберите файл CSV или TSV.",
+  "importFileEncoding": "Выберите файл, сохранённый в кодировке UTF-8.",
   "importTooLarge": "Размер файла не должен превышать 1 МиБ.",
   "importQuote": "Строка {line}: неверный формат кавычек.",
   "importHeaderRequired": "В заголовке должны быть input и display. annotation можно не указывать.",

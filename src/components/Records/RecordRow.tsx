@@ -1,4 +1,4 @@
-import { useLocale, useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { Trash2, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useFormat } from '@/i18n/useFormat'
@@ -8,11 +8,6 @@ import { cn } from '@/lib/utils'
 
 // Shared by the column labels and the rows so the numbers line up under their headings.
 export const recordColumns = 'sm:grid-cols-[3.25rem_minmax(0,1fr)_7rem_4.75rem_5.25rem_3rem_2.5rem] sm:gap-x-4'
-
-// Languages that write "18 min" rather than "18分" get a space between a number and its unit.
-export function unitSpace(format: ReturnType<typeof useFormat>) {
-  return /\s/.test(format.duration(1)) ? ' ' : ''
-}
 
 export function BestBadge() {
   const t = useTranslations('records.row')
@@ -25,7 +20,7 @@ export function BestBadge() {
 export function RecordTime({ seconds, className }: { seconds: number; className?: string }) {
   const t = useTranslations('records.row')
   const format = useFormat()
-  const space = unitSpace(format)
+  const space = format.unitSpace
   return <span className={cn('tabular-nums', className)} title={t('seconds', { value: seconds.toFixed(2) })}>
     {format.recordTimeParts(seconds).map(([value, unit], index) => <span key={unit}>{index > 0 && space}{value}{space}<span className="ml-px text-[0.8em] font-normal text-muted-foreground">{unit}</span></span>)}
   </span>
@@ -35,14 +30,13 @@ export function RecordTime({ seconds, className }: { seconds: number; className?
 export default function RecordRow({ row, showList, disabled, onDelete }: { row: Row; showList: boolean; disabled: boolean; onDelete: () => void }) {
   const t = useTranslations('records.row')
   const format = useFormat()
-  const locale = useLocale()
   const { list, record, best } = row
   const perWord = secondsPerWord(record)
   const low = record.accuracy !== undefined && record.accuracy < LOW_ACCURACY
   const time = format.clock(new Date(record.date))
-  const device = record.device ? format.device(record.device) : t('noDevice')
+  const device = format.recordDevice(record.device)
   const title = showList ? list.name : device
-  const date = new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'numeric', day: 'numeric' }).format(new Date(record.date))
+  const date = format.numericDate(new Date(record.date))
   return <li data-record-key={row.key}
     className={cn('grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 px-4 py-3 sm:gap-y-0 sm:px-5', recordColumns)}>
     <span className="hidden text-sm text-muted-foreground tabular-nums sm:block">{time}</span>
@@ -63,7 +57,7 @@ export default function RecordRow({ row, showList, disabled, onDelete }: { row: 
         <span className="sr-only">{t('accuracy')} </span>{formatAccuracy(record.accuracy)}
       </span>
       <span className="hidden sm:inline sm:text-right">
-        <span className="sr-only">{t('perWord')} </span>{perWord === null ? '—' : <>{perWord.toFixed(2)}{unitSpace(format)}<span className="ml-px text-[0.8em] text-muted-foreground">{t('perWordUnit')}</span></>}
+        <span className="sr-only">{t('perWord')} </span>{perWord === null ? '—' : <>{perWord.toFixed(2)}{format.unitSpace}<span className="ml-px text-[0.8em] text-muted-foreground">{t('perWordUnit')}</span></>}
       </span>
       <span className="text-muted-foreground sm:text-right sm:text-foreground">
         <span className="sm:sr-only">{t('mistakes')} </span>{record.mistakes ?? '—'}

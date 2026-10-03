@@ -2,12 +2,6 @@
   "title": "Profils",
   "defaultName": "Principal",
   "description": "Créez des profils selon vos objectifs (entraînement courant, chinois, coréen…) pour enregistrer séparément leurs listes de mots et leurs résultats. Les <link>appareils</link> sont communs à tous les profils.",
-  "storage": {
-    "guest": "Enregistré dans ce navigateur",
-    "account": "Enregistré sur votre compte",
-    "guestDetail": "Vous n’êtes pas connecté : les données sont enregistrées dans le LocalStorage de ce navigateur.",
-    "accountDetail": "Enregistré sur le compte connecté."
-  },
   "counts": {
     "lists": "{count, plural, one {# liste de mots} other {# listes de mots}}",
     "records": "{count, plural, one {# entraînement} other {# entraînements}}"
@@ -31,10 +25,8 @@
   "deleteLabel": "Supprimer {name}",
   "note": "Chaque navigateur mémorise le profil utilisé : vous pouvez garder un profil différent sur chaque ordinateur. Le premier profil ({first}) ne peut pas être supprimé.",
   "deleteTitle": "Supprimer le profil « {name} » ?",
-  "deleteDescription": "{removal} {others} {selection}",
+  "deleteDescription": "{removal} Les appareils et les autres profils ne sont pas modifiés.{current, select, yes { Ce navigateur passera au profil « {first} ».} other {}}",
   "deleteRemoval": "Le profil « {name} » sera supprimé avec {lists, plural, one {# liste de mots} other {# listes de mots}} et {records, plural, one {# résultat} other {# résultats}}.",
-  "deleteOthers": "Les appareils et les autres profils ne sont pas modifiés.",
-  "deleteSelection": "Ce navigateur passera au profil « {first} ».",
   "dialog": {
     "addTitle": "Ajouter un profil",
     "renameTitle": "Renommer le profil",
@@ -44,12 +36,7 @@
     "namePlaceholder": "Ex. : chinois",
     "nameHelp": "Affiché dans le menu de changement de profil de la barre latérale. Pratique pour séparer l’entraînement par objectif.",
     "use": "Activer le nouveau profil",
-    "useHelp": "Chaque navigateur mémorise le profil activé.",
-    "saveFailed": "Échec de l’enregistrement. Veuillez réessayer.",
-    "cancel": "Annuler",
-    "saving": "Enregistrement…",
-    "save": "Enregistrer",
-    "add": "Ajouter"
+    "useHelp": "Chaque navigateur mémorise le profil activé."
   },
   "switcher": {
     "loading": "Chargement des profils",

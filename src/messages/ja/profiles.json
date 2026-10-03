@@ -2,12 +2,6 @@
   "title": "プロファイル",
   "defaultName": "メイン",
   "description": "通常の練習、中国語、韓国語のように目的ごとにプロファイルを分けると、単語リストと練習記録を別々に保存できます。<link>端末</link>はすべてのプロファイルで共通です。",
-  "storage": {
-    "guest": "このブラウザーに保存",
-    "account": "アカウントに保存",
-    "guestDetail": "未ログインのため、このブラウザーのLocalStorageに保存します。",
-    "accountDetail": "ログイン中のアカウントに保存します。"
-  },
   "counts": {
     "lists": "単語リスト {count, number}件",
     "records": "練習 {count, number}回"
@@ -31,10 +25,8 @@
   "deleteLabel": "{name} を削除",
   "note": "使用中のプロファイルはブラウザーごとに覚えるので、パソコンごとに別のプロファイルを開いておけます。最初のプロファイル（{first}）は削除できません。",
   "deleteTitle": "プロファイル「{name}」を削除しますか？",
-  "deleteDescription": "{removal}{others}{selection}",
+  "deleteDescription": "{removal}端末とほかのプロファイルは変わりません。{current, select, yes {このブラウザーは「{first}」に切り替わります。} other {}}",
   "deleteRemoval": "プロファイル「{name}」と、その単語リスト{lists, number}件・練習記録{records, number}回を削除します。",
-  "deleteOthers": "端末とほかのプロファイルは変わりません。",
-  "deleteSelection": "このブラウザーは「{first}」に切り替わります。",
   "dialog": {
     "addTitle": "プロファイルを追加",
     "renameTitle": "プロファイル名を変更",
@@ -44,12 +36,7 @@
     "namePlaceholder": "例：中国語",
     "nameHelp": "サイドバーの切り替えメニューに表示されます。練習の目的ごとに分けると便利です。",
     "use": "追加したプロファイルに切り替える",
-    "useHelp": "切り替えはブラウザーごとに覚えます。",
-    "saveFailed": "保存できませんでした。もう一度お試しください。",
-    "cancel": "キャンセル",
-    "saving": "保存中…",
-    "save": "変更を保存",
-    "add": "追加する"
+    "useHelp": "切り替えはブラウザーごとに覚えます。"
   },
   "switcher": {
     "loading": "プロファイルを読み込み中",

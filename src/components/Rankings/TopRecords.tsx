@@ -22,7 +22,7 @@ function useCells(devices: PracticeDevice[], now: Date) {
   const format = useFormat()
   return {
     device(record: StoredRecord) {
-      if (!record.device) return { name: '—', title: t('noDevice'), removed: false }
+      if (!record.device) return { name: '—', title: format.recordDevice(), removed: false }
       return { name: record.device.name, title: format.device(record.device), removed: !devices.some(device => device.id === record.device!.id) }
     },
     date(record: StoredRecord) {
