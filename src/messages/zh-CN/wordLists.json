@@ -119,9 +119,9 @@
     "wordTotal": "· {count, plural, other {# 个单词}}",
     "save": "保存",
     "discardTitle": "有未保存的更改",
-    "discardDescription": "如果现在返回，输入的内容将会丢失。",
+    "discardDescription": "如果现在离开，输入的内容将会丢失。",
     "keepEditing": "继续编辑",
-    "discard": "放弃并返回"
+    "discard": "放弃并离开"
   },
   "import": {
     "open": "导入 CSV/TSV",

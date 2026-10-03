@@ -113,7 +113,7 @@ test('the sidebar link asks before dropping changes, and later edits still retur
   await sidebar.click()
   await expect(page.getByRole('alertdialog', { name: '保存していない変更があります' })).toBeVisible()
   await expect(page).toHaveURL(/\/edit\?list=kana$/)
-  await page.getByRole('button', { name: '破棄して戻る' }).click()
+  await page.getByRole('button', { name: '破棄して移動' }).click()
   await expect(page).toHaveURL(/\/edit$/)
   await expect(row(page, 'kana')).toContainText('Kana')
   // Without changes the sidebar link simply returns; opening and cancelling afterwards stays on the lists.

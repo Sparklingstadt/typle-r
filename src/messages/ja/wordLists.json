@@ -119,9 +119,9 @@
     "wordTotal": "・ {count, plural, other {#語}}",
     "save": "保存",
     "discardTitle": "保存していない変更があります",
-    "discardDescription": "このまま戻ると、入力した内容は失われます。",
+    "discardDescription": "このまま移動すると、入力した内容は失われます。",
     "keepEditing": "編集を続ける",
-    "discard": "破棄して戻る"
+    "discard": "破棄して移動"
   },
   "import": {
     "open": "CSV・TSVを読み込む",
