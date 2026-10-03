@@ -44,5 +44,14 @@
   "deviceNameDuplicate": "« {name} » est déjà enregistré. Choisissez un autre nom.",
   "deviceLimit": "Vous pouvez enregistrer jusqu’à {max} appareils. Supprimez ceux que vous n’utilisez plus avant d’en ajouter.",
   "practiceIncomplete": "L’entraînement n’est pas terminé.",
-  "recordListDeleted": "La liste de mots a été supprimée ; le résultat ne peut pas être enregistré."
+  "recordListDeleted": "La liste de mots a été supprimée ; le résultat ne peut pas être enregistré.",
+  "invalidProfile": "Vérifiez le profil indiqué.",
+  "profileDataInvalid": "Vérifiez le format des profils.",
+  "profileDeleted": "Ce profil a été supprimé. Veuillez rouvrir la page.",
+  "profileNameRequired": "Saisissez le nom du profil.",
+  "profileNameTooLong": "Le nom du profil ne doit pas dépasser {max} caractères.",
+  "profileDeletedElsewhere": "Ce profil a été supprimé sur un autre écran.",
+  "profileNameDuplicate": "« {name} » existe déjà. Choisissez un autre nom.",
+  "profileLimit": "Vous pouvez créer jusqu’à {max} profils. Supprimez ceux que vous n’utilisez plus avant d’en ajouter.",
+  "profileFirstUndeletable": "Le premier profil ne peut pas être supprimé."
 }

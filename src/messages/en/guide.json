@@ -35,10 +35,22 @@
   "legend": {
     "typed": "Typed: <mono>{typed}</mono>",
     "swatch": "a",
-    "done": { "label": "Typed", "note": "(green)" },
-    "current": { "label": "Next character", "note": "(underlined)" },
-    "pending": { "label": "Not typed yet", "note": "(gray)" },
-    "error": { "label": "From the wrong character on", "note": "(red)" }
+    "done": {
+      "label": "Typed",
+      "note": "(green)"
+    },
+    "current": {
+      "label": "Next character",
+      "note": "(underlined)"
+    },
+    "pending": {
+      "label": "Not typed yet",
+      "note": "(gray)"
+    },
+    "error": {
+      "label": "From the wrong character on",
+      "note": "(red)"
+    }
   },
   "practice": {
     "lead": "Choose a word list in <play>Practice</play> and type the words shown.",
@@ -146,10 +158,12 @@
     "warning": {
       "title": "When data is lost",
       "p1": "Data saved in this browser is deleted when you clear the browser’s site data. You can back up important lists with “Export CSV”.",
-      "p2": "Deleting a list also deletes its practice history."
+      "p2": "Deleting a list also deletes its practice history.",
+      "p3": "Deleting a profile also deletes that profile’s word lists and practice records."
     },
     "notes": {
       "p1": "The two storage locations keep their data separately, and nothing is moved automatically when you sign in.",
+      "profiles": "With separate <profiles>profiles</profiles>, you can keep word lists and practice records apart for each goal, such as everyday practice, Chinese or Korean. Devices are shared by all profiles. Switch profiles at the top of the sidebar; each browser remembers its choice.",
       "p2": "Data from an earlier version (v0.1.x) can be added to the current storage location with the migration button on <home>Home</home>.",
       "p3": "If saving fails because changes were made in several windows at once, load the latest data and try again."
     }

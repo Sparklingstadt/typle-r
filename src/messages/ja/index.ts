@@ -16,6 +16,7 @@ import records from './records.json'
 import rankings from './rankings.json'
 import dashboard from './dashboard.json'
 import globalError from './globalError.json'
+import profiles from './profiles.json'
 
-const messages = { errors, format, common, metadata, nav, account, settings, devices, guide, about, home, practice, wordLists, records, rankings, dashboard, globalError }
+const messages = { errors, format, common, metadata, nav, account, settings, devices, guide, about, home, practice, wordLists, records, rankings, dashboard, globalError, profiles }
 export default messages

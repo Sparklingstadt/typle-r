@@ -44,5 +44,14 @@
   "deviceNameDuplicate": "「{name}」はすでに登録されています。別の名前にしてください。",
   "deviceLimit": "端末は{max}台まで登録できます。使わなくなった端末を削除してから追加してください。",
   "practiceIncomplete": "練習が完了していません。",
-  "recordListDeleted": "単語リストが削除されているため、記録を保存できません。"
+  "recordListDeleted": "単語リストが削除されているため、記録を保存できません。",
+  "invalidProfile": "プロファイルの指定を確認してください。",
+  "profileDataInvalid": "プロファイルの形式を確認してください。",
+  "profileDeleted": "このプロファイルは削除されています。画面を開き直してください。",
+  "profileNameRequired": "プロファイル名を入力してください。",
+  "profileNameTooLong": "プロファイル名は{max}文字以内で入力してください。",
+  "profileDeletedElsewhere": "このプロファイルは別の画面で削除されています。",
+  "profileNameDuplicate": "「{name}」はすでにあります。別の名前にしてください。",
+  "profileLimit": "プロファイルは{max}個まで作成できます。使わなくなったプロファイルを削除してから追加してください。",
+  "profileFirstUndeletable": "最初のプロファイルは削除できません。"
 }

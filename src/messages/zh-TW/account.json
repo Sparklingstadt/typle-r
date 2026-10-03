@@ -5,6 +5,7 @@
   "githubUser": "GitHub 使用者",
   "menu": "帳號選單",
   "signedInWithGitHub": "已透過 GitHub 登入",
+  "manageProfiles": "管理設定檔",
   "manageDevices": "管理裝置",
   "signOut": "登出",
   "localLogin": {

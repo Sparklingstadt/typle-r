@@ -1,0 +1,62 @@
+{
+  "title": "Profils",
+  "defaultName": "Principal",
+  "description": "Créez des profils selon vos objectifs (entraînement courant, chinois, coréen…) pour enregistrer séparément leurs listes de mots et leurs résultats. Les <link>appareils</link> sont communs à tous les profils.",
+  "storage": {
+    "guest": "Enregistré dans ce navigateur",
+    "account": "Enregistré sur votre compte",
+    "guestDetail": "Vous n’êtes pas connecté : les données sont enregistrées dans le LocalStorage de ce navigateur.",
+    "accountDetail": "Enregistré sur le compte connecté."
+  },
+  "counts": {
+    "lists": "{count, plural, one {# liste de mots} other {# listes de mots}}",
+    "records": "{count, plural, one {# entraînement} other {# entraînements}}"
+  },
+  "added": "Profil « {name} » ajouté.",
+  "addedAndSwitched": "Profil « {name} » ajouté et activé.",
+  "renamed": "Profil renommé en « {name} ».",
+  "switched": "Profil « {name} » activé.",
+  "deleted": "Profil « {name} » supprimé.",
+  "listHeading": "Liste des profils",
+  "limitDetail": "Jusqu’à {max} profils",
+  "add": "Ajouter un profil",
+  "limit": "Vous pouvez créer jusqu’à {max} profils. Supprimez ceux que vous n’utilisez plus pour en ajouter.",
+  "inUse": "Utilisé",
+  "inUseDetail": "Le profil affiché dans ce navigateur",
+  "switch": "Activer",
+  "switchLabel": "Passer à {name}",
+  "rename": "Renommer",
+  "renameLabel": "Renommer {name}",
+  "delete": "Supprimer",
+  "deleteLabel": "Supprimer {name}",
+  "note": "Chaque navigateur mémorise le profil utilisé : vous pouvez garder un profil différent sur chaque ordinateur. Le premier profil ({first}) ne peut pas être supprimé.",
+  "deleteTitle": "Supprimer le profil « {name} » ?",
+  "deleteDescription": "{removal} {others} {selection}",
+  "deleteRemoval": "Le profil « {name} » sera supprimé avec {lists, plural, one {# liste de mots} other {# listes de mots}} et {records, plural, one {# résultat} other {# résultats}}.",
+  "deleteOthers": "Les appareils et les autres profils ne sont pas modifiés.",
+  "deleteSelection": "Ce navigateur passera au profil « {first} ».",
+  "dialog": {
+    "addTitle": "Ajouter un profil",
+    "renameTitle": "Renommer le profil",
+    "addDescription": "Un nouveau profil commence sans listes de mots ni résultats.",
+    "renameDescription": "Les listes de mots et les résultats sont conservés.",
+    "name": "Nom du profil",
+    "namePlaceholder": "Ex. : chinois",
+    "nameHelp": "Affiché dans le menu de changement de profil de la barre latérale. Pratique pour séparer l’entraînement par objectif.",
+    "use": "Activer le nouveau profil",
+    "useHelp": "Chaque navigateur mémorise le profil activé.",
+    "saveFailed": "Échec de l’enregistrement. Veuillez réessayer.",
+    "cancel": "Annuler",
+    "saving": "Enregistrement…",
+    "save": "Enregistrer",
+    "add": "Ajouter"
+  },
+  "switcher": {
+    "loading": "Chargement des profils",
+    "label": "Changer de profil (actuel : {name})",
+    "caption": "Profil",
+    "unsaved": "Enregistrez ou annulez la liste de mots en cours de modification pour changer de profil",
+    "heading": "Changer de listes de mots et de résultats",
+    "manage": "Gérer les profils"
+  }
+}

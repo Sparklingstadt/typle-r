@@ -24,6 +24,7 @@ export const guideTags = {
   rankings: (chunks: ReactNode) => <PageLink href="/rankings">{chunks}</PageLink>,
   home: (chunks: ReactNode) => <PageLink href="/home">{chunks}</PageLink>,
   devices: (chunks: ReactNode) => <PageLink href="/devices">{chunks}</PageLink>,
+  profiles: (chunks: ReactNode) => <PageLink href="/profiles">{chunks}</PageLink>,
   devicesSection: (chunks: ReactNode) => <a href="#devices" className={guideLink}>{chunks}</a>,
   wordCount: (chunks: ReactNode) => <a href="#word-count" className={guideLink}>{chunks}</a>,
   keys: (chunks: ReactNode) => <Keys keys={chunkText(chunks).split('+')} />,

@@ -2,7 +2,8 @@ import { auth } from '@/auth'
 import * as Sentry from '@sentry/nextjs'
 import { database } from '@/lib/database'
 import type { ErrorKey } from '@/lib/appError'
-import { MAX_WORKSPACE_BYTES, validateWorkspaceRequest } from '@/lib/workspaceRequest'
+import { MissingProfileError } from '@/lib/profiles'
+import { MAX_WORKSPACE_BYTES, validateProfileId, validateWorkspaceRequest } from '@/lib/workspaceRequest'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -20,11 +21,15 @@ async function ownerId() {
   return id && /^github:\d+$/.test(id) ? id : null
 }
 
-export async function GET() {
+// `?profile=<id>` picks whose word lists to return; an unknown id returns the first profile.
+export async function GET(request: Request) {
   try {
     const owner = await ownerId()
     if (!owner) return failure('loginRequired', 401)
-    return response({ ...await database().read(owner), accountId: owner })
+    let profileId
+    try { profileId = validateProfileId(new URL(request.url).searchParams.get('profile')) }
+    catch { return failure('invalidProfile', 400) }
+    return response({ ...await database().read(owner, profileId), accountId: owner })
   } catch (error) {
     Sentry.captureException(error, { tags: { operation: 'workspace.read' } })
     return failure('databaseUnavailable', 503)
@@ -57,7 +62,13 @@ export async function PUT(request: Request) {
       body = validateWorkspaceRequest(raw)
     }
     catch { return failure('invalidWorkspace', 400) }
-    const result = await database().write(owner, body.lists, body.revision, body.devices)
+    const { revision, ...change } = body
+    let result
+    try { result = await database().write(owner, revision, change) }
+    catch (error) {
+      if (error instanceof MissingProfileError) return failure(error.key, 409)
+      throw error
+    }
     if (!result) return failure('conflict', 409)
     return response({ ...result, accountId: owner })
   } catch (error) {

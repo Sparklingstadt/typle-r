@@ -4,10 +4,12 @@ import { useId } from "react"
 import { usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
+import ProfileSwitcher from "@/components/Profiles/ProfileSwitcher"
 import { helpNavigation, isCurrentPath, mainNavigation, type NavLink } from "./navigation"
 
+// 36px rows on desktop keep the whole sidebar within a 1024×768 screen; the mobile drawer keeps 40px touch targets.
 const itemClass = (current: boolean) => cn(
-  "relative flex h-10 items-center gap-3 rounded-md px-3 text-sm outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-4 [&_svg]:shrink-0",
+  "relative flex h-10 items-center gap-3 lg:h-9 rounded-md px-3 text-sm outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-4 [&_svg]:shrink-0",
   current
     ? "bg-accent font-medium text-foreground before:absolute before:inset-y-2.5 before:left-0 before:w-[3px] before:rounded-full before:bg-primary"
     : "text-foreground/80 hover:bg-accent/60 hover:text-foreground [&_svg]:text-muted-foreground hover:[&_svg]:text-foreground"
@@ -35,6 +37,7 @@ export default function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const id = useId()
   const t = useTranslations("nav")
   return <div className="flex min-h-full flex-col gap-4">
+    <ProfileSwitcher onNavigate={onNavigate} />
     <nav aria-label={t("mainNavigation")}>
       {mainNavigation.map((group, index) => {
         const labelId = `${id}-group-${index}`

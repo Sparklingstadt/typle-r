@@ -5,6 +5,7 @@
   "githubUser": "GitHub 用户",
   "menu": "账号菜单",
   "signedInWithGitHub": "已通过 GitHub 登录",
+  "manageProfiles": "管理个人资料",
   "manageDevices": "管理设备",
   "signOut": "退出登录",
   "localLogin": {

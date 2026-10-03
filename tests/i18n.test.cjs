@@ -59,6 +59,7 @@ test('messages are valid ICU and use the same placeholders in every language', (
 const allowed = new Set([
   'src/i18n/config.ts', // language names, each written in its own language
   'src/auth.ts', // the development-only local account's name
+  'src/lib/defaultProfileName.ts', // stored data; shown through the profiles.defaultName message
 ])
 
 test('source files have no hard-coded Japanese text', () => {

@@ -1,0 +1,62 @@
+{
+  "title": "个人资料",
+  "defaultName": "主要",
+  "description": "按目的分开个人资料（如日常练习、中文、韩语），即可分别保存单词列表和练习记录。<link>设备</link>由所有个人资料共用。",
+  "storage": {
+    "guest": "保存在此浏览器",
+    "account": "保存到账号",
+    "guestDetail": "由于未登录，数据保存在此浏览器的 LocalStorage 中。",
+    "accountDetail": "保存到当前登录的账号。"
+  },
+  "counts": {
+    "lists": "单词列表 {count, number} 个",
+    "records": "练习 {count, number} 次"
+  },
+  "added": "已添加个人资料“{name}”。",
+  "addedAndSwitched": "已添加个人资料“{name}”并切换。",
+  "renamed": "已将个人资料名称更改为“{name}”。",
+  "switched": "已切换到个人资料“{name}”。",
+  "deleted": "已删除个人资料“{name}”。",
+  "listHeading": "个人资料列表",
+  "limitDetail": "最多可创建 {max} 个",
+  "add": "添加个人资料",
+  "limit": "最多可以创建 {max} 个个人资料。删除不再使用的个人资料后即可添加。",
+  "inUse": "使用中",
+  "inUseDetail": "此浏览器正在显示的个人资料",
+  "switch": "切换",
+  "switchLabel": "切换到 {name}",
+  "rename": "重命名",
+  "renameLabel": "重命名 {name}",
+  "delete": "删除",
+  "deleteLabel": "删除 {name}",
+  "note": "每个浏览器分别记住正在使用的个人资料，因此可以在不同电脑上打开不同的个人资料。第一个个人资料（{first}）无法删除。",
+  "deleteTitle": "要删除个人资料“{name}”吗？",
+  "deleteDescription": "{removal}{others}{selection}",
+  "deleteRemoval": "将删除个人资料“{name}”及其 {lists, number} 个单词列表和 {records, number} 次练习记录。",
+  "deleteOthers": "设备和其他个人资料不受影响。",
+  "deleteSelection": "此浏览器将切换到“{first}”。",
+  "dialog": {
+    "addTitle": "添加个人资料",
+    "renameTitle": "重命名个人资料",
+    "addDescription": "新的个人资料从空的单词列表和练习记录开始。",
+    "renameDescription": "单词列表和练习记录保持不变。",
+    "name": "个人资料名称",
+    "namePlaceholder": "例：中文",
+    "nameHelp": "显示在侧边栏的切换菜单中。按练习目的分开会很方便。",
+    "use": "切换到新添加的个人资料",
+    "useHelp": "每个浏览器分别记住切换状态。",
+    "saveFailed": "无法保存。请重试。",
+    "cancel": "取消",
+    "saving": "正在保存…",
+    "save": "保存更改",
+    "add": "添加"
+  },
+  "switcher": {
+    "loading": "正在加载个人资料",
+    "label": "切换个人资料（当前：{name}）",
+    "caption": "个人资料",
+    "unsaved": "保存或取消正在编辑的单词列表后即可切换",
+    "heading": "切换单词列表和记录",
+    "manage": "管理个人资料"
+  }
+}

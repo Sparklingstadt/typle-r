@@ -188,11 +188,13 @@ export default async function Guide() {
               <ul className="mt-1 list-disc space-y-1 pl-5 text-sm leading-6 marker:text-amber-600/60">
                 <li>{t("storage.warning.p1")}</li>
                 <li>{t("storage.warning.p2")}</li>
+                <li>{t("storage.warning.p3")}</li>
               </ul>
             </div>
           </div>
           <Points>
             <li>{t("storage.notes.p1")}</li>
+            <li>{rich("storage.notes.profiles")}</li>
             <li>{rich("storage.notes.p2")}</li>
             <li>{t("storage.notes.p3")}</li>
           </Points>

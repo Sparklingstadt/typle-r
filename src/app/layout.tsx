@@ -6,6 +6,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import Navbar from "@/components/Navbar/Navbar";
 import AuthProvider from "@/components/AuthProvider";
+import { WorkspaceProvider } from "@/lib/useWordLists";
 import { THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme/bootstrap";
 import { openGraphLocales, type Locale } from "@/i18n/config";
 
@@ -68,6 +69,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <body className={`${fonts[locale] ?? ""} bg-muted/40 font-sans text-foreground antialiased`}>
       <NextIntlClientProvider>
       <AuthProvider>
+      <WorkspaceProvider>
       <Navbar />
       <div className="flex min-h-[calc(100dvh-3.5rem)]">
         <Sidebar />
@@ -75,6 +77,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           { children }
         </div>
       </div>
+      </WorkspaceProvider>
       </AuthProvider>
       </NextIntlClientProvider>
       </body>

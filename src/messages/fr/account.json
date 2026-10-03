@@ -5,6 +5,7 @@
   "githubUser": "Utilisateur GitHub",
   "menu": "Menu du compte",
   "signedInWithGitHub": "Connecté avec GitHub",
+  "manageProfiles": "Gérer les profils",
   "manageDevices": "Gérer les appareils",
   "signOut": "Se déconnecter",
   "localLogin": {

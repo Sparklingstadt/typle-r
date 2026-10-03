@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import Link from 'next/link'
-import { LogIn, LogOut, Monitor } from 'lucide-react'
+import { LogIn, LogOut, Monitor, UsersRound } from 'lucide-react'
 import { Avatar, DropdownMenu } from 'radix-ui'
 
 const itemClass = "flex cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 text-sm outline-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:size-4 [&_svg]:text-muted-foreground"
@@ -43,6 +43,9 @@ export default function AccountBar() {
           </span>
         </DropdownMenu.Label>
         <DropdownMenu.Separator className="-mx-1 my-1 h-px bg-border" />
+        <DropdownMenu.Item asChild className={itemClass}>
+          <Link href="/profiles"><UsersRound aria-hidden="true" />{t('manageProfiles')}</Link>
+        </DropdownMenu.Item>
         <DropdownMenu.Item asChild className={itemClass}>
           <Link href="/devices"><Monitor aria-hidden="true" />{t('manageDevices')}</Link>
         </DropdownMenu.Item>
