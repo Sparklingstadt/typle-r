@@ -86,7 +86,7 @@ test('cancel asks before discarding unsaved changes', async ({ page }) => {
   await expect(page).toHaveURL(/\/create$/)
   await expect(display(page, 1)).toHaveValue('keep me')
   await page.getByRole('button', { name: 'キャンセル', exact: true }).click()
-  await dialog.getByRole('button', { name: '破棄して戻る', exact: true }).click()
+  await dialog.getByRole('button', { name: '破棄して移動', exact: true }).click()
   await expect(page).toHaveURL(/\/edit$/)
   await expect(page.getByRole('button', { name: 'Draft を編集', exact: true })).toHaveCount(0)
 
@@ -98,7 +98,7 @@ test('cancel asks before discarding unsaved changes', async ({ page }) => {
   await display(page, 1).fill('changed')
   await page.getByRole('button', { name: 'キャンセル', exact: true }).click()
   await expect(page.getByRole('alertdialog')).toBeVisible()
-  await page.getByRole('alertdialog').getByRole('button', { name: '破棄して戻る', exact: true }).click()
+  await page.getByRole('alertdialog').getByRole('button', { name: '破棄して移動', exact: true }).click()
   await page.getByRole('button', { name: 'Test 1 を編集', exact: true }).click()
   await expect(display(page, 1)).not.toHaveValue('changed')
 })

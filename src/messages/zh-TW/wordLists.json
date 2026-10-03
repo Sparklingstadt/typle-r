@@ -121,7 +121,7 @@
     "discardTitle": "有尚未儲存的變更",
     "discardDescription": "如果現在返回，輸入的內容將會遺失。",
     "keepEditing": "繼續編輯",
-    "discard": "捨棄並返回"
+    "discard": "捨棄並離開"
   },
   "import": {
     "open": "匯入 CSV/TSV",

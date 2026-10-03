@@ -121,7 +121,7 @@
     "discardTitle": "保存していない変更があります",
     "discardDescription": "このまま戻ると、入力した内容は失われます。",
     "keepEditing": "編集を続ける",
-    "discard": "破棄して戻る"
+    "discard": "破棄して移動"
   },
   "import": {
     "open": "CSV・TSVを読み込む",

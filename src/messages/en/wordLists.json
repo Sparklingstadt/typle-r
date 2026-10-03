@@ -121,7 +121,7 @@
     "discardTitle": "You have unsaved changes",
     "discardDescription": "If you go back now, your changes will be lost.",
     "keepEditing": "Keep editing",
-    "discard": "Discard and go back"
+    "discard": "Discard and leave"
   },
   "import": {
     "open": "Import CSV/TSV",
