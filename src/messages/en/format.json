@@ -1,0 +1,16 @@
+{
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "dateWithWeekday": "{weekday}, {date}",
+  "units": {
+    "hours": "h",
+    "minutes": "min",
+    "seconds": "s"
+  },
+  "time": {
+    "one": "{value} {unit}",
+    "two": "{first} {firstUnit} {second} {secondUnit}"
+  },
+  "noDevice": "Not recorded",
+  "deviceWithLayout": "{name} ({layout})"
+}

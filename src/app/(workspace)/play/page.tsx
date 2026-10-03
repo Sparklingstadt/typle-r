@@ -2,6 +2,7 @@
 import { Suspense, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { ArrowRight, ChevronDown, ChevronsUpDown, ChevronUp, CircleAlert, Gauge, List, MousePointerClick, Plus, RotateCcw, Search, Target, Timer, X } from "lucide-react"
 import type { PracticeDevice } from "@/lib/devices"
 import { useSelectedDevice } from "@/lib/deviceSelection"
@@ -27,17 +28,20 @@ import WordListOptions from "@/components/Practice/WordListOptions"
 import PracticeBestRecords from "@/components/Practice/PracticeBestRecords"
 import PracticeResult from "@/components/Practice/PracticeResult"
 
-const loading = <Page><PageContainer><p>読み込み中…</p></PageContainer></Page>
+function Loading() {
+  const t = useTranslations('practice')
+  return <Page><PageContainer><p>{t('loading')}</p></PageContainer></Page>
+}
 
 // `?list=<id>` preselects a list, e.g. from the home dashboard. Reading it needs a Suspense boundary for prerendering.
 export default function Play() {
-  return <Suspense fallback={loading}><PlayWorkspace /></Suspense>
+  return <Suspense fallback={<Loading />}><PlayWorkspace /></Suspense>
 }
 
 function PlayWorkspace() {
   const listId = useSearchParams().get('list')
   const { lists, devices, accountId, ready, error, update } = useWordLists()
-  if (!ready) return loading
+  if (!ready) return <Loading />
   return <Practice key={accountId} accountId={accountId ?? ""} devices={devices} wordLists={lists} listId={listId} error={error} update={update} />
 }
 
@@ -63,13 +67,14 @@ function LiveStats({ session, accuracy }: { session: TypingSession; accuracy: nu
   const now = useNow(running)
   const elapsed = running && now > (session.startedAt ?? 0) ? now - (session.startedAt ?? 0) : 0
   const speed = running ? typingSpeed(session, now) : null
+  const t = useTranslations('practice.stats')
   const stats = [
-    { icon: Timer, term: '経過', value: formatClock(elapsed) },
-    { icon: Gauge, term: '速度', value: speed === null ? '—' : String(speed), unit: '打/分' },
-    { icon: Target, term: '正確率', value: session.attempts ? `${Math.round(accuracy * 10) / 10}%` : '—' },
-    { icon: X, term: 'ミス', value: String(session.mistakes) },
+    { icon: Timer, term: t('elapsed'), value: formatClock(elapsed) },
+    { icon: Gauge, term: t('speed'), value: speed === null ? '—' : String(speed), unit: t('speedUnit') },
+    { icon: Target, term: t('accuracy'), value: session.attempts ? `${Math.round(accuracy * 10) / 10}%` : '—' },
+    { icon: X, term: t('mistakes'), value: String(session.mistakes) },
   ]
-  return <dl aria-label="練習中の記録" className="mx-4 mb-4 grid grid-cols-4 rounded-xl border bg-muted/40 px-1 py-2.5 text-center sm:mx-6 sm:mb-5 sm:px-2 sm:py-3">
+  return <dl aria-label={t('label')} className="mx-4 mb-4 grid grid-cols-4 rounded-xl border bg-muted/40 px-1 py-2.5 text-center sm:mx-6 sm:mb-5 sm:px-2 sm:py-3">
     {stats.map(stat => <div key={stat.term} className="grid gap-0.5">
       <dt className="inline-flex items-center justify-center gap-1 text-[11px] text-muted-foreground sm:text-xs"><stat.icon className="size-3" aria-hidden="true" />{stat.term}</dt>
       <dd className="text-base font-medium tabular-nums sm:text-xl">{stat.value}{stat.unit && <span className="ml-0.5 text-[11px] font-normal text-muted-foreground sm:text-xs">{stat.unit}</span>}</dd>
@@ -92,6 +97,7 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
   error: string
   update: WorkspaceUpdate
 }) {
+  const t = useTranslations('practice')
   const [deviceId, chooseDevice] = useSelectedDevice(accountId)
   const device = devices.find(item => item.id === deviceId)
   const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave } = usePractice(wordLists, update, device, listId)
@@ -167,33 +173,33 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
   const filteredLists = wordLists.filter(item => item.name.toLowerCase().includes(query.trim().toLowerCase()))
   const next = words.slice(session.index + 1, session.index + 4)
   const remaining = words.length - session.index - 1 - next.length
-  const progressText = `${finished ? words.length : session.index + 1} / ${words.length} 語`
+  const progressText = t('progress.value', { current: finished ? words.length : session.index + 1, total: words.length })
   const feedback = hasError
-    ? <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{comparison.errorIndex + 1}文字目から違います。Backspace で直してください。</span>
-    : composition !== null ? <span>変換中の文字は、確定してから判定します</span>
-    : <span className="hidden flex-wrap items-center justify-center gap-x-4 gap-y-1 sm:flex"><span className="inline-flex items-center gap-1.5"><Kbd>Backspace</Kbd>1文字戻る</span><span className="inline-flex items-center gap-1.5"><Kbd>Esc</Kbd>最初からやり直す</span></span>
+    ? <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{t('feedback.mismatch', { position: comparison.errorIndex + 1 })}</span>
+    : composition !== null ? <span>{t('feedback.composing')}</span>
+    : <span className="hidden flex-wrap items-center justify-center gap-x-4 gap-y-1 sm:flex"><span className="inline-flex items-center gap-1.5"><Kbd>Backspace</Kbd>{t('feedback.backspace')}</span><span className="inline-flex items-center gap-1.5"><Kbd>Esc</Kbd>{t('feedback.restart')}</span></span>
 
   return <main className="mx-auto my-6 w-11/12 max-w-7xl pb-12 sm:my-8">
     {error && <Alert variant="destructive" className="mb-4"><AlertDescription>{error}</AlertDescription></Alert>}
-    {!list?.words.length ? <Card className="px-5 py-8 text-base sm:px-8"><p>単語がありません。<Link href="/create" className="underline">単語リストを作成</Link>してください。</p></Card> :
+    {!list?.words.length ? <Card className="px-5 py-8 text-base sm:px-8"><p>{t.rich('empty', { link: chunks => <Link href="/create" className="underline">{chunks}</Link> })}</p></Card> :
     <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <Card className="min-w-0 gap-0 self-stretch py-0 text-base">
         <div className="flex h-14 items-center gap-1.5 border-b px-2 sm:h-16 sm:gap-3 sm:px-3">
-          <button type="button" onClick={openPicker} aria-haspopup="dialog" aria-label={`単語リストを切り替える（現在: ${list.name}）`}
+          <button type="button" onClick={openPicker} aria-haspopup="dialog" aria-label={t('header.switchList', { name: list.name })}
             className="flex h-10 min-w-0 items-center gap-2 rounded-lg px-1.5 text-muted-foreground outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 sm:px-2.5">
             <List className="hidden size-4 shrink-0 sm:block" aria-hidden="true" />
             <span className="truncate text-[15px] font-bold text-foreground sm:text-base">{list.name}</span>
-            <span className="hidden shrink-0 text-[13px] sm:inline">{words.length}語</span>
+            <span className="hidden shrink-0 text-[13px] sm:inline">{t('header.wordCount', { count: words.length })}</span>
             <ChevronsUpDown className="size-4 shrink-0" aria-hidden="true" />
           </button>
           <span className="flex-1" />
           <DeviceMenu devices={devices} device={running ? practiceDevice : device} locked={running} onChange={chooseDevice} onOpenChange={setMenuOpen} onCloseAutoFocus={focusPractice} />
-          <Button variant="ghost" size="lg" className="shrink-0 px-2 sm:px-2.5" onClick={() => restart()} aria-label="最初からやり直す" aria-keyshortcuts="Escape" title="最初からやり直す（Esc）">
-            <RotateCcw aria-hidden="true" /><span className="hidden sm:inline">やり直す</span><Kbd className="hidden sm:inline-flex">Esc</Kbd>
+          <Button variant="ghost" size="lg" className="shrink-0 px-2 sm:px-2.5" onClick={() => restart()} aria-label={t('header.restart')} aria-keyshortcuts="Escape" title={t('header.restartTitle')}>
+            <RotateCcw aria-hidden="true" /><span className="hidden sm:inline">{t('header.restartShort')}</span><Kbd className="hidden sm:inline-flex">Esc</Kbd>
           </Button>
         </div>
         <div className="flex items-center gap-3 px-4 pt-3 text-sm font-medium tabular-nums sm:px-6 sm:pt-4">
-          <div role="progressbar" aria-label="単語の進捗" aria-valuemin={0} aria-valuemax={words.length} aria-valuenow={finished ? words.length : session.index} aria-valuetext={progressText} className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+          <div role="progressbar" aria-label={t('progress.label')} aria-valuemin={0} aria-valuemax={words.length} aria-valuenow={finished ? words.length : session.index} aria-valuetext={progressText} className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
             <div className="h-full rounded-full bg-primary transition-[width] motion-reduce:transition-none" style={{ width: `${(finished ? 1 : session.index / words.length) * 100}%` }} />
           </div>
           <span aria-hidden="true">{progressText}</span>
@@ -208,17 +214,17 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
               : word && <>
                 <p id="wordDisplay" className={cn('m-0 max-w-full font-medium whitespace-pre-wrap [overflow-wrap:anywhere]', wordSize(word.display))}>{word.display}</p>
                 <div className="flex max-w-full flex-wrap items-center justify-center gap-2.5">
-                  <span className="rounded-full border px-2 text-xs text-muted-foreground">入力する文字</span>
+                  <span className="rounded-full border px-2 text-xs text-muted-foreground">{t('word.typeThis')}</span>
                   <TargetText {...comparison} className="text-2xl tracking-wide sm:text-3xl" />
                 </div>
               </>}
             {showResume && <button type="button" onClick={() => input.current?.focus()} className="absolute inset-0 z-10 grid place-items-center bg-card/70 outline-none backdrop-blur-sm">
-              <span className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"><MousePointerClick className="size-4" aria-hidden="true" />クリックまたは任意のキーで再開</span>
+              <span className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"><MousePointerClick className="size-4" aria-hidden="true" />{t('word.resume')}</span>
             </button>}
           </div>
           <div className="flex flex-col items-center gap-2.5 px-4 pt-2 pb-4 sm:px-6 sm:pb-5">
-            <Input ref={input} id="wordInputField" placeholder="ここに入力" value={composition ?? session.input} autoComplete="off" autoCapitalize="off" spellCheck={false}
-              aria-label="表示された文字を入力" aria-invalid={hasError} aria-describedby="practice-feedback"
+            <Input ref={input} id="wordInputField" placeholder={t('word.placeholder')} value={composition ?? session.input} autoComplete="off" autoCapitalize="off" spellCheck={false}
+              aria-label={t('word.inputLabel')} aria-invalid={hasError} aria-describedby="practice-feedback"
               className={cn('h-13 w-full max-w-[440px] rounded-[10px] border-2 text-center text-[22px] md:text-2xl focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring/35 aria-invalid:ring-4 aria-invalid:focus-visible:border-destructive aria-invalid:focus-visible:ring-destructive/20 sm:h-14', composition !== null && 'underline decoration-dotted underline-offset-6')}
               onPaste={event => event.preventDefault()} onDrop={event => event.preventDefault()}
               onFocus={() => { setInputFocused(true); setFocusedOnce(true) }} onBlur={() => setInputFocused(false)}
@@ -230,15 +236,15 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
           </div>
           <LiveStats session={session} accuracy={result.accuracy} />
           <div className="flex min-h-14 flex-wrap items-center gap-2 border-t px-4 py-2.5 sm:pr-3 sm:pl-6">
-            <span className="text-xs text-muted-foreground">次の単語</span>
+            <span className="text-xs text-muted-foreground">{t('upcoming.next')}</span>
             {next.map((item, index) => <span key={index} className="inline-flex h-7 max-w-full items-center truncate rounded-full border px-3 text-[13px] text-muted-foreground">{item.display}</span>)}
-            {!next.length && <span className="text-xs text-muted-foreground">これが最後の単語です</span>}
-            {remaining > 0 && <span className="text-xs text-neutral-400 dark:text-neutral-500">ほか {remaining} 語</span>}
+            {!next.length && <span className="text-xs text-muted-foreground">{t('upcoming.last')}</span>}
+            {remaining > 0 && <span className="text-xs text-neutral-400 dark:text-neutral-500">{t('upcoming.more', { count: remaining })}</span>}
             <span className="flex-1" />
             <Button variant="ghost" size="lg" aria-expanded={showAll} aria-controls="all-words" onClick={() => { setShowAll(value => !value); input.current?.focus() }}>
-              すべての単語を表示{showAll ? <ChevronUp aria-hidden="true" /> : <ChevronDown aria-hidden="true" />}
+              {t('upcoming.showAll')}{showAll ? <ChevronUp aria-hidden="true" /> : <ChevronDown aria-hidden="true" />}
             </Button>
-            {showAll && <ul id="all-words" ref={allWords} aria-label="すべての単語" className="relative mt-1.5 flex max-h-44 basis-full flex-wrap gap-1.5 overflow-y-auto border-t border-dashed pt-2.5 pb-1">
+            {showAll && <ul id="all-words" ref={allWords} aria-label={t('upcoming.allWords')} className="relative mt-1.5 flex max-h-44 basis-full flex-wrap gap-1.5 overflow-y-auto border-t border-dashed pt-2.5 pb-1">
               {words.map((item, index) => {
                 const done = index < session.index
                 return <li key={index} className="max-w-full">
@@ -246,7 +252,7 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
                     className={cn('inline-flex min-h-7 max-w-full items-center rounded-full border px-3 text-[13px] break-all text-muted-foreground',
                       done && 'border-transparent bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300',
                       index === session.index && 'border-transparent bg-primary text-primary-foreground')}>
-                    {item.display}<span className="sr-only">{done ? '（完了）' : index === session.index ? '（入力中）' : '（未入力）'}</span>
+                    {item.display}<span className="sr-only">{t(done ? 'upcoming.done' : index === session.index ? 'upcoming.current' : 'upcoming.pending')}</span>
                   </span>
                 </li>
               })}
@@ -254,52 +260,52 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
           </div>
         </>}
       </Card>
-      <aside aria-label="単語リストとベスト記録" className="grid min-w-0 gap-6">
+      <aside aria-label={t('aside.label')} className="grid min-w-0 gap-6">
         <Card className="gap-1 p-3">
           <div className="flex items-center gap-2 pl-2">
-            <h2 className="text-[15px] font-bold">単語リスト</h2>
+            <h2 className="text-[15px] font-bold">{t('aside.lists')}</h2>
             <span className="flex-1" />
-            <Button variant="ghost" size="lg" asChild><Link href="/create"><Plus aria-hidden="true" />作成</Link></Button>
+            <Button variant="ghost" size="lg" asChild><Link href="/create"><Plus aria-hidden="true" />{t('aside.create')}</Link></Button>
           </div>
-          <WordListOptions label="単語リスト" lists={wordLists} selectedId={list.id} onSelect={requestSwitch} />
+          <WordListOptions label={t('aside.lists')} lists={wordLists} selectedId={list.id} onSelect={requestSwitch} />
         </Card>
         <Card className="gap-2 px-4 pt-4 pb-3">
           <div className="flex min-w-0 items-baseline gap-2">
-            <h2 className="shrink-0 text-[15px] font-bold">ベスト記録</h2>
+            <h2 className="shrink-0 text-[15px] font-bold">{t('aside.best')}</h2>
             <span className="truncate text-xs text-muted-foreground">{list.name}</span>
           </div>
-          <p className="text-xs text-muted-foreground">正確率が高い順・同じなら速い順{bestCandidates.length < selectedRecords.length && `・今の${selectedList?.words.length}語の記録`}</p>
+          <p className="text-xs text-muted-foreground">{bestCandidates.length < selectedRecords.length ? t('aside.bestOrderAtCount', { count: selectedList?.words.length ?? 0 }) : t('aside.bestOrder')}</p>
           <PracticeBestRecords records={bestCandidates} highlightId={saveState === 'saved' ? record?.id : undefined} />
-          <Link href={`/rankings?list=${encodeURIComponent(list.id)}`} className="inline-flex w-fit items-center gap-1 rounded-sm px-2 pt-1 text-[13px] font-medium outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">すべてのベスト記録<ArrowRight className="size-3.5" aria-hidden="true" /></Link>
+          <Link href={`/rankings?list=${encodeURIComponent(list.id)}`} className="inline-flex w-fit items-center gap-1 rounded-sm px-2 pt-1 text-[13px] font-medium outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">{t('aside.allBest')}<ArrowRight className="size-3.5" aria-hidden="true" /></Link>
         </Card>
       </aside>
     </div>}
     <Dialog open={pickerOpen} onOpenChange={open => { setPickerOpen(open); if (!open) setQuery('') }}>
       <DialogContent className="max-w-md" onCloseAutoFocus={closePicker}>
         <DialogHeader>
-          <DialogTitle>単語リストを選ぶ</DialogTitle>
-          <DialogDescription>練習の途中で別のリストを選ぶと、中断してよいか確認します。</DialogDescription>
+          <DialogTitle>{t('picker.title')}</DialogTitle>
+          <DialogDescription>{t('picker.description')}</DialogDescription>
         </DialogHeader>
         <label className="flex h-10 items-center gap-2 rounded-lg border px-3 text-muted-foreground focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
           <Search className="size-4 shrink-0" aria-hidden="true" />
-          <input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="リスト名で絞り込む" aria-label="リスト名で絞り込む" autoComplete="off"
+          <input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={t('picker.filter')} aria-label={t('picker.filter')} autoComplete="off"
             className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" />
         </label>
-        {filteredLists.length ? <WordListOptions label="単語リストの候補" lists={filteredLists} selectedId={list?.id} onSelect={requestSwitch} />
-          : <p className="px-1 py-2 text-sm text-muted-foreground">一致するリストがありません。</p>}
+        {filteredLists.length ? <WordListOptions label={t('picker.candidates')} lists={filteredLists} selectedId={list?.id} onSelect={requestSwitch} />
+          : <p className="px-1 py-2 text-sm text-muted-foreground">{t('picker.noMatch')}</p>}
       </DialogContent>
     </Dialog>
     <AlertDialog open={pendingSwitch !== null} onOpenChange={open => { if (!open) setPendingSwitch(null) }}>
       <AlertDialogContent onCloseAutoFocus={focusPractice}>
         <AlertDialogHeader>
-          <AlertDialogTitle>練習を中断しますか？</AlertDialogTitle>
+          <AlertDialogTitle>{t('switch.title')}</AlertDialogTitle>
           <AlertDialogDescription>
-            「{list?.name}」の進捗（{session.index} / {words.length} 語）は記録されません。「{pendingSwitch === null ? '' : wordLists[pendingSwitch]?.name}」に切り替えます。
+            {t('switch.description', { list: list?.name ?? '', done: session.index, total: words.length, next: pendingSwitch === null ? '' : wordLists[pendingSwitch]?.name ?? '' })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>練習を続ける</AlertDialogCancel>
-          <AlertDialogAction onClick={() => { if (pendingSwitch !== null) switchTo(pendingSwitch) }}>中断して切り替える</AlertDialogAction>
+          <AlertDialogCancel>{t('switch.continue')}</AlertDialogCancel>
+          <AlertDialogAction onClick={() => { if (pendingSwitch !== null) switchTo(pendingSwitch) }}>{t('switch.confirm')}</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

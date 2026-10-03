@@ -1,0 +1,15 @@
+{
+  "loading": "Loading…",
+  "close": "Close",
+  "notifications": "Notifications",
+  "closeNotification": "Dismiss notification",
+  "delete": {
+    "label": "Delete",
+    "title": "Are you sure you want to delete this?",
+    "description": "{description} This cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Delete",
+    "deleting": "Deleting…",
+    "failed": "Could not delete. Please try again."
+  }
+}

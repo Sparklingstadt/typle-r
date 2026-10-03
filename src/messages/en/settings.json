@@ -1,0 +1,22 @@
+{
+  "title": "General",
+  "metaTitle": "General | Typle",
+  "description": "Settings for how Typle is displayed.",
+  "language": {
+    "heading": "Display language",
+    "description": "Choose the language used on screen. Your word lists and practice records stay as they are.",
+    "note": "The language you choose is saved in this browser.",
+    "current": "In use",
+    "changing": "Changing the display language…",
+    "changed": "The display language is now {language}.",
+    "failed": "Could not change the display language. Please try again."
+  },
+  "languages": {
+    "ja": "Japanese",
+    "en": "English",
+    "zh-CN": "Chinese (Simplified)",
+    "zh-TW": "Chinese (Traditional)",
+    "ru": "Russian",
+    "fr": "French"
+  }
+}

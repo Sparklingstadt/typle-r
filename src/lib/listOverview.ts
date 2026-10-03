@@ -1,3 +1,4 @@
+import { AppError } from './appError'
 import type { SavedWordList } from './wordLists'
 
 export const MAX_LISTS = 100
@@ -12,7 +13,7 @@ export type ListOverview = {
 }
 
 export type ListOrder = 'added' | 'practiced' | 'name' | 'words'
-export const LIST_ORDERS: Record<ListOrder, string> = { added: '追加した順', practiced: '最近練習した順', name: '名前順', words: '単語が多い順' }
+export const LIST_ORDERS: ListOrder[] = ['added', 'practiced', 'name', 'words']
 
 export function listOverviews(lists: SavedWordList[]): ListOverview[] {
   return lists.map((list, position) => {
@@ -21,9 +22,9 @@ export function listOverviews(lists: SavedWordList[]): ListOverview[] {
   })
 }
 
-// Newest first for 追加した順. Lists without a record come after the practised ones for 最近練習した順.
-export function sortOverviews(items: ListOverview[], order: ListOrder) {
-  const collator = new Intl.Collator('ja', { numeric: true })
+// Newest first for 'added'. Lists without a record come after the practised ones for 'practiced'.
+export function sortOverviews(items: ListOverview[], order: ListOrder, locale = 'ja') {
+  const collator = new Intl.Collator(locale, { numeric: true })
   return [...items].sort((a, b) => {
     if (order === 'name') return collator.compare(a.list.name, b.list.name) || b.position - a.position
     if (order === 'words') return b.list.words.length - a.list.words.length || b.position - a.position
@@ -40,9 +41,9 @@ export function matchesQuery(list: SavedWordList, query: string) {
     list.words.some(word => word.display.toLocaleLowerCase().includes(needle) || word.input.toLocaleLowerCase().includes(needle))
 }
 
+// The first words of a list and how many more there are; the screen joins them in the reader's language.
 export function wordPreview(list: SavedWordList, limit = 6) {
-  const shown = list.words.slice(0, limit).map(word => word.display.trim()).join('・')
-  return list.words.length > limit ? `${shown} ほか${list.words.length - limit}語` : shown
+  return { words: list.words.slice(0, limit).map(word => word.display.trim()), rest: Math.max(0, list.words.length - limit) }
 }
 
 // The records a list's best is taken from: runs at its current word count (see comparableRecords).
@@ -50,21 +51,22 @@ export function currentRecordCount(list: Pick<SavedWordList, 'words' | 'records'
   return list.records.filter(record => record.wordCount === list.words.length).length
 }
 
-export function copyName(lists: SavedWordList[], name: string) {
+// `suffix(n)` is the localized mark for the nth copy, such as （コピー） and （コピー2）.
+export function copyName(lists: SavedWordList[], name: string, suffix: (n: number) => string) {
   const taken = new Set(lists.map(list => list.name.trim().toLocaleLowerCase()))
   for (let n = 1; ; n++) {
-    const suffix = n === 1 ? '（コピー）' : `（コピー${n}）`
-    const candidate = `${name.trim().slice(0, MAX_LIST_NAME - suffix.length)}${suffix}`
+    const mark = suffix(n)
+    const candidate = `${name.trim().slice(0, MAX_LIST_NAME - mark.length)}${mark}`
     if (!taken.has(candidate.toLocaleLowerCase())) return candidate
   }
 }
 
 // A copy keeps the words but starts without records, so its best is its own.
-export function duplicateList(lists: SavedWordList[], id: string, copyId: string, now = new Date()) {
+export function duplicateList(lists: SavedWordList[], id: string, copyId: string, suffix: (n: number) => string, now = new Date()) {
   const source = lists.find(list => list.id === id)
-  if (!source) throw new Error('この単語リストは削除されています。画面を開き直してください。')
-  if (lists.length >= MAX_LISTS) throw new Error(`単語リストは${MAX_LISTS}件まで保存できます。`)
-  const copy: SavedWordList = { id: copyId, name: copyName(lists, source.name), createdAt: now.toISOString(),
+  if (!source) throw new AppError('listDeleted')
+  if (lists.length >= MAX_LISTS) throw new AppError('listLimit', { max: MAX_LISTS })
+  const copy: SavedWordList = { id: copyId, name: copyName(lists, source.name, suffix), createdAt: now.toISOString(),
     words: source.words.map(word => ({ ...word })), records: [] }
   return { lists: [...lists, copy], copy }
 }

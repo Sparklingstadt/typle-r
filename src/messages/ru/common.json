@@ -1,0 +1,15 @@
+{
+  "loading": "Загрузка…",
+  "close": "Закрыть",
+  "notifications": "Уведомления",
+  "closeNotification": "Закрыть уведомление",
+  "delete": {
+    "label": "Удалить",
+    "title": "Удалить?",
+    "description": "{description} Это действие нельзя отменить.",
+    "cancel": "Отмена",
+    "confirm": "Удалить",
+    "deleting": "Удаление…",
+    "failed": "Не удалось удалить. Повторите попытку."
+  }
+}

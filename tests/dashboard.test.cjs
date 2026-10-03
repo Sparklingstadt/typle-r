@@ -3,7 +3,7 @@ process.env.TZ = 'Asia/Tokyo'
 require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
-const { summarize, nextLists, listTrends, speedScale, accuracyScale, durationParts, formatDay, startOfWeek } = require('../src/lib/dashboard.ts')
+const { summarize, nextLists, listTrends, speedScale, accuracyScale, durationParts, dayKind, startOfWeek } = require('../src/lib/dashboard.ts')
 
 // Sunday 2026-09-27 21:00 JST
 const now = new Date('2026-09-27T12:00:00Z')
@@ -110,12 +110,12 @@ test('chart scales use three even, readable ticks', () => {
   assert.deepEqual(accuracyScale([55, 98]).ticks, [100, 75, 50])
 })
 
-test('durations and days are written for Japanese readers', () => {
-  assert.deepEqual(durationParts(45.4), [['45', '秒']])
-  assert.deepEqual(durationParts(1112), [['18', '分'], ['32', '秒']])
-  assert.deepEqual(durationParts(3725), [['1', '時間'], ['2', '分']])
-  assert.equal(formatDay(new Date('2026-09-27T00:30:00Z'), now), '今日')
-  assert.equal(formatDay(new Date('2026-09-26T14:30:00Z'), now), '昨日')
-  assert.equal(formatDay(new Date('2026-09-19T01:00:00Z'), now), '9月19日')
-  assert.equal(formatDay(new Date('2025-12-31T01:00:00Z'), now), '2025年12月31日')
+test('durations split into units, and days are named relative to today', () => {
+  assert.deepEqual(durationParts(45.4), [['45', 'seconds']])
+  assert.deepEqual(durationParts(1112), [['18', 'minutes'], ['32', 'seconds']])
+  assert.deepEqual(durationParts(3725), [['1', 'hours'], ['2', 'minutes']])
+  assert.equal(dayKind(new Date('2026-09-27T00:30:00Z'), now), 'today')
+  assert.equal(dayKind(new Date('2026-09-26T14:30:00Z'), now), 'yesterday')
+  assert.equal(dayKind(new Date('2026-09-19T01:00:00Z'), now), 'thisYear')
+  assert.equal(dayKind(new Date('2025-12-31T01:00:00Z'), now), 'otherYear')
 })

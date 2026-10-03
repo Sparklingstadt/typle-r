@@ -1,0 +1,89 @@
+{
+  "title": "Historique",
+  "intro": "Vos entraînements, du plus récent au plus ancien. Les meilleurs résultats de chaque liste sont dans <rankings>Meilleurs résultats</rankings>, et votre progression sur l’<home>Accueil</home>.",
+  "loading": "Chargement…",
+  "storage": {
+    "guest": "Enregistré dans ce navigateur",
+    "account": "Enregistré sur votre compte",
+    "guestDetail": "Vous n’êtes pas connecté : les données sont enregistrées dans le LocalStorage de ce navigateur.",
+    "accountDetail": "Enregistré sur le compte avec lequel vous êtes connecté."
+  },
+  "filter": {
+    "list": "Liste",
+    "allLists": "Toutes les listes",
+    "device": "Appareil",
+    "allDevices": "Tous les appareils",
+    "noDevice": "Aucun appareil enregistré",
+    "clear": "Effacer les filtres",
+    "count": "{count, plural, one {# résultat} other {# résultats}}",
+    "filteredCount": "{count, number} sur {total, plural, one {# résultat} other {# résultats}}"
+  },
+  "filterMenu": {
+    "label": "Filtre : {name} (actuel : {current})",
+    "all": "Tout",
+    "count": "{count, number} fois"
+  },
+  "columns": {
+    "time": "Heure",
+    "deviceWords": "Appareil · mots",
+    "listDevice": "Liste · appareil",
+    "duration": "Temps",
+    "accuracy": "Précision",
+    "perWord": "Par mot",
+    "mistakes": "Erreurs"
+  },
+  "day": {
+    "heading": "{relative} · {date}",
+    "summary": "{count, plural, one {# entraînement} other {# entraînements}} · {duration}"
+  },
+  "more": "Afficher plus ({count, number} restants)",
+  "note": "Le nombre de mots et le nom de l’appareil sont ceux du moment de l’entraînement.",
+  "noteMissing": "« — » indique une valeur non enregistrée (par exemple, pour les résultats enregistrés par une version précédente).",
+  "row": {
+    "best": "Meilleur",
+    "bestTitle": "Meilleur résultat de cette liste (premier parmi les résultats au nombre de mots actuel : précision la plus élevée, puis temps le plus court)",
+    "noDevice": "Aucun appareil enregistré",
+    "words": "{count, plural, one {# mot} other {# mots}}",
+    "seconds": "{value} s",
+    "duration": "Temps",
+    "accuracy": "Précision",
+    "lowAccuracy": "Précision inférieure à {limit} %",
+    "perWord": "Par mot",
+    "perWordUnit": "s/mot",
+    "mistakes": "Erreurs",
+    "delete": "Supprimer",
+    "deleteLabel": "Supprimer le résultat de {name} ({date} {time})"
+  },
+  "delete": {
+    "title": "Supprimer ce résultat ?",
+    "description": "Un résultat de « {name} » sera supprimé.",
+    "done": "Le résultat de « {name} » ({date} {time}) a été supprimé.",
+    "list": "Liste",
+    "when": "Date, heure et appareil",
+    "result": "Résultat",
+    "accuracy": "Précision {value}",
+    "mistakes": "Erreurs {value}",
+    "bestNext": "C’est le meilleur résultat de la liste. Après suppression, le meilleur sera {time} ({accuracy}).",
+    "bestLast": "C’est le meilleur résultat de la liste. Après suppression, la liste n’aura plus aucun résultat."
+  },
+  "empty": {
+    "title": "Aucun résultat pour l’instant",
+    "description": "Tapez une liste jusqu’au bout dans « S’entraîner » : le temps, la précision, les erreurs et l’appareil utilisé seront conservés ici.",
+    "practice": "S’entraîner"
+  },
+  "filteredEmpty": {
+    "listTitle": "Aucun résultat pour « {name} » pour l’instant",
+    "listDescription": "Vos résultats apparaîtront ici après un entraînement.",
+    "title": "Aucun résultat ne correspond aux filtres",
+    "description": "Essayez une autre liste ou un autre appareil.",
+    "practiceList": "S’entraîner sur cette liste"
+  },
+  "summary": {
+    "words": "{count, plural, one {# mot} other {# mots}}",
+    "runs": "{count, plural, one {# entraînement} other {# entraînements}}",
+    "last": "Dernier : {day}",
+    "best": "Meilleur",
+    "rankings": "Meilleurs résultats",
+    "practice": "S’entraîner"
+  }
+}

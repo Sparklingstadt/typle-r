@@ -1,0 +1,15 @@
+{
+  "loading": "加载中…",
+  "close": "关闭",
+  "notifications": "通知",
+  "closeNotification": "关闭通知",
+  "delete": {
+    "label": "删除",
+    "title": "确定要删除吗？",
+    "description": "{description} 此操作无法撤销。",
+    "cancel": "取消",
+    "confirm": "删除",
+    "deleting": "正在删除…",
+    "failed": "无法删除。请重试。"
+  }
+}

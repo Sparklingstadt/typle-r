@@ -1,0 +1,112 @@
+{
+  "loading": "Loading…",
+  "empty": "There are no words yet. <link>Create a word list</link> to get started.",
+  "stats": {
+    "label": "Current run",
+    "elapsed": "Elapsed",
+    "speed": "Speed",
+    "speedUnit": "keys/min",
+    "accuracy": "Accuracy",
+    "mistakes": "Mistakes"
+  },
+  "progress": {
+    "label": "Word progress",
+    "value": "{current} / {total, plural, one {# word} other {# words}}"
+  },
+  "feedback": {
+    "mismatch": "Doesn’t match from character {position}. Press Backspace to fix it.",
+    "composing": "Text you are still composing is checked once you confirm it",
+    "backspace": "Delete one character",
+    "restart": "Start over"
+  },
+  "header": {
+    "switchList": "Switch word list (current: {name})",
+    "wordCount": "{count, plural, one {# word} other {# words}}",
+    "restart": "Start over",
+    "restartTitle": "Start over (Esc)",
+    "restartShort": "Start over"
+  },
+  "word": {
+    "typeThis": "Type",
+    "resume": "Click or press any key to resume",
+    "placeholder": "Type here",
+    "inputLabel": "Type the text shown"
+  },
+  "upcoming": {
+    "next": "Next",
+    "last": "This is the last word",
+    "more": "{count} more",
+    "showAll": "Show all words",
+    "allWords": "All words",
+    "done": "(done)",
+    "current": "(typing)",
+    "pending": "(not typed yet)"
+  },
+  "aside": {
+    "label": "Word lists and best records",
+    "lists": "Word lists",
+    "create": "Create",
+    "best": "Best records",
+    "bestOrder": "Highest accuracy first, then fastest",
+    "bestOrderAtCount": "Highest accuracy first, then fastest · runs at the current {count, plural, one {# word} other {# words}}",
+    "allBest": "All best records"
+  },
+  "picker": {
+    "title": "Choose a word list",
+    "description": "If you choose another list in the middle of a run, you’ll be asked to confirm before it stops.",
+    "filter": "Filter by list name",
+    "candidates": "Matching word lists",
+    "noMatch": "No lists match."
+  },
+  "switch": {
+    "title": "Stop practicing?",
+    "description": "Your progress on “{list}” ({done} / {total, plural, one {# word} other {# words}}) won’t be recorded. You’ll switch to “{next}”.",
+    "continue": "Keep practicing",
+    "confirm": "Stop and switch"
+  },
+  "result": {
+    "label": "Practice result",
+    "title": "Well done!",
+    "newBest": "New personal best",
+    "completed": "Practice complete: {name}",
+    "time": "Time",
+    "seconds": "s",
+    "accuracy": "Accuracy",
+    "mistakes": "{count, plural, one {# mistake} other {# mistakes}}",
+    "speed": "Speed",
+    "speedUnit": "keys/min",
+    "correct": "{count, plural, one {# character} other {# characters}}",
+    "words": "Words",
+    "wordUnit": "{count, plural, one {word} other {words}}",
+    "firstAtCount": "First record at the current {count, plural, one {# word} other {# words}}",
+    "firstForList": "First record for this list",
+    "faster": "−{seconds} s vs. your best",
+    "bestByAccuracy": "New best on accuracy",
+    "behind": "Best: {time} s · {accuracy}%",
+    "behindNoAccuracy": "Best: {time} s · accuracy not recorded",
+    "saveFailed": "Couldn’t save the record. Your result is still on this screen. Check your connection and try again.",
+    "retry": "Try saving again",
+    "saved": "Saved to your practice history. This run ranks {rank, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} for this list.",
+    "saving": "Saving the record…",
+    "again": "Again",
+    "chooseList": "Choose another list",
+    "viewRecords": "View history"
+  },
+  "best": {
+    "label": "Top 5 best records",
+    "rank": "Rank",
+    "time": "Time",
+    "accuracy": "Accuracy",
+    "device": "Device",
+    "seconds": "{time} s",
+    "noAccuracy": "Not recorded",
+    "current": "This run",
+    "empty": "No records yet. Finish a run and your top 5 will appear here."
+  },
+  "options": {
+    "selected": "{name}, selected",
+    "select": "Select {name}",
+    "withBest": "{count, plural, one {# word} other {# words}} · best {time} s",
+    "noRecord": "{count, plural, one {# word} other {# words}} · no records"
+  }
+}

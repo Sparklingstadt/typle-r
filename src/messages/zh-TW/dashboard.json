@@ -1,0 +1,66 @@
+{
+  "title": "練習概況",
+  "sourceGuest": "根據儲存在此瀏覽器中的紀錄統計。",
+  "sourceAccount": "根據儲存在帳號中的紀錄統計。",
+  "start": "開始",
+  "practice": "開始練習",
+  "create": "建立清單",
+  "week": {
+    "title": "本週摘要",
+    "description": "{start}至{end}的紀錄。增減是與上週同一星期幾、同一時刻之前的紀錄相比。",
+    "count": "本週練習",
+    "countUnit": "{count, plural, other {次}}",
+    "streak": "連續練習",
+    "streakUnit": "{count, plural, other {天}}",
+    "accuracy": "平均正確率（最近 {count} 次）",
+    "time": "本週練習時間",
+    "practisedToday": "今天已練習",
+    "streakNext": "今天練習即為第 {day} 天",
+    "noComparison": "還沒有可比較的紀錄",
+    "noAccuracy": "沒有包含正確率的紀錄",
+    "times": "{count, plural, other {# 次}}",
+    "sameAsLastWeek": "與上週相同",
+    "moreThanLastWeek": "比上週多 {value}",
+    "lessThanLastWeek": "比上週少 {value}"
+  },
+  "change": {
+    "same": "{recent, select, none {與} latest {最新紀錄與} other {最近 {recentCount} 次的平均與}}{previous, select, latest {上一次紀錄} other {之前 {previousCount} 次}}相同",
+    "different": "{recent, select, none {} latest {最新紀錄} other {最近 {recentCount} 次的平均}}比{previous, select, latest {上一次紀錄} other {之前 {previousCount} 次}}{difference}",
+    "seconds": "{direction, select, up {慢 {value} 秒} other {快 {value} 秒}}",
+    "points": "{direction, select, up {高 {value}pt} other {低 {value}pt}}"
+  },
+  "next": {
+    "title": "接下來練習的清單",
+    "description": "最多顯示 3 個清單：尚未練習的、{days} 天以上未練習的，以及最近正確率低於 {accuracy}% 的清單。",
+    "allPractised": "所有清單最近都練習過了。",
+    "words": "{count, plural, other {# 個單字}}",
+    "lastPracticed": "最近練習 {day}",
+    "noRecords": "無紀錄",
+    "new": "還沒有練習",
+    "stale": "已 {days} 天未練習",
+    "lowAccuracy": "最近 {count} 次的正確率 {accuracy}%",
+    "practiceList": "練習 {name}",
+    "practice": "開始練習"
+  },
+  "trends": {
+    "title": "各清單的趨勢",
+    "description": "顯示最近 20 次以內的每個單字秒數（越低越快）與正確率。由於用時依單字數平均，編輯清單前後的紀錄也能互相比較。",
+    "summary": "{count, plural, other {# 次}} · 最近練習 {day}",
+    "needTwo": "紀錄達到 2 次以上後顯示趨勢。",
+    "practiceList": "練習 {name}",
+    "practice": "開始練習",
+    "speed": "每個單字的秒數",
+    "accuracy": "正確率",
+    "seconds": "{value} 秒",
+    "percent": "{value}%",
+    "latest": "最新 <number>{value}</number>",
+    "noChart": "包含此項的紀錄達到 2 次以上後顯示。",
+    "best": "最佳紀錄：正確率 {accuracy}・{time} 秒（{day}）",
+    "notRecorded": "未記錄"
+  },
+  "chart": {
+    "label": "{label}（用左右方向鍵查看每次的數值）",
+    "date": "日期時間",
+    "value": "數值"
+  }
+}

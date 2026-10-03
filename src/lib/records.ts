@@ -1,6 +1,9 @@
-import { deviceLabel, type PracticeDevice } from "./devices"
+import { AppError } from "./appError"
+import type { PracticeDevice } from "./devices"
 import type { SavedWordList } from "./wordLists"
 import { sessionResult, TypingSession } from "./typing"
+
+export type TimeUnit = "hours" | "minutes" | "seconds"
 
 export type PracticeRecord = {
   id: string
@@ -13,12 +16,12 @@ export type PracticeRecord = {
 }
 
 export function makeRecord(session: TypingSession, wordCount: number, id: string, device?: PracticeDevice): PracticeRecord {
-  if (session.finishedAt === null || session.startedAt === null) throw new Error("練習が完了していません。")
+  if (session.finishedAt === null || session.startedAt === null) throw new AppError('practiceIncomplete')
   return { ...(device ? { device: { ...device } } : {}), ...sessionResult(session), id, wordCount, date: new Date(session.finishedAt).toISOString() }
 }
 
 export function addRecord(lists: SavedWordList[], listId: string, record: PracticeRecord) {
-  if (!lists.some(list => list.id === listId)) throw new Error("単語リストが削除されているため、記録を保存できません。")
+  if (!lists.some(list => list.id === listId)) throw new AppError('recordListDeleted')
   return lists.map(list => list.id !== listId || list.records.some(item => item.id === record.id)
     ? list : { ...list, records: [...list.records, record] })
 }
@@ -82,14 +85,14 @@ export function filterRows(rows: RecordRow[], filter: RecordFilter) {
 }
 
 // Devices come from the records themselves, so deleted or renamed devices can still be picked (by id, with the
-// newest name). Records without a device are grouped last.
+// newest name). Records without a device (no `device`) are grouped last.
 export function deviceOptions(records: StoredRecord[]) {
-  const options = new Map<string, { value: string; label: string; count: number }>()
+  const options = new Map<string, { value: string; device?: PracticeDevice; count: number }>()
   for (const record of [...records].sort((a, b) => Date.parse(b.date) - Date.parse(a.date))) {
     const value = record.device?.id ?? NO_DEVICE
     const option = options.get(value)
     if (option) option.count++
-    else options.set(value, { value, label: record.device ? deviceLabel(record.device) : '端末の記録なし', count: 1 })
+    else options.set(value, { value, ...(record.device ? { device: record.device } : {}), count: 1 })
   }
   return [...options.values()].sort((a, b) => Number(a.value === NO_DEVICE) - Number(b.value === NO_DEVICE) || b.count - a.count)
 }
@@ -107,16 +110,13 @@ export function groupByDay(rows: RecordRow[]) {
   return groups
 }
 
-// Seconds keep two decimals so close runs stay distinguishable; a minute or more is split into 分 and 秒.
-export function recordTimeParts(seconds: number): [string, string][] {
-  // Round first so 59.999 becomes 1分00.00秒 rather than 60.00秒.
+// Seconds keep two decimals so close runs stay distinguishable; a minute or more is split into minutes and seconds.
+// Units are names, not text: useFormat turns them into the reader's language.
+export function recordTimeParts(seconds: number): [string, TimeUnit][] {
+  // Round first so 59.999 becomes 1 min 00.00 s rather than 60.00 s.
   const hundredths = Math.round(seconds * 100)
-  if (hundredths < 6000) return [[(hundredths / 100).toFixed(2), '秒']]
-  return [[String(Math.floor(hundredths / 6000)), '分'], [(hundredths % 6000 / 100).toFixed(2).padStart(5, '0'), '秒']]
-}
-
-export function formatRecordTime(seconds: number) {
-  return recordTimeParts(seconds).map(part => part.join('')).join('')
+  if (hundredths < 6000) return [[(hundredths / 100).toFixed(2), 'seconds']]
+  return [[String(Math.floor(hundredths / 6000)), 'minutes'], [(hundredths % 6000 / 100).toFixed(2).padStart(5, '0'), 'seconds']]
 }
 
 export function secondsPerWord(record: StoredRecord) {

@@ -1,0 +1,15 @@
+{
+  "loading": "載入中…",
+  "close": "關閉",
+  "notifications": "通知",
+  "closeNotification": "關閉通知",
+  "delete": {
+    "label": "刪除",
+    "title": "確定要刪除嗎？",
+    "description": "{description} 此操作無法復原。",
+    "cancel": "取消",
+    "confirm": "刪除",
+    "deleting": "正在刪除…",
+    "failed": "無法刪除。請再試一次。"
+  }
+}

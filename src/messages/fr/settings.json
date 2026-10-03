@@ -1,0 +1,22 @@
+{
+  "title": "Général",
+  "metaTitle": "Général | Typle",
+  "description": "Réglages d’affichage de Typle.",
+  "language": {
+    "heading": "Langue d’affichage",
+    "description": "Choisissez la langue de l’interface. Vos listes de mots et vos résultats ne changent pas.",
+    "note": "La langue choisie est enregistrée dans ce navigateur.",
+    "current": "Utilisée",
+    "changing": "Changement de la langue d’affichage…",
+    "changed": "La langue d’affichage est maintenant : {language}.",
+    "failed": "Impossible de changer la langue d’affichage. Veuillez réessayer."
+  },
+  "languages": {
+    "ja": "japonais",
+    "en": "anglais",
+    "zh-CN": "chinois (simplifié)",
+    "zh-TW": "chinois (traditionnel)",
+    "ru": "russe",
+    "fr": "français"
+  }
+}

@@ -1,14 +1,15 @@
+import { AppError } from "./appError"
 import type { WordList } from "../types/WordList"
 
 export const MAX_IMPORT_BYTES = 1024 * 1024
 
 /** Read CSV and TSV, including escaped quotes and quoted multiline fields. */
 export function parseWordFile(source: string, delimiter: "," | "\t"): WordList["words"] {
-  if (new TextEncoder().encode(source).length > MAX_IMPORT_BYTES) throw new Error("ファイルは1 MiB以内にしてください。")
+  if (new TextEncoder().encode(source).length > MAX_IMPORT_BYTES) throw new AppError('importTooLarge')
   const text = source.replace(/^\uFEFF/, "")
   const rows: { cells: string[]; line: number }[] = []
   let cells: string[] = [], value = "", quoted = false, closed = false, line = 1, start = 1
-  const fail = () => { throw new Error(`${line}行目の引用符の形式が正しくありません。`) }
+  const fail = () => { throw new AppError('importQuote', { line }) }
   const field = () => { cells.push(value); value = ""; closed = false }
   const row = () => {
     const explicit = closed
@@ -35,17 +36,17 @@ export function parseWordFile(source: string, delimiter: "," | "\t"): WordList["
   if (quoted) fail()
   row()
   const header = rows.shift()?.cells.map(cell => cell.trim() === "anotation" ? "annotation" : cell.trim()) ?? []
-  if (!header.includes("input") || !header.includes("display")) throw new Error("見出しに input と display が必要です。annotation は省略できます。")
-  if (new Set(header).size !== header.length) throw new Error("見出しのカラム名が重複しています。")
-  if (header.some(name => !["input", "display", "annotation"].includes(name))) throw new Error("カラム名は input、display、annotation を使用してください。")
-  if (!rows.length) throw new Error("単語を1行以上追加してください。")
-  if (rows.length > 1000) throw new Error("単語は1リストにつき1,000件までです。")
+  if (!header.includes("input") || !header.includes("display")) throw new AppError('importHeaderRequired')
+  if (new Set(header).size !== header.length) throw new AppError('importHeaderDuplicate')
+  if (header.some(name => !["input", "display", "annotation"].includes(name))) throw new AppError('importHeaderUnknown')
+  if (!rows.length) throw new AppError('importNoRows')
+  if (rows.length > 1000) throw new AppError('importTooManyRows')
   return rows.map(({ cells, line }) => {
-    if (cells.length !== header.length) throw new Error(`${line}行目のカラム数が見出しと一致しません。`)
+    if (cells.length !== header.length) throw new AppError('importColumnCount', { line })
     const get = (name: string) => (cells[header.indexOf(name)] ?? "")
     const word = { input: get("input"), display: get("display"), annotation: get("annotation") }
-    if (!word.input.trim() || !word.display.trim()) throw new Error(`${line}行目の input と display は必須です。`)
-    if (word.input.length > 1000 || word.display.length > 1000 || word.annotation.length > 2000) throw new Error(`${line}行目が文字数の上限を超えています（input・display: 1,000文字、annotation: 2,000文字）。`)
+    if (!word.input.trim() || !word.display.trim()) throw new AppError('importFieldRequired', { line })
+    if (word.input.length > 1000 || word.display.length > 1000 || word.annotation.length > 2000) throw new AppError('importFieldTooLong', { line })
     return word
   })
 }

@@ -1,0 +1,16 @@
+{
+  "today": "今天",
+  "yesterday": "昨天",
+  "dateWithWeekday": "{date}（{weekday}）",
+  "units": {
+    "hours": "小时",
+    "minutes": "分",
+    "seconds": "秒"
+  },
+  "time": {
+    "one": "{value}{unit}",
+    "two": "{first}{firstUnit}{second}{secondUnit}"
+  },
+  "noDevice": "未记录",
+  "deviceWithLayout": "{name}（{layout}）"
+}

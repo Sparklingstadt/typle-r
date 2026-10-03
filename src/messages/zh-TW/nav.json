@@ -1,0 +1,40 @@
+{
+  "mainNavigation": "主要導覽",
+  "help": "說明",
+  "skipToContent": "跳至主要內容",
+  "topBar": "頂端列",
+  "openMenu": "開啟選單",
+  "closeMenu": "關閉選單",
+  "menu": "選單",
+  "groups": {
+    "practice": "練習",
+    "wordLists": "單字清單",
+    "settings": "設定"
+  },
+  "links": {
+    "home": "首頁",
+    "play": "開始練習",
+    "records": "練習紀錄",
+    "rankings": "最佳紀錄",
+    "edit": "單字清單",
+    "create": "建立清單",
+    "general": "一般",
+    "devices": "裝置",
+    "guide": "使用說明",
+    "about": "關於 Typle",
+    "github": "GitHub"
+  },
+  "storage": {
+    "label": "儲存位置：",
+    "account": "儲存至帳號",
+    "browser": "儲存在此瀏覽器",
+    "accountDetail": "儲存至 GitHub 帳號，並在登入的裝置之間同步。",
+    "browserDetail": "由於尚未登入，資料只會儲存在此瀏覽器中。"
+  },
+  "theme": {
+    "label": "深色模式",
+    "toLight": "切換為淺色模式",
+    "toDark": "切換為深色模式",
+    "saveFailed": "無法儲存設定，僅在此頁面內切換。"
+  }
+}

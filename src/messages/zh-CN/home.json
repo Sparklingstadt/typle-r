@@ -1,0 +1,15 @@
+{
+  "loading": "正在加载…",
+  "welcome": {
+    "title": "用自己的单词，练习打字。",
+    "text": "可以先用示例开始练习，也可以创建一个想要记住的单词列表。",
+    "lists": "{count, plural, other {单词列表 # 个}}",
+    "practices": "{count, plural, other {已完成练习 # 次}}",
+    "navLabel": "开始使用",
+    "play": "开始练习",
+    "create": "创建列表",
+    "records": "查看记录"
+  },
+  "storage": "无需登录即可使用全部练习和编辑功能。单词列表、练习记录和设备会保存在此浏览器中。使用 GitHub 登录后，将切换到另一个保存位置——账号，并可在设备之间同步。浏览器中的数据不会自动迁移。",
+  "links": "<guide>使用方法</guide> ／ <about>关于 Typle</about>"
+}

@@ -1,0 +1,112 @@
+{
+  "loading": "加载中…",
+  "empty": "没有单词。请<link>创建单词列表</link>。",
+  "stats": {
+    "label": "本次练习数据",
+    "elapsed": "用时",
+    "speed": "速度",
+    "speedUnit": "键/分",
+    "accuracy": "正确率",
+    "mistakes": "错误"
+  },
+  "progress": {
+    "label": "单词进度",
+    "value": "{current} / {total} 个单词"
+  },
+  "feedback": {
+    "mismatch": "从第 {position} 个字符开始不一致。请按 Backspace 修改。",
+    "composing": "输入法中尚未确认的文字，确认后才会判定",
+    "backspace": "退回一个字符",
+    "restart": "从头开始"
+  },
+  "header": {
+    "switchList": "切换单词列表（当前：{name}）",
+    "wordCount": "{count} 个单词",
+    "restart": "从头开始",
+    "restartTitle": "从头开始（Esc）",
+    "restartShort": "重来"
+  },
+  "word": {
+    "typeThis": "需输入",
+    "resume": "点击或按任意键继续",
+    "placeholder": "在此输入",
+    "inputLabel": "输入显示的文字"
+  },
+  "upcoming": {
+    "next": "接下来",
+    "last": "这是最后一个单词",
+    "more": "还有 {count} 个",
+    "showAll": "显示全部单词",
+    "allWords": "全部单词",
+    "done": "（已完成）",
+    "current": "（输入中）",
+    "pending": "（未输入）"
+  },
+  "aside": {
+    "label": "单词列表和最佳记录",
+    "lists": "单词列表",
+    "create": "创建",
+    "best": "最佳记录",
+    "bestOrder": "按正确率从高到低，相同时按速度从快到慢",
+    "bestOrderAtCount": "按正确率从高到低，相同时按速度从快到慢 · 仅当前 {count} 个单词的记录",
+    "allBest": "全部最佳记录"
+  },
+  "picker": {
+    "title": "选择单词列表",
+    "description": "练习途中选择其他列表时，会先确认是否中断。",
+    "filter": "按列表名称筛选",
+    "candidates": "候选单词列表",
+    "noMatch": "没有匹配的列表。"
+  },
+  "switch": {
+    "title": "要中断练习吗？",
+    "description": "“{list}”的进度（{done} / {total} 个单词）不会被记录。将切换到“{next}”。",
+    "continue": "继续练习",
+    "confirm": "中断并切换"
+  },
+  "result": {
+    "label": "练习结果",
+    "title": "辛苦了！",
+    "newBest": "刷新个人最佳",
+    "completed": "练习完成：{name}",
+    "time": "用时",
+    "seconds": "秒",
+    "accuracy": "正确率",
+    "mistakes": "错误 {count} 个字符",
+    "speed": "速度",
+    "speedUnit": "键/分",
+    "correct": "{count} 个字符",
+    "words": "单词",
+    "wordUnit": "{count, plural, other {个}}",
+    "firstAtCount": "当前 {count} 个单词的第一条记录",
+    "firstForList": "此列表的第一条记录",
+    "faster": "比最佳快 {seconds} 秒",
+    "bestByAccuracy": "凭正确率刷新最佳",
+    "behind": "最佳为 {time} 秒 · {accuracy}%",
+    "behindNoAccuracy": "最佳为 {time} 秒 · 未记录正确率",
+    "saveFailed": "无法保存记录。结果仍保留在此页面上。请检查网络连接后重试。",
+    "retry": "重新保存记录",
+    "saved": "已保存练习记录。在此列表中排名第 {rank} 位。",
+    "saving": "正在保存记录…",
+    "again": "再来一次",
+    "chooseList": "选择其他列表",
+    "viewRecords": "查看记录"
+  },
+  "best": {
+    "label": "最佳记录前 5 名",
+    "rank": "排名",
+    "time": "用时",
+    "accuracy": "正确率",
+    "device": "设备",
+    "seconds": "{time} 秒",
+    "noAccuracy": "未记录",
+    "current": "本次记录",
+    "empty": "还没有记录。完成一次练习后，这里会显示前 5 名。"
+  },
+  "options": {
+    "selected": "已选择 {name}",
+    "select": "选择 {name}",
+    "withBest": "{count} 个单词 · 最佳 {time} 秒",
+    "noRecord": "{count} 个单词 · 无记录"
+  }
+}

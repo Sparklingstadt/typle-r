@@ -38,8 +38,8 @@ test('search matches the name and the words, ignoring case', () => {
 })
 
 test('preview shows the first words and how many more there are', () => {
-  assert.equal(wordPreview(lists()[1]), 'Apple・Banana・Cherry')
-  assert.equal(wordPreview(lists()[1], 2), 'Apple・Banana ほか1語')
+  assert.deepEqual(wordPreview(lists()[1]), { words: ['Apple', 'Banana', 'Cherry'], rest: 0 })
+  assert.deepEqual(wordPreview(lists()[1], 2), { words: ['Apple', 'Banana'], rest: 1 })
 })
 
 test('only runs at the current word count count towards the best', () => {
@@ -49,15 +49,17 @@ test('only runs at the current word count count towards the best', () => {
 
 test('a copy gets a free name, the same words and no records', () => {
   const current = lists()
-  assert.equal(copyName(current, 'Test 2'), 'Test 2（コピー）')
-  assert.equal(copyName([...current, { ...current[1], id: 'x', name: 'test 2（コピー）' }], 'Test 2'), 'Test 2（コピー2）')
-  assert.equal(copyName(current, 'x'.repeat(200)).length, 200)
+  const suffix = n => n === 1 ? '（コピー）' : `（コピー${n}）`
+  assert.equal(copyName(current, 'Test 2', suffix), 'Test 2（コピー）')
+  assert.equal(copyName([...current, { ...current[1], id: 'x', name: 'test 2（コピー）' }], 'Test 2', suffix), 'Test 2（コピー2）')
+  assert.equal(copyName(current, 'x'.repeat(200), suffix).length, 200)
+  assert.equal(copyName(current, 'Test 2', n => ` (copy ${n})`), 'Test 2 (copy 1)')
   const now = new Date('2026-09-29T12:00:00Z')
-  const { lists: next, copy } = duplicateList(current, 'a', 'copy', now)
+  const { lists: next, copy } = duplicateList(current, 'a', 'copy', suffix, now)
   assert.deepEqual(next.map(list => list.id), ['a', 'b', 'c', 'copy'])
   assert.deepEqual(copy, { id: 'copy', name: 'Test 10（コピー）', createdAt: now.toISOString(), words: current[0].words, records: [] })
   assert.notEqual(copy.words[0], current[0].words[0], 'words are copied, not shared')
-  assert.throws(() => duplicateList(current, 'missing', 'copy'), /削除されています/)
+  assert.throws(() => duplicateList(current, 'missing', 'copy', suffix), { key: 'listDeleted' })
   const full = Array.from({ length: MAX_LISTS }, (_, index) => ({ ...current[1], id: `l${index}`, name: `l${index}` }))
-  assert.throws(() => duplicateList(full, 'l0', 'copy'), /100件まで/)
+  assert.throws(() => duplicateList(full, 'l0', 'copy', suffix), { key: 'listLimit', values: { max: 100 } })
 })

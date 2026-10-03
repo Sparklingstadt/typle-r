@@ -16,10 +16,10 @@ test('invalid imports fail rather than partially importing', () => {
   for (const text of ['display\nx', 'input,display,input\na,b,c', 'input,display,other\na,b,c', 'input,display', 'input,display\na,', 'input,display\na,b,c', 'input,display\n"a,b', 'input,display\n"a"x,b', 'input,display\na"x,b']) {
     assert.throws(() => parseWordFile(text, ','), Error, text)
   }
-  assert.throws(() => parseWordFile('input,display\nok,yes\nno,', ','), /3行目/)
-  assert.throws(() => parseWordFile('input,display\n' + 'a,b\n'.repeat(1001), ','), /1,000件/)
-  assert.throws(() => parseWordFile('input,display\n' + 'a'.repeat(1001) + ',b', ','), /文字数/)
-  assert.throws(() => parseWordFile('a'.repeat(1024 * 1024 + 1), ','), /1 MiB/)
+  assert.throws(() => parseWordFile('input,display\nok,yes\nno,', ','), { key: 'importFieldRequired', values: { line: 3 } })
+  assert.throws(() => parseWordFile('input,display\n' + 'a,b\n'.repeat(1001), ','), { key: 'importTooManyRows' })
+  assert.throws(() => parseWordFile('input,display\n' + 'a'.repeat(1001) + ',b', ','), { key: 'importFieldTooLong' })
+  assert.throws(() => parseWordFile('a'.repeat(1024 * 1024 + 1), ','), { key: 'importTooLarge' })
 })
 
 test('CSV preserves whitespace and duplicates through JSON save while rejecting empty records', () => {
@@ -32,7 +32,7 @@ test('CSV preserves whitespace and duplicates through JSON save while rejecting 
     { display: '字', input: 'zi', annotation: '' },
   ])
   for (const row of [',,', '"","",""', '  ,  ,']) {
-    assert.throws(() => parseWordFile('display,input,annotation\na,b,\n' + row, ','), /3行目/)
+    assert.throws(() => parseWordFile('display,input,annotation\na,b,\n' + row, ','), { values: { line: 3 } })
   }
-  assert.throws(() => parseWordFile('display,input,annotation,anotation\na,b,c,d', ','), /重複/)
+  assert.throws(() => parseWordFile('display,input,annotation,anotation\na,b,c,d', ','), { key: 'importHeaderDuplicate' })
 })

@@ -1,0 +1,40 @@
+{
+  "mainNavigation": "Navigation principale",
+  "help": "Aide",
+  "skipToContent": "Aller au contenu",
+  "topBar": "Barre supérieure",
+  "openMenu": "Ouvrir le menu",
+  "closeMenu": "Fermer le menu",
+  "menu": "Menu",
+  "groups": {
+    "practice": "Entraînement",
+    "wordLists": "Listes de mots",
+    "settings": "Paramètres"
+  },
+  "links": {
+    "home": "Accueil",
+    "play": "S’entraîner",
+    "records": "Historique",
+    "rankings": "Meilleurs résultats",
+    "edit": "Listes de mots",
+    "create": "Créer une liste",
+    "general": "Général",
+    "devices": "Appareils",
+    "guide": "Mode d’emploi",
+    "about": "À propos de Typle",
+    "github": "GitHub"
+  },
+  "storage": {
+    "label": "Enregistrement : ",
+    "account": "Enregistré sur votre compte",
+    "browser": "Enregistré dans ce navigateur",
+    "accountDetail": "Enregistré sur votre compte GitHub et synchronisé sur les appareils où vous êtes connecté.",
+    "browserDetail": "Vous n’êtes pas connecté : les données sont enregistrées uniquement dans ce navigateur."
+  },
+  "theme": {
+    "label": "Mode sombre",
+    "toLight": "Passer en mode clair",
+    "toDark": "Passer en mode sombre",
+    "saveFailed": "Le réglage ne peut pas être enregistré ; il ne s’applique qu’à cette page."
+  }
+}

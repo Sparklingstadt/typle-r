@@ -1,0 +1,112 @@
+{
+  "loading": "読み込み中…",
+  "empty": "単語がありません。<link>単語リストを作成</link>してください。",
+  "stats": {
+    "label": "練習中の記録",
+    "elapsed": "経過",
+    "speed": "速度",
+    "speedUnit": "打/分",
+    "accuracy": "正確率",
+    "mistakes": "ミス"
+  },
+  "progress": {
+    "label": "単語の進捗",
+    "value": "{current} / {total} 語"
+  },
+  "feedback": {
+    "mismatch": "{position}文字目から違います。Backspace で直してください。",
+    "composing": "変換中の文字は、確定してから判定します",
+    "backspace": "1文字戻る",
+    "restart": "最初からやり直す"
+  },
+  "header": {
+    "switchList": "単語リストを切り替える（現在: {name}）",
+    "wordCount": "{count}語",
+    "restart": "最初からやり直す",
+    "restartTitle": "最初からやり直す（Esc）",
+    "restartShort": "やり直す"
+  },
+  "word": {
+    "typeThis": "入力する文字",
+    "resume": "クリックまたは任意のキーで再開",
+    "placeholder": "ここに入力",
+    "inputLabel": "表示された文字を入力"
+  },
+  "upcoming": {
+    "next": "次の単語",
+    "last": "これが最後の単語です",
+    "more": "ほか {count} 語",
+    "showAll": "すべての単語を表示",
+    "allWords": "すべての単語",
+    "done": "（完了）",
+    "current": "（入力中）",
+    "pending": "（未入力）"
+  },
+  "aside": {
+    "label": "単語リストとベスト記録",
+    "lists": "単語リスト",
+    "create": "作成",
+    "best": "ベスト記録",
+    "bestOrder": "正確率が高い順・同じなら速い順",
+    "bestOrderAtCount": "正確率が高い順・同じなら速い順・今の{count}語の記録",
+    "allBest": "すべてのベスト記録"
+  },
+  "picker": {
+    "title": "単語リストを選ぶ",
+    "description": "練習の途中で別のリストを選ぶと、中断してよいか確認します。",
+    "filter": "リスト名で絞り込む",
+    "candidates": "単語リストの候補",
+    "noMatch": "一致するリストがありません。"
+  },
+  "switch": {
+    "title": "練習を中断しますか？",
+    "description": "「{list}」の進捗（{done} / {total} 語）は記録されません。「{next}」に切り替えます。",
+    "continue": "練習を続ける",
+    "confirm": "中断して切り替える"
+  },
+  "result": {
+    "label": "練習結果",
+    "title": "おつかれさまでした！",
+    "newBest": "自己ベスト更新",
+    "completed": "練習完了：{name}",
+    "time": "所要時間",
+    "seconds": "秒",
+    "accuracy": "正確率",
+    "mistakes": "ミス {count} 文字",
+    "speed": "速度",
+    "speedUnit": "打/分",
+    "correct": "{count} 文字",
+    "words": "単語",
+    "wordUnit": "{count, plural, other {語}}",
+    "firstAtCount": "今の{count}語では最初の記録",
+    "firstForList": "このリストの最初の記録",
+    "faster": "ベスト比 −{seconds} 秒",
+    "bestByAccuracy": "正確率でベストを更新",
+    "behind": "ベストは {time} 秒・{accuracy}%",
+    "behindNoAccuracy": "ベストは {time} 秒・正確率未記録",
+    "saveFailed": "記録を保存できませんでした。結果はこの画面に残っています。通信状態を確認して再試行してください。",
+    "retry": "記録の保存を再試行",
+    "saved": "練習記録を保存しました。このリストの {rank} 位です。",
+    "saving": "記録を保存しています…",
+    "again": "もう一度",
+    "chooseList": "別のリストを選ぶ",
+    "viewRecords": "記録を見る"
+  },
+  "best": {
+    "label": "ベスト記録 上位5件",
+    "rank": "順位",
+    "time": "所要時間",
+    "accuracy": "正確率",
+    "device": "端末",
+    "seconds": "{time} 秒",
+    "noAccuracy": "未記録",
+    "current": "今回の記録",
+    "empty": "まだ記録がありません。最後まで打つと、ここに上位5件が表示されます。"
+  },
+  "options": {
+    "selected": "{name} を選択中",
+    "select": "{name} を選択",
+    "withBest": "{count}語 · ベスト {time} 秒",
+    "noRecord": "{count}語 · 記録なし"
+  }
+}

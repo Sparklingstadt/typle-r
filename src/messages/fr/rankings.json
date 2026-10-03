@@ -1,0 +1,126 @@
+{
+  "title": "Meilleurs résultats",
+  "intro": "Votre record personnel pour chaque liste de mots. Choisissez une liste pour voir ses meilleurs résultats et l’évolution du temps.",
+  "loading": "Chargement…",
+  "reload": "Recharger",
+  "storage": {
+    "guest": "Enregistré dans ce navigateur",
+    "account": "Enregistré sur votre compte",
+    "guestDetail": "Vous n’êtes pas connecté : les données sont enregistrées dans le LocalStorage de ce navigateur.",
+    "accountDetail": "Enregistré sur le compte avec lequel vous êtes connecté."
+  },
+  "filter": {
+    "device": "Appareil",
+    "allDevices": "Tous les appareils",
+    "noDevice": "Aucun appareil enregistré",
+    "deleted": "{name} (supprimé)"
+  },
+  "order": {
+    "label": "Critère de classement",
+    "accuracy": "Précision<wide> d’abord</wide>",
+    "speed": "Vitesse<wide> d’abord</wide>"
+  },
+  "orderNotes": {
+    "accuracy": "Précision la plus élevée d’abord ; à égalité, le plus rapide",
+    "speed": "Le plus rapide d’abord ; à temps égal, la précision la plus élevée"
+  },
+  "lists": "Listes de mots",
+  "empty": {
+    "title": "Aucun meilleur résultat pour l’instant",
+    "description": "Tapez une liste de mots jusqu’au bout : le record personnel, les meilleurs résultats et l’évolution du temps de chaque liste apparaîtront ici.",
+    "practice": "S’entraîner",
+    "create": "Créer une liste de mots"
+  },
+  "list": {
+    "search": "Rechercher une liste",
+    "clearSearch": "Effacer la recherche",
+    "noDeviceRecords": "Listes sans résultat sur cet appareil ({count, number})",
+    "noRecords": "Listes sans résultat pour l’instant ({count, number})",
+    "words": "{count, plural, one {# mot} other {# mots}}",
+    "noMatch": "Aucune liste ne correspond à « {query} ».",
+    "lastPracticed": "Dernier entraînement",
+    "best": "Record personnel",
+    "improved": "Record",
+    "improvedTitle": "{days, plural, one {Record personnel battu au cours du dernier jour} other {Record personnel battu au cours des # derniers jours}}",
+    "runs": "{count, number} fois",
+    "sortLabel": "Tri : {sort}",
+    "sorts": {
+      "recent": "Entraînement récent",
+      "name": "Nom",
+      "count": "Nombre de résultats"
+    }
+  },
+  "detail": {
+    "back": "Toutes les listes",
+    "words": "{count, plural, one {# mot} other {# mots}}",
+    "records": "{count, plural, one {# résultat} other {# résultats}}",
+    "lastPracticed": "Dernier entraînement : {day}",
+    "viewRecords": "Voir les résultats",
+    "practice": "S’entraîner sur cette liste",
+    "notPractised": {
+      "title": "Pas encore d’entraînement",
+      "description": "Tapez cette liste jusqu’au bout : son record personnel et ses meilleurs résultats apparaîtront ici."
+    },
+    "noDeviceRecords": {
+      "title": "Aucun résultat sur « {device} »",
+      "description": "{count, plural, one {Cette liste a # résultat sur d’autres appareils.} other {Cette liste a # résultats sur d’autres appareils.}}",
+      "showAll": "Afficher les résultats de tous les appareils"
+    },
+    "top": {
+      "title": "Meilleurs résultats",
+      "accuracy": "Précision d’abord",
+      "speed": "Vitesse d’abord",
+      "shown": "{shown, number} / {total, plural, one {# résultat} other {# résultats}}",
+      "showTop": "Afficher seulement les {count, number} premiers",
+      "showAll": "Tout afficher ({count, number})",
+      "oldAccuracy": "Les résultats avec « — » en précision sont anciens, enregistrés avant que la précision ne soit mesurée. Ils sont classés en dernier lorsque la précision prime."
+    },
+    "stats": {
+      "best": "Record personnel",
+      "bestNote": "{accuracy} · {day}",
+      "noAccuracy": "Pas de précision",
+      "recentAverage": "{count, plural, one {Dernier résultat} other {Moyenne des # derniers}}",
+      "gap": "+{value} s par rapport au record",
+      "sameAsBest": "Égal au record",
+      "averageAccuracy": "Précision moyenne",
+      "recentRuns": "{count, plural, one {Dernier résultat} other {# derniers résultats}}",
+      "runs": "Entraînements",
+      "runsValue": "{count, plural, one {# <unit>fois</unit>} other {# <unit>fois</unit>}}",
+      "allWordCounts": "Tous les nombres de mots",
+      "currentWords": "{count, plural, one {Avec le # mot actuel} other {Avec les # mots actuels}}"
+    },
+    "trend": {
+      "title": "Évolution du temps",
+      "recent": "{count, plural, one {dernier résultat} other {# derniers résultats}}",
+      "label": "Évolution du temps de {name}",
+      "needTwo": "L’évolution s’affiche après au moins deux entraînements."
+    },
+    "others": {
+      "old": "{count, plural, one {# ancien résultat sans nombre de mots} other {# anciens résultats sans nombre de mots}}",
+      "words": "{count, plural, one {# résultat à {words} mots} other {# résultats à {words} mots}}",
+      "separator": ", ",
+      "fallback": "{count, plural, one {Aucun résultat avec le # mot actuel : le classement utilise les résultats à un autre nombre de mots ({detail}).} other {Aucun résultat avec les # mots actuels : le classement utilise les résultats à un autre nombre de mots ({detail}).}}",
+      "included": "Les résultats à un autre nombre de mots ({detail}) sont inclus. Avec un nombre de mots différent, les temps ne sont pas directement comparables.",
+      "excluded": "<strong>{count, plural, one {# résultat à un autre nombre de mots n’est pas classé.} other {# résultats à un autre nombre de mots ne sont pas classés.}}</strong> Il s’agit par exemple de résultats antérieurs à la modification de la liste ({detail}).",
+      "exclude": "Exclure",
+      "include": "Inclure"
+    }
+  },
+  "top": {
+    "label": "Meilleurs résultats de {name}",
+    "rank": "Rang",
+    "time": "Temps",
+    "accuracy": "Précision",
+    "mistakes": "Erreurs",
+    "device": "Appareil",
+    "date": "Date",
+    "rankNumber": "Rang {rank}",
+    "deleted": "Supprimé",
+    "deletedSuffix": " (supprimé)",
+    "noDevice": "Aucun appareil enregistré",
+    "otherWords": "Résultat à un autre nombre de mots",
+    "words": "{count, plural, one {# mot} other {# mots}}",
+    "unknownWords": "? mots",
+    "oldAccuracy": "Ancien résultat, enregistré avant que la précision ne soit mesurée"
+  }
+}

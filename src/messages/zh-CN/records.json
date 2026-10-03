@@ -1,0 +1,89 @@
+{
+  "title": "练习记录",
+  "intro": "按时间从新到旧显示所有练习。各列表的前几名请在<rankings>最佳记录</rankings>中查看，变化趋势请在<home>首页</home>查看。",
+  "loading": "加载中…",
+  "storage": {
+    "guest": "保存在此浏览器",
+    "account": "保存到账号",
+    "guestDetail": "由于未登录，数据保存在此浏览器的 LocalStorage 中。",
+    "accountDetail": "保存到当前登录的账号。"
+  },
+  "filter": {
+    "list": "列表",
+    "allLists": "所有列表",
+    "device": "设备",
+    "allDevices": "所有设备",
+    "noDevice": "未记录设备",
+    "clear": "清除筛选",
+    "count": "{count, plural, other {# 条}}",
+    "filteredCount": "{count, number} 条 / 共 {total, number} 条"
+  },
+  "filterMenu": {
+    "label": "按{name}筛选（当前：{current}）",
+    "all": "全部",
+    "count": "{count, plural, other {# 次}}"
+  },
+  "columns": {
+    "time": "时间",
+    "deviceWords": "设备・单词数",
+    "listDevice": "列表・设备",
+    "duration": "用时",
+    "accuracy": "正确率",
+    "perWord": "每个单词",
+    "mistakes": "错误"
+  },
+  "day": {
+    "heading": "{relative} · {date}",
+    "summary": "{count, plural, other {# 次}} · {duration}"
+  },
+  "more": "显示更多（剩余 {count, number} 条）",
+  "note": "单词数和设备名称为练习当时的信息。",
+  "noteMissing": "“—”表示未记录的项目（例如旧版本保存的记录）。",
+  "row": {
+    "best": "最佳",
+    "bestTitle": "此列表的最佳记录（在当前单词数的记录中，按正确率从高到低、正确率相同时按用时从短到长排名第一）",
+    "noDevice": "未记录设备",
+    "words": "{count, plural, other {# 个单词}}",
+    "seconds": "{value} 秒",
+    "duration": "用时",
+    "accuracy": "正确率",
+    "lowAccuracy": "正确率低于 {limit}%",
+    "perWord": "每个单词",
+    "perWordUnit": "秒/词",
+    "mistakes": "错误",
+    "delete": "删除",
+    "deleteLabel": "删除{name}（{date} {time}）的记录"
+  },
+  "delete": {
+    "title": "要删除这条练习记录吗？",
+    "description": "将删除“{name}”的 1 条记录。",
+    "done": "已删除“{name}”的练习记录（{date} {time}）。",
+    "list": "列表",
+    "when": "日期时间・设备",
+    "result": "结果",
+    "accuracy": "正确率 {value}",
+    "mistakes": "错误 {value}",
+    "bestNext": "这是此列表的最佳记录。删除后，最佳记录将变为 {time}（{accuracy}）。",
+    "bestLast": "这是此列表的最佳记录。删除后，此列表将没有任何记录。"
+  },
+  "empty": {
+    "title": "还没有练习记录",
+    "description": "在“开始练习”中把列表输入到最后，用时、正确率、错误和所用设备就会记录在这里。",
+    "practice": "开始练习"
+  },
+  "filteredEmpty": {
+    "listTitle": "“{name}”还没有记录",
+    "listDescription": "练习后，记录会显示在这里。",
+    "title": "没有符合条件的记录",
+    "description": "请更改列表或设备条件。",
+    "practiceList": "练习此列表"
+  },
+  "summary": {
+    "words": "{count, plural, other {# 个单词}}",
+    "runs": "练习 {count, plural, other {# 次}}",
+    "last": "最近 {day}",
+    "best": "最佳",
+    "rankings": "最佳记录",
+    "practice": "开始练习"
+  }
+}

@@ -1,3 +1,4 @@
+import { AppError } from './appError'
 import { WorkspaceError, type WorkspaceState } from './workspaceClient'
 import { MAX_WORKSPACE_BYTES, validateWorkspaceRequest } from './workspaceRequest'
 
@@ -14,21 +15,21 @@ export function readGuestWorkspace(storage: Storage = localStorage): WorkspaceSt
     const data = validateWorkspaceRequest(value)
     return { ...data, devices: data.devices ?? [], accountId: GUEST_ACCOUNT_ID }
   } catch {
-    throw new Error('ブラウザーの保存データを読み込めません。元のデータは変更していません。')
+    throw new AppError('guestReadFailed')
   }
 }
 
 export function writeGuestWorkspace(state: WorkspaceState, storage: Storage = localStorage): WorkspaceState {
-  if (state.accountId !== GUEST_ACCOUNT_ID) throw new Error('保存先が変わりました。画面を開き直してください。')
+  if (state.accountId !== GUEST_ACCOUNT_ID) throw new AppError('storageChanged')
   const previous = readGuestWorkspace(storage)
-  if (previous.revision !== state.revision) throw new WorkspaceError('別の画面で更新されています。最新データを読み込んでから再試行してください。', 409)
+  if (previous.revision !== state.revision) throw new WorkspaceError('conflict', 409)
   const next = { ...validateWorkspaceRequest(state), devices: state.devices, accountId: GUEST_ACCOUNT_ID, revision: state.revision + 1 }
   const raw = JSON.stringify({ version: 1, ...next })
   if (!Number.isSafeInteger(next.revision) || new TextEncoder().encode(raw).length > MAX_WORKSPACE_BYTES) {
-    throw new Error('保存できるデータ量を超えています。単語リストや記録を整理してください。')
+    throw new AppError('guestQuotaExceeded')
   }
   try { storage.setItem(GUEST_STORAGE_KEY, raw) }
-  catch { throw new Error('ブラウザーに保存できません。空き容量や保存設定を確認して再試行してください。') }
+  catch { throw new AppError('guestWriteFailed') }
   return next
 }
 

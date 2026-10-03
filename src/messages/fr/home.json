@@ -1,0 +1,15 @@
+{
+  "loading": "Chargement…",
+  "welcome": {
+    "title": "Entraînez-vous à taper avec vos propres mots.",
+    "text": "Commencez par vous entraîner avec l’exemple, ou créez une liste des mots que vous voulez retenir.",
+    "lists": "{count, plural, one {# liste de mots} other {# listes de mots}}",
+    "practices": "{count, plural, one {# entraînement terminé} other {# entraînements terminés}}",
+    "navLabel": "Pour commencer",
+    "play": "S’entraîner",
+    "create": "Créer une liste",
+    "records": "Voir les résultats"
+  },
+  "storage": "Toutes les fonctions d’entraînement et de modification sont disponibles sans vous connecter. Les listes de mots, l’historique et les appareils sont enregistrés dans ce navigateur. En vous connectant avec GitHub, vous passez à un autre emplacement, votre compte, synchronisé entre vos appareils. Les données du navigateur ne sont pas transférées automatiquement.",
+  "links": "<guide>Mode d’emploi</guide> / <about>À propos de Typle</about>"
+}

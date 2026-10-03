@@ -2,6 +2,7 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import { useLocale, useTranslations } from "next-intl"
 import { DropdownMenu } from "radix-ui"
 import { Check, ChevronDown, CircleAlert, Download, HardDrive, ListPlus, Plus, RotateCw, Search, X } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -12,10 +13,10 @@ import DeleteConfirmation from "@/components/DeleteConfirmation"
 import { useSaveNotification } from "@/components/SaveNotification"
 import WordListEditor from "@/components/WordListEditor"
 import { downloadWordCsv } from "@/components/WordListExport"
-import ListRow, { practiceText } from "@/components/WordLists/ListRow"
+import ListRow, { usePracticeText } from "@/components/WordLists/ListRow"
 import { GUEST_ACCOUNT_ID } from "@/lib/guestWorkspace"
 import { useWordLists } from "@/lib/useWordLists"
-import { formatDay } from "@/lib/dashboard"
+import { useFormat } from "@/i18n/useFormat"
 import { randomId } from "@/lib/randomId"
 import { duplicateList, LIST_ORDERS, listOverviews, matchesQuery, MAX_LISTS, sortOverviews, type ListOrder, type ListOverview } from "@/lib/listOverview"
 import { saveList, type SavedWordList } from "@/lib/wordLists"
@@ -31,26 +32,29 @@ export default function Edit() {
 }
 
 function StorageBadge({ accountId }: { accountId?: string }) {
+  const t = useTranslations('wordLists.storage')
   const guest = accountId === GUEST_ACCOUNT_ID
   return <span className="inline-flex h-7 items-center gap-1.5 rounded-full border bg-card px-3 text-xs font-medium text-muted-foreground"
-    title={guest ? '未ログインのため、このブラウザーのLocalStorageに保存します。' : 'ログイン中のアカウントに保存します。'}>
-    <HardDrive className="size-3.5" aria-hidden="true" />{guest ? 'このブラウザーに保存' : 'アカウントに保存'}
+    title={guest ? t('browserDetail') : t('accountDetail')}>
+    <HardDrive className="size-3.5" aria-hidden="true" />{guest ? t('browser') : t('account')}
   </span>
 }
 
 function Header({ accountId }: { accountId?: string }) {
+  const t = useTranslations('wordLists.page')
   return <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
     <div className="space-y-1">
-      <h1 className="text-2xl font-bold">単語リスト</h1>
-      <p className="text-sm text-muted-foreground">練習に使う単語リストを作成・編集します。CSVで書き出すと、別のブラウザーやアカウントで読み込めます。</p>
+      <h1 className="text-2xl font-bold">{t('title')}</h1>
+      <p className="text-sm text-muted-foreground">{t('description')}</p>
     </div>
     {accountId && <StorageBadge accountId={accountId} />}
   </header>
 }
 
 function LoadingState() {
+  const t = useTranslations('wordLists')
   return <div role="status">
-    <span className="sr-only">読み込み中…</span>
+    <span className="sr-only">{t('loading')}</span>
     <div className="mb-6 space-y-2"><Skeleton className="h-8 w-40" /><Skeleton className="h-4 w-96 max-w-full" /></div>
     <Skeleton className="mb-3 h-11 w-full" />
     <div className="divide-y rounded-xl border bg-card">
@@ -65,7 +69,9 @@ function LoadingState() {
 // `/edit?list=<id>` opens the editor, so other screens can link to it and the browser's back button returns to the lists.
 // The editor stays open while it has unsaved changes: going back asks first, like キャンセル.
 function WordLists({ workspace }: { workspace: Workspace }) {
-  const { lists, error, saving, update, accountId } = workspace
+  const { lists, error, errorKey, saving, update, accountId } = workspace
+  const t = useTranslations('wordLists.page')
+  const practiceText = usePracticeText()
   const notify = useSaveNotification()
   const params = useSearchParams()
   const urlId = params.get('list')
@@ -134,12 +140,12 @@ function WordLists({ workspace }: { workspace: Workspace }) {
 
   const trackDirty = useCallback((value: boolean) => setDirty(value), [])
 
-  if (openId && editing) return <WordListEditor key={editing.id} title="単語リストを編集" initial={editing} error={error}
-    description={`${editing.words.length.toLocaleString()}語 · ${practiceText(listOverviews([editing])[0], new Date())}`}
+  if (openId && editing) return <WordListEditor key={editing.id} title={t('editTitle')} initial={editing} error={error} errorKey={errorKey}
+    description={t('editDescription', { count: editing.words.length, practice: practiceText(listOverviews([editing])[0], new Date()) })}
     storage={accountId === GUEST_ACCOUNT_ID ? "browser" : "account"} onDirtyChange={trackDirty} cancelRequest={cancelRequest}
     onCancel={() => close()} onSave={async list => {
       const saved = await update(current => saveList(current, list, true))
-      if (saved) { close(list.id); notify(`「${list.name.trim()}」を更新しました。`) }
+      if (saved) { close(list.id); notify(t('updated', { name: list.name.trim() })) }
       return saved
     }} />
 
@@ -149,12 +155,12 @@ function WordLists({ workspace }: { workspace: Workspace }) {
       <CircleAlert aria-hidden="true" />
       <AlertDescription className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span className="min-w-0 flex-1 basis-64">{error}</span>
-        <Button variant="outline" size="lg" onClick={() => window.location.reload()}><RotateCw aria-hidden="true" />再読み込み</Button>
+        <Button variant="outline" size="lg" onClick={() => window.location.reload()}><RotateCw aria-hidden="true" />{t('reload')}</Button>
       </AlertDescription>
     </Alert>}
     {openId && !editing && <Alert className="mb-6">
       <CircleAlert aria-hidden="true" />
-      <AlertDescription>開こうとした単語リストは見つかりません。削除された可能性があります。</AlertDescription>
+      <AlertDescription>{t('notFound')}</AlertDescription>
     </Alert>}
     {/* After a failed load the lists are unknown; "no lists yet" would be wrong. */}
     {!(error && !lists.length) && <ListManager lists={lists} saving={saving} highlight={highlight} update={update} notify={notify}
@@ -171,6 +177,8 @@ function ListManager({ lists, saving, highlight, update, notify, onEdit, onHighl
   onEdit: (list: SavedWordList) => void
   onHighlight: (id: string) => void
 }) {
+  const t = useTranslations('wordLists')
+  const locale = useLocale()
   const [now] = useState(() => new Date())
   const [query, setQuery] = useState('')
   const [order, setOrder] = useState<ListOrder>('added')
@@ -178,18 +186,18 @@ function ListManager({ lists, saving, highlight, update, notify, onEdit, onHighl
   const [deleting, setDeleting] = useState<{ open: boolean; item: ListOverview | null; position: number }>({ open: false, item: null, position: 0 })
   const deleted = useRef(false)
   const all = useMemo(() => listOverviews(lists), [lists])
-  const shown = useMemo(() => sortOverviews(all.filter(item => matchesQuery(item.list, query)), order), [all, query, order])
+  const shown = useMemo(() => sortOverviews(all.filter(item => matchesQuery(item.list, query)), order, locale), [all, query, order, locale])
   const full = lists.length >= MAX_LISTS
 
   function exportCsv(list: SavedWordList) {
-    setExportError(downloadWordCsv(list) ? '' : `「${list.name}」をエクスポートできませんでした。もう一度お試しください。`)
+    setExportError(downloadWordCsv(list) ? '' : t('page.exportFailed', { name: list.name }))
   }
 
   async function copy(list: SavedWordList) {
     const copyId = randomId()
     let name = ''
     const saved = await update(current => {
-      const result = duplicateList(current, list.id, copyId)
+      const result = duplicateList(current, list.id, copyId, n => t('page.copySuffix', { n }))
       name = result.copy.name
       return result.lists
     })
@@ -197,7 +205,7 @@ function ListManager({ lists, saving, highlight, update, notify, onEdit, onHighl
       // Clear the search so the copy is in view, then point at it.
       setQuery('')
       onHighlight(copyId)
-      notify(`「${name}」を作成しました。`)
+      notify(t('page.created', { name }))
     }
   }
 
@@ -214,27 +222,27 @@ function ListManager({ lists, saving, highlight, update, notify, onEdit, onHighl
 
   return <section aria-labelledby="list-heading" className="space-y-3">
     <div className="flex min-h-11 flex-wrap items-center gap-x-2 gap-y-2">
-      <h2 id="list-heading" tabIndex={-1} className="text-base font-bold outline-none">保存済みのリスト</h2>
-      <Badge variant="secondary" className="tabular-nums" title={`${MAX_LISTS}件まで保存できます`}>{lists.length} / {MAX_LISTS}</Badge>
-      {full ? <Button className="ml-auto" disabled><Plus aria-hidden="true" />新しいリストを作成</Button>
-        : <Button asChild className="ml-auto"><Link href="/create"><Plus aria-hidden="true" />新しいリストを作成</Link></Button>}
+      <h2 id="list-heading" tabIndex={-1} className="text-base font-bold outline-none">{t('manager.heading')}</h2>
+      <Badge variant="secondary" className="tabular-nums" title={t('manager.limitTitle', { max: MAX_LISTS })}>{lists.length} / {MAX_LISTS}</Badge>
+      {full ? <Button className="ml-auto" disabled><Plus aria-hidden="true" />{t('manager.create')}</Button>
+        : <Button asChild className="ml-auto"><Link href="/create"><Plus aria-hidden="true" />{t('manager.create')}</Link></Button>}
     </div>
-    {full && <p className="text-sm text-muted-foreground">単語リストは{MAX_LISTS}件まで保存できます。使わなくなったリストを削除すると作成できます。</p>}
+    {full && <p className="text-sm text-muted-foreground">{t('manager.full', { max: MAX_LISTS })}</p>}
     {exportError && <p role="alert" className="flex items-center gap-1.5 text-sm text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{exportError}</p>}
 
     <div className="flex flex-wrap items-center gap-2">
       <label className="relative min-w-0 flex-1 basis-60 sm:max-w-sm">
-        <span className="sr-only">リスト名・単語で検索</span>
+        <span className="sr-only">{t('manager.search')}</span>
         <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-        <input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="リスト名・単語で検索"
+        <input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={t('manager.search')}
           className="h-10 w-full rounded-lg border border-input bg-background pr-9 pl-9 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30 [&::-webkit-search-cancel-button]:hidden" />
-        {query && <button type="button" aria-label="検索をクリア" onClick={() => setQuery('')}
+        {query && <button type="button" aria-label={t('manager.clearSearch')} onClick={() => setQuery('')}
           className="absolute top-1/2 right-2 grid size-7 -translate-y-1/2 place-items-center rounded-md text-muted-foreground outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50">
           <X className="size-3.5" aria-hidden="true" />
         </button>}
       </label>
       <OrderMenu value={order} onChange={setOrder} />
-      <p aria-live="polite" className="ml-auto text-sm text-muted-foreground tabular-nums">{query.trim() ? `${shown.length}件 / 全${lists.length}件` : `${lists.length}件`}</p>
+      <p aria-live="polite" className="ml-auto text-sm text-muted-foreground tabular-nums">{query.trim() ? t('manager.countFiltered', { shown: shown.length, total: lists.length }) : t('manager.count', { total: lists.length })}</p>
     </div>
 
     {shown.length ? <ul className="divide-y overflow-hidden rounded-xl border bg-card">
@@ -242,14 +250,14 @@ function ListManager({ lists, saving, highlight, update, notify, onEdit, onHighl
         onEdit={() => onEdit(item.list)} onExport={() => exportCsv(item.list)} onCopy={() => copy(item.list)}
         onDelete={() => { deleted.current = false; setDeleting({ open: true, item, position }) }} />)}
     </ul> : <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed bg-card px-6 py-10 text-center">
-      <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">「{query.trim()}」に一致するリストはありません。リスト名と単語から探します。</p>
-      <Button variant="outline" onClick={() => setQuery('')}>検索をクリア</Button>
+      <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">{t('manager.noMatch', { query: query.trim() })}</p>
+      <Button variant="outline" onClick={() => setQuery('')}>{t('manager.clearSearch')}</Button>
     </div>}
-    <p className="text-xs text-muted-foreground">CSVエクスポートは表示する単語・入力する文字・補足を保存します（練習記録は含みません）。作成・編集画面の「CSV・TSVを読み込む」で使えます。</p>
+    <p className="text-xs text-muted-foreground">{t('manager.csvNote')}</p>
 
     {deleting.item && <DeleteConfirmation open={deleting.open} onOpenChange={open => setDeleting(current => ({ ...current, open }))}
-      title={`「${deleting.item.list.name}」を削除しますか？`}
-      description={deleting.item.practiceCount ? '単語リストと、このリストの練習記録をすべて削除します。' : '単語リストを削除します。'}
+      title={t('delete.title', { name: deleting.item.list.name })}
+      description={deleting.item.practiceCount ? t('delete.withRecords') : t('delete.listOnly')}
       onCloseAutoFocus={focusAfterDelete}
       onConfirm={async () => {
         const list = deleting.item?.list
@@ -257,7 +265,7 @@ function ListManager({ lists, saving, highlight, update, notify, onEdit, onHighl
         const saved = await update(current => current.filter(item => item.id !== list.id))
         if (saved) {
           deleted.current = true
-          notify(`「${list.name}」を削除しました。`)
+          notify(t('page.deleted', { name: list.name }))
         }
         return saved
       }}>
@@ -267,35 +275,39 @@ function ListManager({ lists, saving, highlight, update, notify, onEdit, onHighl
 }
 
 function DeleteDetails({ item, now, onExport }: { item: ListOverview; now: Date; onExport: () => void }) {
+  const t = useTranslations('wordLists.delete')
+  const format = useFormat()
   const { list } = item
   return <div className="space-y-3">
     <dl className="grid gap-1 rounded-lg border bg-muted/40 px-3.5 py-3 text-sm">
-      <dt className="sr-only">リスト</dt><dd className="font-medium [overflow-wrap:anywhere]">{list.name}</dd>
-      <dt className="sr-only">内容</dt>
+      <dt className="sr-only">{t('list')}</dt><dd className="font-medium [overflow-wrap:anywhere]">{list.name}</dd>
+      <dt className="sr-only">{t('contents')}</dt>
       <dd className="text-[13px] text-muted-foreground tabular-nums">
-        {list.words.length.toLocaleString()}語 · {item.lastPracticed === null ? '練習記録なし' : `練習記録 ${item.practiceCount}件（最終 ${formatDay(new Date(item.lastPracticed), now)}）`}
+        {t('wordCount', { count: list.words.length })} · {item.lastPracticed === null ? t('noRecords')
+          : t('records', { count: item.practiceCount, day: format.day(new Date(item.lastPracticed), now) })}
       </dd>
     </dl>
     <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[13px] text-muted-foreground">
-      <span className="min-w-0 flex-1 basis-56">単語はCSVに書き出して残せます（練習記録は含みません）。</span>
-      <Button variant="outline" size="lg" className="text-foreground" onClick={onExport}><Download aria-hidden="true" />CSVエクスポート</Button>
+      <span className="min-w-0 flex-1 basis-56">{t('exportHint')}</span>
+      <Button variant="outline" size="lg" className="text-foreground" onClick={onExport}><Download aria-hidden="true" />{t('export')}</Button>
     </div>
   </div>
 }
 
 function OrderMenu({ value, onChange }: { value: ListOrder; onChange: (value: ListOrder) => void }) {
+  const t = useTranslations('wordLists.order')
   const item = 'relative flex cursor-pointer items-center gap-2 rounded-md py-2 pr-3 pl-8 text-sm outline-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground'
   return <DropdownMenu.Root>
-    <DropdownMenu.Trigger aria-label={`並び順：${LIST_ORDERS[value]}`}
+    <DropdownMenu.Trigger aria-label={t('current', { order: t(value) })}
       className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg border bg-background px-3 text-sm outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 aria-expanded:bg-muted dark:bg-input/30">
-      <span className="text-muted-foreground">並び順</span>{LIST_ORDERS[value]}<ChevronDown className="size-3.5 text-muted-foreground" aria-hidden="true" />
+      <span className="text-muted-foreground">{t('label')}</span>{t(value)}<ChevronDown className="size-3.5 text-muted-foreground" aria-hidden="true" />
     </DropdownMenu.Trigger>
     <DropdownMenu.Portal>
       <DropdownMenu.Content align="start" sideOffset={6} className="z-50 w-48 rounded-lg border bg-popover p-1 text-popover-foreground shadow-md">
         <DropdownMenu.RadioGroup value={value} onValueChange={next => onChange(next as ListOrder)}>
-          {(Object.keys(LIST_ORDERS) as ListOrder[]).map(key => <DropdownMenu.RadioItem key={key} value={key} className={item}>
+          {LIST_ORDERS.map(key => <DropdownMenu.RadioItem key={key} value={key} className={item}>
             <DropdownMenu.ItemIndicator className="absolute left-2.5 inline-flex"><Check className="size-4" aria-hidden="true" /></DropdownMenu.ItemIndicator>
-            {LIST_ORDERS[key]}
+            {t(key)}
           </DropdownMenu.RadioItem>)}
         </DropdownMenu.RadioGroup>
       </DropdownMenu.Content>
@@ -304,12 +316,13 @@ function OrderMenu({ value, onChange }: { value: ListOrder; onChange: (value: Li
 }
 
 function EmptyState() {
+  const t = useTranslations('wordLists')
   return <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed bg-card px-6 py-10 text-center sm:py-14">
     <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground"><ListPlus className="size-6" aria-hidden="true" /></span>
     <div className="space-y-1.5">
-      <h2 className="font-bold">単語リストはまだありません</h2>
-      <p className="max-w-md text-sm text-balance text-muted-foreground">練習したい単語と、正解として入力する文字を登録します。CSV・TSVファイルから読み込むこともできます。</p>
+      <h2 className="font-bold">{t('empty.title')}</h2>
+      <p className="max-w-md text-sm text-balance text-muted-foreground">{t('empty.description')}</p>
     </div>
-    <Button asChild><Link href="/create"><Plus aria-hidden="true" />新しいリストを作成</Link></Button>
+    <Button asChild><Link href="/create"><Plus aria-hidden="true" />{t('manager.create')}</Link></Button>
   </div>
 }

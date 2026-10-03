@@ -1,7 +1,7 @@
 require('./register.cjs')
 const test = require('node:test')
 const assert = require('node:assert/strict')
-const { decodeDevices, saveDevice, deviceLabel, deviceProblem, deviceUsage, MAX_DEVICES } = require('../src/lib/devices.ts')
+const { decodeDevices, saveDevice, deviceProblem, deviceUsage, MAX_DEVICES } = require('../src/lib/devices.ts')
 const { decodeLists } = require('../src/lib/wordLists.ts')
 const { validateWorkspaceRequest } = require('../src/lib/workspaceRequest.ts')
 const { makeRecord } = require('../src/lib/records.ts')
@@ -15,23 +15,22 @@ test('device validation rejects malformed, duplicate and oversized data', () => 
   }
   assert.throws(() => saveDevice([device], { ...device, id: 'other', name: 'macbook' }, false))
   assert.throws(() => saveDevice([], device, true))
-  assert.equal(deviceLabel(), '未記録')
 })
 
-test('device problems name the field to fix in Japanese', () => {
+test('device problems name the field to fix and the message to show', () => {
   const problem = (devices, value, editing = false) => deviceProblem(devices, { ...device, ...value }, editing)
   assert.equal(problem([], {}), null)
-  assert.deepEqual(problem([], { name: '   ' }), { field: 'name', message: '端末名を入力してください。' })
-  assert.equal(problem([], { name: 'x'.repeat(101) }).field, 'name')
+  assert.deepEqual(problem([], { name: '   ' }), { field: 'name', key: 'deviceNameRequired' })
+  assert.deepEqual(problem([], { name: 'x'.repeat(101) }), { field: 'name', key: 'deviceNameTooLong', values: { max: 100 } })
   assert.equal(problem([], { layout: 'x'.repeat(201) }).field, 'layout')
-  assert.deepEqual(problem([device], { id: 'other', name: ' macbook ' }), { field: 'name', message: '「MacBook」はすでに登録されています。別の名前にしてください。' })
+  assert.deepEqual(problem([device], { id: 'other', name: ' macbook ' }), { field: 'name', key: 'deviceNameDuplicate', values: { name: 'MacBook' } })
   // Renaming a device to its own name, or only changing its case, is not a duplicate.
   assert.equal(problem([device], { name: 'macbook' }, true), null)
-  assert.deepEqual(problem([], {}, true), { field: 'form', message: 'この端末は別の画面で削除されています。' })
+  assert.deepEqual(problem([], {}, true), { field: 'form', key: 'deviceDeleted' })
   const many = Array.from({ length: MAX_DEVICES }, (_, index) => ({ id: `d${index}`, name: `Device ${index}`, layout: '' }))
-  assert.equal(problem(many, { id: 'new', name: 'New' }).field, 'form')
+  assert.deepEqual(problem(many, { id: 'new', name: 'New' }), { field: 'form', key: 'deviceLimit', values: { max: MAX_DEVICES } })
   assert.equal(problem(many, { id: 'd0', name: 'Renamed' }, true), null)
-  assert.throws(() => saveDevice([], { ...device, name: ' ' }, false), { message: '端末名を入力してください。' })
+  assert.throws(() => saveDevice([], { ...device, name: ' ' }, false), { key: 'deviceNameRequired' })
   assert.deepEqual(saveDevice([device], { ...device, name: ' MacBook Air ', layout: ' US ' }, true), [{ id: 'mac', name: 'MacBook Air', layout: 'US' }])
 })
 

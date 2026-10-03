@@ -1,0 +1,112 @@
+{
+  "loading": "Chargement…",
+  "empty": "Aucun mot pour l’instant. <link>Créez une liste de mots</link> pour commencer.",
+  "stats": {
+    "label": "Session en cours",
+    "elapsed": "Écoulé",
+    "speed": "Vitesse",
+    "speedUnit": "frappes/min",
+    "accuracy": "Précision",
+    "mistakes": "Erreurs"
+  },
+  "progress": {
+    "label": "Progression des mots",
+    "value": "{current} / {total, plural, one {# mot} other {# mots}}"
+  },
+  "feedback": {
+    "mismatch": "Différence à partir du caractère {position}. Corrigez avec Backspace.",
+    "composing": "Le texte en cours de composition sera vérifié une fois validé",
+    "backspace": "Effacer un caractère",
+    "restart": "Recommencer"
+  },
+  "header": {
+    "switchList": "Changer de liste de mots (actuelle : {name})",
+    "wordCount": "{count, plural, one {# mot} other {# mots}}",
+    "restart": "Recommencer",
+    "restartTitle": "Recommencer (Esc)",
+    "restartShort": "Recommencer"
+  },
+  "word": {
+    "typeThis": "À saisir",
+    "resume": "Cliquez ou appuyez sur une touche pour reprendre",
+    "placeholder": "Saisissez ici",
+    "inputLabel": "Saisissez le texte affiché"
+  },
+  "upcoming": {
+    "next": "À suivre",
+    "last": "C’est le dernier mot",
+    "more": "et {count} de plus",
+    "showAll": "Afficher tous les mots",
+    "allWords": "Tous les mots",
+    "done": "(terminé)",
+    "current": "(en cours)",
+    "pending": "(à saisir)"
+  },
+  "aside": {
+    "label": "Listes de mots et meilleurs résultats",
+    "lists": "Listes de mots",
+    "create": "Créer",
+    "best": "Meilleurs résultats",
+    "bestOrder": "Par précision décroissante, puis par vitesse",
+    "bestOrderAtCount": "Par précision décroissante, puis par vitesse · résultats à {count, plural, one {# mot} other {# mots}} uniquement",
+    "allBest": "Tous les meilleurs résultats"
+  },
+  "picker": {
+    "title": "Choisir une liste de mots",
+    "description": "Si vous choisissez une autre liste en cours d’entraînement, une confirmation vous sera demandée.",
+    "filter": "Filtrer par nom de liste",
+    "candidates": "Listes de mots correspondantes",
+    "noMatch": "Aucune liste ne correspond."
+  },
+  "switch": {
+    "title": "Interrompre l’entraînement ?",
+    "description": "Votre progression sur « {list} » ({done} / {total, plural, one {# mot} other {# mots}}) ne sera pas enregistrée. Vous passerez à « {next} ».",
+    "continue": "Continuer l’entraînement",
+    "confirm": "Interrompre et changer"
+  },
+  "result": {
+    "label": "Résultat de l’entraînement",
+    "title": "Bien joué !",
+    "newBest": "Nouveau record personnel",
+    "completed": "Entraînement terminé : {name}",
+    "time": "Temps",
+    "seconds": "s",
+    "accuracy": "Précision",
+    "mistakes": "{count, plural, one {# erreur} other {# erreurs}}",
+    "speed": "Vitesse",
+    "speedUnit": "frappes/min",
+    "correct": "{count, plural, one {# caractère} other {# caractères}}",
+    "words": "Mots",
+    "wordUnit": "{count, plural, one {mot} other {mots}}",
+    "firstAtCount": "Premier résultat à {count, plural, one {# mot} other {# mots}}",
+    "firstForList": "Premier résultat pour cette liste",
+    "faster": "−{seconds} s par rapport au meilleur",
+    "bestByAccuracy": "Meilleur résultat grâce à la précision",
+    "behind": "Meilleur : {time} s · {accuracy} %",
+    "behindNoAccuracy": "Meilleur : {time} s · précision non enregistrée",
+    "saveFailed": "Impossible d’enregistrer le résultat. Il reste affiché sur cet écran. Vérifiez votre connexion, puis réessayez.",
+    "retry": "Réessayer l’enregistrement",
+    "saved": "Résultat enregistré dans l’historique. Il se classe {rank, selectordinal, one {#er} other {#e}} pour cette liste.",
+    "saving": "Enregistrement du résultat…",
+    "again": "Encore",
+    "chooseList": "Choisir une autre liste",
+    "viewRecords": "Voir l’historique"
+  },
+  "best": {
+    "label": "Top 5 des meilleurs résultats",
+    "rank": "Rang",
+    "time": "Temps",
+    "accuracy": "Précision",
+    "device": "Appareil",
+    "seconds": "{time} s",
+    "noAccuracy": "Non enregistrée",
+    "current": "Ce résultat",
+    "empty": "Aucun résultat pour l’instant. Terminez une session pour voir ici vos 5 meilleurs résultats."
+  },
+  "options": {
+    "selected": "{name}, sélectionnée",
+    "select": "Sélectionner {name}",
+    "withBest": "{count, plural, one {# mot} other {# mots}} · meilleur {time} s",
+    "noRecord": "{count, plural, one {# mot} other {# mots}} · aucun résultat"
+  }
+}

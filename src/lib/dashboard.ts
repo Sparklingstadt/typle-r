@@ -1,4 +1,4 @@
-import { listBest } from './records'
+import { listBest, type TimeUnit } from './records'
 import type { SavedWordList } from './wordLists'
 
 type StoredRecord = SavedWordList['records'][number]
@@ -142,20 +142,19 @@ export function accuracyScale(values: number[]): Scale {
   return { domain: [low, 100], ticks: [100, (low + 100) / 2, low], decimals: 0 }
 }
 
-export function durationParts(seconds: number): [string, string][] {
+// Units are names, not text: useFormat turns them into the reader's language.
+export function durationParts(seconds: number): [string, TimeUnit][] {
   const total = Math.round(seconds)
-  if (total < 60) return [[String(total), '秒']]
-  if (total < 3600) return [[String(Math.floor(total / 60)), '分'], [String(total % 60), '秒']]
-  return [[String(Math.floor(total / 3600)), '時間'], [String(Math.floor(total % 3600 / 60)), '分']]
+  if (total < 60) return [[String(total), 'seconds']]
+  if (total < 3600) return [[String(Math.floor(total / 60)), 'minutes'], [String(total % 60), 'seconds']]
+  return [[String(Math.floor(total / 3600)), 'hours'], [String(Math.floor(total % 3600 / 60)), 'minutes']]
 }
 
-export function formatDuration(seconds: number) { return durationParts(seconds).map(part => part.join('')).join('') }
-
-export function formatDay(date: Date, now = new Date()) {
+// How a day reads next to today: today and yesterday by name, other days by date, with the year only when it differs.
+export type DayKind = 'today' | 'yesterday' | 'thisYear' | 'otherYear'
+export function dayKind(date: Date, now = new Date()): DayKind {
   const days = daysBetween(date, now)
-  if (days === 0) return '今日'
-  if (days === 1) return '昨日'
-  return `${date.getFullYear() === now.getFullYear() ? '' : `${date.getFullYear()}年`}${date.getMonth() + 1}月${date.getDate()}日`
+  if (days === 0) return 'today'
+  if (days === 1) return 'yesterday'
+  return date.getFullYear() === now.getFullYear() ? 'thisYear' : 'otherYear'
 }
-
-export function formatWeekday(date: Date) { return `${date.getMonth() + 1}月${date.getDate()}日（${'日月火水木金土'[date.getDay()]}）` }

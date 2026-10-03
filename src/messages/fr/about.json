@@ -1,0 +1,60 @@
+{
+  "meta": {
+    "title": "À propos de Typle | Typle",
+    "description": "Ce que permet Typle, où sont enregistrées vos données, les informations envoyées dans les rapports d’erreur et la version."
+  },
+  "title": "À propos de Typle",
+  "intro": "Une application de dactylographie pour vous entraîner avec vos propres listes de mots. Ajoutez les mots de votre choix, entraînez-vous et suivez vos progrès grâce à vos meilleurs résultats.",
+  "play": "S’entraîner",
+  "guide": "Mode d’emploi",
+  "features": {
+    "title": "Fonctionnalités",
+    "create": {
+      "title": "Créer une liste",
+      "description": "Ajoutez les mots que vous voulez retenir. Le mot affiché et les caractères à taper se définissent séparément, et vous pouvez aussi importer des fichiers CSV ou TSV."
+    },
+    "play": {
+      "title": "S’entraîner",
+      "description": "La vitesse, la précision et le nombre d’erreurs s’affichent en direct, ainsi que l’endroit où vous avez fait une faute."
+    },
+    "rankings": {
+      "title": "Meilleurs résultats",
+      "description": "Mesurez vos progrès avec votre record personnel, la moyenne de vos 5 derniers essais et l’évolution de votre temps."
+    }
+  },
+  "storage": {
+    "title": "Où sont enregistrées vos données",
+    "text": "La connexion est facultative. L’emplacement dépend de votre connexion, et les deux jeux de données sont conservés séparément (aucun transfert automatique).",
+    "more": "Pour en savoir plus, consultez <link>« Stockage et données » dans le mode d’emploi</link>."
+  },
+  "places": {
+    "current": "Emplacement actuel",
+    "browser": {
+      "title": "Ce navigateur",
+      "condition": "Quand vous n’êtes pas connecté",
+      "p1": "Enregistré dans le LocalStorage de ce navigateur",
+      "p2": "Non synchronisé avec d’autres appareils ou navigateurs",
+      "p3": "Effacé si vous supprimez les données du navigateur"
+    },
+    "account": {
+      "title": "Compte",
+      "condition": "Quand vous êtes connecté avec GitHub",
+      "p1": "Enregistré sur un serveur dédié à votre compte",
+      "p2": "Les mêmes données sur tous les appareils où vous êtes connecté",
+      "p3": "L’enregistrement nécessite une connexion Internet"
+    }
+  },
+  "reports": {
+    "title": "Rapports d’erreur",
+    "text": "Pour analyser les problèmes, nous pouvons envoyer le détail des erreurs et l’environnement dans lequel elles se sont produites (navigateur, système d’exploitation, etc.). Avant l’envoi, le contenu des requêtes (listes de mots, par exemple), les cookies, les informations utilisateur et l’historique des actions sont supprimés."
+  },
+  "version": {
+    "title": "Version et développement",
+    "version": "Version",
+    "tech": "Technologies utilisées",
+    "techList": "Next.js, React, PostgreSQL (Neon)",
+    "source": "Code source",
+    "newTab": "(s’ouvre dans un nouvel onglet)",
+    "private": "Ce dépôt est privé. Seuls les comptes GitHub autorisés peuvent l’ouvrir."
+  }
+}

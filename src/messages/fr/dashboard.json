@@ -1,0 +1,66 @@
+{
+  "title": "Vue d’ensemble",
+  "sourceGuest": "Calculé à partir des résultats enregistrés dans ce navigateur.",
+  "sourceAccount": "Calculé à partir des résultats enregistrés sur votre compte.",
+  "start": "Commencer",
+  "practice": "S’entraîner",
+  "create": "Créer une liste",
+  "week": {
+    "title": "Cette semaine",
+    "description": "Résultats du {start} au {end}. Les variations sont comparées à la semaine dernière, jusqu’au même jour et à la même heure.",
+    "count": "Entraînements cette semaine",
+    "countUnit": "{count, plural, one {séance} other {séances}}",
+    "streak": "Série",
+    "streakUnit": "{count, plural, one {jour} other {jours}}",
+    "accuracy": "{count, plural, one {Précision (dernier résultat)} other {Précision moyenne (# derniers)}}",
+    "time": "Temps d’entraînement cette semaine",
+    "practisedToday": "Entraînement fait aujourd’hui",
+    "streakNext": "Entraînez-vous aujourd’hui pour le jour {day, number}",
+    "noComparison": "Rien à comparer pour l’instant",
+    "noAccuracy": "Aucun résultat avec précision",
+    "times": "{count, plural, one {# séance} other {# séances}}",
+    "sameAsLastWeek": "Comme la semaine dernière",
+    "moreThanLastWeek": "{value} de plus que la semaine dernière",
+    "lessThanLastWeek": "{value} de moins que la semaine dernière"
+  },
+  "change": {
+    "same": "{recent, select, none {Identique} latest {Dernier résultat : identique} other {Moyenne des {recentCount} derniers : identique}} {previous, select, latest {au résultat précédent} other {aux {previousCount} précédents}}",
+    "different": "{recent, select, none {} latest {Dernier résultat : } other {Moyenne des {recentCount} derniers : }}{difference} par rapport {previous, select, latest {au résultat précédent} other {aux {previousCount} précédents}}",
+    "seconds": "{direction, select, up {{value} s plus lent} other {{value} s plus rapide}}",
+    "points": "{direction, select, up {+{value} pt} other {−{value} pt}}"
+  },
+  "next": {
+    "title": "Listes à travailler ensuite",
+    "description": "Affiche jusqu’à 3 listes : jamais travaillées, non travaillées depuis {days} jours ou plus, ou dont la précision récente est inférieure à {accuracy} %.",
+    "allPractised": "Toutes les listes ont été travaillées récemment.",
+    "words": "{count, plural, one {# mot} other {# mots}}",
+    "lastPracticed": "Dernier entraînement : {day}",
+    "noRecords": "Aucun résultat",
+    "new": "Pas encore d’entraînement",
+    "stale": "{days, plural, one {Pas d’entraînement depuis # jour} other {Pas d’entraînement depuis # jours}}",
+    "lowAccuracy": "{count, plural, one {Précision du dernier résultat : {accuracy} %} other {Précision des # derniers : {accuracy} %}}",
+    "practiceList": "S’entraîner sur {name}",
+    "practice": "S’entraîner"
+  },
+  "trends": {
+    "title": "Évolution par liste",
+    "description": "Secondes par mot (plus c’est bas, plus c’est rapide) et précision, sur les 20 derniers entraînements au maximum. Le temps étant divisé par le nombre de mots, les résultats restent comparables avant et après la modification d’une liste.",
+    "summary": "{count, plural, one {# séance} other {# séances}} · Dernier entraînement : {day}",
+    "needTwo": "L’évolution s’affiche à partir de deux résultats.",
+    "practiceList": "S’entraîner sur {name}",
+    "practice": "S’entraîner",
+    "speed": "Secondes par mot",
+    "accuracy": "Précision",
+    "seconds": "{value} s",
+    "percent": "{value} %",
+    "latest": "Dernier <number>{value}</number>",
+    "noChart": "S’affiche lorsqu’au moins deux résultats comportent cette valeur.",
+    "best": "Meilleur résultat : précision {accuracy} · {time} s ({day})",
+    "notRecorded": "non enregistrée"
+  },
+  "chart": {
+    "label": "{label} (flèches gauche et droite pour lire chaque valeur)",
+    "date": "Date",
+    "value": "Valeur"
+  }
+}

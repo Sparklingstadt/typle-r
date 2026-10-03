@@ -1,0 +1,179 @@
+{
+  "meta": {
+    "title": "Mode d’emploi | Typle",
+    "description": "Comment commencer à vous entraîner sur Typle, créer des listes de mots, consulter vos résultats, où sont enregistrées vos données et quels sont les raccourcis clavier."
+  },
+  "title": "Mode d’emploi",
+  "intro": "Tout ce qu’il faut savoir, des premiers pas à la création de listes de mots, en passant par la consultation des résultats et l’enregistrement des données. Toutes les fonctionnalités sont disponibles sans vous connecter.",
+  "contentsLabel": "Sur cette page",
+  "contents": {
+    "practice": "S’entraîner",
+    "lists": "Créer des listes de mots",
+    "records": "Résultats et historique",
+    "devices": "Enregistrer des appareils",
+    "storage": "Stockage et données",
+    "shortcuts": "Raccourcis clavier"
+  },
+  "start": {
+    "title": "Démarrer en 3 étapes",
+    "sample": {
+      "title": "S’entraîner avec l’exemple",
+      "text": "Une liste d’exemple est fournie : vous pouvez commencer tout de suite. Il suffit de taper les mots affichés.",
+      "action": "S’entraîner"
+    },
+    "create": {
+      "title": "Créer votre liste",
+      "text": "Ajoutez les mots que vous voulez retenir. Vous pouvez aussi les importer depuis un fichier CSV ou TSV.",
+      "action": "Créer une liste"
+    },
+    "review": {
+      "title": "Suivre vos résultats",
+      "text": "Une fois la liste terminée, votre résultat est enregistré automatiquement : vous pouvez consulter votre record personnel et l’évolution de votre temps.",
+      "action": "Meilleurs résultats"
+    }
+  },
+  "legend": {
+    "typed": "Saisie : <mono>{typed}</mono>",
+    "swatch": "a",
+    "done": { "label": "Saisi", "note": "(vert)" },
+    "current": { "label": "Caractère suivant", "note": "(souligné)" },
+    "pending": { "label": "Pas encore saisi", "note": "(gris)" },
+    "error": { "label": "À partir du caractère erroné", "note": "(rouge)" }
+  },
+  "practice": {
+    "lead": "Choisissez une liste de mots dans <play>S’entraîner</play> et tapez les mots affichés.",
+    "colors": {
+      "title": "Couleurs de saisie",
+      "text": "Si vous tapez un mauvais caractère, tout ce qui suit cette position devient rouge et le champ de saisie indique à partir de quel caractère la saisie diffère. Corrigez avec <keys>Backspace</keys>. Pour les mots dont l’affichage diffère de ce qu’il faut taper (par exemple taper « noel » pour « Noël »), les caractères à taper s’affichent sous le mot et ce sont eux qui sont colorés."
+    },
+    "flow": {
+      "title": "Déroulement de l’entraînement",
+      "p1": "Quand tous les caractères correspondent, vous passez au mot suivant ; l’entraînement se termine après le dernier mot.",
+      "p2": "Le temps est mesuré de la première frappe jusqu’à la fin. Pendant l’entraînement, le temps écoulé, la vitesse (caractères corrects par minute), la précision et le nombre d’erreurs sont affichés.",
+      "p3": "Le texte saisi avec un IME (en japonais, par exemple) est vérifié une fois validé ; les caractères en cours de conversion ne sont pas vérifiés. Le collage et la saisie par glisser-déposer sont désactivés.",
+      "p4": "Les 3 mots suivants s’affichent sous la barre de progression, et « Afficher tous les mots » permet de voir la liste entière."
+    },
+    "choose": {
+      "title": "Choisir la liste et l’appareil",
+      "p1": "Cliquez sur le nom de la liste en haut pour rechercher et changer de liste. Vous pouvez aussi la choisir dans la liste de droite (en bas sur smartphone).",
+      "p2": "Si vous choisissez une autre liste en cours d’entraînement, une confirmation vous est demandée avant l’interruption. Un entraînement inachevé n’est pas enregistré.",
+      "p3": "« Recommencer » ou <keys>Esc</keys> relance la même liste depuis le début.",
+      "p4": "Avant de taper le premier caractère, choisissez l’appareil utilisé avec « Appareil » en haut (<devicesSection>Enregistrer des appareils</devicesSection>)."
+    }
+  },
+  "lists": {
+    "lead": "Créez une liste dans <create>Créer une liste</create> et modifiez vos listes enregistrées dans <edit>Listes de mots</edit>.",
+    "input": {
+      "title": "Saisir les mots",
+      "p1": "Saisissez le nom de la liste puis, pour chaque mot, le « Mot affiché » et le « Texte à saisir ». La note est facultative.",
+      "p2": "Si vous laissez le texte à saisir vide, le mot affiché est utilisé tel quel.",
+      "p3": "Réorganisez les mots par glisser-déposer, avec le menu « … » ou avec <keys>Alt+↑↓</keys>. <keys>Enter</keys> passe au mot suivant et, sur le dernier mot, ajoute une nouvelle ligne.",
+      "p4": "Enregistrez avec « Enregistrer » ou <keys>Ctrl+Enter</keys> (<keys>⌘+Enter</keys> sur Mac)."
+    },
+    "cannotSave": {
+      "title": "Si la liste ne peut pas être enregistrée",
+      "p1": "Une liste avec des lignes vides, une liste sans mots ou une liste portant le même nom qu’une autre ne peut pas être enregistrée.",
+      "p2": "Une liste peut contenir jusqu’à 1 000 mots, et vous pouvez enregistrer jusqu’à 100 listes.",
+      "p3": "Si des modifications ne sont pas enregistrées, une confirmation vous est demandée avant d’annuler ou de revenir en arrière dans le navigateur.",
+      "p4": "Si vous modifiez le nombre de mots, les résultats précédents ne comptent plus dans le classement des meilleurs résultats (ils sont conservés ; voir <wordCount>Si le nombre de mots change</wordCount>)."
+    },
+    "manage": {
+      "title": "Gérer les listes",
+      "p1": "Dans <edit>Listes de mots</edit>, vous pouvez rechercher par nom de liste ou par mot et changer l’ordre de tri.",
+      "p2": "Les boutons « S’entraîner » et « Modifier » de chaque liste et son menu « … » permettent d’ouvrir ses meilleurs résultats et son historique, de l’exporter en CSV, de la dupliquer ou de la supprimer.",
+      "p3": "La duplication ne copie que les mots, pas l’historique d’entraînement."
+    },
+    "csv": {
+      "title": "Fichiers CSV et TSV",
+      "p1": "Pendant la modification d’une liste, choisissez un fichier avec « Importer un CSV/TSV ». Après avoir vérifié son contenu, vous pouvez ajouter les mots à la fin des mots actuels ou les remplacer.",
+      "p2": "La première ligne contient les noms de colonnes. input (texte à saisir) et display (mot affiché) sont obligatoires ; annotation (note) est facultative. Vous pouvez importer des fichiers enregistrés en UTF-8, de 1 Mio et 1 000 mots au maximum.",
+      "p3": "« Exporter en CSV » écrit la saisie, l’affichage et la note de chaque mot dans un fichier CSV en UTF-8 (sans l’historique d’entraînement). Le fichier exporté peut être réimporté tel quel.",
+      "exampleLabel": "Exemple de fichier CSV",
+      "example": "input,display,annotation\nnoel,Noël,fête de fin d’année\nete,été,"
+    }
+  },
+  "records": {
+    "lead": "Quand vous terminez un entraînement, le résultat est enregistré automatiquement.",
+    "complete": {
+      "title": "Écran de fin",
+      "p1": "Affiche le temps, la précision et le nombre de caractères erronés, la vitesse, le nombre de mots et l’appareil.",
+      "p2": "La précision est la part de caractères corrects parmi ceux saisis. Les suppressions ne sont pas comptées, mais les caractères retapés après une correction le sont.",
+      "p3": "Quand vous battez votre record personnel, un badge et l’écart avec le record précédent s’affichent.",
+      "p4": "« Encore » (<keys>Enter</keys>) relance aussitôt la même liste. Si l’enregistrement échoue, appuyez sur « Réessayer l’enregistrement »."
+    },
+    "history": {
+      "title": "Historique",
+      "p1": "L’<records>Historique</records> affiche vos entraînements par date, du plus récent au plus ancien, et peut être filtré par liste ou par appareil. Les filtres sont conservés dans l’URL : vous pouvez rouvrir le même affichage depuis un favori ou un lien.",
+      "p2": "Avec un filtre par liste, le nombre d’entraînements et le meilleur résultat de cette liste s’affichent, et « S’entraîner » permet de commencer tout de suite.",
+      "p3": "Le meilleur résultat de chaque liste porte la mention « Meilleur ». Si vous supprimez un meilleur résultat, la confirmation indique celui qui deviendra le meilleur."
+    },
+    "best": {
+      "title": "Meilleurs résultats",
+      "p1": "Choisissez une liste dans <rankings>Meilleurs résultats</rankings> pour voir votre record personnel, la moyenne de vos 5 derniers essais, l’évolution de votre temps et vos meilleurs résultats.",
+      "p2": "Le classement peut basculer entre « Précision d’abord » (précision la plus élevée, puis le plus rapide) et « Vitesse d’abord », et être filtré par appareil. La liste et les options choisies sont conservées dans l’URL.",
+      "p3": "L’écran d’entraînement affiche aussi les 5 meilleurs résultats de la liste choisie et met en évidence le dernier."
+    },
+    "wordCount": {
+      "title": "Si le nombre de mots change",
+      "p1": "Après l’ajout ou la suppression de mots dans une liste, seuls les résultats obtenus avec le nombre de mots actuel sont classés. Les meilleurs résultats de l’écran d’entraînement et de l’historique suivent la même règle.",
+      "p2": "Les résultats avec un nombre de mots différent peuvent être ajoutés au classement avec « Inclure » dans Meilleurs résultats. S’il n’existe encore aucun résultat avec le nombre de mots actuel, ce sont les résultats avec un nombre de mots différent qui sont classés."
+    },
+    "home": {
+      "title": "Accueil",
+      "text": "Dès que vous avez au moins un résultat, l’<home>Accueil</home> affiche le nombre d’entraînements de la semaine, votre série de jours consécutifs, la précision moyenne et le temps d’entraînement, la liste à travailler ensuite, ainsi que l’évolution des secondes par mot et de la précision pour chaque liste. Les jours suivent l’horloge de votre appareil, et les semaines commencent le lundi."
+    }
+  },
+  "devices": {
+    "lead": "Enregistrez dans <devices>Appareils</devices> les ordinateurs et claviers que vous utilisez pour vous entraîner : vos résultats indiqueront l’appareil utilisé.",
+    "p1": "L’appareil choisi avec « Appareil » sur l’écran d’entraînement est mémorisé dans ce navigateur et réutilisé lors des entraînements suivants.",
+    "p2": "Vous pouvez filtrer l’historique et les meilleurs résultats par appareil.",
+    "p3": "Si vous renommez un appareil, les résultats précédents gardent le nom qu’il avait au moment de l’entraînement. Vous pouvez enregistrer jusqu’à 100 appareils."
+  },
+  "storage": {
+    "lead": "La connexion est facultative. L’emplacement de vos données dépend de votre connexion.",
+    "browser": {
+      "title": "Enregistré dans ce navigateur",
+      "when": "Quand vous n’êtes pas connecté",
+      "p1": "Toutes les fonctionnalités sont disponibles.",
+      "p2": "Les données sont enregistrées dans le LocalStorage de ce navigateur et ne sont pas synchronisées avec d’autres appareils ou navigateurs."
+    },
+    "account": {
+      "title": "Enregistré sur votre compte",
+      "when": "Quand vous êtes connecté avec GitHub",
+      "p1": "Les données sont enregistrées sur un serveur dédié à votre compte : une fois connecté, vous retrouvez les mêmes données sur tous vos appareils.",
+      "p2": "L’enregistrement nécessite une connexion Internet."
+    },
+    "warning": {
+      "title": "Quand les données sont perdues",
+      "p1": "Les données enregistrées dans ce navigateur sont effacées si vous supprimez les données de site du navigateur. Vous pouvez sauvegarder vos listes importantes avec « Exporter en CSV ».",
+      "p2": "La suppression d’une liste supprime aussi son historique d’entraînement."
+    },
+    "notes": {
+      "p1": "Les deux emplacements conservent leurs données séparément, et rien n’est transféré automatiquement lors de la connexion.",
+      "p2": "Les données d’une version antérieure (v0.1.x) peuvent être ajoutées à l’emplacement actuel avec le bouton de migration de l’<home>Accueil</home>.",
+      "p3": "Si l’enregistrement échoue parce que des modifications ont été faites dans plusieurs fenêtres en même temps, chargez les données les plus récentes puis réessayez."
+    }
+  },
+  "shortcuts": {
+    "lead": "Les touches utilisables sans la souris.",
+    "anyKey": "N’importe quelle touche",
+    "screens": {
+      "practice": "S’entraîner",
+      "complete": "Écran de fin d’entraînement",
+      "editor": "Créer une liste / Modifier une liste de mots"
+    },
+    "actions": {
+      "back": "Revenir d’un caractère",
+      "restart": "Recommencer depuis le début",
+      "resume": "Reprendre la saisie après avoir cliqué hors du champ",
+      "again": "S’entraîner à nouveau",
+      "next": "Passer au mot suivant (ajoute une ligne sur le dernier mot)",
+      "move": "Déplacer un mot vers le haut ou le bas",
+      "save": "Enregistrer (⌘ + Enter sur Mac)"
+    }
+  },
+  "cta": {
+    "text": "Prêt ? Lancez-vous dès maintenant.",
+    "action": "Commencer l’entraînement"
+  }
+}
