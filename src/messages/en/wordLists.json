@@ -119,7 +119,7 @@
     "wordTotal": "· {count, plural, one {# word} other {# words}}",
     "save": "Save",
     "discardTitle": "You have unsaved changes",
-    "discardDescription": "If you go back now, your changes will be lost.",
+    "discardDescription": "If you leave now, your changes will be lost.",
     "keepEditing": "Keep editing",
     "discard": "Discard and leave"
   },

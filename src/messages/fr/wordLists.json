@@ -119,7 +119,7 @@
     "wordTotal": "· {count, plural, one {# mot} other {# mots}}",
     "save": "Enregistrer",
     "discardTitle": "Vous avez des modifications non enregistrées",
-    "discardDescription": "Si vous revenez en arrière maintenant, vos saisies seront perdues.",
+    "discardDescription": "Si vous quittez cette page maintenant, vos saisies seront perdues.",
     "keepEditing": "Continuer à modifier",
     "discard": "Abandonner et quitter"
   },
