@@ -1,0 +1,27 @@
+{
+  "loading": "載入中…",
+  "close": "關閉",
+  "notifications": "通知",
+  "closeNotification": "關閉通知",
+  "delete": {
+    "label": "刪除",
+    "title": "確定要刪除嗎？",
+    "description": "{description} 此操作無法復原。",
+    "confirm": "刪除",
+    "deleting": "正在刪除…",
+    "failed": "無法刪除。請再試一次。"
+  },
+  "storage": {
+    "guest": "儲存在此瀏覽器",
+    "account": "儲存至帳號",
+    "guestDetail": "由於尚未登入，資料會儲存在此瀏覽器的 LocalStorage 中。",
+    "accountDetail": "儲存至目前登入的帳號。"
+  },
+  "form": {
+    "cancel": "取消",
+    "saving": "正在儲存…",
+    "save": "儲存變更",
+    "add": "新增",
+    "saveFailed": "無法儲存。請再試一次。"
+  }
+}

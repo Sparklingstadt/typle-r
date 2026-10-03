@@ -1,0 +1,66 @@
+{
+  "title": "練習の状況",
+  "sourceGuest": "このブラウザーに保存された記録から集計しています。",
+  "sourceAccount": "アカウントに保存された記録から集計しています。",
+  "start": "はじめる",
+  "practice": "練習する",
+  "create": "リストを作成",
+  "week": {
+    "title": "今週のまとめ",
+    "description": "{start}〜{end}の記録です。増減は、先週の同じ曜日・時刻までの記録と比べています。",
+    "count": "今週の練習",
+    "countUnit": "{count, plural, other {回}}",
+    "streak": "連続練習",
+    "streakUnit": "{count, plural, other {日}}",
+    "accuracy": "平均正確率（直近{count}回）",
+    "time": "今週の練習時間",
+    "practisedToday": "今日も練習済み",
+    "streakNext": "今日練習すると{day}日目",
+    "noComparison": "比べる記録がまだありません",
+    "noAccuracy": "正確率のある記録がありません",
+    "times": "{count}回",
+    "sameAsLastWeek": "先週と同じ",
+    "moreThanLastWeek": "先週より {value}多い",
+    "lessThanLastWeek": "先週より {value}少ない"
+  },
+  "change": {
+    "same": "{recent, select, none {} latest {最新の記録は、} other {直近{recentCount}回の平均は、}}{previous, select, latest {その前の記録} other {その前の{previousCount}回}}と同じ",
+    "different": "{recent, select, none {} latest {最新の記録は、} other {直近{recentCount}回の平均は、}}{previous, select, latest {その前の記録} other {その前の{previousCount}回}}より {difference}",
+    "seconds": "{direction, select, up {{value} 秒遅い} other {{value} 秒速い}}",
+    "points": "{direction, select, up {+{value}pt} other {−{value}pt}}"
+  },
+  "next": {
+    "title": "次に練習するリスト",
+    "description": "まだ練習していないリスト、{days}日以上練習していないリスト、直近の正確率が{accuracy}%未満のリストを最大3件表示します。",
+    "allPractised": "どのリストも最近練習できています。",
+    "words": "{count} 単語",
+    "lastPracticed": "最終練習 {day}",
+    "noRecords": "記録なし",
+    "new": "まだ練習していません",
+    "stale": "{days}日間練習していません",
+    "lowAccuracy": "直近{count}回の正確率 {accuracy}%",
+    "practiceList": "{name} を練習する",
+    "practice": "練習する"
+  },
+  "trends": {
+    "title": "リスト別の推移",
+    "description": "1単語あたりの秒数（低いほど速い）と正確率を、直近20回まで表示します。所要時間を単語数で割っているので、リストを編集した前後でも比べられます。",
+    "summary": "{count}回 · 最終練習 {day}",
+    "needTwo": "記録が2回以上になると推移を表示します。",
+    "practiceList": "{name} を練習する",
+    "practice": "練習する",
+    "speed": "1単語あたりの秒数",
+    "accuracy": "正確率",
+    "seconds": "{value} 秒",
+    "percent": "{value}%",
+    "latest": "最新 <number>{value}</number>",
+    "noChart": "この項目のある記録が2回以上になると表示します。",
+    "best": "ベスト記録：正確率 {accuracy}・{time} 秒（{day}）",
+    "notRecorded": "未記録"
+  },
+  "chart": {
+    "label": "{label}（左右キーで各回の値を表示）",
+    "date": "日時",
+    "value": "値"
+  }
+}

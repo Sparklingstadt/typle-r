@@ -1,20 +1,25 @@
 "use client"
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import { useTranslations } from 'next-intl'
+import { useErrorText } from '@/i18n/useErrorText'
+import { AppError, type ErrorKey } from './appError'
 import { GUEST_ACCOUNT_ID, GUEST_STORAGE_KEY, readGuestWorkspace, saveGuestWorkspace } from './guestWorkspace'
 import samples from '@/json/WordListsResponse.json'
 import countries from '@/json/Countries.json'
 
 import type { PracticeDevice } from './devices'
 import { useSelectedProfile } from './profileSelection'
-import { DEFAULT_PROFILE_ID, type ProfileDraft, type ProfileSummary } from './profiles'
+import { DEFAULT_PROFILE_ID, DEFAULT_PROFILE_NAME, type ProfileDraft, type ProfileSummary } from './profiles'
 import { type SavedWordList } from './wordLists'
 import { readWorkspace, writeWorkspace, WorkspaceError, type WorkspaceState, type WorkspaceWrite } from './workspaceClient'
 
 const defaults: SavedWordList[] = [...samples.map((list, index) => ({ ...list, id: `sample-${index + 1}`, records: [] })), countries]
 
 type Change = Omit<WorkspaceWrite, 'revision' | 'accountId'>
+// The error is kept as caught and turned into text while rendering, so it follows a change of language.
+type Failure = { reason: unknown; fallback: ErrorKey } | null
 
 // One workspace state for the whole app, so the profile switcher and the page share the same data and saves.
 function useWorkspace() {
@@ -26,7 +31,10 @@ function useWorkspace() {
   const [lists, setLists] = useState<SavedWordList[]>([])
   const [profiles, setProfiles] = useState<ProfileSummary[]>([])
   const [ready, setReady] = useState(false)
-  const [error, setError] = useState('')
+  const [failure, setFailure] = useState<Failure>(null)
+  const t = useTranslations('errors')
+  const tProfiles = useTranslations('profiles')
+  const errorText = useErrorText()
   const [saving, setSaving] = useState(false)
   const key = accountId && `${accountId}\n${profileId}`
   const [identity, setIdentity] = useState(key)
@@ -38,7 +46,7 @@ function useWorkspace() {
     setDevices([])
     setProfiles([])
     setReady(false)
-    setError('')
+    setFailure(null)
   }
   const state = useRef<WorkspaceState | null>(null)
   const busy = useRef(false)
@@ -55,7 +63,7 @@ function useWorkspace() {
     if (!accountId) return
     const currentGeneration = generation.current
     const data = accountId === GUEST_ACCOUNT_ID ? readGuestWorkspace(localStorage, profileId) : await readWorkspace(profileId)
-    if (data.accountId !== accountId || currentGeneration !== generation.current) throw new Error('ログイン状態が変わりました。画面を開き直してください。')
+    if (data.accountId !== accountId || currentGeneration !== generation.current) throw new AppError('accountChangedReopen')
     // The chosen profile was deleted on another screen: switching reloads the first profile.
     if (data.profileId !== profileId) { chooseProfile(data.profileId); return null }
     if (accountId !== GUEST_ACCOUNT_ID && state.current && state.current.revision > data.revision) return state.current
@@ -74,9 +82,9 @@ function useWorkspace() {
       if (busy.current) return
       load().then(data => {
         // null: switching to another profile, which loads again.
-        if (active && data !== null) { setError(''); setReady(true) }
+        if (active && data !== null) { setFailure(null); setReady(true) }
       }).catch(reason => {
-        if (active) { setError(reason instanceof Error ? reason.message : '読み込みに失敗しました。'); setReady(true) }
+        if (active) { setFailure({ reason, fallback: 'loadFailed' }); setReady(true) }
       })
     }
     const reload = () => refresh.current()
@@ -107,16 +115,16 @@ function useWorkspace() {
       const request = change(previous, () => previous.revision === 0 && useDefaults ? defaults : previous.lists)
       const write = accountId === GUEST_ACCOUNT_ID ? saveGuestWorkspace : writeWorkspace
       const data = await write({ ...request, revision: previous.revision, accountId })
-      if (currentGeneration !== generation.current || data.accountId !== accountId) throw new Error('ログイン状態が変わりました。')
+      if (currentGeneration !== generation.current || data.accountId !== accountId) throw new AppError('accountChanged')
       if (data.profileId !== profileId) chooseProfile(data.profileId)
-      else { show(data); setError('') }
+      else { show(data); setFailure(null) }
       return true
     } catch (reason) {
       if (reason instanceof WorkspaceError && reason.status === 409 && currentGeneration === generation.current) {
         try { await load() } catch (refreshError) { reason = refreshError }
       }
       if (currentGeneration !== generation.current) return false
-      setError(reason instanceof Error ? reason.message : '保存に失敗しました。もう一度お試しください。')
+      setFailure({ reason, fallback: 'saveFailed' })
       return false
     } finally { if (currentGeneration === generation.current) { busy.current = false; setSaving(false) } }
   }
@@ -136,14 +144,20 @@ function useWorkspace() {
     })
   }
 
+  // The first profile keeps its stored initial name until renamed; it is shown in the reader's language.
+  const shownProfiles = useMemo(() => profiles.map(profile => profile.id === DEFAULT_PROFILE_ID && profile.name === DEFAULT_PROFILE_NAME
+    ? { ...profile, name: tProfiles('defaultName') } : profile), [profiles, tProfiles])
   const loaded = status !== 'loading' && ready
+  const error = failure ? errorText(failure.reason, t(failure.fallback)) : ''
+  /** Which error is shown, for screens that place some errors next to a field. */
+  const errorKey = failure?.reason instanceof AppError ? failure.reason.key : null
   return {
-    lists, devices, accountId, profiles, profileId,
-    profile: profiles.find(profile => profile.id === profileId),
+    lists, devices, accountId, profiles: shownProfiles, profileId,
+    profile: shownProfiles.find(profile => profile.id === profileId),
     selectProfile: (id: string) => { if (!busy.current) chooseProfile(id) },
     updateProfiles,
     updateDevices: (change: (current: PracticeDevice[]) => PracticeDevice[]) => update(current => current, true, change),
-    ready: loaded, error, saving, update, reload: load,
+    ready: loaded, error, errorKey, saving, update, reload: load,
   }
 }
 

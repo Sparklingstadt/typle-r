@@ -11,16 +11,16 @@ const list = { id: 'l', name: 'Local', createdAt: '2026-10-01', words: [{ displa
 const profiles = [{ id: 'default', name: 'メイン' }, { id: 'zh', name: '中国語' }]
 
 test('profile names are required, unique ignoring case and limited in number', () => {
-  assert.deepEqual(profileProblem(profiles, { id: 'ko', name: '  ' }, false), { field: 'name', message: 'プロファイル名を入力してください。' })
-  assert.match(profileProblem(profiles, { id: 'ko', name: ' メイン ' }, false).message, /「メイン」はすでにあります/)
+  assert.deepEqual(profileProblem(profiles, { id: 'ko', name: '  ' }, false), { field: 'name', key: 'profileNameRequired' })
+  assert.deepEqual(profileProblem(profiles, { id: 'ko', name: ' メイン ' }, false), { field: 'name', key: 'profileNameDuplicate', values: { name: 'メイン' } })
   assert.equal(profileProblem(profiles, { id: 'zh', name: '中国語' }, true), null)
   assert.equal(profileProblem(profiles, { id: 'gone', name: 'x' }, true).field, 'form')
   const many = Array.from({ length: 10 }, (_, index) => ({ id: index ? `p${index}` : 'default', name: `P${index}` }))
-  assert.match(profileProblem(many, { id: 'new', name: 'new' }, false).message, /10個まで/)
+  assert.deepEqual(profileProblem(many, { id: 'new', name: 'new' }, false), { field: 'form', key: 'profileLimit', values: { max: 10 } })
   assert.deepEqual(saveProfile(profiles, { id: 'ko', name: ' 韓国語 ' }, false).map(profile => profile.name), ['メイン', '中国語', '韓国語'])
   assert.deepEqual(saveProfile(profiles, { id: 'default', name: '通常' }, true)[0], { id: 'default', name: '通常' })
   assert.deepEqual(removeProfile(profiles, 'zh'), [profiles[0]])
-  assert.throws(() => removeProfile(profiles, 'default'), /最初のプロファイル/)
+  assert.throws(() => removeProfile(profiles, 'default'), { key: 'profileFirstUndeletable' })
 })
 
 test('stored profiles default to one first profile and reject broken data', () => {

@@ -1,0 +1,117 @@
+{
+  "title": "最佳紀錄",
+  "intro": "每個單字清單的個人最佳。選擇清單後，會顯示前幾名的紀錄與用時的變化趨勢。",
+  "reload": "重新載入",
+  "filter": {
+    "device": "裝置",
+    "allDevices": "所有裝置",
+    "deleted": "{name}（已刪除）"
+  },
+  "order": {
+    "label": "排名依據",
+    "accuracy": "正確率<wide>優先</wide>",
+    "speed": "速度<wide>優先</wide>"
+  },
+  "orderNotes": {
+    "accuracy": "依正確率由高到低，正確率相同時依速度由快到慢",
+    "speed": "依速度由快到慢，用時相同時依正確率由高到低"
+  },
+  "lists": "單字清單",
+  "empty": {
+    "title": "還沒有最佳紀錄",
+    "description": "把單字清單輸入到最後，各清單的個人最佳、前幾名紀錄與用時趨勢就會顯示在這裡。",
+    "practice": "開始練習",
+    "create": "建立單字清單"
+  },
+  "list": {
+    "search": "搜尋清單",
+    "clearSearch": "清除搜尋",
+    "noDeviceRecords": "此裝置沒有紀錄的清單（{count}）",
+    "noRecords": "還沒有紀錄的清單（{count}）",
+    "words": "{count, plural, other {# 個單字}}",
+    "noMatch": "沒有與「{query}」相符的清單。",
+    "lastPracticed": "最近練習",
+    "best": "個人最佳",
+    "improved": "刷新",
+    "improvedTitle": "最近 {days} 天內刷新了個人最佳",
+    "runs": "{count, plural, other {# 次}}",
+    "sortLabel": "排序：{sort}",
+    "sorts": {
+      "recent": "依最近練習",
+      "name": "依名稱",
+      "count": "依紀錄數"
+    }
+  },
+  "detail": {
+    "back": "清單一覽",
+    "words": "{count, plural, other {# 個單字}}",
+    "records": "紀錄 {count, plural, other {# 次}}",
+    "lastPracticed": "最近練習 {day}",
+    "viewRecords": "查看紀錄",
+    "practice": "練習此清單",
+    "notPractised": {
+      "title": "還沒有練習",
+      "description": "輸入到最後後，此清單的個人最佳與前幾名紀錄會顯示在這裡。"
+    },
+    "noDeviceRecords": {
+      "title": "沒有在「{device}」上練習的紀錄",
+      "description": "此清單在其他裝置上有 {count, number} 筆紀錄。",
+      "showAll": "顯示所有裝置的紀錄"
+    },
+    "top": {
+      "title": "前幾名紀錄",
+      "accuracy": "正確率優先",
+      "speed": "速度優先",
+      "shown": "{shown, number} / {total, number} 筆",
+      "showTop": "僅顯示前 {count, number} 筆",
+      "showAll": "全部顯示（{count, number} 筆）",
+      "oldAccuracy": "正確率為「—」的紀錄是開始記錄正確率之前的舊紀錄。依正確率排名時會排在最後。"
+    },
+    "stats": {
+      "best": "個人最佳",
+      "bestNote": "{accuracy} · {day}",
+      "noAccuracy": "無正確率",
+      "recentAverage": "最近 {count} 次平均",
+      "gap": "與最佳相差 +{value} 秒",
+      "sameAsBest": "與最佳相同",
+      "averageAccuracy": "平均正確率",
+      "recentRuns": "最近 {count} 次",
+      "runs": "練習次數",
+      "runsValue": "{count}<unit>次</unit>",
+      "allWordCounts": "所有單字數",
+      "currentWords": "目前 {count} 個單字的練習"
+    },
+    "trend": {
+      "title": "用時趨勢",
+      "recent": "最近 {count} 次",
+      "label": "{name} 的用時趨勢",
+      "needTwo": "練習 2 次以上後顯示趨勢。"
+    },
+    "others": {
+      "old": "沒有單字數的舊紀錄 {count, number} 筆",
+      "words": "{words} 個單字的紀錄 {count, number} 筆",
+      "separator": "、",
+      "fallback": "由於沒有目前 {count} 個單字的練習紀錄，依單字數不同的紀錄（{detail}）進行排名。",
+      "included": "已包含單字數與目前不同的紀錄（{detail}）。單字數不同時，用時無法直接比較。",
+      "excluded": "<strong>單字數與目前不同的 {count} 筆紀錄未列入排名。</strong>例如編輯清單之前的紀錄（{detail}）。",
+      "exclude": "不包含",
+      "include": "包含並顯示"
+    }
+  },
+  "top": {
+    "label": "{name} 的前幾名紀錄",
+    "rank": "名次",
+    "time": "用時",
+    "accuracy": "正確率",
+    "mistakes": "錯誤",
+    "device": "裝置",
+    "date": "日期時間",
+    "rankNumber": "第 {rank} 名",
+    "deleted": "已刪除",
+    "deletedSuffix": "（已刪除）",
+    "otherWords": "單字數與目前不同的紀錄",
+    "words": "{count, plural, other {# 個單字}}",
+    "unknownWords": "? 個單字",
+    "oldAccuracy": "開始記錄正確率之前的舊紀錄"
+  }
+}

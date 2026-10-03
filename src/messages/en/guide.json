@@ -1,0 +1,193 @@
+{
+  "meta": {
+    "title": "How to use | Typle",
+    "description": "How to start practicing in Typle, create word lists, read your records, where your data is saved, and keyboard shortcuts."
+  },
+  "title": "How to use",
+  "intro": "Everything from getting started with practice to creating word lists, reading your records, and where your data is saved. All features work without signing in.",
+  "contentsLabel": "On this page",
+  "contents": {
+    "practice": "Practice",
+    "lists": "Create word lists",
+    "records": "Results and records",
+    "devices": "Register devices",
+    "storage": "Storage and data",
+    "shortcuts": "Keyboard shortcuts"
+  },
+  "start": {
+    "title": "Get started in 3 steps",
+    "sample": {
+      "title": "Practice with a sample",
+      "text": "A sample list is included, so you can start right away. Just type the words shown on screen.",
+      "action": "Practice"
+    },
+    "create": {
+      "title": "Make your own list",
+      "text": "Add the words you want to learn. You can also import them from a CSV or TSV file.",
+      "action": "Create a list"
+    },
+    "review": {
+      "title": "Review your records",
+      "text": "When you finish a list, your record is saved automatically, so you can check your personal best and how your time changes.",
+      "action": "Best records"
+    }
+  },
+  "legend": {
+    "typed": "Typed: <mono>{typed}</mono>",
+    "swatch": "a",
+    "done": {
+      "label": "Typed",
+      "note": "(green)"
+    },
+    "current": {
+      "label": "Next character",
+      "note": "(underlined)"
+    },
+    "pending": {
+      "label": "Not typed yet",
+      "note": "(gray)"
+    },
+    "error": {
+      "label": "From the wrong character on",
+      "note": "(red)"
+    }
+  },
+  "practice": {
+    "lead": "Choose a word list in <play>Practice</play> and type the words shown.",
+    "colors": {
+      "title": "Input colors",
+      "text": "If you type a wrong character, everything from that position on turns red, and the input field shows at which character the mismatch starts. Fix it with <keys>Backspace</keys>. For words whose displayed text differs from what you type (for example, typing “cafe” for “café”), the characters to type appear below the word and are colored instead."
+    },
+    "flow": {
+      "title": "How practice works",
+      "p1": "When every character matches, you move on to the next word. The practice ends after the last word.",
+      "p2": "Time is measured from your first keystroke until you finish. While you practice, the elapsed time, speed (correct characters per minute), accuracy, and number of mistakes are shown.",
+      "p3": "Text typed with an IME (such as Japanese) is checked once it is confirmed; characters still being converted are not checked. Pasting and drag-and-drop input are disabled.",
+      "p4": "The next 3 words appear below the progress bar, and “Show all words” lets you see the whole list."
+    },
+    "choose": {
+      "title": "Choosing a list and device",
+      "p1": "Click the list name at the top to search for and switch lists. You can also pick one from the list on the right (below on smartphones).",
+      "p2": "If you choose another list in the middle of a practice, you are asked to confirm before stopping. An unfinished practice is not recorded.",
+      "p3": "“Start over” or <keys>Esc</keys> starts the same list over from the beginning.",
+      "p4": "Use “Device” at the top to choose the device you are practicing on before typing the first character (<devicesSection>Register devices</devicesSection>)."
+    }
+  },
+  "lists": {
+    "lead": "Create a new list in <create>Create a list</create>, and edit saved lists in <edit>Word lists</edit>.",
+    "input": {
+      "title": "Entering words",
+      "p1": "Enter a list name and, for each word, the “Word to display” and the “Text to type”. The note is optional.",
+      "p2": "If you leave the characters to type empty, the displayed word is typed as is.",
+      "p3": "Reorder words by dragging, from the “…” menu, or with <keys>Alt+↑↓</keys>. <keys>Enter</keys> moves to the next word, and adds a new row on the last word.",
+      "p4": "Save with “Save” or <keys>Ctrl+Enter</keys> (<keys>⌘+Enter</keys> on Mac)."
+    },
+    "cannotSave": {
+      "title": "When a list cannot be saved",
+      "p1": "Lists with empty rows, lists without words, and lists with the same name as another list cannot be saved.",
+      "p2": "A list can hold up to 1,000 words, and you can save up to 100 lists.",
+      "p3": "If you have unsaved changes, you are asked to confirm before canceling or going back in the browser.",
+      "p4": "If you change the number of words, earlier records drop out of the best-record rankings (the records themselves are kept; see <wordCount>When the word count changes</wordCount>)."
+    },
+    "manage": {
+      "title": "Managing lists",
+      "p1": "In <edit>Word lists</edit>, you can search by list name or word and change the sort order.",
+      "p2": "From each list’s “Practice” and “Edit” buttons and its “…” menu, you can open its best records and practice history, export it to CSV, duplicate it, or delete it.",
+      "p3": "Duplicating copies only the words, not the practice history."
+    },
+    "csv": {
+      "title": "CSV and TSV files",
+      "p1": "While editing a list, choose a file with “Import CSV/TSV”. After reviewing its contents, you can add the words to the end of the current ones or replace them.",
+      "p2": "The first row holds the column names. input (characters to type) and display (word to display) are required; annotation (note) is optional. You can import UTF-8 files of up to 1 MiB and 1,000 words.",
+      "p3": "“Export CSV” writes each word’s input, display text, and note to a UTF-8 CSV file (practice history is not included). Exported files can be imported as they are.",
+      "exampleLabel": "Example CSV file",
+      "example": "input,display,annotation\ncafe,café,coffee shop\nnaive,naïve,"
+    }
+  },
+  "records": {
+    "lead": "When you finish a practice, the record is saved automatically.",
+    "complete": {
+      "title": "Completion screen",
+      "p1": "Shows the time, accuracy and number of mistyped characters, speed, number of words, and device.",
+      "p2": "Accuracy is the share of typed characters that were correct. Deletions are not counted, but characters you retype after a correction are.",
+      "p3": "When you beat your personal best, a badge and the difference from your previous best are shown.",
+      "p4": "“Again” (<keys>Enter</keys>) lets you practice the same list right away. If saving fails, press “Try saving again”."
+    },
+    "history": {
+      "title": "Practice history",
+      "p1": "<records>Practice history</records> lists your practices by date, newest first, and can be filtered by list or device. Filters are kept in the URL, so you can open the same view from a bookmark or link.",
+      "p2": "When filtered by a list, it shows how many times you have practiced that list and your best, and you can start practicing right away with “Practice”.",
+      "p3": "The best record of each list is marked “Best”. When you delete a best, the confirmation shows which record will become the next best."
+    },
+    "best": {
+      "title": "Best records",
+      "p1": "Choose a list in <rankings>Best records</rankings> to see your personal best, the average of your last 5 runs, how your time has changed, and your top records.",
+      "p2": "You can switch the ranking between “Accuracy first” (highest accuracy first, then fastest) and “Speed first”, and filter it by device. The selected list and options are kept in the URL.",
+      "p3": "The practice screen also shows the top 5 records for the selected list and highlights your latest one."
+    },
+    "wordCount": {
+      "title": "When the word count changes",
+      "p1": "After you add or remove words in a list, only records practiced with the current number of words are ranked. The bests on the practice screen and in practice history follow the same rule.",
+      "p2": "Records with a different word count can be added to the ranking with “Include” in Best records. If there are no records with the current word count yet, records with a different word count are ranked."
+    },
+    "home": {
+      "title": "Home",
+      "text": "Once you have at least one record, <home>Home</home> shows this week’s practice count, your practice streak, average accuracy, and practice time, which list to practice next, and how seconds per word and accuracy have changed for each list. Days follow your device’s clock, and weeks start on Monday."
+    }
+  },
+  "devices": {
+    "lead": "Register the computers and keyboards you practice on in <devices>Devices</devices>, and your records will show which device you used.",
+    "p1": "The device you choose with “Device” on the practice screen is remembered in this browser and used for your next practice too.",
+    "p2": "You can filter practice history and best records by device.",
+    "p3": "Renaming a device does not change earlier records; they keep the name the device had when you practiced. You can register up to 100 devices."
+  },
+  "storage": {
+    "lead": "Signing in is optional. Where your data is saved depends on whether you are signed in.",
+    "browser": {
+      "title": "Saved in this browser",
+      "when": "When you are not signed in",
+      "p1": "All features are available.",
+      "p2": "Data is saved in this browser’s LocalStorage and is not synced with other devices or browsers."
+    },
+    "account": {
+      "title": "Saved to your account",
+      "when": "When you sign in with GitHub",
+      "p1": "Data is saved on a server dedicated to your account, so you can use the same data on any device you sign in on.",
+      "p2": "Saving requires an internet connection."
+    },
+    "warning": {
+      "title": "When data is lost",
+      "p1": "Data saved in this browser is deleted when you clear the browser’s site data. You can back up important lists with “Export CSV”.",
+      "p2": "Deleting a list also deletes its practice history.",
+      "p3": "Deleting a profile also deletes that profile’s word lists and practice records."
+    },
+    "notes": {
+      "p1": "The two storage locations keep their data separately, and nothing is moved automatically when you sign in.",
+      "profiles": "With separate <profiles>profiles</profiles>, you can keep word lists and practice records apart for each goal, such as everyday practice, Chinese or Korean. Devices are shared by all profiles. Switch profiles at the top of the sidebar; each browser remembers its choice.",
+      "p2": "Data from an earlier version (v0.1.x) can be added to the current storage location with the migration button on <home>Home</home>.",
+      "p3": "If saving fails because changes were made in several windows at once, load the latest data and try again."
+    }
+  },
+  "shortcuts": {
+    "lead": "Keys you can use instead of the mouse.",
+    "anyKey": "Any key",
+    "screens": {
+      "practice": "Practice",
+      "complete": "Practice complete screen",
+      "editor": "Create a list / Edit a word list"
+    },
+    "actions": {
+      "back": "Go back one character",
+      "restart": "Start over from the beginning",
+      "resume": "Return to typing after clicking outside the input field",
+      "again": "Practice again",
+      "next": "Move to the next word (adds a row on the last word)",
+      "move": "Move a word up or down",
+      "save": "Save (⌘ + Enter on Mac)"
+    }
+  },
+  "cta": {
+    "text": "Ready? Let’s start practicing.",
+    "action": "Start practicing"
+  }
+}

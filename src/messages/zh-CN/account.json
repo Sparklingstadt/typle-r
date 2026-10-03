@@ -1,0 +1,17 @@
+{
+  "checking": "正在确认登录状态",
+  "signIn": "登录",
+  "signInWithGitHub": "使用 GitHub 登录",
+  "githubUser": "GitHub 用户",
+  "menu": "账号菜单",
+  "signedInWithGitHub": "已通过 GitHub 登录",
+  "manageProfiles": "管理个人资料",
+  "manageDevices": "管理设备",
+  "signOut": "退出登录",
+  "localLogin": {
+    "title": "在这台 Mac 上使用 Typle",
+    "description": "可以用 193 个国家的国名开始练习。列表和练习记录保存在这台 Mac 专用的数据库中。",
+    "start": "开始练习",
+    "failed": "无法登录。请重试。"
+  }
+}

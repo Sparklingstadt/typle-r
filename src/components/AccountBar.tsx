@@ -1,5 +1,6 @@
 "use client"
 import { signIn, signOut, useSession } from 'next-auth/react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import Link from 'next/link'
@@ -19,15 +20,16 @@ function UserAvatar({ name, image, className }: { name: string; image?: string |
 
 export default function AccountBar() {
   const { data: session, status } = useSession()
+  const t = useTranslations('account')
   // Same size as the avatar button so the top bar does not shift once the session is known.
-  if (status === 'loading') return <div className="flex size-10 items-center justify-center"><Skeleton className="size-8 rounded-full" /><span className="sr-only">ログイン状態を確認中</span></div>
-  if (!session?.user) return <Button variant="outline" size="lg" className="gap-2 px-3" aria-label="GitHubでログイン" onClick={() => signIn('github')}>
-    <LogIn aria-hidden="true" /><span className="sm:hidden">ログイン</span><span className="hidden sm:inline">GitHubでログイン</span>
+  if (status === 'loading') return <div className="flex size-10 items-center justify-center"><Skeleton className="size-8 rounded-full" /><span className="sr-only">{t('checking')}</span></div>
+  if (!session?.user) return <Button variant="outline" size="lg" className="gap-2 px-3" aria-label={t('signInWithGitHub')} onClick={() => signIn('github')}>
+    <LogIn aria-hidden="true" /><span className="sm:hidden">{t('signIn')}</span><span className="hidden sm:inline">{t('signInWithGitHub')}</span>
   </Button>
-  const name = session.user.name ?? 'GitHubユーザー'
+  const name = session.user.name ?? t('githubUser')
   return <DropdownMenu.Root>
     <DropdownMenu.Trigger asChild>
-      <Button variant="ghost" size="icon" className="size-10 rounded-full" aria-label="アカウントメニュー" title={name}>
+      <Button variant="ghost" size="icon" className="size-10 rounded-full" aria-label={t('menu')} title={name}>
         <UserAvatar name={name} image={session.user.image} className="size-8" />
       </Button>
     </DropdownMenu.Trigger>
@@ -37,18 +39,18 @@ export default function AccountBar() {
           <UserAvatar name={name} image={session.user.image} className="size-9" />
           <span className="grid min-w-0">
             <span className="truncate text-sm font-medium">{name}</span>
-            <span className="text-xs text-muted-foreground">GitHubでログイン中</span>
+            <span className="text-xs text-muted-foreground">{t('signedInWithGitHub')}</span>
           </span>
         </DropdownMenu.Label>
         <DropdownMenu.Separator className="-mx-1 my-1 h-px bg-border" />
         <DropdownMenu.Item asChild className={itemClass}>
-          <Link href="/profiles"><UsersRound aria-hidden="true" />プロファイルを管理</Link>
+          <Link href="/profiles"><UsersRound aria-hidden="true" />{t('manageProfiles')}</Link>
         </DropdownMenu.Item>
         <DropdownMenu.Item asChild className={itemClass}>
-          <Link href="/devices"><Monitor aria-hidden="true" />端末を管理</Link>
+          <Link href="/devices"><Monitor aria-hidden="true" />{t('manageDevices')}</Link>
         </DropdownMenu.Item>
         <DropdownMenu.Item className={itemClass} onSelect={() => { void signOut({ callbackUrl: '/home' }) }}>
-          <LogOut aria-hidden="true" />ログアウト
+          <LogOut aria-hidden="true" />{t('signOut')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu.Portal>

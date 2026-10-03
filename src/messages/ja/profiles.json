@@ -1,0 +1,49 @@
+{
+  "title": "プロファイル",
+  "defaultName": "メイン",
+  "description": "通常の練習、中国語、韓国語のように目的ごとにプロファイルを分けると、単語リストと練習記録を別々に保存できます。<link>端末</link>はすべてのプロファイルで共通です。",
+  "counts": {
+    "lists": "単語リスト {count, number}件",
+    "records": "練習 {count, number}回"
+  },
+  "added": "プロファイル「{name}」を追加しました。",
+  "addedAndSwitched": "プロファイル「{name}」を追加して切り替えました。",
+  "renamed": "プロファイル名を「{name}」に変更しました。",
+  "switched": "プロファイル「{name}」に切り替えました。",
+  "deleted": "プロファイル「{name}」を削除しました。",
+  "listHeading": "プロファイル一覧",
+  "limitDetail": "{max}個まで作成できます",
+  "add": "プロファイルを追加",
+  "limit": "プロファイルは{max}個まで作成できます。使わなくなったプロファイルを削除すると追加できます。",
+  "inUse": "使用中",
+  "inUseDetail": "このブラウザーで表示しているプロファイルです",
+  "switch": "切り替える",
+  "switchLabel": "{name} に切り替える",
+  "rename": "名前を変更",
+  "renameLabel": "{name} の名前を変更",
+  "delete": "削除",
+  "deleteLabel": "{name} を削除",
+  "note": "使用中のプロファイルはブラウザーごとに覚えるので、パソコンごとに別のプロファイルを開いておけます。最初のプロファイル（{first}）は削除できません。",
+  "deleteTitle": "プロファイル「{name}」を削除しますか？",
+  "deleteDescription": "{removal}端末とほかのプロファイルは変わりません。{current, select, yes {このブラウザーは「{first}」に切り替わります。} other {}}",
+  "deleteRemoval": "プロファイル「{name}」と、その単語リスト{lists, number}件・練習記録{records, number}回を削除します。",
+  "dialog": {
+    "addTitle": "プロファイルを追加",
+    "renameTitle": "プロファイル名を変更",
+    "addDescription": "新しいプロファイルは、単語リストと練習記録が空の状態で始まります。",
+    "renameDescription": "単語リストと練習記録はそのまま残ります。",
+    "name": "プロファイル名",
+    "namePlaceholder": "例：中国語",
+    "nameHelp": "サイドバーの切り替えメニューに表示されます。練習の目的ごとに分けると便利です。",
+    "use": "追加したプロファイルに切り替える",
+    "useHelp": "切り替えはブラウザーごとに覚えます。"
+  },
+  "switcher": {
+    "loading": "プロファイルを読み込み中",
+    "label": "プロファイルを切り替え（現在：{name}）",
+    "caption": "プロファイル",
+    "unsaved": "編集中の単語リストを保存するかキャンセルすると切り替えられます",
+    "heading": "単語リストと記録を切り替え",
+    "manage": "プロファイルを管理"
+  }
+}

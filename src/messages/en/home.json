@@ -1,0 +1,14 @@
+{
+  "welcome": {
+    "title": "Typing practice with your own words.",
+    "text": "Start practicing with a sample, or create a list of the words you want to learn.",
+    "lists": "{count, plural, one {# word list} other {# word lists}}",
+    "practices": "{count, plural, one {# practice completed} other {# practices completed}}",
+    "navLabel": "Get started",
+    "play": "Practice",
+    "create": "Create a list",
+    "records": "View records"
+  },
+  "storage": "You can use every practice and editing feature without signing in. Word lists, practice history, and devices are saved in this browser. Signing in with GitHub switches to a separate storage location, your account, which syncs across devices. Data in the browser is not moved automatically.",
+  "links": "<guide>How to use</guide> / <about>About Typle</about>"
+}

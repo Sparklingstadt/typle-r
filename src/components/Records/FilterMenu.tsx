@@ -1,4 +1,5 @@
 "use client"
+import { useTranslations } from 'next-intl'
 import { DropdownMenu } from 'radix-ui'
 import { Check, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -16,13 +17,14 @@ export default function FilterMenu({ name, allLabel, value, options, onChange }:
   options: FilterOption[]
   onChange: (value: string | null) => void
 }) {
+  const t = useTranslations('records.filterMenu')
   const current = options.find(option => option.value === value)
   return <DropdownMenu.Root>
-    <DropdownMenu.Trigger aria-label={`${name}で絞り込む（現在：${current?.label ?? allLabel}）`}
+    <DropdownMenu.Trigger aria-label={t('label', { name, current: current?.label ?? allLabel })}
       className={cn('inline-flex h-9 max-w-full min-w-0 items-center gap-1.5 rounded-full border bg-background px-3.5 text-sm outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 aria-expanded:bg-muted dark:bg-input/30',
         current && 'border-foreground/25 bg-secondary font-medium dark:bg-secondary')}>
       <span className="shrink-0 text-muted-foreground">{name}</span>
-      <span className="truncate">{current?.label ?? 'すべて'}</span>
+      <span className="truncate">{current?.label ?? t('all')}</span>
       <ChevronDown className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
     </DropdownMenu.Trigger>
     <DropdownMenu.Portal>
@@ -32,7 +34,7 @@ export default function FilterMenu({ name, allLabel, value, options, onChange }:
             <DropdownMenu.RadioItem key={option.value} value={option.value} className={item}>
               <DropdownMenu.ItemIndicator className="absolute left-2.5 inline-flex"><Check className="size-4" aria-hidden="true" /></DropdownMenu.ItemIndicator>
               <span className="min-w-0 flex-1 truncate">{option.label}</span>
-              <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{option.count}回</span>
+              <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{t('count', { count: option.count })}</span>
             </DropdownMenu.RadioItem>)}
         </DropdownMenu.RadioGroup>
       </DropdownMenu.Content>

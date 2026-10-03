@@ -1,0 +1,66 @@
+{
+  "title": "Practice overview",
+  "sourceGuest": "Totals are based on the records saved in this browser.",
+  "sourceAccount": "Totals are based on the records saved to your account.",
+  "start": "Get started",
+  "practice": "Practice",
+  "create": "Create a list",
+  "week": {
+    "title": "This week",
+    "description": "Records from {start} to {end}. Changes are compared with last week up to the same day and time.",
+    "count": "Runs this week",
+    "countUnit": "{count, plural, one {run} other {runs}}",
+    "streak": "Streak",
+    "streakUnit": "{count, plural, one {day} other {days}}",
+    "accuracy": "{count, plural, one {Accuracy (latest run)} other {Average accuracy (last #)}}",
+    "time": "Practice time this week",
+    "practisedToday": "Practiced today",
+    "streakNext": "Practice today for day {day, number}",
+    "noComparison": "Nothing to compare with yet",
+    "noAccuracy": "No records with accuracy",
+    "times": "{count, plural, one {# run} other {# runs}}",
+    "sameAsLastWeek": "Same as last week",
+    "moreThanLastWeek": "{value} more than last week",
+    "lessThanLastWeek": "{value} less than last week"
+  },
+  "change": {
+    "same": "{recent, select, none {Same as } latest {Latest run: same as } other {Average of last {recentCount}: same as }}{previous, select, latest {the run before} other {the previous {previousCount}}}",
+    "different": "{recent, select, none {} latest {Latest run: } other {Average of last {recentCount}: }}{difference} vs. {previous, select, latest {the run before} other {the previous {previousCount}}}",
+    "seconds": "{direction, select, up {{value} s slower} other {{value} s faster}}",
+    "points": "{direction, select, up {+{value} pts} other {−{value} pts}}"
+  },
+  "next": {
+    "title": "Lists to practice next",
+    "description": "Shows up to 3 lists you have not practiced yet, have not practiced for {days} days or more, or with recent accuracy below {accuracy}%.",
+    "allPractised": "You have practiced every list recently.",
+    "words": "{count, plural, one {# word} other {# words}}",
+    "lastPracticed": "Last practiced {day}",
+    "noRecords": "No records",
+    "new": "Not practiced yet",
+    "stale": "{days, plural, one {Not practiced for # day} other {Not practiced for # days}}",
+    "lowAccuracy": "{count, plural, one {Latest accuracy {accuracy}%} other {Accuracy over last # runs: {accuracy}%}}",
+    "practiceList": "Practice {name}",
+    "practice": "Practice"
+  },
+  "trends": {
+    "title": "Trends by list",
+    "description": "Seconds per word (lower is faster) and accuracy for up to the last 20 runs. Time is divided by the number of words, so runs before and after editing a list can be compared.",
+    "summary": "{count, plural, one {# run} other {# runs}} · Last practiced {day}",
+    "needTwo": "The trend appears once there are at least two records.",
+    "practiceList": "Practice {name}",
+    "practice": "Practice",
+    "speed": "Seconds per word",
+    "accuracy": "Accuracy",
+    "seconds": "{value} s",
+    "percent": "{value}%",
+    "latest": "Latest <number>{value}</number>",
+    "noChart": "Shown once at least two records include this value.",
+    "best": "Best record: accuracy {accuracy} · {time} s ({day})",
+    "notRecorded": "not recorded"
+  },
+  "chart": {
+    "label": "{label} (use the arrow keys to read each run)",
+    "date": "Date",
+    "value": "Value"
+  }
+}

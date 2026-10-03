@@ -1,0 +1,80 @@
+{
+  "title": "練習記録",
+  "intro": "これまでの練習を新しい順に表示します。リストごとの上位は<rankings>ベスト記録</rankings>、推移は<home>ホーム</home>で見られます。",
+  "filter": {
+    "list": "リスト",
+    "allLists": "すべてのリスト",
+    "device": "端末",
+    "allDevices": "すべての端末",
+    "clear": "絞り込みを解除",
+    "count": "{count}件",
+    "filteredCount": "{count}件 / 全{total}件"
+  },
+  "filterMenu": {
+    "label": "{name}で絞り込む（現在：{current}）",
+    "all": "すべて",
+    "count": "{count}回"
+  },
+  "columns": {
+    "time": "時刻",
+    "deviceWords": "端末・単語数",
+    "listDevice": "リスト・端末",
+    "duration": "所要時間",
+    "accuracy": "正確率",
+    "perWord": "1語あたり",
+    "mistakes": "ミス"
+  },
+  "day": {
+    "heading": "{relative} · {date}",
+    "summary": "{count}回 · {duration}"
+  },
+  "more": "さらに表示（残り {count}件）",
+  "note": "単語数・端末名は練習した時点のものです。",
+  "noteMissing": "「—」は記録されていない項目です（以前のバージョンで保存した記録など）。",
+  "row": {
+    "best": "ベスト",
+    "bestTitle": "このリストのベスト記録（今の単語数の記録のうち、正確率の高い順、同率なら所要時間の短い順で1位）",
+    "words": "{count}語",
+    "seconds": "{value} 秒",
+    "duration": "所要時間",
+    "accuracy": "正確率",
+    "lowAccuracy": "正確率が{limit}%未満です",
+    "perWord": "1語あたり",
+    "perWordUnit": "秒/語",
+    "mistakes": "ミス",
+    "delete": "削除",
+    "deleteLabel": "{name}（{date} {time}）の記録を削除"
+  },
+  "delete": {
+    "title": "この練習記録を削除しますか？",
+    "description": "「{name}」の記録を1件削除します。",
+    "done": "「{name}」の練習記録（{date} {time}）を削除しました。",
+    "list": "リスト",
+    "when": "日時・端末",
+    "result": "結果",
+    "accuracy": "正確率 {value}",
+    "mistakes": "ミス {value}",
+    "bestNext": "このリストのベスト記録です。削除すると、ベストは {time}（{accuracy}）になります。",
+    "bestLast": "このリストのベスト記録です。削除すると、このリストの記録はなくなります。"
+  },
+  "empty": {
+    "title": "まだ練習記録がありません",
+    "description": "「練習する」でリストを最後まで入力すると、所要時間・正確率・ミス・使った端末がここに残ります。",
+    "practice": "練習する"
+  },
+  "filteredEmpty": {
+    "listTitle": "「{name}」の記録はまだありません",
+    "listDescription": "練習すると、ここに記録が表示されます。",
+    "title": "条件に合う記録はありません",
+    "description": "リストや端末の条件を変えてください。",
+    "practiceList": "このリストを練習する"
+  },
+  "summary": {
+    "words": "{count}語",
+    "runs": "練習 {count}回",
+    "last": "最終 {day}",
+    "best": "ベスト",
+    "rankings": "ベスト記録",
+    "practice": "練習する"
+  }
+}

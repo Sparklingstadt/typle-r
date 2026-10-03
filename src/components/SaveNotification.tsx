@@ -1,6 +1,7 @@
 "use client"
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Check, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 
@@ -13,6 +14,7 @@ export function useSaveNotification() {
 
 function Toast({ notification, dismiss }: { notification: Notification; dismiss: (id: number) => void }) {
   const [hovered, setHovered] = useState(false)
+  const t = useTranslations('common')
   const [focused, setFocused] = useState(false)
   const [exiting, setExiting] = useState(false)
   useEffect(() => {
@@ -35,13 +37,14 @@ function Toast({ notification, dismiss }: { notification: Notification; dismiss:
     <span className="flex shrink-0 items-center"><Check aria-hidden="true" className="size-5" /></span>
     <span className="min-w-0 flex-1 break-words">{notification.message}</span>
     <Button size="icon-sm" variant="ghost" className="shrink-0 text-white hover:bg-white/15 hover:text-white focus-visible:ring-white/70"
-      aria-label="通知を閉じる" onClick={() => setExiting(true)}><X aria-hidden="true" /></Button>
+      aria-label={t('closeNotification')} onClick={() => setExiting(true)}><X aria-hidden="true" /></Button>
   </Alert>
 }
 
 export default function SaveNotification({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const nextId = useRef(0)
+  const t = useTranslations('common')
   const notify = useCallback((message: string) => {
     const notification = { message, id: ++nextId.current }
     setNotifications(current => [...current, notification])
@@ -52,7 +55,7 @@ export default function SaveNotification({ children }: { children: ReactNode }) 
 
   return <NotificationContext.Provider value={notify}>
     {children}
-    <div className="fixed bottom-4 left-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[90%] -translate-x-1/2 flex-col gap-3 overflow-y-auto p-1 sm:w-[70%]" aria-label="通知">
+    <div className="fixed bottom-4 left-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[90%] -translate-x-1/2 flex-col gap-3 overflow-y-auto p-1 sm:w-[70%]" aria-label={t('notifications')}>
       {notifications.map(notification => <Toast key={notification.id} notification={notification} dismiss={dismiss} />)}
     </div>
   </NotificationContext.Provider>

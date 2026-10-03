@@ -1,0 +1,27 @@
+{
+  "loading": "Chargement…",
+  "close": "Fermer",
+  "notifications": "Notifications",
+  "closeNotification": "Fermer la notification",
+  "delete": {
+    "label": "Supprimer",
+    "title": "Voulez-vous vraiment supprimer cet élément ?",
+    "description": "{description} Cette action est irréversible.",
+    "confirm": "Supprimer",
+    "deleting": "Suppression…",
+    "failed": "Impossible de supprimer. Veuillez réessayer."
+  },
+  "storage": {
+    "guest": "Enregistré dans ce navigateur",
+    "account": "Enregistré sur votre compte",
+    "guestDetail": "Vous n’êtes pas connecté : les données sont enregistrées dans le LocalStorage de ce navigateur.",
+    "accountDetail": "Enregistré sur le compte connecté."
+  },
+  "form": {
+    "cancel": "Annuler",
+    "saving": "Enregistrement…",
+    "save": "Enregistrer",
+    "add": "Ajouter",
+    "saveFailed": "Échec de l’enregistrement. Veuillez réessayer."
+  }
+}

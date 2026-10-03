@@ -8,14 +8,15 @@ export async function prepareLegacy(lists: SavedWordList[]): Promise<SavedWordLi
   }))
 }
 
-export function mergeLegacy(current: SavedWordList[], incoming: SavedWordList[]) {
+// `suffix(n)` is the localized mark for a renamed list, such as （移行 2）.
+export function mergeLegacy(current: SavedWordList[], incoming: SavedWordList[], suffix: (n: number) => string) {
   const merged = [...current]
   for (const list of incoming) {
     if (merged.some(item => item.id === list.id)) continue
     let name = list.name
-    let suffix = 2
+    let n = 2
     while (merged.some(item => item.name.trim().toLocaleLowerCase() === name.trim().toLocaleLowerCase())) {
-      name = `${list.name.slice(0, 180)}（移行 ${suffix++}）`
+      name = `${list.name.slice(0, 180)}${suffix(n++)}`
     }
     merged.push({ ...list, name })
   }

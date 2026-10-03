@@ -1,0 +1,80 @@
+{
+  "title": "Practice history",
+  "intro": "Your practice runs, newest first. See each list’s top records in <rankings>Best records</rankings> and your progress on <home>Home</home>.",
+  "filter": {
+    "list": "List",
+    "allLists": "All lists",
+    "device": "Device",
+    "allDevices": "All devices",
+    "clear": "Clear filters",
+    "count": "{count, plural, one {# record} other {# records}}",
+    "filteredCount": "{count, number} of {total, plural, one {# record} other {# records}}"
+  },
+  "filterMenu": {
+    "label": "{name} filter (current: {current})",
+    "all": "All",
+    "count": "{count, plural, one {# run} other {# runs}}"
+  },
+  "columns": {
+    "time": "Time",
+    "deviceWords": "Device · words",
+    "listDevice": "List · device",
+    "duration": "Duration",
+    "accuracy": "Accuracy",
+    "perWord": "Per word",
+    "mistakes": "Mistakes"
+  },
+  "day": {
+    "heading": "{relative} · {date}",
+    "summary": "{count, plural, one {# run} other {# runs}} · {duration}"
+  },
+  "more": "Show more ({count, number} left)",
+  "note": "Word counts and device names are as they were at the time of practice.",
+  "noteMissing": "“—” marks items that were not recorded (for example, records saved by an earlier version).",
+  "row": {
+    "best": "Best",
+    "bestTitle": "This list’s best record (first among records at the current word count, by highest accuracy, then shortest time)",
+    "words": "{count, plural, one {# word} other {# words}}",
+    "seconds": "{value} s",
+    "duration": "Duration",
+    "accuracy": "Accuracy",
+    "lowAccuracy": "Accuracy is below {limit}%",
+    "perWord": "Per word",
+    "perWordUnit": "s/word",
+    "mistakes": "Mistakes",
+    "delete": "Delete",
+    "deleteLabel": "Delete the record for {name} ({date} {time})"
+  },
+  "delete": {
+    "title": "Delete this practice record?",
+    "description": "One record of “{name}” will be deleted.",
+    "done": "Deleted the practice record of “{name}” ({date} {time}).",
+    "list": "List",
+    "when": "Date, time and device",
+    "result": "Result",
+    "accuracy": "Accuracy {value}",
+    "mistakes": "Mistakes {value}",
+    "bestNext": "This is the list’s best record. After deleting it, the best will be {time} ({accuracy}).",
+    "bestLast": "This is the list’s best record. After deleting it, the list will have no records."
+  },
+  "empty": {
+    "title": "No practice records yet",
+    "description": "Type a list to the end in “Practice”, and the time, accuracy, mistakes and device you used will be kept here.",
+    "practice": "Practice"
+  },
+  "filteredEmpty": {
+    "listTitle": "No records for “{name}” yet",
+    "listDescription": "Once you practice, your records will appear here.",
+    "title": "No records match the filters",
+    "description": "Try a different list or device.",
+    "practiceList": "Practice this list"
+  },
+  "summary": {
+    "words": "{count, plural, one {# word} other {# words}}",
+    "runs": "{count, plural, one {# run} other {# runs}}",
+    "last": "Last: {day}",
+    "best": "Best",
+    "rankings": "Best records",
+    "practice": "Practice"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "mainNavigation": "メインナビゲーション",
+  "help": "ヘルプ",
+  "skipToContent": "本文へスキップ",
+  "topBar": "トップバー",
+  "openMenu": "メニューを開く",
+  "closeMenu": "メニューを閉じる",
+  "menu": "メニュー",
+  "groups": {
+    "practice": "練習",
+    "wordLists": "単語リスト",
+    "settings": "設定"
+  },
+  "links": {
+    "home": "ホーム",
+    "play": "練習する",
+    "records": "練習記録",
+    "rankings": "ベスト記録",
+    "edit": "単語リスト",
+    "create": "リストを作成",
+    "general": "一般",
+    "profiles": "プロファイル",
+    "devices": "端末",
+    "guide": "使い方",
+    "about": "Typleについて",
+    "github": "GitHub"
+  },
+  "storage": {
+    "label": "保存先：",
+    "account": "アカウントに保存",
+    "browser": "このブラウザーに保存",
+    "accountDetail": "GitHubアカウントに保存し、ログインした端末で同期します。",
+    "browserDetail": "ログインしていないため、このブラウザーだけに保存します。"
+  },
+  "theme": {
+    "label": "ダークモード",
+    "toLight": "ライトモードに切り替え",
+    "toDark": "ダークモードに切り替え",
+    "saveFailed": "設定を保存できないため、この画面内だけで切り替えます。"
+  }
+}

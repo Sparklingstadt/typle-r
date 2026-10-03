@@ -59,10 +59,10 @@ test('rows are grouped by local day with the practice time of each day', () => {
 })
 
 test('times keep hundredths and split minutes without showing 60 seconds', () => {
-  assert.deepEqual(recordTimeParts(3.021), [['3.02', '秒']])
-  assert.deepEqual(recordTimeParts(59.999), [['1', '分'], ['00.00', '秒']])
-  assert.deepEqual(recordTimeParts(128.89), [['2', '分'], ['08.89', '秒']])
-  assert.deepEqual(recordTimeParts(476.85), [['7', '分'], ['56.85', '秒']])
+  assert.deepEqual(recordTimeParts(3.021), [['3.02', 'seconds']])
+  assert.deepEqual(recordTimeParts(59.999), [['1', 'minutes'], ['00.00', 'seconds']])
+  assert.deepEqual(recordTimeParts(128.89), [['2', 'minutes'], ['08.89', 'seconds']])
+  assert.deepEqual(recordTimeParts(476.85), [['7', 'minutes'], ['56.85', 'seconds']])
 })
 
 test('per-word speed and accuracy fall back to a dash for older records', () => {

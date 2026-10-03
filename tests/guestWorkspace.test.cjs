@@ -36,8 +36,8 @@ test('corrupt or unsupported storage is preserved', () => {
 test('quota and oversized writes retain the previous data', () => {
   const store = storage(); const saved = writeGuestWorkspace({ ...readGuestWorkspace(store), lists: [list] }, store)
   const before = store.getItem(GUEST_STORAGE_KEY)
-  assert.throws(() => writeGuestWorkspace({ ...saved, lists: [{ ...list, words: Array.from({ length: 1000 }, () => ({ display: 'あ'.repeat(1000), input: 'a', annotation: '' })) }] }, store), /データ量/)
+  assert.throws(() => writeGuestWorkspace({ ...saved, lists: [{ ...list, words: Array.from({ length: 1000 }, () => ({ display: 'あ'.repeat(1000), input: 'a', annotation: '' })) }] }, store), { key: 'guestQuotaExceeded' })
   store.setItem = () => { throw new Error('QuotaExceededError') }
-  assert.throws(() => writeGuestWorkspace({ ...saved, lists: [] }, store), /ブラウザーに保存できません/)
+  assert.throws(() => writeGuestWorkspace({ ...saved, lists: [] }, store), { key: 'guestWriteFailed' })
   assert.equal(store.getItem(GUEST_STORAGE_KEY), before)
 })

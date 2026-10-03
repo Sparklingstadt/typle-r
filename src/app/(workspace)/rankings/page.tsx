@@ -2,14 +2,16 @@
 import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import { useLocale, useTranslations } from "next-intl"
 import { RadioGroup } from "radix-ui"
-import { CircleAlert, HardDrive, Info, Keyboard, Plus, RotateCw, Trophy } from "lucide-react"
+import { CircleAlert, Info, Keyboard, Plus, RotateCw, Trophy } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import FilterMenu from "@/components/Records/FilterMenu"
-import RankingDetail, { ORDER_NOTES } from "@/components/Rankings/RankingDetail"
+import RankingDetail from "@/components/Rankings/RankingDetail"
 import RankingList from "@/components/Rankings/RankingList"
+import { useFormat } from "@/i18n/useFormat"
 import { GUEST_ACCOUNT_ID } from "@/lib/guestWorkspace"
 import { useWordLists } from "@/lib/useWordLists"
 import type { PracticeDevice } from "@/lib/devices"
@@ -17,6 +19,7 @@ import { deviceOptions, matchesDevice, NO_DEVICE, type RankOrder } from "@/lib/r
 import { listRanking, sortRankings, type ListSort } from "@/lib/rankings"
 import type { SavedWordList } from "@/lib/wordLists"
 import { cn } from "@/lib/utils"
+import PageStorageBadge from "@/components/PageStorageBadge"
 
 // Matches Tailwind's `xl`, where the list and the detail sit side by side.
 const WIDE = '(min-width: 80rem)'
@@ -32,24 +35,22 @@ function useWide() {
 }
 
 export default function Rankings() {
+  const t = useTranslations('rankings')
   const workspace = useWordLists()
   const practised = workspace.lists.some(list => list.records.length)
   return <main className="mx-auto w-full max-w-6xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
     <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div className="space-y-1">
-        <h1 className="text-2xl font-bold">ベスト記録</h1>
-        <p className="text-sm text-muted-foreground">単語リストごとの自己ベストです。リストを選ぶと、上位の記録と所要時間の推移を表示します。</p>
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
+        <p className="text-sm text-muted-foreground">{t('intro')}</p>
       </div>
-      {workspace.ready && <span className="inline-flex h-7 items-center gap-1.5 rounded-full border bg-card px-3 text-xs font-medium text-muted-foreground"
-        title={workspace.accountId === GUEST_ACCOUNT_ID ? '未ログインのため、このブラウザーのLocalStorageに保存します。' : 'ログイン中のアカウントに保存します。'}>
-        <HardDrive className="size-3.5" aria-hidden="true" />{workspace.accountId === GUEST_ACCOUNT_ID ? 'このブラウザーに保存' : 'アカウントに保存'}
-      </span>}
+      {workspace.ready && <PageStorageBadge guest={workspace.accountId === GUEST_ACCOUNT_ID} />}
     </header>
     {workspace.error && <Alert variant="destructive" className="mb-6 border-destructive/40 bg-destructive/5">
       <CircleAlert aria-hidden="true" />
       <AlertDescription className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span className="min-w-0 flex-1 basis-64">{workspace.error}</span>
-        <Button variant="outline" size="lg" onClick={() => window.location.reload()}><RotateCw aria-hidden="true" />再読み込み</Button>
+        <Button variant="outline" size="lg" onClick={() => window.location.reload()}><RotateCw aria-hidden="true" />{t('reload')}</Button>
       </AlertDescription>
     </Alert>}
     {!workspace.ready ? <LoadingState />
@@ -64,6 +65,9 @@ type View = { list: string | null; device: string | null; order: RankOrder }
 // `?list=<id>&device=<id>&order=speed` keep the view in the URL, so other screens can open one list's ranking.
 // Below `xl`, opening a list pushes a history entry, so the browser's back button returns to the list.
 function RankingsView({ lists, devices }: { lists: SavedWordList[]; devices: PracticeDevice[] }) {
+  const t = useTranslations('rankings')
+  const format = useFormat()
+  const locale = useLocale()
   const params = useSearchParams()
   const [now] = useState(() => new Date())
   const [sort, setSort] = useState<ListSort>('recent')
@@ -72,11 +76,13 @@ function RankingsView({ lists, devices }: { lists: SavedWordList[]; devices: Pra
   // Where focus goes once the view has switched: the detail heading, or the list that was just closed.
   const focusAfter = useRef<{ detail: true } | { list: string } | null>(null)
 
-  const devicesOptions = useMemo(() => deviceOptions(lists.flatMap(list => list.records)).map(option =>
-    option.value === NO_DEVICE || devices.some(device => device.id === option.value) ? option : { ...option, label: `${option.label}（削除済み）` }), [lists, devices])
+  const devicesOptions = useMemo(() => deviceOptions(lists.flatMap(list => list.records)).map(({ value, device, count }) => {
+    const label = format.recordDevice(device)
+    return { value, count, label: value === NO_DEVICE || devices.some(item => item.id === value) ? label : t('filter.deleted', { name: label }) }
+  }), [lists, devices, format, t])
   const device = devicesOptions.some(option => option.value === params.get('device')) ? params.get('device') : null
   const order: RankOrder = params.get('order') === 'speed' ? 'speed' : 'accuracy'
-  const rankings = useMemo(() => sortRankings(lists.map(list => listRanking(list, { device, order, now })), sort), [lists, device, order, now, sort])
+  const rankings = useMemo(() => sortRankings(lists.map(list => listRanking(list, { device, order, now })), sort, locale), [lists, device, order, now, sort, locale])
   const requested = lists.find(list => list.id === params.get('list'))
   // On wide screens something is always open: the most recent list with a record, like the top of the list.
   const selected = requested ?? rankings.find(item => item.ranked.length)?.list ?? rankings[0]?.list
@@ -125,15 +131,15 @@ function RankingsView({ lists, devices }: { lists: SavedWordList[]; devices: Pra
 
   return <div className="space-y-4">
     <div className="flex flex-wrap items-center gap-2">
-      <FilterMenu name="端末" allLabel="すべての端末" value={device} options={devicesOptions} onChange={changeDevice} />
+      <FilterMenu name={t('filter.device')} allLabel={t('filter.allDevices')} value={device} options={devicesOptions} onChange={changeDevice} />
       <OrderToggle value={order} onChange={value => navigate({ order: value })} />
       <p className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
-        <Info className="size-3.5 shrink-0" aria-hidden="true" />{ORDER_NOTES[order]}
+        <Info className="size-3.5 shrink-0" aria-hidden="true" />{t(`orderNotes.${order}`)}
       </p>
     </div>
 
     <div className="xl:grid xl:grid-cols-[320px_minmax(0,1fr)] xl:items-start xl:gap-6">
-      <section aria-label="単語リスト" data-ranking-list className={cn('rounded-xl border bg-card xl:sticky xl:top-6', opened && 'hidden xl:block')}>
+      <section aria-label={t('lists')} data-ranking-list className={cn('rounded-xl border bg-card xl:sticky xl:top-6', opened && 'hidden xl:block')}>
         <RankingList rankings={rankings} selectedId={opened || wide ? selected?.id : undefined} filtered={device !== null} sort={sort} onSort={setSort} now={now} onChoose={choose} />
       </section>
       {selected && <section aria-labelledby="ranking-title" className={cn('min-w-0 rounded-xl border bg-card', !opened && 'hidden xl:block')}>
@@ -145,33 +151,36 @@ function RankingsView({ lists, devices }: { lists: SavedWordList[]; devices: Pra
 }
 
 function OrderToggle({ value, onChange }: { value: RankOrder; onChange: (value: RankOrder) => void }) {
-  return <RadioGroup.Root value={value} onValueChange={next => onChange(next as RankOrder)} aria-label="順位の基準" orientation="horizontal"
+  const t = useTranslations('rankings.order')
+  return <RadioGroup.Root value={value} onValueChange={next => onChange(next as RankOrder)} aria-label={t('label')} orientation="horizontal"
     className="inline-flex h-9 items-center rounded-full border bg-muted/60 p-0.5 text-[13px]">
-    {([['accuracy', '正確率'], ['speed', '速さ']] as const).map(([option, label]) =>
+    {(['accuracy', 'speed'] as const).map(option =>
       <RadioGroup.Item key={option} value={option}
         className="h-full rounded-full px-3 text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 data-[state=checked]:bg-background data-[state=checked]:font-medium data-[state=checked]:text-foreground data-[state=checked]:shadow-sm dark:data-[state=checked]:bg-input">
-        {label}<span className="hidden sm:inline">を</span>優先
+        {t.rich(option, { wide: chunks => <span className="hidden sm:inline">{chunks}</span> })}
       </RadioGroup.Item>)}
   </RadioGroup.Root>
 }
 
 function EmptyState() {
+  const t = useTranslations('rankings.empty')
   return <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed bg-card px-6 py-12 text-center sm:py-16">
     <span className="grid size-12 place-items-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"><Trophy className="size-6" aria-hidden="true" /></span>
     <div className="space-y-1.5">
-      <h2 className="font-bold">まだベスト記録がありません</h2>
-      <p className="max-w-md text-sm text-balance text-muted-foreground">単語リストを最後まで打つと、リストごとの自己ベストと上位の記録、所要時間の推移がここに並びます。</p>
+      <h2 className="font-bold">{t('title')}</h2>
+      <p className="max-w-md text-sm text-balance text-muted-foreground">{t('description')}</p>
     </div>
     <div className="flex flex-wrap justify-center gap-2">
-      <Button size="lg" asChild><Link href="/play"><Keyboard aria-hidden="true" />練習する</Link></Button>
-      <Button size="lg" variant="outline" asChild><Link href="/create"><Plus aria-hidden="true" />単語リストを作る</Link></Button>
+      <Button size="lg" asChild><Link href="/play"><Keyboard aria-hidden="true" />{t('practice')}</Link></Button>
+      <Button size="lg" variant="outline" asChild><Link href="/create"><Plus aria-hidden="true" />{t('create')}</Link></Button>
     </div>
   </div>
 }
 
 function LoadingState() {
+  const common = useTranslations('common')
   return <div role="status" className="space-y-4">
-    <span className="sr-only">読み込み中…</span>
+    <span className="sr-only">{common('loading')}</span>
     <div className="flex gap-2"><Skeleton className="h-9 w-36 rounded-full" /><Skeleton className="h-9 w-52 rounded-full" /></div>
     <div className="xl:grid xl:grid-cols-[320px_minmax(0,1fr)] xl:gap-6">
       <div className="space-y-3 rounded-xl border bg-card p-3">

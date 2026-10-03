@@ -1,3 +1,4 @@
+import { AppError } from './appError'
 import { applyChange, decodeDocument, DEFAULT_PROFILE_ID, MissingProfileError, viewDocument, type WorkspaceDocument } from './profiles'
 import { WorkspaceError, type WorkspaceState, type WorkspaceWrite } from './workspaceClient'
 import { MAX_WORKSPACE_BYTES, validateWorkspaceRequest } from './workspaceRequest'
@@ -21,7 +22,7 @@ function readDocument(storage: Storage): WorkspaceDocument & { revision: number 
     if (!Number.isSafeInteger(value.revision) || value.revision < 0) throw new Error('Invalid revision')
     return { ...decodeDocument(value), revision: value.revision }
   } catch {
-    throw new Error('ブラウザーの保存データを読み込めません。元のデータは変更していません。')
+    throw new AppError('guestReadFailed')
   }
 }
 
@@ -31,19 +32,19 @@ export function readGuestWorkspace(storage: Storage = localStorage, profileId = 
 }
 
 export function writeGuestWorkspace(request: WorkspaceWrite, storage: Storage = localStorage): WorkspaceState {
-  if (request.accountId !== GUEST_ACCOUNT_ID) throw new Error('保存先が変わりました。画面を開き直してください。')
+  if (request.accountId !== GUEST_ACCOUNT_ID) throw new AppError('storageChanged')
   const previous = readDocument(storage)
-  if (previous.revision !== request.revision) throw new WorkspaceError('別の画面で更新されています。最新データを読み込んでから再試行してください。', 409)
+  if (previous.revision !== request.revision) throw new WorkspaceError('conflict', 409)
   const { revision, ...change } = validateWorkspaceRequest(request)
-  const tooLarge = '保存できるデータ量を超えています。単語リストや記録を整理してください。'
-  if (change.lists && bytes(JSON.stringify(change.lists)) > MAX_WORKSPACE_BYTES) throw new Error(tooLarge)
+  const tooLarge = () => new AppError('guestQuotaExceeded')
+  if (change.lists && bytes(JSON.stringify(change.lists)) > MAX_WORKSPACE_BYTES) throw tooLarge()
   let next
   try { next = applyChange(previous, change) }
-  catch (error) { throw error instanceof MissingProfileError ? new WorkspaceError(error.message, 409) : error }
+  catch (error) { throw error instanceof MissingProfileError ? new WorkspaceError(error.key, 409) : error }
   const raw = JSON.stringify({ version: 1, accountId: GUEST_ACCOUNT_ID, revision: revision + 1, ...next })
-  if (!Number.isSafeInteger(revision + 1) || bytes(raw) > MAX_GUEST_BYTES) throw new Error(tooLarge)
+  if (!Number.isSafeInteger(revision + 1) || bytes(raw) > MAX_GUEST_BYTES) throw tooLarge()
   try { storage.setItem(GUEST_STORAGE_KEY, raw) }
-  catch { throw new Error('ブラウザーに保存できません。空き容量や保存設定を確認して再試行してください。') }
+  catch { throw new AppError('guestWriteFailed') }
   return { ...viewDocument(next, change.profileId), revision: revision + 1, accountId: GUEST_ACCOUNT_ID }
 }
 

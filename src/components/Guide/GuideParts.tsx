@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import Link from 'next/link'
 import type { LucideIcon } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { compareInput } from '@/lib/typing'
 import Kbd from '@/components/Practice/Kbd'
@@ -10,6 +11,23 @@ export const guideLink = 'font-medium underline decoration-foreground/30 underli
 
 export function PageLink({ href, children }: { href: string; children: ReactNode }) {
   return <Link href={href} className={guideLink}>{children}</Link>
+}
+
+const chunkText = (chunks: ReactNode) => (Array.isArray(chunks) ? chunks : [chunks]).join('')
+
+// Rich-text tags shared by the guide's messages: links to each screen, in-page links and key combinations ("Ctrl+Enter").
+export const guideTags = {
+  play: (chunks: ReactNode) => <PageLink href="/play">{chunks}</PageLink>,
+  create: (chunks: ReactNode) => <PageLink href="/create">{chunks}</PageLink>,
+  edit: (chunks: ReactNode) => <PageLink href="/edit">{chunks}</PageLink>,
+  records: (chunks: ReactNode) => <PageLink href="/records">{chunks}</PageLink>,
+  rankings: (chunks: ReactNode) => <PageLink href="/rankings">{chunks}</PageLink>,
+  home: (chunks: ReactNode) => <PageLink href="/home">{chunks}</PageLink>,
+  devices: (chunks: ReactNode) => <PageLink href="/devices">{chunks}</PageLink>,
+  profiles: (chunks: ReactNode) => <PageLink href="/profiles">{chunks}</PageLink>,
+  devicesSection: (chunks: ReactNode) => <a href="#devices" className={guideLink}>{chunks}</a>,
+  wordCount: (chunks: ReactNode) => <a href="#word-count" className={guideLink}>{chunks}</a>,
+  keys: (chunks: ReactNode) => <Keys keys={chunkText(chunks).split('+')} />,
 }
 
 export function GuideSection({ id, icon: Icon, title, lead, children }: {
@@ -49,15 +67,9 @@ export function Keys({ keys }: { keys: string[] }) {
   </span>
 }
 
-const legend: { sample: string; typed: string; items: { label: string; note: string; state: 'done' | 'current' | 'pending' | 'error' }[] }[] = [
-  { sample: 'typle', typed: 'ty', items: [
-    { state: 'done', label: '入力済み', note: '緑' },
-    { state: 'current', label: '次に打つ文字', note: '下線' },
-    { state: 'pending', label: 'まだの文字', note: 'グレー' },
-  ] },
-  { sample: 'typle', typed: 'tyo', items: [
-    { state: 'error', label: '違う文字から後ろ', note: '赤' },
-  ] },
+const legend: { sample: string; typed: string; items: ('done' | 'current' | 'pending' | 'error')[] }[] = [
+  { sample: 'typle', typed: 'ty', items: ['done', 'current', 'pending'] },
+  { sample: 'typle', typed: 'tyo', items: ['error'] },
 ]
 
 const swatch: Record<'done' | 'current' | 'pending' | 'error', string> = {
@@ -69,19 +81,20 @@ const swatch: Record<'done' | 'current' | 'pending' | 'error', string> = {
 
 // Renders the practice screen's own character states, so the colors here always match what the player sees.
 export function ColorLegend() {
+  const t = useTranslations('guide.legend')
   return <div className="grid gap-3 sm:grid-cols-2">
     {legend.map(({ sample, typed, items }) => {
       const { characters, states, extra } = compareInput(sample, typed)
       return <figure key={typed} className="flex flex-col gap-4 rounded-xl border bg-card p-4">
         <div className="flex items-baseline justify-between gap-3">
           <TargetText characters={characters} states={states} extra={extra} className="text-3xl leading-tight tracking-wide" />
-          <span className="shrink-0 text-xs text-muted-foreground">入力：<span className="font-mono">{typed}</span></span>
+          <span className="shrink-0 text-xs text-muted-foreground">{t.rich('typed', { typed, mono: chunks => <span className="font-mono">{chunks}</span> })}</span>
         </div>
         <figcaption>
           <ul className="flex flex-wrap gap-x-4 gap-y-1.5 text-sm">
-            {items.map(item => <li key={item.state} className="inline-flex items-center gap-1.5">
-              <span className={cn('font-medium', swatch[item.state])} aria-hidden="true">あ</span>
-              {item.label}<span className="text-muted-foreground">（{item.note}）</span>
+            {items.map(state => <li key={state} className="inline-flex items-center gap-1.5">
+              <span className={cn('font-medium', swatch[state])} aria-hidden="true">{t('swatch')}</span>
+              {t(`${state}.label`)}<span className="text-muted-foreground">{t(`${state}.note`)}</span>
             </li>)}
           </ul>
         </figcaption>

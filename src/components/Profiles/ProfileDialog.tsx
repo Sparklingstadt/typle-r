@@ -1,6 +1,7 @@
 "use client"
 import { useId, useRef, useState } from 'react'
 import { CircleAlert } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -38,14 +39,18 @@ function ProfileForm({ profile, profiles, saving, error, onCancel, onSave }: {
   onSave: (profile: ProfileDraft, use: boolean) => Promise<boolean>
 }) {
   const id = useId()
+  const t = useTranslations('profiles.dialog')
+  const form = useTranslations('common.form')
+  const errors = useTranslations('errors')
   const draftId = useRef(profile?.id ?? '')
   const [name, setName] = useState(profile?.name ?? '')
   const [use, setUse] = useState(true)
   const [problem, setProblem] = useState<ProfileProblem | null>(null)
   const [failed, setFailed] = useState(false)
   const editing = profile !== null
-  const nameError = problem?.field === 'name' ? problem.message : ''
-  const formError = problem?.field === 'form' ? problem.message : failed ? error || '保存できませんでした。もう一度お試しください。' : ''
+  const message = problem && errors(problem.key, problem.values)
+  const nameError = problem?.field === 'name' ? message : ''
+  const formError = problem?.field === 'form' ? message : failed ? error || form('saveFailed') : ''
 
   return <form noValidate className="grid gap-5" onSubmit={async event => {
     event.preventDefault()
@@ -62,32 +67,32 @@ function ProfileForm({ profile, profiles, saving, error, onCancel, onSave }: {
     if (!await onSave(draft, use)) setFailed(true)
   }}>
     <DialogHeader>
-      <DialogTitle>{editing ? 'プロファイル名を変更' : 'プロファイルを追加'}</DialogTitle>
-      <DialogDescription>{editing ? '単語リストと練習記録はそのまま残ります。' : '新しいプロファイルは、単語リストと練習記録が空の状態で始まります。'}</DialogDescription>
+      <DialogTitle>{t(editing ? 'renameTitle' : 'addTitle')}</DialogTitle>
+      <DialogDescription>{t(editing ? 'renameDescription' : 'addDescription')}</DialogDescription>
     </DialogHeader>
     <div className="grid gap-2">
-      <Label htmlFor={`${id}-name`}><span>プロファイル名<span aria-hidden="true" className="text-destructive">*</span></span></Label>
+      <Label htmlFor={`${id}-name`}><span>{t('name')}<span aria-hidden="true" className="text-destructive">*</span></span></Label>
       <Input id={`${id}-name`} value={name} maxLength={MAX_PROFILE_NAME} autoComplete="off" className="h-11"
-        placeholder="例：中国語" aria-required="true" aria-invalid={nameError ? true : undefined}
+        placeholder={t('namePlaceholder')} aria-required="true" aria-invalid={nameError ? true : undefined}
         aria-describedby={nameError ? `${id}-name-error ${id}-name-help` : `${id}-name-help`}
         onChange={event => { setName(event.target.value); if (nameError) setProblem(null) }} />
       {nameError && <p id={`${id}-name-error`} className="flex items-start gap-1.5 text-sm text-destructive">
         <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />{nameError}
       </p>}
-      <p id={`${id}-name-help`} className="text-xs text-muted-foreground">サイドバーの切り替えメニューに表示されます。練習の目的ごとに分けると便利です。</p>
+      <p id={`${id}-name-help`} className="text-xs text-muted-foreground">{t('nameHelp')}</p>
     </div>
     {!editing && <div className="flex items-start gap-2.5 text-sm">
       <input id={`${id}-use`} type="checkbox" checked={use} onChange={event => setUse(event.target.checked)}
         aria-describedby={`${id}-use-help`} className="mt-0.5 size-4 shrink-0 cursor-pointer accent-primary" />
       <div className="grid gap-0.5">
-        <label htmlFor={`${id}-use`} className="cursor-pointer">追加したプロファイルに切り替える</label>
-        <p id={`${id}-use-help`} className="text-xs text-muted-foreground">切り替えはブラウザーごとに覚えます。</p>
+        <label htmlFor={`${id}-use`} className="cursor-pointer">{t('use')}</label>
+        <p id={`${id}-use-help`} className="text-xs text-muted-foreground">{t('useHelp')}</p>
       </div>
     </div>}
     {formError && <Alert variant="destructive"><CircleAlert aria-hidden="true" /><AlertDescription>{formError}</AlertDescription></Alert>}
     <DialogFooter>
-      <Button type="button" variant="outline" disabled={saving} onClick={onCancel}>キャンセル</Button>
-      <Button type="submit" disabled={saving}>{saving ? '保存中…' : editing ? '変更を保存' : '追加する'}</Button>
+      <Button type="button" variant="outline" disabled={saving} onClick={onCancel}>{form('cancel')}</Button>
+      <Button type="submit" disabled={saving}>{saving ? form('saving') : form(editing ? 'save' : 'add')}</Button>
     </DialogFooter>
   </form>
 }

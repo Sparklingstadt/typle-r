@@ -110,8 +110,8 @@ test('device options count by id with the newest name, and put records without a
     record('6', 5, 100, 5, 6, pad),
   ]
   assert.deepEqual(deviceOptions(records), [
-    { value: 'mac', label: 'MacBook Air（JIS）', count: 2 },
-    { value: 'pad', label: 'iPad', count: 1 },
-    { value: NO_DEVICE, label: '端末の記録なし', count: 3 },
+    { value: 'mac', device: mac, count: 2 },
+    { value: 'pad', device: pad, count: 1 },
+    { value: NO_DEVICE, count: 3 },
   ])
 })

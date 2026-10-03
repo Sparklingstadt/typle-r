@@ -102,7 +102,7 @@ test('create, reorder, edit, play, reload and delete records', async ({ page }) 
   await page.route('**/api/workspace', async route => {
     if (route.request().method() === 'PUT' && failDelete) {
       failDelete = false
-      await route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: '一時的な保存エラー' }) })
+      await route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: 'workspaceSaveFailed' }) })
     } else await route.continue()
   })
   await page.getByRole('alertdialog').getByRole('button', { name: '削除する', exact: true }).click()
@@ -603,11 +603,12 @@ test('CSV import preserves existing records and exact strings after a failed sav
   await page.route('**/api/workspace', async route => {
     if (route.request().method() === 'PUT' && fail) {
       fail = false
-      await route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: '一時的な保存エラー' }) })
+      await route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: 'workspaceSaveFailed' }) })
     } else await route.continue()
   })
   await page.getByRole('button', { name: '保存', exact: true }).click()
-  await expect(page.getByRole('alert').filter({ hasText: '一時的な保存エラー' })).toBeVisible()
+  // The server sends a message key; the screen shows its text in the reader's language.
+  await expect(page.getByRole('alert').filter({ hasText: '保存できませんでした。入力内容を残したまま再試行できます。' })).toBeVisible()
   await expect(page.getByRole('textbox', { name: '単語リスト名', exact: true })).toHaveValue('CSV Chinese')
   await page.getByRole('button', { name: '保存', exact: true }).click()
   await expect(page).toHaveURL(/\/edit$/)

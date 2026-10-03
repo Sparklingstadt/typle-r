@@ -1,7 +1,8 @@
 "use client"
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ArrowRightLeft, Check, Cloud, HardDrive, Pencil, Plus, Trash2 } from 'lucide-react'
+import { ArrowRightLeft, Check, Pencil, Plus, Trash2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useWordLists, type Workspace } from '@/lib/useWordLists'
 import { GUEST_ACCOUNT_ID } from '@/lib/guestWorkspace'
 import { DEFAULT_PROFILE_ID, MAX_PROFILES, removeProfile, saveProfile, type ProfileDraft, type ProfileSummary } from '@/lib/profiles'
@@ -14,41 +15,41 @@ import DeleteConfirmation from '@/components/DeleteConfirmation'
 import { useSaveNotification } from '@/components/SaveNotification'
 import ProfileDialog, { type ProfileDialogState } from '@/components/Profiles/ProfileDialog'
 import ProfileMark from '@/components/Profiles/ProfileMark'
+import PageStorageBadge from '@/components/PageStorageBadge'
 
 export default function Profiles() {
   const workspace = useWordLists()
+  const t = useTranslations('profiles')
+  const common = useTranslations('common')
   const guest = workspace.accountId === GUEST_ACCOUNT_ID
-  const StorageIcon = guest ? HardDrive : Cloud
   return <main className="mx-auto w-full max-w-4xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
     <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div className="space-y-1">
-        <h1 className="text-2xl font-bold">プロファイル</h1>
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
         <p className="text-sm text-muted-foreground">
-          通常の練習、中国語、韓国語のように目的ごとにプロファイルを分けると、単語リストと練習記録を別々に保存できます。
-          <Link href="/devices" className="underline underline-offset-3 hover:text-foreground">端末</Link>はすべてのプロファイルで共通です。
+          {t.rich('description', { link: chunks => <Link href="/devices" className="underline underline-offset-3 hover:text-foreground">{chunks}</Link> })}
         </p>
       </div>
-      {workspace.ready && <span className="inline-flex h-7 items-center gap-1.5 rounded-full border bg-card px-3 text-xs font-medium text-muted-foreground"
-        title={guest ? '未ログインのため、このブラウザーのLocalStorageに保存します。' : 'ログイン中のアカウントに保存します。'}>
-        <StorageIcon className="size-3.5" aria-hidden="true" />{guest ? 'このブラウザーに保存' : 'アカウントに保存'}
-      </span>}
+      {workspace.ready && <PageStorageBadge guest={guest} />}
     </header>
     {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
-    {!workspace.ready || !workspace.profile ? <div role="status" className="space-y-3"><p>読み込み中…</p><Skeleton className="h-40 w-full" /></div>
+    {!workspace.ready || !workspace.profile ? <div role="status" className="space-y-3"><p>{common('loading')}</p><Skeleton className="h-40 w-full" /></div>
       : <ProfileManager workspace={workspace} />}
   </main>
 }
 
 // Each count stays on one line when the row narrows.
 function Counts({ profile }: { profile: ProfileSummary }) {
+  const t = useTranslations('profiles.counts')
   return <p className="text-xs text-muted-foreground tabular-nums sm:text-[13px]">
-    <span className="whitespace-nowrap">単語リスト {profile.listCount.toLocaleString()}件</span> · <span className="whitespace-nowrap">練習 {profile.recordCount.toLocaleString()}回</span>
+    <span className="whitespace-nowrap">{t('lists', { count: profile.listCount })}</span> · <span className="whitespace-nowrap">{t('records', { count: profile.recordCount })}</span>
   </p>
 }
 
 function ProfileManager({ workspace }: { workspace: Workspace }) {
   const { lists, profileId, saving, error, selectProfile, updateProfiles } = workspace
   const notify = useSaveNotification()
+  const t = useTranslations('profiles')
   // The profile in use counts what is on screen, including the samples shown before the first save.
   const profiles = workspace.profiles.map(profile => profile.id === profileId
     ? { ...profile, listCount: lists.length, recordCount: lists.reduce((total, list) => total + list.records.length, 0) } : profile)
@@ -60,6 +61,11 @@ function ProfileManager({ workspace }: { workspace: Workspace }) {
   const list = useRef<HTMLUListElement>(null)
   const full = profiles.length >= MAX_PROFILES
   const first = profiles[0]
+  const deleteDescription = (profile: ProfileSummary, current: boolean) => t('deleteDescription', {
+    removal: t('deleteRemoval', { name: profile.name, lists: profile.listCount, records: profile.recordCount }),
+    first: first.name,
+    current: current ? 'yes' : 'no',
+  })
 
   // Briefly mark the row that was just added or renamed, and bring it into view.
   useEffect(() => {
@@ -90,64 +96,65 @@ function ProfileManager({ workspace }: { workspace: Workspace }) {
     const name = profile.name.trim()
     if (!editing && use) {
       selectProfile(profile.id)
-      notify(`プロファイル「${name}」を追加して切り替えました。`)
+      notify(t('addedAndSwitched', { name }))
     } else {
       setHighlight(profile.id)
-      notify(editing ? `プロファイル名を「${name}」に変更しました。` : `プロファイル「${name}」を追加しました。`)
+      notify(t(editing ? 'renamed' : 'added', { name }))
     }
     return true
   }
 
   function switchTo(profile: ProfileSummary) {
     selectProfile(profile.id)
-    notify(`プロファイル「${profile.name}」に切り替えました。`)
+    notify(t('switched', { name: profile.name }))
   }
 
   return <div className="space-y-3">
     <div className="flex min-h-11 flex-wrap items-center gap-x-2 gap-y-2">
-      <h2 id="profile-list-heading" tabIndex={-1} className="text-base font-bold outline-none">プロファイル一覧</h2>
-      <Badge variant="secondary" className="tabular-nums" title={`${MAX_PROFILES}個まで作成できます`}>{profiles.length} / {MAX_PROFILES}</Badge>
-      <Button className="ml-auto" disabled={full || saving} onClick={() => openDialog(null)}><Plus aria-hidden="true" />プロファイルを追加</Button>
+      <h2 id="profile-list-heading" tabIndex={-1} className="text-base font-bold outline-none">{t('listHeading')}</h2>
+      <Badge variant="secondary" className="tabular-nums" title={t('limitDetail', { max: MAX_PROFILES })}>{profiles.length} / {MAX_PROFILES}</Badge>
+      <Button className="ml-auto" disabled={full || saving} onClick={() => openDialog(null)}><Plus aria-hidden="true" />{t('add')}</Button>
     </div>
-    {full && <p className="text-sm text-muted-foreground">プロファイルは{MAX_PROFILES}個まで作成できます。使わなくなったプロファイルを削除すると追加できます。</p>}
+    {full && <p className="text-sm text-muted-foreground">{t('limit', { max: MAX_PROFILES })}</p>}
     <ul ref={list} aria-labelledby="profile-list-heading" className="divide-y overflow-hidden rounded-xl border bg-card">
       {profiles.map((profile, index) => {
         const current = profile.id === profileId
         const removable = profile.id !== DEFAULT_PROFILE_ID
+        const { name } = profile
         return <li key={profile.id} data-profile-id={profile.id}
           className={cn('grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-4 py-3.5 transition-colors duration-700 motion-reduce:transition-none sm:gap-x-4 sm:px-5',
             highlight === profile.id && 'bg-green-50 duration-0 dark:bg-green-950/40')}>
-          <ProfileMark name={profile.name} index={index} className="size-10 text-base" />
+          <ProfileMark name={name} index={index} className="size-10 text-base" />
           <div className="min-w-0 space-y-0.5">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-              <h3 className="font-medium [overflow-wrap:anywhere]">{profile.name}</h3>
+              <h3 className="font-medium [overflow-wrap:anywhere]">{name}</h3>
               {current && <Badge variant="outline" className="border-green-200 bg-green-50 text-green-800 dark:border-green-900 dark:bg-green-950 dark:text-green-300"
-                title="このブラウザーで表示しているプロファイルです"><Check aria-hidden="true" />使用中</Badge>}
+                title={t('inUseDetail')}><Check aria-hidden="true" />{t('inUse')}</Badge>}
             </div>
             <Counts profile={profile} />
           </div>
           <div className="-mr-2 flex items-center sm:mr-0">
-            {!current && <Button variant="outline" className="mr-1" disabled={saving} aria-label={`${profile.name} に切り替える`}
-              onClick={() => switchTo(profile)}><ArrowRightLeft aria-hidden="true" /><span className="hidden sm:inline">切り替える</span></Button>}
+            {!current && <Button variant="outline" className="mr-1" disabled={saving} aria-label={t('switchLabel', { name })}
+              onClick={() => switchTo(profile)}><ArrowRightLeft aria-hidden="true" /><span className="hidden sm:inline">{t('switch')}</span></Button>}
             <Button variant="ghost" size="icon-lg" className="size-10 text-muted-foreground" disabled={saving}
-              aria-label={`${profile.name} の名前を変更`} title="名前を変更" onClick={() => openDialog(profile)}><Pencil aria-hidden="true" /></Button>
+              aria-label={t('renameLabel', { name })} title={t('rename')} onClick={() => openDialog(profile)}><Pencil aria-hidden="true" /></Button>
             {removable ? <Button variant="ghost" size="icon-lg" className="size-10 text-muted-foreground hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20" disabled={saving}
-              aria-label={`${profile.name} を削除`} title="削除" onClick={() => { remember(); deleted.current = false; setDeleting({ open: true, profile }) }}><Trash2 aria-hidden="true" /></Button>
+              aria-label={t('deleteLabel', { name })} title={t('delete')} onClick={() => { remember(); deleted.current = false; setDeleting({ open: true, profile }) }}><Trash2 aria-hidden="true" /></Button>
               : <span className="size-10" />}
           </div>
         </li>
       })}
     </ul>
     <p className="text-[13px] text-muted-foreground">
-      使用中のプロファイルはブラウザーごとに覚えるので、パソコンごとに別のプロファイルを開いておけます。最初のプロファイル（{first.name}）は削除できません。
+      {t('note', { first: first.name })}
     </p>
 
     <ProfileDialog state={dialog} profiles={profiles} saving={saving} error={error} onSave={save} onCloseAutoFocus={restoreFocus}
       onOpenChange={open => setDialog(current => ({ ...current, open }))} />
 
     {deleting.profile && <DeleteConfirmation open={deleting.open} onOpenChange={open => setDeleting(current => ({ ...current, open }))}
-      title={`プロファイル「${deleting.profile.name}」を削除しますか？`}
-      description={deleteDescription(deleting.profile, deleting.profile.id === profileId, first.name)}
+      title={t('deleteTitle', { name: deleting.profile.name })}
+      description={deleteDescription(deleting.profile, deleting.profile.id === profileId)}
       onCloseAutoFocus={event => {
         if (!deleted.current) return restoreFocus(event)
         event.preventDefault()
@@ -159,17 +166,10 @@ function ProfileManager({ workspace }: { workspace: Workspace }) {
         const saved = await updateProfiles(current => removeProfile(current, profile.id))
         if (saved) {
           deleted.current = true
-          notify(`プロファイル「${profile.name}」を削除しました。`)
+          notify(t('deleted', { name: profile.name }))
         }
         return saved
       }} />}
   </div>
 }
 
-function deleteDescription(profile: ProfileSummary, current: boolean, first: string) {
-  return [
-    `プロファイル「${profile.name}」と、その単語リスト${profile.listCount.toLocaleString()}件・練習記録${profile.recordCount.toLocaleString()}回を削除します。`,
-    '端末とほかのプロファイルは変わりません。',
-    current ? `このブラウザーは「${first}」に切り替わります。` : '',
-  ].join('')
-}

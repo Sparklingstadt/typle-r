@@ -2,21 +2,24 @@
 import Link from "next/link"
 import { useId } from "react"
 import { usePathname } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
 import ProfileSwitcher from "@/components/Profiles/ProfileSwitcher"
 import { helpNavigation, isCurrentPath, mainNavigation, type NavLink } from "./navigation"
 
+// 36px rows on desktop keep the whole sidebar within a 1024×768 screen; the mobile drawer keeps 40px touch targets.
 const itemClass = (current: boolean) => cn(
-  "relative flex h-10 items-center gap-3 rounded-md px-3 text-sm outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-4 [&_svg]:shrink-0",
+  "relative flex h-10 items-center gap-3 lg:h-9 rounded-md px-3 text-sm outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-4 [&_svg]:shrink-0",
   current
     ? "bg-accent font-medium text-foreground before:absolute before:inset-y-2.5 before:left-0 before:w-[3px] before:rounded-full before:bg-primary"
     : "text-foreground/80 hover:bg-accent/60 hover:text-foreground [&_svg]:text-muted-foreground hover:[&_svg]:text-foreground"
 )
 
 function Item({ link, pathname, onNavigate }: { link: NavLink; pathname: string; onNavigate?: () => void }) {
+  const t = useTranslations("nav.links")
   const current = !link.external && isCurrentPath(pathname, link.path)
   const Icon = link.icon
-  const content = <><Icon aria-hidden="true" /><span className="min-w-0 truncate">{link.name}</span></>
+  const content = <><Icon aria-hidden="true" /><span className="min-w-0 truncate">{t(link.name)}</span></>
   return <li>
     {link.external
       ? <a href={link.path} className={itemClass(false)} onClick={onNavigate}>{content}</a>
@@ -32,13 +35,14 @@ function GroupLabel({ id, children }: { id: string; children: React.ReactNode })
 export default function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname()
   const id = useId()
+  const t = useTranslations("nav")
   return <div className="flex min-h-full flex-col gap-4">
     <ProfileSwitcher onNavigate={onNavigate} />
-    <nav aria-label="メインナビゲーション">
+    <nav aria-label={t("mainNavigation")}>
       {mainNavigation.map((group, index) => {
         const labelId = `${id}-group-${index}`
         return <div key={group.label ?? index} role={group.label ? "group" : undefined} aria-labelledby={group.label ? labelId : undefined}>
-          {group.label && <GroupLabel id={labelId}>{group.label}</GroupLabel>}
+          {group.label && <GroupLabel id={labelId}>{t(`groups.${group.label}`)}</GroupLabel>}
           <ul className="grid gap-0.5">
             {group.links.map(link => <Item key={link.path} link={link} pathname={pathname} onNavigate={onNavigate} />)}
           </ul>
@@ -46,7 +50,7 @@ export default function NavList({ onNavigate }: { onNavigate?: () => void }) {
       })}
     </nav>
     <nav aria-labelledby={`${id}-help`} className="mt-auto border-t pt-1">
-      <GroupLabel id={`${id}-help`}>ヘルプ</GroupLabel>
+      <GroupLabel id={`${id}-help`}>{t("help")}</GroupLabel>
       <ul className="grid gap-0.5">
         {helpNavigation.map(link => <Item key={link.path} link={link} pathname={pathname} onNavigate={onNavigate} />)}
       </ul>

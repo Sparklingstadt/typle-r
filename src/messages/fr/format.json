@@ -1,0 +1,17 @@
+{
+  "today": "Aujourd’hui",
+  "yesterday": "Hier",
+  "dateWithWeekday": "{weekday} {date}",
+  "units": {
+    "hours": "h",
+    "minutes": "min",
+    "seconds": "s"
+  },
+  "time": {
+    "one": "{value} {unit}",
+    "two": "{first} {firstUnit} {second} {secondUnit}"
+  },
+  "noDevice": "Non enregistré",
+  "noDeviceRecorded": "Aucun appareil enregistré",
+  "deviceWithLayout": "{name} ({layout})"
+}

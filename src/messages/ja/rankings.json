@@ -1,0 +1,117 @@
+{
+  "title": "ベスト記録",
+  "intro": "単語リストごとの自己ベストです。リストを選ぶと、上位の記録と所要時間の推移を表示します。",
+  "reload": "再読み込み",
+  "filter": {
+    "device": "端末",
+    "allDevices": "すべての端末",
+    "deleted": "{name}（削除済み）"
+  },
+  "order": {
+    "label": "順位の基準",
+    "accuracy": "正確率<wide>を</wide>優先",
+    "speed": "速さ<wide>を</wide>優先"
+  },
+  "orderNotes": {
+    "accuracy": "正確率が高い順。同じ正確率なら速い順",
+    "speed": "速い順。同じ時間なら正確率が高い順"
+  },
+  "lists": "単語リスト",
+  "empty": {
+    "title": "まだベスト記録がありません",
+    "description": "単語リストを最後まで打つと、リストごとの自己ベストと上位の記録、所要時間の推移がここに並びます。",
+    "practice": "練習する",
+    "create": "単語リストを作る"
+  },
+  "list": {
+    "search": "リストを検索",
+    "clearSearch": "検索をクリア",
+    "noDeviceRecords": "この端末の記録がないリスト（{count}）",
+    "noRecords": "まだ記録のないリスト（{count}）",
+    "words": "{count}語",
+    "noMatch": "「{query}」に一致するリストはありません。",
+    "lastPracticed": "最終練習",
+    "best": "自己ベスト",
+    "improved": "更新",
+    "improvedTitle": "直近{days}日で自己ベストを更新しました",
+    "runs": "{count}回",
+    "sortLabel": "並び順：{sort}",
+    "sorts": {
+      "recent": "最近練習した順",
+      "name": "名前順",
+      "count": "記録が多い順"
+    }
+  },
+  "detail": {
+    "back": "リスト一覧",
+    "words": "{count}語",
+    "records": "記録 {count}回",
+    "lastPracticed": "最終練習 {day}",
+    "viewRecords": "記録を見る",
+    "practice": "このリストを練習",
+    "notPractised": {
+      "title": "まだ練習していません",
+      "description": "最後まで打つと、このリストの自己ベストと上位の記録がここに並びます。"
+    },
+    "noDeviceRecords": {
+      "title": "「{device}」で練習した記録はありません",
+      "description": "このリストには、ほかの端末の記録が {count}件あります。",
+      "showAll": "すべての端末の記録を表示"
+    },
+    "top": {
+      "title": "上位の記録",
+      "accuracy": "正確率を優先",
+      "speed": "速さを優先",
+      "shown": "{shown} / {total}件",
+      "showTop": "上位{count}件だけ表示",
+      "showAll": "すべて表示（{count}件）",
+      "oldAccuracy": "正確率が「—」の記録は、正確率を記録する前の古い記録です。正確率を優先するときは最後に並びます。"
+    },
+    "stats": {
+      "best": "自己ベスト",
+      "bestNote": "{accuracy} · {day}",
+      "noAccuracy": "正確率なし",
+      "recentAverage": "直近{count}回の平均",
+      "gap": "ベストとの差 +{value}秒",
+      "sameAsBest": "ベストと同じ",
+      "averageAccuracy": "平均正確率",
+      "recentRuns": "直近{count}回",
+      "runs": "練習回数",
+      "runsValue": "{count}<unit>回</unit>",
+      "allWordCounts": "すべての単語数",
+      "currentWords": "今の{count}語で練習"
+    },
+    "trend": {
+      "title": "所要時間の推移",
+      "recent": "直近{count}回",
+      "label": "{name} の所要時間の推移",
+      "needTwo": "2回以上練習すると推移を表示します。"
+    },
+    "others": {
+      "old": "単語数の記録がない古い記録 {count}件",
+      "words": "{words}語の記録 {count}件",
+      "separator": "、",
+      "fallback": "今の{count}語で練習した記録がないため、単語数が違う記録（{detail}）で順位を付けています。",
+      "included": "単語数が今と違う記録（{detail}）も含めています。単語数が違うと所要時間は単純に比べられません。",
+      "excluded": "<strong>単語数が今と違う{count}件は順位に含めていません。</strong>リストを編集する前の記録などです（{detail}）。",
+      "exclude": "含めない",
+      "include": "含めて表示"
+    }
+  },
+  "top": {
+    "label": "{name} の上位の記録",
+    "rank": "順位",
+    "time": "所要時間",
+    "accuracy": "正確率",
+    "mistakes": "ミス",
+    "device": "端末",
+    "date": "日時",
+    "rankNumber": "{rank}位",
+    "deleted": "削除済み",
+    "deletedSuffix": "（削除済み）",
+    "otherWords": "単語数が今と違う記録",
+    "words": "{count}語",
+    "unknownWords": "?語",
+    "oldAccuracy": "正確率を記録する前の古い記録です"
+  }
+}

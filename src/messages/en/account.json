@@ -1,0 +1,17 @@
+{
+  "checking": "Checking sign-in status",
+  "signIn": "Sign in",
+  "signInWithGitHub": "Sign in with GitHub",
+  "githubUser": "GitHub user",
+  "menu": "Account menu",
+  "signedInWithGitHub": "Signed in with GitHub",
+  "manageProfiles": "Manage profiles",
+  "manageDevices": "Manage devices",
+  "signOut": "Sign out",
+  "localLogin": {
+    "title": "Use Typle on this Mac",
+    "description": "Start practising with the names of 193 countries. Lists and practice records are saved in this Mac’s own database.",
+    "start": "Start practising",
+    "failed": "Could not sign in. Please try again."
+  }
+}

@@ -1,30 +1,32 @@
-import { BookOpen, ExternalLink, History, House, Info, Keyboard, List, Monitor, Plus, Trophy, UsersRound, type LucideIcon } from "lucide-react"
+import { BookOpen, ExternalLink, History, House, Info, Keyboard, List, Monitor, Plus, Settings, Trophy, UsersRound, type LucideIcon } from "lucide-react"
+import type nav from "@/messages/ja/nav.json"
 
-export type NavLink = { name: string; path: string; icon: LucideIcon; external?: boolean }
-export type NavGroup = { label?: string; links: NavLink[] }
+// Names are keys of the `nav` messages; each matches its page's heading so the sidebar and the page read the same.
+export type NavLink = { name: keyof typeof nav.links; path: string; icon: LucideIcon; external?: boolean }
+export type NavGroup = { label?: keyof typeof nav.groups; links: NavLink[] }
 
-// Link names match each page's heading so the sidebar and the page read the same.
 export const mainNavigation: NavGroup[] = [
-  { links: [{ name: "ホーム", path: "/home", icon: House }] },
-  { label: "練習", links: [
-    { name: "練習する", path: "/play", icon: Keyboard },
-    { name: "練習記録", path: "/records", icon: History },
-    { name: "ベスト記録", path: "/rankings", icon: Trophy },
+  { links: [{ name: "home", path: "/home", icon: House }] },
+  { label: "practice", links: [
+    { name: "play", path: "/play", icon: Keyboard },
+    { name: "records", path: "/records", icon: History },
+    { name: "rankings", path: "/rankings", icon: Trophy },
   ] },
-  { label: "単語リスト", links: [
-    { name: "単語リスト", path: "/edit", icon: List },
-    { name: "リストを作成", path: "/create", icon: Plus },
+  { label: "wordLists", links: [
+    { name: "edit", path: "/edit", icon: List },
+    { name: "create", path: "/create", icon: Plus },
   ] },
-  { label: "設定", links: [
-    { name: "プロファイル", path: "/profiles", icon: UsersRound },
-    { name: "端末", path: "/devices", icon: Monitor },
+  { label: "settings", links: [
+    { name: "general", path: "/settings", icon: Settings },
+    { name: "profiles", path: "/profiles", icon: UsersRound },
+    { name: "devices", path: "/devices", icon: Monitor },
   ] },
 ]
 
 export const helpNavigation: NavLink[] = [
-  { name: "使い方", path: "/guide", icon: BookOpen },
-  { name: "Typleについて", path: "/about", icon: Info },
-  { name: "GitHub", path: "https://github.com/Sparklingstadt/typle-r", icon: ExternalLink, external: true },
+  { name: "guide", path: "/guide", icon: BookOpen },
+  { name: "about", path: "/about", icon: Info },
+  { name: "github", path: "https://github.com/Sparklingstadt/typle-r", icon: ExternalLink, external: true },
 ]
 
 export const isCurrentPath = (pathname: string, path: string) => pathname === path || pathname.startsWith(`${path}/`)

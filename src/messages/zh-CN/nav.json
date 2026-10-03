@@ -1,0 +1,41 @@
+{
+  "mainNavigation": "主导航",
+  "help": "帮助",
+  "skipToContent": "跳到正文",
+  "topBar": "顶栏",
+  "openMenu": "打开菜单",
+  "closeMenu": "关闭菜单",
+  "menu": "菜单",
+  "groups": {
+    "practice": "练习",
+    "wordLists": "单词列表",
+    "settings": "设置"
+  },
+  "links": {
+    "home": "首页",
+    "play": "开始练习",
+    "records": "练习记录",
+    "rankings": "最佳记录",
+    "edit": "单词列表",
+    "create": "创建列表",
+    "general": "通用",
+    "profiles": "个人资料",
+    "devices": "设备",
+    "guide": "使用方法",
+    "about": "关于 Typle",
+    "github": "GitHub"
+  },
+  "storage": {
+    "label": "保存位置：",
+    "account": "保存到账号",
+    "browser": "保存在此浏览器",
+    "accountDetail": "保存到 GitHub 账号，并在登录的设备之间同步。",
+    "browserDetail": "由于未登录，数据只保存在此浏览器中。"
+  },
+  "theme": {
+    "label": "深色模式",
+    "toLight": "切换到浅色模式",
+    "toDark": "切换到深色模式",
+    "saveFailed": "无法保存设置，仅在此页面内切换。"
+  }
+}

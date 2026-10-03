@@ -1,0 +1,17 @@
+{
+  "today": "Сегодня",
+  "yesterday": "Вчера",
+  "dateWithWeekday": "{weekday}, {date}",
+  "units": {
+    "hours": "ч",
+    "minutes": "мин",
+    "seconds": "с"
+  },
+  "time": {
+    "one": "{value} {unit}",
+    "two": "{first} {firstUnit} {second} {secondUnit}"
+  },
+  "noDevice": "Не записано",
+  "noDeviceRecorded": "Устройство не записано",
+  "deviceWithLayout": "{name} ({layout})"
+}

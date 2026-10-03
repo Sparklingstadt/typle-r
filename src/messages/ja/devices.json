@@ -1,0 +1,65 @@
+{
+  "title": "端末",
+  "description": "練習に使うパソコンやキーボードを登録します。「<link>練習する</link>」で選ぶと、どの端末で練習したかが記録に残ります。",
+  "usage": "練習 {count}回 · 最終 {day}",
+  "neverUsed": "まだ練習していません",
+  "listHeading": "登録済みの端末",
+  "count": "{count}台",
+  "add": "端末を追加",
+  "limit": "端末は{max}台まで登録できます。使わなくなった端末を削除すると追加できます。",
+  "inUse": "使用中",
+  "inUseDetail": "このブラウザーで練習に使う端末です",
+  "edit": "編集",
+  "editLabel": "{name} を編集",
+  "delete": "削除",
+  "deleteLabel": "{name} を削除",
+  "added": "端末「{name}」を追加しました。",
+  "saved": "端末「{name}」を保存しました。",
+  "deleted": "端末「{name}」を削除しました。",
+  "deleteTitle": "端末「{name}」を削除しますか？",
+  "deleteDescription": "{removal}{records}{current, select, yes {このブラウザーで練習に使う端末は「未選択」に戻ります。} other {}}",
+  "deleteRemoval": "一覧から「{name}」を削除します。",
+  "deleteRecords": "この端末で練習した{count}回分の記録は削除されず、練習した時点の端末名のまま残ります。",
+  "deleteNoRecords": "この端末で練習した記録はありません。",
+  "empty": {
+    "title": "端末はまだ登録されていません",
+    "description": "登録した端末を「練習する」で選ぶと、どの端末で練習したかが記録に残り、端末ごとの記録を見比べられます。",
+    "example": "例：MacBook Air（JIS）、デスクトップ＋HHKB（US）"
+  },
+  "current": {
+    "heading": "このブラウザーで練習に使う端末",
+    "change": "変更",
+    "changeLabel": "このブラウザーで練習に使う端末を変更（現在：{device}）",
+    "practice": "練習する",
+    "noteSelected": "「練習する」で練習すると、この端末が記録に残ります。ブラウザーごとに覚えるので、パソコンごとに選んでおけます。",
+    "noteUnselected": "未選択のときは、練習記録に端末を残しません。ブラウザーごとに覚えるので、パソコンごとに選んでおけます。"
+  },
+  "dialog": {
+    "addTitle": "端末を追加",
+    "editTitle": "端末を編集",
+    "addDescription": "練習に使う端末を登録します。",
+    "editDescription": "表示する名前と配列・メモを変更します。",
+    "name": "端末名",
+    "namePlaceholder": "例：MacBook Air",
+    "nameHelp": "練習画面の端末メニューと練習記録に表示されます。",
+    "layout": "配列・メモ",
+    "optional": "（任意）",
+    "layoutPlaceholder": "例：JIS、US",
+    "layoutHelp": "配列や設定の違いを書いておくと、記録を見比べるときの目印になります。",
+    "renameNote": "名前を変えても、これまでの練習記録（{count}回）には練習した時点の名前が残ります。",
+    "use": "このブラウザーで練習に使う端末にする",
+    "useHelp": "「練習する」で練習したとき、この端末が記録に残ります。"
+  },
+  "menu": {
+    "label": "使用端末：{device}",
+    "locked": "練習中は端末を変更できません",
+    "change": "使用端末を変更",
+    "unselected": "端末：未選択",
+    "heading": "使用端末（練習の開始前だけ変更できます）",
+    "manage": "端末を管理"
+  },
+  "choice": {
+    "notSelected": "未選択",
+    "none": "未選択（端末を記録しない）"
+  }
+}

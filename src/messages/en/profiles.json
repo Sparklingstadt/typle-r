@@ -1,0 +1,49 @@
+{
+  "title": "Profiles",
+  "defaultName": "Main",
+  "description": "Use separate profiles for different goals, such as everyday practice, Chinese or Korean, to keep their word lists and practice records apart. <link>Devices</link> are shared by all profiles.",
+  "counts": {
+    "lists": "{count, plural, one {# word list} other {# word lists}}",
+    "records": "Practised {count, plural, one {# time} other {# times}}"
+  },
+  "added": "Added the profile “{name}”.",
+  "addedAndSwitched": "Added the profile “{name}” and switched to it.",
+  "renamed": "Renamed the profile to “{name}”.",
+  "switched": "Switched to the profile “{name}”.",
+  "deleted": "Deleted the profile “{name}”.",
+  "listHeading": "Profiles",
+  "limitDetail": "You can create up to {max}",
+  "add": "Add profile",
+  "limit": "You can create up to {max} profiles. Delete profiles you no longer use to add more.",
+  "inUse": "In use",
+  "inUseDetail": "The profile shown in this browser",
+  "switch": "Switch",
+  "switchLabel": "Switch to {name}",
+  "rename": "Rename",
+  "renameLabel": "Rename {name}",
+  "delete": "Delete",
+  "deleteLabel": "Delete {name}",
+  "note": "Each browser remembers the profile in use, so you can keep a different profile open on each computer. The first profile ({first}) cannot be deleted.",
+  "deleteTitle": "Delete the profile “{name}”?",
+  "deleteDescription": "{removal} Devices and other profiles are not affected.{current, select, yes { This browser will switch to “{first}”.} other {}}",
+  "deleteRemoval": "This deletes the profile “{name}” with its {lists, plural, one {# word list} other {# word lists}} and {records, plural, one {# practice record} other {# practice records}}.",
+  "dialog": {
+    "addTitle": "Add profile",
+    "renameTitle": "Rename profile",
+    "addDescription": "A new profile starts with no word lists or practice records.",
+    "renameDescription": "Word lists and practice records stay as they are.",
+    "name": "Profile name",
+    "namePlaceholder": "e.g. Chinese",
+    "nameHelp": "Shown in the switcher in the sidebar. Handy for separating practice by goal.",
+    "use": "Switch to the new profile",
+    "useHelp": "Each browser remembers which profile is in use."
+  },
+  "switcher": {
+    "loading": "Loading profiles",
+    "label": "Switch profile (current: {name})",
+    "caption": "Profile",
+    "unsaved": "Save or cancel the word list you are editing to switch",
+    "heading": "Switch word lists and records",
+    "manage": "Manage profiles"
+  }
+}

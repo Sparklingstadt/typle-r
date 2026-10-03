@@ -1,0 +1,22 @@
+{
+  "title": "一般",
+  "metaTitle": "一般 | Typle",
+  "description": "與 Typle 顯示相關的設定。",
+  "language": {
+    "heading": "顯示語言",
+    "description": "選擇畫面顯示的語言。單字清單的內容與練習紀錄不會改變。",
+    "note": "所選語言會儲存在此瀏覽器中。",
+    "current": "使用中",
+    "changing": "正在變更顯示語言…",
+    "changed": "顯示語言已變更為{language}。",
+    "failed": "無法變更顯示語言。請再試一次。"
+  },
+  "languages": {
+    "ja": "日文",
+    "en": "英文",
+    "zh-CN": "簡體中文",
+    "zh-TW": "繁體中文",
+    "ru": "俄文",
+    "fr": "法文"
+  }
+}

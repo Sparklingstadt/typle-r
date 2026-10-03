@@ -1,10 +1,12 @@
+import { AppError, type ErrorKey, type ErrorValues } from './appError'
 import { decodeDevices, type PracticeDevice } from './devices'
 import { decodeLists, type SavedWordList } from './wordLists'
 
 // A profile keeps its own word lists and records (e.g. everyday typing, Chinese, Korean). Devices are shared by the account.
 // The first profile's lists stay in the workspace's `lists` column, so clients that predate profiles still read and write it.
 export const DEFAULT_PROFILE_ID = 'default'
-export const DEFAULT_PROFILE_NAME = 'メイン'
+// Stored with the workspace (older clients read it too), so it stays fixed; useWordLists shows it in the reader's language.
+export const DEFAULT_PROFILE_NAME = 'メイン' // i18n-ignore: stored data
 export const MAX_PROFILES = 10
 export const MAX_PROFILE_NAME = 50
 
@@ -27,7 +29,7 @@ export function decodeProfileDrafts(value: unknown): ProfileDraft[] {
   if (!Array.isArray(value) || value.length < 1 || value.length > MAX_PROFILES || !value.every(isDraft) ||
     value[0].id !== DEFAULT_PROFILE_ID || new Set(value.map(profile => profile.id)).size !== value.length ||
     new Set(value.map(profile => profile.name.trim().toLocaleLowerCase())).size !== value.length) {
-    throw new Error('プロファイルの形式を確認してください。')
+    throw new AppError('profileDataInvalid')
   }
   return value.map(({ id, name }) => ({ id, name: name.trim() }))
 }
@@ -36,14 +38,14 @@ export function decodeProfileSummaries(value: unknown): ProfileSummary[] {
   const drafts = decodeProfileDrafts(value)
   const counts = (value as Record<string, unknown>[]).map(({ listCount, recordCount }) => ({ listCount, recordCount }))
   if (!counts.every(count => Number.isSafeInteger(count.listCount) && Number.isSafeInteger(count.recordCount))) {
-    throw new Error('プロファイルの形式を確認してください。')
+    throw new AppError('profileDataInvalid')
   }
   return drafts.map((draft, index) => ({ ...draft, listCount: Number(counts[index].listCount), recordCount: Number(counts[index].recordCount) }))
 }
 
 /** Reads the stored `profiles` column; an empty array means only the first profile exists. */
 export function decodeStoredProfiles(value: unknown): StoredProfile[] {
-  if (!Array.isArray(value)) throw new Error('プロファイルの形式を確認してください。')
+  if (!Array.isArray(value)) throw new AppError('profileDataInvalid')
   const stored = value.length ? value : [{ id: DEFAULT_PROFILE_ID, name: DEFAULT_PROFILE_NAME }]
   const drafts = decodeProfileDrafts(stored)
   return drafts.map((profile, index) => index === 0 ? profile
@@ -73,8 +75,8 @@ export function viewDocument(document: WorkspaceDocument, profileId: string): Wo
   }
 }
 
-export class MissingProfileError extends Error {
-  constructor() { super('このプロファイルは削除されています。画面を開き直してください。') }
+export class MissingProfileError extends AppError {
+  constructor() { super('profileDeleted') }
 }
 
 export function applyChange(document: WorkspaceDocument, change: WorkspaceChange): WorkspaceDocument {
@@ -89,31 +91,31 @@ export function applyChange(document: WorkspaceDocument, change: WorkspaceChange
   }
 }
 
-export type ProfileProblem = { field: 'name' | 'form'; message: string }
+export type ProfileProblem = { field: 'name' | 'form'; key: ErrorKey; values?: ErrorValues }
 
 // Explains why a profile cannot be saved, in terms of the field to fix.
 export function profileProblem(profiles: ProfileDraft[], profile: ProfileDraft, editing: boolean): ProfileProblem | null {
   const name = profile.name.trim()
-  if (!name) return { field: 'name', message: 'プロファイル名を入力してください。' }
-  if (profile.name.length > MAX_PROFILE_NAME) return { field: 'name', message: `プロファイル名は${MAX_PROFILE_NAME}文字以内で入力してください。` }
-  if (editing && !profiles.some(item => item.id === profile.id)) return { field: 'form', message: 'このプロファイルは別の画面で削除されています。' }
+  if (!name) return { field: 'name', key: 'profileNameRequired' }
+  if (profile.name.length > MAX_PROFILE_NAME) return { field: 'name', key: 'profileNameTooLong', values: { max: MAX_PROFILE_NAME } }
+  if (editing && !profiles.some(item => item.id === profile.id)) return { field: 'form', key: 'profileDeletedElsewhere' }
   const same = profiles.find(item => item.id !== profile.id && item.name.toLocaleLowerCase() === name.toLocaleLowerCase())
-  if (same) return { field: 'name', message: `「${same.name}」はすでにあります。別の名前にしてください。` }
+  if (same) return { field: 'name', key: 'profileNameDuplicate', values: { name: same.name } }
   if (!editing && profiles.length >= MAX_PROFILES) {
-    return { field: 'form', message: `プロファイルは${MAX_PROFILES}個まで作成できます。使わなくなったプロファイルを削除してから追加してください。` }
+    return { field: 'form', key: 'profileLimit', values: { max: MAX_PROFILES } }
   }
   return null
 }
 
 export function saveProfile(profiles: ProfileDraft[], profile: ProfileDraft, editing: boolean): ProfileDraft[] {
   const problem = profileProblem(profiles, profile, editing)
-  if (problem) throw new Error(problem.message)
+  if (problem) throw new AppError(problem.key, problem.values)
   const drafts = profiles.map(({ id, name }) => ({ id, name }))
   const normalized = { id: profile.id, name: profile.name.trim() }
   return decodeProfileDrafts(editing ? drafts.map(item => item.id === profile.id ? normalized : item) : [...drafts, normalized])
 }
 
 export function removeProfile(profiles: ProfileDraft[], id: string): ProfileDraft[] {
-  if (id === DEFAULT_PROFILE_ID) throw new Error('最初のプロファイルは削除できません。')
+  if (id === DEFAULT_PROFILE_ID) throw new AppError('profileFirstUndeletable')
   return decodeProfileDrafts(profiles.filter(profile => profile.id !== id).map(({ id, name }) => ({ id, name })))
 }

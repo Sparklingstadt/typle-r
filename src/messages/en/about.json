@@ -1,0 +1,60 @@
+{
+  "meta": {
+    "title": "About Typle | Typle",
+    "description": "What you can do with Typle, where your data is saved, what is sent in error reports, and the version."
+  },
+  "title": "About Typle",
+  "intro": "A typing app for practicing with word lists you create yourself. Add any words you like, practice them, and track your progress with your best records.",
+  "play": "Practice",
+  "guide": "How to use",
+  "features": {
+    "title": "What you can do",
+    "create": {
+      "title": "Create a list",
+      "description": "Add the words you want to learn. The word to display and the characters to type can be set separately, and you can also add words from CSV or TSV files."
+    },
+    "play": {
+      "title": "Practice",
+      "description": "Speed, accuracy, and mistakes are shown as you type, along with where you typed a wrong character."
+    },
+    "rankings": {
+      "title": "Best records",
+      "description": "See your progress through your personal best, the average of your last 5 runs, and how your time has changed."
+    }
+  },
+  "storage": {
+    "title": "Where your data is saved",
+    "text": "Signing in is optional. Where data is saved depends on whether you are signed in, and the two are kept separately (nothing is moved automatically).",
+    "more": "See <link>“Storage and data” in How to use</link> for details."
+  },
+  "places": {
+    "current": "Current",
+    "browser": {
+      "title": "This browser",
+      "condition": "When you are not signed in",
+      "p1": "Saved in this browser’s LocalStorage",
+      "p2": "Not synced with other devices or browsers",
+      "p3": "Lost when you clear the browser’s data"
+    },
+    "account": {
+      "title": "Account",
+      "condition": "When signed in with GitHub",
+      "p1": "Saved on a server dedicated to your account",
+      "p2": "The same data on every device you sign in on",
+      "p3": "Saving requires an internet connection"
+    }
+  },
+  "reports": {
+    "title": "Error reports",
+    "text": "To investigate problems, we may send details of errors and the environment where they occurred (browser, OS, and so on). Before sending, request contents such as word lists, cookies, user information, and the history of your actions are removed."
+  },
+  "version": {
+    "title": "Version and development",
+    "version": "Version",
+    "tech": "Built with",
+    "techList": "Next.js, React, PostgreSQL (Neon)",
+    "source": "Source code",
+    "newTab": "(opens in a new tab)",
+    "private": "This is a private repository. It can only be opened with GitHub accounts that have been granted access."
+  }
+}

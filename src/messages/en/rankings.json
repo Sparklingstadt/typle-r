@@ -1,0 +1,117 @@
+{
+  "title": "Best records",
+  "intro": "Your personal best for each word list. Choose a list to see its top records and how your time has changed.",
+  "reload": "Reload",
+  "filter": {
+    "device": "Device",
+    "allDevices": "All devices",
+    "deleted": "{name} (deleted)"
+  },
+  "order": {
+    "label": "Ranking order",
+    "accuracy": "Accuracy<wide> first</wide>",
+    "speed": "Speed<wide> first</wide>"
+  },
+  "orderNotes": {
+    "accuracy": "Highest accuracy first; ties go to the faster run",
+    "speed": "Fastest first; ties go to the higher accuracy"
+  },
+  "lists": "Word lists",
+  "empty": {
+    "title": "No best records yet",
+    "description": "Type a word list to the end, and each list’s personal best, top records and time trend will appear here.",
+    "practice": "Practice",
+    "create": "Create a word list"
+  },
+  "list": {
+    "search": "Search lists",
+    "clearSearch": "Clear search",
+    "noDeviceRecords": "Lists without records on this device ({count, number})",
+    "noRecords": "Lists without records yet ({count, number})",
+    "words": "{count, plural, one {# word} other {# words}}",
+    "noMatch": "No lists match “{query}”.",
+    "lastPracticed": "Last practiced",
+    "best": "Personal best",
+    "improved": "New",
+    "improvedTitle": "{days, plural, one {Personal best improved in the last day} other {Personal best improved in the last # days}}",
+    "runs": "{count, plural, one {# run} other {# runs}}",
+    "sortLabel": "Sort: {sort}",
+    "sorts": {
+      "recent": "Recently practiced",
+      "name": "Name",
+      "count": "Most records"
+    }
+  },
+  "detail": {
+    "back": "All lists",
+    "words": "{count, plural, one {# word} other {# words}}",
+    "records": "{count, plural, one {# record} other {# records}}",
+    "lastPracticed": "Last practiced {day}",
+    "viewRecords": "View records",
+    "practice": "Practice this list",
+    "notPractised": {
+      "title": "Not practiced yet",
+      "description": "Type this list to the end, and its personal best and top records will appear here."
+    },
+    "noDeviceRecords": {
+      "title": "No records practiced on “{device}”",
+      "description": "{count, plural, one {This list has # record from other devices.} other {This list has # records from other devices.}}",
+      "showAll": "Show records from all devices"
+    },
+    "top": {
+      "title": "Top records",
+      "accuracy": "Accuracy first",
+      "speed": "Speed first",
+      "shown": "{shown, number} / {total, plural, one {# record} other {# records}}",
+      "showTop": "Show only the top {count, number}",
+      "showAll": "Show all ({count, number})",
+      "oldAccuracy": "Records with “—” for accuracy are old ones saved before accuracy was recorded. They come last when ranking by accuracy."
+    },
+    "stats": {
+      "best": "Personal best",
+      "bestNote": "{accuracy} · {day}",
+      "noAccuracy": "No accuracy",
+      "recentAverage": "{count, plural, one {Latest run} other {Average of last #}}",
+      "gap": "+{value} s from best",
+      "sameAsBest": "Same as best",
+      "averageAccuracy": "Average accuracy",
+      "recentRuns": "{count, plural, one {Latest run} other {Last # runs}}",
+      "runs": "Runs",
+      "runsValue": "{count, plural, one {# <unit>run</unit>} other {# <unit>runs</unit>}}",
+      "allWordCounts": "All word counts",
+      "currentWords": "{count, plural, one {At the current # word} other {At the current # words}}"
+    },
+    "trend": {
+      "title": "Time trend",
+      "recent": "{count, plural, one {Latest run} other {Last # runs}}",
+      "label": "Time trend for {name}",
+      "needTwo": "Practice at least twice to see the trend."
+    },
+    "others": {
+      "old": "{count, plural, one {# old record without a word count} other {# old records without a word count}}",
+      "words": "{count, plural, one {# record at {words} words} other {# records at {words} words}}",
+      "separator": ", ",
+      "fallback": "{count, plural, one {There are no records at the current # word, so records at other word counts ({detail}) are ranked.} other {There are no records at the current # words, so records at other word counts ({detail}) are ranked.}}",
+      "included": "Records at other word counts ({detail}) are included. Times are not directly comparable when the word count differs.",
+      "excluded": "<strong>{count, plural, one {# record at a different word count is not ranked.} other {# records at a different word count are not ranked.}}</strong> They are from before the list was edited, for example ({detail}).",
+      "exclude": "Exclude",
+      "include": "Include"
+    }
+  },
+  "top": {
+    "label": "Top records of {name}",
+    "rank": "Rank",
+    "time": "Time",
+    "accuracy": "Accuracy",
+    "mistakes": "Mistakes",
+    "device": "Device",
+    "date": "Date",
+    "rankNumber": "Rank {rank}",
+    "deleted": "Deleted",
+    "deletedSuffix": " (deleted)",
+    "otherWords": "Recorded at a different word count",
+    "words": "{count, plural, one {# word} other {# words}}",
+    "unknownWords": "? words",
+    "oldAccuracy": "An old record saved before accuracy was recorded"
+  }
+}

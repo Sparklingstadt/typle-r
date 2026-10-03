@@ -1,0 +1,49 @@
+{
+  "title": "設定檔",
+  "defaultName": "主要",
+  "description": "依目的分開設定檔（例如日常練習、中文、韓文），即可分別儲存單字清單與練習紀錄。<link>裝置</link>由所有設定檔共用。",
+  "counts": {
+    "lists": "單字清單 {count, number} 個",
+    "records": "練習 {count, number} 次"
+  },
+  "added": "已新增設定檔「{name}」。",
+  "addedAndSwitched": "已新增設定檔「{name}」並切換。",
+  "renamed": "已將設定檔名稱變更為「{name}」。",
+  "switched": "已切換至設定檔「{name}」。",
+  "deleted": "已刪除設定檔「{name}」。",
+  "listHeading": "設定檔清單",
+  "limitDetail": "最多可建立 {max} 個",
+  "add": "新增設定檔",
+  "limit": "最多可以建立 {max} 個設定檔。刪除不再使用的設定檔後即可新增。",
+  "inUse": "使用中",
+  "inUseDetail": "此瀏覽器目前顯示的設定檔",
+  "switch": "切換",
+  "switchLabel": "切換至 {name}",
+  "rename": "重新命名",
+  "renameLabel": "重新命名 {name}",
+  "delete": "刪除",
+  "deleteLabel": "刪除 {name}",
+  "note": "每個瀏覽器會分別記住使用中的設定檔，因此可以在不同電腦上開啟不同的設定檔。第一個設定檔（{first}）無法刪除。",
+  "deleteTitle": "要刪除設定檔「{name}」嗎？",
+  "deleteDescription": "{removal}裝置與其他設定檔不受影響。{current, select, yes {此瀏覽器將切換至「{first}」。} other {}}",
+  "deleteRemoval": "將刪除設定檔「{name}」及其 {lists, number} 個單字清單與 {records, number} 次練習紀錄。",
+  "dialog": {
+    "addTitle": "新增設定檔",
+    "renameTitle": "重新命名設定檔",
+    "addDescription": "新的設定檔會從空白的單字清單與練習紀錄開始。",
+    "renameDescription": "單字清單與練習紀錄會保持不變。",
+    "name": "設定檔名稱",
+    "namePlaceholder": "例：中文",
+    "nameHelp": "會顯示在側邊欄的切換選單中。依練習目的分開會很方便。",
+    "use": "切換至新增的設定檔",
+    "useHelp": "每個瀏覽器會分別記住切換狀態。"
+  },
+  "switcher": {
+    "loading": "正在載入設定檔",
+    "label": "切換設定檔（目前：{name}）",
+    "caption": "設定檔",
+    "unsaved": "儲存或取消正在編輯的單字清單後即可切換",
+    "heading": "切換單字清單與紀錄",
+    "manage": "管理設定檔"
+  }
+}

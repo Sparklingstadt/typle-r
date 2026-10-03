@@ -5,7 +5,7 @@ type StoredRecord = SavedWordList['records'][number]
 
 const DAY_MS = 24 * 60 * 60 * 1000
 export const RANKING_TOP = 5
-// A best set within this many days is marked 「更新」 in the list.
+// A best set within this many days is marked as improved in the list.
 export const IMPROVED_DAYS = 7
 const TREND_POINTS = 20
 const RECENT_RUNS = 5
@@ -47,11 +47,11 @@ export function listRanking(list: SavedWordList, { device = null, order = 'accur
 }
 
 export type ListSort = 'recent' | 'name' | 'count'
-export const LIST_SORTS: Record<ListSort, string> = { recent: '最近練習した順', name: '名前順', count: '記録が多い順' }
+export const LIST_SORTS: ListSort[] = ['recent', 'name', 'count']
 
-export function sortRankings(rankings: ListRanking[], sort: ListSort) {
+export function sortRankings(rankings: ListRanking[], sort: ListSort, locale = 'ja') {
   const recent = (a: ListRanking, b: ListRanking) => (b.lastPracticed?.getTime() ?? 0) - (a.lastPracticed?.getTime() ?? 0)
-  return [...rankings].sort(sort === 'name' ? (a, b) => a.list.name.localeCompare(b.list.name, 'ja')
+  return [...rankings].sort(sort === 'name' ? (a, b) => a.list.name.localeCompare(b.list.name, locale)
     : sort === 'count' ? (a, b) => b.records.length - a.records.length || recent(a, b)
       : recent)
 }

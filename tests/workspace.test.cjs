@@ -39,11 +39,12 @@ test('Prisma repository isolates owners and atomically rejects stale revisions',
 test('migration is explicit, repeatable and preserves colliding names and records', async () => {
   const source = [{ ...list, records: [{ id: 'r', date: '2026-09-06', time: 1 }] }]
   const incoming = await prepareLegacy(source)
-  const merged = mergeLegacy([list], incoming)
+  const suffix = n => `（移行 ${n}）`
+  const merged = mergeLegacy([list], incoming, suffix)
   assert.equal(merged.length, 2)
   assert.equal(merged[1].name, 'One（移行 2）')
   assert.equal(merged[1].records.length, 1)
-  assert.deepEqual(mergeLegacy(merged, await prepareLegacy(source)), merged)
+  assert.deepEqual(mergeLegacy(merged, await prepareLegacy(source), suffix), merged)
   assert.equal(source[0].id, 'one')
 })
 

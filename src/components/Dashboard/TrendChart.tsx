@@ -1,9 +1,8 @@
 "use client"
 import { useState, type KeyboardEvent, type PointerEvent } from "react"
+import { useTranslations } from "next-intl"
+import { useFormat } from "@/i18n/useFormat"
 import type { Scale, TrendPoint } from "@/lib/dashboard"
-
-const shortDate = (date: string) => new Date(date).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })
-const longDate = (date: string) => new Date(date).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 
 // A 0–100 viewBox stretched to the box keeps the chart fluid; strokes and markers stay crisp via
 // non-scaling strokes and HTML dots positioned in percent.
@@ -13,6 +12,10 @@ export default function TrendChart({ label, points, scale, format }: {
   scale: Scale
   format: (value: number) => string
 }) {
+  const t = useTranslations('dashboard.chart')
+  const dates = useFormat()
+  const shortDate = (date: string) => dates.shortDate(new Date(date))
+  const longDate = (date: string) => dates.shortDateTime(new Date(date))
   const [active, setActive] = useState<number | null>(null)
   const last = points.length - 1
   const [low, high] = scale.domain
@@ -39,7 +42,7 @@ export default function TrendChart({ label, points, scale, format }: {
       <div aria-hidden="true" className="relative my-2 w-8 shrink-0 text-[11px] text-muted-foreground tabular-nums">
         {scale.ticks.map(tick => <span key={tick} className="absolute right-0 -translate-y-1/2 leading-none" style={{ top: `${y(tick)}%` }}>{tick.toFixed(scale.decimals)}</span>)}
       </div>
-      <div role="slider" tabIndex={0} aria-label={`${label}（左右キーで各回の値を表示）`} aria-valuemin={1} aria-valuemax={points.length} aria-valuenow={shown + 1} aria-valuetext={valueText}
+      <div role="slider" tabIndex={0} aria-label={t('label', { label })} aria-valuemin={1} aria-valuemax={points.length} aria-valuenow={shown + 1} aria-valuetext={valueText}
         className="relative h-[72px] min-w-0 flex-1 cursor-crosshair touch-pan-y rounded-sm py-2 outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         onPointerMove={pointerMove} onPointerDown={pointerMove} onPointerLeave={() => setActive(null)} onFocus={() => setActive(last)} onBlur={() => setActive(null)} onKeyDown={keyDown}>
         <div className="relative mx-1 h-full">
@@ -63,7 +66,7 @@ export default function TrendChart({ label, points, scale, format }: {
     </figcaption>
     <table className="sr-only">
       <caption>{label}</caption>
-      <thead><tr><th scope="col">日時</th><th scope="col">値</th></tr></thead>
+      <thead><tr><th scope="col">{t('date')}</th><th scope="col">{t('value')}</th></tr></thead>
       <tbody>{points.map((item, index) => <tr key={index}><td>{longDate(item.date)}</td><td>{format(item.value)}</td></tr>)}</tbody>
     </table>
   </figure>

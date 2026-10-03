@@ -1,0 +1,41 @@
+{
+  "mainNavigation": "Main navigation",
+  "help": "Help",
+  "skipToContent": "Skip to content",
+  "topBar": "Top bar",
+  "openMenu": "Open menu",
+  "closeMenu": "Close menu",
+  "menu": "Menu",
+  "groups": {
+    "practice": "Practice",
+    "wordLists": "Word lists",
+    "settings": "Settings"
+  },
+  "links": {
+    "home": "Home",
+    "play": "Practice",
+    "records": "Practice history",
+    "rankings": "Best records",
+    "edit": "Word lists",
+    "create": "Create a list",
+    "general": "General",
+    "profiles": "Profiles",
+    "devices": "Devices",
+    "guide": "How to use",
+    "about": "About Typle",
+    "github": "GitHub"
+  },
+  "storage": {
+    "label": "Saved to: ",
+    "account": "Saved to your account",
+    "browser": "Saved in this browser",
+    "accountDetail": "Saved to your GitHub account and synced across the devices you sign in on.",
+    "browserDetail": "You are not signed in, so data is saved only in this browser."
+  },
+  "theme": {
+    "label": "Dark mode",
+    "toLight": "Switch to light mode",
+    "toDark": "Switch to dark mode",
+    "saveFailed": "The setting cannot be saved, so it only applies to this page."
+  }
+}

@@ -3,6 +3,7 @@
 import * as React from "react"
 import { cn } from "cn"
 import { XIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { Dialog as DialogPrimitive } from "radix-ui"
 
 function Dialog({ ...props }: React.ComponentProps<typeof DialogPrimitive.Root>) {
@@ -22,6 +23,7 @@ function DialogContent({
   children,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content>) {
+  const t = useTranslations("common")
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay
@@ -39,7 +41,7 @@ function DialogContent({
         {children}
         <DialogPrimitive.Close
           className="absolute top-3 right-3 inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50"
-          aria-label="閉じる"
+          aria-label={t("close")}
         >
           <XIcon className="size-4" aria-hidden="true" />
         </DialogPrimitive.Close>
