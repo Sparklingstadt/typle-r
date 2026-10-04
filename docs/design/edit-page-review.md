@@ -53,7 +53,7 @@ v0.25.0 で実装。
 
 - 画面: `src/app/(workspace)/edit/page.tsx`（一覧・検索・並び順・削除の確認・状態、`?list=` と編集画面の行き来）、`src/components/WordLists/ListRow.tsx`（1行と「…」メニュー）
 - 編集画面: `src/components/WordListEditor.tsx` に「‹ 単語リスト」、説明（`description`）、単語数が変わるときの注意、`beforeunload`、未保存の変更を外から確認する `cancelRequest`・`onDirtyChange` を追加。/create も「‹ 単語リスト」と `beforeunload` が付く
-- ロジック: `src/lib/listOverview.ts`（使われ方の集計・並び順・検索・単語の例・複製・`MAX_LISTS`）。`src/lib/workspaceRequest.ts` の上限も `MAX_LISTS` を使う。CSV エクスポートは `downloadWordCsv`（`src/components/WordListExport.tsx`）にして、メニューと削除の確認から呼ぶ
+- ロジック: `src/core/listOverview.ts`（使われ方の集計・並び順・検索・単語の例・複製・`MAX_LISTS`）。`src/core/workspaceRequest.ts` の上限も `MAX_LISTS` を使う。CSV エクスポートは `downloadWordCsv`（`src/components/WordListExport.tsx`）にして、メニューと削除の確認から呼ぶ
 - 決めたこと: 既定の並びは追加した順（新しい順）。単語の例は先頭6語。練習記録へのリンクは記録があるときだけ出す。複製の名前は「（コピー）」「（コピー2）」…で、200文字に収める
 - テスト: `tests/listOverview.test.cjs`（集計・並び順・検索・単語の例・複製）、`tests/e2e/word-lists.spec.ts`（一覧・検索・並び順・メニュー、URL・戻る・未保存の確認・保存後のフォーカス、複製・削除、390px、空・読み込みエラー）。既存の E2E は「…」メニューからの CSV エクスポート・削除に合わせた
 

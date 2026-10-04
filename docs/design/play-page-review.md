@@ -48,7 +48,7 @@ P0 = 誤った表示・操作不能につながる／P1 = 迷い・手戻りが�
 
 ## 実装メモ
 
-- 主な変更箇所: `src/app/(workspace)/play/page.tsx`、`src/lib/usePractice.ts`、`src/lib/typing.ts`、`src/components/BestRecordsTable.tsx`、`src/components/DeviceSelector.tsx`
+- 主な変更箇所: `src/app/(workspace)/play/page.tsx`、`src/lib/usePractice.ts`、`src/core/typing.ts`、`src/components/BestRecordsTable.tsx`、`src/components/DeviceSelector.tsx`
 - 色付けは `session.input`（確定済み）と `word.input` を比べ、最初にずれた位置を求める関数を `typing.ts` に置く（プロトタイプの `charStates`）。現在の `composition ?? session.input` と `word.display` の比較はやめる。
 - 記録には打った文字数を保存していないため、速度は結果画面と練習中だけに出す。ベスト記録にも出す場合は `PracticeRecord` に文字数を追加する。
 - 並び順は既存の `bestRecords`（正確率 → 時間）のまま。「自己ベスト更新」は並べ替えた結果で1位になったときに出す。

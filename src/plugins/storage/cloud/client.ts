@@ -30,4 +30,4 @@ export function writeWorkspace(request: WorkspaceWrite) {
 }
 
 /** The account's workspace on the server, through `/api/workspace`. */
-export const cloudStore: WorkspaceStore = { read: readWorkspace, write: writeWorkspace, staleReads: true }
+export const cloudStore: WorkspaceStore = { location: 'account', read: readWorkspace, write: writeWorkspace, staleReads: true }

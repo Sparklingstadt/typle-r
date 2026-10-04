@@ -48,8 +48,8 @@ P1 = 迷い・手戻りが起きる／P2 = 見た目・情報設計（データ�
 
 ## 実装メモ
 
-- 主な変更箇所: `src/app/(workspace)/records/page.tsx`、`src/components/Records/RecordRow.tsx`、`src/components/Records/FilterMenu.tsx`、`src/components/Records/ListSummary.tsx`、`src/lib/records.ts`、`src/components/DeleteConfirmation.tsx`
-- `recordRows()` が全リストの記録を新しい順に並べ、各リストの1位（`bestRecords(records, 1)`）に `best` を付ける。`filterRows()`・`groupByDay()`（日付は閲覧者の現地時間）・`recordTimeParts()`・`formatAccuracy()` を `src/lib/records.ts` に追加。`recordTimeParts()` は先に1/100秒へ丸めるので、59.999秒は「60.00秒」ではなく「1分00.00秒」になる。
+- 主な変更箇所: `src/app/(workspace)/records/page.tsx`、`src/components/Records/RecordRow.tsx`、`src/components/Records/FilterMenu.tsx`、`src/components/Records/ListSummary.tsx`、`src/core/records.ts`、`src/components/DeleteConfirmation.tsx`
+- `recordRows()` が全リストの記録を新しい順に並べ、各リストの1位（`bestRecords(records, 1)`）に `best` を付ける。`filterRows()`・`groupByDay()`（日付は閲覧者の現地時間）・`recordTimeParts()`・`formatAccuracy()` を `src/core/records.ts` に追加。`recordTimeParts()` は先に1/100秒へ丸めるので、59.999秒は「60.00秒」ではなく「1分00.00秒」になる。
 - 絞り込みは `useSearchParams` と `router.replace(..., { scroll: false })` で URL に保存する。`/play` と同じく Suspense で包む。
 - `DeleteConfirmation` に `children`（説明とボタンの間に出す中身）を追加。
 - 削除後のフォーカスは、開いたときの行の位置を覚えておき、`onCloseAutoFocus` で同じ位置の `[data-delete-record]` に移す。

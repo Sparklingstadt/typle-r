@@ -5,7 +5,6 @@ import { Check, History, Monitor, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useFormat } from '@/i18n/useFormat'
 import { useWordLists } from '@/lib/useWordLists'
-import { GUEST_ACCOUNT_ID } from '@/plugins/storage/guest'
 import { useSelectedDevice } from '@/lib/deviceSelection'
 import { deviceUsage, MAX_DEVICES, saveDevice, type DeviceUsage, type PracticeDevice } from '@/core/devices'
 import type { SavedWordList } from '@/core/wordLists'
@@ -24,7 +23,6 @@ export default function Devices() {
   const workspace = useWordLists()
   const t = useTranslations('devices')
   const common = useTranslations('common')
-  const guest = workspace.accountId === GUEST_ACCOUNT_ID
   return <main className="mx-auto w-full max-w-4xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
     <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div className="space-y-1">
@@ -33,7 +31,7 @@ export default function Devices() {
           {t.rich('description', { link: chunks => <Link href="/play" className="underline underline-offset-3 hover:text-foreground">{chunks}</Link> })}
         </p>
       </div>
-      {workspace.ready && <PageStorageBadge guest={guest} />}
+      {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
     </header>
     {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
     {!workspace.ready ? <div role="status" className="space-y-3"><p>{common('loading')}</p><Skeleton className="h-20 w-full" /><Skeleton className="h-40 w-full" /></div>

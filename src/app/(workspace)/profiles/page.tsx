@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { ArrowRightLeft, Check, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useWordLists, type Workspace } from '@/lib/useWordLists'
-import { GUEST_ACCOUNT_ID } from '@/plugins/storage/guest'
 import { DEFAULT_PROFILE_ID, MAX_PROFILES, removeProfile, saveProfile, type ProfileDraft, type ProfileSummary } from '@/core/profiles'
 import { cn } from '@/lib/utils'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -21,7 +20,6 @@ export default function Profiles() {
   const workspace = useWordLists()
   const t = useTranslations('profiles')
   const common = useTranslations('common')
-  const guest = workspace.accountId === GUEST_ACCOUNT_ID
   return <main className="mx-auto w-full max-w-4xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
     <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div className="space-y-1">
@@ -30,7 +28,7 @@ export default function Profiles() {
           {t.rich('description', { link: chunks => <Link href="/devices" className="underline underline-offset-3 hover:text-foreground">{chunks}</Link> })}
         </p>
       </div>
-      {workspace.ready && <PageStorageBadge guest={guest} />}
+      {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
     </header>
     {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
     {!workspace.ready || !workspace.profile ? <div role="status" className="space-y-3"><p>{common('loading')}</p><Skeleton className="h-40 w-full" /></div>

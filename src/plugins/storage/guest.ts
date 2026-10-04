@@ -58,6 +58,7 @@ export async function saveGuestWorkspace(request: WorkspaceWrite) {
 
 /** The guest workspace in this browser's LocalStorage. */
 export const guestStore: WorkspaceStore = {
+  location: 'browser',
   read: async profileId => readGuestWorkspace(localStorage, profileId),
   write: saveGuestWorkspace,
   staleReads: false,
