@@ -3,8 +3,8 @@ import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
-import { decodeLists, STORAGE_KEY, SavedWordList } from '@/core/wordLists'
-import { mergeLegacy, prepareLegacy } from '@/lib/importLegacy'
+import { decodeLists, SavedWordList } from '@/core/wordLists'
+import { LEGACY_STORAGE_KEY, mergeLegacy, prepareLegacy } from '@/plugins/formats/legacy'
 
 export default function LegacyImport({ update, disabled }: {
   update: (change: (lists: SavedWordList[]) => SavedWordList[], useDefaults?: boolean) => Promise<boolean>
@@ -21,7 +21,7 @@ export default function LegacyImport({ update, disabled }: {
       setBusy(true)
       setMessage('')
       try {
-        const raw = localStorage.getItem(STORAGE_KEY)
+        const raw = localStorage.getItem(LEGACY_STORAGE_KEY)
         if (!raw) { setMessage(t('none')); return }
         const incoming = await prepareLegacy(decodeLists(raw))
         if (await update(current => mergeLegacy(current, incoming, n => t('suffix', { n })), false)) setMessage(t('done'))

@@ -22,7 +22,6 @@ export type WordList = {
 }
 
 export type SavedWordList = WordList & { id: string }
-export const STORAGE_KEY = "typle-r:word-lists:v1"
 
 export function validateList(list: WordList, others: WordList[] = []) {
   if (!list.name.trim()) throw new AppError('listNameRequired')

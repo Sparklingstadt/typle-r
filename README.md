@@ -36,11 +36,11 @@ Next.js のアプリは1つで、`src` を層に分けています。依存は�
 
 | 層 | 場所 | 内容 |
 |---|---|---|
-| 画面 | `src/app`・`src/components`・`src/i18n`・`src/lib` | ページ、UI、多言語化、React のフック（`useWordLists` など）。取り込み・書き出し（`importWords`・`exportWords`・`importLegacy`）も今はここにあります |
-| プラグイン | `src/plugins` | core のポートの実装。`storage/cloud`（`/api/workspace` とPrisma）と `storage/guest`（LocalStorage）。`storage/index.ts` の `workspaceStore(accountId)` がアカウントに応じて選びます |
-| core | `src/core` | React・Next.js・Prisma・ブラウザーAPIに依存しない TypeScript。単語リスト・入力判定・記録・集計・ワークスペースのモデルと検証、保存先のポート `WorkspaceStore`（`workspaceStore.ts`） |
+| 画面 | `src/app`・`src/components`・`src/i18n`・`src/lib` | ページ、UI、多言語化、React のフック（`useWordLists` など） |
+| プラグイン | `src/plugins` | core のポートの実装と初期データ。`storage`：`cloud`（`/api/workspace` とPrisma）と `guest`（LocalStorage）を `workspaceStore(accountId)` がアカウントに応じて選びます。`formats`：CSV・TSV（`delimited.ts`）と旧バージョンのブラウザー保存からの移行（`legacy.ts`）。`packs`：最初に表示する単語リスト（サンプルと国名193か国） |
+| core | `src/core` | React・Next.js・Prisma・ブラウザーAPIに依存しない TypeScript。単語リスト・入力判定・記録・集計・ワークスペースのモデルと検証、保存先のポート `WorkspaceStore`（`workspaceStore.ts`）とファイル形式のポート `WordFormat`（`wordFormat.ts`） |
 
-保存先を増やすときは `WorkspaceStore` を実装したプラグインを `src/plugins/storage` に追加し、`workspaceStore` で選びます。画面のコードは変わりません。
+保存先を増やすときは `WorkspaceStore` を実装したプラグインを `src/plugins/storage` に追加し、`workspaceStore` で選びます。ファイル形式を増やすときは `WordFormat` を実装して `src/plugins/formats/index.ts` の一覧に加えると、取り込みの拡張子判定と `accept` に反映されます。どちらも画面のコードは変わりません。
 
 ## OGP・共有画像
 

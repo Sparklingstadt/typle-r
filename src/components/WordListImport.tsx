@@ -7,21 +7,21 @@ import { Button } from "./ui/button"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog"
 import { useErrorText } from "@/i18n/useErrorText"
 import { AppError } from "../core/appError"
-import { MAX_IMPORT_BYTES, parseWordFile } from "../lib/importWords"
-import type { WordList } from "../core/wordLists"
+import { MAX_IMPORT_BYTES, type Word } from "../core/wordFormat"
+import { importAccept, importFormat } from "../plugins/formats"
 
-type Words = WordList["words"]
+type Words = Word[]
 export type ImportMode = "append" | "replace"
 type Parsed = { name: string; size: number; words: Words }
 
 async function readWordFile(file: File): Promise<Parsed> {
-  const extension = file.name.split(".").pop()?.toLowerCase()
-  if (extension !== "csv" && extension !== "tsv") throw new AppError("importFileType")
+  const format = importFormat(file.name)
+  if (!format?.parse) throw new AppError("importFileType")
   if (file.size > MAX_IMPORT_BYTES) throw new AppError("importTooLarge")
   let text: string
   try { text = new TextDecoder("utf-8", { fatal: true }).decode(await file.arrayBuffer()) }
   catch { throw new AppError("importFileEncoding") }
-  return { name: file.name, size: file.size, words: parseWordFile(text, extension === "tsv" ? "\t" : ",") }
+  return { name: file.name, size: file.size, words: format.parse(text) }
 }
 
 export default function WordListImport({ onImport, disabled, existingCount }: {
@@ -79,7 +79,7 @@ export default function WordListImport({ onImport, disabled, existingCount }: {
         <DialogTitle>{t("title")}</DialogTitle>
         <DialogDescription id={helpId}>{t("description")}</DialogDescription>
       </DialogHeader>
-      <input ref={inputRef} type="file" accept=".csv,.tsv" className="sr-only" tabIndex={-1} aria-label={t("fileLabel")}
+      <input ref={inputRef} type="file" accept={importAccept} className="sr-only" tabIndex={-1} aria-label={t("fileLabel")}
         aria-describedby={helpId} disabled={busy} onChange={event => {
           const file = event.target.files?.[0]
           event.target.value = ""

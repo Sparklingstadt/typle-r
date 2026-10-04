@@ -7,16 +7,13 @@ import { useErrorText } from '@/i18n/useErrorText'
 import { AppError, type ErrorKey } from '../core/appError'
 import { GUEST_ACCOUNT_ID } from '../plugins/storage/guest'
 import { workspaceStore } from '../plugins/storage'
-import samples from '@/json/WordListsResponse.json'
-import countries from '@/json/Countries.json'
+import { initialLists } from '../plugins/packs'
 
 import type { PracticeDevice } from '../core/devices'
 import { useSelectedProfile } from './profileSelection'
 import { DEFAULT_PROFILE_ID, DEFAULT_PROFILE_NAME, type ProfileDraft, type ProfileSummary } from '../core/profiles'
 import { type SavedWordList } from '../core/wordLists'
 import { WorkspaceError, type WorkspaceState, type WorkspaceWrite } from '../core/workspaceStore'
-
-const defaults: SavedWordList[] = [...samples.map((list, index) => ({ ...list, id: `sample-${index + 1}`, records: [] })), countries]
 
 type Change = Omit<WorkspaceWrite, 'revision' | 'accountId'>
 export type WorkspaceUpdate = (change: (lists: SavedWordList[]) => SavedWordList[], useDefaults?: boolean) => Promise<boolean>
@@ -58,7 +55,7 @@ function useWorkspace() {
     state.current = data
     setDevices(data.devices)
     setProfiles(data.profiles)
-    setLists(data.revision === 0 ? defaults : data.lists)
+    setLists(data.revision === 0 ? initialLists : data.lists)
   }, [])
 
   const load = useCallback(async () => {
@@ -112,7 +109,7 @@ function useWorkspace() {
     setSaving(true)
     try {
       // The samples shown before the first save become real lists when anything is saved.
-      const request = change(previous, () => previous.revision === 0 && useDefaults ? defaults : previous.lists)
+      const request = change(previous, () => previous.revision === 0 && useDefaults ? initialLists : previous.lists)
       const data = await workspaceStore(accountId).write({ ...request, revision: previous.revision, accountId })
       if (currentGeneration !== generation.current || data.accountId !== accountId) throw new AppError('accountChanged')
       if (data.profileId !== profileId) chooseProfile(data.profileId)

@@ -8,7 +8,7 @@ loadEnvConfig(process.cwd())
 const { workspaceRepository } = require('../src/plugins/storage/cloud/repository.ts')
 const { validateWorkspaceRequest } = require('../src/core/workspaceRequest.ts')
 const { MissingProfileError } = require('../src/core/profiles.ts')
-const { prepareLegacy, mergeLegacy } = require('../src/lib/importLegacy.ts')
+const { prepareLegacy, mergeLegacy } = require('../src/plugins/formats/legacy.ts')
 const list = { id: 'one', name: 'One', createdAt: '2026-09-06', words: [{ display: 'a', input: 'a', annotation: '' }], records: [] }
 const main = (listCount = 0, recordCount = 0) => ({ id: 'default', name: 'メイン', listCount, recordCount })
 const empty = (revision = 0) => ({ lists: [], devices: [], profiles: [main()], profileId: 'default', revision })

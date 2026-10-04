@@ -2,7 +2,7 @@ require('./register.cjs')
 const test = require('node:test')
 const assert = require('node:assert/strict')
 const crypto = require('node:crypto')
-const countries = require('../src/json/Countries.json')
+const countries = require('../src/plugins/packs/countries.json')
 const { decodeLists } = require('../src/core/wordLists.ts')
 const { localDevelopmentEnabled } = require('../src/lib/localDevelopment.ts')
 
@@ -35,4 +35,12 @@ test('record and list IDs work without secure-context randomUUID', () => {
   const ids = Array.from({ length: 100 }, () => randomId(source))
   assert.equal(new Set(ids).size, 100)
   for (const id of ids) assert.match(id, /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/)
+})
+
+test('the initial lists are valid saved lists with distinct ids and no records', () => {
+  const { initialLists } = require('../src/plugins/packs/index.ts')
+  const lists = decodeLists(JSON.stringify({ version: 1, lists: initialLists }))
+  assert.equal(new Set(lists.map(list => list.id)).size, lists.length)
+  assert.ok(lists.some(list => list.id === countries.id))
+  assert.ok(lists.every(list => list.records.length === 0))
 })
