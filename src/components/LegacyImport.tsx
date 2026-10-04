@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
-import { decodeLists, STORAGE_KEY, SavedWordList } from '@/lib/wordLists'
+import { decodeLists, STORAGE_KEY, SavedWordList } from '@/core/wordLists'
 import { mergeLegacy, prepareLegacy } from '@/lib/importLegacy'
 
 export default function LegacyImport({ update, disabled }: {

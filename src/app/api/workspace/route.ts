@@ -1,9 +1,9 @@
 import { auth } from '@/auth'
 import * as Sentry from '@sentry/nextjs'
-import { database } from '@/lib/database'
-import type { ErrorKey } from '@/lib/appError'
-import { MissingProfileError } from '@/lib/profiles'
-import { MAX_WORKSPACE_BYTES, validateProfileId, validateWorkspaceRequest } from '@/lib/workspaceRequest'
+import { database } from '@/plugins/storage/cloud/database'
+import type { ErrorKey } from '@/core/appError'
+import { MissingProfileError } from '@/core/profiles'
+import { MAX_WORKSPACE_BYTES, validateProfileId, validateWorkspaceRequest } from '@/core/workspaceRequest'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'

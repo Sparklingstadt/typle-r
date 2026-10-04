@@ -8,7 +8,7 @@ import { useTranslations } from "next-intl"
 import Page from "@/components/Page/Page"
 import PageContainer from "@/components/PageContainer/PageContainer"
 import { useWordLists } from "@/lib/useWordLists"
-import { GUEST_ACCOUNT_ID } from "@/lib/guestWorkspace"
+import { GUEST_ACCOUNT_ID } from "@/plugins/storage/guest"
 import Dashboard from "@/components/Dashboard/Dashboard"
 
 export default function Home() {

@@ -1,7 +1,7 @@
 require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
-const { readGuestWorkspace, writeGuestWorkspace, GUEST_STORAGE_KEY } = require('../src/lib/guestWorkspace.ts')
+const { readGuestWorkspace, writeGuestWorkspace, GUEST_STORAGE_KEY } = require('../src/plugins/storage/guest.ts')
 function storage() {
   const values = new Map()
   return { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) }
@@ -40,4 +40,25 @@ test('quota and oversized writes retain the previous data', () => {
   store.setItem = () => { throw new Error('QuotaExceededError') }
   assert.throws(() => writeGuestWorkspace({ ...saved, lists: [] }, store), { key: 'guestWriteFailed' })
   assert.equal(store.getItem(GUEST_STORAGE_KEY), before)
+})
+test('each account uses its own store; only the guest store follows other tabs', () => {
+  const { workspaceStore } = require('../src/plugins/storage/index.ts')
+  const { guestStore } = require('../src/plugins/storage/guest.ts')
+  const { cloudStore } = require('../src/plugins/storage/cloud/client.ts')
+  assert.equal(workspaceStore('guest:local'), guestStore)
+  assert.equal(workspaceStore('github:1'), cloudStore)
+  assert.equal(guestStore.staleReads, false)
+  assert.equal(cloudStore.staleReads, true)
+  assert.equal(cloudStore.subscribe, undefined)
+  const previous = globalThis.window
+  globalThis.window = new EventTarget()
+  try {
+    const changes = []
+    const stop = guestStore.subscribe(() => changes.push(true))
+    const fire = key => window.dispatchEvent(Object.assign(new Event('storage'), { key }))
+    fire(GUEST_STORAGE_KEY); fire(null); fire('other-key')
+    assert.equal(changes.length, 2)
+    stop(); fire(GUEST_STORAGE_KEY)
+    assert.equal(changes.length, 2)
+  } finally { globalThis.window = previous }
 })

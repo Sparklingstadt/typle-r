@@ -5,7 +5,7 @@ import { Check, ChevronDown, Keyboard, Monitor } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { useDeviceOptions } from './useDeviceOptions'
-import type { PracticeDevice } from '@/lib/devices'
+import type { PracticeDevice } from '@/core/devices'
 
 const item = 'relative flex cursor-pointer items-center gap-2 rounded-md py-2 pr-3 pl-8 text-sm outline-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground'
 

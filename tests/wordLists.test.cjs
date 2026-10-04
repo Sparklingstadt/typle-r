@@ -1,7 +1,7 @@
 require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
-const { saveList, encodeLists, decodeLists } = require('../src/lib/wordLists.ts')
+const { saveList, encodeLists, decodeLists } = require('../src/core/wordLists.ts')
 const list = { id: 'a', name: 'First', words: [{ display: 'one', input: 'one', annotation: '' }], records: [], createdAt: '2026-09-06' }
 
 test('create, edit, reorder, delete and reload lists', () => {

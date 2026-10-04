@@ -6,9 +6,9 @@ import { Alert, AlertDescription } from "./ui/alert"
 import { Button } from "./ui/button"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog"
 import { useErrorText } from "@/i18n/useErrorText"
-import { AppError } from "../lib/appError"
+import { AppError } from "../core/appError"
 import { MAX_IMPORT_BYTES, parseWordFile } from "../lib/importWords"
-import type { WordList } from "../types/WordList"
+import type { WordList } from "../core/wordLists"
 
 type Words = WordList["words"]
 export type ImportMode = "append" | "replace"

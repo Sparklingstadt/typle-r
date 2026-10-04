@@ -3,7 +3,7 @@ process.env.TZ = 'Asia/Tokyo'
 require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
-const { summarize, nextLists, listTrends, speedScale, accuracyScale, durationParts, dayKind, startOfWeek } = require('../src/lib/dashboard.ts')
+const { summarize, nextLists, listTrends, speedScale, accuracyScale, durationParts, dayKind, startOfWeek } = require('../src/core/dashboard.ts')
 
 // Sunday 2026-09-27 21:00 JST
 const now = new Date('2026-09-27T12:00:00Z')

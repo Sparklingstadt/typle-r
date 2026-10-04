@@ -1,8 +1,9 @@
 require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
-const { bestRecords, recentRecords, removeRecord } = require('../src/lib/records.ts')
-const { readWorkspace, writeWorkspace, WorkspaceError } = require('../src/lib/workspaceClient.ts')
+const { bestRecords, recentRecords, removeRecord } = require('../src/core/records.ts')
+const { readWorkspace, writeWorkspace } = require('../src/plugins/storage/cloud/client.ts')
+const { WorkspaceError } = require('../src/core/workspaceStore.ts')
 
 test('record ordering and deletion preserve other lists and legacy records', () => {
   const legacy = { date: '2026-01-01', time: 1 }

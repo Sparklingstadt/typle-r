@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { randomId } from '@/lib/randomId'
-import { MAX_PROFILE_NAME, profileProblem, type ProfileDraft, type ProfileProblem } from '@/lib/profiles'
+import { randomId } from '@/core/randomId'
+import { MAX_PROFILE_NAME, profileProblem, type ProfileDraft, type ProfileProblem } from '@/core/profiles'
 
 export type ProfileDialogState = { open: boolean; profile: ProfileDraft | null; session: number }
 

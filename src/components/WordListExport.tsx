@@ -1,6 +1,6 @@
 "use client"
 import { encodeWordCsv, wordCsvFilename } from "@/lib/exportWords"
-import type { SavedWordList } from "@/lib/wordLists"
+import type { SavedWordList } from "@/core/wordLists"
 
 /** Downloads the list's words as CSV. Returns false when the browser could not start the download. */
 export function downloadWordCsv(list: SavedWordList) {

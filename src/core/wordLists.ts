@@ -1,6 +1,25 @@
 import { AppError } from "./appError"
-import { isDevice } from "./devices"
-import type { WordList } from "../types/WordList"
+import { isDevice, type PracticeDevice } from "./devices"
+
+export type WordList = {
+  id?: string,
+  name: string,
+  words: {
+    display: string,
+    input: string,
+    annotation: string
+  }[],
+  records: {
+    id?: string,
+    time: number,
+    date: string,
+    mistakes?: number,
+    accuracy?: number,
+    device?: PracticeDevice,
+    wordCount?: number
+  }[],
+  createdAt: string
+}
 
 export type SavedWordList = WordList & { id: string }
 export const STORAGE_KEY = "typle-r:word-lists:v1"

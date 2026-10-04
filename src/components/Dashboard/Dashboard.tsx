@@ -10,8 +10,8 @@ import { useFormat } from "@/i18n/useFormat"
 import {
   accuracyScale, listTrends, nextLists, speedScale, summarize, addDays,
   LOW_ACCURACY, STALE_DAYS, type Change, type ListTrend, type NextList, type Scale, type Trend,
-} from "@/lib/dashboard"
-import type { SavedWordList } from "@/lib/wordLists"
+} from "@/core/dashboard"
+import type { SavedWordList } from "@/core/wordLists"
 
 type Delta = { icon: LucideIcon; good: boolean; text: string }
 type T = ReturnType<typeof useTranslations<'dashboard'>>

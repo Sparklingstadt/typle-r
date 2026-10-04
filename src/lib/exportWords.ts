@@ -1,4 +1,4 @@
-import type { WordList } from "../types/WordList"
+import type { WordList } from "../core/wordLists"
 
 /** Preserve exact typing strings, including whitespace, quotes and newlines. */
 export function encodeWordCsv(words: WordList["words"]) {

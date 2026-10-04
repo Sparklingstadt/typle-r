@@ -1,4 +1,4 @@
-import type { SavedWordList } from './wordLists'
+import type { SavedWordList } from '../core/wordLists'
 
 export async function prepareLegacy(lists: SavedWordList[]): Promise<SavedWordList[]> {
   return Promise.all(lists.map(async list => {

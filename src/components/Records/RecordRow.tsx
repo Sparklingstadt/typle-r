@@ -2,8 +2,8 @@ import { useTranslations } from 'next-intl'
 import { Trash2, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useFormat } from '@/i18n/useFormat'
-import { LOW_ACCURACY } from '@/lib/dashboard'
-import { formatAccuracy, secondsPerWord, type RecordRow as Row } from '@/lib/records'
+import { LOW_ACCURACY } from '@/core/dashboard'
+import { formatAccuracy, secondsPerWord, type RecordRow as Row } from '@/core/records'
 import { cn } from '@/lib/utils'
 
 // Shared by the column labels and the rows so the numbers line up under their headings.

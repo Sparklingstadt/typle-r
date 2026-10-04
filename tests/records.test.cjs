@@ -1,9 +1,9 @@
 require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
-const { newSession, typeInput } = require('../src/lib/typing.ts')
-const { makeRecord, addRecord } = require('../src/lib/records.ts')
-const { encodeLists, decodeLists, saveList } = require('../src/lib/wordLists.ts')
+const { newSession, typeInput } = require('../src/core/typing.ts')
+const { makeRecord, addRecord } = require('../src/core/records.ts')
+const { encodeLists, decodeLists, saveList } = require('../src/core/wordLists.ts')
 
 test('completed records survive reload and editing; retry never duplicates', () => {
   const list = { id: 'a', name: 'Test', words: [{ display: 'ab', input: 'ab', annotation: '' }], records: [], createdAt: '2026-09-06' }
@@ -22,7 +22,7 @@ test('completed records survive reload and editing; retry never duplicates', () 
   assert.throws(() => makeRecord(newSession(), 1, 'incomplete'))
 })
 
-const { recordRows, filterRows, groupByDay, recordTimeParts, secondsPerWord, formatAccuracy, NO_DEVICE } = require('../src/lib/records.ts')
+const { recordRows, filterRows, groupByDay, recordTimeParts, secondsPerWord, formatAccuracy, NO_DEVICE } = require('../src/core/records.ts')
 const mac = { id: 'mac', name: 'MacBook Air', layout: 'JIS' }
 // Local-time dates, so day grouping does not depend on the machine's time zone.
 const at = (day, hour) => new Date(2026, 8, day, hour).toISOString()

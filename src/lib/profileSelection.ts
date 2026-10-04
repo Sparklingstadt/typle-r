@@ -1,6 +1,6 @@
 "use client"
 import { useCallback, useSyncExternalStore } from 'react'
-import { DEFAULT_PROFILE_ID } from './profiles'
+import { DEFAULT_PROFILE_ID } from '../core/profiles'
 
 // Like the practice device, the profile in use is remembered per browser (and per account).
 export function selectedProfileKey(accountId: string) {

@@ -3,7 +3,7 @@ const test = require('node:test')
 const assert = require('node:assert/strict')
 const crypto = require('node:crypto')
 const countries = require('../src/json/Countries.json')
-const { decodeLists } = require('../src/lib/wordLists.ts')
+const { decodeLists } = require('../src/core/wordLists.ts')
 const { localDevelopmentEnabled } = require('../src/lib/localDevelopment.ts')
 
 test('all 193 country entries match the provided source and decode in Typle', () => {
@@ -30,7 +30,7 @@ test('LAN login only permits an explicitly selected private IPv4 in development'
 })
 
 test('record and list IDs work without secure-context randomUUID', () => {
-  const { randomId } = require('../src/lib/randomId.ts')
+  const { randomId } = require('../src/core/randomId.ts')
   const source = { getRandomValues: array => crypto.webcrypto.getRandomValues(array) }
   const ids = Array.from({ length: 100 }, () => randomId(source))
   assert.equal(new Set(ids).size, 100)

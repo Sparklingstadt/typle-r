@@ -1,5 +1,5 @@
-import { AppError } from "./appError"
-import type { WordList } from "../types/WordList"
+import { AppError } from "../core/appError"
+import type { WordList } from "../core/wordLists"
 
 export const MAX_IMPORT_BYTES = 1024 * 1024
 

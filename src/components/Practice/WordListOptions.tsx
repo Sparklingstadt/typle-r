@@ -2,8 +2,8 @@ import { useId } from 'react'
 import { Check } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
-import { listBest } from '@/lib/records'
-import type { SavedWordList } from '@/lib/wordLists'
+import { listBest } from '@/core/records'
+import type { SavedWordList } from '@/core/wordLists'
 
 export default function WordListOptions({ lists, selectedId, onSelect, label }: {
   lists: SavedWordList[]
