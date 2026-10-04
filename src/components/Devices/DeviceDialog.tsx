@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { randomId } from '@/lib/randomId'
-import { deviceProblem, MAX_DEVICE_LAYOUT, MAX_DEVICE_NAME, type DeviceProblem, type PracticeDevice } from '@/lib/devices'
+import { randomId } from '@/core/randomId'
+import { deviceProblem, MAX_DEVICE_LAYOUT, MAX_DEVICE_NAME, type DeviceProblem, type PracticeDevice } from '@/core/devices'
 
 export type DeviceDialogState = { open: boolean; device: PracticeDevice | null; session: number }
 

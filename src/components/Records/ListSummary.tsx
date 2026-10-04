@@ -3,8 +3,8 @@ import { useTranslations } from 'next-intl'
 import { Keyboard, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useFormat } from '@/i18n/useFormat'
-import { formatAccuracy, listBest } from '@/lib/records'
-import type { SavedWordList } from '@/lib/wordLists'
+import { formatAccuracy, listBest } from '@/core/records'
+import type { SavedWordList } from '@/core/wordLists'
 import { RecordTime } from '@/components/Records/RecordRow'
 
 // Shown while one list is selected: how that list is going, and the way back to practising it.

@@ -5,7 +5,7 @@ import { DropdownMenu } from 'radix-ui'
 import { Copy, Download, History, Keyboard, MoreHorizontal, Pencil, Trash2, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useFormat } from '@/i18n/useFormat'
-import { wordPreview, type ListOverview } from '@/lib/listOverview'
+import { wordPreview, type ListOverview } from '@/core/listOverview'
 import { cn } from '@/lib/utils'
 
 const menuItem = 'flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground'

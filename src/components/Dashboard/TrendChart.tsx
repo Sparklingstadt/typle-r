@@ -2,7 +2,7 @@
 import { useState, type KeyboardEvent, type PointerEvent } from "react"
 import { useTranslations } from "next-intl"
 import { useFormat } from "@/i18n/useFormat"
-import type { Scale, TrendPoint } from "@/lib/dashboard"
+import type { Scale, TrendPoint } from "@/core/dashboard"
 
 // A 0–100 viewBox stretched to the box keeps the chart fluid; strokes and markers stay crisp via
 // non-scaling strokes and HTML dots positioned in percent.

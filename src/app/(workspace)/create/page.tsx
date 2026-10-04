@@ -4,9 +4,9 @@ import { useTranslations } from "next-intl"
 import WordListEditor from "@/components/WordListEditor"
 import WordListEditorPage from "@/components/WordListEditorPage/WordListEditorPage"
 import { useSaveNotification } from "@/components/SaveNotification"
-import { GUEST_ACCOUNT_ID } from "@/lib/guestWorkspace"
+import { GUEST_ACCOUNT_ID } from "@/plugins/storage/guest"
 import { useWordLists } from "@/lib/useWordLists"
-import { saveList } from "@/lib/wordLists"
+import { saveList } from "@/core/wordLists"
 
 export default function Create() {
   const router = useRouter()

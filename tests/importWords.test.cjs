@@ -1,7 +1,7 @@
 require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
-const { parseWordFile } = require('../src/lib/importWords.ts')
+const { parseWordFile } = require('../src/plugins/formats/delimited.ts')
 
 test('CSV supports BOM, CRLF, reordered headers, escaped quotes and multiline annotations', () => {
   assert.deepEqual(parseWordFile('\ufeffdisplay,input,annotation\r\n"日本,Japan",Japan,"one\r\ntwo ""quoted"""\r\n', ','), [
@@ -23,7 +23,7 @@ test('invalid imports fail rather than partially importing', () => {
 })
 
 test('CSV preserves whitespace and duplicates through JSON save while rejecting empty records', () => {
-  const { saveList, encodeLists, decodeLists } = require('../src/lib/wordLists.ts')
+  const { saveList, encodeLists, decodeLists } = require('../src/core/wordLists.ts')
   const words = parseWordFile('display,input,anotation\r\n" 字 "," zi "," a\r\nb "\r\n字,zi,\r\n字,zi,', ',')
   const list = { id: 'csv', name: 'CSV', createdAt: '2026-09-27', records: [], words }
   assert.deepEqual(decodeLists(encodeLists(saveList([], list, false)))[0].words, [

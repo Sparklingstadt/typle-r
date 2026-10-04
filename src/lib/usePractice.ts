@@ -1,11 +1,11 @@
 "use client"
-import { randomId } from "./randomId"
+import { randomId } from "../core/randomId"
 import { useEffect, useRef, useState } from 'react'
-import type { PracticeDevice } from './devices'
-import type { SavedWordList } from './wordLists'
-import type { WorkspaceUpdate } from './workspaceClient'
-import { addRecord, makeRecord, type PracticeRecord } from './records'
-import { newSession, sessionResult, typeInput } from './typing'
+import type { PracticeDevice } from '../core/devices'
+import type { SavedWordList } from '../core/wordLists'
+import type { WorkspaceUpdate } from './useWordLists'
+import { addRecord, makeRecord, type PracticeRecord } from '../core/records'
+import { newSession, sessionResult, typeInput } from '../core/typing'
 
 export function usePractice(wordLists: SavedWordList[], update: WorkspaceUpdate, device?: PracticeDevice, initialListId?: string | null) {
   const [list, setList] = useState<SavedWordList | undefined>(() => wordLists.find(item => item.id === initialListId) ?? wordLists[0])

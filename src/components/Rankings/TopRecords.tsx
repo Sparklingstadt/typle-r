@@ -1,9 +1,9 @@
 import { useTranslations } from 'next-intl'
 import { useFormat } from '@/i18n/useFormat'
-import type { PracticeDevice } from '@/lib/devices'
-import { dayKind } from '@/lib/dashboard'
-import { formatAccuracy } from '@/lib/records'
-import type { SavedWordList } from '@/lib/wordLists'
+import type { PracticeDevice } from '@/core/devices'
+import { dayKind } from '@/core/dashboard'
+import { formatAccuracy } from '@/core/records'
+import type { SavedWordList } from '@/core/wordLists'
 import { cn } from '@/lib/utils'
 import { RecordTime } from '@/components/Records/RecordRow'
 

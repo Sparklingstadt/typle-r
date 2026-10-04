@@ -6,9 +6,9 @@ import { ArrowRight, CircleAlert, CircleCheck, Keyboard, RotateCcw, TrendingDown
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import Kbd from '@/components/Practice/Kbd'
-import type { PracticeDevice } from '@/lib/devices'
-import { bestRecords, type PracticeRecord } from '@/lib/records'
-import type { SavedWordList } from '@/lib/wordLists'
+import type { PracticeDevice } from '@/core/devices'
+import { bestRecords, type PracticeRecord } from '@/core/records'
+import type { SavedWordList } from '@/core/wordLists'
 import { cn } from '@/lib/utils'
 import { useFormat } from '@/i18n/useFormat'
 

@@ -1,5 +1,5 @@
 import { Prisma, type PrismaClient } from '@prisma/client'
-import { applyChange, decodeDocument, DEFAULT_PROFILE_ID, viewDocument, type WorkspaceChange, type WorkspaceDocument, type WorkspaceView } from './profiles'
+import { applyChange, decodeDocument, DEFAULT_PROFILE_ID, viewDocument, type WorkspaceChange, type WorkspaceDocument, type WorkspaceView } from '../../../core/profiles'
 
 export type Workspace = WorkspaceView & { revision: number }
 

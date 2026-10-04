@@ -62,7 +62,7 @@ test('messages are valid ICU and use the same placeholders in every language', (
   }
 })
 
-// Screen text belongs in src/messages. Comments and the sample word lists (src/json) may still be Japanese, and a
+// Screen text belongs in src/messages. Comments and the initial word lists (JSON in src/plugins/packs) may still be Japanese, and a
 // literal that is data rather than screen text (a stored name, a language's own name) is marked `// i18n-ignore`.
 
 test('source files have no hard-coded Japanese text', () => {
@@ -72,7 +72,7 @@ test('source files have no hard-coded Japanese text', () => {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       const file = path.join(dir, entry.name)
       const relative = path.relative(path.join(__dirname, '..'), file).split(path.sep).join('/')
-      if (entry.isDirectory()) { if (relative !== 'src/messages' && relative !== 'src/json') walk(file); continue }
+      if (entry.isDirectory()) { if (relative !== 'src/messages') walk(file); continue }
       if (!/\.tsx?$/.test(entry.name)) continue
       const text = fs.readFileSync(file, 'utf8')
       const lines = text.split('\n')

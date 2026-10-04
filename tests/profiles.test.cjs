@@ -1,8 +1,8 @@
 require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
-const { decodeStoredProfiles, profileProblem, removeProfile, saveProfile } = require('../src/lib/profiles.ts')
-const { readGuestWorkspace, writeGuestWorkspace, GUEST_STORAGE_KEY } = require('../src/lib/guestWorkspace.ts')
+const { decodeStoredProfiles, profileProblem, removeProfile, saveProfile } = require('../src/core/profiles.ts')
+const { readGuestWorkspace, writeGuestWorkspace, GUEST_STORAGE_KEY } = require('../src/plugins/storage/guest.ts')
 function storage() {
   const values = new Map()
   return { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) }

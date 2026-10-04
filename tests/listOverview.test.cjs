@@ -1,7 +1,7 @@
 require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
-const { listOverviews, sortOverviews, matchesQuery, wordPreview, currentRecordCount, copyName, duplicateList, MAX_LISTS } = require('../src/lib/listOverview.ts')
+const { listOverviews, sortOverviews, matchesQuery, wordPreview, currentRecordCount, copyName, duplicateList, MAX_LISTS } = require('../src/core/listOverview.ts')
 
 const words = (...texts) => texts.map(text => ({ display: text, input: text.toLowerCase(), annotation: '' }))
 const record = (date, wordCount) => ({ time: 5, date, ...(wordCount ? { wordCount } : {}) })

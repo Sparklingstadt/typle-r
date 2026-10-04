@@ -1,7 +1,7 @@
 "use client"
 import { useTranslations } from 'next-intl'
 import { useFormat } from '@/i18n/useFormat'
-import type { PracticeDevice } from '@/lib/devices'
+import type { PracticeDevice } from '@/core/devices'
 
 /** The per-browser device choice, shared by the practice screen's menu and the devices screen: 未選択 first, then each device. */
 export function useDeviceOptions(devices: PracticeDevice[], device?: PracticeDevice) {

@@ -1,10 +1,10 @@
 require('./register.cjs')
 const test = require('node:test')
 const assert = require('node:assert/strict')
-const { decodeDevices, saveDevice, deviceProblem, deviceUsage, MAX_DEVICES } = require('../src/lib/devices.ts')
-const { decodeLists } = require('../src/lib/wordLists.ts')
-const { validateWorkspaceRequest } = require('../src/lib/workspaceRequest.ts')
-const { makeRecord } = require('../src/lib/records.ts')
+const { decodeDevices, saveDevice, deviceProblem, deviceUsage, MAX_DEVICES } = require('../src/core/devices.ts')
+const { decodeLists } = require('../src/core/wordLists.ts')
+const { validateWorkspaceRequest } = require('../src/core/workspaceRequest.ts')
+const { makeRecord } = require('../src/core/records.ts')
 const device = { id: 'mac', name: 'MacBook', layout: 'JIS' }
 
 test('device validation rejects malformed, duplicate and oversized data', () => {

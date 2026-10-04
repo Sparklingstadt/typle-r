@@ -3,7 +3,7 @@ import Link from 'next/link'
 import type { LucideIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
-import { compareInput } from '@/lib/typing'
+import { compareInput } from '@/core/typing'
 import Kbd from '@/components/Practice/Kbd'
 import TargetText from '@/components/Practice/TargetText'
 

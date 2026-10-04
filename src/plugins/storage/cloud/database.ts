@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
-import { workspaceRepository } from './workspaceRepository'
+import { workspaceRepository } from './repository'
 
 const globalDb = globalThis as typeof globalThis & { typlePrisma?: PrismaClient }
 

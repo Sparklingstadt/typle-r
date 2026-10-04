@@ -1,7 +1,7 @@
-import { AppError } from './appError'
-import { applyChange, decodeDocument, DEFAULT_PROFILE_ID, MissingProfileError, viewDocument, type WorkspaceDocument } from './profiles'
-import { WorkspaceError, type WorkspaceState, type WorkspaceWrite } from './workspaceClient'
-import { MAX_WORKSPACE_BYTES, validateWorkspaceRequest } from './workspaceRequest'
+import { AppError } from '../../core/appError'
+import { applyChange, decodeDocument, DEFAULT_PROFILE_ID, MissingProfileError, viewDocument, type WorkspaceDocument } from '../../core/profiles'
+import { MAX_WORKSPACE_BYTES, validateWorkspaceRequest } from '../../core/workspaceRequest'
+import { WorkspaceError, type WorkspaceState, type WorkspaceStore, type WorkspaceWrite } from '../../core/workspaceStore'
 
 export const GUEST_ACCOUNT_ID = 'guest:local'
 export const GUEST_STORAGE_KEY = 'typle-r:guest-workspace:v1'
@@ -54,4 +54,17 @@ export async function saveGuestWorkspace(request: WorkspaceWrite) {
     return navigator.locks.request(GUEST_STORAGE_KEY, () => writeGuestWorkspace(request))
   }
   return writeGuestWorkspace(request)
+}
+
+/** The guest workspace in this browser's LocalStorage. */
+export const guestStore: WorkspaceStore = {
+  read: async profileId => readGuestWorkspace(localStorage, profileId),
+  write: saveGuestWorkspace,
+  staleReads: false,
+  subscribe(onChange) {
+    // `key` is null when another tab clears the whole storage.
+    const changed = (event: StorageEvent) => { if (event.key === GUEST_STORAGE_KEY || event.key === null) onChange() }
+    window.addEventListener('storage', changed)
+    return () => window.removeEventListener('storage', changed)
+  },
 }

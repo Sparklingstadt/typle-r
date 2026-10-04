@@ -1,4 +1,7 @@
-import type { SavedWordList } from './wordLists'
+import type { SavedWordList } from '../../core/wordLists'
+
+/** Where versions before the cloud workspace kept word lists, in this browser's LocalStorage. */
+export const LEGACY_STORAGE_KEY = 'typle-r:word-lists:v1'
 
 export async function prepareLegacy(lists: SavedWordList[]): Promise<SavedWordList[]> {
   return Promise.all(lists.map(async list => {

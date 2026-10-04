@@ -1,9 +1,9 @@
 'use client'
 import { useMemo } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { dayKind, durationParts } from '@/lib/dashboard'
-import type { PracticeDevice } from '@/lib/devices'
-import { recordTimeParts, type TimeUnit } from '@/lib/records'
+import { dayKind, durationParts } from '@/core/dashboard'
+import type { PracticeDevice } from '@/core/devices'
+import { recordTimeParts, type TimeUnit } from '@/core/records'
 
 type Parts = [string, TimeUnit][]
 

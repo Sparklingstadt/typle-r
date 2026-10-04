@@ -4,20 +4,19 @@ import { usePathname } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import { useErrorText } from '@/i18n/useErrorText'
-import { AppError, type ErrorKey } from './appError'
-import { GUEST_ACCOUNT_ID, GUEST_STORAGE_KEY, readGuestWorkspace, saveGuestWorkspace } from './guestWorkspace'
-import samples from '@/json/WordListsResponse.json'
-import countries from '@/json/Countries.json'
+import { AppError, type ErrorKey } from '../core/appError'
+import { GUEST_ACCOUNT_ID } from '../plugins/storage/guest'
+import { workspaceStore } from '../plugins/storage'
+import { initialLists } from '../plugins/packs'
 
-import type { PracticeDevice } from './devices'
+import type { PracticeDevice } from '../core/devices'
 import { useSelectedProfile } from './profileSelection'
-import { DEFAULT_PROFILE_ID, DEFAULT_PROFILE_NAME, type ProfileDraft, type ProfileSummary } from './profiles'
-import { type SavedWordList } from './wordLists'
-import { readWorkspace, writeWorkspace, WorkspaceError, type WorkspaceState, type WorkspaceWrite } from './workspaceClient'
-
-const defaults: SavedWordList[] = [...samples.map((list, index) => ({ ...list, id: `sample-${index + 1}`, records: [] })), countries]
+import { DEFAULT_PROFILE_ID, DEFAULT_PROFILE_NAME, type ProfileDraft, type ProfileSummary } from '../core/profiles'
+import { type SavedWordList } from '../core/wordLists'
+import { WorkspaceError, type WorkspaceState, type WorkspaceWrite } from '../core/workspaceStore'
 
 type Change = Omit<WorkspaceWrite, 'revision' | 'accountId'>
+export type WorkspaceUpdate = (change: (lists: SavedWordList[]) => SavedWordList[], useDefaults?: boolean) => Promise<boolean>
 // The error is kept as caught and turned into text while rendering, so it follows a change of language.
 type Failure = { reason: unknown; fallback: ErrorKey } | null
 
@@ -56,17 +55,18 @@ function useWorkspace() {
     state.current = data
     setDevices(data.devices)
     setProfiles(data.profiles)
-    setLists(data.revision === 0 ? defaults : data.lists)
+    setLists(data.revision === 0 ? initialLists : data.lists)
   }, [])
 
   const load = useCallback(async () => {
     if (!accountId) return
     const currentGeneration = generation.current
-    const data = accountId === GUEST_ACCOUNT_ID ? readGuestWorkspace(localStorage, profileId) : await readWorkspace(profileId)
+    const store = workspaceStore(accountId)
+    const data = await store.read(profileId)
     if (data.accountId !== accountId || currentGeneration !== generation.current) throw new AppError('accountChangedReopen')
     // The chosen profile was deleted on another screen: switching reloads the first profile.
     if (data.profileId !== profileId) { chooseProfile(data.profileId); return null }
-    if (accountId !== GUEST_ACCOUNT_ID && state.current && state.current.revision > data.revision) return state.current
+    if (store.staleReads && state.current && state.current.revision > data.revision) return state.current
     show(data)
     return state.current
   }, [accountId, profileId, chooseProfile, show])
@@ -88,16 +88,13 @@ function useWorkspace() {
       })
     }
     const reload = () => refresh.current()
-    function storageChanged(event: StorageEvent) {
-      if (accountId === GUEST_ACCOUNT_ID && (event.key === GUEST_STORAGE_KEY || event.key === null)) reload()
-    }
-    window.addEventListener('storage', storageChanged)
+    const unsubscribe = workspaceStore(accountId).subscribe?.(reload)
     window.addEventListener('focus', reload)
     return () => {
       active = false
       refresh.current = () => {}
       generation.current = effectGeneration + 1
-      window.removeEventListener('storage', storageChanged)
+      unsubscribe?.()
       window.removeEventListener('focus', reload)
     }
   }, [load, accountId])
@@ -112,9 +109,8 @@ function useWorkspace() {
     setSaving(true)
     try {
       // The samples shown before the first save become real lists when anything is saved.
-      const request = change(previous, () => previous.revision === 0 && useDefaults ? defaults : previous.lists)
-      const write = accountId === GUEST_ACCOUNT_ID ? saveGuestWorkspace : writeWorkspace
-      const data = await write({ ...request, revision: previous.revision, accountId })
+      const request = change(previous, () => previous.revision === 0 && useDefaults ? initialLists : previous.lists)
+      const data = await workspaceStore(accountId).write({ ...request, revision: previous.revision, accountId })
       if (currentGeneration !== generation.current || data.accountId !== accountId) throw new AppError('accountChanged')
       if (data.profileId !== profileId) chooseProfile(data.profileId)
       else { show(data); setFailure(null) }

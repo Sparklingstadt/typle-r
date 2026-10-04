@@ -1,17 +1,8 @@
-import { AppError, type ErrorKey } from './appError'
-import { decodeDevices } from './devices'
-import { decodeProfileSummaries, DEFAULT_PROFILE_ID, DEFAULT_PROFILE_NAME, type WorkspaceChange, type WorkspaceView } from './profiles'
-import { decodeLists, type SavedWordList } from './wordLists'
-
-export type WorkspaceState = WorkspaceView & { revision: number; accountId: string }
-export type WorkspaceWrite = WorkspaceChange & { revision: number; accountId: string }
-export type WorkspaceUpdate = (change: (lists: SavedWordList[]) => SavedWordList[], useDefaults?: boolean) => Promise<boolean>
-
-export class WorkspaceError extends AppError {
-  constructor(key: ErrorKey, readonly status: number) {
-    super(key)
-  }
-}
+import { AppError, type ErrorKey } from '../../../core/appError'
+import { decodeDevices } from '../../../core/devices'
+import { decodeProfileSummaries, DEFAULT_PROFILE_ID, DEFAULT_PROFILE_NAME } from '../../../core/profiles'
+import { decodeLists } from '../../../core/wordLists'
+import { WorkspaceError, type WorkspaceState, type WorkspaceStore, type WorkspaceWrite } from '../../../core/workspaceStore'
 
 async function requestWorkspace(url: string, init?: RequestInit): Promise<WorkspaceState> {
   const response = await fetch(url, { cache: 'no-store', ...init })
@@ -37,3 +28,6 @@ export function readWorkspace(profileId: string) {
 export function writeWorkspace(request: WorkspaceWrite) {
   return requestWorkspace('/api/workspace', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(request) })
 }
+
+/** The account's workspace on the server, through `/api/workspace`. */
+export const cloudStore: WorkspaceStore = { read: readWorkspace, write: writeWorkspace, staleReads: true }

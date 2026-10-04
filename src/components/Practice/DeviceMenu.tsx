@@ -4,7 +4,7 @@ import { DropdownMenu } from 'radix-ui'
 import { Check, ChevronDown, Keyboard, Lock, Monitor } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useDeviceOptions } from '@/components/Devices/useDeviceOptions'
-import type { PracticeDevice } from '@/lib/devices'
+import type { PracticeDevice } from '@/core/devices'
 
 const item = 'flex cursor-pointer items-center gap-2 rounded-md py-2 pr-3 pl-8 text-sm outline-none relative data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground'
 

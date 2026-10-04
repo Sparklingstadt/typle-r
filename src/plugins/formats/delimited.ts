@@ -1,10 +1,8 @@
-import { AppError } from "./appError"
-import type { WordList } from "../types/WordList"
-
-export const MAX_IMPORT_BYTES = 1024 * 1024
+import { AppError } from "../../core/appError"
+import { MAX_IMPORT_BYTES, type Word, type WordFormat } from "../../core/wordFormat"
 
 /** Read CSV and TSV, including escaped quotes and quoted multiline fields. */
-export function parseWordFile(source: string, delimiter: "," | "\t"): WordList["words"] {
+export function parseWordFile(source: string, delimiter: "," | "\t"): Word[] {
   if (new TextEncoder().encode(source).length > MAX_IMPORT_BYTES) throw new AppError('importTooLarge')
   const text = source.replace(/^\uFEFF/, "")
   const rows: { cells: string[]; line: number }[] = []
@@ -50,3 +48,19 @@ export function parseWordFile(source: string, delimiter: "," | "\t"): WordList["
     return word
   })
 }
+
+/** Preserve exact typing strings, including whitespace, quotes and newlines. */
+export function encodeWordCsv(words: Word[]) {
+  const cell = (value: string) => `"${value.replaceAll('"', '""')}"`
+  return "\uFEFFinput,display,annotation\r\n" + words.map(word =>
+    [word.input, word.display, word.annotation].map(cell).join(",")
+  ).join("\r\n") + "\r\n"
+}
+
+export const csvFormat = {
+  extension: "csv", mimeType: "text/csv;charset=utf-8", parse: text => parseWordFile(text, ","), encode: encodeWordCsv,
+} satisfies WordFormat
+
+export const tsvFormat = {
+  extension: "tsv", mimeType: "text/tab-separated-values;charset=utf-8", parse: text => parseWordFile(text, "\t"),
+} satisfies WordFormat

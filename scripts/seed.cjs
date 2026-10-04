@@ -2,7 +2,7 @@ const { loadEnvConfig } = require('@next/env')
 const { PrismaClient } = require('@prisma/client')
 const { PrismaPg } = require('@prisma/adapter-pg')
 
-const countries = require('../src/json/Countries.json')
+const countries = require('../src/plugins/packs/countries.json')
 
 const templates = [
   { id: 'seed-test-1', name: 'Test 1', words: ['hoge', 'foo', 'bar'] },
