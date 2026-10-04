@@ -1,5 +1,5 @@
 "use client"
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
@@ -13,9 +13,8 @@ import type { PracticeDevice } from '../core/devices'
 import { useSelectedProfile } from './profileSelection'
 import { DEFAULT_PROFILE_ID, DEFAULT_PROFILE_NAME, type ProfileDraft, type ProfileSummary } from '../core/profiles'
 import { type SavedWordList } from '../core/wordLists'
-import { WorkspaceError, type WorkspaceState, type WorkspaceWrite } from '../core/workspaceStore'
+import { createWorkspaceSession, type WorkspaceSession } from '../core/workspaceSession'
 
-type Change = Omit<WorkspaceWrite, 'revision' | 'accountId'>
 export type WorkspaceUpdate = (change: (lists: SavedWordList[]) => SavedWordList[], useDefaults?: boolean) => Promise<boolean>
 // The error is kept as caught and turned into text while rendering, so it follows a change of language.
 type Failure = { reason: unknown; fallback: ErrorKey } | null
@@ -47,40 +46,19 @@ function useWorkspace() {
     setReady(false)
     setFailure(null)
   }
-  const state = useRef<WorkspaceState | null>(null)
-  const busy = useRef(false)
-  const generation = useRef(0)
-
-  const show = useCallback((data: WorkspaceState) => {
-    state.current = data
-    setDevices(data.devices)
-    setProfiles(data.profiles)
-    setLists(data.revision === 0 ? initialLists : data.lists)
-  }, [])
-
-  const load = useCallback(async () => {
-    if (!accountId) return
-    const currentGeneration = generation.current
-    const store = workspaceStore(accountId)
-    const data = await store.read(profileId)
-    if (data.accountId !== accountId || currentGeneration !== generation.current) throw new AppError('accountChangedReopen')
-    // The chosen profile was deleted on another screen: switching reloads the first profile.
-    if (data.profileId !== profileId) { chooseProfile(data.profileId); return null }
-    if (store.staleReads && state.current && state.current.revision > data.revision) return state.current
-    show(data)
-    return state.current
-  }, [accountId, profileId, chooseProfile, show])
-
+  const workspace = useRef<WorkspaceSession | null>(null)
   const refresh = useRef(() => {})
   useEffect(() => {
-    const effectGeneration = ++generation.current
-    state.current = null
-    busy.current = false
-    let active = true
     if (!accountId) return
+    const current = createWorkspaceSession({
+      store: workspaceStore(accountId), accountId, profileId, initialLists, chooseProfile, saving: setSaving,
+      show: shown => { setLists(shown.lists); setDevices(shown.devices); setProfiles(shown.profiles) },
+    })
+    workspace.current = current
+    let active = true
     refresh.current = () => {
-      if (busy.current) return
-      load().then(data => {
+      if (current.busy) return
+      current.load().then(data => {
         // null: switching to another profile, which loads again.
         if (active && data !== null) { setFailure(null); setReady(true) }
       }).catch(reason => {
@@ -93,51 +71,26 @@ function useWorkspace() {
     return () => {
       active = false
       refresh.current = () => {}
-      generation.current = effectGeneration + 1
+      current.close()
+      workspace.current = null
       unsubscribe?.()
       window.removeEventListener('focus', reload)
     }
-  }, [load, accountId])
+  }, [accountId, profileId, chooseProfile])
   // Each page opens with the latest data, as when every page loaded the workspace itself.
-  useEffect(() => refresh.current(), [load, pathname])
+  useEffect(() => refresh.current(), [accountId, profileId, chooseProfile, pathname])
 
-  async function save(change: (previous: WorkspaceState, currentLists: () => SavedWordList[]) => Change, useDefaults = true): Promise<boolean> {
-    const previous = state.current
-    if (!ready || busy.current || !accountId || !previous || previous.accountId !== accountId || previous.profileId !== profileId) return false
-    const currentGeneration = generation.current
-    busy.current = true
-    setSaving(true)
+  async function save(action: (current: WorkspaceSession) => Promise<boolean>) {
+    const current = workspace.current
+    if (!ready || !current) return false
     try {
-      // The samples shown before the first save become real lists when anything is saved.
-      const request = change(previous, () => previous.revision === 0 && useDefaults ? initialLists : previous.lists)
-      const data = await workspaceStore(accountId).write({ ...request, revision: previous.revision, accountId })
-      if (currentGeneration !== generation.current || data.accountId !== accountId) throw new AppError('accountChanged')
-      if (data.profileId !== profileId) chooseProfile(data.profileId)
-      else { show(data); setFailure(null) }
-      return true
+      const saved = await action(current)
+      if (saved) setFailure(null)
+      return saved
     } catch (reason) {
-      if (reason instanceof WorkspaceError && reason.status === 409 && currentGeneration === generation.current) {
-        try { await load() } catch (refreshError) { reason = refreshError }
-      }
-      if (currentGeneration !== generation.current) return false
       setFailure({ reason, fallback: 'saveFailed' })
       return false
-    } finally { if (currentGeneration === generation.current) { busy.current = false; setSaving(false) } }
-  }
-
-  function update(change: (current: SavedWordList[]) => SavedWordList[], useDefaults = true, changeDevices?: (current: PracticeDevice[]) => PracticeDevice[]) {
-    return save((previous, currentLists) => ({ profileId: previous.profileId, lists: change(currentLists()),
-      ...(changeDevices ? { devices: changeDevices(previous.devices) } : {}) }), useDefaults)
-  }
-
-  /** Adds, renames or deletes profiles. Deleting the profile in use switches this browser to the first profile. */
-  function updateProfiles(change: (current: ProfileDraft[]) => ProfileDraft[]) {
-    return save((previous, currentLists) => {
-      const next = change(previous.profiles)
-      return next.some(profile => profile.id === previous.profileId)
-        ? { profileId: previous.profileId, profiles: next, lists: currentLists() }
-        : { profileId: DEFAULT_PROFILE_ID, profiles: next }
-    })
+    }
   }
 
   // The first profile keeps its stored initial name until renamed; it is shown in the reader's language.
@@ -152,10 +105,12 @@ function useWorkspace() {
     /** Where this workspace is saved; undefined until the login is known. */
     storage: accountId ? workspaceStore(accountId).location : undefined,
     profile: shownProfiles.find(profile => profile.id === profileId),
-    selectProfile: (id: string) => { if (!busy.current) chooseProfile(id) },
-    updateProfiles,
-    updateDevices: (change: (current: PracticeDevice[]) => PracticeDevice[]) => update(current => current, true, change),
-    ready: loaded, error, errorKey, saving, update, reload: load,
+    selectProfile: (id: string) => { if (!workspace.current?.busy) chooseProfile(id) },
+    /** Adds, renames or deletes profiles. Deleting the profile in use switches this browser to the first profile. */
+    updateProfiles: (change: (current: ProfileDraft[]) => ProfileDraft[]) => save(current => current.updateProfiles(change)),
+    updateDevices: (change: (current: PracticeDevice[]) => PracticeDevice[]) => save(current => current.update(lists => lists, true, change)),
+    update: (change: (current: SavedWordList[]) => SavedWordList[], useDefaults?: boolean) => save(current => current.update(change, useDefaults)),
+    ready: loaded, error, errorKey, saving,
   }
 }
 
