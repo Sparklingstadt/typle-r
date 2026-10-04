@@ -13,7 +13,6 @@ import FilterMenu, { type FilterOption } from "@/components/Records/FilterMenu"
 import ListSummary from "@/components/Records/ListSummary"
 import RecordRow, { recordColumns, RecordTime } from "@/components/Records/RecordRow"
 import { useFormat } from "@/i18n/useFormat"
-import { GUEST_ACCOUNT_ID } from "@/plugins/storage/guest"
 import { useWordLists } from "@/lib/useWordLists"
 import { dayKind } from "@/core/dashboard"
 import { deviceOptions, filterRows, formatAccuracy, groupByDay, listBest, recordRows, removeRecord, type RecordFilter, type RecordRow as Row } from "@/core/records"
@@ -48,7 +47,7 @@ function RecordsPage() {
           })}
         </p>
       </div>
-      {workspace.ready && <PageStorageBadge guest={workspace.accountId === GUEST_ACCOUNT_ID} />}
+      {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
     </header>
     {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
     {!workspace.ready ? <Loading /> : <RecordHistory key={workspace.accountId} lists={workspace.lists} saving={workspace.saving} update={workspace.update} />}

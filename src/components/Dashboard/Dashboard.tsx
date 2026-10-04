@@ -12,6 +12,7 @@ import {
   LOW_ACCURACY, STALE_DAYS, type Change, type ListTrend, type NextList, type Scale, type Trend,
 } from "@/core/dashboard"
 import type { SavedWordList } from "@/core/wordLists"
+import type { WorkspaceLocation } from "@/core/workspaceStore"
 
 type Delta = { icon: LucideIcon; good: boolean; text: string }
 type T = ReturnType<typeof useTranslations<'dashboard'>>
@@ -150,7 +151,7 @@ function TrendCard({ trend, now }: { trend: ListTrend; now: Date }) {
   </article>
 }
 
-export default function Dashboard({ lists, guest }: { lists: SavedWordList[]; guest: boolean }) {
+export default function Dashboard({ lists, storage }: { lists: SavedWordList[]; storage?: WorkspaceLocation }) {
   const t = useTranslations('dashboard')
   const format = useFormat()
   const [now] = useState(() => new Date())
@@ -160,7 +161,7 @@ export default function Dashboard({ lists, guest }: { lists: SavedWordList[]; gu
     <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
       <div className="space-y-2">
         <h1 className="text-2xl lg:text-3xl">{t('title')}</h1>
-        <p className="text-sm text-muted-foreground">{t(guest ? 'sourceGuest' : 'sourceAccount')}</p>
+        <p className="text-sm text-muted-foreground">{t(storage === 'browser' ? 'sourceGuest' : 'sourceAccount')}</p>
       </div>
       <nav aria-label={t('start')} className="flex flex-wrap gap-3">
         <Button asChild><Link href="/play"><Keyboard aria-hidden="true" />{t('practice')}</Link></Button>

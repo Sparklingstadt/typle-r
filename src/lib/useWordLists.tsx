@@ -149,6 +149,8 @@ function useWorkspace() {
   const errorKey = failure?.reason instanceof AppError ? failure.reason.key : null
   return {
     lists, devices, accountId, profiles: shownProfiles, profileId,
+    /** Where this workspace is saved; undefined until the login is known. */
+    storage: accountId ? workspaceStore(accountId).location : undefined,
     profile: shownProfiles.find(profile => profile.id === profileId),
     selectProfile: (id: string) => { if (!busy.current) chooseProfile(id) },
     updateProfiles,

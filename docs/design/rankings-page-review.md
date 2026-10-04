@@ -63,7 +63,7 @@ P1 = 迷い・手戻りが起きる／P2 = 見た目・情報設計（データ�
 v0.24.0 で実装。
 
 - 画面: `src/app/(workspace)/rankings/page.tsx`（URL の `?list=`・`?device=`・`?order=speed` を読み書き）、`src/components/Rankings/`（一覧 `RankingList`・詳細 `RankingDetail`・上位の記録 `TopRecords`）。旧 `BestRecordsTable` は削除
-- ロジック: `src/lib/records.ts` に `rankRecords`・`comparableRecords`・`listBest`・`deviceOptions` など、`src/lib/rankings.ts` に一覧・詳細用の集計（`listRanking`・`sortRankings`・`rankingStats`）
+- ロジック: `src/core/records.ts` に `rankRecords`・`comparableRecords`・`listBest`・`deviceOptions` など、`src/core/rankings.ts` に一覧・詳細用の集計（`listRanking`・`sortRankings`・`rankingStats`）
 - 同じ基準に合わせた画面: /play（単語リスト欄のベスト、ベスト記録、結果の順位と「今の◯語では最初の記録」）、/records（ベストの印、削除時の次のベスト、リストのカード。「ベスト記録」は `/rankings?list=<id>` を開く）、ホーム（リストごとのベスト）
 - 決めたこと: 順位の基準と端末は URL に持たせる（共有・再読み込みで保つ）。「含めて表示」と「すべて表示」は画面内の状態で、リストを切り替えると閉じる。1280px 未満でリストを開くと履歴に積むので、ブラウザーの戻るで一覧に戻れる。一覧と詳細を切り替えたときは、詳細の見出し・直前のリストにフォーカスを移す
 - 試作からの変更: 端末メニューは /records と同じ `FilterMenu` にした（削除した端末は見出しで分けず、名前に「（削除済み）」を付ける）。モバイルの一覧では、開いていないリストを選択中として強調しない。一覧の回数は、その端末で練習した回数（単語数が違う記録も含む）

@@ -27,5 +27,15 @@ export default defineConfig([
       ] }],
     },
   },
+  // Screens reach the workspace through useWordLists (src/lib), which chooses the store; only the API route uses the server side.
+  {
+    files: ['src/app/**', 'src/components/**'],
+    ignores: ['src/app/api/**'],
+    rules: {
+      'no-restricted-imports': ['error', { patterns: [
+        { regex: '^(@/|(\\.\\./)+)plugins/storage(/|$)', message: 'Screens get the workspace and where it is saved from useWordLists, not from a storage plugin.' },
+      ] }],
+    },
+  },
   globalIgnores(['.next/**', '.next-production/**', 'test-results/**', 'playwright-report/**', 'next-env.d.ts']),
 ])

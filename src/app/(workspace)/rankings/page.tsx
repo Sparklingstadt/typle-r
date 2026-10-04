@@ -12,7 +12,6 @@ import FilterMenu from "@/components/Records/FilterMenu"
 import RankingDetail from "@/components/Rankings/RankingDetail"
 import RankingList from "@/components/Rankings/RankingList"
 import { useFormat } from "@/i18n/useFormat"
-import { GUEST_ACCOUNT_ID } from "@/plugins/storage/guest"
 import { useWordLists } from "@/lib/useWordLists"
 import type { PracticeDevice } from "@/core/devices"
 import { deviceOptions, matchesDevice, NO_DEVICE, type RankOrder } from "@/core/records"
@@ -44,7 +43,7 @@ export default function Rankings() {
         <h1 className="text-2xl font-bold">{t('title')}</h1>
         <p className="text-sm text-muted-foreground">{t('intro')}</p>
       </div>
-      {workspace.ready && <PageStorageBadge guest={workspace.accountId === GUEST_ACCOUNT_ID} />}
+      {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
     </header>
     {workspace.error && <Alert variant="destructive" className="mb-6 border-destructive/40 bg-destructive/5">
       <CircleAlert aria-hidden="true" />

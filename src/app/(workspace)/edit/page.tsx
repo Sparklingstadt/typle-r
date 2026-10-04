@@ -14,12 +14,12 @@ import { useSaveNotification } from "@/components/SaveNotification"
 import WordListEditor from "@/components/WordListEditor"
 import { downloadWordCsv } from "@/components/WordListExport"
 import ListRow, { usePracticeText } from "@/components/WordLists/ListRow"
-import { GUEST_ACCOUNT_ID } from "@/plugins/storage/guest"
 import { useWordLists } from "@/lib/useWordLists"
 import { useFormat } from "@/i18n/useFormat"
 import { randomId } from "@/core/randomId"
 import { duplicateList, LIST_ORDERS, listOverviews, matchesQuery, MAX_LISTS, sortOverviews, type ListOrder, type ListOverview } from "@/core/listOverview"
 import { saveList, type SavedWordList } from "@/core/wordLists"
+import type { WorkspaceLocation } from "@/core/workspaceStore"
 import PageStorageBadge from "@/components/PageStorageBadge"
 
 type Workspace = ReturnType<typeof useWordLists>
@@ -32,14 +32,14 @@ export default function Edit() {
   </main>
 }
 
-function Header({ accountId }: { accountId?: string }) {
+function Header({ storage }: { storage?: WorkspaceLocation }) {
   const t = useTranslations('wordLists.page')
   return <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
     <div className="space-y-1">
       <h1 className="text-2xl font-bold">{t('title')}</h1>
       <p className="text-sm text-muted-foreground">{t('description')}</p>
     </div>
-    {accountId && <PageStorageBadge guest={accountId === GUEST_ACCOUNT_ID} />}
+    <PageStorageBadge storage={storage} />
   </header>
 }
 
@@ -61,7 +61,7 @@ function LoadingState() {
 // `/edit?list=<id>` opens the editor, so other screens can link to it and the browser's back button returns to the lists.
 // The editor stays open while it has unsaved changes: going back asks first, like キャンセル.
 function WordLists({ workspace }: { workspace: Workspace }) {
-  const { lists, error, errorKey, saving, update, accountId } = workspace
+  const { lists, error, errorKey, saving, update, storage } = workspace
   const t = useTranslations('wordLists.page')
   const practiceText = usePracticeText()
   const notify = useSaveNotification()
@@ -134,7 +134,7 @@ function WordLists({ workspace }: { workspace: Workspace }) {
 
   if (openId && editing) return <WordListEditor key={editing.id} title={t('editTitle')} initial={editing} error={error} errorKey={errorKey}
     description={t('editDescription', { count: editing.words.length, practice: practiceText(listOverviews([editing])[0], new Date()) })}
-    storage={accountId === GUEST_ACCOUNT_ID ? "browser" : "account"} onDirtyChange={trackDirty} cancelRequest={cancelRequest}
+    storage={storage} onDirtyChange={trackDirty} cancelRequest={cancelRequest}
     onCancel={() => close()} onSave={async list => {
       const saved = await update(current => saveList(current, list, true))
       if (saved) { close(list.id); notify(t('updated', { name: list.name.trim() })) }
@@ -142,7 +142,7 @@ function WordLists({ workspace }: { workspace: Workspace }) {
     }} />
 
   return <>
-    <Header accountId={accountId} />
+    <Header storage={storage} />
     {error && <Alert variant="destructive" className="mb-6 border-destructive/40 bg-destructive/5">
       <CircleAlert aria-hidden="true" />
       <AlertDescription className="flex flex-wrap items-center gap-x-3 gap-y-2">

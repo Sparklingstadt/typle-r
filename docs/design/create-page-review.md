@@ -47,7 +47,7 @@ P0 = データ損失・操作不能につながる／P1 = 迷い・手戻りが�
 
 - `WordListEditor` は /create と /edit の共通部品のため、改善は両画面に反映される（想定どおり）。
 - 主な変更箇所: `src/components/WordListEditor.tsx`、`src/components/SortableWordRow.tsx`、`src/components/WordListImport.tsx`、`src/app/(workspace)/create/page.tsx`
-- 保存エラーは現在 `src/lib/wordLists.ts` が文字列の `Error` を投げている。欄ごとに表示するには、エラーの対象（リスト名／n行目）を返す形にする必要がある。
+- 保存エラーは現在 `src/core/wordLists.ts` が文字列の `Error` を投げている。欄ごとに表示するには、エラーの対象（リスト名／n行目）を返す形にする必要がある。
 - 空の行は保存時にエラーとする（現在の挙動を維持し、自動で除外しない）。
 - 確認ダイアログは既存の `src/components/ui/alert-dialog.tsx`、エラー表示は `ui/alert.tsx` を使える。
 

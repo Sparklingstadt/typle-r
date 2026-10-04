@@ -45,7 +45,7 @@ P1 = 迷い・手戻りが起きる／P2 = 見た目・情報設計（データ�
 
 ## 実装メモ
 
-- 主な変更箇所: `src/app/(workspace)/devices/page.tsx`、`src/components/Devices/DeviceDialog.tsx`、`src/components/Devices/CurrentDevice.tsx`、`src/lib/devices.ts`、`src/lib/deviceSelection.ts`、`src/components/DeleteConfirmation.tsx`
+- 主な変更箇所: `src/app/(workspace)/devices/page.tsx`、`src/components/Devices/DeviceDialog.tsx`、`src/components/Devices/CurrentDevice.tsx`、`src/core/devices.ts`、`src/lib/deviceSelection.ts`、`src/components/DeleteConfirmation.tsx`
 - 欄ごとのエラーは `deviceProblem()` が `{ field, message }` で返す。`saveDevice()` も同じ判定を使い、最初のエラー文を投げる。
 - 練習回数は `deviceUsage()` で全リストの記録を端末IDごとに数える（最終日は記録の `date` の最大値）。
 - 使用端末の選択は `useSelectedDevice(accountId)`（`typle-r:device:<accountId>`）にまとめ、/play と /devices で共有する。別タブでの変更は `storage` イベントで反映する。
