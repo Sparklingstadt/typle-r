@@ -67,7 +67,7 @@ CREATE INDEX ON "typle_api_tokens" ("owner_id");
 |---|---|---|
 | `GET /api/tokens` | — | `200 { tokens: [{ id, name, prefix, scope, createdAt, expiresAt, lastUsedAt }] }`（新しい順）。ハッシュは返さない |
 | `POST /api/tokens` | `{ name, scope: 'read' \| 'write', expiresIn: 30 \| 90 \| 365 \| null }`（日数） | `201 { token: { …上の1件 }, secret: 'typle_…' }`。`secret` を返すのはこの1回だけ |
-| `DELETE /api/tokens/<id>` | — | `204`。他人のトークン・存在しないIDは `404` |
+| `DELETE /api/tokens/<id>` | — | `204`。他人のトークン・存在しないIDは `404 tokenNotFound` |
 
 エラー: 未ログイン `401 loginRequired`、Origin・形式不一致 `403 forbiddenRequest`、本文の誤り `400 invalidTokenRequest`、上限 `409 tokenLimit`、DB `503 databaseUnavailable`。
 
@@ -123,7 +123,7 @@ CREATE INDEX ON "typle_api_tokens" ("owner_id");
 
 ### 追加するエラーキー
 
-`errors.json`（6言語）に追加: `invalidToken`、`insufficientScope`、`unsupportedContentType`、`invalidJson`、`invalidQuery`、`profileNotFound`、`listNotFound`、`deviceNotFound`、`invalidRecord`、`invalidTokenRequest`、`tokenLimit`。API の利用者向けの値はキーそのもので、文言は画面（トークン管理）で表示するときに使う。
+`errors.json`（6言語）に追加: `invalidToken`、`insufficientScope`、`unsupportedContentType`、`invalidJson`、`invalidQuery`、`profileNotFound`、`listNotFound`、`deviceNotFound`、`invalidRecord`、`invalidTokenRequest`、`tokenLimit`、`tokenNotFound`。API の利用者向けの値はキーそのもので、文言は画面（トークン管理）で表示するときに使う。
 
 ### 書き込みの流れ
 
