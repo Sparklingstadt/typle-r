@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
+import ApiTokens from '@/components/Settings/ApiTokens'
 import LanguageSettings from '@/components/Settings/LanguageSettings'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -14,6 +15,9 @@ export default async function Settings() {
       <h1 className="text-2xl font-bold">{t('title')}</h1>
       <p className="text-sm text-muted-foreground">{t('description')}</p>
     </header>
-    <LanguageSettings />
+    <div className="space-y-6">
+      <LanguageSettings />
+      <ApiTokens />
+    </div>
   </main>
 }

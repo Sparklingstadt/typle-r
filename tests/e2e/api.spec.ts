@@ -157,3 +157,65 @@ test('anonymous API access is rejected', async ({ request }) => {
   expect(profiles.headers()['access-control-allow-origin']).toBeUndefined()
   expect((await request.get('/api/tokens')).status()).toBe(401)
 })
+
+test('settings issues, shows once and revokes a token', async ({ context, page }) => {
+  await signIn(context)
+  await page.goto('/settings')
+  await page.getByRole('button', { name: 'トークンを発行…' }).click()
+  const dialog = page.getByRole('dialog', { name: 'APIトークンを発行' })
+  await dialog.getByRole('textbox', { name: '名前' }).fill('E2E')
+  await dialog.getByRole('radio', { name: '読み書き' }).check()
+  await dialog.getByRole('radio', { name: '30日' }).check()
+  await dialog.getByRole('button', { name: '発行する' }).click()
+
+  const shown = page.getByRole('dialog', { name: 'トークンを発行しました' })
+  await expect(shown).toContainText('このトークンは今だけ表示されます。')
+  const field = shown.getByRole('textbox')
+  await expect(field).toHaveValue(/^typle_[A-Za-z0-9_-]{43}$/)
+  const secretValue = await field.inputValue()
+  const api = await bearer(secretValue)
+  expect((await api.get('/api/v1/profiles')).status()).toBe(200)
+
+  await shown.getByRole('button', { name: '閉じる' }).first().click()
+  await expect(shown).toBeHidden()
+  const item = page.getByRole('listitem').filter({ hasText: 'E2E' })
+  await expect(item).toContainText('読み書き')
+  await expect(item).toContainText(secretValue.slice(0, 10) + '…')
+  await expect(item).toContainText('未使用')
+  expect(await page.content()).not.toContain(secretValue)
+
+  // Reloading lists the token from the server, still without its secret.
+  await page.reload()
+  await expect(page.getByRole('listitem').filter({ hasText: 'E2E' })).toContainText('最終使用')
+  expect(await page.content()).not.toContain(secretValue)
+
+  await page.getByRole('button', { name: '失効…' }).click()
+  await page.getByRole('alertdialog', { name: '「E2E」を失効しますか？' }).getByRole('button', { name: '失効する' }).click()
+  await expect(page.getByText('発行したトークンはありません。')).toBeVisible()
+  expect((await api.get('/api/v1/profiles')).status()).toBe(401)
+  await api.dispose()
+})
+
+test('a list added through the API appears on the edit and records screens', async ({ context, page }) => {
+  await signIn(context)
+  const { secret: token } = await issue(page.request, 'write')
+  const api = await bearer(token)
+  const base = '/api/v1/profiles/default/lists'
+  const created = await api.post(base, { data: { name: 'API', words: [{ display: '猫', input: 'neko' }] } })
+  expect(created.status()).toBe(201)
+  const { list } = await created.json()
+  const record = { id: 'run-1', time: 3.2, date: new Date().toISOString(), mistakes: 0, accuracy: 100 }
+  expect((await api.post(`${base}/${list.id}/records`, { data: record })).status()).toBe(201)
+  await api.dispose()
+
+  await page.goto('/edit')
+  await expect(page.getByRole('button', { name: 'API を編集', exact: true })).toBeVisible()
+  await page.goto('/records')
+  await expect(page.locator('[data-record-key]').filter({ hasText: 'API' })).toContainText('3.20秒')
+})
+
+test('settings without login explains that API tokens need GitHub', async ({ page }) => {
+  await page.goto('/settings')
+  await expect(page.getByText('APIトークンを使うには、GitHubでログインしてください。')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'トークンを発行…' })).toHaveCount(0)
+})
