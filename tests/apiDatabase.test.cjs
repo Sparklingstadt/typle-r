@@ -6,10 +6,11 @@ const { loadEnvConfig } = require('@next/env')
 const { PrismaClient } = require('@prisma/client')
 const { PrismaPg } = require('@prisma/adapter-pg')
 loadEnvConfig(process.cwd())
-const { workspaceRepository } = require('../src/plugins/storage/cloud/repository.ts')
+const { MAX_API_LISTS_BYTES, workspaceRepository } = require('../src/plugins/storage/cloud/repository.ts')
+const { MAX_WORKSPACE_BYTES } = require('../src/core/workspaceRequest.ts')
 const { tokenRepository, hashToken } = require('../src/plugins/storage/cloud/tokens.ts')
 const { isTokenSecret } = require('../src/core/apiTokens.ts')
-const { createList, updateList } = require('../src/core/apiRequests.ts')
+const { addApiRecord, createList, deleteList, updateList } = require('../src/core/apiRequests.ts')
 
 const word = display => ({ display, input: display, annotation: '' })
 const request = (overrides = {}) => ({ name: 'laptop', scope: 'write', expiresIn: 90, ...overrides })
@@ -72,6 +73,7 @@ test('tokens are limited to ten per owner', () => withDatabase(async ({ owner, o
 test('concurrent token creation cannot exceed the limit', () => withDatabase(async ({ owner, tokens }) => {
   const results = await Promise.allSettled(Array.from({ length: 15 }, () => tokens.create(owner, request())))
   assert.equal(results.filter(result => result.status === 'fulfilled').length, 10)
+  for (const result of results.filter(result => result.status === 'rejected')) assert.equal(result.reason.key, 'tokenLimit')
   assert.equal((await tokens.list(owner)).length, 10)
 }))
 
@@ -165,4 +167,55 @@ test('modify creates the workspace on first write', () => withDatabase(async ({ 
   assert.equal(workspace.revision, 1)
   assert.deepEqual(workspace.lists.map(list => list.id), ['first'])
   assert.equal((await workspaces.read(owner)).lists.length, 1)
+}))
+
+// Words of about 2 KB each, to reach the size limit within the per-list limits.
+const annotated = count => Array.from({ length: count }, (_, index) => ({ display: 'w' + index, input: 'w' + index, annotation: 'x'.repeat(2000) }))
+const bigList = (id, count) => ({ id, name: id, createdAt: '2026-10-10T00:00:00.000Z', words: annotated(count), records: [] })
+const size = lists => Buffer.byteLength(JSON.stringify(lists))
+
+test('the API list limit leaves room for what a web save sends around the lists', () => {
+  // The largest web save: 100 shared lists filling the API limit, 100 devices and 10 profiles of 3-byte characters.
+  const lists = Array.from({ length: 100 }, (_, index) => ({ ...bigList('list-' + index, 0), shared: true }))
+  for (let index = 0; size(lists) < MAX_API_LISTS_BYTES - 2100; index++) lists[index % 100].words.push(...annotated(1))
+  lists[0].words.push({ display: 'pad', input: 'pad', annotation: 'x'.repeat(MAX_API_LISTS_BYTES - size(lists) - 50) })
+  assert.ok(size(lists) <= MAX_API_LISTS_BYTES && size(lists) > MAX_API_LISTS_BYTES - 100)
+  const body = {
+    profileId: 'p'.repeat(100),
+    lists: lists.map(list => ({ ...list, shareId: randomUUID() })),
+    devices: Array.from({ length: 100 }, (_, index) => ({ id: String(index).padStart(100, 'd'), name: '鍵'.repeat(100), layout: '配'.repeat(200) })),
+    profiles: Array.from({ length: 10 }, (_, index) => ({ id: String(index).padStart(100, 'p'), name: '名'.repeat(50), listCount: 100, recordCount: 1000000 })),
+    revision: Number.MAX_SAFE_INTEGER,
+    accountId: 'github:' + '9'.repeat(20),
+  }
+  assert.ok(size(body) <= MAX_WORKSPACE_BYTES, `${size(body)} > ${MAX_WORKSPACE_BYTES}`)
+})
+
+test('modify refuses lists larger than the web app can save again', () => withDatabase(async ({ db, owner, workspaces }) => {
+  const saved = await workspaces.write(owner, 0, { profileId: 'default', lists: [bigList('big', 400)] })
+  const grow = ws => ({ lists: createList(ws.lists, { name: 'more', words: annotated(60) }, 'more', now).lists, result: null })
+  const grown = grow(saved).lists
+  // Within what PUT /api/workspace accepts, but not with the rest of a web save around it.
+  assert.ok(size(grown) > MAX_API_LISTS_BYTES && size(grown) < MAX_WORKSPACE_BYTES)
+  await assert.rejects(workspaces.modify(owner, 'default', grow), { key: 'workspaceTooLarge' })
+  const row = await db.workspace.findUniqueOrThrow({ where: { ownerId: owner } })
+  assert.equal(row.revision, saved.revision)
+  assert.deepEqual(row.lists.map(list => list.id), ['big'])
+  assert.equal(await db.sharedList.count({ where: { ownerId: owner } }), 0)
+  const fits = await workspaces.modify(owner, 'default', ws => ({ lists: createList(ws.lists, input('small'), 'small', now).lists, result: null }))
+  assert.equal(fits.workspace.revision, saved.revision + 1)
+}))
+
+test('modify still lets an oversized profile shrink', () => withDatabase(async ({ owner, workspaces }) => {
+  // Saved by the web app, whose limit includes the envelope, so it can be above the API limit.
+  const lists = [bigList('big', 400), bigList('mid', 55), bigList('tiny', 5)]
+  assert.ok(size(lists) > MAX_API_LISTS_BYTES && size(lists) < MAX_WORKSPACE_BYTES)
+  const saved = await workspaces.write(owner, 0, { profileId: 'default', lists })
+  const record = { time: 1, date: now.toISOString(), mistakes: 0, accuracy: 100 }
+  await assert.rejects(workspaces.modify(owner, 'default', ws => ({ lists: addApiRecord(ws.lists, 'tiny', record, [], 'r1').lists, result: null })),
+    { key: 'workspaceTooLarge' })
+  const { workspace } = await workspaces.modify(owner, 'default', ws => ({ lists: deleteList(ws.lists, 'tiny'), result: null }))
+  assert.equal(workspace.revision, saved.revision + 1)
+  assert.ok(size(workspace.lists) > MAX_API_LISTS_BYTES)
+  assert.deepEqual(workspace.lists.map(list => list.id), ['big', 'mid'])
 }))

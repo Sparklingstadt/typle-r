@@ -6,6 +6,19 @@ import { database, tokenStore } from '@/plugins/storage/cloud/database'
 import type { Workspace } from '@/plugins/storage/cloud/repository'
 
 const STATUS: Partial<Record<ErrorKey, number>> = {
+  // What the request got wrong: thrown while reading it (here and in core/apiRequests) or by the list checks it shares
+  // with the screen (core/wordLists).
+  invalidJson: 400,
+  invalidQuery: 400,
+  invalidRecord: 400,
+  invalidWorkspace: 400,
+  deviceNotFound: 400,
+  listLimit: 400,
+  listNameRequired: 400,
+  listNameDuplicate: 400,
+  wordsRequired: 400,
+  wordFieldsRequired: 400,
+  listDeleted: 400,
   invalidToken: 401,
   insufficientScope: 403,
   profileNotFound: 404,
@@ -23,6 +36,13 @@ export function json(value: unknown, status = 200) {
 
 const failure = (key: ErrorKey, status: number) => json({ error: key }, status)
 
+// RFC 6750 names the scheme a 401 expects.
+function unauthorized() {
+  const response = failure('invalidToken', 401)
+  response.headers.set('WWW-Authenticate', 'Bearer')
+  return response
+}
+
 export function apiRoute<P = Record<string, never>>(
   scope: TokenScope,
   operation: string,
@@ -32,11 +52,13 @@ export function apiRoute<P = Record<string, never>>(
     try {
       const secret = bearerSecret(request.headers.get('authorization'))
       const token = secret ? await tokenStore().verify(secret) : null
-      if (!token) return failure('invalidToken', 401)
+      if (!token) return unauthorized()
       if (!allows(token.scope, scope)) return failure('insufficientScope', 403)
       return await handle({ owner: token.ownerId, request, params: await context.params })
     } catch (error) {
-      if (error instanceof AppError) return failure(error.key, STATUS[error.key] ?? 400)
+      const status = error instanceof AppError ? STATUS[error.key] : undefined
+      if (error instanceof AppError && status) return failure(error.key, status)
+      // Anything else, such as saved data that no longer decodes, is the server's fault.
       Sentry.captureException(error, { tags: { operation } })
       return failure('databaseUnavailable', 503)
     }

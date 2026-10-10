@@ -140,6 +140,7 @@ test('a read token cannot write, and revoked or missing tokens are rejected', as
   expect((await page.request.delete(`/api/tokens/${token.id}`, { headers: { Origin: origin } })).status()).toBe(204)
   const revoked = await api.get('/api/v1/profiles')
   expect(revoked.status()).toBe(401)
+  expect(revoked.headers()['www-authenticate']).toBe('Bearer')
   expect(await revoked.json()).toEqual({ error: 'invalidToken' })
   expect((await page.request.delete(`/api/tokens/${token.id}`, { headers: { Origin: origin } })).status()).toBe(404)
   await api.dispose()
@@ -147,8 +148,31 @@ test('a read token cannot write, and revoked or missing tokens are rejected', as
   const anonymous = await playwrightRequest.newContext({ baseURL: origin })
   const missing = await anonymous.get('/api/v1/profiles')
   expect(missing.status()).toBe(401)
+  expect(missing.headers()['www-authenticate']).toBe('Bearer')
   expect(await missing.json()).toEqual({ error: 'invalidToken' })
   await anonymous.dispose()
+})
+
+test('unreadable saved data is a server error, not a bad request', async ({ context, page }) => {
+  await signIn(context)
+  const { secret: token } = await issue(page.request, 'write')
+  const api = await bearer(token)
+  const base = '/api/v1/profiles/default/lists'
+  expect((await api.post(base, { data: { name: 'API', words: [{ display: 'a', input: 'a' }] } })).status()).toBe(201)
+  const { Pool } = await import('pg')
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+  try {
+    await pool.query(`UPDATE typle_workspaces SET lists = '[{"id":"broken"}]' WHERE owner_id = $1`, [accounts[accounts.length - 1]])
+  } finally { await pool.end() }
+  for (const response of [await api.get(base), await api.post(base, { data: { name: 'B', words: [{ display: 'b', input: 'b' }] } })]) {
+    expect(response.status()).toBe(503)
+    expect(await response.json()).toEqual({ error: 'databaseUnavailable' })
+  }
+  // A request that is wrong is still reported as one.
+  const bad = await api.post(base, { data: { name: 1, words: [] } })
+  expect(bad.status()).toBe(400)
+  expect(await bad.json()).toEqual({ error: 'invalidWorkspace' })
+  await api.dispose()
 })
 
 test('anonymous API access is rejected', async ({ request }) => {
@@ -176,6 +200,11 @@ test('settings issues, shows once and revokes a token', async ({ context, page }
   const api = await bearer(secretValue)
   expect((await api.get('/api/v1/profiles')).status()).toBe(200)
 
+  // Neither Escape nor a click outside discards the secret; only the buttons close it.
+  await page.keyboard.press('Escape')
+  await page.mouse.click(5, 5)
+  await expect(shown).toBeVisible()
+  await expect(field).toHaveValue(secretValue)
   await shown.getByRole('button', { name: '閉じる' }).first().click()
   await expect(shown).toBeHidden()
   const item = page.getByRole('listitem').filter({ hasText: 'E2E' })

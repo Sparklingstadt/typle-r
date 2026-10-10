@@ -79,8 +79,14 @@ export function updateList(lists: SavedWordList[], listId: string, patch: ListPa
   const existing = findList(lists, listId)
   const saved = saveList(lists, { ...existing, ...patch }, true)
   checkWorkspace(saved)
-  return { lists: saved, list: findList(saved, listId) }
+  const list = findList(saved, listId)
+  // An unchanged list keeps the same lists, so `modify` saves nothing and open web tabs keep their revision.
+  if (list.name === existing.name && sameWords(list.words, existing.words)) return { lists, list: existing }
+  return { lists: saved, list }
 }
+
+const sameWords = (a: ApiWord[], b: ApiWord[]) => a.length === b.length &&
+  a.every((word, index) => word.display === b[index].display && word.input === b[index].input && word.annotation === b[index].annotation)
 
 export function deleteList(lists: SavedWordList[], listId: string) {
   findList(lists, listId)

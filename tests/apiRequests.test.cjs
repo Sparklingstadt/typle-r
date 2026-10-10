@@ -87,6 +87,24 @@ test('updateList keeps records, sharing, name and creation date unless changed',
   throwsKey(() => updateList([base], 'l1', { name: 'x'.repeat(201) }), 'invalidWorkspace')
 })
 
+test('updateList returns the same lists when nothing changes, so no revision is spent', () => {
+  const lists = [base]
+  for (const patch of [{ name: 'l1名' }, { name: ' l1名 ' }, { words: [{ ...word }] }, { name: 'l1名', words: [{ ...word }] }]) {
+    const result = updateList(lists, 'l1', patch)
+    assert.equal(result.lists, lists)
+    assert.equal(result.list, base)
+  }
+  // Stored rows (PostgreSQL jsonb) may order the word's keys differently.
+  const stored = [{ ...base, words: [{ input: 'a', display: 'a', annotation: '' }] }]
+  assert.equal(updateList(stored, 'l1', { words: [word] }).lists, stored)
+  for (const patch of [{ name: 'L1名' }, { words: [word, word] }, { words: [{ ...word, annotation: 'x' }] }]) {
+    const result = updateList(lists, 'l1', patch)
+    assert.notEqual(result.lists, lists)
+    assert.deepEqual(lists, [base])
+  }
+  throwsKey(() => updateList(lists, 'l1', { words: [] }), 'wordsRequired')
+})
+
 test('deleteList removes one list', () => {
   assert.deepEqual(deleteList([base], 'l1'), [])
   throwsKey(() => deleteList([base], 'x'), 'listNotFound')

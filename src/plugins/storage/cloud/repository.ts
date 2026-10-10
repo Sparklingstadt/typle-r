@@ -4,6 +4,7 @@ import { AppError } from '../../../core/appError'
 import { applyChange, decodeDocument, DEFAULT_PROFILE_ID, MissingProfileError, viewDocument, type WorkspaceChange, type WorkspaceDocument, type WorkspaceView } from '../../../core/profiles'
 import { sharedKeys, stripShareIds, type SharedList } from '../../../core/sharedLists'
 import type { SavedWordList } from '../../../core/wordLists'
+import { MAX_WORKSPACE_BYTES } from '../../../core/workspaceRequest'
 
 export type Workspace = WorkspaceView & { revision: number }
 
@@ -69,6 +70,13 @@ async function syncShared(client: Client, ownerId: string, previous: WorkspaceDo
 
 const MODIFY_ATTEMPTS = 3
 
+/** The most a profile's lists (JSON, as guest storage measures them) may grow to through `modify`. A web save sends the
+ * same lists inside a PUT body limited to MAX_WORKSPACE_BYTES, with share ids, devices, profiles and ids around them:
+ * at most about 111 KB (100 devices and 10 profile names of 3-byte characters), so 128 KiB is kept free for that. */
+export const MAX_API_LISTS_BYTES = MAX_WORKSPACE_BYTES - 128 * 1024
+
+const listBytes = (lists: SavedWordList[]) => Buffer.byteLength(JSON.stringify(stripShareIds(lists)))
+
 export function workspaceRepository(client: PrismaClient) {
   const repository = {
     async read(ownerId: string, profileId = DEFAULT_PROFILE_ID): Promise<Workspace> {
@@ -119,6 +127,9 @@ export function workspaceRepository(client: PrismaClient) {
         if (workspace.profileId !== profileId) throw new AppError('profileNotFound')
         const next = change(workspace)
         if (next.lists === workspace.lists) return { workspace, result: next.result }
+        // Lists the web app saved above the limit may still shrink, e.g. by deleting a list.
+        const bytes = listBytes(next.lists)
+        if (bytes > MAX_API_LISTS_BYTES && bytes >= listBytes(workspace.lists)) throw new AppError('workspaceTooLarge')
         let saved
         try { saved = await repository.write(ownerId, workspace.revision, { profileId, lists: stripShareIds(next.lists) }) }
         catch (error) { throw error instanceof MissingProfileError ? new AppError('profileNotFound') : error }

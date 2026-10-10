@@ -71,8 +71,11 @@ function IssueDialog({ open, onOpenChange, onIssued }: { open: boolean; onOpenCh
 
   const lifetimeLabel = (value: TokenLifetime) => value === null ? t('never') : value === 365 ? t('year') : t('days', { count: value })
 
+  // While the secret is shown, only the buttons close the dialog, so it is not lost by a stray click or key.
+  const keepSecret = (event: Event) => { if (secret !== null) event.preventDefault() }
+
   return <Dialog open={open} onOpenChange={close}>
-    <DialogContent aria-describedby={secret === null ? undefined : `${id}-note`} onInteractOutside={event => { if (secret !== null) event.preventDefault() }}>
+    <DialogContent aria-describedby={secret === null ? undefined : `${id}-note`} onInteractOutside={keepSecret} onEscapeKeyDown={keepSecret}>
       <DialogHeader>
         <DialogTitle>{secret === null ? t('createTitle') : t('issued')}</DialogTitle>
         {secret !== null && <DialogDescription id={`${id}-note`}>{t('secretNote')}</DialogDescription>}
