@@ -128,3 +128,56 @@ test('profiles keep their own lists, share devices and the revision, and leave o
     await db.$disconnect()
   }
 })
+
+test('shared lists follow the workspace and keep their link while shared', async () => {
+  const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) })
+  const owner = 'test:share:' + require('node:crypto').randomUUID()
+  const other = owner + ':other'
+  const isUuid = value => /^[0-9a-f-]{36}$/.test(value)
+  const profiles = [{ id: 'default', name: 'メイン' }, { id: 'p2', name: 'Two' }]
+  try {
+    const repo = workspaceRepository(db)
+    // Turning sharing on before the first save issues a link with that save.
+    let state = await repo.write(owner, 0, lists(0, [{ ...list, shared: true }]))
+    const shareId = state.lists[0].shareId
+    assert.ok(isUuid(shareId))
+    assert.equal((await repo.read(owner)).lists[0].shareId, shareId)
+    const first = await repo.readShared(shareId)
+    assert.deepEqual({ name: first.name, words: first.words }, { name: 'One', words: list.words })
+    assert.ok(Number.isFinite(Date.parse(first.updatedAt)))
+    // Editing keeps the link and updates what it shows.
+    state = await repo.write(owner, 1, lists(1, [{ ...list, name: 'Two', shared: true }]))
+    assert.equal(state.lists[0].shareId, shareId)
+    assert.equal((await repo.readShared(shareId)).name, 'Two')
+    // A stale save changes neither the workspace nor the shared copy.
+    assert.equal(await repo.write(owner, 1, lists(1, [{ ...list, name: 'Stale', shared: true }])), null)
+    assert.equal((await repo.readShared(shareId)).name, 'Two')
+    // Turning sharing off removes the link; turning it on again issues a new one.
+    state = await repo.write(owner, 2, lists(2, [list]))
+    assert.equal('shareId' in state.lists[0], false)
+    assert.equal(await repo.readShared(shareId), null)
+    state = await repo.write(owner, 3, lists(3, [{ ...list, shared: true }]))
+    const again = state.lists[0].shareId
+    assert.ok(isUuid(again) && again !== shareId)
+    // Deleting the list removes its link.
+    await repo.write(owner, 4, lists(4, []))
+    assert.equal(await repo.readShared(again), null)
+    // A share id sent by a client is never taken over: another owner's link keeps its content.
+    const theirs = (await repo.write(other, 0, lists(0, [{ ...list, name: 'Theirs', shared: true }]))).lists[0].shareId
+    state = await repo.write(owner, 5, lists(5, [{ ...list, shared: true, shareId: theirs }]))
+    assert.notEqual(state.lists[0].shareId, theirs)
+    assert.equal((await repo.readShared(theirs)).name, 'Theirs')
+    // Lists of another profile are shared per profile, and deleting the profile removes their links.
+    state = await repo.write(owner, 6, { profileId: 'p2', profiles, lists: [{ ...list, id: 'p2-list', shared: true }] })
+    const p2 = state.lists[0].shareId
+    assert.ok(isUuid(p2))
+    assert.equal((await repo.read(owner, 'p2')).lists[0].shareId, p2)
+    assert.ok((await repo.read(owner)).lists[0].shareId, 'the first profile keeps its own link')
+    await repo.write(owner, 7, { profileId: 'default', profiles: [profiles[0]] })
+    assert.equal(await repo.readShared(p2), null)
+  } finally {
+    await db.sharedList.deleteMany({ where: { ownerId: { in: [owner, other] } } })
+    await db.workspace.deleteMany({ where: { ownerId: { in: [owner, other] } } })
+    await db.$disconnect()
+  }
+})
