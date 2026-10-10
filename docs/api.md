@@ -26,7 +26,7 @@ export TYPLE_TOKEN='typle_…'
 
 すべてのリクエストに `Authorization: Bearer <トークン>` を付けます。
 
-- ヘッダーがない、形式が違う、未知のトークン、期限切れ、失効済みはすべて `401 invalidToken` です。理由は区別できません。
+- ヘッダーがない、形式が違う、未知のトークン、期限切れ、失効済みはすべて `401 invalidToken` です。理由は区別できません。応答には `WWW-Authenticate: Bearer` が付きます。
 - `read` のトークンで書き込み（`POST`・`PATCH`・`DELETE`）を呼ぶと `403 insufficientScope` です。
 - データの所有者はトークンから決まります。リクエストで指定することはできません。
 
@@ -51,8 +51,9 @@ export TYPLE_TOKEN='typle_…'
 | 記録 | 1リスト10000件 |
 | 記録の取得 | `limit` 1〜1000（既定100） |
 | 書き込みの本文 | 1MiB |
+| 1プロファイルのリスト全体 | 896KiB。書き込み後のリスト（記録を含む）をJSONにした大きさ。超える書き込みは `413 workspaceTooLarge` で、何も保存されない（Web画面で保存した分がすでに超えていても、リストの削除など小さくする書き込みはできる） |
 
-リスト名・単語の検証は画面の単語リスト編集と同じです。リスト名は必須で、前後の空白を除いて同じ名前（大文字小文字を区別しない）は作れません。単語は1件以上で、`display` と `input` は空にできません。これらや上限の違反は、`listNameRequired`・`listNameDuplicate`・`wordsRequired`・`wordFieldsRequired`・`listLimit`・`invalidWorkspace` のいずれかで `400` を返します。形が違う入力（文字列でない名前など）は `invalidWorkspace` です。
+リスト名・単語の検証は画面の単語リスト編集と同じです。リスト名は必須で、前後の空白を除いて同じ名前（大文字小文字を区別しない）は作れません。単語は1件以上で、`display` と `input` は空や空白だけにはできません。これらや上限の違反は、`listNameRequired`・`listNameDuplicate`・`wordsRequired`・`wordFieldsRequired`・`listLimit`・`invalidWorkspace` のいずれかで `400` を返します。形が違う入力（文字列でない名前など）は `invalidWorkspace` です。
 
 ### プロファイルとリスト
 
@@ -73,9 +74,9 @@ export TYPLE_TOKEN='typle_…'
 | 403 | `insufficientScope` | `read` のトークンで書き込みを呼んだ |
 | 404 | `profileNotFound` `listNotFound` | 対象がない |
 | 409 | `conflict` | 同時に保存された変更とぶつかり、サーバー内で3回やり直しても保存できなかった |
-| 413 | `workspaceTooLarge` | 本文が1MiBを超えた |
+| 413 | `workspaceTooLarge` | 本文が1MiBを超えた、または書き込み後のプロファイルのリスト全体が896KiBを超える |
 | 415 | `unsupportedContentType` | 書き込みの `Content-Type` が `application/json` ではない |
-| 503 | `databaseUnavailable` | DBの障害。しばらくしてからやり直す |
+| 503 | `databaseUnavailable` | DBの障害、または保存済みのデータが読めない。しばらくしてからやり直す |
 
 ### 書き込みの同時実行
 
@@ -86,7 +87,7 @@ export TYPLE_TOKEN='typle_…'
 ### `GET /api/v1/profiles`
 
 ```json
-{ "profiles": [{ "id": "default", "name": "既定", "listCount": 3, "recordCount": 42 }] }
+{ "profiles": [{ "id": "default", "name": "メイン", "listCount": 3, "recordCount": 42 }] }
 ```
 
 ### `GET /api/v1/devices`
@@ -175,7 +176,7 @@ export TYPLE_TOKEN='typle_…'
 
 ### `PATCH /api/v1/profiles/{p}/lists/{l}`
 
-`name` と `words` の少なくとも一方を送ります。`words` は全体を置き換えます（単語単位の追加・削除はありません）。記録と共有の状態は残り、共有中なら公開リンクの内容も新しい単語になります。応答は `200 { "list": { … } }` です。
+`name` と `words` の少なくとも一方を送ります。`words` は全体を置き換えます（単語単位の追加・削除はありません）。記録と共有の状態は残り、共有中なら公開リンクの内容も新しい単語になります。名前も単語も保存済みと同じなら何も保存しません。応答は `200 { "list": { … } }` です。
 
 ### `DELETE /api/v1/profiles/{p}/lists/{l}`
 

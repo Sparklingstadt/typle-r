@@ -75,13 +75,14 @@ CREATE INDEX ON "typle_api_tokens" ("owner_id");
 
 ### 共通
 
-- 認証: `Authorization: Bearer <トークン>`。ヘッダーなし・形式違い・未知・期限切れは `401 invalidToken`。`read` トークンで書き込みは `403 insufficientScope`。
+- 認証: `Authorization: Bearer <トークン>`。ヘッダーなし・形式違い・未知・期限切れは `401 invalidToken`（`WWW-Authenticate: Bearer` を付ける）。`read` トークンで書き込みは `403 insufficientScope`。
 - 所有者はトークンの行の `owner_id`。リクエストで所有者は指定できない。
 - 応答は JSON、`Cache-Control: no-store`。エラーは `{ "error": "<errorsのキー>" }`。
 - 書き込みの本文は `Content-Type: application/json` 必須（違えば `415 unsupportedContentType`）、最大 1MiB（超えたら `413 workspaceTooLarge`）、JSONとして読めなければ `400 invalidJson`。
+- 書き込み後の1プロファイルのリスト全体（記録を含み、`shareId` を除いた JSON）は 896KiB（1MiB から 128KiB を引いた値）まで。超える変更は `413 workspaceTooLarge` で、何も保存しない。Web 画面の保存（`PUT /api/workspace`）は同じリストを端末・プロファイル・`shareId` などと一緒に 1MiB 以内で送るため、その分を空けておく。すでに上限を超えているプロファイルでも、小さくする変更（リストの削除など）はできる。
 - CORS ヘッダーは付けない（サーバー・スクリプトからの利用を想定し、ブラウザーの他サイトからは呼ばせない）。
 - `{p}` はプロファイルID（最初のプロファイルは `default`）。存在しなければ `404 profileNotFound`（既存の `read` のように最初のプロファイルへ切り替えない）。`{l}` はリストID。存在しなければ `404 listNotFound`。
-- DB の失敗は Sentry に送り `503 databaseUnavailable`。
+- DB の失敗や保存データが読めないなど、リクエストの誤りでない失敗は Sentry に送り `503 databaseUnavailable`。`400` にするのはリクエストの誤りを表すキーだけ。
 
 ### 読み取り（`read` 以上）
 
@@ -131,7 +132,7 @@ CREATE INDEX ON "typle_api_tokens" ("owner_id");
 
 1. `typle_workspaces` を読み、プロファイルの存在を確認する（なければ `profileNotFound`）。
 2. `fn(view)` が新しい `lists`（と結果）を返す。`fn` は core の純粋関数で、検証に失敗したら `AppError` を投げる。
-3. `write(ownerId, revision, { profileId, lists })` で保存する。共有の同期は既存どおり同じトランザクション内。
+3. リストが変わらなければ（同じ配列を返したら）保存しない。大きさが上限を超えれば `workspaceTooLarge`。そうでなければ `write(ownerId, revision, { profileId, lists })` で保存する。共有の同期は既存どおり同じトランザクション内。
 4. `write` が null（revision 競合）なら 1 からやり直す。3回失敗したら `409 conflict`。
 
 ワークスペースの行がまだない（revision 0）アカウントは、空のワークスペースとして扱い、最初の書き込みで行を作る（既存の `write(owner, 0, …)` と同じ）。開いている Web 画面は次の保存で 409 を受けて読み込み直す（既存の動き）。
@@ -161,5 +162,5 @@ CREATE INDEX ON "typle_api_tokens" ("owner_id");
 ## ドキュメントとリリース
 
 - README に「Typle API」の節（トークンの発行と `curl` の例）。エンドポイントの詳細は `docs/api.md`。
-- バージョン 0.32.0。`docs/release-notes/release-notes-v0.32.0.md` を追加。
+- バージョン 0.32.0。リリースノートは GitHub の自動生成を使う（`docs/release-workflow.md` の手順6）。`docs/release-notes` は過去のノートの保管場所で、追加しない。
 - 本番デプロイ後の「匿名APIアクセスは401」の確認は、新しいエンドポイントでも成り立つ。
