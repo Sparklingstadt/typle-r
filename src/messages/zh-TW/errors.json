@@ -67,5 +67,6 @@
   "deviceNotFound": "找不到該裝置。",
   "invalidRecord": "記錄內容無效。",
   "invalidTokenRequest": "請確認 API 權杖的名稱、權限和有效期限。",
-  "tokenLimit": "最多可以發行 {max} 個 API 權杖。請撤銷不再需要的權杖。"
+  "tokenLimit": "最多可以發行 {max} 個 API 權杖。請撤銷不再需要的權杖。",
+  "tokenNotFound": "找不到該 API 權杖。"
 }

@@ -67,5 +67,6 @@
   "deviceNotFound": "Appareil introuvable.",
   "invalidRecord": "Le contenu de l’enregistrement n’est pas valide.",
   "invalidTokenRequest": "Vérifiez le nom, l’autorisation et l’expiration du jeton d’API.",
-  "tokenLimit": "Vous pouvez émettre jusqu’à {max} jetons d’API. Révoquez ceux dont vous n’avez plus besoin."
+  "tokenLimit": "Vous pouvez émettre jusqu’à {max} jetons d’API. Révoquez ceux dont vous n’avez plus besoin.",
+  "tokenNotFound": "Jeton d’API introuvable."
 }

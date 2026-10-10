@@ -67,5 +67,6 @@
   "deviceNotFound": "找不到该设备。",
   "invalidRecord": "记录内容无效。",
   "invalidTokenRequest": "请检查 API 令牌的名称、权限和有效期。",
-  "tokenLimit": "最多可以签发 {max} 个 API 令牌。请吊销不再需要的令牌。"
+  "tokenLimit": "最多可以签发 {max} 个 API 令牌。请吊销不再需要的令牌。",
+  "tokenNotFound": "找不到该 API 令牌。"
 }

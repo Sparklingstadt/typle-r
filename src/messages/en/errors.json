@@ -67,5 +67,6 @@
   "deviceNotFound": "The device was not found.",
   "invalidRecord": "The record contents are not valid.",
   "invalidTokenRequest": "Check the API token’s name, permission and expiry.",
-  "tokenLimit": "You can issue up to {max} API tokens. Revoke tokens you no longer need."
+  "tokenLimit": "You can issue up to {max} API tokens. Revoke tokens you no longer need.",
+  "tokenNotFound": "The API token was not found."
 }
