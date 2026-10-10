@@ -63,3 +63,10 @@ test('a copy gets a free name, the same words and no records', () => {
   const full = Array.from({ length: MAX_LISTS }, (_, index) => ({ ...current[1], id: `l${index}`, name: `l${index}` }))
   assert.throws(() => duplicateList(full, 'l0', 'copy', suffix), { key: 'listLimit', values: { max: 100 } })
 })
+
+test('a copy of a shared list is not shared', () => {
+  const current = lists().map((list, index) => index ? list : { ...list, shared: true, shareId: 'x' })
+  const { copy } = duplicateList(current, 'a', 'copy', n => `（${n}）`)
+  assert.equal('shared' in copy, false)
+  assert.equal('shareId' in copy, false)
+})

@@ -55,5 +55,6 @@
   "profileDeletedElsewhere": "This profile was deleted on another screen.",
   "profileNameDuplicate": "“{name}” already exists. Choose a different name.",
   "profileLimit": "You can create up to {max} profiles. Delete profiles you no longer use before adding more.",
-  "profileFirstUndeletable": "The first profile cannot be deleted."
+  "profileFirstUndeletable": "The first profile cannot be deleted.",
+  "sharedListNotFound": "This list is not shared or has been deleted."
 }

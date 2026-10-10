@@ -1,0 +1,15 @@
+{
+  "title": "共有された単語リスト",
+  "wordCount": "{count, plural, other {#語}}",
+  "note": "コピーしたリストは自由に編集できます。元のリストの変更は反映されません。",
+  "copy": "自分のリストにコピー",
+  "copied": "「{name}」を追加しました",
+  "notFound": "このリストは共有されていないか、削除されました。",
+  "loadFailed": "共有リストを読み込めませんでした。",
+  "toLists": "単語リストへ",
+  "columns": {
+    "display": "表示",
+    "input": "入力",
+    "annotation": "補足"
+  }
+}

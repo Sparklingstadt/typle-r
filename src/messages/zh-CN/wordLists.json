@@ -35,7 +35,8 @@
     "noRecords": "无练习记录",
     "records": "练习记录 {count} 条（最近：{day}）",
     "exportHint": "可将单词导出为 CSV 保留（不含练习记录）。",
-    "export": "导出 CSV"
+    "export": "导出 CSV",
+    "sharedNote": "共享链接也将失效。"
   },
   "order": {
     "label": "排序",
@@ -68,7 +69,10 @@
     "recordCount": "{count} 条",
     "export": "导出 CSV",
     "copy": "复制",
-    "delete": "删除"
+    "delete": "删除",
+    "share": "共享…",
+    "shareLoginRequired": "登录后即可共享",
+    "sharedBadge": "已共享"
   },
   "wordRow": {
     "label": "单词 {n}",
@@ -165,5 +169,15 @@
     "toAccount": "迁移到此账号",
     "toBrowser": "迁移到此浏览器",
     "suffix": "（迁移 {n}）"
+  },
+  "share": {
+    "title": "共享“{name}”",
+    "toggle": "知道链接的人均可查看",
+    "link": "共享链接",
+    "copyLink": "复制链接",
+    "copied": "已复制",
+    "copyFailed": "无法复制。请选中链接后复制。",
+    "preparing": "正在准备链接…",
+    "note": "之后的修改不会同步到他人已复制的列表。练习记录不会公开。"
   }
 }
