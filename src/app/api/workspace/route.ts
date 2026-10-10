@@ -1,4 +1,4 @@
-import { auth } from '@/auth'
+import { sameOrigin, sessionOwner } from '../_lib/session'
 import * as Sentry from '@sentry/nextjs'
 import { database } from '@/plugins/storage/cloud/database'
 import type { ErrorKey } from '@/core/appError'
@@ -15,16 +15,10 @@ function response(value: unknown, status = 200) {
 // Errors are keys of the `errors` messages; the client shows them in the reader's language.
 const failure = (error: ErrorKey, status: number) => response({ error }, status)
 
-async function ownerId() {
-  const session = await auth()
-  const id = session?.user?.id
-  return id && /^github:\d+$/.test(id) ? id : null
-}
-
 // `?profile=<id>` picks whose word lists to return; an unknown id returns the first profile.
 export async function GET(request: Request) {
   try {
-    const owner = await ownerId()
+    const owner = await sessionOwner()
     if (!owner) return failure('loginRequired', 401)
     let profileId
     try { profileId = validateProfileId(new URL(request.url).searchParams.get('profile')) }
@@ -37,12 +31,11 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const expectedOrigin = new URL(process.env.AUTH_URL ?? request.url).origin
-  if (request.headers.get('origin') !== expectedOrigin || request.headers.get('content-type')?.split(';')[0].trim() !== 'application/json') {
+  if (!sameOrigin(request) || request.headers.get('content-type')?.split(';')[0].trim() !== 'application/json') {
     return failure('forbiddenRequest', 403)
   }
   try {
-    const owner = await ownerId()
+    const owner = await sessionOwner()
     if (!owner) return failure('loginRequired', 401)
     const reader = request.body?.getReader()
     if (!reader) return failure('emptyRequest', 400)

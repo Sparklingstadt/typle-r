@@ -2,10 +2,11 @@ import { PrismaClient } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { strictSslUrl } from './databaseUrl'
 import { workspaceRepository } from './repository'
+import { tokenRepository } from './tokens'
 
 const globalDb = globalThis as typeof globalThis & { typlePrisma?: PrismaClient }
 
-export function database() {
+function client() {
   const url = process.env.DATABASE_URL || process.env.POSTGRES_URL
   if (!url) throw new Error('Database is not configured')
   if (!globalDb.typlePrisma) {
@@ -14,5 +15,9 @@ export function database() {
     })
     globalDb.typlePrisma = new PrismaClient({ adapter })
   }
-  return workspaceRepository(globalDb.typlePrisma)
+  return globalDb.typlePrisma
 }
+
+export const database = () => workspaceRepository(client())
+
+export const tokenStore = () => tokenRepository(client())
