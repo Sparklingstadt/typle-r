@@ -33,6 +33,26 @@ GitHubでログインしていると、単語リスト一覧（`/edit`）の各�
 
 共有中のリストの名前と単語は `typle_shared_lists` テーブルに置き、ワークスペースの保存と同じトランザクションで更新します。共有IDはサーバーだけが発行し、クライアントが送った値は保存しません。公開API `GET /api/shared/<共有ID>` は `{ name, words, updatedAt }` だけを返します。
 
+## Typle API
+
+GitHubでログインしたアカウント（クラウド保存）の単語リストと練習記録を、スクリプトや別のアプリから読み書きできます。ブラウザー保存（未ログイン）のデータはサーバーにないため対象外です。
+
+1. `/settings` の「APIトークン」で、名前・権限（`read` は読み取り、`write` は読み書き）・有効期限（30日・90日・365日・無期限）を選んで発行します。1アカウントで10個までです。
+2. 表示されたトークン（`typle_…`）を控えます。表示は発行直後の1回だけで、あとから見ることはできません。紛失したら失効して作り直します。
+3. `Authorization: Bearer` に付けて `/api/v1` を呼びます。
+
+```sh
+curl -H "Authorization: Bearer $TYPLE_TOKEN" https://typle-r-six.vercel.app/api/v1/profiles
+```
+
+- 操作できるのは、トークンを発行したアカウントのデータだけです。プロファイルと端末の作成・変更・削除、記録の削除・変更、共有のオン・オフはできません。
+- 書き込みはサーバーが最新のデータを読んで変更し、revisionによる楽観ロックで保存します。ぶつかったときは最大3回やり直し、Web画面は次の保存で409を受けて読み込み直します。
+- `/api/tokens`（トークンの発行・一覧・失効）は画面専用で、Bearerトークンでは呼べません。
+
+エンドポイント、リクエストとレスポンスの形、エラー、`curl` の例は [Typle API](docs/api.md) を参照してください。
+
+トークンは `typle_api_tokens` テーブルにSHA-256のハッシュと、一覧で見分けるための先頭10文字だけを保存し、トークン本体は保存しません。既存のテーブルは変更しないテーブル追加のみのマイグレーションなので、デプロイ切り替え中の旧アプリとも両立します。ローカルでは `npm run db:migrate` で `0005_api_tokens` を適用してください。
+
 ## ホームのダッシュボード
 
 記録が1件以上あると、ホームに練習の状況を表示します（0件のときは従来の案内）。集計は `src/core/dashboard.ts` にあり、日付・週（月曜はじまり）は端末のローカル時刻で区切ります。
@@ -48,8 +68,8 @@ Next.js のアプリは1つで、`src` を層に分けています。依存は�
 | 層 | 場所 | 内容 |
 |---|---|---|
 | 画面 | `src/app`・`src/components`・`src/i18n`・`src/lib` | ページ、UI、多言語化、React のフック。`useWordLists` は React の状態とブラウザーのイベント（フォーカス・他タブの変更）だけを受け持ち、読み込み・保存は core の `createWorkspaceSession` に任せます |
-| プラグイン | `src/plugins` | core のポートの実装と初期データ。`storage`：`cloud`（`/api/workspace` とPrisma）と `guest`（LocalStorage）を `workspaceStore(accountId)` がアカウントに応じて選びます。`formats`：CSV・TSV（`delimited.ts`）と旧バージョンのブラウザー保存からの移行（`legacy.ts`）。`packs`：最初に表示する単語リスト（サンプルと国名193か国） |
-| core | `src/core` | React・Next.js・Prisma・ブラウザーAPIに依存しない TypeScript。単語リスト・入力判定・記録・集計・ワークスペースのモデルと検証、保存先のポート `WorkspaceStore`（`workspaceStore.ts`、保存場所 `location` を含む）、1つのプロファイルの読み込み・保存 `createWorkspaceSession`（`workspaceSession.ts`。切り替え後に届いた結果の破棄、保存の直列化、409での再読み込み、古いクラウド読み込みの無視）とファイル形式のポート `WordFormat`（`wordFormat.ts`） |
+| プラグイン | `src/plugins` | core のポートの実装と初期データ。`storage`：`cloud`（`/api/workspace` とPrisma。APIトークンの発行・照合は `tokens.ts`）と `guest`（LocalStorage）を `workspaceStore(accountId)` がアカウントに応じて選びます。`formats`：CSV・TSV（`delimited.ts`）と旧バージョンのブラウザー保存からの移行（`legacy.ts`）。`packs`：最初に表示する単語リスト（サンプルと国名193か国） |
+| core | `src/core` | React・Next.js・Prisma・ブラウザーAPIに依存しない TypeScript。単語リスト・入力判定・記録・集計・ワークスペースのモデルと検証、保存先のポート `WorkspaceStore`（`workspaceStore.ts`、保存場所 `location` を含む）、1つのプロファイルの読み込み・保存 `createWorkspaceSession`（`workspaceSession.ts`。切り替え後に届いた結果の破棄、保存の直列化、409での再読み込み、古いクラウド読み込みの無視）とファイル形式のポート `WordFormat`（`wordFormat.ts`）、APIトークンの規則（`apiTokens.ts`）、Typle APIの入力の検証とリスト・記録の変更（`apiRequests.ts`） |
 
 保存先を増やすときは `WorkspaceStore` を実装したプラグインを `src/plugins/storage` に追加し、`workspaceStore` で選びます。ファイル形式を増やすときは `WordFormat` を実装して `src/plugins/formats/index.ts` の一覧に加えると、取り込みの拡張子判定と `accept` に反映されます。どちらも画面のコードは変わりません。
 
