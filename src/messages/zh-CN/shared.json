@@ -1,0 +1,15 @@
+{
+  "title": "共享的单词列表",
+  "wordCount": "{count, plural, other {#个词}}",
+  "note": "复制后的列表可自由编辑。原列表的修改不会同步过来。",
+  "copy": "复制到我的列表",
+  "copied": "已添加“{name}”",
+  "notFound": "此列表未共享或已被删除。",
+  "loadFailed": "无法加载共享列表。",
+  "toLists": "前往单词列表",
+  "columns": {
+    "display": "显示",
+    "input": "输入",
+    "annotation": "备注"
+  }
+}

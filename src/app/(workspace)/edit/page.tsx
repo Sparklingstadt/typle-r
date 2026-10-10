@@ -14,6 +14,7 @@ import { useSaveNotification } from "@/components/SaveNotification"
 import WordListEditor from "@/components/WordListEditor"
 import { downloadWordCsv } from "@/components/WordListExport"
 import ListRow, { usePracticeText } from "@/components/WordLists/ListRow"
+import ShareDialog from "@/components/WordLists/ShareDialog"
 import { useWordLists } from "@/lib/useWordLists"
 import { useFormat } from "@/i18n/useFormat"
 import { randomId } from "@/core/randomId"
@@ -155,14 +156,15 @@ function WordLists({ workspace }: { workspace: Workspace }) {
       <AlertDescription>{t('notFound')}</AlertDescription>
     </Alert>}
     {/* After a failed load the lists are unknown; "no lists yet" would be wrong. */}
-    {!(error && !lists.length) && <ListManager lists={lists} saving={saving} highlight={highlight} update={update} notify={notify}
+    {!(error && !lists.length) && <ListManager lists={lists} saving={saving} storage={storage} highlight={highlight} update={update} notify={notify}
       onEdit={open} onHighlight={setHighlight} />}
   </>
 }
 
-function ListManager({ lists, saving, highlight, update, notify, onEdit, onHighlight }: {
+function ListManager({ lists, saving, storage, highlight, update, notify, onEdit, onHighlight }: {
   lists: SavedWordList[]
   saving: boolean
+  storage?: WorkspaceLocation
   highlight: string | null
   update: Workspace['update']
   notify: (message: string) => void
@@ -176,6 +178,7 @@ function ListManager({ lists, saving, highlight, update, notify, onEdit, onHighl
   const [order, setOrder] = useState<ListOrder>('added')
   const [exportError, setExportError] = useState('')
   const [deleting, setDeleting] = useState<{ open: boolean; item: ListOverview | null; position: number }>({ open: false, item: null, position: 0 })
+  const [sharing, setSharing] = useState<{ open: boolean; id: string | null }>({ open: false, id: null })
   const deleted = useRef(false)
   const all = useMemo(() => listOverviews(lists), [lists])
   const shown = useMemo(() => sortOverviews(all.filter(item => matchesQuery(item.list, query)), order, locale), [all, query, order, locale])
@@ -239,7 +242,8 @@ function ListManager({ lists, saving, highlight, update, notify, onEdit, onHighl
 
     {shown.length ? <ul className="divide-y overflow-hidden rounded-xl border bg-card">
       {shown.map((item, position) => <ListRow key={item.list.id} item={item} now={now} highlight={highlight === item.list.id} disabled={saving} canCopy={!full}
-        onEdit={() => onEdit(item.list)} onExport={() => exportCsv(item.list)} onCopy={() => copy(item.list)}
+        canShare={storage === 'account'} onEdit={() => onEdit(item.list)} onExport={() => exportCsv(item.list)} onCopy={() => copy(item.list)}
+        onShare={() => setSharing({ open: true, id: item.list.id })}
         onDelete={() => { deleted.current = false; setDeleting({ open: true, item, position }) }} />)}
     </ul> : <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed bg-card px-6 py-10 text-center">
       <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">{t('manager.noMatch', { query: query.trim() })}</p>
@@ -247,9 +251,10 @@ function ListManager({ lists, saving, highlight, update, notify, onEdit, onHighl
     </div>}
     <p className="text-xs text-muted-foreground">{t('manager.csvNote')}</p>
 
+    {sharing.id && <ShareDialog listId={sharing.id} open={sharing.open} onOpenChange={open => setSharing(current => ({ ...current, open }))} />}
     {deleting.item && <DeleteConfirmation open={deleting.open} onOpenChange={open => setDeleting(current => ({ ...current, open }))}
       title={t('delete.title', { name: deleting.item.list.name })}
-      description={deleting.item.practiceCount ? t('delete.withRecords') : t('delete.listOnly')}
+      description={`${deleting.item.practiceCount ? t('delete.withRecords') : t('delete.listOnly')}${deleting.item.list.shared ? t('delete.sharedNote') : ''}`}
       onCloseAutoFocus={focusAfterDelete}
       onConfirm={async () => {
         const list = deleting.item?.list

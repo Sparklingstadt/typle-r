@@ -1,6 +1,7 @@
 import { AppError, type ErrorKey } from '../../../core/appError'
 import { decodeDevices } from '../../../core/devices'
 import { decodeProfileSummaries, DEFAULT_PROFILE_ID, DEFAULT_PROFILE_NAME } from '../../../core/profiles'
+import { decodeSharedList } from '../../../core/sharedLists'
 import { decodeLists } from '../../../core/wordLists'
 import { WorkspaceError, type WorkspaceState, type WorkspaceStore, type WorkspaceWrite } from '../../../core/workspaceStore'
 
@@ -31,3 +32,11 @@ export function writeWorkspace(request: WorkspaceWrite) {
 
 /** The account's workspace on the server, through `/api/workspace`. */
 export const cloudStore: WorkspaceStore = { location: 'account', read: readWorkspace, write: writeWorkspace, staleReads: true }
+
+/** The list behind a share link. No login is needed; a list that is no longer shared rejects with `sharedListNotFound`. */
+export async function readSharedList(id: string) {
+  const response = await fetch(`/api/shared/${encodeURIComponent(id)}`, { cache: 'no-store' })
+  if (response.status === 404) throw new AppError('sharedListNotFound')
+  if (!response.ok) throw new AppError('workspaceRequestFailed')
+  return decodeSharedList(await response.json())
+}

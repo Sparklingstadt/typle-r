@@ -16,3 +16,18 @@ model Workspace {
 
   @@map("typle_workspaces")
 }
+
+// The words of a list its owner shares by link. The link id is issued here, so clients cannot claim another owner's link.
+model SharedList {
+  shareId   String   @id @map("share_id") @db.Uuid
+  ownerId   String   @map("owner_id") @db.Text
+  profileId String   @map("profile_id") @db.Text
+  listId    String   @map("list_id") @db.Text
+  name      String   @db.Text
+  words     Json     @db.JsonB
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([ownerId, profileId, listId])
+  @@index([ownerId])
+  @@map("typle_shared_lists")
+}

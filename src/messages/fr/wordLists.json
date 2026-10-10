@@ -35,7 +35,8 @@
     "noRecords": "Aucun entraînement",
     "records": "{count, plural, one {# entraînement} other {# entraînements}} (dernier : {day})",
     "exportHint": "Vous pouvez conserver les mots en les exportant en CSV (l’historique n’est pas inclus).",
-    "export": "Exporter en CSV"
+    "export": "Exporter en CSV",
+    "sharedNote": " Le lien de partage cessera aussi de fonctionner."
   },
   "order": {
     "label": "Tri",
@@ -68,7 +69,10 @@
     "recordCount": "{count, number}",
     "export": "Exporter en CSV",
     "copy": "Dupliquer",
-    "delete": "Supprimer"
+    "delete": "Supprimer",
+    "share": "Partager…",
+    "shareLoginRequired": "Connectez-vous pour partager",
+    "sharedBadge": "Partagée"
   },
   "wordRow": {
     "label": "Mot {n}",
@@ -165,5 +169,15 @@
     "toAccount": "Migrer vers ce compte",
     "toBrowser": "Migrer vers ce navigateur",
     "suffix": " (migré {n})"
+  },
+  "share": {
+    "title": "Partager « {name} »",
+    "toggle": "Toute personne disposant du lien peut la voir",
+    "link": "Lien de partage",
+    "copyLink": "Copier le lien",
+    "copied": "Copié",
+    "copyFailed": "Copie impossible. Sélectionnez le lien et copiez-le.",
+    "preparing": "Préparation du lien…",
+    "note": "Les modifications ultérieures n’atteignent pas les copies déjà faites. Les résultats d’entraînement ne sont pas partagés."
   }
 }
