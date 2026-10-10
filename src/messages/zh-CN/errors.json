@@ -55,5 +55,6 @@
   "profileDeletedElsewhere": "此个人资料已在其他页面被删除。",
   "profileNameDuplicate": "“{name}”已存在。请使用其他名称。",
   "profileLimit": "最多可以创建 {max} 个个人资料。请先删除不再使用的个人资料再添加。",
-  "profileFirstUndeletable": "无法删除第一个个人资料。"
+  "profileFirstUndeletable": "无法删除第一个个人资料。",
+  "sharedListNotFound": "此列表未共享或已被删除。"
 }

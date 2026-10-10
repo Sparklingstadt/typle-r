@@ -55,5 +55,6 @@
   "profileDeletedElsewhere": "このプロファイルは別の画面で削除されています。",
   "profileNameDuplicate": "「{name}」はすでにあります。別の名前にしてください。",
   "profileLimit": "プロファイルは{max}個まで作成できます。使わなくなったプロファイルを削除してから追加してください。",
-  "profileFirstUndeletable": "最初のプロファイルは削除できません。"
+  "profileFirstUndeletable": "最初のプロファイルは削除できません。",
+  "sharedListNotFound": "このリストは共有されていないか、削除されました。"
 }
