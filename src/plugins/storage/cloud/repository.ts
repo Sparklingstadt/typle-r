@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto'
 import { Prisma, type PrismaClient } from '@prisma/client'
-import { applyChange, decodeDocument, DEFAULT_PROFILE_ID, viewDocument, type WorkspaceChange, type WorkspaceDocument, type WorkspaceView } from '../../../core/profiles'
-import { sharedKeys, type SharedList } from '../../../core/sharedLists'
+import { AppError } from '../../../core/appError'
+import { applyChange, decodeDocument, DEFAULT_PROFILE_ID, MissingProfileError, viewDocument, type WorkspaceChange, type WorkspaceDocument, type WorkspaceView } from '../../../core/profiles'
+import { sharedKeys, stripShareIds, type SharedList } from '../../../core/sharedLists'
 import type { SavedWordList } from '../../../core/wordLists'
 
 export type Workspace = WorkspaceView & { revision: number }
@@ -66,8 +67,10 @@ async function syncShared(client: Client, ownerId: string, previous: WorkspaceDo
   return rows
 }
 
+const MODIFY_ATTEMPTS = 3
+
 export function workspaceRepository(client: PrismaClient) {
-  return {
+  const repository = {
     async read(ownerId: string, profileId = DEFAULT_PROFILE_ID): Promise<Workspace> {
       const [row, rows] = await Promise.all([client.workspace.findUnique({ where: { ownerId } }), shareRows(client, ownerId)])
       return row ? view(decodeDocument(row), profileId, row.revision, rows) : view(empty, profileId, 0, rows)
@@ -107,5 +110,22 @@ export function workspaceRepository(client: PrismaClient) {
       const row = await client.sharedList.findUnique({ where: { shareId }, select: { name: true, words: true, updatedAt: true } })
       return row && { name: row.name, words: row.words as SharedList['words'], updatedAt: row.updatedAt.toISOString() }
     },
+    /** Changes one profile's lists from what is saved now, retrying when another save lands first.
+     * `change` may run more than once. Returning the lists it was given leaves the workspace as it is, without a new revision. */
+    async modify<T>(ownerId: string, profileId: string, change: (workspace: Workspace) => { lists: SavedWordList[]; result: T }): Promise<{ workspace: Workspace; result: T }> {
+      for (let attempt = 0; attempt < MODIFY_ATTEMPTS; attempt++) {
+        const workspace = await repository.read(ownerId, profileId)
+        // `read` falls back to the first profile for an unknown id.
+        if (workspace.profileId !== profileId) throw new AppError('profileNotFound')
+        const next = change(workspace)
+        if (next.lists === workspace.lists) return { workspace, result: next.result }
+        let saved
+        try { saved = await repository.write(ownerId, workspace.revision, { profileId, lists: stripShareIds(next.lists) }) }
+        catch (error) { throw error instanceof MissingProfileError ? new AppError('profileNotFound') : error }
+        if (saved) return { workspace: saved, result: next.result }
+      }
+      throw new AppError('conflict')
+    },
   }
+  return repository
 }
