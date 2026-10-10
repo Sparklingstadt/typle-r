@@ -56,5 +56,16 @@
   "profileNameDuplicate": "「{name}」はすでにあります。別の名前にしてください。",
   "profileLimit": "プロファイルは{max}個まで作成できます。使わなくなったプロファイルを削除してから追加してください。",
   "profileFirstUndeletable": "最初のプロファイルは削除できません。",
-  "sharedListNotFound": "このリストは共有されていないか、削除されました。"
+  "sharedListNotFound": "このリストは共有されていないか、削除されました。",
+  "invalidToken": "APIトークンが無効か、期限が切れています。",
+  "insufficientScope": "このAPIトークンには書き込みの権限がありません。",
+  "unsupportedContentType": "本文はJSON（Content-Type: application/json）で送ってください。",
+  "invalidJson": "本文をJSONとして読めませんでした。",
+  "invalidQuery": "検索条件が正しくありません。",
+  "profileNotFound": "プロファイルが見つかりません。",
+  "listNotFound": "単語リストが見つかりません。",
+  "deviceNotFound": "端末が見つかりません。",
+  "invalidRecord": "記録の内容が正しくありません。",
+  "invalidTokenRequest": "APIトークンの名前・権限・有効期限を確認してください。",
+  "tokenLimit": "APIトークンは{max}個まで発行できます。不要なトークンを失効してください。"
 }

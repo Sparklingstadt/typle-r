@@ -56,5 +56,16 @@
   "profileNameDuplicate": "“{name}” already exists. Choose a different name.",
   "profileLimit": "You can create up to {max} profiles. Delete profiles you no longer use before adding more.",
   "profileFirstUndeletable": "The first profile cannot be deleted.",
-  "sharedListNotFound": "This list is not shared or has been deleted."
+  "sharedListNotFound": "This list is not shared or has been deleted.",
+  "invalidToken": "The API token is invalid or has expired.",
+  "insufficientScope": "This API token does not have write permission.",
+  "unsupportedContentType": "Send the body as JSON (Content-Type: application/json).",
+  "invalidJson": "The body could not be read as JSON.",
+  "invalidQuery": "The search conditions are not valid.",
+  "profileNotFound": "The profile was not found.",
+  "listNotFound": "The word list was not found.",
+  "deviceNotFound": "The device was not found.",
+  "invalidRecord": "The record contents are not valid.",
+  "invalidTokenRequest": "Check the API token’s name, permission and expiry.",
+  "tokenLimit": "You can issue up to {max} API tokens. Revoke tokens you no longer need."
 }

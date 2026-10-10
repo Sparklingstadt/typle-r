@@ -56,5 +56,16 @@
   "profileNameDuplicate": "“{name}”已存在。请使用其他名称。",
   "profileLimit": "最多可以创建 {max} 个个人资料。请先删除不再使用的个人资料再添加。",
   "profileFirstUndeletable": "无法删除第一个个人资料。",
-  "sharedListNotFound": "此列表未共享或已被删除。"
+  "sharedListNotFound": "此列表未共享或已被删除。",
+  "invalidToken": "API 令牌无效或已过期。",
+  "insufficientScope": "此 API 令牌没有写入权限。",
+  "unsupportedContentType": "请以 JSON 格式发送请求正文（Content-Type: application/json）。",
+  "invalidJson": "无法将请求正文解析为 JSON。",
+  "invalidQuery": "搜索条件无效。",
+  "profileNotFound": "找不到该个人资料。",
+  "listNotFound": "找不到该单词列表。",
+  "deviceNotFound": "找不到该设备。",
+  "invalidRecord": "记录内容无效。",
+  "invalidTokenRequest": "请检查 API 令牌的名称、权限和有效期。",
+  "tokenLimit": "最多可以签发 {max} 个 API 令牌。请吊销不再需要的令牌。"
 }

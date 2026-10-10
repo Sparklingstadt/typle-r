@@ -56,5 +56,16 @@
   "profileNameDuplicate": "« {name} » existe déjà. Choisissez un autre nom.",
   "profileLimit": "Vous pouvez créer jusqu’à {max} profils. Supprimez ceux que vous n’utilisez plus avant d’en ajouter.",
   "profileFirstUndeletable": "Le premier profil ne peut pas être supprimé.",
-  "sharedListNotFound": "Cette liste n’est pas partagée ou a été supprimée."
+  "sharedListNotFound": "Cette liste n’est pas partagée ou a été supprimée.",
+  "invalidToken": "Le jeton d’API est invalide ou a expiré.",
+  "insufficientScope": "Ce jeton d’API n’a pas l’autorisation d’écriture.",
+  "unsupportedContentType": "Envoyez le corps de la requête au format JSON (Content-Type: application/json).",
+  "invalidJson": "Le corps de la requête n’a pas pu être lu comme du JSON.",
+  "invalidQuery": "Les critères de recherche ne sont pas valides.",
+  "profileNotFound": "Profil introuvable.",
+  "listNotFound": "Liste de mots introuvable.",
+  "deviceNotFound": "Appareil introuvable.",
+  "invalidRecord": "Le contenu de l’enregistrement n’est pas valide.",
+  "invalidTokenRequest": "Vérifiez le nom, l’autorisation et l’expiration du jeton d’API.",
+  "tokenLimit": "Vous pouvez émettre jusqu’à {max} jetons d’API. Révoquez ceux dont vous n’avez plus besoin."
 }
