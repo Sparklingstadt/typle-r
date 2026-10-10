@@ -54,10 +54,12 @@ CI用Vercelトークンは90日期限で作成しています。期限前にSecr
 3. squash mergeします。前のmainのRelease・デプロイが完了するまでは次のPRをマージしません。
 4. マージ後のpolicyがPRとの対応・1コミットのpush・1親コミット・squash専用設定を確認します。
 5. verifyが一時PostgreSQLでDB更新・型チェック・単体/DBテスト・Lint・ビルド・E2Eを実行します。
+   E2E用のChromiumはPlaywrightのバージョンごとにActionsのキャッシュに保存し、OSの依存パッケージだけ毎回入れます。
 6. 成功したSHAに対して`v<package.jsonのversion>`のタグと公開済みの通常Releaseを作ります。
    Release notesはGitHubの自動生成を使います。公開済みとは非draftの意味で、repoの非公開設定は変えません。
 7. 同じSHAをチェックアウトし、ReleaseのタグのSHAを再確認します。
    Vercel CLI 60.1.3の`vercel deploy --prod`でソースを送り、Vercel内で本番ビルド・デプロイします。
+   CLIはバージョンごとにmainのキャッシュに保存します。版を上げるときは`ci.yml`の`VERCEL_CLI_VERSION`だけを変えます。
    読み出し不可のSecretが`[SENSITIVE]`になるため、Actionsでは`vercel pull`・`vercel build`を行いません。
 8. 本番ホームの成功応答と、匿名APIアクセスの401を確認します。
 
