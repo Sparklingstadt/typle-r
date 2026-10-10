@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { Prisma, type PrismaClient } from '@prisma/client'
 import { applyChange, decodeDocument, DEFAULT_PROFILE_ID, viewDocument, type WorkspaceChange, type WorkspaceDocument, type WorkspaceView } from '../../../core/profiles'
 import { sharedKeys, type SharedList } from '../../../core/sharedLists'
+import type { SavedWordList } from '../../../core/wordLists'
 
 export type Workspace = WorkspaceView & { revision: number }
 
@@ -34,8 +35,15 @@ function view(document: WorkspaceDocument, profileId: string, revision: number, 
 const shareRows = (client: Client, ownerId: string) =>
   client.sharedList.findMany({ where: { ownerId }, select: { shareId: true, profileId: true, listId: true } })
 
-// Makes the owner's shared rows match the saved workspace: new shares get a link, edits update it, the rest are removed.
-async function syncShared(client: Client, ownerId: string, document: WorkspaceDocument): Promise<ShareRow[]> {
+// Only what a share link shows; a future word field is not published unless added here.
+const sharedContent = (list: SavedWordList) =>
+  JSON.stringify([list.name, list.words.map(({ display, input, annotation }) => ({ display, input, annotation }))])
+
+// Makes the owner's shared rows match the saved workspace: new shares get a link, changed names or words update it,
+// the rest are removed. Rows of unchanged lists are left alone, so `updatedAt` means "content changed" and the public
+// link does not reveal when the owner practises or edits other lists.
+async function syncShared(client: Client, ownerId: string, previous: WorkspaceDocument, document: WorkspaceDocument): Promise<ShareRow[]> {
+  const before = new Map(allLists(previous).flatMap(({ profileId, lists }) => lists.map(list => [key(profileId, list.id), sharedContent(list)] as const)))
   const wanted = new Map(allLists(document).flatMap(({ profileId, lists }) =>
     sharedKeys(lists).map(listId => [key(profileId, listId), { profileId, list: lists.find(list => list.id === listId)! }] as const)))
   const existing = await shareRows(client, ownerId)
@@ -44,10 +52,10 @@ async function syncShared(client: Client, ownerId: string, document: WorkspaceDo
   const kept = new Map(existing.map(row => [key(row.profileId, row.listId), row]))
   const rows: ShareRow[] = []
   for (const [id, { profileId, list }] of wanted) {
-    const content = { name: list.name, words: json(list.words), updatedAt: new Date() }
+    const content = { name: list.name, words: json(list.words.map(({ display, input, annotation }) => ({ display, input, annotation }))), updatedAt: new Date() }
     const row = kept.get(id)
     if (row) {
-      await client.sharedList.update({ where: { shareId: row.shareId }, data: content })
+      if (before.get(id) !== sharedContent(list)) await client.sharedList.update({ where: { shareId: row.shareId }, data: content })
       rows.push(row)
     } else {
       const created = { shareId: randomUUID(), profileId, listId: list.id }
@@ -70,13 +78,15 @@ export function workspaceRepository(client: PrismaClient) {
       try {
         return await client.$transaction(async tx => {
           let row
+          let previous = empty
           if (revision === 0) {
             const next = applyChange(empty, change)
             row = await tx.workspace.create({ data: { ownerId, lists: json(next.lists), devices: json(next.devices), profiles: json(next.profiles) } })
           } else {
             const current = await tx.workspace.findUnique({ where: { ownerId } })
             if (!current || current.revision !== revision) return null
-            const next = applyChange(decodeDocument(current), change)
+            previous = decodeDocument(current)
+            const next = applyChange(previous, change)
             // Unique owner + revision makes the comparison and update one atomic operation.
             row = await tx.workspace.update({
               where: { ownerId, revision },
@@ -84,7 +94,7 @@ export function workspaceRepository(client: PrismaClient) {
             })
           }
           const document = decodeDocument(row)
-          return view(document, change.profileId, row.revision, await syncShared(tx, ownerId, document))
+          return view(document, change.profileId, row.revision, await syncShared(tx, ownerId, previous, document))
         })
       } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError &&

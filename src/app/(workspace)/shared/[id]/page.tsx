@@ -25,7 +25,7 @@ export default function SharedListPage() {
   const errorText = useErrorText()
   const router = useRouter()
   const notify = useSaveNotification()
-  const { update, saving, error, storage } = useWordLists()
+  const { update, saving, error, storage, ready } = useWordLists()
   const { list, error: loadError, loading } = useSharedList(id)
   const [failed, setFailed] = useState(false)
 
@@ -63,7 +63,7 @@ export default function SharedListPage() {
           <PageStorageBadge storage={storage} />
         </header>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <Button size="lg" disabled={saving} onClick={copy}><Copy aria-hidden="true" />{t('copy')}</Button>
+          <Button size="lg" disabled={saving || !ready} onClick={copy}><Copy aria-hidden="true" />{t('copy')}</Button>
           <p className="min-w-0 flex-1 basis-64 text-sm text-muted-foreground">{t('note')}</p>
         </div>
         {failed && error && <Alert variant="destructive" className="border-destructive/40 bg-destructive/5">

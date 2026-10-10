@@ -36,7 +36,7 @@
     "records": "{count, plural, one {# entraînement} other {# entraînements}} (dernier : {day})",
     "exportHint": "Vous pouvez conserver les mots en les exportant en CSV (l’historique n’est pas inclus).",
     "export": "Exporter en CSV",
-    "sharedNote": "Le lien de partage cessera aussi de fonctionner."
+    "sharedNote": " Le lien de partage cessera aussi de fonctionner."
   },
   "order": {
     "label": "Tri",

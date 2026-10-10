@@ -36,7 +36,7 @@
     "records": "{count, plural, one {# practice record} other {# practice records}} (last: {day})",
     "exportHint": "You can keep the words by exporting them as CSV (practice history is not included).",
     "export": "Export CSV",
-    "sharedNote": "The share link will stop working too."
+    "sharedNote": " The share link will stop working too."
   },
   "order": {
     "label": "Sort",

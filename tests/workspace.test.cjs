@@ -181,3 +181,31 @@ test('shared lists follow the workspace and keep their link while shared', async
     await db.$disconnect()
   }
 })
+
+test('saves that do not change a shared list leave its link untouched', async () => {
+  const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) })
+  const owner = 'test:share-quiet:' + require('node:crypto').randomUUID()
+  const profiles = [{ id: 'default', name: 'メイン' }, { id: 'p2', name: 'Two' }]
+  const updatedAt = async shareId => (await db.sharedList.findUnique({ where: { shareId } })).updatedAt.getTime()
+  try {
+    const repo = workspaceRepository(db)
+    const shared = { ...list, shared: true }
+    const shareId = (await repo.write(owner, 0, { profileId: 'default', profiles, lists: [shared] })).lists[0].shareId
+    const before = await updatedAt(shareId)
+    await new Promise(resolve => setTimeout(resolve, 20))
+    // A practice record, a device change and a save in another profile are not visible through the link.
+    await repo.write(owner, 1, lists(1, [{ ...shared, records: [{ id: 'r', date: '2026-10-10', time: 1 }] }]))
+    await repo.write(owner, 2, lists(2, [{ ...shared, records: [{ id: 'r', date: '2026-10-10', time: 1 }] }], [{ id: 'd', name: 'PC', layout: 'jis' }]))
+    await repo.write(owner, 3, { profileId: 'p2', lists: [{ ...list, id: 'other' }] })
+    assert.equal(await updatedAt(shareId), before)
+    // Changing its words does show.
+    await repo.write(owner, 4, lists(4, [{ ...shared, words: [{ display: 'b', input: 'b', annotation: '' }] }]))
+    assert.ok(await updatedAt(shareId) > before)
+    assert.deepEqual((await repo.readShared(shareId)).words, [{ display: 'b', input: 'b', annotation: '' }])
+  } finally {
+    await db.sharedList.deleteMany({ where: { ownerId: owner } })
+    await db.workspace.deleteMany({ where: { ownerId: owner } })
+    await db.$disconnect()
+  }
+})
+

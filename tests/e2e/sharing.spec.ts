@@ -99,3 +99,28 @@ test('guests cannot share', async ({ page }) => {
   await expect(page.getByRole('menuitem', { name: '共有…', exact: true })).toBeDisabled()
   await expect(page.getByRole('menu')).toContainText('ログインすると共有できます')
 })
+
+test('copying waits until the reader’s own lists have loaded', async ({ context, page }) => {
+  accountId = 'github:' + BigInt('0x' + randomBytes(16).toString('hex')).toString()
+  const token = await encode({ token: { sub: accountId, name: 'E2E Reader' }, secret, salt: 'authjs.session-token' })
+  await context.addCookies([{ name: 'authjs.session-token', value: token, url: origin, httpOnly: true, sameSite: 'Lax' }])
+  const shareId = crypto.randomUUID()
+  const { Pool } = await import('pg')
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+  try {
+    await pool.query(`INSERT INTO typle_shared_lists (share_id, owner_id, profile_id, list_id, name, words) VALUES ($1, $2, 'default', 'l', 'Slow', $3)`,
+      [shareId, accountId, JSON.stringify([{ display: 'a', input: 'a', annotation: '' }])])
+  } finally { await pool.end() }
+  // Hold the reader's workspace back until the shared list is on screen.
+  let release = () => {}
+  const held = new Promise<void>(resolve => { release = resolve })
+  await page.route('**/api/workspace*', async route => { if (route.request().method() === 'GET') await held; await route.continue() })
+  await page.goto(`/shared/${shareId}`)
+  const copy = page.getByRole('button', { name: '自分のリストにコピー', exact: true })
+  await expect(page.getByRole('heading', { level: 1, name: 'Slow', exact: true })).toBeVisible()
+  await expect(copy).toBeDisabled()
+  release()
+  await expect(copy).toBeEnabled()
+  await copy.click()
+  await expect(page).toHaveURL(/\/edit\?list=/)
+})
