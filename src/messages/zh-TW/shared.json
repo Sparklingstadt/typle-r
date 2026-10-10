@@ -1,0 +1,15 @@
+{
+  "title": "共享的單字清單",
+  "wordCount": "{count, plural, other {#個詞}}",
+  "note": "複製後的清單可自由編輯。原清單的變更不會同步過來。",
+  "copy": "複製到我的清單",
+  "copied": "已新增「{name}」",
+  "notFound": "此清單未共享或已被刪除。",
+  "loadFailed": "無法載入共享清單。",
+  "toLists": "前往單字清單",
+  "columns": {
+    "display": "顯示",
+    "input": "輸入",
+    "annotation": "備註"
+  }
+}
