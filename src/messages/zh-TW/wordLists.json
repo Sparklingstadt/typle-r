@@ -35,7 +35,8 @@
     "noRecords": "沒有練習紀錄",
     "records": "練習紀錄 {count} 筆（最近：{day}）",
     "exportHint": "可將單字匯出為 CSV 保留（不含練習紀錄）。",
-    "export": "匯出 CSV"
+    "export": "匯出 CSV",
+    "sharedNote": "共享連結也將失效。"
   },
   "order": {
     "label": "排序",
@@ -68,7 +69,10 @@
     "recordCount": "{count} 筆",
     "export": "匯出 CSV",
     "copy": "複製",
-    "delete": "刪除"
+    "delete": "刪除",
+    "share": "共享…",
+    "shareLoginRequired": "登入後即可共享",
+    "sharedBadge": "已共享"
   },
   "wordRow": {
     "label": "單字 {n}",
@@ -165,5 +169,15 @@
     "toAccount": "移轉至此帳號",
     "toBrowser": "移轉至此瀏覽器",
     "suffix": "（移轉 {n}）"
+  },
+  "share": {
+    "title": "共享「{name}」",
+    "toggle": "知道連結的人皆可檢視",
+    "link": "共享連結",
+    "copyLink": "複製連結",
+    "copied": "已複製",
+    "copyFailed": "無法複製。請選取連結後複製。",
+    "preparing": "正在準備連結…",
+    "note": "之後的變更不會同步到他人已複製的清單。練習紀錄不會公開。"
   }
 }

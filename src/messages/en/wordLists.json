@@ -35,7 +35,8 @@
     "noRecords": "No practice history",
     "records": "{count, plural, one {# practice record} other {# practice records}} (last: {day})",
     "exportHint": "You can keep the words by exporting them as CSV (practice history is not included).",
-    "export": "Export CSV"
+    "export": "Export CSV",
+    "sharedNote": "The share link will stop working too."
   },
   "order": {
     "label": "Sort",
@@ -68,7 +69,10 @@
     "recordCount": "{count, number}",
     "export": "Export CSV",
     "copy": "Duplicate",
-    "delete": "Delete"
+    "delete": "Delete",
+    "share": "Share…",
+    "shareLoginRequired": "Sign in to share",
+    "sharedBadge": "Shared"
   },
   "wordRow": {
     "label": "Word {n}",
@@ -165,5 +169,15 @@
     "toAccount": "Move to this account",
     "toBrowser": "Move to this browser",
     "suffix": " (imported {n})"
+  },
+  "share": {
+    "title": "Share “{name}”",
+    "toggle": "Anyone with the link can view",
+    "link": "Share link",
+    "copyLink": "Copy link",
+    "copied": "Copied",
+    "copyFailed": "Could not copy. Select the link and copy it.",
+    "preparing": "Preparing the link…",
+    "note": "Later changes do not reach copies others have made. Practice records are not shared."
   }
 }

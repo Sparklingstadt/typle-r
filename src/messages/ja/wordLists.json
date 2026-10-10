@@ -35,7 +35,8 @@
     "noRecords": "練習記録なし",
     "records": "練習記録 {count}件（最終 {day}）",
     "exportHint": "単語はCSVに書き出して残せます（練習記録は含みません）。",
-    "export": "CSVエクスポート"
+    "export": "CSVエクスポート",
+    "sharedNote": "共有リンクも無効になります。"
   },
   "order": {
     "label": "並び順",
@@ -68,7 +69,10 @@
     "recordCount": "{count}件",
     "export": "CSVエクスポート",
     "copy": "複製",
-    "delete": "削除"
+    "delete": "削除",
+    "share": "共有…",
+    "shareLoginRequired": "ログインすると共有できます",
+    "sharedBadge": "共有中"
   },
   "wordRow": {
     "label": "単語 {n}",
@@ -165,5 +169,15 @@
     "toAccount": "このアカウントへ移行する",
     "toBrowser": "このブラウザーへ移行する",
     "suffix": "（移行 {n}）"
+  },
+  "share": {
+    "title": "「{name}」を共有",
+    "toggle": "リンクを知っている人に公開",
+    "link": "共有リンク",
+    "copyLink": "リンクをコピー",
+    "copied": "コピーしました",
+    "copyFailed": "コピーできませんでした。リンクを選択してコピーしてください。",
+    "preparing": "リンクを準備しています…",
+    "note": "コピーした人のリストには、あとの変更は反映されません。練習記録は公開されません。"
   }
 }
