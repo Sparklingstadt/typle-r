@@ -48,6 +48,12 @@ test('migration is explicit, repeatable and preserves colliding names and record
   assert.equal(source[0].id, 'one')
 })
 
+test('request validation keeps sharing but drops share ids sent by the client', () => {
+  const [sent] = validateWorkspaceRequest({ revision: 1, lists: [{ ...list, shared: true, shareId: 'x' }] }).lists
+  assert.equal(sent.shared, true)
+  assert.equal('shareId' in sent, false)
+})
+
 test('request validation rejects invalid revisions and oversized fields', () => {
   for (const revision of [-1, 1.5, '0', NaN]) assert.throws(() => validateWorkspaceRequest({ revision, lists: [] }))
   assert.throws(() => validateWorkspaceRequest({ revision: 0, lists: [{ ...list, name: 'a'.repeat(201) }] }))
