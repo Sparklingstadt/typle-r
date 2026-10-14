@@ -71,7 +71,20 @@ jobs:
       - run: npm test
       - run: npm run lint
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      # The browser download is cached per Playwright version; the system packages it needs are installed every run.
+      - name: Read Playwright version
+        id: playwright
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}-chromium
+      - if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+      - if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
       - run: npm run test:e2e
 
   release:
@@ -111,6 +124,7 @@ jobs:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_CLI_VERSION: 60.1.3
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -130,8 +144,21 @@ jobs:
           test -n "$VERCEL_ORG_ID" || { echo 'Missing VERCEL_ORG_ID'; exit 1; }
           test -n "$VERCEL_PROJECT_ID" || { echo 'Missing VERCEL_PROJECT_ID'; exit 1; }
           node scripts/ci/release.cjs check
+      # The pinned CLI is kept in its own prefix and cached by version. Only main-branch runs deploy, and they only
+      # restore caches saved on main, so a pull request cannot supply the CLI that receives the token.
+      - name: Cache pinned Vercel CLI
+        id: vercel-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.vercel-cli
+          key: vercel-cli-${{ runner.os }}-node24-${{ env.VERCEL_CLI_VERSION }}
       - name: Install pinned Vercel CLI
-        run: npm install --global vercel@60.1.3
+        if: steps.vercel-cache.outputs.cache-hit != 'true'
+        run: npm install --global --prefix "$HOME/.vercel-cli" "vercel@$VERCEL_CLI_VERSION"
+      - name: Use pinned Vercel CLI
+        run: |
+          echo "$HOME/.vercel-cli/bin" >> "$GITHUB_PATH"
+          "$HOME/.vercel-cli/bin/vercel" --version
       - name: Recheck release before production deployment
         env:
           GH_TOKEN: ${{ github.token }}
