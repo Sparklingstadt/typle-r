@@ -126,8 +126,8 @@ test('a save that lost to another screen shows the latest data and reports the c
   assert.equal(fake.writes[1].request.revision, 2)
   fake.writes[1].reject(new WorkspaceError('conflict', 409))
   await new Promise(setImmediate)
-  fake.reads[2].reject(new WorkspaceError('databaseUnavailable', 503))
-  await assert.rejects(next, { key: 'databaseUnavailable' })
+  fake.reads[2].reject(new WorkspaceError('guestReadFailed', 503))
+  await assert.rejects(next, { key: 'guestReadFailed' })
 })
 
 test('a save that finishes after the account changed is dropped quietly', async () => {

@@ -13,9 +13,7 @@
   },
   "storage": {
     "guest": "Saved in this browser",
-    "account": "Saved to your account",
-    "guestDetail": "You are not signed in, so this is saved to this browser’s LocalStorage.",
-    "accountDetail": "Saved to the account you are signed in with."
+    "guestDetail": "Data is saved only in this browser. It does not sync with other devices or browsers."
   },
   "form": {
     "cancel": "Cancel",

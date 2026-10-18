@@ -26,10 +26,8 @@
   },
   "storage": {
     "label": "保存位置：",
-    "account": "保存到账号",
     "browser": "保存在此浏览器",
-    "accountDetail": "保存到 GitHub 账号，并在登录的设备之间同步。",
-    "browserDetail": "由于未登录，数据只保存在此浏览器中。"
+    "browserDetail": "数据只保存在此浏览器中，不会与其他设备或浏览器同步。"
   },
   "theme": {
     "label": "深色模式",
