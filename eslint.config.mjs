@@ -2,7 +2,7 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 import nextVitals from 'eslint-config-next/core-web-vitals'
 
 // Packages that tie code to the UI, the framework or a storage backend.
-const frameworks = ['react', 'react-dom', 'next', 'next/*', 'next-auth', 'next-auth/*', 'next-intl', 'next-intl/*', '@prisma/*', '@sentry/*', 'pg']
+const frameworks = ['react', 'react-dom', 'next', 'next/*', 'next-intl', 'next-intl/*', '@sentry/*']
 
 export default defineConfig([
   ...nextVitals,
@@ -22,18 +22,17 @@ export default defineConfig([
     files: ['src/plugins/**'],
     rules: {
       'no-restricted-imports': ['error', { patterns: [
-        { group: ['react', 'react-dom', 'next', 'next/*', 'next-auth', 'next-auth/*', 'next-intl', 'next-intl/*'], message: 'src/plugins must not depend on the UI.' },
+        { group: ['react', 'react-dom', 'next', 'next/*', 'next-intl', 'next-intl/*'], message: 'src/plugins must not depend on the UI.' },
         { regex: '^(@/|(\\.\\./)+)(app|components|i18n|lib)/', message: 'src/plugins may only import from src/core and src/plugins.' },
       ] }],
     },
   },
-  // Screens reach the workspace through useWordLists (src/lib), which chooses the store; only the API route uses the server side.
+  // Screens reach the workspace through useWordLists (src/lib), which chooses the store.
   {
     files: ['src/app/**', 'src/components/**'],
-    ignores: ['src/app/api/**'],
     rules: {
       'no-restricted-imports': ['error', { patterns: [
-        { regex: '^(@/|(\\.\\./)+)plugins/storage(/|$)', message: 'Screens get the workspace and where it is saved from useWordLists, not from a storage plugin.' },
+        { regex: '^(@/|(\\.\\./)+)plugins/storage(/|$)', message: 'Screens get the workspace from useWordLists, not from a storage plugin.' },
       ] }],
     },
   },

@@ -16,7 +16,7 @@ const notoSans = Noto_Sans_JP({
   display: "swap",
 });
 
-const siteUrl = process.env.AUTH_URL
+const siteUrl = process.env.SITE_URL
   || (process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
     : "http://localhost:3000");

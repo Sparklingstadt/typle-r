@@ -1,0 +1,12 @@
+
+> typle-r@0.35.2 typecheck
+> tsc --noEmit --incremental false
+
+tests/e2e/api.spec.ts(2,24): error TS2307: Cannot find module 'next-auth/jwt' or its corresponding type declarations.
+tests/e2e/api.spec.ts(10,33): error TS2307: Cannot find module 'pg' or its corresponding type declarations.
+tests/e2e/api.spec.ts(160,33): error TS2307: Cannot find module 'pg' or its corresponding type declarations.
+tests/e2e/practice.spec.ts(2,24): error TS2307: Cannot find module 'next-auth/jwt' or its corresponding type declarations.
+tests/e2e/practice.spec.ts(14,33): error TS2307: Cannot find module 'pg' or its corresponding type declarations.
+tests/e2e/sharing.spec.ts(2,24): error TS2307: Cannot find module 'next-auth/jwt' or its corresponding type declarations.
+tests/e2e/sharing.spec.ts(12,33): error TS2307: Cannot find module 'pg' or its corresponding type declarations.
+tests/e2e/sharing.spec.ts(108,33): error TS2307: Cannot find module 'pg' or its corresponding type declarations.
