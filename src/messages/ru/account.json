@@ -5,7 +5,6 @@
   "githubUser": "Пользователь GitHub",
   "menu": "Меню аккаунта",
   "signedInWithGitHub": "Вход выполнен через GitHub",
-  "manageProfiles": "Управление профилями",
   "manageDevices": "Управление устройствами",
   "signOut": "Выйти",
   "localLogin": {

@@ -6,13 +6,11 @@ const { PrismaClient } = require('@prisma/client')
 const { PrismaPg } = require('@prisma/adapter-pg')
 loadEnvConfig(process.cwd())
 const { workspaceRepository } = require('../src/plugins/storage/cloud/repository.ts')
-const { validateWorkspaceRequest } = require('../src/core/workspaceRequest.ts')
-const { MissingProfileError } = require('../src/core/profiles.ts')
+const { LegacyProfileRequest, validateWorkspaceRequest } = require('../src/core/workspaceRequest.ts')
 const { prepareLegacy, mergeLegacy } = require('../src/plugins/formats/legacy.ts')
 const list = { id: 'one', name: 'One', createdAt: '2026-09-06', words: [{ display: 'a', input: 'a', annotation: '' }], records: [] }
-const main = (listCount = 0, recordCount = 0) => ({ id: 'default', name: 'メイン', listCount, recordCount })
-const empty = (revision = 0) => ({ lists: [], devices: [], profiles: [main()], profileId: 'default', revision })
-const lists = (revision, value, devices) => ({ profileId: 'default', lists: value, ...(devices ? { devices } : {}) })
+const empty = (revision = 0) => ({ lists: [], devices: [], revision })
+const lists = (revision, value, devices) => ({ lists: value, ...(devices ? { devices } : {}) })
 
 test('Prisma repository isolates owners and atomically rejects stale revisions', async () => {
   const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) })
@@ -57,14 +55,14 @@ test('request validation keeps sharing but drops share ids sent by the client', 
 test('request validation rejects invalid revisions and oversized fields', () => {
   for (const revision of [-1, 1.5, '0', NaN]) assert.throws(() => validateWorkspaceRequest({ revision, lists: [] }))
   assert.throws(() => validateWorkspaceRequest({ revision: 0, lists: [{ ...list, name: 'a'.repeat(201) }] }))
-  // Clients from before profiles send no profileId and change the first profile.
-  assert.deepEqual(validateWorkspaceRequest({ revision: 0, lists: [list] }), { revision: 0, profileId: 'default', lists: [list] })
-  for (const profileId of ['../x', 'a b', 1, 'x'.repeat(101)]) assert.throws(() => validateWorkspaceRequest({ revision: 0, profileId, lists: [] }))
-  const profiles = [{ id: 'default', name: 'メイン' }, { id: 'zh', name: '中国語' }]
-  assert.throws(() => validateWorkspaceRequest({ revision: 1, profileId: 'ko', profiles }))
-  assert.throws(() => validateWorkspaceRequest({ revision: 1, profileId: 'zh', profiles: [...profiles].reverse() }))
-  assert.throws(() => validateWorkspaceRequest({ revision: 1, profileId: 'zh', profiles: [...profiles, { id: 'x', name: ' 中国語 ' }] }))
-  assert.deepEqual(validateWorkspaceRequest({ revision: 1, profileId: 'zh', profiles }), { revision: 1, profileId: 'zh', profiles })
+  // The app with profiles names the first profile in every save; that is the only list set now.
+  assert.deepEqual(validateWorkspaceRequest({ revision: 0, profileId: 'default', lists: [list] }), { revision: 0, lists: [list] })
+  for (const body of [{ profileId: 'zh', lists: [] }, { profileId: 'default', profiles: [{ id: 'default', name: 'メイン' }] }]) {
+    assert.throws(() => validateWorkspaceRequest({ revision: 1, ...body }), LegacyProfileRequest)
+  }
+  // The number of lists is checked against the saved ones (see workspaceDocument), so merged lists above it can be saved.
+  const many = Array.from({ length: 101 }, (_, index) => ({ ...list, id: 'l' + index, name: 'L' + index }))
+  assert.equal(validateWorkspaceRequest({ revision: 1, lists: many }).lists.length, 101)
 })
 
 
@@ -91,39 +89,45 @@ test('devices sync per owner, survive older clients, and share revision conflict
   }
 })
 
-test('profiles keep their own lists, share devices and the revision, and leave older clients the first profile', async () => {
+test('lists of removed profiles are merged once, keep their links and turn away saves made before', async () => {
   const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) })
-  const owner = 'test:profiles:' + require('node:crypto').randomUUID()
+  const owner = 'test:merge:' + require('node:crypto').randomUUID()
   const device = { id: 'mac', name: 'MacBook', layout: 'JIS' }
-  const chinese = { ...list, id: 'zh-list', name: '中国語', records: [{ id: 'r', time: 2, date: '2026-10-01', device }] }
-  const profiles = [{ id: 'default', name: 'メイン' }, { id: 'zh', name: '中国語' }]
+  const chinese = { ...list, id: 'zh-list', name: '中国語', shared: true, records: [{ id: 'r', time: 2, date: '2026-10-01', device }] }
+  // Same id and name as the first profile's list.
+  const twin = { ...list, shared: true, records: [{ id: 't', time: 3, date: '2026-10-02' }] }
+  const share = (profileId, listId, name) => ({ shareId: require('node:crypto').randomUUID(), ownerId: owner, profileId, listId, name, words: list.words })
+  const rows = [share('default', 'one', 'One'), share('zh', 'zh-list', '中国語'), share('zh', 'one', 'One')]
   try {
     const repo = workspaceRepository(db)
-    await repo.write(owner, 0, { profileId: 'default', lists: [list], devices: [device] })
-    // Adding a profile keeps the first profile's lists; the new one starts empty.
-    const added = await repo.write(owner, 1, { profileId: 'default', profiles })
-    assert.deepEqual(added.lists, [list])
-    assert.deepEqual(added.profiles, [main(1, 0), { id: 'zh', name: '中国語', listCount: 0, recordCount: 0 }])
-    const saved = await repo.write(owner, 2, { profileId: 'zh', lists: [chinese] })
-    assert.deepEqual([saved.profileId, saved.lists, saved.devices], ['zh', [chinese], [device]])
-    assert.deepEqual((await repo.read(owner)).lists, [list])
-    assert.deepEqual((await repo.read(owner, 'zh')).profiles[1], { id: 'zh', name: '中国語', listCount: 1, recordCount: 1 })
-    // An unknown profile reads as the first one.
-    assert.equal((await repo.read(owner, 'gone')).profileId, 'default')
-    // A client from before profiles writes only the first profile's lists and devices.
-    const old = await db.workspace.update({ where: { ownerId: owner, revision: 3 }, data: { lists: [], devices: [], revision: { increment: 1 } } })
-    assert.equal(old.revision, 4)
-    assert.deepEqual((await repo.read(owner, 'zh')).lists, [chinese])
-    // Writes in another profile share the revision, so stale ones are rejected.
-    assert.equal(await repo.write(owner, 3, { profileId: 'zh', lists: [] }), null)
-    // Deleting a profile removes its lists and records.
-    const removed = await repo.write(owner, 4, { profileId: 'default', profiles: [{ id: 'default', name: '通常' }] })
-    assert.deepEqual(removed.profiles, [{ id: 'default', name: '通常', listCount: 0, recordCount: 0 }])
-    await assert.rejects(repo.write(owner, 5, { profileId: 'zh', lists: [] }), MissingProfileError)
-    const readded = await repo.write(owner, 5, { profileId: 'default', profiles })
-    assert.deepEqual((await repo.read(owner, 'zh')).lists, [])
-    assert.equal(readded.revision, 6)
+    // As the app with profiles saved it.
+    await db.workspace.create({ data: { ownerId: owner, revision: 3, lists: [{ ...list, shared: true }], devices: [device],
+      profiles: [{ id: 'default', name: 'メイン' }, { id: 'zh', name: '中国語', lists: [chinese, twin] }] } })
+    for (const row of rows) await db.sharedList.create({ data: row })
+    // A screen that read revision 3 before the merge cannot save over the other profile's lists.
+    assert.equal(await repo.write(owner, 3, lists(3, [list])), null)
+    const merged = await repo.read(owner)
+    assert.equal(merged.revision, 4)
+    assert.deepEqual(merged.lists.map(item => [item.id, item.name, item.records.length]),
+      [['one', 'One', 0], ['zh-list', '中国語', 1], ['zh-one', 'One（中国語）', 1]])
+    assert.deepEqual(merged.lists.map(item => item.shareId), rows.map(row => row.shareId))
+    assert.deepEqual(merged.devices, [device])
+    const stored = await db.workspace.findUniqueOrThrow({ where: { ownerId: owner } })
+    assert.deepEqual(stored.profiles, [])
+    assert.equal(JSON.stringify(stored.lists).includes('shareId'), false)
+    const links = await db.sharedList.findMany({ where: { ownerId: owner }, orderBy: { listId: 'asc' } })
+    assert.deepEqual(links.map(row => [row.profileId, row.listId, row.shareId]),
+      [['default', 'one', rows[0].shareId], ['default', 'zh-list', rows[1].shareId], ['default', 'zh-one', rows[2].shareId]])
+    assert.equal((await repo.readShared(rows[1].shareId)).name, '中国語')
+    // Reading again changes nothing; saving goes on from the new revision.
+    assert.equal((await repo.read(owner)).revision, 4)
+    assert.equal(await repo.write(owner, 3, lists(3, [list])), null)
+    const saved = await repo.write(owner, 4, lists(4, merged.lists.slice(1)))
+    assert.deepEqual(saved.lists.map(item => item.id), ['zh-list', 'zh-one'])
+    assert.equal(await repo.readShared(rows[0].shareId), null)
+    assert.equal(saved.lists[0].shareId, rows[1].shareId)
   } finally {
+    await db.sharedList.deleteMany({ where: { ownerId: owner } })
     await db.workspace.deleteMany({ where: { ownerId: owner } })
     await db.$disconnect()
   }
@@ -134,7 +138,6 @@ test('shared lists follow the workspace and keep their link while shared', async
   const owner = 'test:share:' + require('node:crypto').randomUUID()
   const other = owner + ':other'
   const isUuid = value => /^[0-9a-f-]{36}$/.test(value)
-  const profiles = [{ id: 'default', name: 'メイン' }, { id: 'p2', name: 'Two' }]
   try {
     const repo = workspaceRepository(db)
     // Turning sharing on before the first save issues a link with that save.
@@ -167,14 +170,6 @@ test('shared lists follow the workspace and keep their link while shared', async
     state = await repo.write(owner, 5, lists(5, [{ ...list, shared: true, shareId: theirs }]))
     assert.notEqual(state.lists[0].shareId, theirs)
     assert.equal((await repo.readShared(theirs)).name, 'Theirs')
-    // Lists of another profile are shared per profile, and deleting the profile removes their links.
-    state = await repo.write(owner, 6, { profileId: 'p2', profiles, lists: [{ ...list, id: 'p2-list', shared: true }] })
-    const p2 = state.lists[0].shareId
-    assert.ok(isUuid(p2))
-    assert.equal((await repo.read(owner, 'p2')).lists[0].shareId, p2)
-    assert.ok((await repo.read(owner)).lists[0].shareId, 'the first profile keeps its own link')
-    await repo.write(owner, 7, { profileId: 'default', profiles: [profiles[0]] })
-    assert.equal(await repo.readShared(p2), null)
   } finally {
     await db.sharedList.deleteMany({ where: { ownerId: { in: [owner, other] } } })
     await db.workspace.deleteMany({ where: { ownerId: { in: [owner, other] } } })
@@ -185,18 +180,17 @@ test('shared lists follow the workspace and keep their link while shared', async
 test('saves that do not change a shared list leave its link untouched', async () => {
   const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) })
   const owner = 'test:share-quiet:' + require('node:crypto').randomUUID()
-  const profiles = [{ id: 'default', name: 'メイン' }, { id: 'p2', name: 'Two' }]
   const updatedAt = async shareId => (await db.sharedList.findUnique({ where: { shareId } })).updatedAt.getTime()
   try {
     const repo = workspaceRepository(db)
     const shared = { ...list, shared: true }
-    const shareId = (await repo.write(owner, 0, { profileId: 'default', profiles, lists: [shared] })).lists[0].shareId
+    const shareId = (await repo.write(owner, 0, lists(0, [shared]))).lists[0].shareId
     const before = await updatedAt(shareId)
     await new Promise(resolve => setTimeout(resolve, 20))
-    // A practice record, a device change and a save in another profile are not visible through the link.
+    // A practice record, a device change and a change to another list are not visible through the link.
     await repo.write(owner, 1, lists(1, [{ ...shared, records: [{ id: 'r', date: '2026-10-10', time: 1 }] }]))
     await repo.write(owner, 2, lists(2, [{ ...shared, records: [{ id: 'r', date: '2026-10-10', time: 1 }] }], [{ id: 'd', name: 'PC', layout: 'jis' }]))
-    await repo.write(owner, 3, { profileId: 'p2', lists: [{ ...list, id: 'other' }] })
+    await repo.write(owner, 3, lists(3, [{ ...shared, records: [{ id: 'r', date: '2026-10-10', time: 1 }] }, { ...list, id: 'other', name: 'Other' }]))
     assert.equal(await updatedAt(shareId), before)
     // Changing its words does show.
     await repo.write(owner, 4, lists(4, [{ ...shared, words: [{ display: 'b', input: 'b', annotation: '' }] }]))

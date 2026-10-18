@@ -4,7 +4,6 @@ import { useId } from "react"
 import { usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
-import ProfileSwitcher from "@/components/Profiles/ProfileSwitcher"
 import { helpNavigation, isCurrentPath, mainNavigation, type NavLink } from "./navigation"
 
 // 36px rows on desktop keep the whole sidebar within a 1280×768 screen; the drawer keeps 40px touch targets.
@@ -37,7 +36,6 @@ export default function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const id = useId()
   const t = useTranslations("nav")
   return <div className="flex min-h-full flex-col gap-4">
-    <ProfileSwitcher onNavigate={onNavigate} />
     <nav aria-label={t("mainNavigation")}>
       {mainNavigation.map((group, index) => {
         const labelId = `${id}-group-${index}`

@@ -22,6 +22,10 @@ export TYPLE_TOKEN='typle_…'
 
 ## 共通事項
 
+### v0.33.0 での変更
+
+プロファイル機能を廃止したため、パスからプロファイルを外しました。`/api/v1/profiles/{p}/lists/…` は `/api/v1/lists/…` に、`GET /api/v1/profiles` はなくなりました。旧パスは `404` です。追加のプロファイルにあったリストは、最初のプロファイルのリストの後ろに移っています（名前が重なるリストは「名前（プロファイル名）」になります）。リストIDは変わりません。ただし、同じIDのリストが最初のプロファイルにもあった場合だけ、移したほうのIDが `<プロファイルID>-<リストID>` になります。
+
 ### 認証
 
 すべてのリクエストに `Authorization: Bearer <トークン>` を付けます。
@@ -45,21 +49,21 @@ export TYPLE_TOKEN='typle_…'
 | 項目 | 上限 |
 |---|---|
 | トークン | 1アカウント10個 |
-| リスト | 1プロファイル100件（超えると `400 listLimit`） |
+| リスト | 1アカウント100件（超えると `400 listLimit`） |
 | リスト名 | 200文字 |
 | 単語 | 1リスト1000件。`display`・`input` は各1000文字、`annotation` は2000文字 |
 | 記録 | 1リスト10000件 |
 | 記録の取得 | `limit` 1〜1000（既定100） |
 | 書き込みの本文 | 1MiB |
-| 1プロファイルのリスト全体 | 896KiB。書き込み後のリスト（記録を含む）をJSONにした大きさ。超える書き込みは `413 workspaceTooLarge` で、何も保存されない（Web画面で保存した分がすでに超えていても、リストの削除など小さくする書き込みはできる） |
+| リスト全体 | 896KiB。書き込み後のリスト（記録を含む）をJSONにした大きさ。超える書き込みは `413 workspaceTooLarge` で、何も保存されない（Web画面で保存した分がすでに超えていても、リストの削除など小さくする書き込みはできる） |
 
 リスト名・単語の検証は画面の単語リスト編集と同じです。リスト名は必須で、前後の空白を除いて同じ名前（大文字小文字を区別しない）は作れません。単語は1件以上で、`display` と `input` は空や空白だけにはできません。これらや上限の違反は、`listNameRequired`・`listNameDuplicate`・`wordsRequired`・`wordFieldsRequired`・`listLimit`・`invalidWorkspace` のいずれかで `400` を返します。形が違う入力（文字列でない名前など）は `invalidWorkspace` です。
 
-### プロファイルとリスト
+### リスト
 
-パスの `{p}` はプロファイルIDで、最初のプロファイルは `default` です。IDは `GET /api/v1/profiles` で分かります。`{l}` はリストIDです。存在しなければ、それぞれ `404 profileNotFound`・`404 listNotFound` です。画面と違い、存在しないプロファイルIDで最初のプロファイルに切り替わることはありません。
+パスの `{l}` はリストIDです。存在しなければ `404 listNotFound` です。
 
-書き込みの本文の検証は、リストやプロファイルの存在確認より先に行います。そのため、本文が不正で対象も存在しないときは `400` が返ります。
+書き込みの本文の検証は、リストの存在確認より先に行います。そのため、本文が不正で対象も存在しないときは `400` が返ります。
 
 ### エラー一覧
 
@@ -72,9 +76,9 @@ export TYPLE_TOKEN='typle_…'
 | 400 | `listNameRequired` `listNameDuplicate` `wordsRequired` `wordFieldsRequired` `listLimit` `invalidWorkspace` | リストの入力が不正（上の「上限」を参照） |
 | 401 | `invalidToken` | トークンがないか無効 |
 | 403 | `insufficientScope` | `read` のトークンで書き込みを呼んだ |
-| 404 | `profileNotFound` `listNotFound` | 対象がない |
+| 404 | `listNotFound` | 対象がない |
 | 409 | `conflict` | 同時に保存された変更とぶつかり、サーバー内で3回やり直しても保存できなかった |
-| 413 | `workspaceTooLarge` | 本文が1MiBを超えた、または書き込み後のプロファイルのリスト全体が896KiBを超える |
+| 413 | `workspaceTooLarge` | 本文が1MiBを超えた、または書き込み後のリスト全体が896KiBを超える |
 | 415 | `unsupportedContentType` | 書き込みの `Content-Type` が `application/json` ではない |
 | 503 | `databaseUnavailable` | DBの障害、または保存済みのデータが読めない。しばらくしてからやり直す |
 
@@ -84,12 +88,6 @@ export TYPLE_TOKEN='typle_…'
 
 ## 読み取り（`read` 以上）
 
-### `GET /api/v1/profiles`
-
-```json
-{ "profiles": [{ "id": "default", "name": "メイン", "listCount": 3, "recordCount": 42 }] }
-```
-
 ### `GET /api/v1/devices`
 
 練習端末の一覧です。記録に端末を付けるときの `deviceId` に使います。
@@ -98,7 +96,7 @@ export TYPLE_TOKEN='typle_…'
 { "devices": [{ "id": "d1", "name": "自宅のキーボード", "layout": "JIS" }] }
 ```
 
-### `GET /api/v1/profiles/{p}/lists`
+### `GET /api/v1/lists`
 
 リストの一覧（保存順）です。単語は含みません。
 
@@ -115,7 +113,7 @@ export TYPLE_TOKEN='typle_…'
 }
 ```
 
-### `GET /api/v1/profiles/{p}/lists/{l}`
+### `GET /api/v1/lists/{l}`
 
 単語を含む詳細です。`shared` は真偽値で、共有リンクがオンのときだけ `shareUrl` が付きます。
 
@@ -134,7 +132,7 @@ export TYPLE_TOKEN='typle_…'
 }
 ```
 
-### `GET /api/v1/profiles/{p}/lists/{l}/records`
+### `GET /api/v1/lists/{l}/records`
 
 練習記録を新しい順（`date` の降順）に返します。
 
@@ -163,7 +161,7 @@ export TYPLE_TOKEN='typle_…'
 
 ## 書き込み（`write`）
 
-### `POST /api/v1/profiles/{p}/lists`
+### `POST /api/v1/lists`
 
 リストを末尾に追加します。IDはサーバーがUUIDで発行し、`createdAt` は現在時刻です。
 
@@ -174,15 +172,15 @@ export TYPLE_TOKEN='typle_…'
 
 応答は `201 { "list": { … } }`（詳細と同じ形）です。
 
-### `PATCH /api/v1/profiles/{p}/lists/{l}`
+### `PATCH /api/v1/lists/{l}`
 
 `name` と `words` の少なくとも一方を送ります。`words` は全体を置き換えます（単語単位の追加・削除はありません）。記録と共有の状態は残り、共有中なら公開リンクの内容も新しい単語になります。名前も単語も保存済みと同じなら何も保存しません。応答は `200 { "list": { … } }` です。
 
-### `DELETE /api/v1/profiles/{p}/lists/{l}`
+### `DELETE /api/v1/lists/{l}`
 
 リストを記録ごと削除します。共有中ならリンクも無効になります。応答は `204`（本文なし）です。
 
-### `POST /api/v1/profiles/{p}/lists/{l}/records`
+### `POST /api/v1/lists/{l}/records`
 
 練習記録を追加します。
 
@@ -208,10 +206,7 @@ export TYPLE_TOKEN='typle_…'
 
 ```sh
 curl -H "Authorization: Bearer $TYPLE_TOKEN" \
-  https://typle-r-six.vercel.app/api/v1/profiles
-
-curl -H "Authorization: Bearer $TYPLE_TOKEN" \
-  https://typle-r-six.vercel.app/api/v1/profiles/default/lists
+  https://typle-r-six.vercel.app/api/v1/lists
 ```
 
 ### リストを作る（`write`）
@@ -221,7 +216,7 @@ curl -X POST \
   -H "Authorization: Bearer $TYPLE_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"name":"英単語","words":[{"display":"apple","input":"apple","annotation":"りんご"},{"display":"banana","input":"banana"}]}' \
-  https://typle-r-six.vercel.app/api/v1/profiles/default/lists
+  https://typle-r-six.vercel.app/api/v1/lists
 ```
 
 応答の `list.id` が、以降の `{l}` です。
@@ -233,7 +228,7 @@ curl -X PATCH \
   -H "Authorization: Bearer $TYPLE_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"words":[{"display":"cherry","input":"cherry"}]}' \
-  https://typle-r-six.vercel.app/api/v1/profiles/default/lists/$LIST_ID
+  https://typle-r-six.vercel.app/api/v1/lists/$LIST_ID
 ```
 
 ### `id` 付きで記録を追加し、再送する（`write`）
@@ -243,7 +238,7 @@ curl -X POST \
   -H "Authorization: Bearer $TYPLE_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"id":"run-2026-10-10-001","time":63.5,"date":"2026-10-10T02:00:00Z","mistakes":2,"accuracy":97.5}' \
-  https://typle-r-six.vercel.app/api/v1/profiles/default/lists/$LIST_ID/records
+  https://typle-r-six.vercel.app/api/v1/lists/$LIST_ID/records
 # 初回は 201。同じコマンドを再実行すると 200 で既存の記録が返り、件数は増えない。
 ```
 
@@ -251,7 +246,7 @@ curl -X POST \
 
 ```sh
 curl -H "Authorization: Bearer $TYPLE_TOKEN" \
-  "https://typle-r-six.vercel.app/api/v1/profiles/default/lists/$LIST_ID/records?since=2026-10-01T00:00:00Z&limit=20"
+  "https://typle-r-six.vercel.app/api/v1/lists/$LIST_ID/records?since=2026-10-01T00:00:00Z&limit=20"
 ```
 
 ## トークンの管理用エンドポイント
@@ -270,7 +265,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" \
 
 v1では次の操作はできません。
 
-- プロファイルや端末の作成・変更・削除
+- 端末の作成・変更・削除
 - 記録の削除・変更（追加だけ）
 - 共有リンクのオン・オフ（共有中かどうかの読み取りだけ）
 - 単語単位の追加・削除（`PATCH` の `words` で全体を置き換える）
