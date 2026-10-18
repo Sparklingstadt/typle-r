@@ -25,7 +25,7 @@ export default function SharedListPage() {
   const errorText = useErrorText()
   const router = useRouter()
   const notify = useSaveNotification()
-  const { update, saving, error, storage, ready } = useWordLists()
+  const { update, saving, error, ready } = useWordLists()
   const { list, error: loadError, loading } = useSharedList(id)
   const [failed, setFailed] = useState(false)
 
@@ -60,7 +60,7 @@ export default function SharedListPage() {
             <h1 className="text-2xl font-bold [overflow-wrap:anywhere]">{list.name}</h1>
             <p className="text-sm text-muted-foreground tabular-nums">{t('wordCount', { count: list.words.length })}</p>
           </div>
-          <PageStorageBadge storage={storage} />
+          <PageStorageBadge />
         </header>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <Button size="lg" disabled={saving || !ready} onClick={copy}><Copy aria-hidden="true" />{t('copy')}</Button>

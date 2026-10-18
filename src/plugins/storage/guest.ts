@@ -65,10 +65,8 @@ export async function saveGuestWorkspace(request: WorkspaceWrite) {
 
 /** The guest workspace in this browser's LocalStorage. */
 export const guestStore: WorkspaceStore = {
-  location: 'browser',
   read: async () => readGuestWorkspace(localStorage),
   write: saveGuestWorkspace,
-  staleReads: false,
   subscribe(onChange) {
     // `key` is null when another tab clears the whole storage.
     const changed = (event: StorageEvent) => { if (event.key === GUEST_STORAGE_KEY || event.key === null) onChange() }

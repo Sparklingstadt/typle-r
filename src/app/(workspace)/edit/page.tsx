@@ -20,7 +20,6 @@ import { useFormat } from "@/i18n/useFormat"
 import { randomId } from "@/core/randomId"
 import { duplicateList, LIST_ORDERS, listOverviews, matchesQuery, MAX_LISTS, sortOverviews, type ListOrder, type ListOverview } from "@/core/listOverview"
 import { saveList, type SavedWordList } from "@/core/wordLists"
-import type { WorkspaceLocation } from "@/core/workspaceStore"
 import PageStorageBadge from "@/components/PageStorageBadge"
 
 type Workspace = ReturnType<typeof useWordLists>
@@ -33,14 +32,14 @@ export default function Edit() {
   </main>
 }
 
-function Header({ storage }: { storage?: WorkspaceLocation }) {
+function Header() {
   const t = useTranslations('wordLists.page')
   return <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
     <div className="space-y-1">
       <h1 className="text-2xl font-bold">{t('title')}</h1>
       <p className="text-sm text-muted-foreground">{t('description')}</p>
     </div>
-    <PageStorageBadge storage={storage} />
+    <PageStorageBadge />
   </header>
 }
 
@@ -62,7 +61,7 @@ function LoadingState() {
 // `/edit?list=<id>` opens the editor, so other screens can link to it and the browser's back button returns to the lists.
 // The editor stays open while it has unsaved changes: going back asks first, like キャンセル.
 function WordLists({ workspace }: { workspace: Workspace }) {
-  const { lists, error, errorKey, saving, update, storage } = workspace
+  const { lists, error, errorKey, saving, update } = workspace
   const t = useTranslations('wordLists.page')
   const practiceText = usePracticeText()
   const notify = useSaveNotification()
@@ -135,7 +134,7 @@ function WordLists({ workspace }: { workspace: Workspace }) {
 
   if (openId && editing) return <WordListEditor key={editing.id} title={t('editTitle')} initial={editing} error={error} errorKey={errorKey}
     description={t('editDescription', { count: editing.words.length, practice: practiceText(listOverviews([editing])[0], new Date()) })}
-    storage={storage} onDirtyChange={trackDirty} cancelRequest={cancelRequest}
+    onDirtyChange={trackDirty} cancelRequest={cancelRequest}
     onCancel={() => close()} onSave={async list => {
       const saved = await update(current => saveList(current, list, true))
       if (saved) { close(list.id); notify(t('updated', { name: list.name.trim() })) }
@@ -143,7 +142,7 @@ function WordLists({ workspace }: { workspace: Workspace }) {
     }} />
 
   return <>
-    <Header storage={storage} />
+    <Header />
     {error && <Alert variant="destructive" className="mb-6 border-destructive/40 bg-destructive/5">
       <CircleAlert aria-hidden="true" />
       <AlertDescription className="flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -156,15 +155,14 @@ function WordLists({ workspace }: { workspace: Workspace }) {
       <AlertDescription>{t('notFound')}</AlertDescription>
     </Alert>}
     {/* After a failed load the lists are unknown; "no lists yet" would be wrong. */}
-    {!(error && !lists.length) && <ListManager lists={lists} saving={saving} storage={storage} highlight={highlight} update={update} notify={notify}
+    {!(error && !lists.length) && <ListManager lists={lists} saving={saving} highlight={highlight} update={update} notify={notify}
       onEdit={open} onHighlight={setHighlight} />}
   </>
 }
 
-function ListManager({ lists, saving, storage, highlight, update, notify, onEdit, onHighlight }: {
+function ListManager({ lists, saving, highlight, update, notify, onEdit, onHighlight }: {
   lists: SavedWordList[]
   saving: boolean
-  storage?: WorkspaceLocation
   highlight: string | null
   update: Workspace['update']
   notify: (message: string) => void
@@ -242,7 +240,7 @@ function ListManager({ lists, saving, storage, highlight, update, notify, onEdit
 
     {shown.length ? <ul className="divide-y overflow-hidden rounded-xl border bg-card">
       {shown.map((item, position) => <ListRow key={item.list.id} item={item} now={now} highlight={highlight === item.list.id} disabled={saving} canCopy={!full}
-        canShare={storage === 'account'} onEdit={() => onEdit(item.list)} onExport={() => exportCsv(item.list)} onCopy={() => copy(item.list)}
+        canShare={false} onEdit={() => onEdit(item.list)} onExport={() => exportCsv(item.list)} onCopy={() => copy(item.list)}
         onShare={() => setSharing({ open: true, id: item.list.id })}
         onDelete={() => { deleted.current = false; setDeleting({ open: true, item, position }) }} />)}
     </ul> : <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed bg-card px-6 py-10 text-center">

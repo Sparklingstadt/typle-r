@@ -1,0 +1,1128 @@
+
+> typle-r@0.35.2 test
+> node --test tests/*.test.cjs
+
+TAP version 13
+# Subtest: tokens are stored only as hashes
+not ok 1 - tokens are stored only as hashes
+  ---
+  duration_ms: 134.309775
+  type: 'test'
+  location: '/home/user/typle-r/tests/apiDatabase.test.cjs:37:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    
+    Invalid `db.apiToken.deleteMany()` invocation in
+    /home/user/typle-r/tests/apiDatabase.test.cjs:30:23
+    
+      27   await body({ db, owner, other, tokens: tokenRepository(db), workspaces: workspaceRepository(db) })
+      28 } finally {
+      29   const where = { ownerId: { in: [owner, other] } }
+    → 30   await db.apiToken.deleteMany(
+    Can't reach database server at 127.0.0.1:5432
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    vn.handleRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:8643)
+    vn.handleAndLogRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7932)
+    vn.request (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7639)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async a (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:99:6935)
+    async withDatabase (/home/user/typle-r/tests/apiDatabase.test.cjs:30:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: expired, revoked and unknown tokens do not verify
+not ok 2 - expired, revoked and unknown tokens do not verify
+  ---
+  duration_ms: 12.743573
+  type: 'test'
+  location: '/home/user/typle-r/tests/apiDatabase.test.cjs:51:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    
+    Invalid `db.apiToken.deleteMany()` invocation in
+    /home/user/typle-r/tests/apiDatabase.test.cjs:30:23
+    
+      27   await body({ db, owner, other, tokens: tokenRepository(db), workspaces: workspaceRepository(db) })
+      28 } finally {
+      29   const where = { ownerId: { in: [owner, other] } }
+    → 30   await db.apiToken.deleteMany(
+    Can't reach database server at 127.0.0.1:5432
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    vn.handleRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:8643)
+    vn.handleAndLogRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7932)
+    vn.request (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7639)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async a (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:99:6935)
+    async withDatabase (/home/user/typle-r/tests/apiDatabase.test.cjs:30:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: tokens are limited to ten per owner
+not ok 3 - tokens are limited to ten per owner
+  ---
+  duration_ms: 6.946586
+  type: 'test'
+  location: '/home/user/typle-r/tests/apiDatabase.test.cjs:66:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    
+    Invalid `db.apiToken.deleteMany()` invocation in
+    /home/user/typle-r/tests/apiDatabase.test.cjs:30:23
+    
+      27   await body({ db, owner, other, tokens: tokenRepository(db), workspaces: workspaceRepository(db) })
+      28 } finally {
+      29   const where = { ownerId: { in: [owner, other] } }
+    → 30   await db.apiToken.deleteMany(
+    Can't reach database server at 127.0.0.1:5432
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    vn.handleRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:8643)
+    vn.handleAndLogRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7932)
+    vn.request (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7639)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async a (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:99:6935)
+    async withDatabase (/home/user/typle-r/tests/apiDatabase.test.cjs:30:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: concurrent token creation cannot exceed the limit
+not ok 4 - concurrent token creation cannot exceed the limit
+  ---
+  duration_ms: 21.926784
+  type: 'test'
+  location: '/home/user/typle-r/tests/apiDatabase.test.cjs:73:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    
+    Invalid `db.apiToken.deleteMany()` invocation in
+    /home/user/typle-r/tests/apiDatabase.test.cjs:30:23
+    
+      27   await body({ db, owner, other, tokens: tokenRepository(db), workspaces: workspaceRepository(db) })
+      28 } finally {
+      29   const where = { ownerId: { in: [owner, other] } }
+    → 30   await db.apiToken.deleteMany(
+    Can't reach database server at 127.0.0.1:5432
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    vn.handleRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:8643)
+    vn.handleAndLogRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7932)
+    vn.request (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7639)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async a (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:99:6935)
+    async withDatabase (/home/user/typle-r/tests/apiDatabase.test.cjs:30:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: last use is recorded at most hourly
+not ok 5 - last use is recorded at most hourly
+  ---
+  duration_ms: 6.889894
+  type: 'test'
+  location: '/home/user/typle-r/tests/apiDatabase.test.cjs:80:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    
+    Invalid `db.apiToken.deleteMany()` invocation in
+    /home/user/typle-r/tests/apiDatabase.test.cjs:30:23
+    
+      27   await body({ db, owner, other, tokens: tokenRepository(db), workspaces: workspaceRepository(db) })
+      28 } finally {
+      29   const where = { ownerId: { in: [owner, other] } }
+    → 30   await db.apiToken.deleteMany(
+    Can't reach database server at 127.0.0.1:5432
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    vn.handleRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:8643)
+    vn.handleAndLogRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7932)
+    vn.request (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7639)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async a (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:99:6935)
+    async withDatabase (/home/user/typle-r/tests/apiDatabase.test.cjs:30:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: modify saves, strips share ids and updates the shared copy
+not ok 6 - modify saves, strips share ids and updates the shared copy
+  ---
+  duration_ms: 5.618878
+  type: 'test'
+  location: '/home/user/typle-r/tests/apiDatabase.test.cjs:94:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    
+    Invalid `db.apiToken.deleteMany()` invocation in
+    /home/user/typle-r/tests/apiDatabase.test.cjs:30:23
+    
+      27   await body({ db, owner, other, tokens: tokenRepository(db), workspaces: workspaceRepository(db) })
+      28 } finally {
+      29   const where = { ownerId: { in: [owner, other] } }
+    → 30   await db.apiToken.deleteMany(
+    Can't reach database server at 127.0.0.1:5432
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    vn.handleRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:8643)
+    vn.handleAndLogRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7932)
+    vn.request (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7639)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async a (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:99:6935)
+    async withDatabase (/home/user/typle-r/tests/apiDatabase.test.cjs:30:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: modify retries after a conflicting write
+not ok 7 - modify retries after a conflicting write
+  ---
+  duration_ms: 5.731865
+  type: 'test'
+  location: '/home/user/typle-r/tests/apiDatabase.test.cjs:112:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    
+    Invalid `db.apiToken.deleteMany()` invocation in
+    /home/user/typle-r/tests/apiDatabase.test.cjs:30:23
+    
+      27   await body({ db, owner, other, tokens: tokenRepository(db), workspaces: workspaceRepository(db) })
+      28 } finally {
+      29   const where = { ownerId: { in: [owner, other] } }
+    → 30   await db.apiToken.deleteMany(
+    Can't reach database server at 127.0.0.1:5432
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    vn.handleRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:8643)
+    vn.handleAndLogRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7932)
+    vn.request (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7639)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async a (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:99:6935)
+    async withDatabase (/home/user/typle-r/tests/apiDatabase.test.cjs:30:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: modify gives up with a conflict after three attempts
+not ok 8 - modify gives up with a conflict after three attempts
+  ---
+  duration_ms: 5.439073
+  type: 'test'
+  location: '/home/user/typle-r/tests/apiDatabase.test.cjs:138:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    
+    Invalid `db.apiToken.deleteMany()` invocation in
+    /home/user/typle-r/tests/apiDatabase.test.cjs:30:23
+    
+      27   await body({ db, owner, other, tokens: tokenRepository(db), workspaces: workspaceRepository(db) })
+      28 } finally {
+      29   const where = { ownerId: { in: [owner, other] } }
+    → 30   await db.apiToken.deleteMany(
+    Can't reach database server at 127.0.0.1:5432
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    vn.handleRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:8643)
+    vn.handleAndLogRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7932)
+    vn.request (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7639)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async a (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:99:6935)
+    async withDatabase (/home/user/typle-r/tests/apiDatabase.test.cjs:30:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: modify does not write when the lists are returned unchanged
+not ok 9 - modify does not write when the lists are returned unchanged
+  ---
+  duration_ms: 9.879839
+  type: 'test'
+  location: '/home/user/typle-r/tests/apiDatabase.test.cjs:151:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    
+    Invalid `db.apiToken.deleteMany()` invocation in
+    /home/user/typle-r/tests/apiDatabase.test.cjs:30:23
+    
+      27   await body({ db, owner, other, tokens: tokenRepository(db), workspaces: workspaceRepository(db) })
+      28 } finally {
+      29   const where = { ownerId: { in: [owner, other] } }
+    → 30   await db.apiToken.deleteMany(
+    Can't reach database server at 127.0.0.1:5432
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    vn.handleRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:8643)
+    vn.handleAndLogRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7932)
+    vn.request (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7639)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async a (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:99:6935)
+    async withDatabase (/home/user/typle-r/tests/apiDatabase.test.cjs:30:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: modify creates the workspace on first write
+not ok 10 - modify creates the workspace on first write
+  ---
+  duration_ms: 40.693224
+  type: 'test'
+  location: '/home/user/typle-r/tests/apiDatabase.test.cjs:161:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    
+    Invalid `db.apiToken.deleteMany()` invocation in
+    /home/user/typle-r/tests/apiDatabase.test.cjs:30:23
+    
+      27   await body({ db, owner, other, tokens: tokenRepository(db), workspaces: workspaceRepository(db) })
+      28 } finally {
+      29   const where = { ownerId: { in: [owner, other] } }
+    → 30   await db.apiToken.deleteMany(
+    Can't reach database server at 127.0.0.1:5432
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    vn.handleRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:8643)
+    vn.handleAndLogRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7932)
+    vn.request (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7639)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async a (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:99:6935)
+    async withDatabase (/home/user/typle-r/tests/apiDatabase.test.cjs:30:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: the API list limit leaves room for what a web save sends around the lists
+ok 11 - the API list limit leaves room for what a web save sends around the lists
+  ---
+  duration_ms: 515.514951
+  type: 'test'
+  ...
+# Subtest: modify refuses lists larger than the web app can save again
+not ok 12 - modify refuses lists larger than the web app can save again
+  ---
+  duration_ms: 10.087903
+  type: 'test'
+  location: '/home/user/typle-r/tests/apiDatabase.test.cjs:188:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    
+    Invalid `db.apiToken.deleteMany()` invocation in
+    /home/user/typle-r/tests/apiDatabase.test.cjs:30:23
+    
+      27   await body({ db, owner, other, tokens: tokenRepository(db), workspaces: workspaceRepository(db) })
+      28 } finally {
+      29   const where = { ownerId: { in: [owner, other] } }
+    → 30   await db.apiToken.deleteMany(
+    Can't reach database server at 127.0.0.1:5432
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    vn.handleRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:8643)
+    vn.handleAndLogRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7932)
+    vn.request (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7639)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async a (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:99:6935)
+    async withDatabase (/home/user/typle-r/tests/apiDatabase.test.cjs:30:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: modify still lets oversized lists shrink
+not ok 13 - modify still lets oversized lists shrink
+  ---
+  duration_ms: 8.869948
+  type: 'test'
+  location: '/home/user/typle-r/tests/apiDatabase.test.cjs:203:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    
+    Invalid `db.apiToken.deleteMany()` invocation in
+    /home/user/typle-r/tests/apiDatabase.test.cjs:30:23
+    
+      27   await body({ db, owner, other, tokens: tokenRepository(db), workspaces: workspaceRepository(db) })
+      28 } finally {
+      29   const where = { ownerId: { in: [owner, other] } }
+    → 30   await db.apiToken.deleteMany(
+    Can't reach database server at 127.0.0.1:5432
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    vn.handleRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:8643)
+    vn.handleAndLogRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7932)
+    vn.request (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7639)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async a (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:99:6935)
+    async withDatabase (/home/user/typle-r/tests/apiDatabase.test.cjs:30:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: listSummary and listDetail never expose records or the shareId
+ok 14 - listSummary and listDetail never expose records or the shareId
+  ---
+  duration_ms: 3.643637
+  type: 'test'
+  ...
+# Subtest: findList throws listNotFound
+ok 15 - findList throws listNotFound
+  ---
+  duration_ms: 0.883216
+  type: 'test'
+  ...
+# Subtest: decodeNewList and decodeListPatch validate the shape
+ok 16 - decodeNewList and decodeListPatch validate the shape
+  ---
+  duration_ms: 1.085884
+  type: 'test'
+  ...
+# Subtest: createList appends a validated list
+ok 17 - createList appends a validated list
+  ---
+  duration_ms: 2.883395
+  type: 'test'
+  ...
+# Subtest: updateList keeps records, sharing, name and creation date unless changed
+ok 18 - updateList keeps records, sharing, name and creation date unless changed
+  ---
+  duration_ms: 1.138454
+  type: 'test'
+  ...
+# Subtest: updateList returns the same lists when nothing changes, so no revision is spent
+ok 19 - updateList returns the same lists when nothing changes, so no revision is spent
+  ---
+  duration_ms: 0.831168
+  type: 'test'
+  ...
+# Subtest: deleteList removes one list
+ok 20 - deleteList removes one list
+  ---
+  duration_ms: 0.266003
+  type: 'test'
+  ...
+# Subtest: decodeNewRecord validates and normalizes the date
+ok 21 - decodeNewRecord validates and normalizes the date
+  ---
+  duration_ms: 0.87961
+  type: 'test'
+  ...
+# Subtest: addApiRecord stores the record, the device snapshot and replays by id
+ok 22 - addApiRecord stores the record, the device snapshot and replays by id
+  ---
+  duration_ms: 2.792523
+  type: 'test'
+  ...
+# Subtest: selectRecords sorts newest first and filters by since and limit
+ok 23 - selectRecords sorts newest first and filters by since and limit
+  ---
+  duration_ms: 1.952676
+  type: 'test'
+  ...
+# Subtest: token limits are fixed
+ok 24 - token limits are fixed
+  ---
+  duration_ms: 2.186479
+  type: 'test'
+  ...
+# Subtest: a token request is trimmed and must name a known scope and lifetime
+ok 25 - a token request is trimmed and must name a known scope and lifetime
+  ---
+  duration_ms: 1.050293
+  type: 'test'
+  ...
+# Subtest: expiry is the given number of days after now, or never
+ok 26 - expiry is the given number of days after now, or never
+  ---
+  duration_ms: 0.444224
+  type: 'test'
+  ...
+# Subtest: write scope includes read
+ok 27 - write scope includes read
+  ---
+  duration_ms: 0.149165
+  type: 'test'
+  ...
+# Subtest: a secret is the prefix plus 43 base64url characters
+ok 28 - a secret is the prefix plus 43 base64url characters
+  ---
+  duration_ms: 0.294692
+  type: 'test'
+  ...
+# Subtest: a bearer header yields the secret only when it is well formed
+ok 29 - a bearer header yields the secret only when it is well formed
+  ---
+  duration_ms: 0.293667
+  type: 'test'
+  ...
+# Subtest: token summaries read from a response must be well formed
+ok 30 - token summaries read from a response must be well formed
+  ---
+  duration_ms: 0.591908
+  type: 'test'
+  ...
+# Subtest: all 193 country entries match the provided source and decode in Typle
+ok 31 - all 193 country entries match the provided source and decode in Typle
+  ---
+  duration_ms: 1.80464
+  type: 'test'
+  ...
+# Subtest: country input is the pinyin without tone marks, apostrophes or brackets
+ok 32 - country input is the pinyin without tone marks, apostrophes or brackets
+  ---
+  duration_ms: 1.493479
+  type: 'test'
+  ...
+# Subtest: local login requires explicit development opt-in, secret and loopback URL
+ok 33 - local login requires explicit development opt-in, secret and loopback URL
+  ---
+  duration_ms: 0.383397
+  type: 'test'
+  ...
+# Subtest: LAN login only permits an explicitly selected private IPv4 in development
+ok 34 - LAN login only permits an explicitly selected private IPv4 in development
+  ---
+  duration_ms: 0.305768
+  type: 'test'
+  ...
+# Subtest: record and list IDs work without secure-context randomUUID
+ok 35 - record and list IDs work without secure-context randomUUID
+  ---
+  duration_ms: 21.632555
+  type: 'test'
+  ...
+# Subtest: the initial lists are valid saved lists with distinct ids and no records
+ok 36 - the initial lists are valid saved lists with distinct ids and no records
+  ---
+  duration_ms: 14.31991
+  type: 'test'
+  ...
+# Subtest: weeks start on local Monday and records split by local day, not UTC
+ok 37 - weeks start on local Monday and records split by local day, not UTC
+  ---
+  duration_ms: 1.633432
+  type: 'test'
+  ...
+# Subtest: summary compares with the same point of last week and counts the streak
+ok 38 - summary compares with the same point of last week and counts the streak
+  ---
+  duration_ms: 0.41856
+  type: 'test'
+  ...
+# Subtest: streak continues from yesterday until the user practices today
+ok 39 - streak continues from yesterday until the user practices today
+  ---
+  duration_ms: 0.209565
+  type: 'test'
+  ...
+# Subtest: accuracy averages the latest ten records with accuracy and compares with the ten before
+ok 40 - accuracy averages the latest ten records with accuracy and compares with the ten before
+  ---
+  duration_ms: 1.680424
+  type: 'test'
+  ...
+# Subtest: next lists rotate through unused, neglected and inaccurate lists
+ok 41 - next lists rotate through unused, neglected and inaccurate lists
+  ---
+  duration_ms: 0.71324
+  type: 'test'
+  ...
+# Subtest: trends use seconds per word, skip incomplete legacy records and order by last practice
+ok 42 - trends use seconds per word, skip incomplete legacy records and order by last practice
+  ---
+  duration_ms: 0.59954
+  type: 'test'
+  ...
+# Subtest: trends keep the latest twenty points and compare five against five
+ok 43 - trends keep the latest twenty points and compare five against five
+  ---
+  duration_ms: 0.521463
+  type: 'test'
+  ...
+# Subtest: chart scales use three even, readable ticks
+ok 44 - chart scales use three even, readable ticks
+  ---
+  duration_ms: 0.660735
+  type: 'test'
+  ...
+# Subtest: durations split into units, and days are named relative to today
+ok 45 - durations split into units, and days are named relative to today
+  ---
+  duration_ms: 0.402963
+  type: 'test'
+  ...
+# Subtest: the SSL modes pg treats as verify-full are named verify-full
+ok 46 - the SSL modes pg treats as verify-full are named verify-full
+  ---
+  duration_ms: 1.604552
+  type: 'test'
+  ...
+# Subtest: other connection strings are left as they are
+ok 47 - other connection strings are left as they are
+  ---
+  duration_ms: 0.365373
+  type: 'test'
+  ...
+# Subtest: device validation rejects malformed, duplicate and oversized data
+ok 48 - device validation rejects malformed, duplicate and oversized data
+  ---
+  duration_ms: 2.970426
+  type: 'test'
+  ...
+# Subtest: a browser practises on the built-in default device until it chooses another or 未選択
+ok 49 - a browser practises on the built-in default device until it chooses another or 未選択
+  ---
+  duration_ms: 0.348346
+  type: 'test'
+  ...
+# Subtest: device problems name the field to fix and the message to show
+ok 50 - device problems name the field to fix and the message to show
+  ---
+  duration_ms: 0.94988
+  type: 'test'
+  ...
+# Subtest: device usage counts records by device id, including renamed snapshots
+ok 51 - device usage counts records by device id, including renamed snapshots
+  ---
+  duration_ms: 0.250474
+  type: 'test'
+  ...
+# Subtest: records snapshot the device and remain compatible with legacy data
+ok 52 - records snapshot the device and remain compatible with legacy data
+  ---
+  duration_ms: 0.873312
+  type: 'test'
+  ...
+# Subtest: exported CSV round-trips Unicode, exact whitespace, duplicates, quotes and newlines
+ok 53 - exported CSV round-trips Unicode, exact whitespace, duplicates, quotes and newlines
+  ---
+  duration_ms: 2.881234
+  type: 'test'
+  ...
+# Subtest: filenames retain readable names and remove path and reserved characters
+ok 54 - filenames retain readable names and remove path and reserved characters
+  ---
+  duration_ms: 0.816019
+  type: 'test'
+  ...
+# Subtest: files are read by their extension, in any case, and other files are refused
+ok 55 - files are read by their extension, in any case, and other files are refused
+  ---
+  duration_ms: 0.486886
+  type: 'test'
+  ...
+# Subtest: guest workspace retains lists, records, devices and deliberately empty lists
+ok 56 - guest workspace retains lists, records, devices and deliberately empty lists
+  ---
+  duration_ms: 3.40024
+  type: 'test'
+  ...
+# Subtest: stale revisions and account changes cannot overwrite guest data
+ok 57 - stale revisions and account changes cannot overwrite guest data
+  ---
+  duration_ms: 1.892367
+  type: 'test'
+  ...
+# Subtest: corrupt or unsupported storage is preserved
+ok 58 - corrupt or unsupported storage is preserved
+  ---
+  duration_ms: 0.512713
+  type: 'test'
+  ...
+# Subtest: quota and oversized writes retain the previous data
+ok 59 - quota and oversized writes retain the previous data
+  ---
+  duration_ms: 12.96035
+  type: 'test'
+  ...
+# Subtest: the workspace is always kept in this browser, and the store follows other tabs
+ok 60 - the workspace is always kept in this browser, and the store follows other tabs
+  ---
+  duration_ms: 7.49065
+  type: 'test'
+  ...
+# Subtest: every language has the same message files and keys as Japanese
+ok 61 - every language has the same message files and keys as Japanese
+  ---
+  duration_ms: 25.862911
+  type: 'test'
+  ...
+# Subtest: every message file is part of the message type
+ok 62 - every message file is part of the message type
+  ---
+  duration_ms: 0.385979
+  type: 'test'
+  ...
+# Subtest: messages are valid ICU and use the same placeholders in every language
+ok 63 - messages are valid ICU and use the same placeholders in every language
+  ---
+  duration_ms: 129.032897
+  type: 'test'
+  ...
+# Subtest: source files have no hard-coded Japanese text
+ok 64 - source files have no hard-coded Japanese text
+  ---
+  duration_ms: 475.724427
+  type: 'test'
+  ...
+# Subtest: CSV supports BOM, CRLF, reordered headers, escaped quotes and multiline annotations
+ok 65 - CSV supports BOM, CRLF, reordered headers, escaped quotes and multiline annotations
+  ---
+  duration_ms: 2.696422
+  type: 'test'
+  ...
+# Subtest: TSV allows missing annotation and blank lines
+ok 66 - TSV allows missing annotation and blank lines
+  ---
+  duration_ms: 0.358642
+  type: 'test'
+  ...
+# Subtest: invalid imports fail rather than partially importing
+ok 67 - invalid imports fail rather than partially importing
+  ---
+  duration_ms: 5.633746
+  type: 'test'
+  ...
+# Subtest: CSV preserves whitespace and duplicates through JSON save while rejecting empty records
+ok 68 - CSV preserves whitespace and duplicates through JSON save while rejecting empty records
+  ---
+  duration_ms: 69.034113
+  type: 'test'
+  ...
+# Subtest: overviews count practice and find the latest valid date
+ok 69 - overviews count practice and find the latest valid date
+  ---
+  duration_ms: 3.336186
+  type: 'test'
+  ...
+# Subtest: orders: newest added first, recently practised with unpractised last, natural name order, most words
+ok 70 - orders: newest added first, recently practised with unpractised last, natural name order, most words
+  ---
+  duration_ms: 11.673596
+  type: 'test'
+  ...
+# Subtest: search matches the name and the words, ignoring case
+ok 71 - search matches the name and the words, ignoring case
+  ---
+  duration_ms: 0.34617
+  type: 'test'
+  ...
+# Subtest: preview shows the first words and how many more there are
+ok 72 - preview shows the first words and how many more there are
+  ---
+  duration_ms: 0.343138
+  type: 'test'
+  ...
+# Subtest: only runs at the current word count count towards the best
+ok 73 - only runs at the current word count count towards the best
+  ---
+  duration_ms: 0.16788
+  type: 'test'
+  ...
+# Subtest: a copy gets a free name, the same words and no records
+ok 74 - a copy gets a free name, the same words and no records
+  ---
+  duration_ms: 1.156097
+  type: 'test'
+  ...
+# Subtest: a copy of a shared list is not shared
+ok 75 - a copy of a shared list is not shared
+  ---
+  duration_ms: 0.283657
+  type: 'test'
+  ...
+# Subtest: accuracy-first ranks by accuracy then time; speed-first by time then accuracy; missing accuracy is last
+ok 76 - accuracy-first ranks by accuracy then time; speed-first by time then accuracy; missing accuracy is last
+  ---
+  duration_ms: 3.726498
+  type: 'test'
+  ...
+# Subtest: only runs at the current word count are compared, unless there are none
+ok 77 - only runs at the current word count are compared, unless there are none
+  ---
+  duration_ms: 0.985456
+  type: 'test'
+  ...
+# Subtest: a list ranking separates other word counts and can include them
+ok 78 - a list ranking separates other word counts and can include them
+  ---
+  duration_ms: 0.984899
+  type: 'test'
+  ...
+# Subtest: filtering by device ranks only that device, and falls back when it has no run at the current word count
+ok 79 - filtering by device ranks only that device, and falls back when it has no run at the current word count
+  ---
+  duration_ms: 0.628163
+  type: 'test'
+  ...
+# Subtest: 「更新」 marks a best set in the last 7 days that beat an earlier run
+ok 80 - 「更新」 marks a best set in the last 7 days that beat an earlier run
+  ---
+  duration_ms: 0.483172
+  type: 'test'
+  ...
+# Subtest: lists sort by last practice, name or record count
+ok 81 - lists sort by last practice, name or record count
+  ---
+  duration_ms: 12.593585
+  type: 'test'
+  ...
+# Subtest: stats use the latest five runs and the chart the latest twenty, oldest first
+ok 82 - stats use the latest five runs and the chart the latest twenty, oldest first
+  ---
+  duration_ms: 0.877877
+  type: 'test'
+  ...
+# Subtest: device options count by id with the newest name, and put records without a device last
+ok 83 - device options count by id with the newest name, and put records without a device last
+  ---
+  duration_ms: 0.462593
+  type: 'test'
+  ...
+# Subtest: completed records survive reload and editing; retry never duplicates
+ok 84 - completed records survive reload and editing; retry never duplicates
+  ---
+  duration_ms: 3.012064
+  type: 'test'
+  ...
+# Subtest: record rows are newest first and mark the current best of each list
+ok 85 - record rows are newest first and mark the current best of each list
+  ---
+  duration_ms: 0.827237
+  type: 'test'
+  ...
+# Subtest: filters match lists and devices by id, including records without a device
+ok 86 - filters match lists and devices by id, including records without a device
+  ---
+  duration_ms: 0.474029
+  type: 'test'
+  ...
+# Subtest: rows are grouped by local day with the practice time of each day
+ok 87 - rows are grouped by local day with the practice time of each day
+  ---
+  duration_ms: 0.366547
+  type: 'test'
+  ...
+# Subtest: times keep hundredths and split minutes without showing 60 seconds
+ok 88 - times keep hundredths and split minutes without showing 60 seconds
+  ---
+  duration_ms: 0.230552
+  type: 'test'
+  ...
+# Subtest: per-word speed and accuracy fall back to a dash for older records
+ok 89 - per-word speed and accuracy fall back to a dash for older records
+  ---
+  duration_ms: 0.155174
+  type: 'test'
+  ...
+# Subtest: record ordering and deletion preserve other lists and legacy records
+ok 90 - record ordering and deletion preserve other lists and legacy records
+  ---
+  duration_ms: 2.476459
+  type: 'test'
+  ...
+# Subtest: workspace transport validates responses and preserves conflict status
+ok 91 - workspace transport validates responses and preserves conflict status
+  ---
+  duration_ms: 47.006319
+  type: 'test'
+  ...
+# Subtest: error reporting removes workspace payloads, identity and request secrets
+ok 92 - error reporting removes workspace payloads, identity and request secrets
+  ---
+  duration_ms: 4.720366
+  type: 'test'
+  ...
+# Subtest: browser exceptions without request metadata remain reportable
+ok 93 - browser exceptions without request metadata remain reportable
+  ---
+  duration_ms: 5.333
+  type: 'test'
+  ...
+# Subtest: share ids are UUIDs
+ok 94 - share ids are UUIDs
+  ---
+  duration_ms: 1.61879
+  type: 'test'
+  ...
+# Subtest: a shared list from the server is checked
+ok 95 - a shared list from the server is checked
+  ---
+  duration_ms: 2.437976
+  type: 'test'
+  ...
+# Subtest: a copy of a shared list is a new list without records or sharing
+ok 96 - a copy of a shared list is a new list without records or sharing
+  ---
+  duration_ms: 1.208439
+  type: 'test'
+  ...
+# Subtest: shared keys and stripping share ids
+ok 97 - shared keys and stripping share ids
+  ---
+  duration_ms: 0.443836
+  type: 'test'
+  ...
+# Subtest: the shared note reads as its own sentence after the delete description
+ok 98 - the shared note reads as its own sentence after the delete description
+  ---
+  duration_ms: 3.460469
+  type: 'test'
+  ...
+# Subtest: mistakes require correction; advance and finish exactly once
+ok 99 - mistakes require correction; advance and finish exactly once
+  ---
+  duration_ms: 5.382098
+  type: 'test'
+  ...
+# Subtest: empty lists and unicode input are handled
+ok 100 - empty lists and unicode input are handled
+  ---
+  duration_ms: 0.223851
+  type: 'test'
+  ...
+# Subtest: compareInput marks everything after the first mismatch as an error
+ok 101 - compareInput marks everything after the first mismatch as an error
+  ---
+  duration_ms: 0.52679
+  type: 'test'
+  ...
+# Subtest: typingSpeed counts correct characters per minute after one second
+ok 102 - typingSpeed counts correct characters per minute after one second
+  ---
+  duration_ms: 0.179793
+  type: 'test'
+  ...
+# Subtest: create, edit, reorder, delete and reload lists
+ok 103 - create, edit, reorder, delete and reload lists
+  ---
+  duration_ms: 3.237891
+  type: 'test'
+  ...
+# Subtest: reject invalid, duplicate, deleted and corrupt data
+ok 104 - reject invalid, duplicate, deleted and corrupt data
+  ---
+  duration_ms: 0.682654
+  type: 'test'
+  ...
+# Subtest: sharing is kept on lists and survives edits
+ok 105 - sharing is kept on lists and survives edits
+  ---
+  duration_ms: 1.076493
+  type: 'test'
+  ...
+# Subtest: Prisma repository isolates owners and atomically rejects stale revisions
+not ok 106 - Prisma repository isolates owners and atomically rejects stale revisions
+  ---
+  duration_ms: 153.384912
+  type: 'test'
+  location: '/home/user/typle-r/tests/workspace.test.cjs:15:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    
+    Invalid `db.workspace.deleteMany()` invocation in
+    /home/user/typle-r/tests/workspace.test.cjs:32:24
+    
+      29   assert.equal((await repo.write(owner, 2, lists(2, []))).revision, 3)
+      30   assert.deepEqual(await repo.read(owner), empty(3))
+      31 } finally {
+    → 32   await db.workspace.deleteMany(
+    Can't reach database server at 127.0.0.1:5432
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    vn.handleRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:8643)
+    vn.handleAndLogRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7932)
+    vn.request (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7639)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async a (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:99:6935)
+    async TestContext.<anonymous> (/home/user/typle-r/tests/workspace.test.cjs:32:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: migration is explicit, repeatable and preserves colliding names and records
+ok 107 - migration is explicit, repeatable and preserves colliding names and records
+  ---
+  duration_ms: 6.190677
+  type: 'test'
+  ...
+# Subtest: request validation keeps sharing but drops share ids sent by the client
+ok 108 - request validation keeps sharing but drops share ids sent by the client
+  ---
+  duration_ms: 0.696942
+  type: 'test'
+  ...
+# Subtest: request validation rejects invalid revisions and oversized fields
+ok 109 - request validation rejects invalid revisions and oversized fields
+  ---
+  duration_ms: 1.454214
+  type: 'test'
+  ...
+# Subtest: devices sync per owner, survive older clients, and share revision conflicts
+not ok 110 - devices sync per owner, survive older clients, and share revision conflicts
+  ---
+  duration_ms: 8.797643
+  type: 'test'
+  location: '/home/user/typle-r/tests/workspace.test.cjs:69:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    
+    Invalid `db.workspace.deleteMany()` invocation in
+    /home/user/typle-r/tests/workspace.test.cjs:87:24
+    
+      84   assert.deepEqual(stored.devices, [])
+      85   assert.deepEqual(stored.lists[0].records[0].device, device)
+      86 } finally {
+    → 87   await db.workspace.deleteMany(
+    Can't reach database server at 127.0.0.1:5432
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    vn.handleRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:8643)
+    vn.handleAndLogRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7932)
+    vn.request (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7639)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async a (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:99:6935)
+    async TestContext.<anonymous> (/home/user/typle-r/tests/workspace.test.cjs:87:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: shared lists follow the workspace and keep their link while shared
+not ok 111 - shared lists follow the workspace and keep their link while shared
+  ---
+  duration_ms: 7.159313
+  type: 'test'
+  location: '/home/user/typle-r/tests/workspace.test.cjs:92:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    
+    Invalid `db.sharedList.deleteMany()` invocation in
+    /home/user/typle-r/tests/workspace.test.cjs:130:25
+    
+      127   assert.notEqual(state.lists[0].shareId, theirs)
+      128   assert.equal((await repo.readShared(theirs)).name, 'Theirs')
+      129 } finally {
+    → 130   await db.sharedList.deleteMany(
+    Can't reach database server at 127.0.0.1:5432
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    vn.handleRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:8643)
+    vn.handleAndLogRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7932)
+    vn.request (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7639)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async a (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:99:6935)
+    async TestContext.<anonymous> (/home/user/typle-r/tests/workspace.test.cjs:130:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: saves that do not change a shared list leave its link untouched
+not ok 112 - saves that do not change a shared list leave its link untouched
+  ---
+  duration_ms: 7.472828
+  type: 'test'
+  location: '/home/user/typle-r/tests/workspace.test.cjs:136:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    
+    Invalid `db.sharedList.deleteMany()` invocation in
+    /home/user/typle-r/tests/workspace.test.cjs:156:25
+    
+      153   assert.ok(await updatedAt(shareId) > before)
+      154   assert.deepEqual((await repo.readShared(shareId)).words, [{ display: 'b', input: 'b', annotation: '' }])
+      155 } finally {
+    → 156   await db.sharedList.deleteMany(
+    Can't reach database server at 127.0.0.1:5432
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    vn.handleRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:8643)
+    vn.handleAndLogRequestError (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7932)
+    vn.request (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:65:7639)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async a (/home/user/typle-r/node_modules/@prisma/client/runtime/client.js:99:6935)
+    async TestContext.<anonymous> (/home/user/typle-r/tests/workspace.test.cjs:156:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: lists of removed profiles follow the first profile’s, with clashing ids and names made unique
+ok 113 - lists of removed profiles follow the first profile’s, with clashing ids and names made unique
+  ---
+  duration_ms: 2.821011
+  type: 'test'
+  ...
+# Subtest: a name clashing again gets a number, and long names stay within the limit
+ok 114 - a name clashing again gets a number, and long names stay within the limit
+  ---
+  duration_ms: 0.462998
+  type: 'test'
+  ...
+# Subtest: data without removed profiles reads as it is
+ok 115 - data without removed profiles reads as it is
+  ---
+  duration_ms: 0.524589
+  type: 'test'
+  ...
+# Subtest: a change may keep merged lists above the limit or lower them, but not add more
+ok 116 - a change may keep merged lists above the limit or lower them, but not add more
+  ---
+  duration_ms: 0.610747
+  type: 'test'
+  ...
+# Subtest: guest data with profiles is merged once with a new revision, and saves read before it conflict
+ok 117 - guest data with profiles is merged once with a new revision, and saves read before it conflict
+  ---
+  duration_ms: 4.024647
+  type: 'test'
+  ...
+# Subtest: an empty workspace shows the initial lists, a saved one its own lists
+ok 118 - an empty workspace shows the initial lists, a saved one its own lists
+  ---
+  duration_ms: 2.369088
+  type: 'test'
+  ...
+# Subtest: results that arrive after the account changed are never shown
+ok 119 - results that arrive after the account changed are never shown
+  ---
+  duration_ms: 0.763795
+  type: 'test'
+  ...
+# Subtest: a read with a lower revision is shown, as when the browser data was cleared
+ok 120 - a read with a lower revision is shown, as when the browser data was cleared
+  ---
+  duration_ms: 0.195751
+  type: 'test'
+  ...
+# Subtest: nothing is saved before the first load, and only one save runs at a time
+ok 121 - nothing is saved before the first load, and only one save runs at a time
+  ---
+  duration_ms: 0.522286
+  type: 'test'
+  ...
+# Subtest: the first save keeps the initial lists unless the change starts from nothing
+ok 122 - the first save keeps the initial lists unless the change starts from nothing
+  ---
+  duration_ms: 0.384126
+  type: 'test'
+  ...
+# Subtest: a save that lost to another screen shows the latest data and reports the conflict
+ok 123 - a save that lost to another screen shows the latest data and reports the conflict
+  ---
+  duration_ms: 9.817514
+  type: 'test'
+  ...
+# Subtest: a save that finishes after the account changed is dropped quietly
+ok 124 - a save that finishes after the account changed is dropped quietly
+  ---
+  duration_ms: 0.610872
+  type: 'test'
+  ...
+# Subtest: a save answered for another account is an error, not shown
+ok 125 - a save answered for another account is an error, not shown
+  ---
+  duration_ms: 0.362761
+  type: 'test'
+  ...
+# Subtest: a change that throws is reported and nothing is written
+ok 126 - a change that throws is reported and nothing is written
+  ---
+  duration_ms: 0.604556
+  type: 'test'
+  ...
+# Subtest: devices change with the lists left as they are
+ok 127 - devices change with the lists left as they are
+  ---
+  duration_ms: 1.403923
+  type: 'test'
+  ...
+1..127
+# tests 127
+# suites 0
+# pass 111
+# fail 16
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4500.425949

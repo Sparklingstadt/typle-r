@@ -2,7 +2,7 @@ import { AppError, type ErrorKey } from '../../../core/appError'
 import { decodeDevices } from '../../../core/devices'
 import { decodeSharedList } from '../../../core/sharedLists'
 import { decodeLists } from '../../../core/wordLists'
-import { WorkspaceError, type WorkspaceState, type WorkspaceStore, type WorkspaceWrite } from '../../../core/workspaceStore'
+import { WorkspaceError, type WorkspaceState, type WorkspaceWrite } from '../../../core/workspaceStore'
 
 async function requestWorkspace(url: string, init?: RequestInit): Promise<WorkspaceState> {
   const response = await fetch(url, { cache: 'no-store', ...init })
@@ -24,9 +24,6 @@ export function readWorkspace() {
 export function writeWorkspace(request: WorkspaceWrite) {
   return requestWorkspace('/api/workspace', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(request) })
 }
-
-/** The account's workspace on the server, through `/api/workspace`. */
-export const cloudStore: WorkspaceStore = { location: 'account', read: readWorkspace, write: writeWorkspace, staleReads: true }
 
 /** The list behind a share link. No login is needed; a list that is no longer shared rejects with `sharedListNotFound`. */
 export async function readSharedList(id: string) {
