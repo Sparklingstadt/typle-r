@@ -3,5 +3,5 @@
   "git": {
     "deploymentEnabled": false
   },
-  "buildCommand": "npm run db:migrate && npm run build"
+  "buildCommand": "npm run build"
 }

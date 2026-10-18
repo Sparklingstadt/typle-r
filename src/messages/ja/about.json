@@ -43,7 +43,7 @@
     "title": "バージョンと開発",
     "version": "バージョン",
     "tech": "使用している技術",
-    "techList": "Next.js・React・PostgreSQL（Neon）",
+    "techList": "Next.js・React",
     "source": "ソースコード",
     "newTab": "（新しいタブで開く）",
     "private": "非公開のリポジトリです。閲覧を許可されたGitHubアカウントでのみ開けます。"

@@ -43,7 +43,7 @@
     "title": "Version et développement",
     "version": "Version",
     "tech": "Technologies utilisées",
-    "techList": "Next.js, React, PostgreSQL (Neon)",
+    "techList": "Next.js, React",
     "source": "Code source",
     "newTab": "(s’ouvre dans un nouvel onglet)",
     "private": "Ce dépôt est privé. Seuls les comptes GitHub autorisés peuvent l’ouvrir."

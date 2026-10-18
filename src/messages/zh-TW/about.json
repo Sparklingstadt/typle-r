@@ -43,7 +43,7 @@
     "title": "版本與開發",
     "version": "版本",
     "tech": "使用的技術",
-    "techList": "Next.js、React、PostgreSQL（Neon）",
+    "techList": "Next.js、React",
     "source": "原始碼",
     "newTab": "（在新分頁中開啟）",
     "private": "這是不公開的存放庫，只有獲准檢視的 GitHub 帳號才能開啟。"
