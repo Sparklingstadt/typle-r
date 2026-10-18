@@ -17,9 +17,9 @@ test('migration is explicit, repeatable and preserves colliding names and record
   assert.equal(source[0].id, 'one')
 })
 
-test('request validation keeps sharing but drops share ids sent by the client', () => {
+test('request validation drops sharing fields sent by older screens', () => {
   const [sent] = validateWorkspaceRequest({ revision: 1, lists: [{ ...list, shared: true, shareId: 'x' }] }).lists
-  assert.equal(sent.shared, true)
+  assert.equal('shared' in sent, false)
   assert.equal('shareId' in sent, false)
 })
 

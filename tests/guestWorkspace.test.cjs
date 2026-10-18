@@ -58,3 +58,13 @@ test('the workspace is always kept in this browser, and the store follows other 
     assert.equal(changes.length, 2)
   } finally { globalThis.window = previous }
 })
+
+test('guest data with old sharing fields loads and the next write drops them', () => {
+  const store = storage()
+  store.setItem(GUEST_STORAGE_KEY, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists: [{ ...list, shared: true, shareId: 'x' }], devices: [] }))
+  const loaded = readGuestWorkspace(store)
+  assert.equal('shared' in loaded.lists[0], false)
+  writeGuestWorkspace({ accountId: 'guest:local', revision: 1, lists: loaded.lists }, store)
+  const raw = store.getItem(GUEST_STORAGE_KEY)
+  assert.doesNotMatch(raw, /shared|shareId/)
+})

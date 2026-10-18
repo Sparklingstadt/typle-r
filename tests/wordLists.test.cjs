@@ -21,12 +21,11 @@ test('reject invalid, duplicate, deleted and corrupt data', () => {
   assert.throws(() => decodeLists('{"version":2,"lists":[]}'))
   assert.throws(() => decodeLists(JSON.stringify({ version: 1, lists: [list, list] })))
 })
-test('sharing is kept on lists and survives edits', () => {
-  const uuid = '0b7c6f0e-9d2a-4a3b-8c1d-2e3f4a5b6c7d'
-  assert.equal(decodeLists(encodeLists([{ ...list, shared: true, shareId: uuid }]))[0].shared, true)
-  for (const extra of [{ shared: false }, { shared: 'yes' }, { shareId: 1 }]) {
-    assert.throws(() => decodeLists(JSON.stringify({ version: 1, lists: [{ ...list, ...extra }] })), { key: 'savedDataCorrupted' })
+test('decodeLists drops sharing fields saved by older versions', () => {
+  const lists = decodeLists(JSON.stringify({ version: 1, lists: [{ ...list, shared: true, shareId: 'x' }, { ...list, id: 'b', name: 'Second', shared: 'yes' }] }))
+  assert.deepEqual(lists.map(item => item.id), ['a', 'b'])
+  for (const item of lists) {
+    assert.equal('shared' in item, false)
+    assert.equal('shareId' in item, false)
   }
-  assert.equal(saveList([{ ...list, shared: true }], { ...list, name: 'New' }, true)[0].shared, true)
-  assert.equal(saveList([list], { ...list, name: 'New' }, true)[0].shared, undefined)
 })
