@@ -22,7 +22,7 @@ test('mid-practice switching asks first, Esc restarts and a lost focus can be re
   const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
   const progress = page.getByRole('progressbar', { name: '単語の進捗' })
   await expect(input).toBeFocused()
-  await page.getByRole('button', { name: '使用端末：未選択', exact: true }).click()
+  await page.getByRole('button', { name: '使用端末：デフォルト', exact: true }).click()
   await page.getByRole('menuitemradio', { name: 'Mac（JIS）', exact: true }).click()
   await expect(input).toBeFocused()
 

@@ -1,7 +1,7 @@
 require('./register.cjs')
 const test = require('node:test')
 const assert = require('node:assert/strict')
-const { decodeDevices, saveDevice, deviceProblem, deviceUsage, MAX_DEVICES } = require('../src/core/devices.ts')
+const { decodeDevices, saveDevice, deviceProblem, deviceUsage, chosenDevice, deviceExists, DEFAULT_DEVICE_ID, MAX_DEVICES } = require('../src/core/devices.ts')
 const { decodeLists } = require('../src/core/wordLists.ts')
 const { validateWorkspaceRequest } = require('../src/core/workspaceRequest.ts')
 const { makeRecord } = require('../src/core/records.ts')
@@ -15,6 +15,21 @@ test('device validation rejects malformed, duplicate and oversized data', () => 
   }
   assert.throws(() => saveDevice([device], { ...device, id: 'other', name: 'macbook' }, false))
   assert.throws(() => saveDevice([], device, true))
+  // The built-in device is never stored, so a registered device may not take its id.
+  assert.throws(() => decodeDevices([{ ...device, id: DEFAULT_DEVICE_ID }]))
+})
+
+test('a browser practises on the built-in default device until it chooses another or 未選択', () => {
+  const builtIn = { id: DEFAULT_DEVICE_ID, name: 'デフォルト', layout: '' }
+  assert.deepEqual(chosenDevice([device], null, 'デフォルト'), builtIn)
+  assert.deepEqual(chosenDevice([device], DEFAULT_DEVICE_ID, 'デフォルト'), builtIn)
+  assert.equal(chosenDevice([device], 'mac', 'デフォルト'), device)
+  assert.equal(chosenDevice([device], '', 'デフォルト'), undefined)
+  // A choice whose device was deleted elsewhere falls back to the default rather than to 未選択.
+  assert.deepEqual(chosenDevice([], 'mac', 'Default'), { ...builtIn, name: 'Default' })
+  assert.equal(deviceExists([], DEFAULT_DEVICE_ID), true)
+  assert.equal(deviceExists([device], 'mac'), true)
+  assert.equal(deviceExists([], 'mac'), false)
 })
 
 test('device problems name the field to fix and the message to show', () => {
@@ -30,6 +45,7 @@ test('device problems name the field to fix and the message to show', () => {
   const many = Array.from({ length: MAX_DEVICES }, (_, index) => ({ id: `d${index}`, name: `Device ${index}`, layout: '' }))
   assert.deepEqual(problem(many, { id: 'new', name: 'New' }), { field: 'form', key: 'deviceLimit', values: { max: MAX_DEVICES } })
   assert.equal(problem(many, { id: 'd0', name: 'Renamed' }, true), null)
+  assert.deepEqual(deviceProblem([], { ...device, name: ' default ' }, false, 'Default'), { field: 'name', key: 'deviceNameDuplicate', values: { name: 'Default' } })
   assert.throws(() => saveDevice([], { ...device, name: ' ' }, false), { key: 'deviceNameRequired' })
   assert.deepEqual(saveDevice([device], { ...device, name: ' MacBook Air ', layout: ' US ' }, true), [{ id: 'mac', name: 'MacBook Air', layout: 'US' }])
 })

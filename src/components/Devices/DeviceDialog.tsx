@@ -52,6 +52,7 @@ function DeviceForm({ device, devices, records, offerUse, saving, error, onCance
   const t = useTranslations('devices.dialog')
   const form = useTranslations('common.form')
   const errors = useTranslations('errors')
+  const defaultName = useTranslations('format')('defaultDevice')
   const draftId = useRef(device?.id ?? '')
   const [name, setName] = useState(device?.name ?? '')
   const [layout, setLayout] = useState(device?.layout ?? '')
@@ -69,7 +70,7 @@ function DeviceForm({ device, devices, records, offerUse, saving, error, onCance
     if (saving) return
     draftId.current ||= randomId()
     const draft = { id: draftId.current, name, layout }
-    const found = deviceProblem(devices, draft, editing)
+    const found = deviceProblem(devices, draft, editing, defaultName)
     setProblem(found)
     setFailed(false)
     if (found) {

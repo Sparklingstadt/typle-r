@@ -13,7 +13,7 @@ import RankingDetail from "@/components/Rankings/RankingDetail"
 import RankingList from "@/components/Rankings/RankingList"
 import { useFormat } from "@/i18n/useFormat"
 import { useWordLists } from "@/lib/useWordLists"
-import type { PracticeDevice } from "@/core/devices"
+import { deviceExists, type PracticeDevice } from "@/core/devices"
 import { deviceOptions, matchesDevice, NO_DEVICE, type RankOrder } from "@/core/records"
 import { listRanking, sortRankings, type ListSort } from "@/core/rankings"
 import type { SavedWordList } from "@/core/wordLists"
@@ -77,7 +77,7 @@ function RankingsView({ lists, devices }: { lists: SavedWordList[]; devices: Pra
 
   const devicesOptions = useMemo(() => deviceOptions(lists.flatMap(list => list.records)).map(({ value, device, count }) => {
     const label = format.recordDevice(device)
-    return { value, count, label: value === NO_DEVICE || devices.some(item => item.id === value) ? label : t('filter.deleted', { name: label }) }
+    return { value, count, label: value === NO_DEVICE || deviceExists(devices, value) ? label : t('filter.deleted', { name: label }) }
   }), [lists, devices, format, t])
   const device = devicesOptions.some(option => option.value === params.get('device')) ? params.get('device') : null
   const order: RankOrder = params.get('order') === 'speed' ? 'speed' : 'accuracy'

@@ -11,6 +11,7 @@
     "one": "{value}{unit}",
     "two": "{first}{firstUnit}{second}{secondUnit}"
   },
+  "defaultDevice": "デフォルト",
   "noDevice": "未記録",
   "noDeviceRecorded": "端末の記録なし",
   "deviceWithLayout": "{name}（{layout}）"

@@ -601,7 +601,8 @@ test('devices persist, are locked during practice, and survive rename and deleti
   await expect(deviceCell).toHaveAttribute('title', 'MacBook（JIS）')
   await expect(deviceCell).toContainText('削除済み')
   await page.goto('/play')
-  await expect(page.getByRole('button', { name: '使用端末：未選択', exact: true })).toBeVisible()
+  // Deleting the device in use goes back to the built-in default.
+  await expect(page.getByRole('button', { name: '使用端末：デフォルト', exact: true })).toBeVisible()
 })
 
 test('CSV import preserves existing records and exact strings after a failed save and retry', async ({ page }) => {

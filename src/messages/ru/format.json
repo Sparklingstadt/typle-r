@@ -11,6 +11,7 @@
     "one": "{value} {unit}",
     "two": "{first} {firstUnit} {second} {secondUnit}"
   },
+  "defaultDevice": "По умолчанию",
   "noDevice": "Не записано",
   "noDeviceRecorded": "Устройство не записано",
   "deviceWithLayout": "{name} ({layout})"

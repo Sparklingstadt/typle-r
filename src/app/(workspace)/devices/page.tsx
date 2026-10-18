@@ -5,8 +5,8 @@ import { Check, History, Monitor, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useFormat } from '@/i18n/useFormat'
 import { useWordLists } from '@/lib/useWordLists'
-import { useSelectedDevice } from '@/lib/deviceSelection'
-import { deviceUsage, MAX_DEVICES, saveDevice, type DeviceUsage, type PracticeDevice } from '@/core/devices'
+import { useChosenDevice } from '@/lib/deviceSelection'
+import { DEFAULT_DEVICE_ID, defaultDevice, deviceUsage, MAX_DEVICES, saveDevice, type DeviceUsage, type PracticeDevice } from '@/core/devices'
 import type { SavedWordList } from '@/core/wordLists'
 import { cn } from '@/lib/utils'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -50,7 +50,8 @@ function DeviceManager({ accountId, devices, lists, saving, error, updateDevices
   const notify = useSaveNotification()
   const t = useTranslations('devices')
   const format = useFormat()
-  const [selectedId, choose] = useSelectedDevice(accountId)
+  const defaultName = useTranslations('format')('defaultDevice')
+  const [selected, choose] = useChosenDevice(accountId, devices)
   const usage = useMemo(() => deviceUsage(lists), [lists])
   const [now] = useState(() => new Date())
   const usageText = (item: DeviceUsage | undefined) =>
@@ -66,7 +67,6 @@ function DeviceManager({ accountId, devices, lists, saving, error, updateDevices
   const opener = useRef<HTMLElement | null>(null)
   const deleted = useRef(false)
   const list = useRef<HTMLUListElement>(null)
-  const selected = devices.find(device => device.id === selectedId)
   const full = devices.length >= MAX_DEVICES
 
   // Briefly mark the row that was just added or changed, and bring it into view.
@@ -102,7 +102,7 @@ function DeviceManager({ accountId, devices, lists, saving, error, updateDevices
   }
 
   return <div className="space-y-8">
-    {devices.length > 0 && <CurrentDevice devices={devices} device={selected} onChange={choose} />}
+    <CurrentDevice devices={devices} device={selected} onChange={choose} />
     <section aria-labelledby="device-list-heading" className="space-y-3">
       <div className="flex min-h-11 flex-wrap items-center gap-x-2 gap-y-2">
         <h2 id="device-list-heading" tabIndex={-1} className="text-base font-bold outline-none">{t('listHeading')}</h2>
@@ -110,9 +110,10 @@ function DeviceManager({ accountId, devices, lists, saving, error, updateDevices
         {devices.length > 0 && <Button className="ml-auto" disabled={full || saving} onClick={() => openDialog(null)}><Plus aria-hidden="true" />{t('add')}</Button>}
       </div>
       {full && <p className="text-sm text-muted-foreground">{t('limit', { max: MAX_DEVICES })}</p>}
-      {devices.length ? <ul ref={list} className="divide-y overflow-hidden rounded-xl border bg-card">
-        {devices.map(device => {
+      <ul ref={list} className="divide-y overflow-hidden rounded-xl border bg-card">
+        {[defaultDevice(defaultName), ...devices].map(device => {
           const current = device.id === selected?.id
+          const builtIn = device.id === DEFAULT_DEVICE_ID
           return <li key={device.id} data-device-id={device.id}
             className={cn('grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3 gap-y-1.5 px-4 py-3.5 transition-colors duration-700 motion-reduce:transition-none sm:grid-cols-[auto_minmax(0,1fr)_10rem_auto] sm:items-center sm:gap-x-4 sm:px-5',
               highlight === device.id && 'bg-green-50 duration-0 dark:bg-green-950/40')}>
@@ -123,24 +124,26 @@ function DeviceManager({ accountId, devices, lists, saving, error, updateDevices
                 {current && <Badge variant="outline" className="border-green-200 bg-green-50 text-green-800 dark:border-green-900 dark:bg-green-950 dark:text-green-300"
                   title={t('inUseDetail')}><Check aria-hidden="true" />{t('inUse')}</Badge>}
               </div>
-              {device.layout && <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">{device.layout}</p>}
+              {builtIn ? <p className="text-sm text-muted-foreground">{t('defaultDetail')}</p>
+                : device.layout && <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">{device.layout}</p>}
             </div>
             <p className="col-start-1 row-start-2 flex items-center gap-1.5 text-xs text-muted-foreground tabular-nums sm:col-start-3 sm:row-start-1 sm:text-[13px]">
               <History className="size-3.5 shrink-0" aria-hidden="true" />{usageText(usage.get(device.id))}
             </p>
-            <div className="col-start-2 row-span-2 row-start-1 -mr-2 flex items-center sm:col-start-4 sm:row-span-1 sm:mr-0">
+            {!builtIn && <div className="col-start-2 row-span-2 row-start-1 -mr-2 flex items-center sm:col-start-4 sm:row-span-1 sm:mr-0">
               <Button variant="ghost" size="icon-lg" className="size-10 text-muted-foreground" disabled={saving}
                 aria-label={t('editLabel', { name: device.name })} title={t('edit')} onClick={() => openDialog(device)}><Pencil aria-hidden="true" /></Button>
               <Button variant="ghost" size="icon-lg" className="size-10 text-muted-foreground hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20" disabled={saving}
                 aria-label={t('deleteLabel', { name: device.name })} title={t('delete')} onClick={() => { remember(); deleted.current = false; setDeleting({ open: true, device }) }}><Trash2 aria-hidden="true" /></Button>
-            </div>
+            </div>}
           </li>
         })}
-      </ul> : <EmptyState onAdd={() => openDialog(null)} />}
+      </ul>
+      {!devices.length && <EmptyState onAdd={() => openDialog(null)} />}
     </section>
 
     <DeviceDialog state={dialog} devices={devices} records={dialog.device ? usage.get(dialog.device.id)?.count ?? 0 : 0}
-      offerUse={!selected} saving={saving} error={error} onSave={save} onCloseAutoFocus={restoreFocus}
+      offerUse={!selected || selected.id === DEFAULT_DEVICE_ID} saving={saving} error={error} onSave={save} onCloseAutoFocus={restoreFocus}
       onOpenChange={open => setDialog(current => ({ ...current, open }))} />
 
     {deleting.device && <DeleteConfirmation open={deleting.open} onOpenChange={open => setDeleting(current => ({ ...current, open }))}
@@ -157,7 +160,7 @@ function DeviceManager({ accountId, devices, lists, saving, error, updateDevices
         const saved = await updateDevices(current => current.filter(item => item.id !== device.id))
         if (saved) {
           deleted.current = true
-          if (device.id === selectedId) choose('')
+          if (device.id === selected?.id) choose(DEFAULT_DEVICE_ID)
           notify(t('deleted', { name: device.name }))
         }
         return saved
