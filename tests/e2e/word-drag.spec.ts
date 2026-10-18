@@ -5,14 +5,6 @@ for (const mobile of [false, true]) {
     await page.setViewportSize(mobile ? { width: 390, height: 844 } : { width: 1280, height: 900 })
     const errors: string[] = []
     page.on('pageerror', error => errors.push(error.message))
-    let workspace = { accountId: 'drag-test', revision: 1, lists: [] as unknown[] }
-    await page.route('**/api/auth/session', route => route.fulfill({ json: {
-      user: { id: 'drag-test', name: 'Drag Test' }, expires: '2099-01-01T00:00:00Z',
-    } }))
-    await page.route('**/api/workspace', async route => {
-      if (route.request().method() === 'PUT') workspace = { ...route.request().postDataJSON(), revision: workspace.revision + 1 }
-      await route.fulfill({ json: workspace })
-    })
     await page.goto('/create')
     await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('Drag list')
     for (let i = 1; i <= 3; i++) {

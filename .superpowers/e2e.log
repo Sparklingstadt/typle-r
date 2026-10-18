@@ -1,0 +1,167 @@
+
+Running 70 tests using 2 workers
+
+  ✓   2 tests/e2e/dashboard.spec.ts:18:5 › home keeps the introduction until the first practice record exists (1.1s)
+  ✓   1 tests/e2e/dashboard.spec.ts:24:5 › dashboard summarizes practice, suggests lists and opens the chosen list (1.9s)
+  ✓   3 tests/e2e/dashboard.spec.ts:61:5 › an unknown list parameter falls back to the first list (821ms)
+  ✓   4 tests/e2e/devices.spec.ts:21:5 › adding devices explains mistakes in place and remembers the device for this browser (3.4s)
+  ✓   5 tests/e2e/devices.spec.ts:77:5 › the device list shows usage, switches the practice device and keeps focus after deleting (3.9s)
+  ✓   6 tests/e2e/devices.spec.ts:129:5 › a full device list cannot grow and explains why (1.0s)
+  ✓   8 tests/e2e/guest.spec.ts:73:5 › corrupt local data remains untouched (747ms)
+  ✓   9 tests/e2e/guest.spec.ts:80:5 › quota failure keeps draft and allows retry (1.6s)
+  ✓  10 tests/e2e/guest.spec.ts:100:5 › guest changes propagate between tabs and deleted storage resets the workspace (2.5s)
+  ✓  11 tests/e2e/guest.spec.ts:111:5 › about page explains features and that data stays in this browser, and opens GitHub in a new tab (2.1s)
+  ✓   7 tests/e2e/guest.spec.ts:20:5 › guest can create, import, export, edit, practice, manage devices and delete (8.3s)
+  ✓  12 tests/e2e/guest.spec.ts:142:5 › a guest’s lists of removed profiles are merged after the first profile’s once (1.2s)
+  ✓  13 tests/e2e/guide.spec.ts:3:5 › the guide has a table of contents that jumps to each section below the top bar (1.3s)
+  ✓  14 tests/e2e/guide.spec.ts:21:5 › the guide links to each screen and shows the practice colors and keys (1.3s)
+  ✓  15 tests/e2e/guide.spec.ts:42:5 › on a phone the table of contents comes first and the page does not scroll sideways (998ms)
+  ✓  16 tests/e2e/play.spec.ts:17:5 › mid-practice switching asks first, Esc restarts and a lost focus can be resumed (2.6s)
+  ✓  17 tests/e2e/play.spec.ts:65:5 › the list picker filters lists and the result screen offers the next step (2.1s)
+  ✓  18 tests/e2e/play.spec.ts:92:5 › long text keeps its spaces and wraps inside the practice card at 390px (1.3s)
+  ✓  20 tests/e2e/practice.spec.ts:100:5 › damaged storage is not overwritten (919ms)
+  ✓  21 tests/e2e/practice.spec.ts:108:5 › supporting pages, root redirect and GitHub link (2.2s)
+  ✓  22 tests/e2e/practice.spec.ts:118:5 › IME commits advance once even with a duplicate input event (1.2s)
+  ✓  23 tests/e2e/practice.spec.ts:139:5 › failed record storage preserves result and can be retried (1.2s)
+  ✓  19 tests/e2e/practice.spec.ts:31:5 › create, reorder, edit, play, reload and delete records (7.9s)
+  ✓  24 tests/e2e/practice.spec.ts:151:5 › Tailwind editor remains accessible and fits mobile and desktop (2.8s)
+  ✓  25 tests/e2e/practice.spec.ts:175:5 › target text is coloured from the first mismatch, guides differing input and ignores IME composition (1.9s)
+  ✓  26 tests/e2e/practice.spec.ts:223:5 › optional word fields preserve overrides and annotations after saving (1.9s)
+  ✓  27 tests/e2e/practice.spec.ts:257:5 › mobile drawer closes by link, Esc and backdrop and returns focus to the menu button (2.5s)
+  ✓  28 tests/e2e/practice.spec.ts:289:5 › narrow desktop windows use the drawer so the page keeps its width (1.3s)
+  ✓  29 tests/e2e/practice.spec.ts:306:5 › desktop sidebar fits 1280×768, stays in view while scrolling, and the skip link reaches the page (1.7s)
+  ✓  30 tests/e2e/practice.spec.ts:336:5 › best five records sort by accuracy then time and refresh after practice (2.5s)
+  ✓  32 tests/e2e/practice.spec.ts:399:7 › csv import validates, previews, appends and persists words (2.2s)
+  ✓  33 tests/e2e/practice.spec.ts:399:7 › tsv import validates, previews, appends and persists words (2.3s)
+  ✓  31 tests/e2e/practice.spec.ts:375:5 › save and delete notifications stack and animate before being dismissed (7.4s)
+  ✓  34 tests/e2e/practice.spec.ts:430:7 › typing, annotations, editor and deletion dialog remain usable in light theme (2.3s)
+  ✓  35 tests/e2e/practice.spec.ts:430:7 › typing, annotations, editor and deletion dialog remain usable in dark theme (2.6s)
+  ✓  37 tests/e2e/practice.spec.ts:534:5 › CSV import preserves existing records and exact strings after a failed save and retry (2.1s)
+  ✘  38 tests/e2e/practice.spec.ts:567:7 › word list CSV download and reimport preserve saved words at 390px (1.1s)
+  ✓  36 tests/e2e/practice.spec.ts:470:5 › devices persist, are locked during practice, and survive rename and deletion in history (5.8s)
+  ✘  40 tests/e2e/practice.spec.ts:567:7 › word list CSV download and reimport preserve saved words at 1440px (1.6s)
+  ✓  39 tests/e2e/rankings.spec.ts:39:5 › ranks runs at the current word count, switches order and device, and keeps the view in the URL (3.1s)
+  ✓  42 tests/e2e/rankings.spec.ts:101:5 › on phones the list and the detail are separate steps that follow the back button (2.1s)
+  ✓  41 tests/e2e/rankings.spec.ts:135:5 › practice, records and the ranking agree on the best of an edited list (2.8s)
+  ✓  43 tests/e2e/rankings.spec.ts:162:5 › empty and unreadable storage explain what to do instead of showing an empty ranking (1.3s)
+  ✓  44 tests/e2e/records.spec.ts:35:5 › records are grouped by day, marked with the best, and filtered through the URL (2.9s)
+  ✓  45 tests/e2e/records.spec.ts:79:5 › deleting the best record explains the change and keeps focus in the list (2.0s)
+  ✓  46 tests/e2e/records.spec.ts:108:5 › long histories show 50 records at a time (1.2s)
+  ✓  47 tests/e2e/records.spec.ts:118:5 › on a phone every record fits the screen without horizontal scrolling (822ms)
+  ✓  48 tests/e2e/records.spec.ts:131:5 › without records the page explains how to get one (672ms)
+  ✓  49 tests/e2e/removed.spec.ts:4:5 › removed server routes answer 404 (983ms)
+  ✓  50 tests/e2e/removed.spec.ts:14:5 › a leftover session cookie is ignored (726ms)
+  ✓  51 tests/e2e/settings.spec.ts:6:5 › the display language switches the whole screen at once and is remembered (3.9s)
+  ✓  52 tests/e2e/theme.spec.ts:12:5 › OS defaults, manual choice, reload, navigation, focus and tab synchronization (3.6s)
+  ✓  54 tests/e2e/theme.spec.ts:63:5 › unavailable storage still allows switching (1.2s)
+  ✓  53 tests/e2e/theme.spec.ts:50:5 › theme is applied before hydration and invalid saved values fall back to system (2.2s)
+  ✓  55 tests/e2e/theme.spec.ts:77:7 › both themes fit the navigation and pages at 390px (5.5s)
+  ✓  56 tests/e2e/theme.spec.ts:77:7 › both themes fit the navigation and pages at 1280px (6.8s)
+  ✓  57 tests/e2e/word-drag.spec.ts:4:7 › word dragging on create and edit (desktop) (4.0s)
+  ✓  59 tests/e2e/word-editor.spec.ts:6:5 › Enter moves between words and adds rows instead of saving (1.5s)
+  ✓  60 tests/e2e/word-editor.spec.ts:42:5 › a duplicate name is shown on the name field while the save bar stays visible (1.6s)
+  ✓  61 tests/e2e/word-editor.spec.ts:64:5 › cancel asks before discarding unsaved changes (2.9s)
+  ✓  62 tests/e2e/word-editor.spec.ts:106:5 › validation errors are shown on the fields and summarized in the save bar (1.2s)
+  ✓  63 tests/e2e/word-editor.spec.ts:135:5 › row menu and Alt+Arrow keys reorder and delete words (1.6s)
+  ✓  64 tests/e2e/word-editor.spec.ts:165:5 › CSV import can append to or replace the entered words (2.0s)
+  ✓  65 tests/e2e/word-lists.spec.ts:27:5 › lists show their words and use, and can be searched and ordered (1.3s)
+  ✓  66 tests/e2e/word-lists.spec.ts:65:5 › the editor has its own URL, asks before going back with changes, and returns to the edited row (2.2s)
+  ✓  67 tests/e2e/word-lists.spec.ts:107:5 › the sidebar link asks before dropping changes, and later edits still return to the lists (1.4s)
+  ✘  58 tests/e2e/word-drag.spec.ts:4:7 › word dragging on create and edit (mobile) (18.6s)
+  ✓  68 tests/e2e/word-lists.spec.ts:130:5 › copy and delete from the menu, with what is lost spelled out (1.9s)
+  ✓  69 tests/e2e/word-lists.spec.ts:173:5 › empty and failed loads say different things (1.3s)
+  ✓  70 tests/e2e/word-lists.spec.ts:158:5 › fits a phone without horizontal scrolling and keeps every action reachable (1.2s)
+
+
+  1) tests/e2e/practice.spec.ts:567:7 › word list CSV download and reimport preserve saved words at 390px 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "中国語.csv"
+    Received: "download"
+
+      580 |     await page.getByRole('menuitem', { name: 'CSVエクスポート', exact: true }).click()
+      581 |     const download = await downloadPromise
+    > 582 |     expect(download.suggestedFilename()).toBe('中国語.csv')
+          |                                          ^
+      583 |     expect(await download.failure()).toBeNull()
+      584 |     const path = testInfo.outputPath(download.suggestedFilename())
+      585 |     await download.saveAs(path)
+        at /home/user/typle-r/tests/e2e/practice.spec.ts:582:42
+
+    Error Context: test-results/practice-word-list-CSV-dow-80da8-eserve-saved-words-at-390px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/practice-word-list-CSV-dow-80da8-eserve-saved-words-at-390px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/practice-word-list-CSV-dow-80da8-eserve-saved-words-at-390px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/practice.spec.ts:567:7 › word list CSV download and reimport preserve saved words at 1440px 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "中国語.csv"
+    Received: "download"
+
+      580 |     await page.getByRole('menuitem', { name: 'CSVエクスポート', exact: true }).click()
+      581 |     const download = await downloadPromise
+    > 582 |     expect(download.suggestedFilename()).toBe('中国語.csv')
+          |                                          ^
+      583 |     expect(await download.failure()).toBeNull()
+      584 |     const path = testInfo.outputPath(download.suggestedFilename())
+      585 |     await download.saveAs(path)
+        at /home/user/typle-r/tests/e2e/practice.spec.ts:582:42
+
+    Error Context: test-results/practice-word-list-CSV-dow-0329f-serve-saved-words-at-1440px/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/practice-word-list-CSV-dow-0329f-serve-saved-words-at-1440px/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/practice-word-list-CSV-dow-0329f-serve-saved-words-at-1440px/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/e2e/word-drag.spec.ts:4:7 › word dragging on create and edit (mobile) ───────────────────
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('textbox', { name: '表示する単語 1', exact: true })
+    Expected: "Word 3"
+    Received: "Word 2"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('textbox', { name: '表示する単語 1', exact: true }) with timeout 15000ms
+      - waiting for getByRole('textbox', { name: '表示する単語 1', exact: true })
+        34 × locator resolved to <input required="" value="Word 2" data-slot="input" placeholder="単語を入力" aria-required="true" aria-label="表示する単語 1" data-word-key="initial-0" id="_r_k_-display-initial-0" class="w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-rin…/>
+           - unexpected value "Word 2"
+
+
+      56 |     await page.keyboard.press('ArrowDown', { delay: 100 })
+      57 |     await page.keyboard.press('Space')
+    > 58 |     await expect(page.getByRole('textbox', { name: '表示する単語 1', exact: true })).toHaveValue('Word 3')
+         |                                                                                ^
+      59 |     await page.getByRole('button', { name: '保存', exact: true }).click()
+      60 |     await page.reload()
+      61 |     await page.getByRole('button', { name: 'Drag list を編集', exact: true }).click()
+        at /home/user/typle-r/tests/e2e/word-drag.spec.ts:58:80
+
+    Error Context: test-results/word-drag-word-dragging-on-create-and-edit-mobile-/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/word-drag-word-dragging-on-create-and-edit-mobile-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/word-drag-word-dragging-on-create-and-edit-mobile-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests/e2e/practice.spec.ts:567:7 › word list CSV download and reimport preserve saved words at 390px 
+    tests/e2e/practice.spec.ts:567:7 › word list CSV download and reimport preserve saved words at 1440px 
+    tests/e2e/word-drag.spec.ts:4:7 › word dragging on create and edit (mobile) ────────────────────
+  67 passed (1.6m)

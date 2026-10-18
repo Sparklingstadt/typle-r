@@ -1,0 +1,11 @@
+
+Running 6 tests using 2 workers
+
+  ✓  1 tests/e2e/word-drag.spec.ts:4:7 › word dragging on create and edit (desktop) (4.4s)
+  ✓  2 tests/e2e/word-drag.spec.ts:4:7 › word dragging on create and edit (mobile) (4.5s)
+  ✓  3 tests/e2e/word-drag.spec.ts:4:7 › word dragging on create and edit (desktop) (3.9s)
+  ✓  4 tests/e2e/word-drag.spec.ts:4:7 › word dragging on create and edit (mobile) (3.9s)
+  ✓  5 tests/e2e/word-drag.spec.ts:4:7 › word dragging on create and edit (desktop) (3.8s)
+  ✓  6 tests/e2e/word-drag.spec.ts:4:7 › word dragging on create and edit (mobile) (3.9s)
+
+  6 passed (16.3s)
