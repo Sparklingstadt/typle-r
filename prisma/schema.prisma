@@ -10,7 +10,6 @@ model Workspace {
   ownerId   String   @id @map("owner_id") @db.Text
   devices   Json     @default("[]") @db.JsonB
   lists     Json     @default("[]") @db.JsonB
-  profiles  Json     @default("[]") @db.JsonB
   revision  Int      @default(1)
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
@@ -21,13 +20,12 @@ model Workspace {
 model SharedList {
   shareId   String   @id @map("share_id") @db.Uuid
   ownerId   String   @map("owner_id") @db.Text
-  profileId String   @map("profile_id") @db.Text
   listId    String   @map("list_id") @db.Text
   name      String   @db.Text
   words     Json     @db.JsonB
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
-  @@unique([ownerId, profileId, listId])
+  @@unique([ownerId, listId])
   @@index([ownerId])
   @@map("typle_shared_lists")
 }

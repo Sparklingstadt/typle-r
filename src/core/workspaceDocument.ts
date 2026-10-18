@@ -7,16 +7,15 @@ export type WorkspaceDocument = { lists: SavedWordList[]; devices: PracticeDevic
 /** Omitted parts stay as they are. */
 export type WorkspaceChange = { lists?: SavedWordList[]; devices?: PracticeDevice[] }
 
-// Workspaces could once hold several profiles, each with its own lists. The first profile's lists were always in the
-// `lists` column and the others in `profiles`; reading such data moves the others' lists after the first one's.
-// The id and name the share links of the stored data use; the column stays so the app before the removal keeps working.
+// Workspaces could once hold several profiles, each with its own lists. The first profile's lists were always in
+// `lists` and the others in `profiles`; reading such data moves the others' lists after the first one's. Accounts were
+// merged by migration 0006_merge_profiles, which follows the same rules; a guest's data is merged when next read.
+/** The first profile's id, which the app with profiles names in every save. */
 export const LEGACY_PROFILE_ID = 'default'
 const MAX_NAME = 200
 
-/** A list moved out of a removed profile: its id there, and its id now (changed only when the first profile had it). */
-export type MovedList = { profileId: string; listId: string; id: string }
-/** `moved` is empty and `legacy` false when the stored data has no removed profiles to merge. */
-export type DecodedDocument = WorkspaceDocument & { legacy: boolean; moved: MovedList[] }
+/** `legacy` is false when the stored data has no removed profiles to merge. */
+export type DecodedDocument = WorkspaceDocument & { legacy: boolean }
 
 type LegacyProfile = { id: string; name: string; lists: SavedWordList[] }
 
@@ -38,20 +37,18 @@ function unique(taken: Set<string>, wanted: string, variant: (count: number) => 
 const fit = (name: string, suffix: string) => name.slice(0, MAX_NAME - suffix.length).trimEnd() + suffix
 
 /** Puts the lists of removed profiles after the first one's. A name already in use gets the profile's name after it. */
-export function mergeProfiles(lists: SavedWordList[], profiles: LegacyProfile[]): { lists: SavedWordList[]; moved: MovedList[] } {
+export function mergeProfiles(lists: SavedWordList[], profiles: LegacyProfile[]): SavedWordList[] {
   const ids = new Set(lists.map(list => list.id.toLocaleLowerCase()))
   const names = new Set(lists.map(list => list.name.trim().toLocaleLowerCase()))
   const merged = [...lists]
-  const moved: MovedList[] = []
   for (const profile of profiles) {
     for (const list of profile.lists) {
       const id = unique(ids, list.id, count => `${profile.id}-${list.id}${count > 2 ? `-${count - 1}` : ''}`)
       const name = unique(names, list.name.trim(), count => fit(list.name.trim(), count === 2 ? `（${profile.name}）` : `（${profile.name} ${count - 1}）`))
       merged.push({ ...list, id, name })
-      moved.push({ profileId: profile.id, listId: list.id, id })
     }
   }
-  return { lists: merged, moved }
+  return merged
 }
 
 export function decodeDocument(value: { lists: unknown; devices: unknown; profiles?: unknown }): DecodedDocument {
@@ -60,7 +57,7 @@ export function decodeDocument(value: { lists: unknown; devices: unknown; profil
   const profiles = decodeLegacyProfiles(value.profiles ?? [])
   // An empty array, or only the first profile, means there is nothing to merge.
   const legacy = Array.isArray(value.profiles) && value.profiles.length > 0
-  return { ...mergeProfiles(lists, profiles), devices, legacy }
+  return { lists: mergeProfiles(lists, profiles), devices, legacy }
 }
 
 /** Lists merged from removed profiles may be more than MAX_LISTS; a change may keep or lower that number, never raise it. */
