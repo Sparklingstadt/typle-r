@@ -108,7 +108,7 @@ test('copying waits until the reader’s own lists have loaded', async ({ contex
   const { Pool } = await import('pg')
   const pool = new Pool({ connectionString: process.env.DATABASE_URL })
   try {
-    await pool.query(`INSERT INTO typle_shared_lists (share_id, owner_id, profile_id, list_id, name, words) VALUES ($1, $2, 'default', 'l', 'Slow', $3)`,
+    await pool.query(`INSERT INTO typle_shared_lists (share_id, owner_id, list_id, name, words) VALUES ($1, $2, 'l', 'Slow', $3)`,
       [shareId, accountId, JSON.stringify([{ display: 'a', input: 'a', annotation: '' }])])
   } finally { await pool.end() }
   // Hold the reader's workspace back until the shared list is on screen.

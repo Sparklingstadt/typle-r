@@ -8,7 +8,6 @@ loadEnvConfig(process.cwd())
 const { workspaceRepository } = require('../src/plugins/storage/cloud/repository.ts')
 const { LegacyProfileRequest, validateWorkspaceRequest } = require('../src/core/workspaceRequest.ts')
 const { prepareLegacy, mergeLegacy } = require('../src/plugins/formats/legacy.ts')
-const { decodeDocument } = require('../src/core/workspaceDocument.ts')
 const list = { id: 'one', name: 'One', createdAt: '2026-09-06', words: [{ display: 'a', input: 'a', annotation: '' }], records: [] }
 const empty = (revision = 0) => ({ lists: [], devices: [], revision })
 const lists = (revision, value, devices) => ({ lists: value, ...(devices ? { devices } : {}) })
@@ -86,76 +85,6 @@ test('devices sync per owner, survive older clients, and share revision conflict
     assert.deepEqual(stored.lists[0].records[0].device, device)
   } finally {
     await db.workspace.deleteMany({ where: { ownerId: owner } })
-    await db.$disconnect()
-  }
-})
-
-// The block of migration 0006 that merges the profiles; the statements after it only change the schema.
-const mergeProfilesSql = (() => {
-  const sql = require('node:fs').readFileSync(require('node:path').join(__dirname, '../prisma/migrations/0006_merge_profiles/migration.sql'), 'utf8')
-  return sql.slice(sql.indexOf('DO $$'), sql.indexOf('END $$;') + 'END $$;'.length)
-})()
-
-// Saves a workspace as the app with profiles did: other profiles and their lists in the `profiles` column.
-async function insertLegacy(db, ownerId, revision, mainLists, profiles, devices = []) {
-  await db.$executeRawUnsafe('INSERT INTO typle_workspaces (owner_id, lists, devices, profiles, revision) VALUES ($1, $2::jsonb, $3::jsonb, $4::jsonb, $5)',
-    ownerId, JSON.stringify(mainLists), JSON.stringify(devices), JSON.stringify([{ id: 'default', name: 'メイン' }, ...profiles]), revision)
-}
-
-test('the migration merges removed profiles as the app does, keeps their links and turns away saves made before', async () => {
-  const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) })
-  const { randomUUID } = require('node:crypto')
-  const owner = 'test:merge:' + randomUUID()
-  const other = owner + ':same-as-app'
-  const device = { id: 'mac', name: 'MacBook', layout: 'JIS' }
-  const chinese = { ...list, id: 'zh-list', name: '中国語', shared: true, records: [{ id: 'r', time: 2, date: '2026-10-01', device }] }
-  // Same id and name as the first profile's list, which is not shared.
-  const twin = { ...list, shared: true, records: [{ id: 't', time: 3, date: '2026-10-02' }] }
-  const rows = [['zh', 'zh-list'], ['zh', 'one'], ['gone', 'old']].map(([profileId, listId]) => ({ shareId: randomUUID(), profileId, listId }))
-  try {
-    const repo = workspaceRepository(db)
-    await insertLegacy(db, owner, 3, [list], [{ id: 'zh', name: '中国語', lists: [chinese, twin] }], [device])
-    for (const row of rows) {
-      await db.$executeRawUnsafe('INSERT INTO typle_shared_lists (share_id, owner_id, profile_id, list_id, name, words) VALUES ($1::uuid, $2, $3, $4, $5, $6::jsonb)',
-        row.shareId, owner, row.profileId, row.listId, 'name', JSON.stringify(list.words))
-    }
-    // The clashing ids and long names of the unit tests give the same lists as the app's merge.
-    const long = 'n'.repeat(200)
-    const named = (id, name) => ({ ...list, id, name })
-    const stored = { lists: [named('l', 'Local'), named('zh-l', 'Extra'), named('a', 'A'), named('b', 'A（P）'), named('c', long)], devices: [],
-      profiles: [{ id: 'zh', name: '中国語', lists: [named('l', ' local '), named('x', 'Extra')] }, { id: 'ko', name: '韓国語', lists: [named('l', 'Local')] },
-        { id: 'p', name: 'P', lists: [named('d', 'A'), named('e', long)] }] }
-    await insertLegacy(db, other, 1, stored.lists, stored.profiles)
-
-    await db.$executeRawUnsafe(mergeProfilesSql)
-    // Running it again changes nothing.
-    await db.$executeRawUnsafe(mergeProfilesSql)
-
-    const merged = await repo.read(owner)
-    assert.equal(merged.revision, 4)
-    assert.deepEqual(merged.lists.map(item => [item.id, item.name, item.records.length]),
-      [['one', 'One', 0], ['zh-list', '中国語', 1], ['zh-one', 'One（中国語）', 1]])
-    assert.deepEqual(merged.lists.map(item => item.shareId), [undefined, rows[0].shareId, rows[1].shareId])
-    assert.deepEqual(merged.devices, [device])
-    const links = await db.$queryRawUnsafe('SELECT profile_id, list_id, share_id::text FROM typle_shared_lists WHERE owner_id = $1 ORDER BY list_id', owner)
-    // The link of a profile with no such list any more is removed.
-    assert.deepEqual(links.map(row => [row.profile_id, row.list_id, row.share_id]),
-      [['default', 'zh-list', rows[0].shareId], ['default', 'zh-one', rows[1].shareId]])
-    assert.equal((await repo.readShared(rows[0].shareId)).words.length, 1)
-    assert.equal(await repo.readShared(rows[2].shareId), null)
-    const [{ profiles }] = await db.$queryRawUnsafe('SELECT profiles FROM typle_workspaces WHERE owner_id = $1', owner)
-    assert.deepEqual(profiles, [])
-    assert.deepEqual((await repo.read(other)).lists, decodeDocument({ ...stored, profiles: [{ id: 'default', name: 'メイン' }, ...stored.profiles] }).lists)
-
-    // A screen that read revision 3 before the merge cannot save over the other profile's lists; saving goes on from 4.
-    assert.equal(await repo.write(owner, 3, lists(3, [list])), null)
-    const saved = await repo.write(owner, 4, lists(4, merged.lists.slice(0, 2)))
-    assert.deepEqual(saved.lists.map(item => item.id), ['one', 'zh-list'])
-    assert.equal(saved.lists[1].shareId, rows[0].shareId)
-    assert.equal(await repo.readShared(rows[1].shareId), null)
-  } finally {
-    await db.sharedList.deleteMany({ where: { ownerId: { in: [owner, other] } } })
-    await db.workspace.deleteMany({ where: { ownerId: { in: [owner, other] } } })
     await db.$disconnect()
   }
 })
