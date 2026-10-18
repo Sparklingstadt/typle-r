@@ -1,4 +1,0 @@
-
-> typle-r@0.35.2 typecheck
-> tsc --noEmit --incremental false
-
