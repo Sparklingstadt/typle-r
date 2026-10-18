@@ -3,13 +3,13 @@ import { Prisma, type PrismaClient } from '@prisma/client'
 import { AppError } from '../../../core/appError'
 import { sharedKeys, stripShareIds, type SharedList } from '../../../core/sharedLists'
 import type { SavedWordList } from '../../../core/wordLists'
-import { applyChange, decodeDocument, LEGACY_PROFILE_ID, type DecodedDocument, type WorkspaceChange, type WorkspaceDocument } from '../../../core/workspaceDocument'
+import { applyChange, decodeDocument, type WorkspaceChange, type WorkspaceDocument } from '../../../core/workspaceDocument'
 import { MAX_WORKSPACE_BYTES } from '../../../core/workspaceRequest'
 
 export type Workspace = WorkspaceDocument & { revision: number }
 
 type Client = PrismaClient | Prisma.TransactionClient
-type ShareRow = { shareId: string; profileId: string; listId: string }
+type ShareRow = { shareId: string; listId: string }
 
 const empty: WorkspaceDocument = { lists: [], devices: [] }
 
@@ -19,7 +19,7 @@ function json(value: unknown) {
 
 // The lists as the client sees them, with the link of each shared one.
 function view(document: WorkspaceDocument, revision: number, rows: ShareRow[]): Workspace {
-  const links = new Map(rows.filter(row => row.profileId === LEGACY_PROFILE_ID).map(row => [row.listId, row.shareId]))
+  const links = new Map(rows.map(row => [row.listId, row.shareId]))
   const lists = document.lists.map(list => {
     const shareId = list.shared ? links.get(list.id) : undefined
     return shareId ? { ...list, shareId } : list
@@ -28,7 +28,7 @@ function view(document: WorkspaceDocument, revision: number, rows: ShareRow[]): 
 }
 
 const shareRows = (client: Client, ownerId: string) =>
-  client.sharedList.findMany({ where: { ownerId }, select: { shareId: true, profileId: true, listId: true } })
+  client.sharedList.findMany({ where: { ownerId }, select: { shareId: true, listId: true } })
 
 // Only what a share link shows; a future word field is not published unless added here.
 const sharedContent = (list: SavedWordList) =>
@@ -41,9 +41,9 @@ async function syncShared(client: Client, ownerId: string, previous: WorkspaceDo
   const before = new Map(previous.lists.map(list => [list.id, sharedContent(list)]))
   const wanted = new Map(sharedKeys(document.lists).map(listId => [listId, document.lists.find(list => list.id === listId)!]))
   const existing = await shareRows(client, ownerId)
-  const kept = new Map(existing.filter(row => row.profileId === LEGACY_PROFILE_ID && wanted.has(row.listId)).map(row => [row.listId, row]))
-  const stale = existing.filter(row => kept.get(row.listId) !== row)
+  const stale = existing.filter(row => !wanted.has(row.listId))
   if (stale.length) await client.sharedList.deleteMany({ where: { shareId: { in: stale.map(row => row.shareId) } } })
+  const kept = new Map(existing.map(row => [row.listId, row]))
   const rows: ShareRow[] = []
   for (const [listId, list] of wanted) {
     const content = { name: list.name, words: json(list.words.map(({ display, input, annotation }) => ({ display, input, annotation }))), updatedAt: new Date() }
@@ -52,36 +52,12 @@ async function syncShared(client: Client, ownerId: string, previous: WorkspaceDo
       if (before.get(listId) !== sharedContent(list)) await client.sharedList.update({ where: { shareId: row.shareId }, data: content })
       rows.push(row)
     } else {
-      const created = { shareId: randomUUID(), profileId: LEGACY_PROFILE_ID, listId }
+      const created = { shareId: randomUUID(), listId }
       await client.sharedList.create({ data: { ...created, ownerId, ...content } })
       rows.push(created)
     }
   }
   return rows
-}
-
-// Saves the merged lists of removed profiles once, with a new revision: a screen that read the data before (the app
-// before the removal, still open) then gets a conflict instead of overwriting the merged lists. Moved lists keep their
-// share links. Resolves null when another save landed first.
-async function mergeLegacy(client: PrismaClient, ownerId: string, revision: number, document: DecodedDocument): Promise<Workspace | null> {
-  try {
-    return await client.$transaction(async tx => {
-      const row = await tx.workspace.update({
-        where: { ownerId, revision },
-        data: { lists: json(document.lists), devices: json(document.devices), profiles: json([]), revision: { increment: 1 }, updatedAt: new Date() },
-      })
-      const shared = document.moved.filter(moved => document.lists.some(list => list.id === moved.id && list.shared))
-      // A row of the first profile can only have a moved list's id when it is left over, and would block the move.
-      await tx.sharedList.deleteMany({ where: { ownerId, profileId: LEGACY_PROFILE_ID, listId: { in: shared.map(moved => moved.id) } } })
-      for (const moved of shared) {
-        await tx.sharedList.updateMany({ where: { ownerId, profileId: moved.profileId, listId: moved.listId }, data: { profileId: LEGACY_PROFILE_ID, listId: moved.id } })
-      }
-      return view(document, row.revision, await syncShared(tx, ownerId, document, document))
-    })
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') return null
-    throw error
-  }
 }
 
 const MODIFY_ATTEMPTS = 3
@@ -96,15 +72,8 @@ const listBytes = (lists: SavedWordList[]) => Buffer.byteLength(JSON.stringify(s
 export function workspaceRepository(client: PrismaClient) {
   const repository = {
     async read(ownerId: string): Promise<Workspace> {
-      for (let attempt = 0; attempt < MODIFY_ATTEMPTS; attempt++) {
-        const [row, rows] = await Promise.all([client.workspace.findUnique({ where: { ownerId } }), shareRows(client, ownerId)])
-        if (!row) return view(empty, 0, rows)
-        const document = decodeDocument(row)
-        if (!document.legacy) return view(document, row.revision, rows)
-        const merged = await mergeLegacy(client, ownerId, row.revision, document)
-        if (merged) return merged
-      }
-      throw new AppError('conflict')
+      const [row, rows] = await Promise.all([client.workspace.findUnique({ where: { ownerId } }), shareRows(client, ownerId)])
+      return row ? view(decodeDocument(row), row.revision, rows) : view(empty, 0, rows)
     },
     /** Resolves null when `revision` is stale. Shared lists are updated in the same transaction, so a rejected save
      * leaves their links as they were. */
@@ -119,10 +88,7 @@ export function workspaceRepository(client: PrismaClient) {
           } else {
             const current = await tx.workspace.findUnique({ where: { ownerId } })
             if (!current || current.revision !== revision) return null
-            const decoded = decodeDocument(current)
-            // The app before the removal saved profiles since this screen read the data; reading again merges them.
-            if (decoded.legacy) return null
-            previous = decoded
+            previous = decodeDocument(current)
             const next = applyChange(previous, change)
             // Unique owner + revision makes the comparison and update one atomic operation.
             row = await tx.workspace.update({

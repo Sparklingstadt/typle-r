@@ -247,27 +247,10 @@ test('settings without login explains that API tokens need GitHub', async ({ pag
   await expect(page.getByRole('button', { name: 'トークンを発行…' })).toHaveCount(0)
 })
 
-test('lists of removed profiles appear after the first profile’s, on screen and through the API', async ({ context, page }) => {
+test('profiles are gone from the screens', async ({ context, page }) => {
   await signIn(context)
-  const owner = accounts[accounts.length - 1]
-  const list = (id: string, name: string) => ({ id, name, createdAt: '2026-10-01T00:00:00.000Z', words: [{ display: 'a', input: 'a', annotation: '' }], records: [] })
-  const { Pool } = await import('pg')
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-  try {
-    // As the app with profiles saved it.
-    await pool.query('INSERT INTO typle_workspaces (owner_id, lists, devices, profiles, revision) VALUES ($1, $2, $3, $4, 2)', [owner,
-      JSON.stringify([list('main', 'Main')]), '[]',
-      JSON.stringify([{ id: 'default', name: 'メイン' }, { id: 'zh', name: '中国語', lists: [list('zh-list', '中文'), list('dup', 'Main')] }])])
-  } finally { await pool.end() }
-
   await page.goto('/edit')
-  for (const name of ['Main', '中文', 'Main（中国語）']) await expect(page.getByRole('button', { name: `${name} を編集`, exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   await expect(page.getByRole('link', { name: 'プロファイル' })).toHaveCount(0)
   expect((await page.goto('/profiles'))?.status()).toBe(404)
-
-  const { secret: token } = await issue(page.request, 'read')
-  const api = await bearer(token)
-  const { lists } = await (await api.get('/api/v1/lists')).json()
-  expect(lists.map((item: { id: string }) => item.id)).toEqual(['main', 'zh-list', 'dup'])
-  await api.dispose()
 })

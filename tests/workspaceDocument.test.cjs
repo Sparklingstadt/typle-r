@@ -28,7 +28,6 @@ test('lists of removed profiles follow the first profile’s, with clashing ids 
   ])
   assert.equal(document.lists[4].shared, true)
   assert.deepEqual(document.lists[2].records, list.records)
-  assert.deepEqual(document.moved.map(moved => `${moved.profileId}/${moved.listId}>${moved.id}`), ['zh/l>zh-l-2', 'zh/x>x', 'zh/y>y', 'ko/l>ko-l'])
 })
 
 test('a name clashing again gets a number, and long names stay within the limit', () => {
@@ -41,7 +40,7 @@ test('a name clashing again gets a number, and long names stay within the limit'
 test('data without removed profiles reads as it is', () => {
   for (const profiles of [undefined, []]) {
     const document = decodeDocument({ lists: [list], devices: [], profiles })
-    assert.deepEqual([document.lists, document.legacy, document.moved], [[list], false, []])
+    assert.deepEqual([document.lists, document.legacy], [[list], false])
   }
   // Only the first profile, as the app with profiles saved it after the others were deleted: saved once without it.
   assert.equal(decodeDocument({ lists: [list], devices: [], profiles: [main] }).legacy, true)
