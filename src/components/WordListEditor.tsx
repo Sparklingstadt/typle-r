@@ -19,7 +19,6 @@ import type { SavedWordList } from "@/core/wordLists"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
 import { AppError, type ErrorKey } from "@/core/appError"
 import { currentRecordCount } from "@/core/listOverview"
-import { holdUnsavedChanges } from "@/lib/unsavedChanges"
 import PageStorageBadge from "@/components/PageStorageBadge"
 
 type Word = SavedWordList["words"][number]
@@ -80,16 +79,12 @@ export default function WordListEditor({ title, description, storage, initial, e
   const [confirmingCancel, setConfirmingCancel] = useState(false)
 
   useEffect(() => { onDirtyChange?.(dirty) }, [dirty, onDirtyChange])
-  // Closing or reloading the tab would lose the changes; the browser asks first, and profiles cannot be switched.
+  // Closing or reloading the tab would lose the changes, so the browser asks first.
   useEffect(() => {
     if (!dirty) return
     const warn = (event: BeforeUnloadEvent) => event.preventDefault()
     window.addEventListener("beforeunload", warn)
-    const release = holdUnsavedChanges()
-    return () => {
-      window.removeEventListener("beforeunload", warn)
-      release()
-    }
+    return () => window.removeEventListener("beforeunload", warn)
   }, [dirty])
 
   // Errors appear after the first save attempt and then follow the user's edits.

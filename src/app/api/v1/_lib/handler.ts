@@ -2,8 +2,7 @@ import * as Sentry from '@sentry/nextjs'
 import { AppError, type ErrorKey } from '@/core/appError'
 import { allows, bearerSecret, type TokenScope } from '@/core/apiTokens'
 import { MAX_WORKSPACE_BYTES } from '@/core/workspaceRequest'
-import { database, tokenStore } from '@/plugins/storage/cloud/database'
-import type { Workspace } from '@/plugins/storage/cloud/repository'
+import { tokenStore } from '@/plugins/storage/cloud/database'
 
 const STATUS: Partial<Record<ErrorKey, number>> = {
   // What the request got wrong: thrown while reading it (here and in core/apiRequests) or by the list checks it shares
@@ -21,7 +20,6 @@ const STATUS: Partial<Record<ErrorKey, number>> = {
   listDeleted: 400,
   invalidToken: 401,
   insufficientScope: 403,
-  profileNotFound: 404,
   listNotFound: 404,
   conflict: 409,
   tokenLimit: 409,
@@ -82,13 +80,6 @@ export async function readJson(request: Request): Promise<unknown> {
   }
   try { return JSON.parse(Buffer.concat(chunks).toString('utf8')) }
   catch { throw new AppError('invalidJson') }
-}
-
-export async function requireProfile(owner: string, profileId: string): Promise<Workspace> {
-  const workspace = await database().read(owner, profileId)
-  // `read` falls back to the first profile for an unknown id; the API reports it instead.
-  if (workspace.profileId !== profileId) throw new AppError('profileNotFound')
-  return workspace
 }
 
 export const apiOrigin = (request: Request) => new URL(process.env.AUTH_URL ?? request.url).origin

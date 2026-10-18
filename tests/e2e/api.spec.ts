@@ -66,13 +66,14 @@ test('a write token manages lists and records', async ({ context, page }) => {
   const { secret: token } = await issue(page.request, 'write')
   const api = await bearer(token)
 
-  const profiles = await api.get('/api/v1/profiles')
-  expect(profiles.status()).toBe(200)
-  expect(profiles.headers()['cache-control']).toBe('no-store')
-  expect((await profiles.json()).profiles[0]).toMatchObject({ id: 'default' })
-  expect((await api.get('/api/v1/devices')).status()).toBe(200)
+  const devices = await api.get('/api/v1/devices')
+  expect(devices.status()).toBe(200)
+  expect(devices.headers()['cache-control']).toBe('no-store')
+  // The paths with a profile went away with profiles.
+  expect((await api.get('/api/v1/profiles')).status()).toBe(404)
+  expect((await api.get('/api/v1/profiles/default/lists')).status()).toBe(404)
 
-  const base = '/api/v1/profiles/default/lists'
+  const base = '/api/v1/lists'
   const created = await api.post(base, { data: { name: 'API', words: [{ display: '猫', input: 'neko' }] } })
   expect(created.status()).toBe(201)
   const { list } = await created.json()
@@ -98,9 +99,6 @@ test('a write token manages lists and records', async ({ context, page }) => {
   expect(records.records).toHaveLength(1)
   expect((await api.get(`${base}/${list.id}/records?limit=0`)).status()).toBe(400)
 
-  const missingProfile = await api.get('/api/v1/profiles/nope/lists')
-  expect(missingProfile.status()).toBe(404)
-  expect(await missingProfile.json()).toEqual({ error: 'profileNotFound' })
   const missingList = await api.get(`${base}/nope`)
   expect(missingList.status()).toBe(404)
   expect(await missingList.json()).toEqual({ error: 'listNotFound' })
@@ -123,8 +121,8 @@ test('a read token cannot write, and revoked or missing tokens are rejected', as
   await signIn(context)
   const { token, secret: readSecret } = await issue(page.request, 'read')
   const api = await bearer(readSecret)
-  expect((await api.get('/api/v1/profiles')).status()).toBe(200)
-  const denied = await api.post('/api/v1/profiles/default/lists', { data: { name: 'No', words: [{ display: 'a', input: 'a' }] } })
+  expect((await api.get('/api/v1/lists')).status()).toBe(200)
+  const denied = await api.post('/api/v1/lists', { data: { name: 'No', words: [{ display: 'a', input: 'a' }] } })
   expect(denied.status()).toBe(403)
   expect(await denied.json()).toEqual({ error: 'insufficientScope' })
 
@@ -134,11 +132,11 @@ test('a read token cannot write, and revoked or missing tokens are rejected', as
   const other = await otherContext.request.delete(`/api/tokens/${token.id}`, { headers: { Origin: origin } })
   expect(other.status()).toBe(404)
   await otherContext.close()
-  expect((await api.get('/api/v1/profiles')).status()).toBe(200)
+  expect((await api.get('/api/v1/lists')).status()).toBe(200)
 
   expect((await page.request.delete(`/api/tokens/${token.id}`)).status()).toBe(403)
   expect((await page.request.delete(`/api/tokens/${token.id}`, { headers: { Origin: origin } })).status()).toBe(204)
-  const revoked = await api.get('/api/v1/profiles')
+  const revoked = await api.get('/api/v1/lists')
   expect(revoked.status()).toBe(401)
   expect(revoked.headers()['www-authenticate']).toBe('Bearer')
   expect(await revoked.json()).toEqual({ error: 'invalidToken' })
@@ -146,7 +144,7 @@ test('a read token cannot write, and revoked or missing tokens are rejected', as
   await api.dispose()
 
   const anonymous = await playwrightRequest.newContext({ baseURL: origin })
-  const missing = await anonymous.get('/api/v1/profiles')
+  const missing = await anonymous.get('/api/v1/lists')
   expect(missing.status()).toBe(401)
   expect(missing.headers()['www-authenticate']).toBe('Bearer')
   expect(await missing.json()).toEqual({ error: 'invalidToken' })
@@ -157,7 +155,7 @@ test('unreadable saved data is a server error, not a bad request', async ({ cont
   await signIn(context)
   const { secret: token } = await issue(page.request, 'write')
   const api = await bearer(token)
-  const base = '/api/v1/profiles/default/lists'
+  const base = '/api/v1/lists'
   expect((await api.post(base, { data: { name: 'API', words: [{ display: 'a', input: 'a' }] } })).status()).toBe(201)
   const { Pool } = await import('pg')
   const pool = new Pool({ connectionString: process.env.DATABASE_URL })
@@ -176,9 +174,9 @@ test('unreadable saved data is a server error, not a bad request', async ({ cont
 })
 
 test('anonymous API access is rejected', async ({ request }) => {
-  const profiles = await request.get('/api/v1/profiles')
-  expect(profiles.status()).toBe(401)
-  expect(profiles.headers()['access-control-allow-origin']).toBeUndefined()
+  const lists = await request.get('/api/v1/lists')
+  expect(lists.status()).toBe(401)
+  expect(lists.headers()['access-control-allow-origin']).toBeUndefined()
   expect((await request.get('/api/tokens')).status()).toBe(401)
 })
 
@@ -198,7 +196,7 @@ test('settings issues, shows once and revokes a token', async ({ context, page }
   await expect(field).toHaveValue(/^typle_[A-Za-z0-9_-]{43}$/)
   const secretValue = await field.inputValue()
   const api = await bearer(secretValue)
-  expect((await api.get('/api/v1/profiles')).status()).toBe(200)
+  expect((await api.get('/api/v1/lists')).status()).toBe(200)
 
   // Neither Escape nor a click outside discards the secret; only the buttons close it.
   await page.keyboard.press('Escape')
@@ -221,7 +219,7 @@ test('settings issues, shows once and revokes a token', async ({ context, page }
   await page.getByRole('button', { name: '失効…' }).click()
   await page.getByRole('alertdialog', { name: '「E2E」を失効しますか？' }).getByRole('button', { name: '失効する' }).click()
   await expect(page.getByText('発行したトークンはありません。')).toBeVisible()
-  expect((await api.get('/api/v1/profiles')).status()).toBe(401)
+  expect((await api.get('/api/v1/lists')).status()).toBe(401)
   await api.dispose()
 })
 
@@ -229,7 +227,7 @@ test('a list added through the API appears on the edit and records screens', asy
   await signIn(context)
   const { secret: token } = await issue(page.request, 'write')
   const api = await bearer(token)
-  const base = '/api/v1/profiles/default/lists'
+  const base = '/api/v1/lists'
   const created = await api.post(base, { data: { name: 'API', words: [{ display: '猫', input: 'neko' }] } })
   expect(created.status()).toBe(201)
   const { list } = await created.json()
@@ -247,4 +245,29 @@ test('settings without login explains that API tokens need GitHub', async ({ pag
   await page.goto('/settings')
   await expect(page.getByText('APIトークンを使うには、GitHubでログインしてください。')).toBeVisible()
   await expect(page.getByRole('button', { name: 'トークンを発行…' })).toHaveCount(0)
+})
+
+test('lists of removed profiles appear after the first profile’s, on screen and through the API', async ({ context, page }) => {
+  await signIn(context)
+  const owner = accounts[accounts.length - 1]
+  const list = (id: string, name: string) => ({ id, name, createdAt: '2026-10-01T00:00:00.000Z', words: [{ display: 'a', input: 'a', annotation: '' }], records: [] })
+  const { Pool } = await import('pg')
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+  try {
+    // As the app with profiles saved it.
+    await pool.query('INSERT INTO typle_workspaces (owner_id, lists, devices, profiles, revision) VALUES ($1, $2, $3, $4, 2)', [owner,
+      JSON.stringify([list('main', 'Main')]), '[]',
+      JSON.stringify([{ id: 'default', name: 'メイン' }, { id: 'zh', name: '中国語', lists: [list('zh-list', '中文'), list('dup', 'Main')] }])])
+  } finally { await pool.end() }
+
+  await page.goto('/edit')
+  for (const name of ['Main', '中文', 'Main（中国語）']) await expect(page.getByRole('button', { name: `${name} を編集`, exact: true })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'プロファイル' })).toHaveCount(0)
+  expect((await page.goto('/profiles'))?.status()).toBe(404)
+
+  const { secret: token } = await issue(page.request, 'read')
+  const api = await bearer(token)
+  const { lists } = await (await api.get('/api/v1/lists')).json()
+  expect(lists.map((item: { id: string }) => item.id)).toEqual(['main', 'zh-list', 'dup'])
+  await api.dispose()
 })

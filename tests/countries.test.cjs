@@ -9,8 +9,21 @@ const { localDevelopmentEnabled } = require('../src/lib/localDevelopment.ts')
 test('all 193 country entries match the provided source and decode in Typle', () => {
   assert.equal(decodeLists(JSON.stringify({ version: 1, lists: [countries] }))[0].words.length, 193)
   assert.equal(new Set(countries.words.map(word => word.display)).size, 193)
-  assert.equal(crypto.createHash('sha256').update(JSON.stringify(countries.words)).digest('hex'),
+  // The source typed the Chinese name, so restore that input before comparing with the source's hash.
+  const source = countries.words.map(word => ({ display: word.display, input: word.display, annotation: word.annotation }))
+  assert.equal(crypto.createHash('sha256').update(JSON.stringify(source)).digest('hex'),
     'bfd033bb6992be43207729fa5569d980040ce2e84b37bf8f1f30dfc71deb357f')
+})
+
+test('country input is the pinyin without tone marks, apostrophes or brackets', () => {
+  for (const word of countries.words) {
+    const pinyin = word.annotation.split(' / ')[0].normalize('NFD')
+      .replace(/u\u0308/g, 'v').replace(/\p{M}/gu, '').replace(/['()]/g, '')
+    assert.equal(word.input, pinyin, word.display)
+    assert.match(word.input, /^[A-Za-z]+( [A-Za-z]+)*$/, word.display)
+  }
+  assert.equal(countries.words.find(word => word.display === '阿尔巴尼亚').input, 'Aerbaniya')
+  assert.equal(countries.words.find(word => word.display === '菲律宾').input, 'Feilvbin')
 })
 
 test('local login requires explicit development opt-in, secret and loopback URL', () => {

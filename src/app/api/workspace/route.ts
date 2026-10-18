@@ -1,9 +1,8 @@
 import { sameOrigin, sessionOwner } from '../_lib/session'
 import * as Sentry from '@sentry/nextjs'
 import { database } from '@/plugins/storage/cloud/database'
-import type { ErrorKey } from '@/core/appError'
-import { MissingProfileError } from '@/core/profiles'
-import { MAX_WORKSPACE_BYTES, validateProfileId, validateWorkspaceRequest } from '@/core/workspaceRequest'
+import { AppError, type ErrorKey } from '@/core/appError'
+import { LegacyProfileRequest, MAX_WORKSPACE_BYTES, validateWorkspaceRequest } from '@/core/workspaceRequest'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -15,15 +14,13 @@ function response(value: unknown, status = 200) {
 // Errors are keys of the `errors` messages; the client shows them in the reader's language.
 const failure = (error: ErrorKey, status: number) => response({ error }, status)
 
-// `?profile=<id>` picks whose word lists to return; an unknown id returns the first profile.
-export async function GET(request: Request) {
+// The app before profiles were removed may still ask for `?profile=<id>`. The answer has no `profiles`, which that
+// app reads as a server with only the first profile, so it switches to it.
+export async function GET() {
   try {
     const owner = await sessionOwner()
     if (!owner) return failure('loginRequired', 401)
-    let profileId
-    try { profileId = validateProfileId(new URL(request.url).searchParams.get('profile')) }
-    catch { return failure('invalidProfile', 400) }
-    return response({ ...await database().read(owner, profileId), accountId: owner })
+    return response({ ...await database().read(owner), accountId: owner })
   } catch (error) {
     Sentry.captureException(error, { tags: { operation: 'workspace.read' } })
     return failure('databaseUnavailable', 503)
@@ -54,12 +51,12 @@ export async function PUT(request: Request) {
       if (raw.accountId !== owner) return failure('loginAccountChanged', 401)
       body = validateWorkspaceRequest(raw)
     }
-    catch { return failure('invalidWorkspace', 400) }
+    catch (error) { return error instanceof LegacyProfileRequest ? failure('conflict', 409) : failure('invalidWorkspace', 400) }
     const { revision, ...change } = body
     let result
     try { result = await database().write(owner, revision, change) }
     catch (error) {
-      if (error instanceof MissingProfileError) return failure(error.key, 409)
+      if (error instanceof AppError && error.key === 'listLimit') return failure(error.key, 400)
       throw error
     }
     if (!result) return failure('conflict', 409)
