@@ -8,13 +8,13 @@ import Brand from "@/components/Navbar/Brand"
 import StorageBadge from "@/components/Navbar/StorageBadge"
 import NavList from "@/components/Sidebar/NavList"
 
-/** Below 1024px the sidebar becomes a modal drawer: Esc, the backdrop or a link closes it and focus returns to the menu button. */
+/** Below 1280px the sidebar becomes a modal drawer: Esc, the backdrop or a link closes it and focus returns to the menu button. */
 export default function MobileNav() {
   const [open, setOpen] = useState(false)
   const t = useTranslations("nav")
   useEffect(() => {
     if (!open) return
-    const desktop = window.matchMedia("(min-width: 1024px)")
+    const desktop = window.matchMedia("(min-width: 1280px)")
     const close = () => { if (desktop.matches) setOpen(false) }
     desktop.addEventListener("change", close)
     return () => desktop.removeEventListener("change", close)
@@ -23,7 +23,7 @@ export default function MobileNav() {
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button variant="ghost" size="icon" className="size-10 lg:hidden" aria-label={t("openMenu")}>
+        <Button variant="ghost" size="icon" className="size-10 xl:hidden" aria-label={t("openMenu")}>
           <Menu aria-hidden="true" className="size-5" />
         </Button>
       </Dialog.Trigger>

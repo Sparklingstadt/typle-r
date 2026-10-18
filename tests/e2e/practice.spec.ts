@@ -229,9 +229,9 @@ test('Tailwind editor remains accessible and fits mobile and desktop', async ({ 
     await name.press('Enter')
     await expect(page.getByRole('textbox', { name: '表示する単語 1', exact: true })).toBeFocused()
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
-    if (width < 1024) await page.getByRole('button', { name: 'メニューを開く' }).click()
+    if (width < 1280) await page.getByRole('button', { name: 'メニューを開く' }).click()
     await expect(page.getByRole('navigation', { name: 'メインナビゲーション' }).getByRole('link', { name: 'リストを作成', exact: true })).toHaveAttribute('aria-current', 'page')
-    if (width < 1024) await page.keyboard.press('Escape')
+    if (width < 1280) await page.keyboard.press('Escape')
     await page.screenshot({ path: `test-results/tailwind-editor-${width}.png`, fullPage: true })
   }
 })
@@ -361,8 +361,25 @@ test('mobile drawer closes by link, Esc and backdrop and returns focus to the me
   await expect(page.getByRole('navigation', { name: 'メインナビゲーション' }).getByRole('link', { name: '単語リスト', exact: true })).toBeVisible()
 })
 
-test('desktop sidebar fits 1024×768, stays in view while scrolling, and the skip link reaches the page', async ({ page }) => {
-  await page.setViewportSize({ width: 1024, height: 768 })
+test('narrow desktop windows use the drawer so the page keeps its width', async ({ page }) => {
+  // A laptop or a half-screen window: the 240px sidebar would squeeze the practice area, so it stays in the drawer until 1280px.
+  await page.setViewportSize({ width: 1100, height: 800 })
+  await page.goto('/play')
+  const open = page.getByRole('button', { name: 'メニューを開く' })
+  await expect(page.getByRole('navigation', { name: 'メインナビゲーション' })).toHaveCount(0)
+  // With the sidebar out of the way the page starts at the left edge instead of 240px in.
+  expect((await page.locator('#main-content').boundingBox())?.x).toBe(0)
+  await open.click()
+  const drawer = page.getByRole('dialog', { name: 'メニュー' })
+  await expect(drawer.getByRole('link', { name: '練習する', exact: true })).toHaveAttribute('aria-current', 'page')
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await expect(drawer).toBeHidden()
+  await expect(open).toBeHidden()
+  await expect(page.getByRole('navigation', { name: 'メインナビゲーション' }).getByRole('link', { name: '練習する', exact: true })).toBeVisible()
+})
+
+test('desktop sidebar fits 1280×768, stays in view while scrolling, and the skip link reaches the page', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 768 })
   await page.goto('/about')
   // The page is only as tall as the top bar plus its content, with no extra scroll below.
   expect(await page.evaluate(() => {
