@@ -2,8 +2,7 @@
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { DropdownMenu } from 'radix-ui'
-import { Copy, Download, History, Keyboard, MoreHorizontal, Pencil, Share2, Trash2, Trophy } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
+import { Copy, Download, History, Keyboard, MoreHorizontal, Pencil, Trash2, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useFormat } from '@/i18n/useFormat'
 import { wordPreview, type ListOverview } from '@/core/listOverview'
@@ -20,18 +19,15 @@ export function usePracticeText() {
 }
 
 // One saved list: what it contains and how it has been used, with 編集 up front and everything else in the menu.
-export default function ListRow({ item, now, highlight, disabled, canCopy, canShare, onEdit, onExport, onCopy, onShare, onDelete }: {
+export default function ListRow({ item, now, highlight, disabled, canCopy, onEdit, onExport, onCopy, onDelete }: {
   item: ListOverview
   now: Date
   highlight: boolean
   disabled: boolean
   canCopy: boolean
-  /** Sharing needs the account's storage; a guest sees why it is unavailable. */
-  canShare: boolean
   onEdit: () => void
   onExport: () => void
   onCopy: () => void
-  onShare: () => void
   onDelete: () => void
 }) {
   const t = useTranslations('wordLists.row')
@@ -46,7 +42,6 @@ export default function ListRow({ item, now, highlight, disabled, canCopy, canSh
     <div className="min-w-0 space-y-0.5">
       <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
         <h3 className="font-medium [overflow-wrap:anywhere]">{list.name}</h3>
-        {list.shared && <Badge variant="secondary" className="text-[11px]"><Share2 aria-hidden="true" />{t('sharedBadge')}</Badge>}
       </div>
       <p className="truncate text-sm text-muted-foreground" title={list.words.map(word => word.display).join(t('separator'))}>
         <span className="sr-only">{t('examples')} </span>{preview.rest ? t('more', { words, rest: preview.rest }) : words}
@@ -86,8 +81,6 @@ export default function ListRow({ item, now, highlight, disabled, canCopy, canSh
             <DropdownMenu.Separator className={cn('my-1 h-px bg-border', !practiceCount && 'sm:hidden')} />
             <DropdownMenu.Item className={menuItem} onSelect={onExport}><Download aria-hidden="true" />{t('export')}</DropdownMenu.Item>
             <DropdownMenu.Item className={menuItem} disabled={disabled || !canCopy} onSelect={onCopy}><Copy aria-hidden="true" />{t('copy')}</DropdownMenu.Item>
-            <DropdownMenu.Item className={menuItem} disabled={disabled || !canShare} onSelect={onShare}><Share2 aria-hidden="true" />{t('share')}</DropdownMenu.Item>
-            {!canShare && <p className="px-2.5 pb-1.5 text-xs text-muted-foreground">{t('shareLoginRequired')}</p>}
             <DropdownMenu.Separator className="my-1 h-px bg-border" />
             <DropdownMenu.Item className={cn(menuItem, 'text-destructive data-[highlighted]:text-destructive [&_svg]:text-destructive')} disabled={disabled} onSelect={onDelete}>
               <Trash2 aria-hidden="true" />{t('delete')}
