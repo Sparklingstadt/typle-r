@@ -137,7 +137,7 @@
   },
   "devices": {
     "lead": "Enregistrez dans <devices>Appareils</devices> les ordinateurs et claviers que vous utilisez pour vous entraîner : vos résultats indiqueront l’appareil utilisé.",
-    "p1": "L’appareil choisi avec « Appareil » sur l’écran d’entraînement est mémorisé dans ce navigateur et réutilisé lors des entraînements suivants.",
+    "p1": "L’appareil choisi avec « Appareil » sur l’écran d’entraînement est mémorisé dans ce navigateur et réutilisé lors des entraînements suivants. Tant que vous n’en choisissez pas, « Par défaut » est utilisé.",
     "p2": "Vous pouvez filtrer l’historique et les meilleurs résultats par appareil.",
     "p3": "Si vous renommez un appareil, les résultats précédents gardent le nom qu’il avait au moment de l’entraînement. Vous pouvez enregistrer jusqu’à 100 appareils."
   },

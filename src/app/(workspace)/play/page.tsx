@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { ArrowRight, ChevronDown, ChevronsUpDown, ChevronUp, CircleAlert, Gauge, List, MousePointerClick, Plus, RotateCcw, Search, Target, Timer, X } from "lucide-react"
 import type { PracticeDevice } from "@/core/devices"
-import { useSelectedDevice } from "@/lib/deviceSelection"
+import { useChosenDevice } from "@/lib/deviceSelection"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
@@ -97,8 +97,7 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
   update: WorkspaceUpdate
 }) {
   const t = useTranslations('practice')
-  const [deviceId, chooseDevice] = useSelectedDevice(accountId)
-  const device = devices.find(item => item.id === deviceId)
+  const [device, chooseDevice] = useChosenDevice(accountId, devices)
   const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave } = usePractice(wordLists, update, device, listId)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [query, setQuery] = useState('')

@@ -137,7 +137,7 @@
   },
   "devices": {
     "lead": "Register the computers and keyboards you practice on in <devices>Devices</devices>, and your records will show which device you used.",
-    "p1": "The device you choose with “Device” on the practice screen is remembered in this browser and used for your next practice too.",
+    "p1": "The device you choose with “Device” on the practice screen is remembered in this browser and used for your next practice too. Until you choose one, “Default” is used.",
     "p2": "You can filter practice history and best records by device.",
     "p3": "Renaming a device does not change earlier records; they keep the name the device had when you practiced. You can register up to 100 devices."
   },

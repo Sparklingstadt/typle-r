@@ -2,7 +2,7 @@
 import { useMemo } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { dayKind, durationParts } from '@/core/dashboard'
-import type { PracticeDevice } from '@/core/devices'
+import { DEFAULT_DEVICE_ID, type PracticeDevice } from '@/core/devices'
 import { recordTimeParts, type TimeUnit } from '@/core/records'
 
 type Parts = [string, TimeUnit][]
@@ -44,8 +44,10 @@ export function useFormat() {
     }
     const date = (value: Date, now: Date) =>
       (dayKind(value, now) === 'otherYear' ? formats.yearMonthDay : formats.monthDay).format(value)
+    // The built-in device reads in the reader's language, whatever language its records were made in.
+    const deviceName = (value: PracticeDevice) => value.id === DEFAULT_DEVICE_ID ? t('defaultDevice') : value.name
     const device = (value?: PracticeDevice) => !value ? t('noDevice')
-      : value.layout ? t('deviceWithLayout', { name: value.name, layout: value.layout }) : value.name
+      : value.layout ? t('deviceWithLayout', { name: deviceName(value), layout: value.layout }) : deviceName(value)
     return {
       /** 今日, 昨日 or the date, with the year only when it is not this year. */
       day(value: Date, now = new Date()) {
@@ -69,6 +71,8 @@ export function useFormat() {
       duration: (seconds: number) => text(durationParts(seconds)),
       recordTimeParts: (seconds: number) => recordTimeParts(seconds).map(([value, name]) => [value, unit(name)] as [string, string]),
       recordTime: (seconds: number) => text(recordTimeParts(seconds)),
+      /** A device's name alone, such as デフォルト for the built-in device. */
+      deviceName,
       /** A device with its layout, or 未記録 when there is none. */
       device,
       /** The device a record was made on, or 端末の記録なし for records made without one. */

@@ -1,6 +1,6 @@
 import { useTranslations } from 'next-intl'
 import { useFormat } from '@/i18n/useFormat'
-import type { PracticeDevice } from '@/core/devices'
+import { deviceExists, type PracticeDevice } from '@/core/devices'
 import { dayKind } from '@/core/dashboard'
 import { formatAccuracy } from '@/core/records'
 import type { SavedWordList } from '@/core/wordLists'
@@ -23,7 +23,7 @@ function useCells(devices: PracticeDevice[], now: Date) {
   return {
     device(record: StoredRecord) {
       if (!record.device) return { name: '—', title: format.recordDevice(), removed: false }
-      return { name: record.device.name, title: format.device(record.device), removed: !devices.some(device => device.id === record.device!.id) }
+      return { name: format.deviceName(record.device), title: format.device(record.device), removed: !deviceExists(devices, record.device.id) }
     },
     date(record: StoredRecord) {
       const date = new Date(record.date)

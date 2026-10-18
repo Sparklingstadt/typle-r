@@ -24,6 +24,12 @@ test('adding devices explains mistakes in place and remembers the device for thi
   await page.goto('/devices')
   await expect(page.getByRole('heading', { name: '端末はまだ登録されていません', exact: true })).toBeVisible()
   await expect(page.getByText('このブラウザーに保存', { exact: true })).toBeVisible()
+  // Before any device is registered, the built-in default is listed and in use, and cannot be edited or deleted.
+  const defaultRow = page.getByRole('listitem').filter({ has: page.getByRole('heading', { name: 'デフォルト', exact: true }) })
+  await expect(defaultRow).toContainText('使用中')
+  await expect(defaultRow).toContainText('名前の変更と削除はできません。')
+  await expect(defaultRow.getByRole('button')).toHaveCount(0)
+  await expect(page.getByRole('region', { name: 'このブラウザーで練習に使う端末' })).toContainText('デフォルト')
   const add = page.getByRole('button', { name: '端末を追加', exact: true })
   await add.click()
   const dialog = page.getByRole('dialog', { name: '端末を追加' })
@@ -34,6 +40,9 @@ test('adding devices explains mistakes in place and remembers the device for thi
   await expect(name).toHaveAttribute('aria-invalid', 'true')
   await expect(name).toHaveAccessibleDescription(/端末名を入力してください。/)
   await expect(name).toBeFocused()
+  await name.fill('デフォルト')
+  await dialog.getByRole('button', { name: '追加する', exact: true }).click()
+  await expect(name).toHaveAccessibleDescription(/「デフォルト」はすでに登録されています。/)
   // Escape discards the draft and returns focus to the button that opened the dialog.
   await page.keyboard.press('Escape')
   await expect(dialog).toHaveCount(0)
@@ -48,6 +57,7 @@ test('adding devices explains mistakes in place and remembers the device for thi
   const current = page.getByRole('region', { name: 'このブラウザーで練習に使う端末' })
   await expect(current).toContainText('MacBook Air（JIS）')
   await expect(page.getByRole('listitem').filter({ hasText: 'MacBook Air' })).toContainText('使用中')
+  await expect(defaultRow).not.toContainText('使用中')
   expect(await page.evaluate(key => localStorage.getItem(key), selectedKey)).not.toBe('')
 
   // A second device is not selected unless asked, and duplicate names are reported on the field.
@@ -91,11 +101,17 @@ test('the device list shows usage, switches the practice device and keeps focus 
   await pcRow.getByRole('button', { name: 'Desktop を削除', exact: true }).click()
   const confirm = page.getByRole('alertdialog', { name: '端末「Desktop」を削除しますか？' })
   await expect(confirm).toContainText('この端末で練習した記録はありません。')
-  await expect(confirm).toContainText('このブラウザーで練習に使う端末は「未選択」に戻ります。')
+  await expect(confirm).toContainText('このブラウザーで練習に使う端末は「デフォルト」に戻ります。')
   await confirm.getByRole('button', { name: '削除する', exact: true }).click()
   await expect(confirm).toHaveCount(0)
   await expect(pcRow).toHaveCount(0)
   await expect(page.getByRole('heading', { name: '登録済みの端末', exact: true })).toBeFocused()
+  await expect(page.getByRole('region', { name: 'このブラウザーで練習に使う端末' })).toContainText('デフォルト')
+  expect(await page.evaluate(key => localStorage.getItem(key), selectedKey)).toBe('default')
+
+  // 未選択 is still available, for practising without recording a device.
+  await page.getByRole('button', { name: /このブラウザーで練習に使う端末を変更/ }).click()
+  await page.getByRole('menuitemradio', { name: '未選択（端末を記録しない）', exact: true }).click()
   await expect(page.getByRole('region', { name: 'このブラウザーで練習に使う端末' })).toContainText('未選択')
   expect(await page.evaluate(key => localStorage.getItem(key), selectedKey)).toBe('')
 

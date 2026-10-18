@@ -11,6 +11,7 @@
     "one": "{value} {unit}",
     "two": "{first} {firstUnit} {second} {secondUnit}"
   },
+  "defaultDevice": "Par défaut",
   "noDevice": "Non enregistré",
   "noDeviceRecorded": "Aucun appareil enregistré",
   "deviceWithLayout": "{name} ({layout})"
