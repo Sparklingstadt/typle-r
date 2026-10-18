@@ -18,11 +18,7 @@ export type WordList = {
     device?: PracticeDevice,
     wordCount?: number
   }[],
-  createdAt: string,
-  /** The owner has turned on link sharing (accounts only). */
-  shared?: true,
-  /** The link id the server issued for a shared list; only in server responses, never saved in the workspace. */
-  shareId?: string
+  createdAt: string
 }
 
 export type SavedWordList = WordList & { id: string }
@@ -44,7 +40,6 @@ export function decodeLists(raw: string): SavedWordList[] {
   const ids = new Set<string>()
   for (const list of data.lists) {
     if (!list || typeof list.id !== "string" || !list.id || ids.has(list.id) || typeof list.name !== "string" ||
-        (list.shared !== undefined && list.shared !== true) || (list.shareId !== undefined && typeof list.shareId !== "string") ||
         typeof list.createdAt !== "string" || !Array.isArray(list.words) || !Array.isArray(list.records) ||
         list.words.some((word: WordList['words'][number]) => !word || typeof word.display !== "string" || typeof word.input !== "string" || typeof word.annotation !== "string") ||
         list.records.some((record: WordList['records'][number]) => !record || !Number.isFinite(record.time) || record.time < 0 || typeof record.date !== "string" ||
@@ -59,7 +54,8 @@ export function decodeLists(raw: string): SavedWordList[] {
     validateList(list)
     ids.add(list.id)
   }
-  return data.lists
+  // Lists saved while link sharing existed may still carry its fields; they mean nothing now.
+  return data.lists.map(({ shared: _shared, shareId: _shareId, ...list }: SavedWordList & { shared?: unknown, shareId?: unknown }) => list)
 }
 
 export function encodeLists(lists: SavedWordList[]) {
@@ -73,11 +69,8 @@ export function saveList(lists: SavedWordList[], list: SavedWordList, editing: b
   validateList(list, lists.filter(item => item.id !== list.id))
   // Whitespace can be meaningful in imported typing strings and annotations.
   const normalized = { ...list, name: list.name.trim() }
-  // The editor's copy of a list knows nothing of its records or sharing, so those stay as saved.
-  const keep = (item: SavedWordList): SavedWordList => {
-    const { shared: _shared, shareId: _shareId, ...rest } = normalized
-    return { ...rest, records: item.records, ...(item.shared ? { shared: true, ...(item.shareId ? { shareId: item.shareId } : {}) } : {}) }
-  }
+  // The editor's copy of a list knows nothing of its records, so those stay as saved.
+  const keep = (item: SavedWordList): SavedWordList => ({ ...normalized, records: item.records })
   if (!editing && lists.some(item => item.id === list.id)) return lists.map(item => item.id === list.id ? keep(item) : item)
   return editing ? lists.map(item => item.id === list.id ? keep(item) : item) : [...lists, normalized]
 }

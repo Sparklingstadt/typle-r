@@ -26,7 +26,7 @@ test('lists of removed profiles follow the first profile’s, with clashing ids 
     ['zh-l-2', 'local（中国語）'], ['x', 'Extra（中国語）'], ['y', 'New'],
     ['ko-l', 'Local（韓国語）'],
   ])
-  assert.equal(document.lists[4].shared, true)
+  assert.equal('shared' in document.lists[4], false)
   assert.deepEqual(document.lists[2].records, list.records)
 })
 

@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Listes de mots",
-    "description": "Créez et modifiez les listes de mots pour vos entraînements. Exportez une liste en CSV pour l’importer dans un autre navigateur ou compte.",
+    "description": "Créez et modifiez les listes de mots pour vos entraînements. Exportez une liste en CSV pour l’importer dans un autre navigateur ou sur un autre appareil.",
     "reload": "Recharger",
     "notFound": "La liste de mots que vous avez essayé d’ouvrir est introuvable. Elle a peut-être été supprimée.",
     "editTitle": "Modifier la liste de mots",
@@ -35,8 +35,7 @@
     "noRecords": "Aucun entraînement",
     "records": "{count, plural, one {# entraînement} other {# entraînements}} (dernier : {day})",
     "exportHint": "Vous pouvez conserver les mots en les exportant en CSV (l’historique n’est pas inclus).",
-    "export": "Exporter en CSV",
-    "sharedNote": " Le lien de partage cessera aussi de fonctionner."
+    "export": "Exporter en CSV"
   },
   "order": {
     "label": "Tri",
@@ -69,10 +68,7 @@
     "recordCount": "{count, number}",
     "export": "Exporter en CSV",
     "copy": "Dupliquer",
-    "delete": "Supprimer",
-    "share": "Partager…",
-    "shareLoginRequired": "Connectez-vous pour partager",
-    "sharedBadge": "Partagée"
+    "delete": "Supprimer"
   },
   "wordRow": {
     "label": "Mot {n}",
@@ -160,24 +156,12 @@
   "legacy": {
     "title": "Migrer les données d’une ancienne version",
     "description": "Ajoute à {target} les listes de mots et résultats de la v0.1.x encore présents dans ce navigateur. Les données d’origine sont conservées, et migrer à nouveau les mêmes données ne crée pas de doublons.",
-    "currentAccount": "votre compte actuel",
     "thisBrowser": "ce navigateur",
     "none": "Aucune donnée à migrer.",
     "done": "Migration terminée. Les données d’origine restent dans ce navigateur.",
     "failed": "Impossible de lire les données enregistrées. Les données d’origine n’ont pas été modifiées.",
     "busy": "Migration…",
-    "toAccount": "Migrer vers ce compte",
     "toBrowser": "Migrer vers ce navigateur",
     "suffix": " (migré {n})"
-  },
-  "share": {
-    "title": "Partager « {name} »",
-    "toggle": "Toute personne disposant du lien peut la voir",
-    "link": "Lien de partage",
-    "copyLink": "Copier le lien",
-    "copied": "Copié",
-    "copyFailed": "Copie impossible. Sélectionnez le lien et copiez-le.",
-    "preparing": "Préparation du lien…",
-    "note": "Les modifications ultérieures n’atteignent pas les copies déjà faites. Les résultats d’entraînement ne sont pas partagés."
   }
 }

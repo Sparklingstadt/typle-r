@@ -26,10 +26,8 @@
   },
   "storage": {
     "label": "Enregistrement : ",
-    "account": "Enregistré sur votre compte",
     "browser": "Enregistré dans ce navigateur",
-    "accountDetail": "Enregistré sur votre compte GitHub et synchronisé sur les appareils où vous êtes connecté.",
-    "browserDetail": "Vous n’êtes pas connecté : les données sont enregistrées uniquement dans ce navigateur."
+    "browserDetail": "Les données sont enregistrées uniquement dans ce navigateur, sans synchronisation avec d’autres appareils ou navigateurs."
   },
   "theme": {
     "label": "Mode sombre",

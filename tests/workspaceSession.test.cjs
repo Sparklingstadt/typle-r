@@ -15,12 +15,11 @@ function deferred() {
 }
 
 /** A store whose reads and writes answer with what the test passes, in the order it chooses. */
-function fakeStore({ staleReads = true } = {}) {
+function fakeStore() {
   const reads = [], writes = []
   return {
     reads, writes,
     store: {
-      location: 'account', staleReads,
       read: () => { const d = deferred(); reads.push(d); return d.promise },
       write: request => { const d = deferred(); writes.push({ request, ...d }); return d.promise },
     },
@@ -67,15 +66,8 @@ test('results that arrive after the account changed are never shown', async () =
   await assert.rejects(reading, { key: 'accountChangedReopen' })
 })
 
-test('a slow cloud read does not replace a newer save, but browser data that went back is shown', async () => {
-  const cloud = fakeStore()
-  const c = await loaded(cloud, state(5, [list('new')]))
-  const stale = c.session.load()
-  cloud.reads[1].resolve(state(4, [list('old')]))
-  assert.equal((await stale).revision, 5)
-  assert.equal(c.shown.length, 1)
-
-  const browser = fakeStore({ staleReads: false })
+test('a read with a lower revision is shown, as when the browser data was cleared', async () => {
+  const browser = fakeStore()
   const b = await loaded(browser, state(5, [list('new')]))
   const cleared = b.session.load()
   browser.reads[1].resolve(state(0))
@@ -134,8 +126,8 @@ test('a save that lost to another screen shows the latest data and reports the c
   assert.equal(fake.writes[1].request.revision, 2)
   fake.writes[1].reject(new WorkspaceError('conflict', 409))
   await new Promise(setImmediate)
-  fake.reads[2].reject(new WorkspaceError('databaseUnavailable', 503))
-  await assert.rejects(next, { key: 'databaseUnavailable' })
+  fake.reads[2].reject(new WorkspaceError('guestReadFailed', 503))
+  await assert.rejects(next, { key: 'guestReadFailed' })
 })
 
 test('a save that finishes after the account changed is dropped quietly', async () => {

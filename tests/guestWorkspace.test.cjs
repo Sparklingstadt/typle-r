@@ -41,17 +41,11 @@ test('quota and oversized writes retain the previous data', () => {
   assert.throws(() => writeGuestWorkspace({ ...saved, lists: [] }, store), { key: 'guestWriteFailed' })
   assert.equal(store.getItem(GUEST_STORAGE_KEY), before)
 })
-test('each account uses its own store, says where it saves, and only the guest store follows other tabs', () => {
+test('the workspace is always kept in this browser, and the store follows other tabs', () => {
   const { workspaceStore } = require('../src/plugins/storage/index.ts')
   const { guestStore } = require('../src/plugins/storage/guest.ts')
-  const { cloudStore } = require('../src/plugins/storage/cloud/client.ts')
-  assert.equal(workspaceStore('guest:local'), guestStore)
-  assert.equal(workspaceStore('github:1'), cloudStore)
-  assert.equal(guestStore.location, 'browser')
-  assert.equal(cloudStore.location, 'account')
-  assert.equal(guestStore.staleReads, false)
-  assert.equal(cloudStore.staleReads, true)
-  assert.equal(cloudStore.subscribe, undefined)
+  assert.equal(workspaceStore(), guestStore)
+  assert.deepEqual(Object.keys(guestStore).sort(), ['read', 'subscribe', 'write'])
   const previous = globalThis.window
   globalThis.window = new EventTarget()
   try {
@@ -63,4 +57,14 @@ test('each account uses its own store, says where it saves, and only the guest s
     stop(); fire(GUEST_STORAGE_KEY)
     assert.equal(changes.length, 2)
   } finally { globalThis.window = previous }
+})
+
+test('guest data with old sharing fields loads and the next write drops them', () => {
+  const store = storage()
+  store.setItem(GUEST_STORAGE_KEY, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists: [{ ...list, shared: true, shareId: 'x' }], devices: [] }))
+  const loaded = readGuestWorkspace(store)
+  assert.equal('shared' in loaded.lists[0], false)
+  writeGuestWorkspace({ accountId: 'guest:local', revision: 1, lists: loaded.lists }, store)
+  const raw = store.getItem(GUEST_STORAGE_KEY)
+  assert.doesNotMatch(raw, /shared|shareId/)
 })

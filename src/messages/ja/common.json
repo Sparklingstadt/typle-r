@@ -13,9 +13,7 @@
   },
   "storage": {
     "guest": "このブラウザーに保存",
-    "account": "アカウントに保存",
-    "guestDetail": "未ログインのため、このブラウザーのLocalStorageに保存します。",
-    "accountDetail": "ログイン中のアカウントに保存します。"
+    "guestDetail": "このブラウザーだけに保存します。ほかの端末やブラウザーとは同期しません。"
   },
   "form": {
     "cancel": "キャンセル",

@@ -35,8 +35,7 @@ export function createWorkspaceSession({ store, accountId, initialLists, show, s
   async function load(): Promise<WorkspaceState> {
     const data = await store.read()
     if (closed || data.accountId !== accountId) throw new AppError('accountChangedReopen')
-    // A cloud read that started before a save can finish after it; keep the newer state.
-    if (store.staleReads && state && state.revision > data.revision) return state
+    // A lower revision than the one shown is the store's real state, e.g. after the browser's data was cleared.
     display(data)
     return data
   }

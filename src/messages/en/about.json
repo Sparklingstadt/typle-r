@@ -24,24 +24,15 @@
   },
   "storage": {
     "title": "Where your data is saved",
-    "text": "Signing in is optional. Where data is saved depends on whether you are signed in, and the two are kept separately (nothing is moved automatically).",
+    "text": "Word lists, practice history, and devices are saved only in this browser. To use a word list in another browser or on another device, export it as CSV and import it there.",
     "more": "See <link>“Storage and data” in How to use</link> for details."
   },
   "places": {
-    "current": "Current",
     "browser": {
       "title": "This browser",
-      "condition": "When you are not signed in",
       "p1": "Saved in this browser’s LocalStorage",
       "p2": "Not synced with other devices or browsers",
       "p3": "Lost when you clear the browser’s data"
-    },
-    "account": {
-      "title": "Account",
-      "condition": "When signed in with GitHub",
-      "p1": "Saved on a server dedicated to your account",
-      "p2": "The same data on every device you sign in on",
-      "p3": "Saving requires an internet connection"
     }
   },
   "reports": {
@@ -52,7 +43,7 @@
     "title": "Version and development",
     "version": "Version",
     "tech": "Built with",
-    "techList": "Next.js, React, PostgreSQL (Neon)",
+    "techList": "Next.js, React",
     "source": "Source code",
     "newTab": "(opens in a new tab)",
     "private": "This is a private repository. It can only be opened with GitHub accounts that have been granted access."

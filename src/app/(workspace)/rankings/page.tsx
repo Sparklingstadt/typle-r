@@ -43,7 +43,7 @@ export default function Rankings() {
         <h1 className="text-2xl font-bold">{t('title')}</h1>
         <p className="text-sm text-muted-foreground">{t('intro')}</p>
       </div>
-      {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
+      {workspace.ready && <PageStorageBadge />}
     </header>
     {workspace.error && <Alert variant="destructive" className="mb-6 border-destructive/40 bg-destructive/5">
       <CircleAlert aria-hidden="true" />
