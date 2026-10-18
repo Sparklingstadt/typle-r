@@ -92,11 +92,11 @@ test('last use is recorded at most hourly', () => withDatabase(async ({ db, owne
 }))
 
 test('modify saves, strips share ids and updates the shared copy', () => withDatabase(async ({ db, owner, workspaces }) => {
-  const saved = await workspaces.write(owner, 0, { profileId: 'default', lists: [{ id: 'one', name: 'One', createdAt: '2026-10-10', shared: true, words: [word('old')], records: [] }] })
+  const saved = await workspaces.write(owner, 0, { lists: [{ id: 'one', name: 'One', createdAt: '2026-10-10', shared: true, words: [word('old')], records: [] }] })
   const shareId = saved.lists[0].shareId
   assert.ok(shareId)
   assert.deepEqual((await workspaces.readShared(shareId)).words, [word('old')])
-  const { workspace, result } = await workspaces.modify(owner, 'default', ws => {
+  const { workspace, result } = await workspaces.modify(owner, ws => {
     const { lists, list } = updateList(ws.lists, 'one', { words: [word('new')] })
     return { lists, result: list.id }
   })
@@ -110,7 +110,7 @@ test('modify saves, strips share ids and updates the shared copy', () => withDat
 }))
 
 test('modify retries after a conflicting write', () => withDatabase(async ({ owner, workspaces }) => {
-  await workspaces.write(owner, 0, { profileId: 'default', lists: [] })
+  await workspaces.write(owner, 0, { lists: [] })
   // `change` is synchronous, so the other save is made as the first read returns: after it, before modify writes.
   const read = workspaces.read
   let interfered = false
@@ -119,12 +119,12 @@ test('modify retries after a conflicting write', () => withDatabase(async ({ own
     if (!interfered) {
       interfered = true
       const lists = createList(workspace.lists, input('from another writer'), 'other-list', now).lists
-      assert.ok(await workspaces.write(owner, workspace.revision, { profileId: 'default', lists }))
+      assert.ok(await workspaces.write(owner, workspace.revision, { lists }))
     }
     return workspace
   }
   let calls = 0
-  const { workspace, result } = await workspaces.modify(owner, 'default', ws => {
+  const { workspace, result } = await workspaces.modify(owner, ws => {
     calls++
     return { lists: createList(ws.lists, input('from change'), 'change-list', now).lists, result: calls }
   })
@@ -136,34 +136,30 @@ test('modify retries after a conflicting write', () => withDatabase(async ({ own
 }))
 
 test('modify gives up with a conflict after three attempts', () => withDatabase(async ({ owner, workspaces }) => {
-  await workspaces.write(owner, 0, { profileId: 'default', lists: [] })
+  await workspaces.write(owner, 0, { lists: [] })
   const read = workspaces.read
   workspaces.read = async (...args) => {
     const workspace = await read(...args)
-    await workspaces.write(owner, workspace.revision, { profileId: 'default', lists: [] })
+    await workspaces.write(owner, workspace.revision, { lists: [] })
     return workspace
   }
   let calls = 0
-  await assert.rejects(workspaces.modify(owner, 'default', ws => { calls++; return { lists: [], result: null } }), { key: 'conflict' })
+  await assert.rejects(workspaces.modify(owner, ws => { calls++; return { lists: [], result: null } }), { key: 'conflict' })
   assert.equal(calls, 3)
 }))
 
 test('modify does not write when the lists are returned unchanged', () => withDatabase(async ({ owner, workspaces }) => {
-  const saved = await workspaces.write(owner, 0, { profileId: 'default', lists: [] })
-  const { workspace, result } = await workspaces.modify(owner, 'default', ws => ({ lists: ws.lists, result: 1 }))
+  const saved = await workspaces.write(owner, 0, { lists: [] })
+  const { workspace, result } = await workspaces.modify(owner, ws => ({ lists: ws.lists, result: 1 }))
   assert.equal(result, 1)
   assert.equal(workspace.revision, saved.revision)
   assert.equal((await workspaces.read(owner)).revision, saved.revision)
-  const empty = await workspaces.modify('test:api:none:' + randomUUID(), 'default', ws => ({ lists: ws.lists, result: 2 }))
+  const empty = await workspaces.modify('test:api:none:' + randomUUID(), ws => ({ lists: ws.lists, result: 2 }))
   assert.equal(empty.workspace.revision, 0)
 }))
 
-test('modify rejects an unknown profile', () => withDatabase(async ({ owner, workspaces }) => {
-  await assert.rejects(workspaces.modify(owner, 'nope', ws => ({ lists: [], result: null })), { key: 'profileNotFound' })
-}))
-
 test('modify creates the workspace on first write', () => withDatabase(async ({ owner, workspaces }) => {
-  const { workspace } = await workspaces.modify(owner, 'default', ws => ({ lists: createList(ws.lists, input('First'), 'first', now).lists, result: null }))
+  const { workspace } = await workspaces.modify(owner, ws => ({ lists: createList(ws.lists, input('First'), 'first', now).lists, result: null }))
   assert.equal(workspace.revision, 1)
   assert.deepEqual(workspace.lists.map(list => list.id), ['first'])
   assert.equal((await workspaces.read(owner)).lists.length, 1)
@@ -175,16 +171,14 @@ const bigList = (id, count) => ({ id, name: id, createdAt: '2026-10-10T00:00:00.
 const size = lists => Buffer.byteLength(JSON.stringify(lists))
 
 test('the API list limit leaves room for what a web save sends around the lists', () => {
-  // The largest web save: 100 shared lists filling the API limit, 100 devices and 10 profiles of 3-byte characters.
+  // The largest web save: 100 shared lists filling the API limit and 100 devices of 3-byte characters.
   const lists = Array.from({ length: 100 }, (_, index) => ({ ...bigList('list-' + index, 0), shared: true }))
   for (let index = 0; size(lists) < MAX_API_LISTS_BYTES - 2100; index++) lists[index % 100].words.push(...annotated(1))
   lists[0].words.push({ display: 'pad', input: 'pad', annotation: 'x'.repeat(MAX_API_LISTS_BYTES - size(lists) - 50) })
   assert.ok(size(lists) <= MAX_API_LISTS_BYTES && size(lists) > MAX_API_LISTS_BYTES - 100)
   const body = {
-    profileId: 'p'.repeat(100),
     lists: lists.map(list => ({ ...list, shareId: randomUUID() })),
     devices: Array.from({ length: 100 }, (_, index) => ({ id: String(index).padStart(100, 'd'), name: '鍵'.repeat(100), layout: '配'.repeat(200) })),
-    profiles: Array.from({ length: 10 }, (_, index) => ({ id: String(index).padStart(100, 'p'), name: '名'.repeat(50), listCount: 100, recordCount: 1000000 })),
     revision: Number.MAX_SAFE_INTEGER,
     accountId: 'github:' + '9'.repeat(20),
   }
@@ -192,29 +186,29 @@ test('the API list limit leaves room for what a web save sends around the lists'
 })
 
 test('modify refuses lists larger than the web app can save again', () => withDatabase(async ({ db, owner, workspaces }) => {
-  const saved = await workspaces.write(owner, 0, { profileId: 'default', lists: [bigList('big', 400)] })
+  const saved = await workspaces.write(owner, 0, { lists: [bigList('big', 400)] })
   const grow = ws => ({ lists: createList(ws.lists, { name: 'more', words: annotated(60) }, 'more', now).lists, result: null })
   const grown = grow(saved).lists
   // Within what PUT /api/workspace accepts, but not with the rest of a web save around it.
   assert.ok(size(grown) > MAX_API_LISTS_BYTES && size(grown) < MAX_WORKSPACE_BYTES)
-  await assert.rejects(workspaces.modify(owner, 'default', grow), { key: 'workspaceTooLarge' })
+  await assert.rejects(workspaces.modify(owner, grow), { key: 'workspaceTooLarge' })
   const row = await db.workspace.findUniqueOrThrow({ where: { ownerId: owner } })
   assert.equal(row.revision, saved.revision)
   assert.deepEqual(row.lists.map(list => list.id), ['big'])
   assert.equal(await db.sharedList.count({ where: { ownerId: owner } }), 0)
-  const fits = await workspaces.modify(owner, 'default', ws => ({ lists: createList(ws.lists, input('small'), 'small', now).lists, result: null }))
+  const fits = await workspaces.modify(owner, ws => ({ lists: createList(ws.lists, input('small'), 'small', now).lists, result: null }))
   assert.equal(fits.workspace.revision, saved.revision + 1)
 }))
 
-test('modify still lets an oversized profile shrink', () => withDatabase(async ({ owner, workspaces }) => {
+test('modify still lets oversized lists shrink', () => withDatabase(async ({ owner, workspaces }) => {
   // Saved by the web app, whose limit includes the envelope, so it can be above the API limit.
   const lists = [bigList('big', 400), bigList('mid', 55), bigList('tiny', 5)]
   assert.ok(size(lists) > MAX_API_LISTS_BYTES && size(lists) < MAX_WORKSPACE_BYTES)
-  const saved = await workspaces.write(owner, 0, { profileId: 'default', lists })
+  const saved = await workspaces.write(owner, 0, { lists })
   const record = { time: 1, date: now.toISOString(), mistakes: 0, accuracy: 100 }
-  await assert.rejects(workspaces.modify(owner, 'default', ws => ({ lists: addApiRecord(ws.lists, 'tiny', record, [], 'r1').lists, result: null })),
+  await assert.rejects(workspaces.modify(owner, ws => ({ lists: addApiRecord(ws.lists, 'tiny', record, [], 'r1').lists, result: null })),
     { key: 'workspaceTooLarge' })
-  const { workspace } = await workspaces.modify(owner, 'default', ws => ({ lists: deleteList(ws.lists, 'tiny'), result: null }))
+  const { workspace } = await workspaces.modify(owner, ws => ({ lists: deleteList(ws.lists, 'tiny'), result: null }))
   assert.equal(workspace.revision, saved.revision + 1)
   assert.ok(size(workspace.lists) > MAX_API_LISTS_BYTES)
   assert.deepEqual(workspace.lists.map(list => list.id), ['big', 'mid'])

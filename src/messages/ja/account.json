@@ -5,7 +5,6 @@
   "githubUser": "GitHubユーザー",
   "menu": "アカウントメニュー",
   "signedInWithGitHub": "GitHubでログイン中",
-  "manageProfiles": "プロファイルを管理",
   "manageDevices": "端末を管理",
   "signOut": "ログアウト",
   "localLogin": {

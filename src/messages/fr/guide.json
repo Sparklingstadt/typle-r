@@ -158,12 +158,10 @@
     "warning": {
       "title": "Quand les données sont perdues",
       "p1": "Les données enregistrées dans ce navigateur sont effacées si vous supprimez les données de site du navigateur. Vous pouvez sauvegarder vos listes importantes avec « Exporter en CSV ».",
-      "p2": "La suppression d’une liste supprime aussi son historique d’entraînement.",
-      "p3": "Supprimer un profil supprime aussi ses listes de mots et ses résultats."
+      "p2": "La suppression d’une liste supprime aussi son historique d’entraînement."
     },
     "notes": {
       "p1": "Les deux emplacements conservent leurs données séparément, et rien n’est transféré automatiquement lors de la connexion.",
-      "profiles": "Avec des <profiles>profils</profiles> distincts, vous pouvez séparer listes de mots et résultats selon vos objectifs : entraînement courant, chinois, coréen… Les appareils sont communs à tous les profils. Changez de profil en haut de la barre latérale ; chaque navigateur mémorise son choix.",
       "p2": "Les données d’une version antérieure (v0.1.x) peuvent être ajoutées à l’emplacement actuel avec le bouton de migration de l’<home>Accueil</home>.",
       "p3": "Si l’enregistrement échoue parce que des modifications ont été faites dans plusieurs fenêtres en même temps, chargez les données les plus récentes puis réessayez."
     }
