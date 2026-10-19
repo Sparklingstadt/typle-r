@@ -1,7 +1,7 @@
 # GitHubログインとクラウド保存を戻す 設計
 
 - 日付: 2026-10-19
-- 対象バージョン: v0.37.0（機能追加）
+- 対象バージョン: v0.38.0（機能追加）
 - 前提: v0.36.0（`docs/superpowers/specs/2026-10-18-remove-server-design.md`）でサーバー機能をすべて削除した
 
 ## 目的
@@ -17,7 +17,7 @@ v0.36.0 で削除した GitHub ログイン（Auth.js）とアカウントのク
 | 方法 | v0.35.2（`df26bb9`）のファイルを取り出して戻し、共有リンクと APIトークンに関わる部分だけを取り除く。書き直しや v0.36.0 の revert はしない |
 | 振る舞い | 画面と `/api/workspace` の応答は v0.35.2 と同じ。ブラウザー保存のデータはそのまま使え、ブラウザーとアカウントのデータは別々のまま |
 | DB | `typle_workspaces` はそのまま。使わなくなった `typle_shared_lists` と `typle_api_tokens` はマイグレーション 0008 で削除する |
-| バージョン | `0.37.0`。PR タイトル `feat: GitHubログインとクラウド保存を戻す（v0.37.0）` |
+| バージョン | `0.38.0`。PR タイトル `feat: GitHubログインとクラウド保存を戻す（v0.38.0）` |
 
 ## 戻すもの（v0.35.2 から）
 
@@ -65,11 +65,11 @@ v0.36.0 で削除した GitHub ログイン（Auth.js）とアカウントのク
 
 ## 文書
 
-- README・`docs/release-workflow.md`・`docs/sentry.md`: ログインとクラウド保存、Neon・Docker・OAuth の設定、マイグレーションの説明を v0.35.2 の内容に戻す。共有リンク・Typle API・APIトークンの説明は戻さない。v0.37.0 の節で、戻したことと戻さなかったものを書く
+- README・`docs/release-workflow.md`・`docs/sentry.md`: ログインとクラウド保存、Neon・Docker・OAuth の設定、マイグレーションの説明を v0.35.2 の内容に戻す。共有リンク・Typle API・APIトークンの説明は戻さない。v0.38.0 の節で、戻したことと戻さなかったものを書く
 
 ## 環境変数・外部サービス（所有者）
 
-- Vercel の `AUTH_SECRET`・`AUTH_URL`・`AUTH_GITHUB_ID`・`AUTH_GITHUB_SECRET` と、Neon の連携が作った変数は消さない（v0.37.0 で使う）
+- Vercel の `AUTH_SECRET`・`AUTH_URL`・`AUTH_GITHUB_ID`・`AUTH_GITHUB_SECRET` と、Neon の連携が作った変数は消さない（v0.38.0 で使う）
 - GitHub の OAuth App と Neon のデータベースも残す
 
 ## 範囲外
