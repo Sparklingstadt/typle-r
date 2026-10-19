@@ -13,6 +13,8 @@ v0.36.0 で削除した GitHub ログイン（開発用ログインを含む）�
 
 GitHubログインは任意です。ログイン時は従来のアカウント専用クラウド保存に切り替わります。両方のデータは分離され、自動コピーしません。ログアウトするとブラウザー側のデータに戻ります。クラウドAPIは引き続き認証必須です。
 
+v0.37.0 で、ブラウザーの保存データを読むための読み取り専用API（Go、`server/`）を追加しました。Typle本体とは別に起動し、Vercelの本番には載せません。認証はまだありません。使い方は [読み取り専用API](docs/api.md) を参照してください。
+
 上部の「テーマ」からライト・ダーク・システムを選べます。初期設定はシステム（OSの外観に追従）です。選択はブラウザに保存され、再読み込みやページ移動後も維持されます。
 
 ## 表示言語（/settings）
@@ -46,6 +48,8 @@ Next.js のアプリは1つで、`src` を層に分けています。依存は�
 | core | `src/core` | React・Next.js・Prisma・ブラウザーAPIに依存しない TypeScript。単語リスト・入力判定・記録・集計・ワークスペースのモデルと検証、保存先のポート `WorkspaceStore`（`workspaceStore.ts`、保存場所 `location` を含む）、ワークスペースの読み込み・保存 `createWorkspaceSession`（`workspaceSession.ts`。アカウントの切り替え後に届いた結果の破棄、保存の直列化、409での再読み込み、古いクラウド読み込みの無視）とファイル形式のポート `WordFormat`（`wordFormat.ts`） |
 
 保存先を増やすときは `WorkspaceStore` を実装したプラグインを `src/plugins/storage` に追加し、`workspaceStore` で選びます。ファイル形式を増やすときは `WordFormat` を実装して `src/plugins/formats/index.ts` の一覧に加えると、取り込みの拡張子判定と `accept` に反映されます。どちらも画面のコードは変わりません。
+
+読み取り専用API（`server/`）はNext.jsとは独立したGoモジュールです。`internal/workspace` が保存データをアプリの `decodeLists`・`decodeDevices` と同じ規則で読み、`internal/api` がHTTPで返し、`cmd/typle-api` が起動します。依存は標準ライブラリだけです。
 
 ## OGP・共有画像
 
@@ -219,6 +223,8 @@ npm run build
 npx playwright install chromium
 npm run test:e2e
 ```
+
+Goの読み取り専用APIは `server/` で `gofmt -l .`・`go vet ./...`・`go test ./...` を実行します（CIの `verify` も実行します）。
 
 単体テストは入力判定、記録、移行、形式検証と実PostgreSQL上のPrismaクエリを検証します。E2Eは上限2 workersでファイル内も並列実行します。テストごとにランダムなアカウントIDを使用します。本番ビルドをポート3101で起動し、実PostgreSQLとAPIを通して作成・編集・練習・再読み込み・削除、アカウント分離、401/403/409応答を確認します。テスト専用秘密値で署名したセッションを使うため、GitHub OAuth画面の実ログインは別途確認が必要です。テストユーザーの行だけを終了後に削除します。
 
