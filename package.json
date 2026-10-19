@@ -10,6 +10,12 @@
     "test": "node --test tests/*.test.cjs",
     "typecheck": "tsc --noEmit --incremental false",
     "test:e2e": "playwright test",
+    "db:migrate": "node scripts/migrate.cjs",
+    "db:seed": "node scripts/seed.cjs",
+    "db:generate": "prisma generate",
+    "db:baseline": "node scripts/migrate.cjs --baseline",
+    "postinstall": "prisma generate",
+    "prebuild": "prisma generate",
     "dev:local": "next dev --hostname 127.0.0.1 --port 3000",
     "dev:lan": "node scripts/dev-lan.cjs"
   },
@@ -18,12 +24,16 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@next/env": "16.4.0",
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
     "@sentry/nextjs": "^11.1.0",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.2.5",
     "lucide-react": "^1.41.0",
     "next": "16.4.0",
+    "next-auth": "^5.0.0-beta.32",
     "next-intl": "^4.14.9",
+    "pg": "^8.23.0",
     "radix-ui": "^1.6.7",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -34,15 +44,25 @@
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^24.13.3",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.4.0",
     "postcss": "^8",
+    "prisma": "7.10.0",
     "tailwindcss": "^4.3.3",
     "typescript": "6.0.3"
   },
   "engines": {
     "node": "^22.12.0 || >=24.0.0"
+  },
+  "overrides": {
+    "@prisma/config": {
+      "deepmerge-ts": "8.0.2"
+    },
+    "prisma": {
+      "mysql2": "3.24.3"
+    }
   }
 }
