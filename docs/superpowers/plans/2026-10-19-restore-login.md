@@ -17,7 +17,7 @@
 - 共有リンク・APIトークン・`/api/v1`・`/api/tokens`・`/api/shared`・`/shared/[id]`・`docs/api.md` は戻さない
 - 以前の `shared`・`shareId` は読み込み時に捨てる（`src/core/wordLists.ts` の `decodeLists` の処理は v0.36.0 のまま）
 - 翻訳は6言語（ja・en・fr・ru・zh-CN・zh-TW）でキーをそろえる
-- バージョンは `0.37.0`、PR タイトル `feat: GitHubログインとクラウド保存を戻す（v0.37.0）`
+- バージョンは `0.38.0`、PR タイトル `feat: GitHubログインとクラウド保存を戻す（v0.38.0）`
 - `docs/release-workflow.md` の順序に従う。main へ直接 push しない
 - 各タスクの終わりに `npm run typecheck`・`npm test`・`npm run lint` が通る（Task 2 以降は `DATABASE_URL` をローカルの PostgreSQL に向けて実行する）
 
@@ -159,8 +159,8 @@
 **Files:**
 - Modify: `.github/workflows/ci.yml`（`df26bb9` の版の `verify` の `env.DATABASE_URL`・`services.postgres`・`npm run db:migrate` と、`deploy` の最後のステップ `Check production home and authentication boundary`（`/api/workspace` が `401`）に戻す。それ以外は今のまま）
 - Modify: `vercel.json`（`buildCommand` を `npm run db:migrate && npm run build`）
-- Modify: `README.md`・`docs/release-workflow.md`・`docs/sentry.md`（ログインとクラウド保存・Neon・Docker・OAuth・マイグレーションの説明を `df26bb9` の内容に戻す。共有リンク・Typle API・APIトークンの節と言及は戻さない。README の先頭近くに v0.37.0 の節を追加し、ログインとクラウド保存を戻したこと、共有リンク・APIトークン・Typle API は戻していないこと、0008 で2つのテーブルを削除したことを書く。`SITE_URL` の説明は残す）
-- Modify: `package.json`・`package-lock.json`（`npm version 0.37.0 --no-git-tag-version`）
+- Modify: `README.md`・`docs/release-workflow.md`・`docs/sentry.md`（ログインとクラウド保存・Neon・Docker・OAuth・マイグレーションの説明を `df26bb9` の内容に戻す。共有リンク・Typle API・APIトークンの節と言及は戻さない。README の先頭近くに v0.38.0 の節を追加し、ログインとクラウド保存を戻したこと、共有リンク・APIトークン・Typle API は戻していないこと、0008 で2つのテーブルを削除したことを書く。`SITE_URL` の説明は残す）
+- Modify: `package.json`・`package-lock.json`（`npm version 0.38.0 --no-git-tag-version`）
 
 - [ ] **Step 1: 変更する**（上の Files のとおり）
 - [ ] **Step 2: すべての確認を通す**
@@ -168,5 +168,5 @@
   Expected: すべて PASS（E2E は Task 5 と同じ扱い）
 - [ ] **Step 3: 戻し漏れと戻しすぎの確認**
   Run: `grep -rnE "api/v1|api/tokens|api/shared|sharedLists|ShareDialog|ApiTokens|tokenStore|typle_shared_lists|typle_api_tokens" src tests scripts .github README.md docs/release-workflow.md docs/sentry.md`
-  Expected: `prisma/migrations` 以外では、`removed.spec.ts` の 404 確認と README の v0.37.0 の節だけ
+  Expected: `prisma/migrations` 以外では、`removed.spec.ts` の 404 確認と README の v0.38.0 の節だけ
 - [ ] **Step 4: Commit・push** `chore: CI・文書にDBとログインを戻し、v0.37.0にする`。PR #51 の説明を実際の変更に合わせて更新する
