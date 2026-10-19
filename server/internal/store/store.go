@@ -1,4 +1,4 @@
-// Package store reads one account's workspace from the app's database (the typle_workspaces table, see
+// Package store reads accounts' workspaces from the app's database (the typle_workspaces table, see
 // prisma/schema.prisma). The connection is read-only: every transaction it starts is READ ONLY.
 package store
 
@@ -34,17 +34,10 @@ func ConnString(connection string) (string, error) {
 	return parsed.String(), nil
 }
 
-type Store struct {
-	pool  *pgxpool.Pool
-	owner string
-}
+type Store struct{ pool *pgxpool.Pool }
 
-// Open connects to the database and checks that it answers. owner is the account whose workspace is read, such as
-// github:12345.
-func Open(ctx context.Context, connection, owner string) (*Store, error) {
-	if owner == "" {
-		return nil, errors.New("owner is required")
-	}
+// Open connects to the database and checks that it answers.
+func Open(ctx context.Context, connection string) (*Store, error) {
 	strict, err := ConnString(connection)
 	if err != nil {
 		return nil, err
@@ -62,15 +55,16 @@ func Open(ctx context.Context, connection, owner string) (*Store, error) {
 		pool.Close()
 		return nil, err
 	}
-	return &Store{pool: pool, owner: owner}, nil
+	return &Store{pool: pool}, nil
 }
 
 func (s *Store) Close() { s.pool.Close() }
 
-// Read returns the saved workspace. An account that has saved nothing yet has the initial lists, as in the app.
-func (s *Store) Read(ctx context.Context) (*workspace.Workspace, error) {
+// Read returns the owner's saved workspace, such as github:12345's. An account that has saved nothing yet has the
+// initial lists, as in the app.
+func (s *Store) Read(ctx context.Context, owner string) (*workspace.Workspace, error) {
 	var lists, devices []byte
-	err := s.pool.QueryRow(ctx, `SELECT lists::text, devices::text FROM typle_workspaces WHERE owner_id = $1`, s.owner).
+	err := s.pool.QueryRow(ctx, `SELECT lists::text, devices::text FROM typle_workspaces WHERE owner_id = $1`, owner).
 		Scan(&lists, &devices)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return workspace.Initial()
@@ -80,7 +74,7 @@ func (s *Store) Read(ctx context.Context) (*workspace.Workspace, error) {
 	}
 	w, err := workspace.Decode(lists, devices)
 	if err != nil {
-		return nil, fmt.Errorf("saved workspace of %s: %w", s.owner, err)
+		return nil, fmt.Errorf("saved workspace of %s: %w", owner, err)
 	}
 	return w, nil
 }

@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/sparklingstadt/typle-r/server/internal/auth"
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
 
@@ -28,29 +29,62 @@ const savedLists = `[{
 
 const savedDevices = `[{ "id": "d1", "name": "自宅", "layout": "JIS" }]`
 
+// source has github:1's saved workspace; every other account has saved nothing.
 type source struct {
 	workspace *workspace.Workspace
 	err       error
-	reads     int
+	owners    []string
 }
 
-func (s *source) Read(context.Context) (*workspace.Workspace, error) {
-	s.reads++
-	return s.workspace, s.err
+func (s *source) Read(_ context.Context, owner string) (*workspace.Workspace, error) {
+	s.owners = append(s.owners, owner)
+	if s.err != nil || owner == "github:1" {
+		return s.workspace, s.err
+	}
+	return &workspace.Workspace{Lists: []workspace.List{}, Devices: []workspace.Device{}}, nil
 }
 
-func serve(t *testing.T, method, target string) *httptest.ResponseRecorder {
+// verifier knows alice (github:1) and bob (github:2). GitHub is down for the token "down".
+type verifier struct{}
+
+func (verifier) Owner(_ context.Context, token string) (string, error) {
+	switch token {
+	case "alice":
+		return "github:1", nil
+	case "bob":
+		return "github:2", nil
+	case "down":
+		return "", auth.ErrUnavailable
+	}
+	return "", auth.ErrInvalidToken
+}
+
+func saved(t *testing.T) *source {
 	t.Helper()
 	w, err := workspace.Decode([]byte(savedLists), []byte(savedDevices))
 	if err != nil {
 		t.Fatal(err)
 	}
-	return serveFrom(&source{workspace: w}, method, target)
+	return &source{workspace: w}
+}
+
+// serve requests as alice.
+func serve(t *testing.T, method, target string) *httptest.ResponseRecorder {
+	t.Helper()
+	return serveAs(saved(t), "Bearer alice", method, target)
 }
 
 func serveFrom(s *source, method, target string) *httptest.ResponseRecorder {
+	return serveAs(s, "Bearer alice", method, target)
+}
+
+func serveAs(s *source, authorization, method, target string) *httptest.ResponseRecorder {
+	request := httptest.NewRequest(method, target, nil)
+	if authorization != "" {
+		request.Header.Set("Authorization", authorization)
+	}
 	response := httptest.NewRecorder()
-	New(s).ServeHTTP(response, httptest.NewRequest(method, target, nil))
+	New(s, verifier{}).ServeHTTP(response, request)
 	return response
 }
 
@@ -143,8 +177,8 @@ func TestDatabaseUnavailable(t *testing.T) {
 	for _, path := range []string{"/api/v1/devices", "/api/v1/lists", "/api/v1/lists/l1", "/api/v1/lists/l1/records"} {
 		expect(t, serveFrom(failing, "GET", path), 503, `{"error":"databaseUnavailable"}`)
 	}
-	if failing.reads != 4 {
-		t.Fatalf("reads = %d", failing.reads)
+	if len(failing.owners) != 4 {
+		t.Fatalf("reads = %v", failing.owners)
 	}
 }
 
@@ -152,7 +186,41 @@ func TestReadsOnlyForKnownReads(t *testing.T) {
 	counting := &source{workspace: &workspace.Workspace{Lists: []workspace.List{}, Devices: []workspace.Device{}}}
 	serveFrom(counting, "GET", "/unknown")
 	serveFrom(counting, "POST", "/api/v1/lists")
-	if counting.reads != 0 {
-		t.Fatalf("reads = %d", counting.reads)
+	if len(counting.owners) != 0 {
+		t.Fatalf("reads = %v", counting.owners)
+	}
+}
+
+func TestNeedsToken(t *testing.T) {
+	for _, authorization := range []string{"", "Bearer", "Basic YWxpY2U6eA==", "Bearer nobody"} {
+		s := saved(t)
+		response := serveAs(s, authorization, "GET", "/api/v1/lists")
+		expect(t, response, 401, `{"error":"invalidToken"}`)
+		if response.Header().Get("WWW-Authenticate") != "Bearer" {
+			t.Fatalf("%q: WWW-Authenticate = %q", authorization, response.Header().Get("WWW-Authenticate"))
+		}
+		if len(s.owners) != 0 {
+			t.Fatalf("%q: read %v", authorization, s.owners)
+		}
+	}
+}
+
+func TestEachAccountReadsItsOwnWorkspace(t *testing.T) {
+	s := saved(t)
+	expect(t, serveAs(s, "Bearer bob", "GET", "/api/v1/lists"), 200, `{"lists":[]}`)
+	expect(t, serveAs(s, "bearer bob", "GET", "/api/v1/lists/l1"), 404, `{"error":"listNotFound"}`)
+	if got := body(t, serveAs(s, "Bearer alice", "GET", "/api/v1/lists")); !strings.Contains(got, `"id":"l1"`) {
+		t.Fatalf("alice = %s", got)
+	}
+	if strings.Join(s.owners, ",") != "github:2,github:2,github:1" {
+		t.Fatalf("owners = %v", s.owners)
+	}
+}
+
+func TestGitHubUnavailable(t *testing.T) {
+	s := saved(t)
+	expect(t, serveAs(s, "Bearer down", "GET", "/api/v1/devices"), 503, `{"error":"githubUnavailable"}`)
+	if len(s.owners) != 0 {
+		t.Fatalf("read %v", s.owners)
 	}
 }
