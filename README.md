@@ -170,7 +170,7 @@ UIを標準HTMLとTailwind CSSのみで実装しています。MUI・Emotion・S
 
 ## Dockerでの仮運用
 
-Node.js 22.12以上の22系、または24以上、npm、Docker Composeを使用します。
+Node.js 24以上、npm、Docker Composeを使用します。
 
 ```sh
 npm ci
