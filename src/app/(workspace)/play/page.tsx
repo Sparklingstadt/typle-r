@@ -3,9 +3,10 @@ import { Suspense, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { ArrowRight, ChevronDown, ChevronsUpDown, ChevronUp, CircleAlert, Gauge, List, MousePointerClick, Plus, RotateCcw, Search, Target, Timer, X } from "lucide-react"
+import { ArrowRight, ChevronDown, ChevronsUpDown, ChevronUp, CircleAlert, Eye, EyeOff, Gauge, List, MousePointerClick, Plus, RotateCcw, Search, Target, Timer, X } from "lucide-react"
 import type { PracticeDevice } from "@/core/devices"
 import { useChosenDevice } from "@/lib/deviceSelection"
+import { useLiveStatsVisible } from "@/lib/liveStats"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
@@ -98,6 +99,7 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
 }) {
   const t = useTranslations('practice')
   const [device, chooseDevice] = useChosenDevice(accountId, devices)
+  const [statsVisible, setStatsVisible] = useLiveStatsVisible()
   const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave } = usePractice(wordLists, update, device, listId)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -192,6 +194,11 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
           </button>
           <span className="flex-1" />
           <DeviceMenu devices={devices} device={running ? practiceDevice : device} locked={running} onChange={chooseDevice} onOpenChange={setMenuOpen} onCloseAutoFocus={focusPractice} />
+          {/* Hiding the live stats only changes the display: timing, saving and the result screen stay the same. */}
+          <Button variant="ghost" size="icon-lg" className="shrink-0" aria-pressed={statsVisible} aria-label={t('header.liveStats')} title={t('header.liveStats')}
+            onClick={() => { setStatsVisible(!statsVisible); if (!finished) input.current?.focus() }}>
+            {statsVisible ? <Eye aria-hidden="true" /> : <EyeOff aria-hidden="true" />}
+          </Button>
           <Button variant="ghost" size="lg" className="shrink-0 px-2 sm:px-2.5" onClick={() => restart()} aria-label={t('header.restart')} aria-keyshortcuts="Escape" title={t('header.restartTitle')}>
             <RotateCcw aria-hidden="true" /><span className="hidden sm:inline">{t('header.restartShort')}</span><Kbd className="hidden sm:inline-flex">Esc</Kbd>
           </Button>
@@ -232,7 +239,7 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
               onChange={event => changeInput(event.target.value, (event.nativeEvent as InputEvent).isComposing)} />
             <p id="practice-feedback" aria-live="polite" className="flex min-h-5 flex-wrap items-center justify-center text-xs text-muted-foreground">{feedback}</p>
           </div>
-          <LiveStats session={session} accuracy={result.accuracy} />
+          {statsVisible && <LiveStats session={session} accuracy={result.accuracy} />}
           <div className="flex min-h-14 flex-wrap items-center gap-2 border-t px-4 py-2.5 sm:pr-3 sm:pl-6">
             <span className="text-xs text-muted-foreground">{t('upcoming.next')}</span>
             {next.map((item, index) => <span key={index} className="inline-flex h-7 max-w-full items-center truncate rounded-full border px-3 text-[13px] text-muted-foreground">{item.display}</span>)}

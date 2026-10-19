@@ -110,3 +110,36 @@ test('long text keeps its spaces and wraps inside the practice card at 390px', a
   await page.getByRole('button', { name: 'すべての単語を表示' }).click()
   await expect(page.getByRole('list', { name: 'すべての単語' }).locator('[aria-current="step"]')).toContainText(sentence)
 })
+
+test('the live stats can be hidden, the choice is remembered and the result still shows the numbers', async ({ page }) => {
+  await seedGuest(page)
+  await page.goto('/play')
+  const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
+  const stats = page.getByLabel('練習中の記録', { exact: true })
+  const toggle = page.getByRole('button', { name: '練習中の記録を表示', exact: true })
+  await expect(stats).toBeVisible()
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true')
+
+  await input.pressSequentially('a')
+  await toggle.focus()
+  await page.keyboard.press('Enter')
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false')
+  await expect(stats).toHaveCount(0)
+  await expect(input).toBeFocused()
+  await expect(input).toHaveValue('a')
+
+  await page.reload()
+  await expect(page.getByRole('button', { name: '練習中の記録を表示', exact: true })).toHaveAttribute('aria-pressed', 'false')
+  await expect(stats).toHaveCount(0)
+
+  // Hidden stats are still timed and saved.
+  await input.pressSequentially('abcd')
+  const result = page.getByLabel('練習結果', { exact: true })
+  await expect(result).toContainText('正確率')
+  await expect(result).toContainText('練習記録を保存しました。このリストの 1 位です。')
+
+  await page.getByRole('button', { name: '練習中の記録を表示', exact: true }).click()
+  await page.getByRole('button', { name: '最初からやり直す', exact: true }).click()
+  await expect(stats).toBeVisible()
+  expect(await page.evaluate(() => localStorage.getItem('typle-r:live-stats'))).toBeNull()
+})

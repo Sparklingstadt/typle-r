@@ -23,7 +23,8 @@
     "wordCount": "{count}語",
     "restart": "最初からやり直す",
     "restartTitle": "最初からやり直す（Esc）",
-    "restartShort": "やり直す"
+    "restartShort": "やり直す",
+    "liveStats": "練習中の記録を表示"
   },
   "word": {
     "typeThis": "入力する文字",

@@ -23,7 +23,8 @@
     "wordCount": "{count, plural, one {# слово} few {# слова} many {# слов} other {# слова}}",
     "restart": "Начать заново",
     "restartTitle": "Начать заново (Esc)",
-    "restartShort": "Заново"
+    "restartShort": "Заново",
+    "liveStats": "Показывать текущие показатели"
   },
   "word": {
     "typeThis": "Введите",

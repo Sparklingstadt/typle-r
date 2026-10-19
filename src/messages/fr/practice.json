@@ -23,7 +23,8 @@
     "wordCount": "{count, plural, one {# mot} other {# mots}}",
     "restart": "Recommencer",
     "restartTitle": "Recommencer (Esc)",
-    "restartShort": "Recommencer"
+    "restartShort": "Recommencer",
+    "liveStats": "Afficher les statistiques en direct"
   },
   "word": {
     "typeThis": "À saisir",
