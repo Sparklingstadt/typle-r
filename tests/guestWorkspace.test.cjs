@@ -41,11 +41,17 @@ test('quota and oversized writes retain the previous data', () => {
   assert.throws(() => writeGuestWorkspace({ ...saved, lists: [] }, store), { key: 'guestWriteFailed' })
   assert.equal(store.getItem(GUEST_STORAGE_KEY), before)
 })
-test('the workspace is always kept in this browser, and the store follows other tabs', () => {
+test('each account uses its own store, says where it saves, and only the guest store follows other tabs', () => {
   const { workspaceStore } = require('../src/plugins/storage/index.ts')
   const { guestStore } = require('../src/plugins/storage/guest.ts')
-  assert.equal(workspaceStore(), guestStore)
-  assert.deepEqual(Object.keys(guestStore).sort(), ['read', 'subscribe', 'write'])
+  const { cloudStore } = require('../src/plugins/storage/cloud/client.ts')
+  assert.equal(workspaceStore('guest:local'), guestStore)
+  assert.equal(workspaceStore('github:1'), cloudStore)
+  assert.equal(guestStore.location, 'browser')
+  assert.equal(cloudStore.location, 'account')
+  assert.equal(guestStore.staleReads, false)
+  assert.equal(cloudStore.staleReads, true)
+  assert.equal(cloudStore.subscribe, undefined)
   const previous = globalThis.window
   globalThis.window = new EventTarget()
   try {

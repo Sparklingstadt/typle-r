@@ -13,7 +13,9 @@
   },
   "storage": {
     "guest": "Enregistré dans ce navigateur",
-    "guestDetail": "Les données sont enregistrées uniquement dans ce navigateur, sans synchronisation avec d’autres appareils ou navigateurs."
+    "account": "Enregistré sur votre compte",
+    "guestDetail": "Vous n’êtes pas connecté : les données sont enregistrées dans le LocalStorage de ce navigateur.",
+    "accountDetail": "Enregistré sur le compte connecté."
   },
   "form": {
     "cancel": "Annuler",

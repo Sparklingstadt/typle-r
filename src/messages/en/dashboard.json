@@ -1,6 +1,7 @@
 {
   "title": "Practice overview",
   "sourceGuest": "Totals are based on the records saved in this browser.",
+  "sourceAccount": "Totals are based on the records saved to your account.",
   "start": "Get started",
   "practice": "Practice",
   "create": "Create a list",

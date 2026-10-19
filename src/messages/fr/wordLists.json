@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Listes de mots",
-    "description": "Créez et modifiez les listes de mots pour vos entraînements. Exportez une liste en CSV pour l’importer dans un autre navigateur ou sur un autre appareil.",
+    "description": "Créez et modifiez les listes de mots pour vos entraînements. Exportez une liste en CSV pour l’importer dans un autre navigateur ou compte.",
     "reload": "Recharger",
     "notFound": "La liste de mots que vous avez essayé d’ouvrir est introuvable. Elle a peut-être été supprimée.",
     "editTitle": "Modifier la liste de mots",
@@ -156,11 +156,13 @@
   "legacy": {
     "title": "Migrer les données d’une ancienne version",
     "description": "Ajoute à {target} les listes de mots et résultats de la v0.1.x encore présents dans ce navigateur. Les données d’origine sont conservées, et migrer à nouveau les mêmes données ne crée pas de doublons.",
+    "currentAccount": "votre compte actuel",
     "thisBrowser": "ce navigateur",
     "none": "Aucune donnée à migrer.",
     "done": "Migration terminée. Les données d’origine restent dans ce navigateur.",
     "failed": "Impossible de lire les données enregistrées. Les données d’origine n’ont pas été modifiées.",
     "busy": "Migration…",
+    "toAccount": "Migrer vers ce compte",
     "toBrowser": "Migrer vers ce navigateur",
     "suffix": " (migré {n})"
   }

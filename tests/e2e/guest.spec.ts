@@ -17,8 +17,10 @@ async function addDevice(page: import('@playwright/test').Page, name: string) {
   await expect(dialog).toHaveCount(0)
 }
 
-test('guest can create, import, export, edit, practice, manage devices and delete', async ({ page }) => {
+test('guest can create, import, export, edit, practice, manage devices and delete without cloud persistence', async ({ page }) => {
+  const requests: string[] = []
   const errors: string[] = []
+  page.on('request', request => { if (request.url().includes('/api/workspace')) requests.push(request.method()) })
   page.on('pageerror', error => errors.push(error.message))
   await page.goto('/create')
   await importWords(page, { name: 'Guest.csv', mimeType: 'text/csv', buffer: Buffer.from('input,display,annotation\na,First,one\nb,Second,two') })
@@ -67,14 +69,17 @@ test('guest can create, import, export, edit, practice, manage devices and delet
   await expect(page.getByRole('button', { name: 'Guest saved を編集', exact: true })).toHaveCount(0)
   await page.setViewportSize({ width: 390, height: 844 })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  expect(requests).toEqual([])
   expect(errors).toEqual([])
 })
 
-test('corrupt local data remains untouched', async ({ page }) => {
+test('corrupt local data remains untouched and cloud API requires authentication', async ({ page }) => {
   await page.addInitScript(key => localStorage.setItem(key, '{broken'), key)
   await page.goto('/edit')
   await expect(page.getByRole('alert').filter({ hasText: '元のデータは変更していません' })).toBeVisible()
   expect(await page.evaluate(key => localStorage.getItem(key), key)).toBe('{broken')
+  expect((await page.request.get('/api/workspace')).status()).toBe(401)
+  expect((await page.request.put('/api/workspace', { headers: { Origin: 'http://127.0.0.1:3101' }, data: { accountId: 'guest:local', revision: 0, lists: [] } })).status()).toBe(401)
 })
 
 test('quota failure keeps draft and allows retry', async ({ page }) => {
@@ -97,6 +102,24 @@ test('quota failure keeps draft and allows retry', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Retry を編集', exact: true })).toBeVisible()
 })
 
+test('GitHub session uses a separate workspace and signing out restores guest data', async ({ page }) => {
+  let loggedIn = false
+  await page.route('**/api/auth/session', route => route.fulfill({ json: loggedIn ? { user: { id: 'github:123', name: 'Cloud' }, expires: '2099-01-01' } : {} }))
+  await page.route('**/api/workspace', route => route.fulfill({ json: { accountId: 'github:123', revision: 1, lists: [], devices: [] } }))
+  await page.goto('/devices')
+  await addDevice(page, 'Local only')
+  await expect(page.getByRole('heading', { name: 'Local only', exact: true })).toBeVisible()
+  const before = await page.evaluate(key => localStorage.getItem(key), key)
+  loggedIn = true
+  await page.reload()
+  await expect(page.getByRole('button', { name: 'アカウントメニュー' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '端末はまだ登録されていません', exact: true })).toBeVisible()
+  expect(await page.evaluate(key => localStorage.getItem(key), key)).toBe(before)
+  loggedIn = false
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Local only', exact: true })).toBeVisible()
+})
+
 test('guest changes propagate between tabs and deleted storage resets the workspace', async ({ page, context }) => {
   await page.goto('/devices')
   const other = await context.newPage()
@@ -108,7 +131,7 @@ test('guest changes propagate between tabs and deleted storage resets the worksp
   await expect(other.getByRole('heading', { name: '端末はまだ登録されていません', exact: true })).toBeVisible()
 })
 
-test('about page explains features and that data stays in this browser, and opens GitHub in a new tab', async ({ page }) => {
+test('about page explains features and storage, marks the browser as the current place, and opens GitHub in a new tab', async ({ page }) => {
   const { version } = JSON.parse(readFileSync('package.json', 'utf8'))
   await page.goto('/about')
   await expect(page).toHaveTitle('Typleについて | Typle')
@@ -118,9 +141,12 @@ test('about page explains features and that data stays in this browser, and open
     await expect(features.getByRole('link', { name, exact: true })).toHaveAttribute('href', path)
   }
   const storage = page.getByRole('region', { name: 'データの保存先', exact: true })
-  await expect(storage.getByRole('heading', { name: 'このブラウザー', exact: true })).toBeVisible()
-  await expect(storage.getByRole('heading', { name: 'アカウント', exact: true })).toHaveCount(0)
-  await expect(storage).toContainText('別の端末やブラウザーとは同期しません')
+  const browser = storage.getByRole('listitem').filter({ has: page.getByRole('heading', { name: 'このブラウザー', exact: true }) })
+  const account = storage.getByRole('listitem').filter({ has: page.getByRole('heading', { name: 'アカウント', exact: true }) })
+  await expect(browser).toHaveAttribute('aria-current', 'true')
+  await expect(browser).toContainText('今の保存先')
+  await expect(account).not.toHaveAttribute('aria-current', /.*/)
+  await expect(storage.getByText('今の保存先', { exact: true })).toHaveCount(1)
   const version_ = page.getByRole('region', { name: 'バージョンと開発', exact: true })
   await expect(version_).toContainText(`v${version}`)
   const github = version_.getByRole('link', { name: /^GitHub\s*（新しいタブで開く）$/ })

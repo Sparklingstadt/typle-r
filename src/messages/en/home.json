@@ -9,6 +9,6 @@
     "create": "Create a list",
     "records": "View records"
   },
-  "storage": "Word lists, practice history, and devices are saved in this browser. They do not sync with other devices or browsers.",
+  "storage": "You can use every practice and editing feature without signing in. Word lists, practice history, and devices are saved in this browser. Signing in with GitHub switches to a separate storage location, your account, which syncs across devices. Data in the browser is not moved automatically.",
   "links": "<guide>How to use</guide> / <about>About Typle</about>"
 }

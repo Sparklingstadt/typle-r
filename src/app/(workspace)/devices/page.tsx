@@ -31,7 +31,7 @@ export default function Devices() {
           {t.rich('description', { link: chunks => <Link href="/play" className="underline underline-offset-3 hover:text-foreground">{chunks}</Link> })}
         </p>
       </div>
-      {workspace.ready && <PageStorageBadge />}
+      {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
     </header>
     {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
     {!workspace.ready ? <div role="status" className="space-y-3"><p>{common('loading')}</p><Skeleton className="h-20 w-full" /><Skeleton className="h-40 w-full" /></div>

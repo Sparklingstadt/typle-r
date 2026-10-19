@@ -16,6 +16,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import SortableWordRow, { WORD_ROW_COLUMNS } from "./SortableWordRow"
 import type { SavedWordList } from "@/core/wordLists"
+import type { WorkspaceLocation } from "@/core/workspaceStore"
 import { AppError, type ErrorKey } from "@/core/appError"
 import { currentRecordCount } from "@/core/listOverview"
 import PageStorageBadge from "@/components/PageStorageBadge"
@@ -40,9 +41,10 @@ function FieldError({ id, message, alert }: { id: string; message: string; alert
   </p>
 }
 
-export default function WordListEditor({ title, description, initial, error, errorKey, onSave, onCancel, onDirtyChange, cancelRequest = 0 }: {
+export default function WordListEditor({ title, description, storage, initial, error, errorKey, onSave, onCancel, onDirtyChange, cancelRequest = 0 }: {
   title: string
   description?: ReactNode
+  storage?: WorkspaceLocation
   initial?: SavedWordList
   error?: string
   /** Which error `error` is, so a duplicate name can be shown on the name field. */
@@ -204,7 +206,7 @@ export default function WordListEditor({ title, description, initial, error, err
         <h1 className="text-2xl font-bold">{title}</h1>
         <p className="text-sm text-muted-foreground">{description ?? t("description")}</p>
       </div>
-      <PageStorageBadge />
+      <PageStorageBadge storage={storage} />
     </header>
 
     <div className="space-y-6">

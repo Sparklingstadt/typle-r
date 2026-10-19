@@ -1,12 +1,16 @@
 "use client"
-import { HardDrive } from 'lucide-react'
+import { Cloud, HardDrive } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import type { WorkspaceLocation } from '@/core/workspaceStore'
 
-/** Beside a page heading: the page's data is saved in this browser, with the same icon as the top bar. */
-export default function PageStorageBadge() {
+/** Beside a page heading: where the page's data is saved, with the same icons as the top bar. Nothing until that is known. */
+export default function PageStorageBadge({ storage }: { storage?: WorkspaceLocation }) {
   const t = useTranslations('common.storage')
+  if (!storage) return null
+  const guest = storage === 'browser'
+  const Icon = guest ? HardDrive : Cloud
   return <span className="inline-flex h-7 items-center gap-1.5 rounded-full border bg-card px-3 text-xs font-medium text-muted-foreground"
-    title={t('guestDetail')}>
-    <HardDrive className="size-3.5" aria-hidden="true" />{t('guest')}
+    title={t(guest ? 'guestDetail' : 'accountDetail')}>
+    <Icon className="size-3.5" aria-hidden="true" />{t(guest ? 'guest' : 'account')}
   </span>
 }

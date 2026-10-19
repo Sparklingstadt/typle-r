@@ -1,0 +1,16 @@
+{
+  "checking": "ログイン状態を確認中",
+  "signIn": "ログイン",
+  "signInWithGitHub": "GitHubでログイン",
+  "githubUser": "GitHubユーザー",
+  "menu": "アカウントメニュー",
+  "signedInWithGitHub": "GitHubでログイン中",
+  "manageDevices": "端末を管理",
+  "signOut": "ログアウト",
+  "localLogin": {
+    "title": "このMacでTypleを使う",
+    "description": "国名193か国の練習を始められます。リストと練習記録は、このMacの専用データベースに保存されます。",
+    "start": "練習を始める",
+    "failed": "ログインできませんでした。もう一度お試しください。"
+  }
+}

@@ -1,6 +1,7 @@
 {
   "title": "練習概況",
   "sourceGuest": "根據儲存在此瀏覽器中的紀錄統計。",
+  "sourceAccount": "根據儲存在帳號中的紀錄統計。",
   "start": "開始",
   "practice": "開始練習",
   "create": "建立清單",

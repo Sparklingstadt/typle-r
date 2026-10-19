@@ -83,7 +83,7 @@
     "bestByAccuracy": "New best on accuracy",
     "behind": "Best: {time} s · {accuracy}%",
     "behindNoAccuracy": "Best: {time} s · accuracy not recorded",
-    "saveFailed": "Couldn’t save the record. Your result is still on this screen. Please try again.",
+    "saveFailed": "Couldn’t save the record. Your result is still on this screen. Check your connection and try again.",
     "retry": "Try saving again",
     "saved": "Saved to your practice history. This run ranks {rank, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} for this list.",
     "saving": "Saving the record…",

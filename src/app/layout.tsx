@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import Navbar from "@/components/Navbar/Navbar";
+import AuthProvider from "@/components/AuthProvider";
 import { WorkspaceProvider } from "@/lib/useWordLists";
 import { THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme/bootstrap";
 import { openGraphLocales } from "@/i18n/config";
@@ -17,6 +18,7 @@ const notoSans = Noto_Sans_JP({
 });
 
 const siteUrl = process.env.SITE_URL
+  || process.env.AUTH_URL
   || (process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
     : "http://localhost:3000");
@@ -64,6 +66,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       </head>
       <body className="bg-muted/40 font-sans text-foreground antialiased">
       <NextIntlClientProvider messages={clientMessages(await getMessages() as Messages)}>
+      <AuthProvider>
       <WorkspaceProvider>
       <Navbar />
       <div className="flex min-h-[calc(100dvh-3.5rem)]">
@@ -73,6 +76,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         </div>
       </div>
       </WorkspaceProvider>
+      </AuthProvider>
       </NextIntlClientProvider>
       </body>
     </html>

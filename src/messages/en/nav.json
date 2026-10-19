@@ -26,8 +26,10 @@
   },
   "storage": {
     "label": "Saved to: ",
+    "account": "Saved to your account",
     "browser": "Saved in this browser",
-    "browserDetail": "Data is saved only in this browser. It does not sync with other devices or browsers."
+    "accountDetail": "Saved to your GitHub account and synced across the devices you sign in on.",
+    "browserDetail": "You are not signed in, so data is saved only in this browser."
   },
   "theme": {
     "label": "Dark mode",
