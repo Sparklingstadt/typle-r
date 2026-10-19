@@ -65,20 +65,23 @@ jobs:
           cache: npm
       - name: Test release safety checks
         run: node --test scripts/ci/release.test.cjs
-      # The read-only Go API (server/) has no dependencies, so there is nothing to cache.
+      - run: npm ci
+      - run: npm run db:migrate
+      # The read-only Go API (server/) is tested against the tables db:migrate just made. '1.25' is the newest
+      # 1.25.x release, which satisfies go.mod.
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
-          go-version-file: server/go.mod
-          cache: false
+          go-version: '1.25'
+          cache-dependency-path: server/go.sum
       - name: Check Go API
         working-directory: server
+        env:
+          TYPLE_TEST_DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |
           unformatted=$(gofmt -l .)
           test -z "$unformatted" || { echo "Run gofmt -w on: $unformatted"; exit 1; }
           go vet ./...
           go test ./...
-      - run: npm ci
-      - run: npm run db:migrate
       - run: npm run typecheck
       - run: npm test
       - run: npm run lint

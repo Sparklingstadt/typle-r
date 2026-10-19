@@ -1,35 +1,25 @@
-// Package workspace reads a Typle workspace: the JSON the app keeps in the browser's LocalStorage under
-// typle-r:guest-workspace:v1. The checks follow decodeLists (src/core/wordLists.ts) and decodeDevices
-// (src/core/devices.ts), so a file the app would read is read here and one it would refuse is refused. The one
+// Package workspace reads a Typle workspace: the lists and devices of an account, as the app saves them in the
+// typle_workspaces table. The checks follow decodeLists (src/core/wordLists.ts) and decodeDevices
+// (src/core/devices.ts), so data the app would read is read here and data it would refuse is refused. The one
 // difference is that null in an optional field reads as the field left out.
 package workspace
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"os"
 	"slices"
 	"strings"
 	"time"
 	"unicode/utf16"
 )
 
-// GuestAccountID is the accountId the app stores with the browser's workspace.
-const GuestAccountID = "guest:local"
-
 const (
-	// MaxBytes matches MAX_GUEST_BYTES in src/plugins/storage/guest.ts.
-	MaxBytes        = 10 * 1024 * 1024
 	maxDevices      = 100
 	maxDeviceID     = 100
 	maxDeviceName   = 100
 	maxDeviceLayout = 200
 	defaultDeviceID = "default"
-	documentVersion = 1
-	maxSafeRevision = 1<<53 - 1
 )
 
 type Word struct {
@@ -107,79 +97,28 @@ type rawList struct {
 	Records   []*rawRecord `json:"records"`
 }
 
-type rawDocument struct {
-	Version   *int              `json:"version"`
-	AccountID *string           `json:"accountId"`
-	Revision  *int64            `json:"revision"`
-	Lists     []*rawList        `json:"lists"`
-	Devices   []json.RawMessage `json:"devices"`
-	Profiles  []json.RawMessage `json:"profiles"`
-}
-
-var (
-	ErrTooLarge = errors.New("workspace is larger than 10 MiB")
-	// ErrLegacyProfiles is data from before profiles were removed. The app merges them the next time it opens.
-	ErrLegacyProfiles = errors.New("workspace still has profiles: open Typle in the browser once to merge them, then copy it again")
-)
-
-// Load reads the workspace saved at path.
-func Load(path string) (*Workspace, error) {
-	file, err := os.Open(path)
+// Decode reads a saved row: its lists and devices columns.
+func Decode(lists, devices []byte) (*Workspace, error) {
+	var rawLists []*rawList
+	if err := json.Unmarshal(lists, &rawLists); err != nil {
+		return nil, fmt.Errorf("lists are not valid: %w", err)
+	}
+	if rawLists == nil {
+		return nil, errors.New("lists must be an array")
+	}
+	var rawDevices []json.RawMessage
+	if err := json.Unmarshal(devices, &rawDevices); err != nil {
+		return nil, fmt.Errorf("devices are not valid: %w", err)
+	}
+	decoded, err := decodeLists(rawLists)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
-	data := new(bytes.Buffer)
-	if _, err := data.ReadFrom(io.LimitReader(file, MaxBytes+1)); err != nil {
-		return nil, err
-	}
-	if data.Len() > MaxBytes {
-		return nil, ErrTooLarge
-	}
-	return Decode(data.Bytes())
-}
-
-// Decode reads a workspace: the stored { version: 1, accountId, revision, lists, devices }, or just
-// { version: 1, lists, devices? }. Revision 0 means nothing was saved yet, which shows the initial lists as in the app.
-func Decode(data []byte) (*Workspace, error) {
-	if len(data) > MaxBytes {
-		return nil, ErrTooLarge
-	}
-	var doc rawDocument
-	if err := json.Unmarshal(data, &doc); err != nil {
-		return nil, fmt.Errorf("workspace is not valid JSON: %w", err)
-	}
-	if doc.Version == nil || *doc.Version != documentVersion {
-		return nil, errors.New("workspace version must be 1")
-	}
-	if doc.AccountID != nil && *doc.AccountID != GuestAccountID {
-		return nil, fmt.Errorf("workspace accountId must be %q", GuestAccountID)
-	}
-	if doc.Revision != nil && (*doc.Revision < 0 || *doc.Revision > maxSafeRevision) {
-		return nil, errors.New("workspace revision must be a non-negative integer")
-	}
-	if len(doc.Profiles) > 0 {
-		return nil, ErrLegacyProfiles
-	}
-	if doc.Lists == nil {
-		return nil, errors.New("workspace lists must be an array")
-	}
-	devices, err := decodeDevices(doc.Devices)
+	registered, err := decodeDevices(rawDevices)
 	if err != nil {
 		return nil, err
 	}
-	if doc.Revision != nil && *doc.Revision == 0 {
-		initial, err := Initial()
-		if err != nil {
-			return nil, err
-		}
-		return &Workspace{Lists: initial.Lists, Devices: devices}, nil
-	}
-	lists, err := decodeLists(doc.Lists)
-	if err != nil {
-		return nil, err
-	}
-	return &Workspace{Lists: lists, Devices: devices}, nil
+	return &Workspace{Lists: decoded, Devices: registered}, nil
 }
 
 func decodeLists(raw []*rawList) ([]List, error) {

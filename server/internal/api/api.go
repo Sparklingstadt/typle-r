@@ -3,7 +3,9 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"regexp"
 	"slices"
@@ -34,29 +36,42 @@ func summary(list *workspace.List) listSummary {
 	return listSummary{ID: list.ID, Name: list.Name, WordCount: len(list.Words), RecordCount: len(list.Records), CreatedAt: list.CreatedAt}
 }
 
-type server struct{ workspace *workspace.Workspace }
+// Source reads the current workspace. It is read again for every request, so changes saved in the app show at once.
+type Source interface {
+	Read(ctx context.Context) (*workspace.Workspace, error)
+}
 
-// New serves the workspace, which must not change while it is served.
-func New(w *workspace.Workspace) http.Handler {
-	s := &server{workspace: w}
+type server struct{ source Source }
+
+func New(source Source) http.Handler {
+	s := &server{source: source}
 	mux := http.NewServeMux()
-	mux.Handle("/api/v1/devices", read(s.devices))
-	mux.Handle("/api/v1/lists", read(s.lists))
-	mux.Handle("/api/v1/lists/{listId}", read(s.list))
-	mux.Handle("/api/v1/lists/{listId}/records", read(s.records))
+	mux.Handle("/api/v1/devices", s.read(devices))
+	mux.Handle("/api/v1/lists", s.read(lists))
+	mux.Handle("/api/v1/lists/{listId}", s.read(list))
+	mux.Handle("/api/v1/lists/{listId}/records", s.read(records))
 	mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) { failure(w, http.StatusNotFound, "notFound") })
 	return mux
 }
 
-// read answers GET and HEAD only, with the JSON error the other routes use.
-func read(handle http.HandlerFunc) http.Handler {
+type handler func(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace)
+
+// read answers GET and HEAD only, with the JSON error the other routes use, and hands the handler the workspace.
+func (s *server) read(handle handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet && r.Method != http.MethodHead {
 			w.Header().Set("Allow", "GET, HEAD")
 			failure(w, http.StatusMethodNotAllowed, "methodNotAllowed")
 			return
 		}
-		handle(w, r)
+		ws, err := s.source.Read(r.Context())
+		if err != nil {
+			// As before: a database failure, or saved data that no longer decodes, is the server's fault.
+			log.Printf("%s %s: %v", r.Method, r.URL.Path, err)
+			failure(w, http.StatusServiceUnavailable, "databaseUnavailable")
+			return
+		}
+		handle(w, r, ws)
 	})
 }
 
@@ -74,20 +89,20 @@ func failure(w http.ResponseWriter, status int, key string) {
 	respond(w, status, map[string]string{"error": key})
 }
 
-func (s *server) devices(w http.ResponseWriter, _ *http.Request) {
-	respond(w, http.StatusOK, map[string]any{"devices": s.workspace.Devices})
+func devices(w http.ResponseWriter, _ *http.Request, ws *workspace.Workspace) {
+	respond(w, http.StatusOK, map[string]any{"devices": ws.Devices})
 }
 
-func (s *server) lists(w http.ResponseWriter, _ *http.Request) {
-	lists := make([]listSummary, 0, len(s.workspace.Lists))
-	for i := range s.workspace.Lists {
-		lists = append(lists, summary(&s.workspace.Lists[i]))
+func lists(w http.ResponseWriter, _ *http.Request, ws *workspace.Workspace) {
+	lists := make([]listSummary, 0, len(ws.Lists))
+	for i := range ws.Lists {
+		lists = append(lists, summary(&ws.Lists[i]))
 	}
 	respond(w, http.StatusOK, map[string]any{"lists": lists})
 }
 
-func (s *server) list(w http.ResponseWriter, r *http.Request) {
-	list := s.workspace.Find(r.PathValue("listId"))
+func list(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
+	list := ws.Find(r.PathValue("listId"))
 	if list == nil {
 		failure(w, http.StatusNotFound, "listNotFound")
 		return
@@ -98,8 +113,8 @@ func (s *server) list(w http.ResponseWriter, r *http.Request) {
 var digits = regexp.MustCompile(`^\d+$`)
 
 // records lists the newest first. `since` keeps the ones after that time; `limit` is 1 to 1000 (100 by default).
-func (s *server) records(w http.ResponseWriter, r *http.Request) {
-	list := s.workspace.Find(r.PathValue("listId"))
+func records(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
+	list := ws.Find(r.PathValue("listId"))
 	if list == nil {
 		failure(w, http.StatusNotFound, "listNotFound")
 		return

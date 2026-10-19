@@ -1,7 +1,9 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -10,9 +12,7 @@ import (
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
 
-const data = `{
-  "version": 1, "accountId": "guest:local", "revision": 2,
-  "lists": [{
+const savedLists = `[{
     "id": "l1", "name": "英単語", "createdAt": "2026-10-10T01:23:45.000Z", "shared": true,
     "words": [{ "display": "apple", "input": "apple", "annotation": "りんご" }, { "display": "pear", "input": "pear", "annotation": "" }],
     "records": [
@@ -24,18 +24,33 @@ const data = `{
   }, {
     "id": "l2", "name": "空", "createdAt": "2026-10-11T00:00:00.000Z",
     "words": [{ "display": "a", "input": "a", "annotation": "" }], "records": []
-  }],
-  "devices": [{ "id": "d1", "name": "自宅", "layout": "JIS" }]
-}`
+  }]`
+
+const savedDevices = `[{ "id": "d1", "name": "自宅", "layout": "JIS" }]`
+
+type source struct {
+	workspace *workspace.Workspace
+	err       error
+	reads     int
+}
+
+func (s *source) Read(context.Context) (*workspace.Workspace, error) {
+	s.reads++
+	return s.workspace, s.err
+}
 
 func serve(t *testing.T, method, target string) *httptest.ResponseRecorder {
 	t.Helper()
-	w, err := workspace.Decode([]byte(data))
+	w, err := workspace.Decode([]byte(savedLists), []byte(savedDevices))
 	if err != nil {
 		t.Fatal(err)
 	}
+	return serveFrom(&source{workspace: w}, method, target)
+}
+
+func serveFrom(s *source, method, target string) *httptest.ResponseRecorder {
 	response := httptest.NewRecorder()
-	New(w).ServeHTTP(response, httptest.NewRequest(method, target, nil))
+	New(s).ServeHTTP(response, httptest.NewRequest(method, target, nil))
 	return response
 }
 
@@ -120,5 +135,24 @@ func TestUnknownPaths(t *testing.T) {
 	}
 	if got := body(t, serve(t, "POST", "/api/v1/lists/l1/records")); got != `{"error":"methodNotAllowed"}` {
 		t.Fatalf("POST records = %s", got)
+	}
+}
+
+func TestDatabaseUnavailable(t *testing.T) {
+	failing := &source{err: errors.New("connection refused")}
+	for _, path := range []string{"/api/v1/devices", "/api/v1/lists", "/api/v1/lists/l1", "/api/v1/lists/l1/records"} {
+		expect(t, serveFrom(failing, "GET", path), 503, `{"error":"databaseUnavailable"}`)
+	}
+	if failing.reads != 4 {
+		t.Fatalf("reads = %d", failing.reads)
+	}
+}
+
+func TestReadsOnlyForKnownReads(t *testing.T) {
+	counting := &source{workspace: &workspace.Workspace{Lists: []workspace.List{}, Devices: []workspace.Device{}}}
+	serveFrom(counting, "GET", "/unknown")
+	serveFrom(counting, "POST", "/api/v1/lists")
+	if counting.reads != 0 {
+		t.Fatalf("reads = %d", counting.reads)
 	}
 }
