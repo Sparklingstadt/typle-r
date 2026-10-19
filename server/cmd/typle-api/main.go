@@ -1,4 +1,4 @@
-// Command typle-api serves one account's Typle workspace read-only over HTTP. See docs/api.md.
+// Command typle-api serves Typle workspaces read-only over HTTP, each to its own GitHub account. See docs/api.md.
 package main
 
 import (
@@ -13,12 +13,12 @@ import (
 	"time"
 
 	"github.com/sparklingstadt/typle-r/server/internal/api"
+	"github.com/sparklingstadt/typle-r/server/internal/auth"
 	"github.com/sparklingstadt/typle-r/server/internal/store"
 )
 
 func main() {
 	addr := flag.String("addr", "127.0.0.1:8080", "address to listen on")
-	owner := flag.String("owner", "", "account whose workspace is served, such as github:12345 (required)")
 	flag.Parse()
 
 	// The same variables as the app (src/plugins/storage/cloud/database.ts).
@@ -26,22 +26,22 @@ func main() {
 	if connection == "" {
 		connection = os.Getenv("POSTGRES_URL")
 	}
-	if connection == "" || *owner == "" {
-		log.Fatal("set DATABASE_URL (or POSTGRES_URL) and -owner")
+	if connection == "" {
+		log.Fatal("set DATABASE_URL (or POSTGRES_URL)")
 	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
 	open, cancel := context.WithTimeout(ctx, 15*time.Second)
-	source, err := store.Open(open, connection, *owner)
+	source, err := store.Open(open, connection)
 	cancel()
 	if err != nil {
 		log.Fatalf("connect to the database: %v", err)
 	}
 	defer source.Close()
 
-	server := &http.Server{Addr: *addr, Handler: api.New(source), ReadHeaderTimeout: 10 * time.Second}
+	server := &http.Server{Addr: *addr, Handler: api.New(source, auth.NewGitHub()), ReadHeaderTimeout: 10 * time.Second}
 	go func() {
 		<-ctx.Done()
 		shutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -49,7 +49,7 @@ func main() {
 		_ = server.Shutdown(shutdown)
 	}()
 
-	log.Printf("serving the workspace of %s on http://%s", *owner, *addr)
+	log.Printf("serving workspaces to their GitHub accounts on http://%s", *addr)
 	if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
 	}

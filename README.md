@@ -16,7 +16,7 @@ v0.36.0 で削除した GitHub ログイン（開発用ログインを含む）�
 
 GitHubログインは任意です。ログイン時は従来のアカウント専用クラウド保存に切り替わります。両方のデータは分離され、自動コピーしません。ログアウトするとブラウザー側のデータに戻ります。クラウドAPIは引き続き認証必須です。
 
-読み取り専用API（Go、`server/`）は、v0.39.0 からブラウザーの保存データではなく、指定した1アカウントのクラウド保存をDBから読みます。Typle本体とは別に起動し、Vercelの本番には載せません。認証はまだありません。使い方は [読み取り専用API](docs/api.md) を参照してください。
+読み取り専用API（Go、`server/`）は、アカウントのクラウド保存をDBから読みます。v0.40.0 からGitHubのトークンで認証し、トークンのユーザー本人のデータだけを返します。Typle本体とは別に起動し、Vercelの本番には載せません。使い方は [読み取り専用API](docs/api.md) を参照してください。
 
 上部の「テーマ」からライト・ダーク・システムを選べます。初期設定はシステム（OSの外観に追従）です。選択はブラウザに保存され、再読み込みやページ移動後も維持されます。
 
@@ -52,7 +52,7 @@ Next.js のアプリは1つで、`src` を層に分けています。依存は�
 
 保存先を増やすときは `WorkspaceStore` を実装したプラグインを `src/plugins/storage` に追加し、`workspaceStore` で選びます。ファイル形式を増やすときは `WordFormat` を実装して `src/plugins/formats/index.ts` の一覧に加えると、取り込みの拡張子判定と `accept` に反映されます。どちらも画面のコードは変わりません。
 
-読み取り専用API（`server/`）はNext.jsとは独立したGoモジュールです。`internal/store` が `typle_workspaces` を読み取り専用の接続で読み、`internal/workspace` がそれをアプリの `decodeLists`・`decodeDevices` と同じ規則で検証し、`internal/api` がHTTPで返し、`cmd/typle-api` が起動します。標準ライブラリ以外の依存はPostgreSQLのドライバー（pgx）だけです。
+読み取り専用API（`server/`）はNext.jsとは独立したGoモジュールです。`internal/auth` がGitHubのトークンからアカウントを確かめ、`internal/store` が `typle_workspaces` を読み取り専用の接続で読み、`internal/workspace` がそれをアプリの `decodeLists`・`decodeDevices` と同じ規則で検証し、`internal/api` がHTTPで返し、`cmd/typle-api` が起動します。標準ライブラリ以外の依存はPostgreSQLのドライバー（pgx）だけです。
 
 ## OGP・共有画像
 

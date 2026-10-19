@@ -1,16 +1,18 @@
-// Package api serves a workspace read-only, in the shapes of the removed /api/v1 (docs/api.md). There is no
-// authentication yet: anyone who can reach the server can read the whole workspace.
+// Package api serves a workspace read-only, in the shapes of the removed /api/v1 (docs/api.md). Each request names
+// its GitHub account with a token and reads only that account's workspace.
 package api
 
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"regexp"
 	"slices"
 	"strconv"
 
+	"github.com/sparklingstadt/typle-r/server/internal/auth"
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
 
@@ -36,15 +38,25 @@ func summary(list *workspace.List) listSummary {
 	return listSummary{ID: list.ID, Name: list.Name, WordCount: len(list.Words), RecordCount: len(list.Records), CreatedAt: list.CreatedAt}
 }
 
-// Source reads the current workspace. It is read again for every request, so changes saved in the app show at once.
+// Source reads an account's current workspace. It is read again for every request, so changes saved in the app show
+// at once.
 type Source interface {
-	Read(ctx context.Context) (*workspace.Workspace, error)
+	Read(ctx context.Context, owner string) (*workspace.Workspace, error)
 }
 
-type server struct{ source Source }
+// Verifier tells which account a token belongs to: auth.ErrInvalidToken when it belongs to none, auth.ErrUnavailable
+// when that cannot be told now.
+type Verifier interface {
+	Owner(ctx context.Context, token string) (string, error)
+}
 
-func New(source Source) http.Handler {
-	s := &server{source: source}
+type server struct {
+	source   Source
+	verifier Verifier
+}
+
+func New(source Source, verifier Verifier) http.Handler {
+	s := &server{source: source, verifier: verifier}
 	mux := http.NewServeMux()
 	mux.Handle("/api/v1/devices", s.read(devices))
 	mux.Handle("/api/v1/lists", s.read(lists))
@@ -56,7 +68,14 @@ func New(source Source) http.Handler {
 
 type handler func(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace)
 
-// read answers GET and HEAD only, with the JSON error the other routes use, and hands the handler the workspace.
+// RFC 6750 names the scheme a 401 expects.
+func unauthorized(w http.ResponseWriter) {
+	w.Header().Set("WWW-Authenticate", "Bearer")
+	failure(w, http.StatusUnauthorized, "invalidToken")
+}
+
+// read answers GET and HEAD only, with the JSON error the other routes use, and hands the handler the workspace of
+// the account the request's token belongs to.
 func (s *server) read(handle handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet && r.Method != http.MethodHead {
@@ -64,7 +83,22 @@ func (s *server) read(handle handler) http.Handler {
 			failure(w, http.StatusMethodNotAllowed, "methodNotAllowed")
 			return
 		}
-		ws, err := s.source.Read(r.Context())
+		token, ok := auth.BearerToken(r.Header.Get("Authorization"))
+		if !ok {
+			unauthorized(w)
+			return
+		}
+		owner, err := s.verifier.Owner(r.Context(), token)
+		if errors.Is(err, auth.ErrInvalidToken) {
+			unauthorized(w)
+			return
+		}
+		if err != nil {
+			log.Printf("%s %s: %v", r.Method, r.URL.Path, err)
+			failure(w, http.StatusServiceUnavailable, "githubUnavailable")
+			return
+		}
+		ws, err := s.source.Read(r.Context(), owner)
 		if err != nil {
 			// As before: a database failure, or saved data that no longer decodes, is the server's fault.
 			log.Printf("%s %s: %v", r.Method, r.URL.Path, err)

@@ -33,12 +33,6 @@ func TestConnString(t *testing.T) {
 	}
 }
 
-func TestOpenNeedsOwner(t *testing.T) {
-	if _, err := Open(context.Background(), "postgres://h/db", ""); err == nil {
-		t.Fatal("opened without an owner")
-	}
-}
-
 // The database tests need the app's tables (npm run db:migrate). They add rows under random owners and delete them.
 func database(t *testing.T) (string, *pgx.Conn) {
 	t.Helper()
@@ -75,12 +69,12 @@ func TestReadSavedWorkspace(t *testing.T) {
 		id, lists, `[{"id":"d1","name":"自宅","layout":"JIS"}]`, other); err != nil {
 		t.Fatal(err)
 	}
-	s, err := Open(ctx, connection, id)
+	s, err := Open(ctx, connection)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer s.Close()
-	w, err := s.Read(ctx)
+	w, err := s.Read(ctx, id)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -88,13 +82,8 @@ func TestReadSavedWorkspace(t *testing.T) {
 		t.Fatalf("workspace = %+v", w)
 	}
 
-	// Another account's row is never read.
-	s2, err := Open(ctx, connection, other)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer s2.Close()
-	if w, err := s2.Read(ctx); err != nil || len(w.Lists) != 0 {
+	// Each account reads only its own row.
+	if w, err := s.Read(ctx, other); err != nil || len(w.Lists) != 0 {
 		t.Fatalf("other = %+v, %v", w, err)
 	}
 }
@@ -102,12 +91,12 @@ func TestReadSavedWorkspace(t *testing.T) {
 func TestReadWithoutRowGivesInitialLists(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
-	s, err := Open(ctx, connection, owner(t, conn))
+	s, err := Open(ctx, connection)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer s.Close()
-	w, err := s.Read(ctx)
+	w, err := s.Read(ctx, owner(t, conn))
 	if err != nil || len(w.Lists) != 3 || w.Lists[0].ID != "sample-1" {
 		t.Fatalf("workspace = %+v, %v", w, err)
 	}
@@ -120,12 +109,12 @@ func TestReadRefusesDataTheAppRefuses(t *testing.T) {
 	if _, err := conn.Exec(ctx, `INSERT INTO typle_workspaces (owner_id, lists, devices) VALUES ($1, '[{"id":"l"}]', '[]')`, id); err != nil {
 		t.Fatal(err)
 	}
-	s, err := Open(ctx, connection, id)
+	s, err := Open(ctx, connection)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer s.Close()
-	if _, err := s.Read(ctx); err == nil {
+	if _, err := s.Read(ctx, id); err == nil {
 		t.Fatal("read an invalid workspace")
 	}
 }
@@ -134,7 +123,7 @@ func TestConnectionIsReadOnly(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s, err := Open(ctx, connection, id)
+	s, err := Open(ctx, connection)
 	if err != nil {
 		t.Fatal(err)
 	}
