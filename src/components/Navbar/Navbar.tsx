@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl"
+import AccountBar from "@/components/AccountBar"
 import ThemeSwitcher from "@/components/ThemeSwitcher"
 import Brand from "@/components/Navbar/Brand"
 import MobileNav from "@/components/Navbar/MobileNav"
@@ -15,6 +16,7 @@ export default function Navbar(){
         <div className="ml-auto flex min-w-0 items-center gap-1 sm:gap-2">
           <StorageBadge className="hidden sm:inline-flex" />
           <ThemeSwitcher />
+          <AccountBar />
         </div>
       </div>
     </header>

@@ -1,6 +1,7 @@
 "use client"
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import { useErrorText } from '@/i18n/useErrorText'
 import { AppError, type ErrorKey } from '../core/appError'
@@ -18,7 +19,8 @@ type Failure = { reason: unknown; fallback: ErrorKey } | null
 
 // One workspace state for the whole app, so every part of the screen shares the same data and saves.
 function useWorkspace() {
-  const accountId = GUEST_ACCOUNT_ID
+  const { data: session, status } = useSession()
+  const accountId = status === 'loading' ? undefined : session?.user?.id ?? GUEST_ACCOUNT_ID
   const pathname = usePathname()
   const [devices, setDevices] = useState<PracticeDevice[]>([])
   const [lists, setLists] = useState<SavedWordList[]>([])
@@ -27,9 +29,20 @@ function useWorkspace() {
   const t = useTranslations('errors')
   const errorText = useErrorText()
   const [saving, setSaving] = useState(false)
+  const [identity, setIdentity] = useState(accountId)
+  // Reset before rendering a different account's view, rather than in an effect.
+  if (identity !== accountId) {
+    setIdentity(accountId)
+    setSaving(false)
+    setLists([])
+    setDevices([])
+    setReady(false)
+    setFailure(null)
+  }
   const workspace = useRef<WorkspaceSession | null>(null)
   const refresh = useRef(() => {})
   useEffect(() => {
+    if (!accountId) return
     const current = createWorkspaceSession({
       store: workspaceStore(accountId), accountId, initialLists, saving: setSaving,
       show: shown => { setLists(shown.lists); setDevices(shown.devices) },
@@ -72,16 +85,17 @@ function useWorkspace() {
     }
   }
 
+  const loaded = status !== 'loading' && ready
   const error = failure ? errorText(failure.reason, t(failure.fallback)) : ''
   /** Which error is shown, for screens that place some errors next to a field. */
   const errorKey = failure?.reason instanceof AppError ? failure.reason.key : null
   return {
     lists, devices, accountId,
-    /** Where this workspace is saved. */
-    storage: workspaceStore(accountId).location,
+    /** Where this workspace is saved; undefined until the login is known. */
+    storage: accountId ? workspaceStore(accountId).location : undefined,
     updateDevices: (change: (current: PracticeDevice[]) => PracticeDevice[]) => save(current => current.update(lists => lists, true, change)),
     update: (change: (current: SavedWordList[]) => SavedWordList[], useDefaults?: boolean) => save(current => current.update(change, useDefaults)),
-    ready, error, errorKey, saving,
+    ready: loaded, error, errorKey, saving,
   }
 }
 
