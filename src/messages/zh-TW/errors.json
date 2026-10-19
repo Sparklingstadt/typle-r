@@ -1,4 +1,6 @@
 {
+  "workspaceRequestFailed": "無法取得或儲存資料。",
+  "invalidServerData": "伺服器傳回的資料無效。",
   "conflict": "資料已在其他畫面更新。請載入最新資料後再試。",
   "guestReadFailed": "無法讀取瀏覽器中儲存的資料。原始資料未被變更。",
   "storageChanged": "儲存位置已變更。請重新開啟頁面。",

@@ -1,4 +1,6 @@
 {
+  "workspaceRequestFailed": "无法获取或保存数据。",
+  "invalidServerData": "服务器返回的数据无效。",
   "conflict": "数据已在其他页面更新。请加载最新数据后重试。",
   "guestReadFailed": "无法读取浏览器中保存的数据。原始数据未被更改。",
   "storageChanged": "保存位置已更改。请重新打开页面。",

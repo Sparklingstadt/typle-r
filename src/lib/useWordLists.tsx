@@ -31,7 +31,7 @@ function useWorkspace() {
   const refresh = useRef(() => {})
   useEffect(() => {
     const current = createWorkspaceSession({
-      store: workspaceStore(), accountId, initialLists, saving: setSaving,
+      store: workspaceStore(accountId), accountId, initialLists, saving: setSaving,
       show: shown => { setLists(shown.lists); setDevices(shown.devices) },
     })
     workspace.current = current
@@ -45,7 +45,7 @@ function useWorkspace() {
       })
     }
     const reload = () => refresh.current()
-    const unsubscribe = workspaceStore().subscribe?.(reload)
+    const unsubscribe = workspaceStore(accountId).subscribe?.(reload)
     window.addEventListener('focus', reload)
     return () => {
       active = false
@@ -77,6 +77,8 @@ function useWorkspace() {
   const errorKey = failure?.reason instanceof AppError ? failure.reason.key : null
   return {
     lists, devices, accountId,
+    /** Where this workspace is saved. */
+    storage: workspaceStore(accountId).location,
     updateDevices: (change: (current: PracticeDevice[]) => PracticeDevice[]) => save(current => current.update(lists => lists, true, change)),
     update: (change: (current: SavedWordList[]) => SavedWordList[], useDefaults?: boolean) => save(current => current.update(change, useDefaults)),
     ready, error, errorKey, saving,

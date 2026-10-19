@@ -1,4 +1,6 @@
 {
+  "workspaceRequestFailed": "Impossible de récupérer ou d’enregistrer les données.",
+  "invalidServerData": "Les données reçues du serveur ne sont pas valides.",
   "conflict": "Les données ont été modifiées sur un autre écran. Chargez les dernières données et réessayez.",
   "guestReadFailed": "Impossible de lire les données enregistrées dans ce navigateur. Les données d’origine n’ont pas été modifiées.",
   "storageChanged": "L’emplacement d’enregistrement a changé. Veuillez rouvrir la page.",

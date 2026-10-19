@@ -1,4 +1,6 @@
 {
+  "workspaceRequestFailed": "データを取得・保存できませんでした。",
+  "invalidServerData": "サーバーからのデータが不正です。",
   "conflict": "別の画面で更新されています。最新データを読み込んでから再試行してください。",
   "guestReadFailed": "ブラウザーの保存データを読み込めません。元のデータは変更していません。",
   "storageChanged": "保存先が変わりました。画面を開き直してください。",

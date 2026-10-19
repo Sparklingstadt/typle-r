@@ -1,4 +1,6 @@
 {
+  "workspaceRequestFailed": "Could not load or save your data.",
+  "invalidServerData": "The server returned invalid data.",
   "conflict": "This data was updated on another screen. Load the latest data and try again.",
   "guestReadFailed": "Cannot read the data saved in this browser. The original data has not been changed.",
   "storageChanged": "The storage location has changed. Please reopen this page.",
