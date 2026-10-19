@@ -83,7 +83,7 @@
     "bestByAccuracy": "Meilleur résultat grâce à la précision",
     "behind": "Meilleur : {time} s · {accuracy} %",
     "behindNoAccuracy": "Meilleur : {time} s · précision non enregistrée",
-    "saveFailed": "Impossible d’enregistrer le résultat. Il reste affiché sur cet écran. Veuillez réessayer.",
+    "saveFailed": "Impossible d’enregistrer le résultat. Il reste affiché sur cet écran. Vérifiez votre connexion, puis réessayez.",
     "retry": "Réessayer l’enregistrement",
     "saved": "Résultat enregistré dans l’historique. Il se classe {rank, selectordinal, one {#er} other {#e}} pour cette liste.",
     "saving": "Enregistrement du résultat…",

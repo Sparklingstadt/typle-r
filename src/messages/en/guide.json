@@ -4,7 +4,7 @@
     "description": "How to start practicing in Typle, create word lists, read your records, where your data is saved, and keyboard shortcuts."
   },
   "title": "How to use",
-  "intro": "Everything from getting started with practice to creating word lists, reading your records, and where your data is saved.",
+  "intro": "Everything from getting started with practice to creating word lists, reading your records, and where your data is saved. All features work without signing in.",
   "contentsLabel": "On this page",
   "contents": {
     "practice": "Practice",
@@ -142,11 +142,18 @@
     "p3": "Renaming a device does not change earlier records; they keep the name the device had when you practiced. You can register up to 100 devices."
   },
   "storage": {
-    "lead": "Word lists, practice history, and devices are saved in this browser.",
+    "lead": "Signing in is optional. Where your data is saved depends on whether you are signed in.",
     "browser": {
       "title": "Saved in this browser",
+      "when": "When you are not signed in",
       "p1": "All features are available.",
       "p2": "Data is saved in this browser’s LocalStorage and is not synced with other devices or browsers."
+    },
+    "account": {
+      "title": "Saved to your account",
+      "when": "When you sign in with GitHub",
+      "p1": "Data is saved on a server dedicated to your account, so you can use the same data on any device you sign in on.",
+      "p2": "Saving requires an internet connection."
     },
     "warning": {
       "title": "When data is lost",
@@ -154,7 +161,7 @@
       "p2": "Deleting a list also deletes its practice history."
     },
     "notes": {
-      "p1": "To use a list in another browser or on another device, export it as CSV and import it there. Practice history is not included.",
+      "p1": "The two storage locations keep their data separately, and nothing is moved automatically when you sign in.",
       "p2": "Data from an earlier version (v0.1.x) can be added to the current storage location with the migration button on <home>Home</home>.",
       "p3": "If saving fails because changes were made in several windows at once, load the latest data and try again."
     }

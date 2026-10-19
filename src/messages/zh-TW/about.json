@@ -24,15 +24,24 @@
   },
   "storage": {
     "title": "資料的儲存位置",
-    "text": "單字清單、練習紀錄與裝置只會儲存在此瀏覽器中。若要在其他瀏覽器或裝置上使用單字清單，請匯出為 CSV 後在該處匯入。",
+    "text": "登入是選用的。儲存位置會依是否登入而不同，兩邊的資料分開儲存（不會自動移轉）。",
     "more": "詳細說明請參閱<link>使用說明中的「儲存位置與資料」</link>。"
   },
   "places": {
+    "current": "目前的儲存位置",
     "browser": {
       "title": "此瀏覽器",
+      "condition": "未登入時",
       "p1": "儲存在此瀏覽器的 LocalStorage 中",
       "p2": "不會與其他裝置或瀏覽器同步",
       "p3": "刪除瀏覽器資料後會消失"
+    },
+    "account": {
+      "title": "帳號",
+      "condition": "使用 GitHub 登入時",
+      "p1": "儲存在帳號專用的伺服器上",
+      "p2": "在登入的裝置上使用相同的資料",
+      "p3": "儲存時需要網路連線"
     }
   },
   "reports": {
@@ -43,7 +52,7 @@
     "title": "版本與開發",
     "version": "版本",
     "tech": "使用的技術",
-    "techList": "Next.js、React",
+    "techList": "Next.js、React、PostgreSQL（Neon）",
     "source": "原始碼",
     "newTab": "（在新分頁中開啟）",
     "private": "這是不公開的存放庫，只有獲准檢視的 GitHub 帳號才能開啟。"

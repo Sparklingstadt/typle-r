@@ -83,7 +83,7 @@
     "bestByAccuracy": "憑正確率刷新最佳",
     "behind": "最佳為 {time} 秒 · {accuracy}%",
     "behindNoAccuracy": "最佳為 {time} 秒 · 未記錄正確率",
-    "saveFailed": "無法儲存紀錄。結果仍保留在此畫面上。請再試一次。",
+    "saveFailed": "無法儲存紀錄。結果仍保留在此畫面上。請檢查網路連線後再試一次。",
     "retry": "重新儲存紀錄",
     "saved": "已儲存練習紀錄。在此清單中排名第 {rank} 名。",
     "saving": "正在儲存紀錄…",

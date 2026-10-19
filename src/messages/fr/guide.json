@@ -4,7 +4,7 @@
     "description": "Comment commencer à vous entraîner sur Typle, créer des listes de mots, consulter vos résultats, où sont enregistrées vos données et quels sont les raccourcis clavier."
   },
   "title": "Mode d’emploi",
-  "intro": "Tout ce qu’il faut savoir, des premiers pas à la création de listes de mots, en passant par la consultation des résultats et l’enregistrement des données.",
+  "intro": "Tout ce qu’il faut savoir, des premiers pas à la création de listes de mots, en passant par la consultation des résultats et l’enregistrement des données. Toutes les fonctionnalités sont disponibles sans vous connecter.",
   "contentsLabel": "Sur cette page",
   "contents": {
     "practice": "S’entraîner",
@@ -142,11 +142,18 @@
     "p3": "Si vous renommez un appareil, les résultats précédents gardent le nom qu’il avait au moment de l’entraînement. Vous pouvez enregistrer jusqu’à 100 appareils."
   },
   "storage": {
-    "lead": "Les listes de mots, l’historique et les appareils sont enregistrés dans ce navigateur.",
+    "lead": "La connexion est facultative. L’emplacement de vos données dépend de votre connexion.",
     "browser": {
       "title": "Enregistré dans ce navigateur",
+      "when": "Quand vous n’êtes pas connecté",
       "p1": "Toutes les fonctionnalités sont disponibles.",
       "p2": "Les données sont enregistrées dans le LocalStorage de ce navigateur et ne sont pas synchronisées avec d’autres appareils ou navigateurs."
+    },
+    "account": {
+      "title": "Enregistré sur votre compte",
+      "when": "Quand vous êtes connecté avec GitHub",
+      "p1": "Les données sont enregistrées sur un serveur dédié à votre compte : une fois connecté, vous retrouvez les mêmes données sur tous vos appareils.",
+      "p2": "L’enregistrement nécessite une connexion Internet."
     },
     "warning": {
       "title": "Quand les données sont perdues",
@@ -154,7 +161,7 @@
       "p2": "La suppression d’une liste supprime aussi son historique d’entraînement."
     },
     "notes": {
-      "p1": "Pour utiliser une liste dans un autre navigateur ou sur un autre appareil, exportez-la en CSV puis importez-la. L’historique d’entraînement n’est pas inclus.",
+      "p1": "Les deux emplacements conservent leurs données séparément, et rien n’est transféré automatiquement lors de la connexion.",
       "p2": "Les données d’une version antérieure (v0.1.x) peuvent être ajoutées à l’emplacement actuel avec le bouton de migration de l’<home>Accueil</home>.",
       "p3": "Si l’enregistrement échoue parce que des modifications ont été faites dans plusieurs fenêtres en même temps, chargez les données les plus récentes puis réessayez."
     }

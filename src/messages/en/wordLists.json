@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Word lists",
-    "description": "Create and edit the word lists you practice with. Export a list as CSV to import it in another browser or on another device.",
+    "description": "Create and edit the word lists you practice with. Export a list as CSV to import it in another browser or account.",
     "reload": "Reload",
     "notFound": "The word list you tried to open could not be found. It may have been deleted.",
     "editTitle": "Edit word list",
@@ -156,11 +156,13 @@
   "legacy": {
     "title": "Move data from an earlier version",
     "description": "Adds the word lists and records from v0.1.x still stored in this browser to {target}. The original data is kept, and moving the same data again does not create duplicates.",
+    "currentAccount": "the current account",
     "thisBrowser": "this browser",
     "none": "There is no data to move.",
     "done": "Data moved. The original data is still in this browser.",
     "failed": "Could not read the saved data. The original data has not been changed.",
     "busy": "Moving…",
+    "toAccount": "Move to this account",
     "toBrowser": "Move to this browser",
     "suffix": " (imported {n})"
   }

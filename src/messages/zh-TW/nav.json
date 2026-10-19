@@ -26,8 +26,10 @@
   },
   "storage": {
     "label": "儲存位置：",
+    "account": "儲存至帳號",
     "browser": "儲存在此瀏覽器",
-    "browserDetail": "資料只會儲存在此瀏覽器中，不會與其他裝置或瀏覽器同步。"
+    "accountDetail": "儲存至 GitHub 帳號，並在登入的裝置之間同步。",
+    "browserDetail": "由於尚未登入，資料只會儲存在此瀏覽器中。"
   },
   "theme": {
     "label": "深色模式",

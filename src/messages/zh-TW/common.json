@@ -13,7 +13,9 @@
   },
   "storage": {
     "guest": "儲存在此瀏覽器",
-    "guestDetail": "資料只會儲存在此瀏覽器中，不會與其他裝置或瀏覽器同步。"
+    "account": "儲存至帳號",
+    "guestDetail": "由於尚未登入，資料會儲存在此瀏覽器的 LocalStorage 中。",
+    "accountDetail": "儲存至目前登入的帳號。"
   },
   "form": {
     "cancel": "取消",
