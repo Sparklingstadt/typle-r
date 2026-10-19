@@ -63,7 +63,8 @@
       "p1": "Quand tous les caractères correspondent, vous passez au mot suivant ; l’entraînement se termine après le dernier mot.",
       "p2": "Le temps est mesuré de la première frappe jusqu’à la fin. Pendant l’entraînement, le temps écoulé, la vitesse (caractères corrects par minute), la précision et le nombre d’erreurs sont affichés.",
       "p3": "Le texte saisi avec un IME (en japonais, par exemple) est vérifié une fois validé ; les caractères en cours de conversion ne sont pas vérifiés. Le collage et la saisie par glisser-déposer sont désactivés.",
-      "p4": "Les 3 mots suivants s’affichent sous la barre de progression, et « Afficher tous les mots » permet de voir la liste entière."
+      "p4": "Les 3 mots suivants s’affichent sous la barre de progression, et « Afficher tous les mots » permet de voir la liste entière.",
+      "p5": "Le bouton en forme d’œil, en haut, affiche ou masque les statistiques en direct (temps écoulé, vitesse, précision et erreurs). Votre choix est enregistré dans ce navigateur. Les masquer ne change ni le chronométrage ni l’enregistrement, et l’écran de résultat affiche toujours les chiffres."
     },
     "choose": {
       "title": "Choisir la liste et l’appareil",

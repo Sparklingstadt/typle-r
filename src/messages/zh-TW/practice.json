@@ -23,7 +23,8 @@
     "wordCount": "{count} 個單字",
     "restart": "從頭開始",
     "restartTitle": "從頭開始（Esc）",
-    "restartShort": "重來"
+    "restartShort": "重來",
+    "liveStats": "顯示本次練習數據"
   },
   "word": {
     "typeThis": "需輸入",

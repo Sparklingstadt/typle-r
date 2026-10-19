@@ -23,7 +23,8 @@
     "wordCount": "{count, plural, one {# word} other {# words}}",
     "restart": "Start over",
     "restartTitle": "Start over (Esc)",
-    "restartShort": "Start over"
+    "restartShort": "Start over",
+    "liveStats": "Show live stats"
   },
   "word": {
     "typeThis": "Type",

@@ -77,6 +77,7 @@ export default async function Guide() {
               <li>{t("practice.flow.p2")}</li>
               <li>{t("practice.flow.p3")}</li>
               <li>{t("practice.flow.p4")}</li>
+              <li>{t("practice.flow.p5")}</li>
             </Points>
           </Topic>
           <Topic title={t("practice.choose.title")}>
