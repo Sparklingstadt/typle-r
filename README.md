@@ -9,6 +9,8 @@
 
 v0.36.0 でサーバー機能（GitHubログイン、クラウド保存、共有リンク、Typle API、DB）を削除しました。ログインして保存していたデータは画面から見えなくなります。ブラウザーに保存していたデータは、そのまま読み込めます。
 
+v0.37.0 で、ブラウザーの保存データを読むための読み取り専用API（Go、`server/`）を追加しました。Typle本体とは別に起動し、Vercelの本番には載せません。認証はまだありません。使い方は [読み取り専用API](docs/api.md) を参照してください。
+
 上部の「テーマ」からライト・ダーク・システムを選べます。初期設定はシステム（OSの外観に追従）です。選択はブラウザに保存され、再読み込みやページ移動後も維持されます。
 
 ## 表示言語（/settings）
@@ -42,6 +44,8 @@ Next.js のアプリは1つで、`src` を層に分けています。依存は�
 | core | `src/core` | React・Next.js・ブラウザーAPIに依存しない TypeScript。単語リスト・入力判定・記録・集計・ワークスペースのモデルと検証、保存先のポート `WorkspaceStore`（`workspaceStore.ts`）、ワークスペースの読み込み・保存 `createWorkspaceSession`（`workspaceSession.ts`。閉じた後に届いた結果の破棄、保存の直列化、409での再読み込み）とファイル形式のポート `WordFormat`（`wordFormat.ts`） |
 
 保存先を増やすときは `WorkspaceStore` を実装したプラグインを `src/plugins/storage` に追加し、`workspaceStore` で選びます。ファイル形式を増やすときは `WordFormat` を実装して `src/plugins/formats/index.ts` の一覧に加えると、取り込みの拡張子判定と `accept` に反映されます。どちらも画面のコードは変わりません。
+
+読み取り専用API（`server/`）はNext.jsとは独立したGoモジュールです。`internal/workspace` が保存データをアプリの `decodeLists`・`decodeDevices` と同じ規則で読み、`internal/api` がHTTPで返し、`cmd/typle-api` が起動します。依存は標準ライブラリだけです。
 
 ## OGP・共有画像
 
@@ -176,6 +180,8 @@ npm run build
 npx playwright install chromium
 npm run test:e2e
 ```
+
+Goの読み取り専用APIは `server/` で `gofmt -l .`・`go vet ./...`・`go test ./...` を実行します（CIの `verify` も実行します）。
 
 単体テストは入力判定、記録、移行、形式検証、ブラウザー保存を検証します。E2Eは上限2 workersでファイル内も並列実行します。本番ビルドをポート3101で起動し、ブラウザー保存を通して作成・編集・練習・再読み込み・削除と保存の失敗・再試行を確認します。削除したサーバーのルート（`/api/*`・`/shared/*`・`/local-login`）が404になることも確認します。
 
