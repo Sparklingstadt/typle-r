@@ -2,7 +2,6 @@ package workspace
 
 import (
 	"bytes"
-	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,22 +9,20 @@ import (
 	"time"
 )
 
-const stored = `{
-  "version": 1, "accountId": "guest:local", "revision": 3,
-  "lists": [{
-    "id": "l1", "name": " 英単語 ", "createdAt": "2026-10-10T01:23:45.000Z", "shared": true, "shareId": "s",
-    "words": [{ "display": "apple", "input": "apple", "annotation": "りんご" }],
-    "records": [
-      { "time": 5, "date": "2024/09/22 10:05" },
-      { "id": "r1", "time": 63.5, "date": "2026-10-10T02:00:00.000Z", "mistakes": 2, "accuracy": 97.5, "wordCount": 1,
-        "device": { "id": "d1", "name": "自宅", "layout": "JIS" } }
-    ]
-  }],
-  "devices": [{ "id": "d1", "name": " 自宅 ", "layout": " JIS " }]
-}`
+const lists = `[{
+  "id": "l1", "name": " 英単語 ", "createdAt": "2026-10-10T01:23:45.000Z", "shared": true, "shareId": "s",
+  "words": [{ "display": "apple", "input": "apple", "annotation": "りんご" }],
+  "records": [
+    { "time": 5, "date": "2024/09/22 10:05" },
+    { "id": "r1", "time": 63.5, "date": "2026-10-10T02:00:00.000Z", "mistakes": 2, "accuracy": 97.5, "wordCount": 1,
+      "device": { "id": "d1", "name": "自宅", "layout": "JIS" } }
+  ]
+}]`
 
-func TestDecodeStoredWorkspace(t *testing.T) {
-	w, err := Decode([]byte(stored))
+const devices = `[{ "id": "d1", "name": " 自宅 ", "layout": " JIS " }]`
+
+func TestDecodeSavedRow(t *testing.T) {
+	w, err := Decode([]byte(lists), []byte(devices))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -47,21 +44,12 @@ func TestDecodeStoredWorkspace(t *testing.T) {
 	}
 }
 
-func TestDecodeWithoutAccountOrDevices(t *testing.T) {
-	w, err := Decode([]byte(`{"version":1,"lists":[]}`))
-	if err != nil || len(w.Lists) != 0 || w.Devices == nil || len(w.Devices) != 0 {
-		t.Fatalf("w = %+v, err = %v", w, err)
-	}
-}
-
-func TestRevisionZeroShowsInitialLists(t *testing.T) {
-	w, err := Decode([]byte(`{"version":1,"accountId":"guest:local","revision":0,"lists":[],"devices":[]}`))
-	if err != nil {
-		t.Fatal(err)
-	}
-	initial, _ := Initial()
-	if len(w.Lists) != len(initial.Lists) || w.Lists[0].ID != "sample-1" {
-		t.Fatalf("lists = %+v", w.Lists)
+func TestDecodeEmptyRow(t *testing.T) {
+	for _, devices := range []string{`[]`, `null`} {
+		w, err := Decode([]byte(`[]`), []byte(devices))
+		if err != nil || len(w.Lists) != 0 || w.Devices == nil || len(w.Devices) != 0 {
+			t.Fatalf("devices %s: w = %+v, err = %v", devices, w, err)
+		}
 	}
 }
 
@@ -95,64 +83,38 @@ func TestPacksMatchApp(t *testing.T) {
 }
 
 func TestDecodeRefusesWhatTheAppRefuses(t *testing.T) {
-	list := func(fields string) string {
-		return `{"version":1,"lists":[{"id":"l","name":"n","createdAt":"c","words":[{"display":"a","input":"a","annotation":""}],"records":[]` + fields + `}]}`
+	list := func(records string) string {
+		return `[{"id":"l","name":"n","createdAt":"c","words":[{"display":"a","input":"a","annotation":""}],"records":[` + records + `]}]`
 	}
-	cases := map[string]string{
-		"not JSON":          `{`,
-		"no version":        `{"lists":[]}`,
-		"version 2":         `{"version":2,"lists":[]}`,
-		"other account":     `{"version":1,"accountId":"github:1","lists":[]}`,
-		"negative revision": `{"version":1,"revision":-1,"lists":[]}`,
-		"no lists":          `{"version":1}`,
-		"null list":         `{"version":1,"lists":[null]}`,
-		"empty id":          `{"version":1,"lists":[{"id":"","name":"n","createdAt":"c","words":[{"display":"a","input":"a","annotation":""}],"records":[]}]}`,
-		"duplicate id": `{"version":1,"lists":[{"id":"l","name":"n","createdAt":"c","words":[{"display":"a","input":"a","annotation":""}],"records":[]},` +
-			`{"id":"l","name":"m","createdAt":"c","words":[{"display":"a","input":"a","annotation":""}],"records":[]}]}`,
-		"blank name":       `{"version":1,"lists":[{"id":"l","name":" ","createdAt":"c","words":[{"display":"a","input":"a","annotation":""}],"records":[]}]}`,
-		"no words":         `{"version":1,"lists":[{"id":"l","name":"n","createdAt":"c","words":[],"records":[]}]}`,
-		"blank input":      `{"version":1,"lists":[{"id":"l","name":"n","createdAt":"c","words":[{"display":"a","input":" ","annotation":""}],"records":[]}]}`,
-		"no annotation":    `{"version":1,"lists":[{"id":"l","name":"n","createdAt":"c","words":[{"display":"a","input":"a"}],"records":[]}]}`,
-		"negative time":    strings.Replace(list(""), `"records":[]`, `"records":[{"time":-1,"date":"2026-01-01"}]`, 1),
-		"bad date":         strings.Replace(list(""), `"records":[]`, `"records":[{"time":1,"date":"yesterday"}]`, 1),
-		"accuracy 101":     strings.Replace(list(""), `"records":[]`, `"records":[{"time":1,"date":"2026-01-01","accuracy":101}]`, 1),
-		"fraction mistake": strings.Replace(list(""), `"records":[]`, `"records":[{"time":1,"date":"2026-01-01","mistakes":1.5}]`, 1),
-		"zero wordCount":   strings.Replace(list(""), `"records":[]`, `"records":[{"time":1,"date":"2026-01-01","wordCount":0}]`, 1),
-		"bad device":       strings.Replace(list(""), `"records":[]`, `"records":[{"time":1,"date":"2026-01-01","device":{"id":"d","name":" ","layout":""}}]`, 1),
-		"default device":   `{"version":1,"lists":[],"devices":[{"id":"default","name":"x","layout":""}]}`,
-		"duplicate device": `{"version":1,"lists":[],"devices":[{"id":"d","name":"x","layout":""},{"id":"d","name":"y","layout":""}]}`,
-		"device no layout": `{"version":1,"lists":[],"devices":[{"id":"d","name":"x"}]}`,
-		"long device name": `{"version":1,"lists":[],"devices":[{"id":"d","name":"` + strings.Repeat("x", 101) + `","layout":""}]}`,
+	word := `"words":[{"display":"a","input":"a","annotation":""}],"records":[]`
+	cases := map[string][2]string{
+		"lists not JSON":    {`{`, `[]`},
+		"lists null":        {`null`, `[]`},
+		"lists object":      {`{}`, `[]`},
+		"null list":         {`[null]`, `[]`},
+		"empty id":          {`[{"id":"","name":"n","createdAt":"c",` + word + `}]`, `[]`},
+		"duplicate id":      {`[{"id":"l","name":"n","createdAt":"c",` + word + `},{"id":"l","name":"m","createdAt":"c",` + word + `}]`, `[]`},
+		"blank name":        {`[{"id":"l","name":" ","createdAt":"c",` + word + `}]`, `[]`},
+		"no words":          {`[{"id":"l","name":"n","createdAt":"c","words":[],"records":[]}]`, `[]`},
+		"blank input":       {`[{"id":"l","name":"n","createdAt":"c","words":[{"display":"a","input":" ","annotation":""}],"records":[]}]`, `[]`},
+		"no annotation":     {`[{"id":"l","name":"n","createdAt":"c","words":[{"display":"a","input":"a"}],"records":[]}]`, `[]`},
+		"no records":        {`[{"id":"l","name":"n","createdAt":"c","words":[{"display":"a","input":"a","annotation":""}]}]`, `[]`},
+		"negative time":     {list(`{"time":-1,"date":"2026-01-01"}`), `[]`},
+		"bad date":          {list(`{"time":1,"date":"yesterday"}`), `[]`},
+		"accuracy 101":      {list(`{"time":1,"date":"2026-01-01","accuracy":101}`), `[]`},
+		"fraction mistake":  {list(`{"time":1,"date":"2026-01-01","mistakes":1.5}`), `[]`},
+		"zero wordCount":    {list(`{"time":1,"date":"2026-01-01","wordCount":0}`), `[]`},
+		"bad device":        {list(`{"time":1,"date":"2026-01-01","device":{"id":"d","name":" ","layout":""}}`), `[]`},
+		"devices not array": {`[]`, `{}`},
+		"default device":    {`[]`, `[{"id":"default","name":"x","layout":""}]`},
+		"duplicate device":  {`[]`, `[{"id":"d","name":"x","layout":""},{"id":"d","name":"y","layout":""}]`},
+		"device no layout":  {`[]`, `[{"id":"d","name":"x"}]`},
+		"long device name":  {`[]`, `[{"id":"d","name":"` + strings.Repeat("x", 101) + `","layout":""}]`},
 	}
-	for name, input := range cases {
-		if _, err := Decode([]byte(input)); err == nil {
+	for name, row := range cases {
+		if _, err := Decode([]byte(row[0]), []byte(row[1])); err == nil {
 			t.Errorf("%s: decoded", name)
 		}
-	}
-}
-
-func TestDecodeRefusesLegacyProfilesAndLargeFiles(t *testing.T) {
-	if _, err := Decode([]byte(`{"version":1,"lists":[],"profiles":[{"id":"default","name":"x","lists":[]}]}`)); !errors.Is(err, ErrLegacyProfiles) {
-		t.Fatalf("err = %v", err)
-	}
-	if _, err := Decode([]byte(`{"version":1,"lists":[],"profiles":[]}`)); err != nil {
-		t.Fatalf("empty profiles: %v", err)
-	}
-	if _, err := Decode(bytes.Repeat([]byte(" "), MaxBytes+1)); !errors.Is(err, ErrTooLarge) {
-		t.Fatalf("err = %v", err)
-	}
-}
-
-func TestLoad(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "workspace.json")
-	if err := os.WriteFile(path, []byte(stored), 0o600); err != nil {
-		t.Fatal(err)
-	}
-	if w, err := Load(path); err != nil || len(w.Lists) != 1 {
-		t.Fatalf("w = %+v, err = %v", w, err)
-	}
-	if _, err := Load(filepath.Join(t.TempDir(), "missing.json")); err == nil {
-		t.Fatal("loaded a missing file")
 	}
 }
 

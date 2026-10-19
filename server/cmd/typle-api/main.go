@@ -1,4 +1,4 @@
-// Command typle-api serves a Typle workspace read-only over HTTP. See docs/api.md.
+// Command typle-api serves one account's Typle workspace read-only over HTTP. See docs/api.md.
 package main
 
 import (
@@ -13,28 +13,35 @@ import (
 	"time"
 
 	"github.com/sparklingstadt/typle-r/server/internal/api"
-	"github.com/sparklingstadt/typle-r/server/internal/workspace"
+	"github.com/sparklingstadt/typle-r/server/internal/store"
 )
 
 func main() {
 	addr := flag.String("addr", "127.0.0.1:8080", "address to listen on")
-	data := flag.String("data", "", "workspace JSON copied from the browser (the initial lists when empty)")
+	owner := flag.String("owner", "", "account whose workspace is served, such as github:12345 (required)")
 	flag.Parse()
 
-	var ws *workspace.Workspace
-	var err error
-	if *data == "" {
-		ws, err = workspace.Initial()
-	} else {
-		ws, err = workspace.Load(*data)
+	// The same variables as the app (src/plugins/storage/cloud/database.ts).
+	connection := os.Getenv("DATABASE_URL")
+	if connection == "" {
+		connection = os.Getenv("POSTGRES_URL")
 	}
-	if err != nil {
-		log.Fatalf("read workspace: %v", err)
+	if connection == "" || *owner == "" {
+		log.Fatal("set DATABASE_URL (or POSTGRES_URL) and -owner")
 	}
 
-	server := &http.Server{Addr: *addr, Handler: api.New(ws), ReadHeaderTimeout: 10 * time.Second}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+
+	open, cancel := context.WithTimeout(ctx, 15*time.Second)
+	source, err := store.Open(open, connection, *owner)
+	cancel()
+	if err != nil {
+		log.Fatalf("connect to the database: %v", err)
+	}
+	defer source.Close()
+
+	server := &http.Server{Addr: *addr, Handler: api.New(source), ReadHeaderTimeout: 10 * time.Second}
 	go func() {
 		<-ctx.Done()
 		shutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -42,7 +49,7 @@ func main() {
 		_ = server.Shutdown(shutdown)
 	}()
 
-	log.Printf("serving %d lists and %d devices on http://%s", len(ws.Lists), len(ws.Devices), *addr)
+	log.Printf("serving the workspace of %s on http://%s", *owner, *addr)
 	if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
 	}
