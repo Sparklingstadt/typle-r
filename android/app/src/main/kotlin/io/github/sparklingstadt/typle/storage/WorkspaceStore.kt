@@ -19,6 +19,7 @@ import io.github.sparklingstadt.typle.core.saveList as coreSaveList
 import java.io.File
 import java.io.IOException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -73,11 +74,13 @@ class LocalWorkspaceStore(directory: File, override val accountId: String = "and
     }.also { current = it }.document
   }
 
+  // Not cancellable: once the file is written, the copy in memory must follow it, or the next change would write the
+  // old document back.
   private suspend fun change(transform: (WorkspaceDocument) -> WorkspaceDocument): WorkspaceDocument = lock.withLock {
     val before = current ?: throw TypleException("localReadFailed")
     val next = WorkspaceFile(accountId, before.revision + 1, transform(before.document))
     val data = encodeWorkspaceFile(next)
-    withContext(Dispatchers.IO) {
+    withContext(NonCancellable + Dispatchers.IO) {
       val stream = try { file.startWrite() } catch (_: IOException) { throw TypleException("localWriteFailed") }
       try {
         stream.write(data)
@@ -86,8 +89,8 @@ class LocalWorkspaceStore(directory: File, override val accountId: String = "and
         file.failWrite(stream)
         throw TypleException("localWriteFailed")
       }
+      current = next
     }
-    current = next
     next.document
   }
 

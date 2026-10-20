@@ -99,6 +99,15 @@ fun PracticeView(model: PracticeModel = viewModel()) {
     if (!model.running) switchTo(id) else if (id != model.list(app.lists)?.id) pendingSwitch = id
   }
 
+  // Each visit starts a new run (turning the tablet is not a visit). This also drops a run from another store, whose
+  // lists may be gone, since switching stores happens on 一般.
+  LaunchedEffect(app.practiceVisit) {
+    if (model.visit != app.practiceVisit) {
+      model.visit = app.practiceVisit
+      showAll = false
+      model.restart()
+    }
+  }
   // A list another screen asked for, like /play?list=<id>.
   LaunchedEffect(app.practiceRequest) {
     val id = app.practiceRequest
@@ -108,14 +117,6 @@ fun PracticeView(model: PracticeModel = viewModel()) {
     }
     app.practiceRequest = null
     if (model.running && id != model.listId) pendingSwitch = id else switchTo(id)
-  }
-  // Another store has other lists; a run on a list that is gone cannot be saved.
-  var accountId by remember { mutableStateOf(app.store.accountId) }
-  LaunchedEffect(app.store.accountId) {
-    if (accountId != app.store.accountId) {
-      accountId = app.store.accountId
-      model.restart(app.lists.firstOrNull()?.id)
-    }
   }
   // Screenshots of a run in progress or finished: the debug build's `typleTyping` types as if from the keyboard.
   LaunchedEffect(Unit) {

@@ -15,6 +15,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputConnection
+import android.view.inputmethod.InputConnectionWrapper
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.compose.runtime.Composable
@@ -142,4 +144,27 @@ class PracticeEditText(context: Context) : EditText(context) {
 
   /** Dropped text would count as typed. */
   override fun onDragEvent(event: DragEvent?): Boolean = false
+
+  /**
+   * An input method can end a composition without changing the text (finishComposingText for kana that need no
+   * conversion), which no TextWatcher hears. The text is judged then, once, as when it was committed with a change.
+   */
+  override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection? {
+    val connection = super.onCreateInputConnection(outAttrs) ?: return null
+    return object : InputConnectionWrapper(connection, true) {
+      override fun finishComposingText(): Boolean = super.finishComposingText().also { compositionMayHaveEnded() }
+      override fun commitText(text: CharSequence?, newCursorPosition: Int): Boolean =
+        super.commitText(text, newCursorPosition).also { compositionMayHaveEnded() }
+      override fun setComposingRegion(start: Int, end: Int): Boolean = super.setComposingRegion(start, end).also { compositionMayHaveEnded() }
+    }
+  }
+
+  private fun compositionMayHaveEnded() {
+    if (!composing) return
+    val s = text ?: return
+    val value = committedText(s.toString(), BaseInputConnection.getComposingSpanStart(s), BaseInputConnection.getComposingSpanEnd(s)) ?: return
+    composing = false
+    onComposingChange(false)
+    onCommit(value)
+  }
 }

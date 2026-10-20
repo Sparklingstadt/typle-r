@@ -3,6 +3,7 @@ package io.github.sparklingstadt.typle
 import android.app.Application
 import android.content.Context
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -22,7 +23,10 @@ import io.github.sparklingstadt.typle.support.AppLanguage
 import io.github.sparklingstadt.typle.support.L
 import io.github.sparklingstadt.typle.support.Localization
 import io.github.sparklingstadt.typle.support.errorText
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** The web app's pages, in the order of its sidebar. */
 sealed interface Route {
@@ -85,6 +89,12 @@ class AppModel(application: Application) : AndroidViewModel(application) {
   var rankingsList by mutableStateOf<String?>(null)
   /** A list another screen asked the practice screen to open, like `/play?list=<id>`. */
   var practiceRequest by mutableStateOf<String?>(null)
+  /**
+   * Counts arrivals on the practice page. The run lives in a ViewModel so it survives turning the tablet, and starts
+   * again on each new visit, as the iPad app's practice screen does when it is opened again.
+   */
+  var practiceVisit by mutableIntStateOf(0)
+    private set
 
   var storage by mutableStateOf(StorageKind.entries.firstOrNull { it.name == prefs.getString("typle-r:storage", null) } ?: StorageKind.LOCAL)
     private set
@@ -139,6 +149,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
   }
 
   fun navigate(route: Route) {
+    if (route == Route.Practice && this.route != Route.Practice) practiceVisit++
     this.route = route
   }
 
@@ -177,6 +188,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
       // A store switched while this one was loading has its own load.
       if (current !== store) return
       document = loaded
+    } catch (e: CancellationException) {
+      loading = false
+      throw e
     } catch (e: Exception) {
       if (current !== store) return
       document = null
@@ -212,7 +226,9 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
   // Changes. Each throws the reason it failed, for the screen to show; the shown data stays as it was.
 
-  private suspend fun applyChange(change: suspend (WorkspaceStore) -> WorkspaceDocument) {
+  // A change finishes even when the screen that asked for it goes away, so the shown data and the store's own copy
+  // never fall behind what was saved.
+  private suspend fun applyChange(change: suspend (WorkspaceStore) -> WorkspaceDocument) = withContext(NonCancellable) {
     val current = store
     val next = change(current)
     if (current === store) document = next
@@ -222,9 +238,11 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
   suspend fun duplicateList(id: String): WordList {
     val current = store
-    val (next, copy) = current.duplicateList(id) { n -> if (n == 1) L("lists.copySuffix") else L("lists.copySuffixNumbered", n) }
-    if (current === store) document = next
-    return copy
+    return withContext(NonCancellable) {
+      val (next, copy) = current.duplicateList(id) { n -> if (n == 1) L("lists.copySuffix") else L("lists.copySuffixNumbered", n) }
+      if (current === store) document = next
+      copy
+    }
   }
 
   suspend fun deleteList(id: String) = applyChange { it.deleteList(id) }
@@ -242,7 +260,7 @@ class AppModel(application: Application) : AndroidViewModel(application) {
 
   fun practice(listId: String) {
     practiceRequest = listId
-    route = Route.Practice
+    navigate(Route.Practice)
   }
 
   fun showRankings(listId: String?) {

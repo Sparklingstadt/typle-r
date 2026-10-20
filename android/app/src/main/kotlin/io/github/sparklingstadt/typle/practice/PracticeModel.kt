@@ -38,6 +38,8 @@ class PracticeModel : ViewModel() {
     private set
   /** Changing this number focuses the field. */
   var focusRequest by mutableIntStateOf(0)
+  /** The visit to the practice page this run belongs to (AppModel.practiceVisit). */
+  var visit = -1
 
   val finished: Boolean get() = session.finishedAt != null
   val started: Boolean get() = session.startedAt != null

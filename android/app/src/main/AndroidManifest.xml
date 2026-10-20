@@ -11,8 +11,11 @@
     android:networkSecurityConfig="@xml/network_security_config"
     android:supportsRtl="true"
     android:theme="@style/Theme.Typle">
+    <!-- Compose follows turning the tablet, attaching a keyboard and switching dark mode itself, so the activity is
+         kept and nothing being typed (a list being edited, the API address) is lost. -->
     <activity
       android:name=".MainActivity"
+      android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|uiMode|density"
       android:exported="true"
       android:windowSoftInputMode="adjustResize">
       <intent-filter>
