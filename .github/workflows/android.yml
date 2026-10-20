@@ -43,9 +43,12 @@ jobs:
       - name: Build the debug APK
         working-directory: android
         run: ./gradlew :app:assembleDebug --console=plain
-      # The tablet emulator needs several GB for its data partition, more than the runner leaves free.
-      - name: Free disk space for the emulator
+      # The emulator needs the runner's memory and several GB of disk: the Gradle and Kotlin daemons of the build stop,
+      # and tools the job does not use are removed.
+      - name: Free memory and disk space for the emulator
         run: |
+          (cd android && ./gradlew --stop)
+          pkill -f KotlinCompileDaemon || true
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost /opt/hostedtoolcache/CodeQL
           df -h /
       - name: Enable KVM for the emulator
@@ -62,7 +65,8 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_tablet
-          cores: 4
+          # Two of the runner's four cores, so the runner itself keeps answering while the emulator renders.
+          cores: 2
           disk-size: 4096M
           disable-animations: true
           enable-hw-keyboard: true
