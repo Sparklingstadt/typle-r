@@ -51,4 +51,5 @@ jobs:
       - name: Show build errors
         if: failure()
         working-directory: ios
-        run: grep -E 'error:|warning: .*(Sendable|actor)' build.log | sort -u | head -100 || true
+        run: |
+          grep -E 'error:|warning: .*(Sendable|actor)' build.log | sort -u | head -100 || true
