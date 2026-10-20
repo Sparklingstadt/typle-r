@@ -1,9 +1,7 @@
 package workspace
 
 import (
-	"bytes"
 	"crypto/rand"
-	"encoding/json"
 	"fmt"
 	"time"
 )
@@ -34,6 +32,13 @@ type storedList struct {
 	CreatedAt string   `json:"createdAt"`
 	Words     []Word   `json:"words"`
 	Records   []Record `json:"records"`
+	extra     string
+}
+
+func (l storedList) MarshalJSON() ([]byte, error) {
+	type plain storedList
+	known, err := marshal(plain(l))
+	return withExtra(known, l.extra), err
 }
 
 // Encode writes lists as the app saves them in the lists column, which its decodeLists reads back.
@@ -47,16 +52,10 @@ func Encode(lists []List) ([]byte, error) {
 		if records == nil {
 			records = []Record{}
 		}
-		stored = append(stored, storedList{ID: list.ID, Name: list.Name, CreatedAt: list.CreatedAt, Words: words, Records: records})
+		stored = append(stored, storedList{ID: list.ID, Name: list.Name, CreatedAt: list.CreatedAt, Words: words, Records: records,
+			extra: list.Extra})
 	}
-	var buffer bytes.Buffer
-	encoder := json.NewEncoder(&buffer)
-	// As JSON.stringify, so that sizes are measured as the app measures them.
-	encoder.SetEscapeHTML(false)
-	if err := encoder.Encode(stored); err != nil {
-		return nil, err
-	}
-	return bytes.TrimSuffix(buffer.Bytes(), []byte("\n")), nil
+	return marshal(stored)
 }
 
 // CheckSize refuses lists that grow past MaxListsBytes. A change that leaves them no larger is let through, so an

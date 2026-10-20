@@ -1,6 +1,7 @@
 package workspace
 
 import (
+	"encoding/json"
 	"errors"
 	"reflect"
 	"regexp"
@@ -85,5 +86,39 @@ func TestFormatTime(t *testing.T) {
 	at, _ := time.Parse(time.RFC3339, "2026-10-10T11:00:00+09:00")
 	if got := FormatTime(at); got != "2026-10-10T02:00:00.000Z" {
 		t.Fatalf("FormatTime = %q", got)
+	}
+}
+
+// Like the app's decodeLists, fields Typle does not know are kept: only shared and shareId, which meant link sharing,
+// are dropped from lists.
+func TestEncodeKeepsUnknownFields(t *testing.T) {
+	stored := `[{ "id": "l1", "name": "a", "createdAt": "x", "shared": true, "shareId": "s", "color": "red",
+		"words": [{ "display": "a", "input": "a", "annotation": "", "reading": "エー" }],
+		"records": [{ "time": 1, "date": "2026-10-10T00:00:00.000Z", "keys": [1, 2],
+			"device": { "id": "d1", "name": "自宅", "layout": "JIS", "model": "HHKB" } }] }]`
+	w, err := Decode([]byte(stored), []byte(`[]`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	encoded, err := Encode(w.Lists)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{`"color":"red"`, `"reading":"エー"`, `"keys":[1,2]`, `"model":"HHKB"`} {
+		if !strings.Contains(string(encoded), want) {
+			t.Errorf("encoded = %s, want %s", encoded, want)
+		}
+	}
+	if strings.Contains(string(encoded), "share") {
+		t.Errorf("encoded = %s", encoded)
+	}
+	again, err := Decode(encoded, []byte(`[]`))
+	if err != nil || !reflect.DeepEqual(again.Lists, w.Lists) {
+		t.Fatalf("again = %+v, %v", again, err)
+	}
+	// A record answers in its stored shape, unknown fields included.
+	record, err := json.Marshal(w.Lists[0].Records[0])
+	if err != nil || !strings.Contains(string(record), `"keys":[1,2]`) || !strings.Contains(string(record), `"model":"HHKB"`) {
+		t.Fatalf("record = %s, %v", record, err)
 	}
 }
