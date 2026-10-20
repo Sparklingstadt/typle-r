@@ -85,7 +85,7 @@ func TestCreateList(t *testing.T) {
 	}
 	created := uuid.ReplaceAllString(got, `"id":"x"`)
 	created = regexp.MustCompile(`"createdAt":"[^"]+"`).ReplaceAllString(created, `"createdAt":"t"`)
-	if created != `{"list":{"id":"x","name":"動物","wordCount":1,"recordCount":0,"createdAt":"t","words":[{"display":"cat","input":"cat","annotation":""}]}}` {
+	if created != `{"list":{"id":"x","name":"動物","wordCount":1,"recordCount":0,"createdAt":"t","practiceCount":0,"lastPracticed":null,"currentRecordCount":0,"words":[{"display":"cat","input":"cat","annotation":""}]}}` {
 		t.Fatalf("body = %s", created)
 	}
 	if response.Header().Get("Content-Type") != "application/json; charset=utf-8" || response.Header().Get("Cache-Control") != "no-store" {
@@ -99,7 +99,7 @@ func TestCreateList(t *testing.T) {
 func TestUpdateList(t *testing.T) {
 	w := writable(t)
 	expect(t, send(w, "PATCH", "/api/v1/lists/l1", `{"name":"English"}`), 200, `{"list":{"id":"l1","name":"English","wordCount":2,
-	  "recordCount":3,"createdAt":"2026-10-10T01:23:45.000Z","words":[{"display":"apple","input":"apple","annotation":"りんご"},
+	  "recordCount":3,"createdAt":"2026-10-10T01:23:45.000Z","practiceCount":3,"lastPracticed":"2026-10-03T00:00:00.000Z","currentRecordCount":1,"words":[{"display":"apple","input":"apple","annotation":"りんご"},
 	  {"display":"pear","input":"pear","annotation":""}]}}`)
 }
 
