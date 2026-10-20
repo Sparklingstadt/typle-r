@@ -10,6 +10,7 @@ import (
 	"reflect"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
@@ -347,8 +348,12 @@ func (s *server) importList(w http.ResponseWriter, r *http.Request, owner string
 		failure(w, http.StatusBadRequest, "invalidJson")
 		return
 	}
-	// As a browser reads a file as text, bytes that are not UTF-8 become U+FFFD.
-	words, err := workspace.ParseWordFile(strings.ToValidUTF8(string(data), "\uFFFD"), delimiter)
+	// The app reads the file as UTF-8 and refuses any other encoding, such as the Shift_JIS Excel saves.
+	if !utf8.Valid(data) {
+		failure(w, http.StatusBadRequest, "importFileEncoding")
+		return
+	}
+	words, err := workspace.ParseWordFile(string(data), delimiter)
 	if err != nil {
 		refuse(w, r, err.(*workspace.Error))
 		return

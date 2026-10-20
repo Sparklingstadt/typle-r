@@ -436,3 +436,27 @@ func TestModifyCopiesList(t *testing.T) {
 		t.Fatalf("lists = %s", stored)
 	}
 }
+
+func TestModifyImportsList(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	words, err := workspace.ParseWordFile("input,display,anotation\nneko,\"猫,ねこ\",\"1行目\n2行目\"\n", ',')
+	if err != nil {
+		t.Fatal(err)
+	}
+	name := "動物"
+	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) {
+		_, err := workspace.CreateList(w, workspace.ListInput{Name: &name, Words: words}, "i1", time.Date(2026, 10, 21, 0, 0, 0, 0, time.UTC))
+		return true, err
+	}); err != nil {
+		t.Fatal(err)
+	}
+	stored, _, _ := row(t, conn, id)
+	// A new account starts with the sample lists; the imported one is added after them.
+	want := `{"id": "i1", "name": "動物", "words": [{"input": "neko", "display": "猫,ねこ", "annotation": "1行目\n2行目"}], "records": [], "createdAt": "2026-10-21T00:00:00.000Z"}]`
+	if !strings.HasSuffix(stored, want) {
+		t.Fatalf("lists = %.300s…", stored[max(0, len(stored)-300):])
+	}
+}

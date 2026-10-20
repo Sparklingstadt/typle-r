@@ -51,9 +51,9 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 
 ## 共通事項
 
-- 本文はJSON（`Content-Type: application/json; charset=utf-8`）、`Cache-Control: no-store` です。
+- 本文はJSON（`Content-Type: application/json; charset=utf-8`）、`Cache-Control: no-store` です。`GET /api/v1/lists/{l}/words.csv` だけは CSV ファイルを返します。
 - CORSヘッダーは付けないため、ブラウザーの他サイトからは呼べません。サーバーやスクリプトから利用してください。
-- エラーは `{ "error": "<キー>" }` です。
+- エラーは `{ "error": "<キー>" }` です。CSV・TSV の取り込みで行の分かる誤りには、`{ "error": "importQuote", "line": 3 }` のように `line`（1から数える行番号）が付きます。
 
 | ステータス | キー | 状況 |
 |---|---|---|
@@ -62,6 +62,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 | 400 | `listNameRequired`・`listNameDuplicate`・`wordsRequired`・`wordFieldsRequired`・`invalidList`・`listLimit` | リストの内容が不正（下の「リストの検証」） |
 | 400 | `invalidRecord`・`recordLimit`・`deviceNotFound` | 記録の内容が不正（下の「記録の検証」） |
 | 400 | `deviceNameRequired`・`deviceNameTooLong`・`deviceLayoutTooLong`・`deviceNameDuplicate`・`deviceLimit`・`invalidDevice` | 端末の内容が不正（下の「端末の検証」） |
+| 400 | `importFileEncoding`・`importQuote`・`importHeaderRequired`・`importHeaderDuplicate`・`importHeaderUnknown`・`importNoRows`・`importTooManyRows`・`importColumnCount`・`importFieldRequired`・`importFieldTooLong` | 取り込むファイルが不正（下の「CSV・TSV の取り込み」） |
 | 401 | `invalidToken` | トークンがない、形式が違う、または GitHub が受け付けない |
 | 404 | `listNotFound` | 指定したIDのリストがない |
 | 404 | `deviceNotFound` | パスで指定したIDの端末がない（組み込みの `default` も） |
@@ -69,8 +70,9 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 | 404 | `notFound` | 未知のパス |
 | 405 | `methodNotAllowed` | そのパスで使えないメソッド（`-writable` でない書き込みを含む）。`Allow` に使えるメソッドを付ける |
 | 413 | `requestTooLarge` | 本文が 1MiB を超える |
+| 413 | `importTooLarge` | 取り込むファイルが 1MiB を超える |
 | 413 | `workspaceTooLarge` | 保存後のリスト全体が 896KiB を超える |
-| 415 | `unsupportedContentType` | 書き込みの `Content-Type` の `;` より前が `application/json` でない |
+| 415 | `unsupportedContentType` | 書き込みの `Content-Type` の `;` より前が `application/json` でない（取り込みでは `text/csv`・`text/tab-separated-values`・`text/plain` のどれでもない） |
 | 503 | `githubUnavailable` | GitHub でトークンを確かめられない。しばらくしてからやり直す |
 | 503 | `databaseUnavailable` | DBの障害、または保存済みのデータが読めない。しばらくしてからやり直す |
 
@@ -288,6 +290,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 
 - 1行目は見出しで、`input`・`display` が必須、`annotation` は任意（誤記の `anotation` も読む）。順番は問わない。
 - `"` で囲んだ項目には区切り文字・改行・`""`（`"` 1文字）を入れられる。先頭の BOM と空行は読み飛ばす。単語の前後の空白・順序・重複はそのまま保存する。
+- ファイルは UTF-8 で送る。Excel の既定の Shift_JIS など、UTF-8 として読めないファイルはアプリと同じく `400 importFileEncoding`（v0.53.1 から。それまでは読めない文字を � にして保存していた）。
 - 誤りは `400` で、行番号があるものは `line` を付ける（例 `{ "error": "importQuote", "line": 3 }`）: `importQuote`（引用符の誤り）、`importHeaderRequired`・`importHeaderDuplicate`・`importHeaderUnknown`（見出し）、`importNoRows`、`importTooManyRows`（1000行超）、`importColumnCount`（列数）、`importFieldRequired`（`input`・`display` が空）、`importFieldTooLong`（1000文字超、`annotation` は2000文字超）。1MiB を超えると `413 importTooLarge`。
 - リスト名は作成と同じ検証（`listNameRequired`・`listNameDuplicate`・`invalidList`・`listLimit`）。`format` がないか `csv`・`tsv` 以外なら `400 invalidQuery`。
 
