@@ -113,7 +113,8 @@ func (s *server) modify(w http.ResponseWriter, r *http.Request, owner string, ch
 	switch {
 	// A list or device named in the path is a resource that is not there; a deviceId given in a record's body is a
 	// value of the request, and so a bad request.
-	case refused.Key == "listNotFound", refused.Key == "deviceNotFound" && r.PathValue("deviceId") != "":
+	case refused.Key == "listNotFound", refused.Key == "recordNotFound",
+		refused.Key == "deviceNotFound" && r.PathValue("deviceId") != "":
 		failure(w, http.StatusNotFound, refused.Key)
 	case refused.Key == "workspaceTooLarge":
 		failure(w, http.StatusRequestEntityTooLarge, refused.Key)
@@ -245,6 +246,36 @@ func (s *server) updateDevice(w http.ResponseWriter, r *http.Request, owner stri
 func (s *server) deleteDevice(w http.ResponseWriter, r *http.Request, owner string) {
 	if !s.modify(w, r, owner, func(ws *workspace.Workspace) (bool, error) {
 		return true, workspace.DeleteDevice(ws, r.PathValue("deviceId"))
+	}) {
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *server) updateRecord(w http.ResponseWriter, r *http.Request, owner string) {
+	change, ok := decode[workspace.RecordChange](w, r)
+	if !ok {
+		return
+	}
+	if *change == (workspace.RecordChange{}) {
+		failure(w, http.StatusBadRequest, "invalidJson")
+		return
+	}
+	var updated workspace.Record
+	if !s.modify(w, r, owner, func(ws *workspace.Workspace) (bool, error) {
+		var err error
+		updated, err = workspace.UpdateRecord(ws, r.PathValue("listId"), r.PathValue("recordId"), *change)
+		return err == nil, err
+	}) {
+		return
+	}
+	respond(w, http.StatusOK, map[string]any{"record": updated})
+}
+
+func (s *server) deleteRecord(w http.ResponseWriter, r *http.Request, owner string) {
+	if !s.modify(w, r, owner, func(ws *workspace.Workspace) (bool, error) {
+		return true, workspace.DeleteRecord(ws, r.PathValue("listId"), r.PathValue("recordId"))
 	}) {
 		return
 	}

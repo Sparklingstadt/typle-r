@@ -2,6 +2,8 @@ package workspace
 
 import (
 	"math"
+	"reflect"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -134,5 +136,100 @@ func TestAddRecordLimit(t *testing.T) {
 	input.ID = text("r1")
 	if record, added, err := AddRecord(w, "l1", input, "new"); err != nil || added || record.Time != 1 {
 		t.Fatalf("record = %+v, added = %v, err = %v", record, added, err)
+	}
+}
+
+// one has a record r1 on l1, with a field Typle does not know.
+func one(t *testing.T) *Workspace {
+	t.Helper()
+	w := two()
+	input := run()
+	input.ID, input.DeviceID = text("r9"), text("d1")
+	if _, _, err := AddRecord(w, "l1", input, "unused"); err != nil {
+		t.Fatal(err)
+	}
+	w.Lists[0].Records[1].Extra = `{"keys":[1]}`
+	return w
+}
+
+func TestUpdateRecord(t *testing.T) {
+	w := one(t)
+	record, err := UpdateRecord(w, "l1", "r9", RecordChange{Time: number(9.5), Date: text("2026-10-11T09:00:00+09:00")})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if record.Time != 9.5 || record.Date != "2026-10-11T00:00:00.000Z" || !record.At.Equal(time.Date(2026, 10, 11, 0, 0, 0, 0, time.UTC)) ||
+		*record.Mistakes != 1 || *record.Accuracy != 97.5 || *record.WordCount != 1 || record.Device.ID != "d1" || record.Extra != `{"keys":[1]}` {
+		t.Fatalf("record = %+v", record)
+	}
+	if !reflect.DeepEqual(w.Lists[0].Records[1], record) {
+		t.Fatalf("saved = %+v", w.Lists[0].Records[1])
+	}
+	record, err = UpdateRecord(w, "l1", "r9", RecordChange{Mistakes: number(0), Accuracy: number(100), WordCount: number(3), DeviceID: text("default")})
+	if err != nil || *record.Mistakes != 0 || *record.Accuracy != 100 || *record.WordCount != 3 || record.Device.Name != "デフォルト" {
+		t.Fatalf("record = %+v, %v", record, err)
+	}
+	// "" takes the device off, as 未選択 does in the app.
+	if record, err = UpdateRecord(w, "l1", "r9", RecordChange{DeviceID: text("")}); err != nil || record.Device != nil {
+		t.Fatalf("record = %+v, %v", record, err)
+	}
+	if len(w.Lists[0].Records) != 2 {
+		t.Fatalf("records = %+v", w.Lists[0].Records)
+	}
+}
+
+func TestUpdateRecordErrors(t *testing.T) {
+	cases := []struct {
+		name         string
+		list, record string
+		change       RecordChange
+		key          string
+	}{
+		{"missing list", "missing", "r9", RecordChange{Time: number(1)}, "listNotFound"},
+		{"missing record", "l1", "missing", RecordChange{Time: number(1)}, "recordNotFound"},
+		{"negative time", "l1", "r9", RecordChange{Time: number(-1)}, "invalidRecord"},
+		{"bad date", "l1", "r9", RecordChange{Date: text("abc")}, "invalidRecord"},
+		{"date after 9999", "l1", "r9", RecordChange{Date: text("9999-12-31T23:59:59-09:00")}, "invalidRecord"},
+		{"fractional mistakes", "l1", "r9", RecordChange{Mistakes: number(1.5)}, "invalidRecord"},
+		{"accuracy over 100", "l1", "r9", RecordChange{Accuracy: number(101)}, "invalidRecord"},
+		{"zero words", "l1", "r9", RecordChange{WordCount: number(0)}, "invalidRecord"},
+		{"unknown device", "l1", "r9", RecordChange{DeviceID: text("zz")}, "deviceNotFound"},
+		// A record without an id cannot be named.
+		{"record without id", "l1", "", RecordChange{Time: number(1)}, "recordNotFound"},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			w := one(t)
+			w.Lists[0].Records = append(w.Lists[0].Records, Record{Time: 2, Date: "2026-10-01T00:00:00.000Z"})
+			before := slices.Clone(w.Lists[0].Records)
+			_, err := UpdateRecord(w, c.list, c.record, c.change)
+			wantKey(t, err, c.key)
+			if !reflect.DeepEqual(w.Lists[0].Records, before) {
+				t.Fatalf("records changed: %+v", w.Lists[0].Records)
+			}
+		})
+	}
+}
+
+func TestDeleteRecord(t *testing.T) {
+	w := one(t)
+	if err := DeleteRecord(w, "l1", "r1"); err != nil {
+		t.Fatal(err)
+	}
+	if len(w.Lists[0].Records) != 1 || *w.Lists[0].Records[0].ID != "r9" {
+		t.Fatalf("records = %+v", w.Lists[0].Records)
+	}
+	wantKey(t, DeleteRecord(w, "l1", "r1"), "recordNotFound")
+	wantKey(t, DeleteRecord(w, "missing", "r9"), "listNotFound")
+	wantKey(t, DeleteRecord(w, "l1", ""), "recordNotFound")
+}
+
+func TestFindRecord(t *testing.T) {
+	w := one(t)
+	if record := w.Lists[0].FindRecord("r9"); record == nil || record.Time != 3.5 {
+		t.Fatalf("record = %+v", record)
+	}
+	if w.Lists[0].FindRecord("missing") != nil || w.Lists[0].FindRecord("") != nil {
+		t.Fatal("found a missing record")
 	}
 }

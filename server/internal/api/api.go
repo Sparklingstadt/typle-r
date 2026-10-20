@@ -1,5 +1,5 @@
-// Package api serves workspaces in the shapes of the removed /api/v1 (docs/api.md): read-only, or with lists and devices
-// to create, change and delete and records to add when it is given a Writer. Each request names its GitHub account with a token
+// Package api serves workspaces in the shapes of the removed /api/v1 (docs/api.md): read-only, or with lists, devices and
+// records to create, change and delete when it is given a Writer. Each request names its GitHub account with a token
 // and reads and writes only that account's workspace.
 package api
 
@@ -73,6 +73,7 @@ func New(source Source, writer Writer, verifier Verifier) http.Handler {
 	mux.Handle("/api/v1/lists", s.route(lists, write{http.MethodPost, s.createList}))
 	mux.Handle("/api/v1/lists/{listId}", s.route(list, write{http.MethodPatch, s.updateList}, write{http.MethodDelete, s.deleteList}))
 	mux.Handle("/api/v1/lists/{listId}/records", s.route(records, write{http.MethodPost, s.addRecord}))
+	mux.Handle("/api/v1/lists/{listId}/records/{recordId}", s.route(record, write{http.MethodPatch, s.updateRecord}, write{http.MethodDelete, s.deleteRecord}))
 	mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) { failure(w, http.StatusNotFound, "notFound") })
 	return mux
 }
@@ -196,6 +197,21 @@ func list(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
 		return
 	}
 	respond(w, http.StatusOK, map[string]any{"list": detail(list)})
+}
+
+// record answers a saved run by its id. Runs saved without an id cannot be named.
+func record(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
+	list := ws.Find(r.PathValue("listId"))
+	if list == nil {
+		failure(w, http.StatusNotFound, "listNotFound")
+		return
+	}
+	record := list.FindRecord(r.PathValue("recordId"))
+	if record == nil {
+		failure(w, http.StatusNotFound, "recordNotFound")
+		return
+	}
+	respond(w, http.StatusOK, map[string]any{"record": record})
 }
 
 var digits = regexp.MustCompile(`^\d+$`)

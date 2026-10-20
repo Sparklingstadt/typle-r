@@ -164,7 +164,7 @@ func TestOnlyReads(t *testing.T) {
 }
 
 func TestUnknownPaths(t *testing.T) {
-	for _, path := range []string{"/", "/api/v1", "/api/v1/lists/", "/api/v1/profiles", "/api/workspace", "/api/v1/lists/l1/records/x"} {
+	for _, path := range []string{"/", "/api/v1", "/api/v1/lists/", "/api/v1/profiles", "/api/workspace", "/api/v1/lists/l1/records/x/y"} {
 		expect(t, serve(t, "GET", path), 404, `{"error":"notFound"}`)
 	}
 	if got := body(t, serve(t, "POST", "/api/v1/lists/l1/records")); got != `{"error":"methodNotAllowed"}` {
