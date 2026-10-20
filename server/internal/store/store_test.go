@@ -412,3 +412,27 @@ func TestModifyRecords(t *testing.T) {
 		t.Fatalf("lists = %s, revision = %d", stored, revision)
 	}
 }
+
+// A copy is saved with the words of its source and no records; the source stays as it was.
+func TestModifyCopiesList(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	lists := `[{"id":"l1","name":"英単語","createdAt":"x","color":"red","words":[{"display":"a","input":"a","annotation":"","reading":"エー"}],` +
+		`"records":[{"id":"r1","time":1,"date":"2026-10-10T00:00:00.000Z"}]}]`
+	if _, err := conn.Exec(ctx, `INSERT INTO typle_workspaces (owner_id, lists, devices) VALUES ($1, $2, '[]')`, id, lists); err != nil {
+		t.Fatal(err)
+	}
+	s := open(t, connection, true)
+	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) {
+		_, err := workspace.CopyList(w, "l1", nil, "c1", time.Date(2026, 10, 21, 0, 0, 0, 0, time.UTC))
+		return true, err
+	}); err != nil {
+		t.Fatal(err)
+	}
+	stored, _, _ := row(t, conn, id)
+	want := `{"id": "c1", "name": "英単語（コピー）", "words": [{"input": "a", "display": "a", "reading": "エー", "annotation": ""}], "records": [], "createdAt": "2026-10-21T00:00:00.000Z"}`
+	if !strings.Contains(stored, want) || !strings.Contains(stored, `"color": "red"`) || !strings.Contains(stored, `"records": [{"id": "r1"`) {
+		t.Fatalf("lists = %s", stored)
+	}
+}

@@ -71,6 +71,7 @@ func New(source Source, writer Writer, verifier Verifier) http.Handler {
 	mux.Handle("/api/v1/devices", s.route(devices, write{http.MethodPost, s.createDevice}))
 	mux.Handle("/api/v1/devices/{deviceId}", s.route(device, write{http.MethodPatch, s.updateDevice}, write{http.MethodDelete, s.deleteDevice}))
 	mux.Handle("/api/v1/lists", s.route(lists, write{http.MethodPost, s.createList}))
+	mux.Handle("/api/v1/lists/{listId}/copy", s.route(nil, write{http.MethodPost, s.copyList}))
 	mux.Handle("/api/v1/lists/{listId}", s.route(list, write{http.MethodPatch, s.updateList}, write{http.MethodDelete, s.deleteList}))
 	mux.Handle("/api/v1/lists/{listId}/records", s.route(records, write{http.MethodPost, s.addRecord}))
 	mux.Handle("/api/v1/lists/{listId}/records/{recordId}", s.route(record, write{http.MethodPatch, s.updateRecord}, write{http.MethodDelete, s.deleteRecord}))
@@ -93,9 +94,13 @@ func unauthorized(w http.ResponseWriter) {
 }
 
 // route answers GET and HEAD with the workspace of the account the request's token belongs to, and the writes'
-// methods when the server is writable. Any other method is answered 405, before the token is checked.
+// methods when the server is writable. Any other method is answered 405, before the token is checked. A path with no
+// read (nil) answers only its writes.
 func (s *server) route(read handler, writes ...write) http.Handler {
-	allowed := []string{http.MethodGet, http.MethodHead}
+	allowed := []string{}
+	if read != nil {
+		allowed = append(allowed, http.MethodGet, http.MethodHead)
+	}
 	if s.writer == nil {
 		writes = nil
 	}
