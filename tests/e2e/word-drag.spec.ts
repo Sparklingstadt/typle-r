@@ -13,6 +13,13 @@ for (const mobile of [false, true]) {
     }
     await page.getByRole('textbox', { name: '補足 1', exact: true }).fill('Attached note')
     const handles = () => page.getByRole('button', { name: /をドラッグして並べ替え/ })
+    // A drop goes where the sensor last measured the dragged row to be, which can trail the key (a key pressed before the
+    // rows are measured is ignored, and scrolling the row into view is measured a frame later). The row below moves up
+    // once the dragged row is over it; until then, press again.
+    const moveDown = () => expect(async () => {
+      await page.keyboard.press('ArrowDown', { delay: 100 })
+      await expect(page.getByRole('group', { name: '単語 2', exact: true })).toHaveAttribute('style', /translate3d\(0px, -[1-9]/, { timeout: 2000 })
+    }).toPass()
     await handles().first().scrollIntoViewIfNeeded()
     const start = await handles().first().boundingBox()
     const end = await handles().nth(2).boundingBox()
@@ -43,20 +50,18 @@ for (const mobile of [false, true]) {
     await handles().first().focus()
     await page.keyboard.press('Space')
     await expect(handles().first()).toHaveAttribute('aria-pressed', 'true')
-    // Allow the sensor's initial layout measurement to finish before moving.
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
-    await page.keyboard.press('ArrowDown', { delay: 100 })
+    await moveDown()
     await page.keyboard.press('Escape')
     await expect(page.getByRole('textbox', { name: '表示する単語 1', exact: true })).toHaveValue('Word 2')
     await handles().first().focus()
     await page.keyboard.press('Space')
     await expect(handles().first()).toHaveAttribute('aria-pressed', 'true')
-    // Allow the sensor's initial layout measurement to finish before moving.
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
-    await page.keyboard.press('ArrowDown', { delay: 100 })
+    await moveDown()
     await page.keyboard.press('Space')
     await expect(page.getByRole('textbox', { name: '表示する単語 1', exact: true })).toHaveValue('Word 3')
     await page.getByRole('button', { name: '保存', exact: true }).click()
+    // Until the save finishes the editor has unsaved changes, and leaving would ask first.
+    await expect(page.getByRole('button', { name: 'Drag list を編集', exact: true })).toBeVisible()
     await page.reload()
     await page.getByRole('button', { name: 'Drag list を編集', exact: true }).click()
     await expect(page.getByRole('textbox', { name: '表示する単語 1', exact: true })).toHaveValue('Word 3')
