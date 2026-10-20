@@ -81,12 +81,17 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 登録した練習端末の一覧です。組み込みの「デフォルト」は含みません（記録の `device.id` は `default` になります）。
 
 ```json
-{ "devices": [{ "id": "d1", "name": "自宅のキーボード", "layout": "JIS" }] }
+{
+  "devices": [{ "id": "d1", "name": "自宅のキーボード", "layout": "JIS", "practiceCount": 12, "lastPracticed": "2026-10-20T02:00:00.000Z" }],
+  "default": { "practiceCount": 3, "lastPracticed": "2026-10-19T09:00:00.000Z" }
+}
 ```
+
+`practiceCount`・`lastPracticed` は、アプリの「端末」画面の練習回数と最後に練習した日です（v0.49.0 から）。すべてのリストの記録を、記録に入っている端末の `id` で数えるため、名前を変えた後も引き継がれます。`lastPracticed` は最も新しい記録の `date`（保存されている形のまま）で、記録がなければ `null`。`default` は組み込みの「デフォルト」の分です。
 
 ### `GET /api/v1/devices/{d}`
 
-登録した端末1台です（`{ "device": { "id", "name", "layout" } }`）。組み込みの `default` は登録した端末ではないため、`404 deviceNotFound` です。
+登録した端末1台です（`{ "device": { "id", "name", "layout", "practiceCount", "lastPracticed" } }`）。組み込みの `default` は登録した端末ではないため、`404 deviceNotFound` です。
 
 ### `GET /api/v1/lists`
 

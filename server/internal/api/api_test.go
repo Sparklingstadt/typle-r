@@ -119,7 +119,8 @@ func expect(t *testing.T, response *httptest.ResponseRecorder, status int, want 
 }
 
 func TestDevices(t *testing.T) {
-	expect(t, serve(t, "GET", "/api/v1/devices"), 200, `{"devices":[{"id":"d1","name":"自宅","layout":"JIS"}]}`)
+	expect(t, serve(t, "GET", "/api/v1/devices"), 200, `{"devices":[{"id":"d1","name":"自宅","layout":"JIS","practiceCount":1,
+	  "lastPracticed":"2026-10-03T00:00:00.000Z"}],"default":{"practiceCount":0,"lastPracticed":null}}`)
 }
 
 func TestLists(t *testing.T) {
