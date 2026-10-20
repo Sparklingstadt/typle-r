@@ -94,6 +94,19 @@ jobs:
             xcrun simctl shutdown "$udid"
           done
           ls -l screenshots
+      # The artifact storage is not reachable from every reviewer's environment, so the screenshots are also printed
+      # into the log as small JPEGs (base64, one line each, after "SCREENSHOT <name>").
+      - name: Print screenshots
+        if: always()
+        working-directory: ios
+        run: |
+          mkdir -p small
+          for file in screenshots/*.png; do
+            [ -e "$file" ] || continue
+            name=$(basename "$file" .png)
+            sips -s format jpeg -s formatOptions 55 -Z 1400 "$file" --out "small/$name.jpg" >/dev/null
+            echo "SCREENSHOT $name $(base64 -i "small/$name.jpg" | tr -d '\n')"
+          done
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
