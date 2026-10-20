@@ -41,7 +41,7 @@ func main() {
 	}
 	defer source.Close()
 
-	server := &http.Server{Addr: *addr, Handler: api.New(source, auth.NewGitHub()), ReadHeaderTimeout: 10 * time.Second}
+	server := &http.Server{Addr: *addr, Handler: api.New(source, nil, auth.NewGitHub()), ReadHeaderTimeout: 10 * time.Second}
 	go func() {
 		<-ctx.Done()
 		shutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
