@@ -77,6 +77,8 @@ func New(source Source, writer Writer, verifier Verifier) http.Handler {
 	s := &server{source: source, writer: writer, verifier: verifier}
 	mux := http.NewServeMux()
 	mux.Handle("/api/v1/records", s.route(feed))
+	mux.Handle("/api/v1/rankings", s.route(rankings))
+	mux.Handle("/api/v1/rankings/{listId}", s.route(ranking))
 	mux.Handle("/api/v1/devices", s.route(devices, write{http.MethodPost, s.createDevice}))
 	mux.Handle("/api/v1/devices/{deviceId}", s.route(device, write{http.MethodPatch, s.updateDevice}, write{http.MethodDelete, s.deleteDevice}))
 	mux.Handle("/api/v1/lists", s.route(lists, write{http.MethodPost, s.createList}))

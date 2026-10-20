@@ -272,3 +272,34 @@ func TestRecordsFeedDay(t *testing.T) {
 		}
 	}
 }
+
+func TestRankings(t *testing.T) {
+	newest := `{"id":"new","time":4.25,"date":"2026-10-03T00:00:00.000Z","mistakes":0,"accuracy":100,"wordCount":2,"device":{"id":"d1","name":"自宅","layout":"JIS"}}`
+	l1 := `{"listId":"l1","listName":"英単語","wordCount":2,"recordCount":3,"best":` + newest + `,"lastPracticed":"2026-10-03T00:00:00.000Z","improved":false}`
+	l2 := `{"listId":"l2","listName":"空","wordCount":1,"recordCount":0,"best":null,"lastPracticed":null,"improved":false}`
+	expect(t, serve(t, "GET", "/api/v1/rankings"), 200, `{"rankings":[`+l1+`,`+l2+`]}`)
+	expect(t, serve(t, "GET", "/api/v1/rankings?sort=name&order=speed"), 200, `{"rankings":[`+l1+`,`+l2+`]}`)
+	l1OnD1 := strings.Replace(l1, `"recordCount":3`, `"recordCount":1`, 1)
+	expect(t, serve(t, "GET", "/api/v1/rankings?device=d1&sort=count"), 200, `{"rankings":[`+l1OnD1+`,`+l2+`]}`)
+	for _, query := range []string{"order=bad", "sort=bad"} {
+		expect(t, serve(t, "GET", "/api/v1/rankings?"+query), 400, `{"error":"invalidQuery"}`)
+	}
+	expect(t, serveAs(saved(t), "Bearer bob", "GET", "/api/v1/rankings"), 200, `{"rankings":[]}`)
+}
+
+func TestRanking(t *testing.T) {
+	newest := `{"id":"new","time":4.25,"date":"2026-10-03T00:00:00.000Z","mistakes":0,"accuracy":100,"wordCount":2,"device":{"id":"d1","name":"自宅","layout":"JIS"}}`
+	mid := `{"id":"mid","time":6,"date":"2026-10-02T00:00:00.000Z"}`
+	oldest := `{"time":5,"date":"2026-10-01T00:00:00.000Z"}`
+	expect(t, serve(t, "GET", "/api/v1/rankings/l1"), 200, `{"ranking":{"listId":"l1","listName":"英単語","wordCount":2,
+	  "ranked":[`+newest+`],"best":`+newest+`,"fallback":false,"otherCounts":[{"wordCount":null,"count":2}],
+	  "lastPracticed":"2026-10-03T00:00:00.000Z","improved":false,
+	  "stats":{"recentCount":1,"recentTime":4.25,"recentAccuracy":100,"points":[{"date":"2026-10-03T00:00:00.000Z","value":4.25}]}}}`)
+	if got := body(t, serve(t, "GET", "/api/v1/rankings/l1?includeOthers=true&order=speed")); !strings.Contains(got, `"ranked":[`+newest+`,`+oldest+`,`+mid+`]`) {
+		t.Fatalf("includeOthers = %s", got)
+	}
+	expect(t, serve(t, "GET", "/api/v1/rankings/l2"), 200, `{"ranking":{"listId":"l2","listName":"空","wordCount":1,"ranked":[],"best":null,
+	  "fallback":false,"otherCounts":[],"lastPracticed":null,"improved":false,"stats":{"recentCount":0,"recentTime":null,"recentAccuracy":null,"points":[]}}}`)
+	expect(t, serve(t, "GET", "/api/v1/rankings/missing"), 404, `{"error":"listNotFound"}`)
+	expect(t, serve(t, "GET", "/api/v1/rankings/l1?includeOthers=yes"), 400, `{"error":"invalidQuery"}`)
+}
