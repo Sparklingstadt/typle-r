@@ -31,6 +31,10 @@ type listSummary struct {
 	WordCount   int    `json:"wordCount"`
 	RecordCount int    `json:"recordCount"`
 	CreatedAt   string `json:"createdAt"`
+	// What the app's list of word lists shows: practiceCount is recordCount by the app's name for it.
+	PracticeCount      int     `json:"practiceCount"`
+	LastPracticed      *string `json:"lastPracticed"`
+	CurrentRecordCount int     `json:"currentRecordCount"`
 }
 
 type listDetail struct {
@@ -39,7 +43,14 @@ type listDetail struct {
 }
 
 func summary(list *workspace.List) listSummary {
-	return listSummary{ID: list.ID, Name: list.Name, WordCount: len(list.Words), RecordCount: len(list.Records), CreatedAt: list.CreatedAt}
+	overview := workspace.Overviews([]workspace.List{*list})[0]
+	var last *string
+	if overview.LastPracticed != nil {
+		formatted := workspace.FormatTime(*overview.LastPracticed)
+		last = &formatted
+	}
+	return listSummary{ID: list.ID, Name: list.Name, WordCount: len(list.Words), RecordCount: len(list.Records), CreatedAt: list.CreatedAt,
+		PracticeCount: overview.PracticeCount, LastPracticed: last, CurrentRecordCount: workspace.CurrentRecordCount(list)}
 }
 
 // Source reads an account's current workspace. It is read again for every request, so changes saved in the app show
@@ -251,10 +262,24 @@ func device(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
 	failure(w, http.StatusNotFound, "deviceNotFound")
 }
 
-func lists(w http.ResponseWriter, _ *http.Request, ws *workspace.Workspace) {
-	lists := make([]listSummary, 0, len(ws.Lists))
-	for i := range ws.Lists {
-		lists = append(lists, summary(&ws.Lists[i]))
+// lists answers the lists in their saved order, or ordered by the sort query as the app's list of word lists does,
+// keeping those that match the q query.
+func lists(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
+	query := r.URL.Query()
+	items := workspace.Overviews(ws.Lists)
+	if query.Has("sort") {
+		sorted, ok := workspace.SortOverviews(items, query.Get("sort"))
+		if !ok {
+			failure(w, http.StatusBadRequest, "invalidQuery")
+			return
+		}
+		items = sorted
+	}
+	lists := make([]listSummary, 0, len(items))
+	for _, item := range items {
+		if workspace.MatchesQuery(item.List, query.Get("q")) {
+			lists = append(lists, summary(item.List))
+		}
 	}
 	respond(w, http.StatusOK, map[string]any{"lists": lists})
 }

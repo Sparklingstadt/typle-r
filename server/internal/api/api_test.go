@@ -124,14 +124,29 @@ func TestDevices(t *testing.T) {
 }
 
 func TestLists(t *testing.T) {
-	expect(t, serve(t, "GET", "/api/v1/lists"), 200, `{"lists":[
-	  {"id":"l1","name":"英単語","wordCount":2,"recordCount":3,"createdAt":"2026-10-10T01:23:45.000Z"},
-	  {"id":"l2","name":"空","wordCount":1,"recordCount":0,"createdAt":"2026-10-11T00:00:00.000Z"}]}`)
+	expect(t, serve(t, "GET", "/api/v1/lists"), 200, `{"lists":[`+l1Summary+`,`+l2Summary+`]}`)
+}
+
+const (
+	l1Summary = `{"id":"l1","name":"英単語","wordCount":2,"recordCount":3,"createdAt":"2026-10-10T01:23:45.000Z",
+	  "practiceCount":3,"lastPracticed":"2026-10-03T00:00:00.000Z","currentRecordCount":1}`
+	l2Summary = `{"id":"l2","name":"空","wordCount":1,"recordCount":0,"createdAt":"2026-10-11T00:00:00.000Z",
+	  "practiceCount":0,"lastPracticed":null,"currentRecordCount":0}`
+)
+
+func TestListsSortAndSearch(t *testing.T) {
+	expect(t, serve(t, "GET", "/api/v1/lists?sort=added"), 200, `{"lists":[`+l2Summary+`,`+l1Summary+`]}`)
+	expect(t, serve(t, "GET", "/api/v1/lists?sort=practiced"), 200, `{"lists":[`+l1Summary+`,`+l2Summary+`]}`)
+	expect(t, serve(t, "GET", "/api/v1/lists?sort=words"), 200, `{"lists":[`+l1Summary+`,`+l2Summary+`]}`)
+	expect(t, serve(t, "GET", "/api/v1/lists?q=PEAR"), 200, `{"lists":[`+l1Summary+`]}`)
+	expect(t, serve(t, "GET", "/api/v1/lists?q=%E7%A9%BA&sort=name"), 200, `{"lists":[`+l2Summary+`]}`)
+	expect(t, serve(t, "GET", "/api/v1/lists?q=none"), 200, `{"lists":[]}`)
+	expect(t, serve(t, "GET", "/api/v1/lists?sort=bad"), 400, `{"error":"invalidQuery"}`)
 }
 
 func TestList(t *testing.T) {
 	expect(t, serve(t, "GET", "/api/v1/lists/l1"), 200, `{"list":{"id":"l1","name":"英単語","wordCount":2,"recordCount":3,
-	  "createdAt":"2026-10-10T01:23:45.000Z","words":[{"display":"apple","input":"apple","annotation":"りんご"},
+	  "createdAt":"2026-10-10T01:23:45.000Z","practiceCount":3,"lastPracticed":"2026-10-03T00:00:00.000Z","currentRecordCount":1,"words":[{"display":"apple","input":"apple","annotation":"りんご"},
 	  {"display":"pear","input":"pear","annotation":""}]}}`)
 	expect(t, serve(t, "GET", "/api/v1/lists/missing"), 404, `{"error":"listNotFound"}`)
 }
