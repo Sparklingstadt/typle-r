@@ -153,7 +153,7 @@ public func groupByDay(_ rows: [RecordRow], calendar: Calendar = .current) -> [R
 }
 
 public enum TimeUnit: Sendable {
-  case minutes, seconds
+  case hours, minutes, seconds
 }
 
 /// Seconds keep two decimals so close runs stay distinguishable; a minute or more is split into minutes and seconds.
