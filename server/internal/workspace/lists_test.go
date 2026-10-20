@@ -144,3 +144,67 @@ func TestDeleteList(t *testing.T) {
 	}
 	wantKey(t, DeleteList(w, "l1"), "listNotFound")
 }
+
+// Postgres cannot store U+0000 in jsonb, so it is refused as invalid rather than failing the save.
+func TestCreateListRefusesNUL(t *testing.T) {
+	for _, input := range []ListInput{
+		{Name: text("a\x00"), Words: []Word{{Display: "a", Input: "a"}}},
+		{Name: text("a"), Words: []Word{{Display: "a\x00", Input: "a"}}},
+		{Name: text("a"), Words: []Word{{Display: "a", Input: "\x00a"}}},
+		{Name: text("a"), Words: []Word{{Display: "a", Input: "a", Annotation: "\x00"}}},
+	} {
+		w := two()
+		_, err := CreateList(w, input, "new", now)
+		wantKey(t, err, "invalidList")
+	}
+	_, err := UpdateList(two(), "l1", ListInput{Words: []Word{{Display: "a", Input: "a", Annotation: "\x00"}}})
+	wantKey(t, err, "invalidList")
+}
+
+// Names are compared as the app's saveList does, with JavaScript's toLowerCase. σ is \u03c3 and the final ς is \u03c2.
+func TestListNamesCompareAsJavaScript(t *testing.T) {
+	cases := []struct {
+		existing, name string
+		duplicate      bool
+	}{
+		{"\u03b1\u03c2", "\u0391\u03a3", true},             // ΑΣ lowercases to ας, as JavaScript does at the end of a word.
+		{"\u03b1\u03c3", "\u0391\u03a3", false},            // ...so it is not ασ.
+		{"\u03b1\u03c3\u03b1", "\u0391\u03a3\u0391", true}, // Inside a word Σ is σ.
+		{"\u03c3", "\u03a3", true},                         // A lone Σ is not final.
+		{"i", "\u0130", false},                             // JavaScript lowercases İ to i and a combining dot above.
+		{"i\u0307", "\u0130", true},
+		{"Apple", " APPLE ", true},
+	}
+	for _, c := range cases {
+		w := &Workspace{Lists: []List{{ID: "x", Name: c.existing, Words: []Word{{Display: "a", Input: "a"}}}}}
+		_, err := CreateList(w, ListInput{Name: text(c.name), Words: []Word{{Display: "a", Input: "a"}}}, "new", now)
+		if c.duplicate {
+			wantKey(t, err, "listNameDuplicate")
+		} else if err != nil {
+			t.Errorf("%q next to %q: %v", c.name, c.existing, err)
+		}
+	}
+}
+
+// The expected values are what Node's toLowerCase gives.
+func TestLowerCase(t *testing.T) {
+	cases := map[string]string{
+		"\u039f\u0394\u039f\u03a3":              "\u03bf\u03b4\u03bf\u03c2", // ΟΔΟΣ → οδος
+		"\u039f\u0394\u039f\u03a3 \u0391\u03a3": "\u03bf\u03b4\u03bf\u03c2 \u03b1\u03c2",
+		"\u0391\u03a3.":                         "\u03b1\u03c2.",       // . can follow a final Σ
+		"\u0391\u03a3'\u0392":                   "\u03b1\u03c3'\u03b2", // ' inside a word does not end it
+		"\u0391\u03a3:\u0392":                   "\u03b1\u03c3:\u03b2",
+		"\u0391\u03a3\u0301":                    "\u03b1\u03c2\u0301", // a combining accent is ignored
+		"\u0391\u03a31":                         "\u03b1\u03c21",      // a digit is not a letter
+		"1\u03a3":                               "1\u03c3",            // nothing cased before it
+		"\u03a3":                                "\u03c3",
+		"A\u02bc\u00ad\u03a3":                   "a\u02bc\u00ad\u03c2", // modifier letters and soft hyphens are ignored
+		"\u0130stanbul":                         "i\u0307stanbul",
+		"ABC":                                   "abc",
+	}
+	for input, want := range cases {
+		if got := lowerCase(input); got != want {
+			t.Errorf("lowerCase(%q) = %q, want %q", input, got, want)
+		}
+	}
+}

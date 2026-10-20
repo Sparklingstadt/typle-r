@@ -26,12 +26,16 @@ type Word struct {
 	Display    string `json:"display"`
 	Input      string `json:"input"`
 	Annotation string `json:"annotation"`
+	// Extra holds the stored fields Typle does not know (see extra.go).
+	Extra string `json:"-"`
 }
 
 type Device struct {
 	ID     string `json:"id"`
 	Name   string `json:"name"`
 	Layout string `json:"layout"`
+	// Extra holds the stored fields Typle does not know, of a device copied into a record.
+	Extra string `json:"-"`
 }
 
 // Record is a practice run as it is stored. Records saved by older versions may have no id, mistakes, accuracy,
@@ -45,7 +49,8 @@ type Record struct {
 	WordCount *int     `json:"wordCount,omitempty"`
 	Device    *Device  `json:"device,omitempty"`
 	// At is Date as a time, for ordering and filtering.
-	At time.Time `json:"-"`
+	At    time.Time `json:"-"`
+	Extra string    `json:"-"`
 }
 
 type List struct {
@@ -54,6 +59,7 @@ type List struct {
 	Words     []Word
 	Records   []Record
 	CreatedAt string
+	Extra     string
 }
 
 type Workspace struct {
@@ -76,6 +82,7 @@ type rawWord struct {
 	Display    *string `json:"display"`
 	Input      *string `json:"input"`
 	Annotation *string `json:"annotation"`
+	extra      string
 }
 
 type rawRecord struct {
@@ -86,15 +93,17 @@ type rawRecord struct {
 	Accuracy  *float64 `json:"accuracy"`
 	WordCount *int     `json:"wordCount"`
 	Device    *Device  `json:"device"`
+	extra     string
 }
 
-// Fields the app no longer uses, such as shared and shareId, are not decoded and so are dropped.
+// shared and shareId, which meant link sharing, are dropped. Other fields Typle does not know are kept.
 type rawList struct {
 	ID        *string      `json:"id"`
 	Name      *string      `json:"name"`
 	CreatedAt *string      `json:"createdAt"`
 	Words     []*rawWord   `json:"words"`
 	Records   []*rawRecord `json:"records"`
+	extra     string
 }
 
 // Decode reads a saved row: its lists and devices columns.
@@ -157,7 +166,7 @@ func decodeList(raw *rawList) (List, error) {
 		if strings.TrimSpace(*word.Display) == "" || strings.TrimSpace(*word.Input) == "" {
 			return List{}, fmt.Errorf("word %d: display and input must not be empty", index+1)
 		}
-		words = append(words, Word{Display: *word.Display, Input: *word.Input, Annotation: *word.Annotation})
+		words = append(words, Word{Display: *word.Display, Input: *word.Input, Annotation: *word.Annotation, Extra: word.extra})
 	}
 	records := make([]Record, 0, len(raw.Records))
 	for index, item := range raw.Records {
@@ -167,7 +176,7 @@ func decodeList(raw *rawList) (List, error) {
 		}
 		records = append(records, record)
 	}
-	return List{ID: *raw.ID, Name: *raw.Name, Words: words, Records: records, CreatedAt: *raw.CreatedAt}, nil
+	return List{ID: *raw.ID, Name: *raw.Name, Words: words, Records: records, CreatedAt: *raw.CreatedAt, Extra: raw.extra}, nil
 }
 
 func decodeRecord(raw *rawRecord) (Record, error) {
@@ -191,7 +200,7 @@ func decodeRecord(raw *rawRecord) (Record, error) {
 		return Record{}, errors.New("device is invalid")
 	}
 	return Record{ID: raw.ID, Time: *raw.Time, Date: *raw.Date, Mistakes: raw.Mistakes, Accuracy: raw.Accuracy,
-		WordCount: raw.WordCount, Device: raw.Device, At: at}, nil
+		WordCount: raw.WordCount, Device: raw.Device, At: at, Extra: raw.extra}, nil
 }
 
 // JavaScript measures string length in UTF-16 code units.
@@ -229,4 +238,58 @@ func decodeDevices(raw []json.RawMessage) ([]Device, error) {
 		devices = append(devices, Device{ID: device.ID, Name: strings.TrimSpace(device.Name), Layout: strings.TrimSpace(device.Layout)})
 	}
 	return devices, nil
+}
+
+// Each stored shape keeps the fields it does not know.
+
+func (r *rawWord) UnmarshalJSON(data []byte) (err error) {
+	type plain rawWord
+	if err = json.Unmarshal(data, (*plain)(r)); err == nil {
+		r.extra, err = unknown(data, "display", "input", "annotation")
+	}
+	return err
+}
+
+func (r *rawRecord) UnmarshalJSON(data []byte) (err error) {
+	type plain rawRecord
+	if err = json.Unmarshal(data, (*plain)(r)); err == nil {
+		r.extra, err = unknown(data, "id", "time", "date", "mistakes", "accuracy", "wordCount", "device")
+	}
+	return err
+}
+
+func (r *rawList) UnmarshalJSON(data []byte) (err error) {
+	type plain rawList
+	if err = json.Unmarshal(data, (*plain)(r)); err == nil {
+		r.extra, err = unknown(data, "id", "name", "createdAt", "words", "records", "shared", "shareId")
+	}
+	return err
+}
+
+func (d *Device) UnmarshalJSON(data []byte) (err error) {
+	type plain Device
+	if err = json.Unmarshal(data, (*plain)(d)); err == nil {
+		d.Extra, err = unknown(data, "id", "name", "layout")
+	}
+	return err
+}
+
+// Words, records and devices are written with their unknown fields, both to the database and in the API's answers.
+
+func (w Word) MarshalJSON() ([]byte, error) {
+	type plain Word
+	known, err := marshal(plain(w))
+	return withExtra(known, w.Extra), err
+}
+
+func (r Record) MarshalJSON() ([]byte, error) {
+	type plain Record
+	known, err := marshal(plain(r))
+	return withExtra(known, r.Extra), err
+}
+
+func (d Device) MarshalJSON() ([]byte, error) {
+	type plain Device
+	known, err := marshal(plain(d))
+	return withExtra(known, d.Extra), err
 }

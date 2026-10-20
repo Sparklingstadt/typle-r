@@ -1,12 +1,14 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"io"
 	"log"
-	"mime"
 	"net/http"
+	"reflect"
+	"strings"
 	"time"
 
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
@@ -18,33 +20,79 @@ const maxBody = 1 << 20
 var errTrailing = errors.New("more than one JSON value")
 
 // decode reads a JSON object of type T from the body, or answers the request: 415 for another content type, 413 for
-// a body over 1 MiB, and 400 invalidJson for anything else that is not exactly one object of T's known fields.
+// a body over 1 MiB, and 400 invalidJson for anything else that is not exactly one object of T's fields. Only the
+// media type before ";" is looked at, as the app's own route does.
 func decode[T any](w http.ResponseWriter, r *http.Request) (*T, bool) {
-	mediaType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
-	if err != nil || mediaType != "application/json" {
+	mediaType, _, _ := strings.Cut(r.Header.Get("Content-Type"), ";")
+	if !strings.EqualFold(strings.TrimSpace(mediaType), "application/json") {
 		failure(w, http.StatusUnsupportedMediaType, "unsupportedContentType")
 		return nil, false
 	}
-	decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, maxBody))
-	decoder.DisallowUnknownFields()
+	data, err := io.ReadAll(http.MaxBytesReader(w, r.Body, maxBody))
+	var tooLarge *http.MaxBytesError
+	if errors.As(err, &tooLarge) {
+		failure(w, http.StatusRequestEntityTooLarge, "requestTooLarge")
+		return nil, false
+	}
 	var value *T
-	err = decoder.Decode(&value)
 	if err == nil {
-		if extra := decoder.Decode(new(json.RawMessage)); extra != io.EOF {
-			err = errTrailing
-			if extra != nil {
-				err = extra
+		decoder := json.NewDecoder(bytes.NewReader(data))
+		decoder.DisallowUnknownFields()
+		if err = decoder.Decode(&value); err == nil {
+			if extra := decoder.Decode(new(json.RawMessage)); extra != io.EOF {
+				err = errTrailing
 			}
 		}
 	}
-	var tooLarge *http.MaxBytesError
-	switch {
-	case errors.As(err, &tooLarge):
-		failure(w, http.StatusRequestEntityTooLarge, "requestTooLarge")
-	case err != nil || value == nil:
+	if err != nil || value == nil || !exactKeys(data, reflect.TypeFor[T]()) {
 		failure(w, http.StatusBadRequest, "invalidJson")
-	default:
-		return value, true
+		return nil, false
+	}
+	return value, true
+}
+
+// exactKeys tells whether every object in data names its fields exactly as t's JSON tags do. encoding/json also
+// matches them in another case, such as NAME for name, which the API does not accept.
+func exactKeys(data []byte, t reflect.Type) bool {
+	var value any
+	return json.Unmarshal(data, &value) == nil && keysMatch(value, t)
+}
+
+func keysMatch(value any, t reflect.Type) bool {
+	for t.Kind() == reflect.Pointer {
+		t = t.Elem()
+	}
+	switch t.Kind() {
+	case reflect.Struct:
+		object, _ := value.(map[string]any)
+		for key, field := range object {
+			typ, ok := fieldType(t, key)
+			if !ok || !keysMatch(field, typ) {
+				return false
+			}
+		}
+	case reflect.Slice:
+		items, _ := value.([]any)
+		for _, item := range items {
+			if !keysMatch(item, t.Elem()) {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+// fieldType returns the type of the field that the JSON key names exactly.
+func fieldType(t reflect.Type, key string) (reflect.Type, bool) {
+	for i := range t.NumField() {
+		field := t.Field(i)
+		name, _, _ := strings.Cut(field.Tag.Get("json"), ",")
+		if name == "" {
+			name = field.Name
+		}
+		if field.IsExported() && name != "-" && name == key {
+			return field.Type, true
+		}
 	}
 	return nil, false
 }
