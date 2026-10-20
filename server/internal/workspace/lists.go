@@ -22,13 +22,13 @@ func index(w *Workspace, id string) int {
 // checkName follows validateList and saveList (src/core/wordLists.ts): a name, not used by another list in any case.
 // It returns the name to save, without the spaces around it.
 func checkName(w *Workspace, name *string, self string) (string, error) {
-	if name == nil || strings.TrimSpace(*name) == "" {
+	if name == nil || trimJS(*name) == "" {
 		return "", &Error{Key: "listNameRequired"}
 	}
-	trimmed := strings.TrimSpace(*name)
+	trimmed := trimJS(*name)
 	folded := lowerCase(trimmed)
 	for _, other := range w.Lists {
-		if other.ID != self && lowerCase(strings.TrimSpace(other.Name)) == folded {
+		if other.ID != self && lowerCase(trimJS(other.Name)) == folded {
 			return "", &Error{Key: "listNameDuplicate"}
 		}
 	}
@@ -45,7 +45,7 @@ func checkWords(words []Word) error {
 		return &Error{Key: "wordsRequired"}
 	}
 	for _, word := range words {
-		if strings.TrimSpace(word.Display) == "" || strings.TrimSpace(word.Input) == "" {
+		if trimJS(word.Display) == "" || trimJS(word.Input) == "" {
 			return &Error{Key: "wordFieldsRequired"}
 		}
 	}

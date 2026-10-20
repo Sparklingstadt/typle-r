@@ -3,7 +3,7 @@
 GitHubでログインしたアカウントのクラウド保存（`typle_workspaces`）を、スクリプトや別のアプリから読み書きするためのAPIです。`server/` のGoサーバーで、Typle本体とは別に起動します。Vercelの本番には載せていません。
 
 - 既定は読み取り専用です。`GET`・`HEAD` 以外は `405 methodNotAllowed` で、DBへの接続も読み取り専用（`default_transaction_read_only=on`）のため、書き込みはDBが拒否します。
-- `-writable` を付けて起動すると、リストの作成・変更・削除と記録の追加（v0.42.0 から）、リストの複製（v0.47.0 から）、端末の作成・変更・削除（v0.44.0 から）、記録の変更・削除（v0.45.0 から）もできます。
+- `-writable` を付けて起動すると、リストの作成・変更・削除と記録の追加（v0.42.0 から）、リストの複製（v0.47.0 から）、CSV・TSV の取り込み（v0.48.0 から）、端末の作成・変更・削除（v0.44.0 から）、記録の変更・削除（v0.45.0 から）もできます。
 - GitHubのトークンで認証します。読み書きできるのは、そのトークンのGitHubユーザー本人のアカウント（アプリにGitHubでログインしたときと同じ `github:<ユーザーID>`）のデータだけです。ほかのアカウントのデータには届きません。
 - 形は v0.35.x までの `/api/v1` と同じです。共有リンクとプロファイルを削除したため `shared`・`shareUrl` と `/profiles/{p}` はありません。
 - ブラウザー保存（ログインしていないとき）のデータはサーバーにないため扱えません。
@@ -121,6 +121,10 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 }
 ```
 
+### `GET /api/v1/lists/{l}/words.csv`
+
+リストの単語を、アプリの「CSV書き出し」と同じ CSV で返します（v0.48.0 から）。BOM 付き、見出し `input,display,annotation`、すべての項目を `"` で囲み、改行は CRLF です。`Content-Type: text/csv; charset=utf-8`、`Content-Disposition` にリスト名から作ったファイル名（アプリと同じ規則）を付けます。
+
 ### `GET /api/v1/lists/{l}/records`
 
 練習記録を新しい順（`date` の降順。同じ日時は保存順）に返します。
@@ -162,6 +166,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 | `PATCH /api/v1/lists/{l}` | `{ "name"?, "words"? }`（少なくとも一方） | `200 { "list" }`。`words` は全体を置き換える。記録・`createdAt`・並び順は残る |
 | `DELETE /api/v1/lists/{l}` | なし | `204`（本文なし）。記録も一緒に消える |
 | `POST /api/v1/lists/{l}/copy` | なし、または `{ "name"? }` | `201 { "list" }`。単語をコピーし、記録はコピーしない。名前を省略すると「元の名前（コピー）」、使われていれば「（コピー2）」…（200文字に収まるよう元の名前を切る）。最後に追加する（v0.47.0 から） |
+| `POST /api/v1/lists/import?name=…&format=csv\|tsv` | CSV・TSV のファイルそのもの（`Content-Type` は `text/csv`・`text/tab-separated-values`・`text/plain`。1MiB まで） | `201 { "list" }`。アプリの「CSV・TSVファイルから追加」と同じ読み方で単語を読み、`name` の名前のリストを作る（v0.48.0 から） |
 | `POST /api/v1/lists/{l}/records` | `{ "id"?, "time", "date", "mistakes", "accuracy", "wordCount"?, "deviceId"? }` | 追加したら `201 { "record" }`。同じリストに同じ `id` の記録があれば追加せず、保存済みの記録を `200 { "record" }` で返す |
 | `POST /api/v1/devices` | `{ "name", "layout"? }` | `201 { "device" }`。IDはサーバーが UUID で決める。最後に追加する |
 | `PATCH /api/v1/devices/{d}` | `{ "name"?, "layout"? }`（少なくとも一方） | `200 { "device" }` |
@@ -179,6 +184,15 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 - `words`: 1件以上（`wordsRequired`）。`display`・`input` は空白だけでない文字列（`wordFieldsRequired`）。`annotation` は省略すると `""`。単語の前後の空白はそのまま保存する。
 - 長さ（UTF-16の文字数）: 名前200、単語1000件、`display`・`input` 1000、`annotation` 2000。超えると `invalidList`。NUL文字（`\u0000`）はDBに保存できないため、名前・単語のどこにあっても `invalidList`。
 - リストが100件あるときの作成は `listLimit`。
+
+### CSV・TSV の取り込み
+
+アプリで取り込むときと同じです。
+
+- 1行目は見出しで、`input`・`display` が必須、`annotation` は任意（誤記の `anotation` も読む）。順番は問わない。
+- `"` で囲んだ項目には区切り文字・改行・`""`（`"` 1文字）を入れられる。先頭の BOM と空行は読み飛ばす。単語の前後の空白・順序・重複はそのまま保存する。
+- 誤りは `400` で、行番号があるものは `line` を付ける（例 `{ "error": "importQuote", "line": 3 }`）: `importQuote`（引用符の誤り）、`importHeaderRequired`・`importHeaderDuplicate`・`importHeaderUnknown`（見出し）、`importNoRows`、`importTooManyRows`（1000行超）、`importColumnCount`（列数）、`importFieldRequired`（`input`・`display` が空）、`importFieldTooLong`（1000文字超、`annotation` は2000文字超）。1MiB を超えると `413 importTooLarge`。
+- リスト名は作成と同じ検証（`listNameRequired`・`listNameDuplicate`・`invalidList`・`listLimit`）。`format` がないか `csv`・`tsv` 以外なら `400 invalidQuery`。
 
 ### 端末の検証
 

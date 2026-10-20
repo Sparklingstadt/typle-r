@@ -110,18 +110,27 @@ func (s *server) modify(w http.ResponseWriter, r *http.Request, owner string, ch
 		failure(w, http.StatusServiceUnavailable, "databaseUnavailable")
 		return false
 	}
+	refuse(w, r, refused)
+	return false
+}
+
+// refuse answers a change that cannot be made with its key, and the line of a word file when there is one.
+func refuse(w http.ResponseWriter, r *http.Request, refused *workspace.Error) {
+	status := http.StatusBadRequest
 	switch {
-	// A list or device named in the path is a resource that is not there; a deviceId given in a record's body is a
-	// value of the request, and so a bad request.
+	// A list, device or record named in the path is a resource that is not there; a deviceId given in a record's body
+	// is a value of the request, and so a bad request.
 	case refused.Key == "listNotFound", refused.Key == "recordNotFound",
 		refused.Key == "deviceNotFound" && r.PathValue("deviceId") != "":
-		failure(w, http.StatusNotFound, refused.Key)
-	case refused.Key == "workspaceTooLarge":
-		failure(w, http.StatusRequestEntityTooLarge, refused.Key)
-	default:
-		failure(w, http.StatusBadRequest, refused.Key)
+		status = http.StatusNotFound
+	case refused.Key == "workspaceTooLarge", refused.Key == "importTooLarge":
+		status = http.StatusRequestEntityTooLarge
 	}
-	return false
+	body := map[string]any{"error": refused.Key}
+	if refused.Line != 0 {
+		body["line"] = refused.Line
+	}
+	respond(w, status, body)
 }
 
 func (s *server) createList(w http.ResponseWriter, r *http.Request, owner string) {
@@ -308,4 +317,58 @@ func (s *server) copyList(w http.ResponseWriter, r *http.Request, owner string) 
 		return
 	}
 	respond(w, http.StatusCreated, map[string]any{"list": copied})
+}
+
+// importFormats are the word files a list is imported from, by the format query, as src/plugins/formats.
+var importFormats = map[string]rune{"csv": ',', "tsv": '\t'}
+
+// importList makes a list from a CSV or TSV file sent as the body, named by the name query.
+func (s *server) importList(w http.ResponseWriter, r *http.Request, owner string) {
+	mediaType, _, _ := strings.Cut(r.Header.Get("Content-Type"), ";")
+	switch strings.ToLower(strings.TrimSpace(mediaType)) {
+	case "text/csv", "text/tab-separated-values", "text/plain":
+	default:
+		failure(w, http.StatusUnsupportedMediaType, "unsupportedContentType")
+		return
+	}
+	query := r.URL.Query()
+	delimiter, ok := importFormats[query.Get("format")]
+	if !ok {
+		failure(w, http.StatusBadRequest, "invalidQuery")
+		return
+	}
+	data, err := io.ReadAll(http.MaxBytesReader(w, r.Body, workspace.MaxImportBytes))
+	var tooLarge *http.MaxBytesError
+	if errors.As(err, &tooLarge) {
+		failure(w, http.StatusRequestEntityTooLarge, "importTooLarge")
+		return
+	}
+	if err != nil {
+		failure(w, http.StatusBadRequest, "invalidJson")
+		return
+	}
+	// As a browser reads a file as text, bytes that are not UTF-8 become U+FFFD.
+	words, err := workspace.ParseWordFile(strings.ToValidUTF8(string(data), "\uFFFD"), delimiter)
+	if err != nil {
+		refuse(w, r, err.(*workspace.Error))
+		return
+	}
+	var name *string
+	if query.Has("name") {
+		value := query.Get("name")
+		name = &value
+	}
+	id, now := workspace.NewID(), time.Now()
+	var created listDetail
+	if !s.modify(w, r, owner, func(ws *workspace.Workspace) (bool, error) {
+		list, err := workspace.CreateList(ws, workspace.ListInput{Name: name, Words: words}, id, now)
+		if err != nil {
+			return false, err
+		}
+		created = detail(list)
+		return true, nil
+	}) {
+		return
+	}
+	respond(w, http.StatusCreated, map[string]any{"list": created})
 }
