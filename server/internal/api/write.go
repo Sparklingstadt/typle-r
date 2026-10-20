@@ -110,10 +110,12 @@ func (s *server) modify(w http.ResponseWriter, r *http.Request, owner string, ch
 		failure(w, http.StatusServiceUnavailable, "databaseUnavailable")
 		return false
 	}
-	switch refused.Key {
-	case "listNotFound":
+	switch {
+	// A list or device named in the path is a resource that is not there; a deviceId given in a record's body is a
+	// value of the request, and so a bad request.
+	case refused.Key == "listNotFound", refused.Key == "deviceNotFound" && r.PathValue("deviceId") != "":
 		failure(w, http.StatusNotFound, refused.Key)
-	case "workspaceTooLarge":
+	case refused.Key == "workspaceTooLarge":
 		failure(w, http.StatusRequestEntityTooLarge, refused.Key)
 	default:
 		failure(w, http.StatusBadRequest, refused.Key)
@@ -195,4 +197,57 @@ func (s *server) addRecord(w http.ResponseWriter, r *http.Request, owner string)
 		status = http.StatusCreated
 	}
 	respond(w, status, map[string]any{"record": record})
+}
+
+func (s *server) createDevice(w http.ResponseWriter, r *http.Request, owner string) {
+	input, ok := decode[workspace.DeviceInput](w, r)
+	if !ok {
+		return
+	}
+	id := workspace.NewID()
+	var created workspace.Device
+	if !s.modify(w, r, owner, func(ws *workspace.Workspace) (bool, error) {
+		device, err := workspace.CreateDevice(ws, *input, id)
+		if err != nil {
+			return false, err
+		}
+		created = *device
+		return true, nil
+	}) {
+		return
+	}
+	respond(w, http.StatusCreated, map[string]any{"device": created})
+}
+
+func (s *server) updateDevice(w http.ResponseWriter, r *http.Request, owner string) {
+	input, ok := decode[workspace.DeviceInput](w, r)
+	if !ok {
+		return
+	}
+	if input.Name == nil && input.Layout == nil {
+		failure(w, http.StatusBadRequest, "invalidJson")
+		return
+	}
+	var updated workspace.Device
+	if !s.modify(w, r, owner, func(ws *workspace.Workspace) (bool, error) {
+		device, err := workspace.UpdateDevice(ws, r.PathValue("deviceId"), *input)
+		if err != nil {
+			return false, err
+		}
+		updated = *device
+		return true, nil
+	}) {
+		return
+	}
+	respond(w, http.StatusOK, map[string]any{"device": updated})
+}
+
+func (s *server) deleteDevice(w http.ResponseWriter, r *http.Request, owner string) {
+	if !s.modify(w, r, owner, func(ws *workspace.Workspace) (bool, error) {
+		return true, workspace.DeleteDevice(ws, r.PathValue("deviceId"))
+	}) {
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	w.WriteHeader(http.StatusNoContent)
 }

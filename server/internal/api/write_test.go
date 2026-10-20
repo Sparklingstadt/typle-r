@@ -29,7 +29,11 @@ func (w *writer) copy() *workspace.Workspace {
 	if err != nil {
 		w.t.Fatal(err)
 	}
-	copied, err := workspace.Decode(encoded, []byte(savedDevices))
+	devices, err := workspace.EncodeDevices(w.workspace.Devices)
+	if err != nil {
+		w.t.Fatal(err)
+	}
+	copied, err := workspace.Decode(encoded, devices)
 	if err != nil {
 		w.t.Fatal(err)
 	}
@@ -134,7 +138,8 @@ func TestReadOnlyRefusesWrites(t *testing.T) {
 
 func TestAllowHeaders(t *testing.T) {
 	allowed := map[string]string{
-		"/api/v1/devices":          "GET, HEAD",
+		"/api/v1/devices":          "GET, HEAD, POST",
+		"/api/v1/devices/d1":       "GET, HEAD, PATCH, DELETE",
 		"/api/v1/lists":            "GET, HEAD, POST",
 		"/api/v1/lists/l1":         "GET, HEAD, PATCH, DELETE",
 		"/api/v1/lists/l1/records": "GET, HEAD, POST",
@@ -147,7 +152,7 @@ func TestAllowHeaders(t *testing.T) {
 			t.Fatalf("%s: Allow = %q", path, response.Header().Get("Allow"))
 		}
 	}
-	for _, path := range []string{"/api/v1/devices", "/api/v1/lists/l1"} {
+	for _, path := range []string{"/api/v1/devices/d1", "/api/v1/lists/l1"} {
 		expect(t, send(writable(t), "POST", path, `{}`), 405, `{"error":"methodNotAllowed"}`)
 	}
 }
@@ -228,5 +233,59 @@ func TestWriteOwnAccount(t *testing.T) {
 	sendAs(w, "Bearer bob", "DELETE", "/api/v1/lists/l1", "", "")
 	if strings.Join(w.owners, ",") != "github:2" {
 		t.Fatalf("owners = %v", w.owners)
+	}
+}
+
+func TestCreateDevice(t *testing.T) {
+	w := writable(t)
+	response := send(w, "POST", "/api/v1/devices", `{"name":" 会社 ","layout":"US"}`)
+	got := body(t, response)
+	if response.Code != 201 || !uuid.MatchString(got) {
+		t.Fatalf("%d %s", response.Code, got)
+	}
+	if created := uuid.ReplaceAllString(got, `"id":"x"`); created != `{"device":{"id":"x","name":"会社","layout":"US"}}` {
+		t.Fatalf("body = %s", created)
+	}
+	if len(w.workspace.Devices) != 2 || w.workspace.Devices[1].Name != "会社" {
+		t.Fatalf("devices = %+v", w.workspace.Devices)
+	}
+}
+
+func TestDevice(t *testing.T) {
+	expect(t, serve(t, "GET", "/api/v1/devices/d1"), 200, `{"device":{"id":"d1","name":"自宅","layout":"JIS"}}`)
+	expect(t, serve(t, "GET", "/api/v1/devices/missing"), 404, `{"error":"deviceNotFound"}`)
+	expect(t, serve(t, "GET", "/api/v1/devices/default"), 404, `{"error":"deviceNotFound"}`)
+}
+
+func TestUpdateDevice(t *testing.T) {
+	w := writable(t)
+	expect(t, send(w, "PATCH", "/api/v1/devices/d1", `{"layout":"US"}`), 200, `{"device":{"id":"d1","name":"自宅","layout":"US"}}`)
+	expect(t, send(w, "PATCH", "/api/v1/devices/d1", `{}`), 400, `{"error":"invalidJson"}`)
+	expect(t, send(w, "PATCH", "/api/v1/devices/missing", `{"name":"a"}`), 404, `{"error":"deviceNotFound"}`)
+	expect(t, send(w, "PATCH", "/api/v1/devices/d1", `{"name":"Default"}`), 400, `{"error":"deviceNameDuplicate"}`)
+	expect(t, send(w, "PATCH", "/api/v1/devices/d1", `{"Name":"a"}`), 400, `{"error":"invalidJson"}`)
+}
+
+func TestDeleteDevice(t *testing.T) {
+	w := writable(t)
+	response := send(w, "DELETE", "/api/v1/devices/d1", "")
+	if response.Code != 204 || response.Body.Len() != 0 || response.Header().Get("Cache-Control") != "no-store" {
+		t.Fatalf("%d %q %v", response.Code, response.Body, response.Header())
+	}
+	expect(t, send(w, "GET", "/api/v1/devices", ""), 200, `{"devices":[]}`)
+	expect(t, send(w, "DELETE", "/api/v1/devices/d1", ""), 404, `{"error":"deviceNotFound"}`)
+	// Records keep their copy of the deleted device.
+	if !strings.Contains(body(t, send(w, "GET", "/api/v1/lists/l1/records", "")), `"device":{"id":"d1","name":"自宅","layout":"JIS"}`) {
+		t.Fatal("record lost its device")
+	}
+}
+
+func TestDeviceWritesNeedWritable(t *testing.T) {
+	for _, c := range []struct{ method, path string }{{"POST", "/api/v1/devices"}, {"PATCH", "/api/v1/devices/d1"}, {"DELETE", "/api/v1/devices/d1"}} {
+		response := serveAs(saved(t), "Bearer alice", c.method, c.path)
+		expect(t, response, 405, `{"error":"methodNotAllowed"}`)
+		if response.Header().Get("Allow") != "GET, HEAD" {
+			t.Fatalf("%s %s: Allow = %q", c.method, c.path, response.Header().Get("Allow"))
+		}
 	}
 }

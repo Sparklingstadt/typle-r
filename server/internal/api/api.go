@@ -1,5 +1,5 @@
-// Package api serves workspaces in the shapes of the removed /api/v1 (docs/api.md): read-only, or with lists to create,
-// change and delete and records to add when it is given a Writer. Each request names its GitHub account with a token
+// Package api serves workspaces in the shapes of the removed /api/v1 (docs/api.md): read-only, or with lists and devices
+// to create, change and delete and records to add when it is given a Writer. Each request names its GitHub account with a token
 // and reads and writes only that account's workspace.
 package api
 
@@ -68,7 +68,8 @@ type server struct {
 func New(source Source, writer Writer, verifier Verifier) http.Handler {
 	s := &server{source: source, writer: writer, verifier: verifier}
 	mux := http.NewServeMux()
-	mux.Handle("/api/v1/devices", s.route(devices))
+	mux.Handle("/api/v1/devices", s.route(devices, write{http.MethodPost, s.createDevice}))
+	mux.Handle("/api/v1/devices/{deviceId}", s.route(device, write{http.MethodPatch, s.updateDevice}, write{http.MethodDelete, s.deleteDevice}))
 	mux.Handle("/api/v1/lists", s.route(lists, write{http.MethodPost, s.createList}))
 	mux.Handle("/api/v1/lists/{listId}", s.route(list, write{http.MethodPatch, s.updateList}, write{http.MethodDelete, s.deleteList}))
 	mux.Handle("/api/v1/lists/{listId}/records", s.route(records, write{http.MethodPost, s.addRecord}))
@@ -163,6 +164,17 @@ func failure(w http.ResponseWriter, status int, key string) {
 
 func devices(w http.ResponseWriter, _ *http.Request, ws *workspace.Workspace) {
 	respond(w, http.StatusOK, map[string]any{"devices": ws.Devices})
+}
+
+// device answers a registered device. The built-in one is not registered, as in the list of devices.
+func device(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
+	for _, device := range ws.Devices {
+		if device.ID == r.PathValue("deviceId") {
+			respond(w, http.StatusOK, map[string]any{"device": device})
+			return
+		}
+	}
+	failure(w, http.StatusNotFound, "deviceNotFound")
 }
 
 func lists(w http.ResponseWriter, _ *http.Request, ws *workspace.Workspace) {
