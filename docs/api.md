@@ -1,10 +1,11 @@
-# 読み取り専用API（Go）
+# API（Go）
 
-GitHubでログインしたアカウントのクラウド保存（`typle_workspaces`）を、スクリプトや別のアプリから読むためのAPIです。`server/` のGoサーバーで、Typle本体とは別に起動します。Vercelの本番には載せていません。
+GitHubでログインしたアカウントのクラウド保存（`typle_workspaces`）を、スクリプトや別のアプリから読み書きするためのAPIです。`server/` のGoサーバーで、Typle本体とは別に起動します。Vercelの本番には載せていません。
 
-- 読み取りだけです。`GET`・`HEAD` 以外は `405 methodNotAllowed` です。DBへの接続も読み取り専用（`default_transaction_read_only=on`）で、書き込みはDBが拒否します。
-- GitHubのトークンで認証します。返すのは、そのトークンのGitHubユーザー本人のアカウント（アプリにGitHubでログインしたときと同じ `github:<ユーザーID>`）のデータだけです。ほかのアカウントのデータには届きません。
-- 形は v0.35.x までの `/api/v1` の読み取りと同じです。共有リンクを削除したため `shared`・`shareUrl` はありません。
+- 既定は読み取り専用です。`GET`・`HEAD` 以外は `405 methodNotAllowed` で、DBへの接続も読み取り専用（`default_transaction_read_only=on`）のため、書き込みはDBが拒否します。
+- `-writable` を付けて起動すると、リストの作成・変更・削除と記録の追加もできます（v0.42.0 から）。端末は読み取りだけです。
+- GitHubのトークンで認証します。読み書きできるのは、そのトークンのGitHubユーザー本人のアカウント（アプリにGitHubでログインしたときと同じ `github:<ユーザーID>`）のデータだけです。ほかのアカウントのデータには届きません。
+- 形は v0.35.x までの `/api/v1` と同じです。共有リンクとプロファイルを削除したため `shared`・`shareUrl` と `/profiles/{p}` はありません。
 - ブラウザー保存（ログインしていないとき）のデータはサーバーにないため扱えません。
 
 ## 起動
@@ -20,8 +21,9 @@ DATABASE_URL='postgresql://…' go run ./cmd/typle-api
 |---|---|---|
 | `DATABASE_URL`（なければ `POSTGRES_URL`） | なし（必須） | アプリと同じDBの接続文字列。読み取り専用のロールを使うと、より安全です |
 | `-addr` | `127.0.0.1:8080` | 待ち受けるアドレス |
+| `-writable` | なし（読み取り専用） | 書き込みを受け付ける。DBのロールに `typle_workspaces` の `SELECT`・`INSERT`・`UPDATE` の権限が要る |
 
-- 起動時にDBへ接続を確かめ、できなければ終了します。
+- 起動時にDBへ接続を確かめ、できなければ終了します。起動のログに `read-only` か `read-write` かを出します。
 - データはリクエストごとにDBから読みます。アプリで保存した変更は次のリクエストから見えます。
 - 既定では `127.0.0.1` だけで待ち受けます。ほかの端末から使う場合は、トークンが平文で流れないよう、HTTPSのリバースプロキシの後ろに置いてください。
 - まだ一度も保存していないアカウント（行がない）は、アプリと同じく最初の単語リスト（サンプルと国名193か国）を返します。
@@ -44,7 +46,8 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 - 確認できたトークンは5分間覚えておき、その間は GitHub に問い合わせません。そのため、失効したトークンも最大5分は使えます。メモリーに残すのはトークンのSHA-256だけです。GitHub が受け付けなかったトークンは覚えません。
 - ヘッダーがない、形式が違う（`Bearer` 以外、空白を含むなど）、GitHub が受け付けないトークンは、すべて `401 invalidToken` で、`WWW-Authenticate: Bearer` を付けます。
 - GitHub に届かない、レート制限（403・429）、GitHub の障害のときは `503 githubUnavailable` です。トークンが悪いとは限らないので、しばらくしてからやり直します。
-- 未知のパス（`404 notFound`）と `GET`・`HEAD` 以外（`405`）は、認証より先に返します。
+- 未知のパス（`404 notFound`）と、そのパスで使えないメソッド（`405`）は、認証より先に返します。書き込みの本文は認証の後で読みます。
+- `-writable` のときは、GitHub で本人と確かめられたトークンなら書き込めます。トークンの権限（スコープ）では区別しません。書き込みを許したくないときは `-writable` を付けずに起動してください。
 
 ## 共通事項
 
@@ -55,10 +58,16 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 | ステータス | キー | 状況 |
 |---|---|---|
 | 400 | `invalidQuery` | `since`・`limit` が不正 |
+| 400 | `invalidJson` | 本文がJSONの1つのオブジェクトでない、型が違う、未知の項目がある、`PATCH` で `name`・`words` のどちらもない |
+| 400 | `listNameRequired`・`listNameDuplicate`・`wordsRequired`・`wordFieldsRequired`・`invalidList`・`listLimit` | リストの内容が不正（下の「リストの検証」） |
+| 400 | `invalidRecord`・`recordLimit`・`deviceNotFound` | 記録の内容が不正（下の「記録の検証」） |
 | 401 | `invalidToken` | トークンがない、形式が違う、または GitHub が受け付けない |
 | 404 | `listNotFound` | 指定したIDのリストがない |
 | 404 | `notFound` | 未知のパス |
-| 405 | `methodNotAllowed` | `GET`・`HEAD` 以外。`Allow: GET, HEAD` を付ける |
+| 405 | `methodNotAllowed` | そのパスで使えないメソッド（`-writable` でない書き込みを含む）。`Allow` に使えるメソッドを付ける |
+| 413 | `requestTooLarge` | 本文が 1MiB を超える |
+| 413 | `workspaceTooLarge` | 保存後のリスト全体が 896KiB を超える |
+| 415 | `unsupportedContentType` | 書き込みの `Content-Type` が `application/json` でない |
 | 503 | `githubUnavailable` | GitHub でトークンを確かめられない。しばらくしてからやり直す |
 | 503 | `databaseUnavailable` | DBの障害、または保存済みのデータが読めない。しばらくしてからやり直す |
 
@@ -132,12 +141,56 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 
 記録は保存されている形のまま返します。古い記録には `id`・`mistakes`・`accuracy`・`wordCount`・`device` がないことがあります。
 
+## 書き込み（`-writable` のとき）
+
+本文は `Content-Type: application/json` のJSONオブジェクトで、1MiB までです。応答の `list` は `GET /api/v1/lists/{l}` と同じ形です。
+
+| メソッドとパス | 本文 | 応答 |
+|---|---|---|
+| `POST /api/v1/lists` | `{ "name", "words": [{ "display", "input", "annotation"? }] }` | `201 { "list" }`。IDはサーバーが UUID で決め、`createdAt` は今の時刻。最後に追加する |
+| `PATCH /api/v1/lists/{l}` | `{ "name"?, "words"? }`（少なくとも一方） | `200 { "list" }`。`words` は全体を置き換える。記録・`createdAt`・並び順は残る |
+| `DELETE /api/v1/lists/{l}` | なし | `204`（本文なし）。記録も一緒に消える |
+| `POST /api/v1/lists/{l}/records` | `{ "id"?, "time", "date", "mistakes", "accuracy", "wordCount"?, "deviceId"? }` | 追加したら `201 { "record" }`。同じリストに同じ `id` の記録があれば追加せず、保存済みの記録を `200 { "record" }` で返す |
+
+### リストの検証
+
+アプリでリストを保存するときと同じです。
+
+- `name`: 前後の空白を除いて1文字以上（`listNameRequired`）、ほかのリストと同じ名前は不可（前後の空白を除き、大文字小文字を区別しない。`listNameDuplicate`）。前後の空白を除いて保存する。
+- `words`: 1件以上（`wordsRequired`）。`display`・`input` は空白だけでない文字列（`wordFieldsRequired`）。`annotation` は省略すると `""`。単語の前後の空白はそのまま保存する。
+- 長さ（UTF-16の文字数）: 名前200、単語1000件、`display`・`input` 1000、`annotation` 2000。超えると `invalidList`。
+- リストが100件あるときの作成は `listLimit`。
+
+### 記録の検証
+
+- `time`: 0以上の数（秒）。`date`: 上の日時の形。保存するときに `2026-10-10T02:00:00.000Z` の形（UTC）にそろえる。
+- `mistakes`: 0以上の整数。`accuracy`: 0〜100の数。`wordCount`: 1以上の整数で、省略するとリストの今の単語数。
+- `id`: 1〜100文字の英数字・`_`・`-`。省略するとサーバーが UUID で決める。同じ `id` で送り直しても記録は増えないので、失敗したら同じ本文でやり直せます。
+- `deviceId`: 省略できる。登録済みの端末のIDなら、その名前と配列を記録にコピーする。`default` は組み込みの「デフォルト」。どちらでもなければ `deviceNotFound`。
+- 1リストの記録は10000件まで（`recordLimit`）。ほかの誤りは `invalidRecord`。
+
+### アプリと同時に保存したとき
+
+書き込みは1つのトランザクションでアカウントの行をロックし、リストを変えて `revision` を1増やします。その間のアプリの保存は待ち、そのあとは「ほかで保存された」として読み込み直します（アプリで2つのブラウザーから保存したときと同じ）。読み込み直す前にアプリで行った変更は保存されないので、APIで書き込むときはアプリの編集を終えておいてください。
+
+- まだ一度も保存していないアカウントは、最初の単語リストに変更を加えて保存します。
+- 同じ `id` の記録の送り直しなど、何も変わらないときは保存しません。
+- 保存後のリスト全体（JSON）が 896KiB を超える変更は `413 workspaceTooLarge` で、何も保存しません。アプリの保存（1MiB まで）に端末などの分を残すためです。すでに超えていても、小さくする変更（削除など）はできます。
+
 ## 例
 
 ```sh
 curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 curl -H "Authorization: Bearer $TYPLE_TOKEN" \
   "http://127.0.0.1:8080/api/v1/lists/$LIST_ID/records?since=2026-10-01T00:00:00Z&limit=20"
+
+# -writable で起動したとき
+curl -H "Authorization: Bearer $TYPLE_TOKEN" -H 'Content-Type: application/json' \
+  -d '{"name":"動物","words":[{"display":"猫","input":"neko","annotation":"cat"}]}' \
+  http://127.0.0.1:8080/api/v1/lists
+curl -H "Authorization: Bearer $TYPLE_TOKEN" -H 'Content-Type: application/json' \
+  -d '{"id":"run-2026-10-20-001","time":12.3,"date":"2026-10-20T21:00:00+09:00","mistakes":1,"accuracy":98.5}' \
+  "http://127.0.0.1:8080/api/v1/lists/$LIST_ID/records"
 ```
 
 ## 開発
@@ -149,11 +202,12 @@ go vet ./...
 TYPLE_TEST_DATABASE_URL=postgresql://typle:…@127.0.0.1:5432/typle go test ./...
 ```
 
-DBのテストは、`npm run db:migrate` 済みのテスト用DBを `TYPLE_TEST_DATABASE_URL` で指定したときだけ実行します（ランダムなアカウントIDの行を作って、終わったら消します。本番のDBは指定しないでください）。CIの `verify` は `db:migrate` の後に同じ確認をします。最初の単語リストは `src/plugins/packs` のコピーを `server/internal/workspace/packs` に埋め込んでいます。元を変えたら `go generate ./...` でコピーし直します（違うと `go test` が失敗します）。
+DBのテスト（読み取りと書き込み）は、`npm run db:migrate` 済みのテスト用DBを `TYPLE_TEST_DATABASE_URL` で指定したときだけ実行します（ランダムなアカウントIDの行を作って、終わったら消します。本番のDBは指定しないでください）。CIの `verify` は `db:migrate` の後に同じ確認をします。最初の単語リストは `src/plugins/packs` のコピーを `server/internal/workspace/packs` に埋め込んでいます。元を変えたら `go generate ./...` でコピーし直します（違うと `go test` が失敗します）。
 
 ## 範囲外
 
 - GitHub 以外の認証、ブラウザーでのログイン画面、許可するユーザーの制限
 - ローカルの開発用ログインのアカウント（`github:0`）。GitHub のトークンでは名乗れない
-- 書き込み（リスト・記録・端末の作成・変更・削除）
+- 端末の作成・変更・削除、記録の削除・変更、リストの並べ替え、単語単位の追加・削除
+- トークンごとの読み取り・書き込みの区別（書き込みはサーバーの `-writable` で決める）
 - ブラウザー保存のデータ

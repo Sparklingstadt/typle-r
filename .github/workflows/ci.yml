@@ -67,7 +67,7 @@ jobs:
         run: node --test scripts/ci/release.test.cjs
       - run: npm ci
       - run: npm run db:migrate
-      # The read-only Go API (server/) is tested against the tables db:migrate just made. '1.25' is the newest
+      # The Go API (server/) is tested against the tables db:migrate just made. '1.25' is the newest
       # 1.25.x release, which satisfies go.mod.
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
