@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.sparklingstadt.typle"
-version = "0.45.0"
+version = "0.46.0"
 
 dependencies {
   api(libs.serialization.json)

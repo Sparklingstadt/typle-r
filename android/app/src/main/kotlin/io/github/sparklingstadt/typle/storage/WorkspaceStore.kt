@@ -32,7 +32,7 @@ import kotlinx.coroutines.withContext
 interface WorkspaceStore {
   /** Names the data the stored device choice belongs to, like `typle-r:device:<accountId>` in the web app. */
   val accountId: String
-  /** The API cannot delete records. */
+  /** The app does not delete records through the API yet. */
   val canDeleteRecords: Boolean
 
   suspend fun load(): WorkspaceDocument

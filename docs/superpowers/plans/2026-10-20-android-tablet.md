@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - 置き場所は `android/` だけ。`src/`・`server/`・`ios/` は変えない（例外: `.vercelignore`・`README.md`・`package.json`・`package-lock.json`・`tests/android.test.cjs`）。
-- 版は v0.45.0（`npm version 0.45.0 --no-git-tag-version`、`android/app` の `versionName = "0.45.0"`、`versionCode = 1`）。
+- 版は v0.46.0（`npm version 0.46.0 --no-git-tag-version`、`android/app` の `versionName = "0.46.0"`、`versionCode = 1`）。
 - applicationId は `io.github.sparklingstadt.typle`。
 - 文字はコードポイントで数える（Kotlin では `String.codePoints()`。`length` や `Char` 単位で数えない）。
 - 「このタブレット」の `accountId` は `android:local`。ファイルは `filesDir/workspace.json`。読めないファイルは上書きしない。
@@ -189,7 +189,7 @@
 
 **Files:**
 - Create: `android/app/src/debug/kotlin/io/github/sparklingstadt/typle/DemoData.kt`（`ios/Typle/Support/DemoData.swift` と同じ記録と端末）
-- Modify: `.github/workflows/android.yml`（撮影と APK）、`.vercelignore`（`android`）、`README.md`（v0.45.0 の節）、`package.json`・`package-lock.json`（0.45.0）
+- Modify: `.github/workflows/android.yml`（撮影と APK）、`.vercelignore`（`android`）、`README.md`（v0.46.0 の節）、`package.json`・`package-lock.json`（0.46.0）
 - Create: `android/README.md`（`ios/README.md` と同じ構成）
 
 **Interfaces:**
@@ -199,4 +199,4 @@
 - [ ] **Step 1: 実装し、ローカルの確認を通す** — Run: `cd android/core && gradle test`、`node --test tests/android.test.cjs`、`npm run lint` / Expected: PASS。
 - [ ] **Step 2: Commit・push し、PR を draft で作る。** `android.yml` と `ci.yml` が通ることを確かめる。
 - [ ] **Step 3: ログのスクリーンショットを取り出して Web 版（横 1280×800）と見比べる。** 違いを直して push し、もう一度撮る。
-- [ ] **Step 4: Commit** — `chore(android): ページを CI で撮影し、v0.45.0 にする`
+- [ ] **Step 4: Commit** — `chore(android): ページを CI で撮影し、v0.46.0 にする`

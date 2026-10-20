@@ -1,7 +1,7 @@
 # Android タブレット版（Kotlin・Jetpack Compose） 設計
 
 - 日付: 2026-10-20
-- 対象バージョン: v0.45.0
+- 対象バージョン: v0.46.0
 - 前提: Web 版（Next.js）の `src/core`、v0.44.0 の Go API（`docs/api.md`）、iPad 版（`ios/`、`2026-10-20-ipad-app-design.md`・`2026-10-20-ipad-web-look-design.md`）
 
 ## 目的
@@ -22,7 +22,7 @@ Android タブレットを横向きにして外付けキーボードをつなぎ
 | 保存先 | 「このタブレット」（既定）と「アカウント（API）」の2つ。データは分離し、自動でコピーしない |
 | このタブレット | アプリの内部ストレージの `workspace.json`。形は Web 版のブラウザー保存（`{ version: 1, accountId, revision, lists, devices }`）と同じで、`accountId` は `android:local`。読めないファイルは上書きせずエラーを出す |
 | アカウント（API） | Go API を `-writable` で起動し、HTTPS で公開したサーバーの URL と GitHub のトークンを「一般」で入れる。トークンは Android Keystore の鍵で暗号化して保存する。同じネットワークの `http://<名前>.local` だけは HTTP を許す |
-| API でできること | 読み込み、リストの作成・変更・削除・複製、記録の追加（`id` を付けて送るので、やり直しても増えない）、端末の追加・変更・削除（v0.44.0 の API）。記録の削除は API が対応していないためできない |
+| API でできること | 読み込み、リストの作成・変更・削除・複製、記録の追加（`id` を付けて送るので、やり直しても増えない）、端末の追加・変更・削除（v0.44.0 の API）。記録の変更・削除（v0.45.0 の API）はこの版では扱わない |
 | 最初のリスト | `src/plugins/packs` のサンプルと国名193か国を `core` のリソースにコピーし、Node のテスト（`tests/android.test.cjs`）でコピーが元と同じか確かめる |
 | 外枠 | Web 版の `layout.tsx` と同じく 56dp の上部バー（ブランド・保存先バッジ・ライト／ダーク・アカウント）と、幅 1280dp 以上で 240dp のサイドバー、それ未満でメニューボタンから開く 288dp のドロワー。項目と並びは `navigation.ts` と同じ。ヘルプの3項目は Web 版をブラウザーで開く |
 | 色・部品 | `globals.css` の neutral の値（iPad 版の `Palette` と同じ sRGB）を `Theme.kt` に。Card・Button（primary／outline／ghost／secondary／destructive）・Badge・Kbd・FilterMenu・ToggleGroup・検索欄を Compose で作る。字は端末の標準フォント |
@@ -34,7 +34,7 @@ Android タブレットを横向きにして外付けキーボードをつなぎ
 | 文言の確認 | `tests/android.test.cjs` が、コードで使っている文言キーが日本語・英語の両方にあり、プレースホルダーがそろっていて、「iPad」「ブラウザー」が残っていないかを確かめる |
 | CI | `.github/workflows/android.yml`（ubuntu）。`android/` を変えた PR と main への push で、`:core:test`、`:app:assembleDebug`、タブレットのエミュレーター（横 1280×800dp）で各ページをサンプルデータ（Debug ビルドだけの起動引数）で撮影してログに出す。debug APK を成果物に残す。リリース・デプロイ（`ci.yml`）には関わらない |
 | 配布 | CI の成果物の debug APK を手で入れる。Play ストアへの公開と署名鍵の管理は範囲外 |
-| その他 | `.vercelignore` に `android` を追加。README と `android/README.md`。v0.45.0 |
+| その他 | `.vercelignore` に `android` を追加。README と `android/README.md`。v0.46.0 |
 
 ## データの流れ
 

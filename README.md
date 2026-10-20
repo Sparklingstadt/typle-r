@@ -3,7 +3,7 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
-## v0.45.0 — Androidタブレット版（Kotlin・Jetpack Compose）を追加しました
+## v0.46.0 — Androidタブレット版（Kotlin・Jetpack Compose）を追加しました
 
 `android/` に Android タブレットのネイティブアプリ（Kotlin・Jetpack Compose、Android 8.0以上）を追加しました。iPad 版と同じ全ページ（ホーム・練習・練習記録・ベスト記録・単語リストと作成・編集・端末・一般）を Web版と同じ見た目で備え、タブレットを横向きにして外付けキーボードで練習できます。データはこのタブレットに保存するか、[API（Go）](docs/api.md)にGitHubのトークンでつないでアカウントに保存します。GitHub Actions が作る debug APK を手で入れて使います。入れ方と範囲は [android/README.md](android/README.md) を参照してください。Web版・API・iPad版は変わりません。
 
