@@ -26,20 +26,20 @@ func checkName(w *Workspace, name *string, self string) (string, error) {
 		return "", &Error{Key: "listNameRequired"}
 	}
 	trimmed := strings.TrimSpace(*name)
-	folded := strings.ToLower(trimmed)
+	folded := lowerCase(trimmed)
 	for _, other := range w.Lists {
-		if other.ID != self && strings.ToLower(strings.TrimSpace(other.Name)) == folded {
+		if other.ID != self && lowerCase(strings.TrimSpace(other.Name)) == folded {
 			return "", &Error{Key: "listNameDuplicate"}
 		}
 	}
-	if length(trimmed) > MaxListName {
+	if length(trimmed) > MaxListName || strings.ContainsRune(trimmed, 0) {
 		return "", &Error{Key: "invalidList"}
 	}
 	return trimmed, nil
 }
 
 // checkWords follows validateList and the limits of validateLists. Spaces in words are kept: they can be part of
-// what is typed.
+// what is typed. U+0000, which Postgres cannot store in jsonb, is refused with the limits.
 func checkWords(words []Word) error {
 	if len(words) == 0 {
 		return &Error{Key: "wordsRequired"}
@@ -53,7 +53,8 @@ func checkWords(words []Word) error {
 		return &Error{Key: "invalidList"}
 	}
 	for _, word := range words {
-		if length(word.Display) > MaxWordText || length(word.Input) > MaxWordText || length(word.Annotation) > MaxAnnotation {
+		if length(word.Display) > MaxWordText || length(word.Input) > MaxWordText || length(word.Annotation) > MaxAnnotation ||
+			strings.ContainsRune(word.Display+word.Input+word.Annotation, 0) {
 			return &Error{Key: "invalidList"}
 		}
 	}
