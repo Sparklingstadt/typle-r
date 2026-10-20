@@ -1,4 +1,5 @@
-// Command typle-api serves Typle workspaces read-only over HTTP, each to its own GitHub account. See docs/api.md.
+// Command typle-api serves Typle workspaces over HTTP, each to its own GitHub account: read-only, or with -writable
+// also creating, changing and deleting lists and adding records. See docs/api.md.
 package main
 
 import (
@@ -19,6 +20,7 @@ import (
 
 func main() {
 	addr := flag.String("addr", "127.0.0.1:8080", "address to listen on")
+	writable := flag.Bool("writable", false, "accept writes: create, change and delete lists and add records")
 	flag.Parse()
 
 	// The same variables as the app (src/plugins/storage/cloud/database.ts).
@@ -34,14 +36,20 @@ func main() {
 	defer stop()
 
 	open, cancel := context.WithTimeout(ctx, 15*time.Second)
-	source, err := store.Open(open, connection)
+	source, err := store.Open(open, connection, *writable)
 	cancel()
 	if err != nil {
 		log.Fatalf("connect to the database: %v", err)
 	}
 	defer source.Close()
 
-	server := &http.Server{Addr: *addr, Handler: api.New(source, auth.NewGitHub()), ReadHeaderTimeout: 10 * time.Second}
+	// A nil Writer keeps the API read-only, and the read-only connection refuses writes as well.
+	var writer api.Writer
+	mode := "read-only"
+	if *writable {
+		writer, mode = source, "read-write"
+	}
+	server := &http.Server{Addr: *addr, Handler: api.New(source, writer, auth.NewGitHub()), ReadHeaderTimeout: 10 * time.Second}
 	go func() {
 		<-ctx.Done()
 		shutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -49,7 +57,7 @@ func main() {
 		_ = server.Shutdown(shutdown)
 	}()
 
-	log.Printf("serving workspaces to their GitHub accounts on http://%s", *addr)
+	log.Printf("serving workspaces %s to their GitHub accounts on http://%s", mode, *addr)
 	if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
 	}

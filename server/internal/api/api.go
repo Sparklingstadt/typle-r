@@ -1,5 +1,6 @@
-// Package api serves a workspace read-only, in the shapes of the removed /api/v1 (docs/api.md). Each request names
-// its GitHub account with a token and reads only that account's workspace.
+// Package api serves workspaces in the shapes of the removed /api/v1 (docs/api.md): read-only, or with lists to create,
+// change and delete and records to add when it is given a Writer. Each request names its GitHub account with a token
+// and reads and writes only that account's workspace.
 package api
 
 import (
@@ -11,6 +12,7 @@ import (
 	"regexp"
 	"slices"
 	"strconv"
+	"strings"
 
 	"github.com/sparklingstadt/typle-r/server/internal/auth"
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
@@ -44,6 +46,12 @@ type Source interface {
 	Read(ctx context.Context, owner string) (*workspace.Workspace, error)
 }
 
+// Writer changes an account's workspace and saves it, as store.Store.Modify does. change reports whether it changed
+// anything; its errors, and a *workspace.Error for a change too large to save, come back unchanged.
+type Writer interface {
+	Modify(ctx context.Context, owner string, change func(*workspace.Workspace) (bool, error)) (*workspace.Workspace, error)
+}
+
 // Verifier tells which account a token belongs to: auth.ErrInvalidToken when it belongs to none, auth.ErrUnavailable
 // when that cannot be told now.
 type Verifier interface {
@@ -52,21 +60,29 @@ type Verifier interface {
 
 type server struct {
 	source   Source
+	writer   Writer
 	verifier Verifier
 }
 
-func New(source Source, verifier Verifier) http.Handler {
-	s := &server{source: source, verifier: verifier}
+// New serves the API. With a nil writer it is read-only: only GET and HEAD are answered, as before.
+func New(source Source, writer Writer, verifier Verifier) http.Handler {
+	s := &server{source: source, writer: writer, verifier: verifier}
 	mux := http.NewServeMux()
-	mux.Handle("/api/v1/devices", s.read(devices))
-	mux.Handle("/api/v1/lists", s.read(lists))
-	mux.Handle("/api/v1/lists/{listId}", s.read(list))
-	mux.Handle("/api/v1/lists/{listId}/records", s.read(records))
+	mux.Handle("/api/v1/devices", s.route(devices))
+	mux.Handle("/api/v1/lists", s.route(lists, write{http.MethodPost, s.createList}))
+	mux.Handle("/api/v1/lists/{listId}", s.route(list, write{http.MethodPatch, s.updateList}, write{http.MethodDelete, s.deleteList}))
+	mux.Handle("/api/v1/lists/{listId}/records", s.route(records, write{http.MethodPost, s.addRecord}))
 	mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) { failure(w, http.StatusNotFound, "notFound") })
 	return mux
 }
 
 type handler func(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace)
+
+// A write handles a method that changes the workspace of the account named by owner.
+type write struct {
+	method string
+	handle func(w http.ResponseWriter, r *http.Request, owner string)
+}
 
 // RFC 6750 names the scheme a 401 expects.
 func unauthorized(w http.ResponseWriter) {
@@ -74,29 +90,31 @@ func unauthorized(w http.ResponseWriter) {
 	failure(w, http.StatusUnauthorized, "invalidToken")
 }
 
-// read answers GET and HEAD only, with the JSON error the other routes use, and hands the handler the workspace of
-// the account the request's token belongs to.
-func (s *server) read(handle handler) http.Handler {
+// route answers GET and HEAD with the workspace of the account the request's token belongs to, and the writes'
+// methods when the server is writable. Any other method is answered 405, before the token is checked.
+func (s *server) route(read handler, writes ...write) http.Handler {
+	allowed := []string{http.MethodGet, http.MethodHead}
+	if s.writer == nil {
+		writes = nil
+	}
+	for _, write := range writes {
+		allowed = append(allowed, write.method)
+	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet && r.Method != http.MethodHead {
-			w.Header().Set("Allow", "GET, HEAD")
+		if !slices.Contains(allowed, r.Method) {
+			w.Header().Set("Allow", strings.Join(allowed, ", "))
 			failure(w, http.StatusMethodNotAllowed, "methodNotAllowed")
 			return
 		}
-		token, ok := auth.BearerToken(r.Header.Get("Authorization"))
+		owner, ok := s.owner(w, r)
 		if !ok {
-			unauthorized(w)
 			return
 		}
-		owner, err := s.verifier.Owner(r.Context(), token)
-		if errors.Is(err, auth.ErrInvalidToken) {
-			unauthorized(w)
-			return
-		}
-		if err != nil {
-			log.Printf("%s %s: %v", r.Method, r.URL.Path, err)
-			failure(w, http.StatusServiceUnavailable, "githubUnavailable")
-			return
+		for _, write := range writes {
+			if write.method == r.Method {
+				write.handle(w, r, owner)
+				return
+			}
 		}
 		ws, err := s.source.Read(r.Context(), owner)
 		if err != nil {
@@ -105,8 +123,28 @@ func (s *server) read(handle handler) http.Handler {
 			failure(w, http.StatusServiceUnavailable, "databaseUnavailable")
 			return
 		}
-		handle(w, r, ws)
+		read(w, r, ws)
 	})
+}
+
+// owner returns the account the request's token belongs to, or answers the request when there is none.
+func (s *server) owner(w http.ResponseWriter, r *http.Request) (string, bool) {
+	token, ok := auth.BearerToken(r.Header.Get("Authorization"))
+	if !ok {
+		unauthorized(w)
+		return "", false
+	}
+	owner, err := s.verifier.Owner(r.Context(), token)
+	if errors.Is(err, auth.ErrInvalidToken) {
+		unauthorized(w)
+		return "", false
+	}
+	if err != nil {
+		log.Printf("%s %s: %v", r.Method, r.URL.Path, err)
+		failure(w, http.StatusServiceUnavailable, "githubUnavailable")
+		return "", false
+	}
+	return owner, true
 }
 
 // As before, nothing is cached and no CORS headers are sent.
@@ -135,13 +173,17 @@ func lists(w http.ResponseWriter, _ *http.Request, ws *workspace.Workspace) {
 	respond(w, http.StatusOK, map[string]any{"lists": lists})
 }
 
+func detail(list *workspace.List) listDetail {
+	return listDetail{listSummary: summary(list), Words: list.Words}
+}
+
 func list(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
 	list := ws.Find(r.PathValue("listId"))
 	if list == nil {
 		failure(w, http.StatusNotFound, "listNotFound")
 		return
 	}
-	respond(w, http.StatusOK, map[string]any{"list": listDetail{listSummary: summary(list), Words: list.Words}})
+	respond(w, http.StatusOK, map[string]any{"list": detail(list)})
 }
 
 var digits = regexp.MustCompile(`^\d+$`)

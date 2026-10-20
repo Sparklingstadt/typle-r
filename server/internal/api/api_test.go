@@ -84,7 +84,7 @@ func serveAs(s *source, authorization, method, target string) *httptest.Response
 		request.Header.Set("Authorization", authorization)
 	}
 	response := httptest.NewRecorder()
-	New(s, verifier{}).ServeHTTP(response, request)
+	New(s, nil, verifier{}).ServeHTTP(response, request)
 	return response
 }
 
