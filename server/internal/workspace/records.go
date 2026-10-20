@@ -53,7 +53,8 @@ func AddRecord(w *Workspace, listID string, input RecordInput, newID string) (re
 		return Record{}, false, invalid
 	}
 	date, ok := ParseTime(*input.Date)
-	if !ok {
+	// Saved in UTC, the date must stay within the years toISOString writes as four digits and Date.parse reads.
+	if year := date.UTC().Year(); !ok || year < 0 || year > 9999 {
 		return Record{}, false, invalid
 	}
 	mistakes, ok := integer(input.Mistakes, 0)

@@ -112,6 +112,10 @@ func (s *Store) Modify(ctx context.Context, owner string, change func(*workspace
 		if err := workspace.CheckSize(len(before), len(after)); err != nil {
 			return err
 		}
+		// Lists that would not be read back are never saved: the account would no longer load, here or in the app.
+		if _, err := workspace.Decode(after, []byte("[]")); err != nil {
+			return fmt.Errorf("changed workspace of %s: %w", owner, err)
+		}
 		_, err = tx.Exec(ctx, `UPDATE typle_workspaces SET lists = $2::jsonb, revision = revision + 1, updated_at = now() WHERE owner_id = $1`,
 			owner, string(after))
 		return err

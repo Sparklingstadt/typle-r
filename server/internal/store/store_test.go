@@ -322,3 +322,26 @@ func TestReadOnlyRefusesWrites(t *testing.T) {
 		t.Fatalf("count = %d, %v", count, err)
 	}
 }
+
+// Whatever a change does, lists that would not be read back are never saved: the account would no longer load.
+func TestModifyRefusesUnreadableLists(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	if _, err := s.Modify(ctx, id, createList("a")); err != nil {
+		t.Fatal(err)
+	}
+	lists, revision, _ := row(t, conn, id)
+	_, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) {
+		w.Lists[0].Records = append(w.Lists[0].Records, workspace.Record{Time: 1, Date: "10000-01-01T00:00:00.000Z"})
+		return true, nil
+	})
+	var e *workspace.Error
+	if err == nil || errors.As(err, &e) {
+		t.Fatalf("err = %v", err)
+	}
+	if again, after, _ := row(t, conn, id); again != lists || after != revision {
+		t.Fatal("the row changed")
+	}
+}

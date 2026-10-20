@@ -84,6 +84,9 @@ func TestAddRecordErrors(t *testing.T) {
 		{"infinite time", change(func(r *RecordInput) { r.Time = number(math.Inf(1)) }), "invalidRecord"},
 		{"no date", change(func(r *RecordInput) { r.Date = nil }), "invalidRecord"},
 		{"bad date", change(func(r *RecordInput) { r.Date = text("abc") }), "invalidRecord"},
+		// Readable here, but outside the years toISOString and Date.parse write and read once moved to UTC.
+		{"date before year 0 in UTC", change(func(r *RecordInput) { r.Date = text("0000-01-01T00:00:00+09:00") }), "invalidRecord"},
+		{"date after year 9999 in UTC", change(func(r *RecordInput) { r.Date = text("9999-12-31T23:59:59-09:00") }), "invalidRecord"},
 		{"no mistakes", change(func(r *RecordInput) { r.Mistakes = nil }), "invalidRecord"},
 		{"fractional mistakes", change(func(r *RecordInput) { r.Mistakes = number(1.5) }), "invalidRecord"},
 		{"negative mistakes", change(func(r *RecordInput) { r.Mistakes = number(-1) }), "invalidRecord"},
