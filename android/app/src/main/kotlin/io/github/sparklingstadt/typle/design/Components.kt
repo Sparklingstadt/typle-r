@@ -28,6 +28,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Cancel
@@ -268,6 +270,7 @@ fun InputBox(
   imeAction: ImeAction = ImeAction.Default,
   onImeAction: (() -> Unit)? = null,
   keyboardType: KeyboardType = KeyboardType.Text,
+  password: Boolean = false,
 ) {
   val shape = RoundedCornerShape(Radius.md)
   BasicTextField(
@@ -275,6 +278,7 @@ fun InputBox(
     onValueChange = onValueChange,
     modifier = modifier,
     singleLine = singleLine,
+    visualTransformation = if (password) PasswordVisualTransformation() else VisualTransformation.None,
     textStyle = TextStyle(fontSize = 14.sp, color = Palette.foreground),
     cursorBrush = SolidColor(Palette.foreground),
     keyboardOptions = KeyboardOptions(autoCorrectEnabled = false, keyboardType = keyboardType, imeAction = imeAction),
@@ -329,10 +333,17 @@ fun FilterLabel(name: String, value: String, modifier: Modifier = Modifier) {
 
 /** The web's FilterMenu: a FilterLabel that opens a menu of choices. */
 @Composable
-fun <V> FilterMenu(name: String, options: List<Pair<V, String>>, selection: V, onSelect: (V) -> Unit, modifier: Modifier = Modifier) {
+fun <V> FilterMenu(
+  name: String,
+  options: List<Pair<V, String>>,
+  selection: V,
+  onSelect: (V) -> Unit,
+  modifier: Modifier = Modifier,
+  value: String? = null,
+) {
   var open by remember { mutableStateOf(false) }
   Box(modifier) {
-    FilterLabel(name, options.firstOrNull { it.first == selection }?.second ?: "", Modifier.clickable(role = Role.Button) { open = true })
+    FilterLabel(name, value ?: options.firstOrNull { it.first == selection }?.second ?: "", Modifier.clickable(role = Role.Button) { open = true })
     DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
       for ((value, title) in options) {
         DropdownMenuItem(
