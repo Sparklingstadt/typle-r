@@ -187,6 +187,42 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 { "records": [{ "id": "r1", "time": 4.25, "date": "2026-10-10T20:00:00.000Z", "accuracy": 100, "listId": "l1", "listName": "英単語", "best": true, "day": "2026-10-11" }] }
 ```
 
+### `GET /api/v1/rankings`
+
+リストごとのベスト記録です。アプリの「ベスト記録」と同じです（v0.52.0 から）。記録のないリストも含みます。
+
+| クエリ | 内容 |
+|---|---|
+| `device` | その端末の記録だけで順位を付ける。`none` は端末のない記録。省略すると全部 |
+| `order` | `accuracy`（既定。正確率の高い順、同じなら速い順）か `speed`（速い順、同じなら正確率の高い順）。正確率のない古い記録は最後 |
+| `sort` | `recent`（既定。最後に練習した順）、`name`（名前順。日本語の照合で、数字は文字として比べる）、`count`（記録の多い順） |
+
+```json
+{ "rankings": [{ "listId": "l1", "listName": "英単語", "wordCount": 20, "recordCount": 8, "best": { …記録… }, "lastPracticed": "2026-10-20T02:00:00.000Z", "improved": true }] }
+```
+
+- 順位は、今の単語数と同じ単語数の記録で付けます（その記録がなければ全部で）。`best` はその1位で、記録がなければ `null`。`recordCount` は選んだ端末での記録の数です。
+- `improved` は、ベストが7日以内に出て、それより前の記録がある（記録を更新した）ことを表します。
+
+### `GET /api/v1/rankings/{l}`
+
+1つのリストの順位の詳細です（v0.52.0 から）。`device`・`order` は上と同じで、`includeOthers=true` にすると今と違う単語数の記録も順位に入れます。
+
+```json
+{
+  "ranking": {
+    "listId": "l1", "listName": "英単語", "wordCount": 20,
+    "ranked": [ …順位順の記録… ], "best": { … }, "fallback": false,
+    "otherCounts": [{ "wordCount": 18, "count": 2 }, { "wordCount": null, "count": 1 }],
+    "lastPracticed": "…", "improved": false,
+    "stats": { "recentCount": 5, "recentTime": 41.2, "recentAccuracy": 97.4, "points": [{ "date": "…", "value": 40.1 }] }
+  }
+}
+```
+
+- `ranked` はすべての記録です（アプリは上位5件を表示します）。`fallback` は今の単語数の記録が1件もなく、ほかの単語数の記録で順位を付けたこと。`otherCounts` は今と違う単語数の記録の数で、`wordCount` が `null` のものは単語数を記録していない古い記録です。
+- `stats` は順位を付けた記録の、直近5回の平均時間・平均正確率（正確率のない記録は除く。なければ `null`）と、直近20回の時間の推移（古い順）です。
+
 ## 書き込み（`-writable` のとき）
 
 本文は `Content-Type: application/json` のJSONオブジェクトで、1MiB までです（本文のない `DELETE` と複製を除く）。応答の `list` は `GET /api/v1/lists/{l}` と同じ形です。
