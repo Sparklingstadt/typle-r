@@ -24,7 +24,7 @@ func deviceIndex(w *Workspace, id string) int {
 // checkDevice follows deviceProblem (src/core/devices.ts) and returns the device to save, without the spaces around
 // its name and layout. Lengths are measured before those spaces are removed, as the app does.
 func checkDevice(w *Workspace, device Device) (Device, error) {
-	name := strings.TrimSpace(device.Name)
+	name := trimJS(device.Name)
 	switch {
 	case name == "":
 		return Device{}, &Error{Key: "deviceNameRequired"}
@@ -47,7 +47,7 @@ func checkDevice(w *Workspace, device Device) (Device, error) {
 			return Device{}, &Error{Key: "deviceNameDuplicate"}
 		}
 	}
-	return Device{ID: device.ID, Name: name, Layout: strings.TrimSpace(device.Layout)}, nil
+	return Device{ID: device.ID, Name: name, Layout: trimJS(device.Layout)}, nil
 }
 
 // CreateDevice registers a device after the others.

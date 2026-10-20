@@ -208,3 +208,10 @@ func TestLowerCase(t *testing.T) {
 		}
 	}
 }
+
+func TestListNameTrimsAsJavaScript(t *testing.T) {
+	_, err := CreateList(two(), ListInput{Name: text(bom), Words: []Word{{Display: "a", Input: "a"}}}, "new", now)
+	wantKey(t, err, "listNameRequired")
+	_, err = CreateList(two(), ListInput{Name: text("a"), Words: []Word{{Display: bom, Input: "a"}}}, "new", now)
+	wantKey(t, err, "wordFieldsRequired")
+}

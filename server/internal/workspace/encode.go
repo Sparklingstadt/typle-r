@@ -20,8 +20,12 @@ const (
 	MaxListsBytes = 896 << 10
 )
 
-// Error is a change the request asked for that cannot be made. Key is the error key the API answers with.
-type Error struct{ Key string }
+// Error is a change the request asked for that cannot be made. Key is the error key the API answers with; Line, when
+// not 0, is the line of a word file the error is on.
+type Error struct {
+	Key  string
+	Line int
+}
 
 func (e *Error) Error() string { return e.Key }
 

@@ -61,3 +61,9 @@ func caseIgnorable(r rune) bool {
 	}
 	return unicode.In(r, unicode.Mn, unicode.Me, unicode.Cf, unicode.Lm, unicode.Sk)
 }
+
+// trimJS removes what JavaScript's trim removes: White_Space and U+FEFF, but not U+0085, which strings.TrimSpace
+// removes. The app trims names, words and imported cells with it.
+func trimJS(value string) string {
+	return strings.TrimFunc(value, func(r rune) bool { return r == 0xfeff || (unicode.IsSpace(r) && r != 0x85) })
+}

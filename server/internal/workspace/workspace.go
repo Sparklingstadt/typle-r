@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"slices"
-	"strings"
 	"time"
 	"unicode/utf16"
 )
@@ -152,7 +151,7 @@ func decodeList(raw *rawList) (List, error) {
 		return List{}, errors.New("id, name, createdAt, words and records are required")
 	}
 	// validateList: a name, at least one word, and no word without text to show or type.
-	if strings.TrimSpace(*raw.Name) == "" {
+	if trimJS(*raw.Name) == "" {
 		return List{}, errors.New("name is empty")
 	}
 	if len(raw.Words) == 0 {
@@ -163,7 +162,7 @@ func decodeList(raw *rawList) (List, error) {
 		if word == nil || word.Display == nil || word.Input == nil || word.Annotation == nil {
 			return List{}, fmt.Errorf("word %d: display, input and annotation are required", index+1)
 		}
-		if strings.TrimSpace(*word.Display) == "" || strings.TrimSpace(*word.Input) == "" {
+		if trimJS(*word.Display) == "" || trimJS(*word.Input) == "" {
 			return List{}, fmt.Errorf("word %d: display and input must not be empty", index+1)
 		}
 		words = append(words, Word{Display: *word.Display, Input: *word.Input, Annotation: *word.Annotation, Extra: word.extra})
@@ -210,7 +209,7 @@ func length(value string) int {
 
 func isDevice(device Device) bool {
 	return device.ID != "" && length(device.ID) <= maxDeviceID &&
-		strings.TrimSpace(device.Name) != "" && length(device.Name) <= maxDeviceName &&
+		trimJS(device.Name) != "" && length(device.Name) <= maxDeviceName &&
 		length(device.Layout) <= maxDeviceLayout
 }
 
@@ -235,7 +234,7 @@ func decodeDevices(raw []json.RawMessage) ([]Device, error) {
 			slices.ContainsFunc(devices, func(other Device) bool { return other.ID == device.ID }) {
 			return nil, invalid
 		}
-		devices = append(devices, Device{ID: device.ID, Name: strings.TrimSpace(device.Name), Layout: strings.TrimSpace(device.Layout)})
+		devices = append(devices, Device{ID: device.ID, Name: trimJS(device.Name), Layout: trimJS(device.Layout)})
 	}
 	return devices, nil
 }

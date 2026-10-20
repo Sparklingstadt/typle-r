@@ -3,7 +3,6 @@ package workspace
 import (
 	"fmt"
 	"slices"
-	"strings"
 	"time"
 	"unicode/utf16"
 )
@@ -21,9 +20,9 @@ func copyMark(n int) string {
 func copyName(w *Workspace, name string) string {
 	taken := map[string]bool{}
 	for _, list := range w.Lists {
-		taken[lowerCase(strings.TrimSpace(list.Name))] = true
+		taken[lowerCase(trimJS(list.Name))] = true
 	}
-	base := utf16.Encode([]rune(strings.TrimSpace(name)))
+	base := utf16.Encode([]rune(trimJS(name)))
 	for n := 1; ; n++ {
 		mark := copyMark(n)
 		keep := min(len(base), MaxListName-length(mark))
