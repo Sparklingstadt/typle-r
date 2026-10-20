@@ -7,6 +7,8 @@ package=io.github.sparklingstadt.typle
 out=android/screenshots
 mkdir -p "$out"
 adb install -r "$apk"
+# The slow CI emulator can make the launcher stop responding; keep its "isn't responding" dialog off the screenshots.
+adb shell settings put global hide_error_dialogs 1
 # The Pixel Tablet is landscape at rotation 0 (1280×800dp, the web's xl width) and portrait at rotation 1.
 adb shell settings put system accelerometer_rotation 0
 rotate() {
@@ -18,6 +20,7 @@ capture() { # name route language night [extra am arguments...]
   local name=$1 route=$2 language=$3 night=$4
   shift 4
   adb shell am force-stop "$package"
+  adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS >/dev/null || true
   adb shell cmd uimode night "$night" >/dev/null
   adb shell am start -W -n "$package/.MainActivity" --ez typleDemo true --es typleRoute "$route" --es typleLanguage "$language" "$@" >/dev/null
   sleep 6
