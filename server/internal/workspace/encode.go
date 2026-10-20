@@ -58,6 +58,14 @@ func Encode(lists []List) ([]byte, error) {
 	return marshal(stored)
 }
 
+// EncodeDevices writes the registered devices as the app saves them in the devices column.
+func EncodeDevices(devices []Device) ([]byte, error) {
+	if devices == nil {
+		devices = []Device{}
+	}
+	return marshal(devices)
+}
+
 // CheckSize refuses lists that grow past MaxListsBytes. A change that leaves them no larger is let through, so an
 // oversized workspace can still be made smaller.
 func CheckSize(before, after int) error {
