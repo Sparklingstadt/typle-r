@@ -1,0 +1,44 @@
+name: Android app
+
+# Tests the shared rules in android/core and builds the tablet app in android/app. It is separate from ci.yml: the
+# Android app is not released or deployed by it, and it only runs when android/ changes.
+on:
+  pull_request:
+    paths:
+      - 'android/**'
+      - 'src/plugins/packs/**'
+      - '.github/workflows/android.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'android/**'
+      - 'src/plugins/packs/**'
+      - '.github/workflows/android.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
+      - name: Test core
+        working-directory: android/core
+        run: ../gradlew test --console=plain
+      - name: Build the debug APK
+        working-directory: android
+        run: ./gradlew :app:assembleDebug --console=plain
