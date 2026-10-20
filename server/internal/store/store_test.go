@@ -4,10 +4,15 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
+	"fmt"
 	"os"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
 
 func TestConnString(t *testing.T) {
@@ -69,7 +74,7 @@ func TestReadSavedWorkspace(t *testing.T) {
 		id, lists, `[{"id":"d1","name":"自宅","layout":"JIS"}]`, other); err != nil {
 		t.Fatal(err)
 	}
-	s, err := Open(ctx, connection)
+	s, err := Open(ctx, connection, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,7 +96,7 @@ func TestReadSavedWorkspace(t *testing.T) {
 func TestReadWithoutRowGivesInitialLists(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
-	s, err := Open(ctx, connection)
+	s, err := Open(ctx, connection, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -109,7 +114,7 @@ func TestReadRefusesDataTheAppRefuses(t *testing.T) {
 	if _, err := conn.Exec(ctx, `INSERT INTO typle_workspaces (owner_id, lists, devices) VALUES ($1, '[{"id":"l"}]', '[]')`, id); err != nil {
 		t.Fatal(err)
 	}
-	s, err := Open(ctx, connection)
+	s, err := Open(ctx, connection, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -123,12 +128,197 @@ func TestConnectionIsReadOnly(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s, err := Open(ctx, connection)
+	s, err := Open(ctx, connection, false)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer s.Close()
 	if _, err := s.pool.Exec(ctx, `INSERT INTO typle_workspaces (owner_id) VALUES ($1)`, id); err == nil {
 		t.Fatal("wrote through the read-only connection")
+	}
+}
+
+func open(t *testing.T, connection string, writable bool) *Store {
+	t.Helper()
+	s, err := Open(context.Background(), connection, writable)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(s.Close)
+	return s
+}
+
+func row(t *testing.T, conn *pgx.Conn, id string) (lists string, revision int, updated time.Time) {
+	t.Helper()
+	if err := conn.QueryRow(context.Background(), `SELECT lists::text, revision, updated_at FROM typle_workspaces WHERE owner_id = $1`, id).
+		Scan(&lists, &revision, &updated); err != nil {
+		t.Fatal(err)
+	}
+	return lists, revision, updated
+}
+
+func deleteList(id string) func(*workspace.Workspace) (bool, error) {
+	return func(w *workspace.Workspace) (bool, error) { return true, workspace.DeleteList(w, id) }
+}
+
+func createList(name string) func(*workspace.Workspace) (bool, error) {
+	return func(w *workspace.Workspace) (bool, error) {
+		_, err := workspace.CreateList(w, workspace.ListInput{Name: &name, Words: []workspace.Word{{Display: "a", Input: "a"}}},
+			workspace.NewID(), time.Now())
+		return true, err
+	}
+}
+
+func TestModifyCreatesRow(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	w, err := s.Modify(ctx, id, deleteList("sample-1"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	read, err := s.Read(ctx, id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, got := range []*workspace.Workspace{w, read} {
+		if len(got.Lists) != 2 || got.Lists[0].ID != "sample-2" || got.Find("sample-1") != nil {
+			t.Fatalf("lists = %+v", got.Lists)
+		}
+	}
+	// Inserting the initial lists made revision 1; the change made 2.
+	if _, revision, _ := row(t, conn, id); revision != 2 {
+		t.Fatalf("revision = %d", revision)
+	}
+}
+
+func TestModifyIncrementsRevision(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	if _, err := conn.Exec(ctx, `INSERT INTO typle_workspaces (owner_id, lists, devices, updated_at) VALUES ($1, '[]', '[]', now() - interval '1 day')`, id); err != nil {
+		t.Fatal(err)
+	}
+	_, _, before := row(t, conn, id)
+	s := open(t, connection, true)
+	for _, name := range []string{"a", "b"} {
+		if _, err := s.Modify(ctx, id, createList(name)); err != nil {
+			t.Fatal(err)
+		}
+	}
+	lists, revision, updated := row(t, conn, id)
+	if revision != 3 || !updated.After(before) || !strings.Contains(lists, `"name": "b"`) {
+		t.Fatalf("lists = %s, revision = %d, updated = %v", lists, revision, updated)
+	}
+}
+
+func TestModifyUnchanged(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	if _, err := s.Modify(ctx, id, createList("a")); err != nil {
+		t.Fatal(err)
+	}
+	lists, revision, _ := row(t, conn, id)
+	if _, err := s.Modify(ctx, id, func(*workspace.Workspace) (bool, error) { return false, nil }); err != nil {
+		t.Fatal(err)
+	}
+	if again, after, _ := row(t, conn, id); again != lists || after != revision {
+		t.Fatalf("revision %d → %d", revision, after)
+	}
+}
+
+func TestModifyError(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	if _, err := s.Modify(ctx, id, createList("a")); err != nil {
+		t.Fatal(err)
+	}
+	lists, revision, _ := row(t, conn, id)
+	_, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) {
+		w.Lists = nil
+		return true, &workspace.Error{Key: "listNameDuplicate"}
+	})
+	var e *workspace.Error
+	if !errors.As(err, &e) || e.Key != "listNameDuplicate" {
+		t.Fatalf("err = %v", err)
+	}
+	if again, after, _ := row(t, conn, id); again != lists || after != revision {
+		t.Fatal("the row changed")
+	}
+}
+
+func TestModifyTooLarge(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	if _, err := s.Modify(ctx, id, createList("a")); err != nil {
+		t.Fatal(err)
+	}
+	lists, revision, _ := row(t, conn, id)
+	big := strings.Repeat("a", workspace.MaxWordText)
+	words := make([]workspace.Word, workspace.MaxWords)
+	for i := range words {
+		words[i] = workspace.Word{Display: big, Input: "a"}
+	}
+	_, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) {
+		name := "big"
+		_, err := workspace.CreateList(w, workspace.ListInput{Name: &name, Words: words}, "big", time.Now())
+		return true, err
+	})
+	var e *workspace.Error
+	if !errors.As(err, &e) || e.Key != "workspaceTooLarge" {
+		t.Fatalf("err = %v", err)
+	}
+	if again, after, _ := row(t, conn, id); again != lists || after != revision {
+		t.Fatal("the row changed")
+	}
+}
+
+func TestModifyConcurrent(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	errs := make(chan error, 10)
+	for i := range 10 {
+		go func() {
+			_, err := s.Modify(ctx, id, createList(fmt.Sprintf("list %d", i)))
+			errs <- err
+		}()
+	}
+	for range 10 {
+		if err := <-errs; err != nil {
+			t.Fatal(err)
+		}
+	}
+	w, err := s.Read(ctx, id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The three initial lists and all ten.
+	if len(w.Lists) != 13 {
+		t.Fatalf("lists = %d", len(w.Lists))
+	}
+}
+
+func TestReadOnlyRefusesWrites(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, false)
+	_, err := s.Modify(ctx, id, createList("a"))
+	var e *workspace.Error
+	if err == nil || errors.As(err, &e) {
+		t.Fatalf("err = %v", err)
+	}
+	var count int
+	if err := conn.QueryRow(ctx, `SELECT count(*) FROM typle_workspaces WHERE owner_id = $1`, id).Scan(&count); err != nil || count != 0 {
+		t.Fatalf("count = %d, %v", count, err)
 	}
 }

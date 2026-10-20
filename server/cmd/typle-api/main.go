@@ -34,7 +34,7 @@ func main() {
 	defer stop()
 
 	open, cancel := context.WithTimeout(ctx, 15*time.Second)
-	source, err := store.Open(open, connection)
+	source, err := store.Open(open, connection, false)
 	cancel()
 	if err != nil {
 		log.Fatalf("connect to the database: %v", err)
