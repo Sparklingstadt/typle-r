@@ -28,7 +28,7 @@ v0.36.0 で削除した GitHub ログイン（開発用ログインを含む）�
 
 GitHubログインは任意です。ログイン時は従来のアカウント専用クラウド保存に切り替わります。両方のデータは分離され、自動コピーしません。ログアウトするとブラウザー側のデータに戻ります。クラウドAPIは引き続き認証必須です。
 
-API（Go、`server/`）は、アカウントのクラウド保存をDBから読みます。GitHubのトークンで認証し、トークンのユーザー本人のデータだけを扱います。`-writable` を付けて起動すると、リストの作成・変更・削除と記録の追加（v0.42.0 から）、端末の作成・変更・削除（v0.44.0 から）、記録の変更・削除（v0.45.0 から）もできます（既定は読み取り専用）。Typle本体とは別に起動し、Vercelの本番には載せません。使い方は [API（Go）](docs/api.md) を参照してください。
+API（Go、`server/`）は、アカウントのクラウド保存をDBから読みます。GitHubのトークンで認証し、トークンのユーザー本人のデータだけを扱います。`-writable` を付けて起動すると、リストの作成・変更・削除と記録の追加（v0.42.0 から）、端末の作成・変更・削除（v0.44.0 から）、記録の変更・削除（v0.45.0 から）もできます（既定は読み取り専用）。v0.53.0 から、リストの複製、CSV・TSV の取り込みと CSV の書き出し、端末ごとの使用状況、リスト一覧の並べ替えと検索、練習記録・ベスト記録・ホームの集計も含め、Web版でできることはすべて API でもできます。Typle本体とは別に起動し、Vercelの本番には載せません。使い方は [API（Go）](docs/api.md) を参照してください。
 
 上部の「テーマ」からライト・ダーク・システムを選べます。初期設定はシステム（OSの外観に追従）です。選択はブラウザに保存され、再読み込みやページ移動後も維持されます。
 
@@ -64,7 +64,7 @@ Next.js のアプリは1つで、`src` を層に分けています。依存は�
 
 保存先を増やすときは `WorkspaceStore` を実装したプラグインを `src/plugins/storage` に追加し、`workspaceStore` で選びます。ファイル形式を増やすときは `WordFormat` を実装して `src/plugins/formats/index.ts` の一覧に加えると、取り込みの拡張子判定と `accept` に反映されます。どちらも画面のコードは変わりません。
 
-API（`server/`）はNext.jsとは独立したGoモジュールです。`internal/auth` がGitHubのトークンからアカウントを確かめ、`internal/store` が `typle_workspaces` を読み（`-writable` のときは行をロックして書き込み）、`internal/workspace` がそれをアプリの `decodeLists`・`decodeDevices` と同じ規則で検証して、リスト・記録・端末の変更もアプリと同じ規則で検証し、`internal/api` がHTTPで返し、`cmd/typle-api` が起動します。標準ライブラリ以外の依存はPostgreSQLのドライバー（pgx）だけです。
+API（`server/`）はNext.jsとは独立したGoモジュールです。`internal/auth` がGitHubのトークンからアカウントを確かめ、`internal/store` が `typle_workspaces` を読み（`-writable` のときは行をロックして書き込み）、`internal/workspace` がそれをアプリの `decodeLists`・`decodeDevices` と同じ規則で検証して、リスト・記録・端末の変更もアプリと同じ規則で検証し、`internal/api` がHTTPで返し、`cmd/typle-api` が起動します。標準ライブラリ以外の依存は、PostgreSQLのドライバー（pgx）と、名前を日本語の照合で並べる `golang.org/x/text` だけです。
 
 ## OGP・共有画像
 
