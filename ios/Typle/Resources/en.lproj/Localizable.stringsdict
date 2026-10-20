@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>devices.usage</key>
+	<key>dashboard.next.lowAccuracy</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%1$#@value@</string>
@@ -13,15 +13,15 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>Practiced %1$ld time · last %2$@</string>
+			<string>Latest accuracy %2$@%%</string>
 			<key>other</key>
-			<string>Practiced %1$ld times · last %2$@</string>
+			<string>Accuracy over last %1$ld runs: %2$@%%</string>
 		</dict>
 	</dict>
-	<key>lists.deleteMessage</key>
+	<key>dashboard.next.stale</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
-		<string>%2$#@value@</string>
+		<string>%#@value@</string>
 		<key>value</key>
 		<dict>
 			<key>NSStringFormatSpecTypeKey</key>
@@ -29,12 +29,60 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>“%1$@” and its %2$ld practice record will be deleted. This cannot be undone.</string>
+			<string>Not practiced for %ld day</string>
 			<key>other</key>
-			<string>“%1$@” and its %2$ld practice records will be deleted. This cannot be undone.</string>
+			<string>Not practiced for %ld days</string>
 		</dict>
 	</dict>
-	<key>lists.recordCount</key>
+	<key>dashboard.next.words</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld word</string>
+			<key>other</key>
+			<string>%ld words</string>
+		</dict>
+	</dict>
+	<key>dashboard.trends.summary</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%1$ld run · Last practiced %2$@</string>
+			<key>other</key>
+			<string>%1$ld runs · Last practiced %2$@</string>
+		</dict>
+	</dict>
+	<key>dashboard.week.accuracy</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Accuracy (latest run)</string>
+			<key>other</key>
+			<string>Average accuracy (last %ld)</string>
+		</dict>
+	</dict>
+	<key>dashboard.week.times</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@value@</string>
@@ -50,7 +98,7 @@
 			<string>%ld runs</string>
 		</dict>
 	</dict>
-	<key>lists.wordCount</key>
+	<key>devices.count</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@value@</string>
@@ -61,9 +109,41 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld word</string>
+			<string>%ld device</string>
 			<key>other</key>
-			<string>%ld words</string>
+			<string>%ld devices</string>
+		</dict>
+	</dict>
+	<key>devices.deleteRecords</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>The %ld record practised on this device will not be deleted and will keep the device name used at the time.</string>
+			<key>other</key>
+			<string>The %ld records practised on this device will not be deleted and will keep the device name used at the time.</string>
+		</dict>
+	</dict>
+	<key>devices.usage</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Practised %1$ld time · last %2$@</string>
+			<key>other</key>
+			<string>Practised %1$ld times · last %2$@</string>
 		</dict>
 	</dict>
 	<key>practice.aside.bestOrderAtCount</key>
@@ -125,9 +205,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%1$ld word · best %2$@</string>
+			<string>%1$ld word · best %2$@ s</string>
 			<key>other</key>
-			<string>%1$ld words · best %2$@</string>
+			<string>%1$ld words · best %2$@ s</string>
 		</dict>
 	</dict>
 	<key>practice.progress.value</key>
@@ -194,6 +274,102 @@
 			<string>%ld mistakes</string>
 		</dict>
 	</dict>
+	<key>rankings.detail.records</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld record</string>
+			<key>other</key>
+			<string>%ld records</string>
+		</dict>
+	</dict>
+	<key>rankings.detail.stats.atCount</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>At the current %ld word</string>
+			<key>other</key>
+			<string>At the current %ld words</string>
+		</dict>
+	</dict>
+	<key>rankings.detail.stats.recent</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Latest run</string>
+			<key>other</key>
+			<string>Last %ld runs</string>
+		</dict>
+	</dict>
+	<key>rankings.detail.stats.recentAverage</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Latest run</string>
+			<key>other</key>
+			<string>Average of last %ld</string>
+		</dict>
+	</dict>
+	<key>rankings.detail.trend.recent</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>latest run</string>
+			<key>other</key>
+			<string>last %ld runs</string>
+		</dict>
+	</dict>
+	<key>rankings.detail.words</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld word</string>
+			<key>other</key>
+			<string>%ld words</string>
+		</dict>
+	</dict>
 	<key>rankings.fallback</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -210,7 +386,7 @@
 			<string>There are no records at the current %ld words, so all records are compared.</string>
 		</dict>
 	</dict>
-	<key>rankings.includeOthers</key>
+	<key>rankings.list.runs</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@value@</string>
@@ -221,12 +397,12 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>Include the %ld record at other word counts</string>
+			<string>%ld run</string>
 			<key>other</key>
-			<string>Include the %ld records at other word counts</string>
+			<string>%ld runs</string>
 		</dict>
 	</dict>
-	<key>rankings.ranked</key>
+	<key>rankings.list.words</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@value@</string>
@@ -237,28 +413,12 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>Ranking (%ld record)</string>
+			<string>%ld word</string>
 			<key>other</key>
-			<string>Ranking (%ld records)</string>
+			<string>%ld words</string>
 		</dict>
 	</dict>
-	<key>rankings.recentTime</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@value@</string>
-		<key>value</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>ld</string>
-			<key>one</key>
-			<string>Average of the last %ld run</string>
-			<key>other</key>
-			<string>Average of the last %ld runs</string>
-		</dict>
-	</dict>
-	<key>records.dayTotal</key>
+	<key>records.day.summary</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%1$#@value@</string>
@@ -274,7 +434,7 @@
 			<string>%1$ld runs · %2$@</string>
 		</dict>
 	</dict>
-	<key>records.mistakes</key>
+	<key>records.filter.count</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@value@</string>
@@ -285,12 +445,12 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld mistake</string>
+			<string>%ld record</string>
 			<key>other</key>
-			<string>%ld mistakes</string>
+			<string>%ld records</string>
 		</dict>
 	</dict>
-	<key>records.words</key>
+	<key>records.row.words</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>%#@value@</string>
@@ -320,6 +480,134 @@
 			<string>Loaded (%ld word list)</string>
 			<key>other</key>
 			<string>Loaded (%ld word lists)</string>
+		</dict>
+	</dict>
+	<key>wordLists.editor.errorCount</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>There is %ld error</string>
+			<key>other</key>
+			<string>There are %ld errors</string>
+		</dict>
+	</dict>
+	<key>wordLists.editor.wordTotal</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>· %ld word</string>
+			<key>other</key>
+			<string>· %ld words</string>
+		</dict>
+	</dict>
+	<key>wordLists.import.add</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Add %ld word</string>
+			<key>other</key>
+			<string>Add %ld words</string>
+		</dict>
+	</dict>
+	<key>wordLists.import.replaceWith</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Replace with %ld word</string>
+			<key>other</key>
+			<string>Replace with %ld words</string>
+		</dict>
+	</dict>
+	<key>wordLists.manager.count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld list</string>
+			<key>other</key>
+			<string>%ld lists</string>
+		</dict>
+	</dict>
+	<key>wordLists.page.editDescription</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%1$ld word · %2$@</string>
+			<key>other</key>
+			<string>%1$ld words · %2$@</string>
+		</dict>
+	</dict>
+	<key>wordLists.row.practiced</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Practiced %1$ld time · Last: %2$@</string>
+			<key>other</key>
+			<string>Practiced %1$ld times · Last: %2$@</string>
+		</dict>
+	</dict>
+	<key>wordLists.row.wordCount</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld word</string>
+			<key>other</key>
+			<string>%ld words</string>
 		</dict>
 	</dict>
 </dict>

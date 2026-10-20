@@ -2,125 +2,169 @@ import SwiftUI
 import TypleCore
 import UniformTypeIdentifiers
 
-/// The word lists (src/app/(workspace)/edit/page.tsx): search, sort, practise, edit, copy, export and delete.
+/// The word lists page (src/app/(workspace)/edit/page.tsx): search, sort, practise, edit, copy, export and delete.
 struct ListsView: View {
   @Environment(AppModel.self) private var app
   @State private var query = ""
   @State private var order = ListOrder.added
-  @State private var editing: EditorTarget?
   @State private var deleting: WordList?
-  @State private var errorMessage: String?
+  @State private var message: String?
+  @State private var failed = false
 
   var body: some View {
-    let items = sortOverviews(listOverviews(app.lists).filter { matchesQuery($0.list, query) }, order: order)
-    List {
-      if let errorMessage {
-        Label(errorMessage, systemImage: "exclamationmark.triangle").foregroundStyle(.red)
+    let all = listOverviews(app.lists)
+    let items = sortOverviews(all.filter { matchesQuery($0.list, query) }, order: order, locale: Localization.locale)
+    PageScroll {
+      PageHeader(title: L("wordLists.page.title"), description: L("wordLists.page.description"))
+      if let message {
+        Label(message, systemImage: failed ? "exclamationmark.triangle" : "checkmark.circle")
+          .font(.system(size: 14)).foregroundStyle(failed ? Palette.destructive : Palette.success)
       }
-      ForEach(items) { item in
-        Button { editing = .edit(item.list) } label: { row(item) }
-          .foregroundStyle(.primary)
-          .swipeActions(edge: .trailing) {
-            Button(role: .destructive) { deleting = item.list } label: { Label(L("common.delete"), systemImage: "trash") }
+      VStack(alignment: .leading, spacing: 16) {
+        HStack(spacing: 10) {
+          Text(L("wordLists.manager.heading")).font(.system(size: 16, weight: .bold))
+          CountBadge(text: "\(app.lists.count) / \(maxLists)")
+          Spacer()
+          Button { app.navigate(.createList) } label: { Label(L("wordLists.manager.create"), systemImage: "plus") }
+            .buttonStyle(.typle(.primary, size: .lg))
+            .disabled(app.lists.count >= maxLists)
+        }
+        HStack(spacing: 8) {
+          SearchField(prompt: L("wordLists.manager.search"), text: $query).frame(maxWidth: 384)
+          Menu {
+            Picker(L("wordLists.order.label"), selection: $order) {
+              ForEach(ListOrder.allCases, id: \.self) { order in Text(L("wordLists.order.\(order.rawValue)")).tag(order) }
+            }
+          } label: {
+            HStack(spacing: 6) {
+              Text(L("wordLists.order.label")).foregroundStyle(Palette.mutedForeground)
+              Text(L("wordLists.order.\(order.rawValue)")).fontWeight(.medium).foregroundStyle(Palette.foreground)
+              Image(systemName: "chevron.down").font(.system(size: 10, weight: .semibold)).foregroundStyle(Palette.mutedForeground)
+            }
+            .font(.system(size: 14))
+            .padding(.horizontal, 12)
+            .frame(height: 40)
+            .background(Palette.card, in: RoundedRectangle(cornerRadius: Radius.md))
+            .outlined(radius: Radius.md, color: Palette.input)
           }
-          .swipeActions(edge: .leading) {
-            Button { app.practice(listId: item.list.id) } label: { Label(L("lists.practice"), systemImage: "play") }.tint(.accentColor)
-          }
-          .contextMenu { menu(item.list) }
-      }
-    }
-    .overlay {
-      if items.isEmpty {
-        if query.isEmpty {
-          ContentUnavailableView(L("lists.empty"), systemImage: "list.bullet.rectangle")
+          Spacer()
+          Text(query.isEmpty ? L("wordLists.manager.count", all.count) : L("wordLists.manager.countFiltered", items.count, all.count))
+            .font(.system(size: 14)).foregroundStyle(Palette.mutedForeground)
+        }
+        if items.isEmpty {
+          empty
         } else {
-          ContentUnavailableView.search(text: query)
+          VStack(spacing: 0) {
+            ForEach(items.indices, id: \.self) { index in
+              if index > 0 { Hairline() }
+              row(items[index])
+            }
+          }
+          .card()
         }
+        Text(L("wordLists.manager.csvNote")).font(.system(size: 12)).foregroundStyle(Palette.mutedForeground)
       }
     }
-    .searchable(text: $query, prompt: L("lists.search"))
-    .navigationTitle(L("nav.lists"))
-    .toolbar {
-      ToolbarItem(placement: .primaryAction) {
-        Button { editing = .create } label: { Label(L("lists.create"), systemImage: "plus") }
-          .disabled(app.lists.count >= maxLists)
-      }
-      ToolbarItem(placement: .secondaryAction) {
-        Picker(L("lists.order"), selection: $order) {
-          ForEach(ListOrder.allCases, id: \.self) { order in Text(L("lists.order.\(order.rawValue)")).tag(order) }
-        }
-      }
-    }
-    .sheet(item: $editing) { target in
-      ListEditorView(target: target)
-    }
-    .confirmationDialog(L("lists.deleteTitle"), isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
+    .confirmationDialog(deleting.map { L("wordLists.delete.title", $0.name) } ?? "", isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
                         titleVisibility: .visible, presenting: deleting) { list in
-      Button(L("common.delete"), role: .destructive) { delete(list) }
+      Button(L("common.delete.confirm"), role: .destructive) { delete(list) }
     } message: { list in
-      Text(L("lists.deleteMessage", list.name, list.records.count))
+      Text(list.records.isEmpty ? L("wordLists.delete.listOnly") : L("wordLists.delete.withRecords"))
     }
   }
 
-  private func row(_ item: ListOverview) -> some View {
-    VStack(alignment: .leading, spacing: 4) {
-      Text(item.list.name).font(.headline)
-      Text(item.list.words.prefix(6).map { $0.display.trimmingCharacters(in: .whitespacesAndNewlines) }.joined(separator: L("lists.wordSeparator"))
-           + (item.list.words.count > 6 ? L("lists.moreWords", item.list.words.count - 6) : ""))
-        .font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
-      HStack(spacing: 12) {
-        Label(L("lists.wordCount", item.list.words.count), systemImage: "textformat")
-        Label(L("lists.recordCount", item.practiceCount), systemImage: "clock")
-        if let last = item.lastPracticed {
-          Text(L("lists.lastPracticed", Date(timeIntervalSince1970: last / 1000).formatted(.relative(presentation: .named))))
-        }
+  private var empty: some View {
+    VStack(spacing: 12) {
+      IconTile(systemName: "list.bullet")
+      Text(query.isEmpty ? L("wordLists.empty.title") : L("wordLists.manager.noMatch", query)).font(.system(size: 16, weight: .semibold))
+      if query.isEmpty {
+        Text(L("wordLists.empty.description")).font(.system(size: 14)).foregroundStyle(Palette.mutedForeground).multilineTextAlignment(.center)
       }
-      .font(.caption).foregroundStyle(.secondary)
     }
-    .padding(.vertical, 4)
-    .contentShape(Rectangle())
+    .frame(maxWidth: .infinity)
+    .padding(40)
+    .overlay(RoundedRectangle(cornerRadius: Radius.xl).strokeBorder(Palette.border, style: StrokeStyle(lineWidth: 1, dash: [4, 3])))
+  }
+
+  private func row(_ item: ListOverview) -> some View {
+    let preview = item.list.words.prefix(6).map { $0.display.trimmingCharacters(in: .whitespacesAndNewlines) }.joined(separator: L("wordLists.row.separator"))
+    let rest = max(0, item.list.words.count - 6)
+    return HStack(spacing: 16) {
+      Button { app.navigate(.editList(item.list.id)) } label: {
+        VStack(alignment: .leading, spacing: 3) {
+          Text(item.list.name).font(.system(size: 16, weight: .medium)).foregroundStyle(Palette.foreground).lineLimit(2)
+          Text(rest > 0 ? L("wordLists.row.more", preview, rest) : preview).font(.system(size: 14)).foregroundStyle(Palette.mutedForeground).lineLimit(1)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
+      }
+      .buttonStyle(.plain)
+      VStack(alignment: .leading, spacing: 3) {
+        Text(L("wordLists.row.wordCount", item.list.words.count)).font(.system(size: 14, weight: .medium))
+        HStack(spacing: 4) {
+          Image(systemName: "clock.arrow.circlepath").font(.system(size: 10))
+          Text(item.lastPracticed.map { L("wordLists.row.practiced", item.practiceCount, Format.day(Date(timeIntervalSince1970: $0 / 1000))) }
+               ?? L("wordLists.row.notPracticed"))
+        }
+        .font(.system(size: 12)).foregroundStyle(Palette.mutedForeground)
+      }
+      .frame(width: 180, alignment: .leading)
+      Button { app.practice(listId: item.list.id) } label: { Image(systemName: "keyboard").font(.system(size: 15)) }
+        .buttonStyle(.typle(.ghost, size: .icon))
+        .foregroundStyle(Palette.mutedForeground)
+        .accessibilityLabel(L("wordLists.row.practiceList", item.list.name))
+      Button { app.navigate(.editList(item.list.id)) } label: { Label(L("wordLists.row.edit"), systemImage: "pencil") }
+        .buttonStyle(.typle(.outline, size: .lg))
+        .accessibilityLabel(L("wordLists.row.editList", item.list.name))
+      Menu { menu(item.list) } label: {
+        Image(systemName: "ellipsis").font(.system(size: 15)).frame(width: 36, height: 36).contentShape(Rectangle())
+      }
+      .foregroundStyle(Palette.foreground)
+      .accessibilityLabel(L("wordLists.row.moreFor", item.list.name))
+    }
+    .padding(.leading, 20)
+    .padding(.trailing, 16)
+    .padding(.vertical, 14)
   }
 
   @ViewBuilder
   private func menu(_ list: WordList) -> some View {
-    Button { app.practice(listId: list.id) } label: { Label(L("lists.practice"), systemImage: "play") }
-    Button { editing = .edit(list) } label: { Label(L("common.edit"), systemImage: "pencil") }
-    Button { duplicate(list) } label: { Label(L("lists.duplicate"), systemImage: "plus.square.on.square") }
-      .disabled(app.lists.count >= maxLists)
-    ShareLink(item: CsvExport(list: list), preview: SharePreview(list.name)) {
-      Label(L("lists.export"), systemImage: "square.and.arrow.up")
-    }
+    Button { app.practice(listId: list.id) } label: { Label(L("wordLists.row.practiceThis"), systemImage: "keyboard") }
+    Button { app.showRankings(listId: list.id) } label: { Label(L("wordLists.row.rankings"), systemImage: "trophy") }
+    Button { app.navigate(.records) } label: { Label(L("wordLists.row.records"), systemImage: "clock.arrow.circlepath") }
     Divider()
-    Button(role: .destructive) { deleting = list } label: { Label(L("common.delete"), systemImage: "trash") }
+    ShareLink(item: CsvExport(list: list), preview: SharePreview(list.name)) {
+      Label(L("wordLists.row.export"), systemImage: "square.and.arrow.up")
+    }
+    Button { duplicate(list) } label: { Label(L("wordLists.row.copy"), systemImage: "plus.square.on.square") }
+      .disabled(app.lists.count >= maxLists)
+    Divider()
+    Button(role: .destructive) { deleting = list } label: { Label(L("wordLists.row.delete"), systemImage: "trash") }
   }
 
   private func duplicate(_ list: WordList) {
     Task {
       do {
-        errorMessage = nil
-        try await app.duplicateList(id: list.id)
-      } catch { errorMessage = errorText(error) }
+        let copy = try await app.duplicateList(id: list.id)
+        failed = false
+        message = L("wordLists.page.created", copy.name)
+      } catch {
+        failed = true
+        message = errorText(error)
+      }
     }
   }
 
   private func delete(_ list: WordList) {
     Task {
       do {
-        errorMessage = nil
         try await app.deleteList(id: list.id)
-      } catch { errorMessage = errorText(error) }
-    }
-  }
-}
-
-enum EditorTarget: Identifiable {
-  case create
-  case edit(WordList)
-
-  var id: String {
-    switch self {
-    case .create: return "create"
-    case .edit(let list): return list.id
+        failed = false
+        message = L("wordLists.page.deleted", list.name)
+      } catch {
+        failed = true
+        message = errorText(error)
+      }
     }
   }
 }

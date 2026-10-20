@@ -2,9 +2,27 @@ import Foundation
 import Observation
 import TypleCore
 
-enum AppSection: String, CaseIterable, Identifiable, Hashable {
-  case practice, lists, records, rankings, devices, settings
-  var id: String { rawValue }
+/// The web app's pages, in the order of its sidebar.
+enum Route: Hashable {
+  case home, practice, records, rankings, lists, createList, editList(String), general, devices
+
+  /// The sidebar item a page belongs to; the list editor belongs to 単語リスト as /edit/<id> does.
+  var navigationItem: Route {
+    if case .editList = self { return .lists }
+    return self
+  }
+
+  /// For launch arguments (`-TypleRoute records`) when taking screenshots.
+  init?(name: String) {
+    let routes: [String: Route] = ["home": .home, "practice": .practice, "records": .records, "rankings": .rankings,
+                                   "lists": .lists, "createList": .createList, "general": .general, "devices": .devices]
+    guard let route = routes[name] else { return nil }
+    self = route
+  }
+}
+
+enum Appearance: String {
+  case system, light, dark
 }
 
 enum StorageKind: String, CaseIterable, Identifiable {
@@ -21,7 +39,9 @@ enum StorageKind: String, CaseIterable, Identifiable {
 final class AppModel {
   private let defaults: UserDefaults
 
-  var section: AppSection? = .practice
+  var route: Route = .home
+  /// The list the best records page shows, like `/rankings?list=<id>`.
+  var rankingsList: String? = nil
   /// A list another screen asked the practice screen to open, like `/play?list=<id>`.
   var practiceRequest: String? = nil
 
@@ -36,6 +56,9 @@ final class AppModel {
   private(set) var liveStatsVisible: Bool
   /// The stored device choice for the current store: a device id, "" for 未選択, or nil before the first choice.
   private(set) var selectedDeviceId: String? = nil
+  /// The display language, chosen in 一般 like the web app's.
+  private(set) var language: AppLanguage
+  private(set) var appearance: Appearance
 
   init(defaults: UserDefaults = .standard) {
     self.defaults = defaults
@@ -44,9 +67,40 @@ final class AppModel {
     self.storage = storage
     self.serverURL = serverURL
     liveStatsVisible = !defaults.bool(forKey: "typle-r:live-stats-hidden")
+    let language = AppLanguage(rawValue: defaults.string(forKey: "typle-r:language") ?? "") ?? .preferred
+    self.language = language
+    Localization.use(language)
+    appearance = Appearance(rawValue: defaults.string(forKey: "typle-r:theme") ?? "") ?? .system
+    #if DEBUG
+    if let demo = DemoData.store(defaults: defaults) {
+      store = demo
+      selectedDeviceId = nil
+      if let name = defaults.string(forKey: "TypleRoute") {
+        if name == "editList" { self.route = .editList("sample-1") } else if let route = Route(name: name) { self.route = route }
+      }
+      rankingsList = defaults.string(forKey: "TypleRankingsList")
+      return
+    }
+    #endif
     let store = Self.makeStore(storage, serverURL: serverURL) ?? LocalWorkspaceStore()
     self.store = store
     selectedDeviceId = defaults.string(forKey: "typle-r:device:\(store.accountId)")
+  }
+
+  func setLanguage(_ language: AppLanguage) {
+    self.language = language
+    Localization.use(language)
+    defaults.set(language.rawValue, forKey: "typle-r:language")
+  }
+
+  /// The top bar's switch, which like the web app's sets light or dark from what is showing now.
+  func setAppearance(_ appearance: Appearance) {
+    self.appearance = appearance
+    defaults.set(appearance.rawValue, forKey: "typle-r:theme")
+  }
+
+  func navigate(_ route: Route) {
+    self.route = route
   }
 
   func setLiveStatsVisible(_ visible: Bool) {
@@ -172,6 +226,11 @@ final class AppModel {
 
   func practice(listId: String) {
     practiceRequest = listId
-    section = .practice
+    route = .practice
+  }
+
+  func showRankings(listId: String?) {
+    rankingsList = listId
+    route = .rankings
   }
 }

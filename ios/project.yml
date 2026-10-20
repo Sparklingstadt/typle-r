@@ -13,7 +13,7 @@ packages:
 settings:
   base:
     SWIFT_VERSION: "5.0"
-    MARKETING_VERSION: "0.43.0"
+    MARKETING_VERSION: "0.44.0"
     CURRENT_PROJECT_VERSION: "1"
 targets:
   Typle:
@@ -49,8 +49,26 @@ targets:
         CFBundleAllowMixedLocalizations: true
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
+  # Only turns the simulator for the screenshots in .github/workflows/ios.yml (see OrientationTests.swift).
+  TypleUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: TypleUITests
+    dependencies:
+      - target: Typle
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.sparklingstadt.typle.uitests
+        TARGETED_DEVICE_FAMILY: "2"
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_STYLE: Automatic
 schemes:
   Typle:
     build:
       targets:
         Typle: all
+        TypleUITests: [test]
+    test:
+      targets:
+        - TypleUITests

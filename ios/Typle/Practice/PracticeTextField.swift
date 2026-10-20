@@ -7,7 +7,6 @@ struct PracticeTextField: UIViewRepresentable {
   /// The judged input; the field is set to it whenever nothing is being composed.
   var text: String
   var placeholder: String
-  var invalid: Bool
   /// Changing this number focuses the field.
   var focusRequest: Int
   var onCommit: (String) -> Void
@@ -31,11 +30,10 @@ struct PracticeTextField: UIViewRepresentable {
     field.textContentType = nil
     field.returnKeyType = .default
     field.textAlignment = .center
-    field.font = .systemFont(ofSize: 24, weight: .regular)
+    // The border and focus ring are drawn around it in SwiftUI, like the web app's input.
+    field.font = .systemFont(ofSize: 22, weight: .regular)
     field.borderStyle = .none
-    field.layer.cornerRadius = 10
-    field.layer.borderWidth = 2
-    field.backgroundColor = .secondarySystemBackground
+    field.backgroundColor = .clear
     field.accessibilityIdentifier = "practiceInput"
     field.setContentHuggingPriority(.defaultLow, for: .horizontal)
     return field
@@ -45,7 +43,6 @@ struct PracticeTextField: UIViewRepresentable {
     context.coordinator.parent = self
     field.placeholder = placeholder
     field.accessibilityLabel = placeholder
-    field.layer.borderColor = (invalid ? UIColor.systemRed : UIColor.tintColor).cgColor
     field.onEscape = { [weak field] in
       guard field?.markedTextRange == nil else { return }
       context.coordinator.parent.onEscape()
