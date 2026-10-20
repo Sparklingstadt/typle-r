@@ -1,0 +1,55 @@
+name: iPad app
+
+# Builds the SwiftUI app in ios/ and tests its shared rules. It is separate from ci.yml: the iPad app is not
+# released or deployed by it, and macOS runners only start when ios/ changes.
+on:
+  pull_request:
+    paths:
+      - 'ios/**'
+      - 'src/plugins/packs/**'
+      - '.github/workflows/ios.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'ios/**'
+      - 'src/plugins/packs/**'
+      - '.github/workflows/ios.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Show Xcode
+        run: xcodebuild -version
+      - name: Test TypleCore
+        working-directory: ios/TypleCore
+        run: swift test
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate the Xcode project
+        working-directory: ios
+        run: xcodegen generate
+      - name: Build for the iPad simulator
+        working-directory: ios
+        run: |
+          xcodebuild build -project Typle.xcodeproj -scheme Typle \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO | tee build.log
+          exit "${PIPESTATUS[0]}"
+      - name: Show build errors
+        if: failure()
+        working-directory: ios
+        run: |
+          grep -E 'error:|warning: .*(Sendable|actor)' build.log | sort -u | head -100 || true
