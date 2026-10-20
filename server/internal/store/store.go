@@ -85,7 +85,7 @@ func (s *Store) Read(ctx context.Context, owner string) (*workspace.Workspace, e
 // Modify changes the owner's workspace and saves it, in one transaction that holds the row locked. While it is held,
 // a save from the app waits; afterwards the app finds the revision changed and reloads (409), as it does when another
 // browser saved first. An account that has saved nothing starts from the initial lists. When change reports nothing
-// changed, nothing is written. Only the lists are written: devices are not changed here.
+// changed, nothing is written.
 func (s *Store) Modify(ctx context.Context, owner string, change func(*workspace.Workspace) (bool, error)) (*workspace.Workspace, error) {
 	var result *workspace.Workspace
 	err := pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
@@ -112,12 +112,16 @@ func (s *Store) Modify(ctx context.Context, owner string, change func(*workspace
 		if err := workspace.CheckSize(len(before), len(after)); err != nil {
 			return err
 		}
-		// Lists that would not be read back are never saved: the account would no longer load, here or in the app.
-		if _, err := workspace.Decode(after, []byte("[]")); err != nil {
+		devices, err := workspace.EncodeDevices(w.Devices)
+		if err != nil {
+			return err
+		}
+		// A workspace that would not be read back is never saved: the account would no longer load, here or in the app.
+		if _, err := workspace.Decode(after, devices); err != nil {
 			return fmt.Errorf("changed workspace of %s: %w", owner, err)
 		}
-		_, err = tx.Exec(ctx, `UPDATE typle_workspaces SET lists = $2::jsonb, revision = revision + 1, updated_at = now() WHERE owner_id = $1`,
-			owner, string(after))
+		_, err = tx.Exec(ctx, `UPDATE typle_workspaces SET lists = $2::jsonb, devices = $3::jsonb, revision = revision + 1,
+			updated_at = now() WHERE owner_id = $1`, owner, string(after), string(devices))
 		return err
 	})
 	if err != nil {

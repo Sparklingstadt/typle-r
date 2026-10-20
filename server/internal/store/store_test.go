@@ -345,3 +345,41 @@ func TestModifyRefusesUnreadableLists(t *testing.T) {
 		t.Fatal("the row changed")
 	}
 }
+
+// Devices are saved in their own column, and records keep their copy of a device that is renamed or deleted.
+func TestModifyWritesDevices(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	lists := `[{"id":"l1","name":"a","createdAt":"x","words":[{"display":"a","input":"a","annotation":""}],` +
+		`"records":[{"time":1,"date":"2026-10-10T00:00:00.000Z","device":{"id":"d1","name":"自宅","layout":"JIS"}}]}]`
+	if _, err := conn.Exec(ctx, `INSERT INTO typle_workspaces (owner_id, lists, devices) VALUES ($1, $2, $3)`,
+		id, lists, `[{"id":"d1","name":"自宅","layout":"JIS"}]`); err != nil {
+		t.Fatal(err)
+	}
+	s := open(t, connection, true)
+	name := "会社"
+	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) {
+		_, err := workspace.CreateDevice(w, workspace.DeviceInput{Name: &name}, "d2")
+		return true, err
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) { return true, workspace.DeleteDevice(w, "d1") }); err != nil {
+		t.Fatal(err)
+	}
+	var devices string
+	if err := conn.QueryRow(ctx, `SELECT devices::text FROM typle_workspaces WHERE owner_id = $1`, id).Scan(&devices); err != nil {
+		t.Fatal(err)
+	}
+	if devices != `[{"id": "d2", "name": "会社", "layout": ""}]` {
+		t.Fatalf("devices = %s", devices)
+	}
+	w, err := s.Read(ctx, id)
+	if err != nil || len(w.Devices) != 1 || w.Lists[0].Records[0].Device.Name != "自宅" {
+		t.Fatalf("workspace = %+v, %v", w, err)
+	}
+	if _, revision, _ := row(t, conn, id); revision != 3 {
+		t.Fatalf("revision = %d", revision)
+	}
+}
