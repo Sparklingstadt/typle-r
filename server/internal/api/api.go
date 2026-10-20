@@ -13,16 +13,11 @@ import (
 	"net/http"
 	"regexp"
 	"slices"
-	"strconv"
 	"strings"
+	"time"
 
 	"github.com/sparklingstadt/typle-r/server/internal/auth"
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
-)
-
-const (
-	defaultLimit = 100
-	maxLimit     = 1000
 )
 
 type listSummary struct {
@@ -81,6 +76,7 @@ type server struct {
 func New(source Source, writer Writer, verifier Verifier) http.Handler {
 	s := &server{source: source, writer: writer, verifier: verifier}
 	mux := http.NewServeMux()
+	mux.Handle("/api/v1/records", s.route(feed))
 	mux.Handle("/api/v1/devices", s.route(devices, write{http.MethodPost, s.createDevice}))
 	mux.Handle("/api/v1/devices/{deviceId}", s.route(device, write{http.MethodPatch, s.updateDevice}, write{http.MethodDelete, s.deleteDevice}))
 	mux.Handle("/api/v1/lists", s.route(lists, write{http.MethodPost, s.createList}))
@@ -322,25 +318,47 @@ func records(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
 		return
 	}
 	query := r.URL.Query()
-	limit := defaultLimit
-	if query.Has("limit") {
-		text := query.Get("limit")
-		value, err := strconv.Atoi(text)
-		if !digits.MatchString(text) || err != nil || value < 1 || value > maxLimit {
-			failure(w, http.StatusBadRequest, "invalidQuery")
-			return
-		}
-		limit = value
+	limit, okLimit := readLimit(query)
+	since, okSince := readSince(query)
+	if !okLimit || !okSince {
+		failure(w, http.StatusBadRequest, "invalidQuery")
+		return
 	}
 	records := slices.Clone(list.Records)
-	if query.Has("since") {
-		since, ok := workspace.ParseTime(query.Get("since"))
-		if !ok {
-			failure(w, http.StatusBadRequest, "invalidQuery")
-			return
-		}
-		records = slices.DeleteFunc(records, func(record workspace.Record) bool { return !record.At.After(since) })
+	if since != nil {
+		records = slices.DeleteFunc(records, func(record workspace.Record) bool { return !record.At.After(*since) })
 	}
 	slices.SortStableFunc(records, func(a, b workspace.Record) int { return b.At.Compare(a.At) })
 	respond(w, http.StatusOK, map[string]any{"records": records[:min(limit, len(records))]})
+}
+
+// feed lists every list's records newest first, as the app's 練習記録 does, each with its list, whether it is the
+// list's best and its day in tz. list, device (or none), since and limit narrow it.
+func feed(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
+	query := r.URL.Query()
+	limit, okLimit := readLimit(query)
+	since, okSince := readSince(query)
+	loc, okLocation := location(query)
+	if !okLimit || !okSince || !okLocation {
+		failure(w, http.StatusBadRequest, "invalidQuery")
+		return
+	}
+	records := []json.RawMessage{}
+	for _, row := range workspace.Feed(ws.Lists, query.Get("list"), query.Get("device")) {
+		if len(records) == limit {
+			break
+		}
+		if since != nil && !row.Record.At.After(*since) {
+			continue
+		}
+		record, err := withFields(row.Record, map[string]any{"listId": row.List.ID, "listName": row.List.Name, "best": row.Best,
+			"day": row.Record.At.In(loc).Format(time.DateOnly)})
+		if err != nil {
+			log.Printf("%s %s: %v", r.Method, r.URL.Path, err)
+			failure(w, http.StatusServiceUnavailable, "databaseUnavailable")
+			return
+		}
+		records = append(records, record)
+	}
+	respond(w, http.StatusOK, map[string]any{"records": records})
 }
