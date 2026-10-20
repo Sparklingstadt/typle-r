@@ -57,7 +57,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 
 | ステータス | キー | 状況 |
 |---|---|---|
-| 400 | `invalidQuery` | `since`・`limit` が不正 |
+| 400 | `invalidQuery` | クエリの値が不正（`since`・`limit`・`tz`・`sort`・`order` など） |
 | 400 | `invalidJson` | 本文がJSONの1つのオブジェクトでない、型が違う、未知の項目がある（項目名は大文字小文字まで一致が必要）、`PATCH` で `name`・`words` のどちらもない |
 | 400 | `listNameRequired`・`listNameDuplicate`・`wordsRequired`・`wordFieldsRequired`・`invalidList`・`listLimit` | リストの内容が不正（下の「リストの検証」） |
 | 400 | `invalidRecord`・`recordLimit`・`deviceNotFound` | 記録の内容が不正（下の「記録の検証」） |
@@ -222,6 +222,36 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 
 - `ranked` はすべての記録です（アプリは上位5件を表示します）。`fallback` は今の単語数の記録が1件もなく、ほかの単語数の記録で順位を付けたこと。`otherCounts` は今と違う単語数の記録の数で、`wordCount` が `null` のものは単語数を記録していない古い記録です。
 - `stats` は順位を付けた記録の、直近5回の平均時間・平均正確率（正確率のない記録は除く。なければ `null`）と、直近20回の時間の推移（古い順）です。
+
+### `GET /api/v1/dashboard`
+
+アプリの「ホーム」の集計です（v0.53.0 から）。週は月曜はじまり、日の区切りは `tz`（`GET /api/v1/records` と同じ。省略するとサーバーのタイムゾーン）です。
+
+```json
+{
+  "summary": {
+    "weekStart": "2026-10-18T15:00:00.000Z", "weekCount": 12, "previousWeekCount": 9, "weekSeconds": 540.5, "previousWeekSeconds": 410,
+    "streak": 3, "practicedToday": true,
+    "accuracy": { "recent": 96.2, "recentCount": 10, "change": { "recent": 96.2, "recentCount": 10, "previous": 94.1, "previousCount": 10 } }
+  },
+  "next": [
+    { "listId": "l2", "listName": "新しいリスト", "lastPracticed": null, "reason": { "kind": "new" } },
+    { "listId": "l3", "listName": "地名", "lastPracticed": "2026-10-14T01:00:00.000Z", "reason": { "kind": "stale", "days": 6 } },
+    { "listId": "l1", "listName": "英単語", "lastPracticed": "2026-10-19T01:00:00.000Z", "reason": { "kind": "accuracy", "accuracy": 85.5, "count": 5 } }
+  ],
+  "trends": [{
+    "listId": "l1", "listName": "英単語", "count": 8, "lastPracticed": "…",
+    "speed": { "points": [{ "date": "…", "value": 2.1 }], "change": { "recent": 2.0, "recentCount": 4, "previous": 2.3, "previousCount": 4 } },
+    "accuracy": { "points": [{ "date": "…", "value": 95 }], "change": null },
+    "best": { …記録… }
+  }]
+}
+```
+
+- `summary`：`weekStart` は今週の月曜0時です。`previousWeekCount`・`previousWeekSeconds` は先週の同じ曜日・時刻までの数です（週のはじめに1週間分と比べないため）。`streak` は練習した日の連続日数で、今日まだ練習していなければ昨日から数えます。`accuracy` は正確率のある直近10回の平均で、`change` はその前の10回（あれば最大10回）との比較です。正確率のある記録がなければ `null`。
+- `next`：次に練習するリストを最大3件、理由ごとに順に選びます。`new` は記録のないリスト、`stale` は最後の練習から3日以上たったリスト（日数の多い順）、`accuracy` は直近5回の平均正確率が90%未満のリスト（低い順）です。
+- `trends`：記録のあるリストを最後に練習した順に並べます。`speed` は1単語あたりの秒数、`accuracy` は正確率の推移で、`points` は直近20回（古い順）、`change` は新しい半分（最大5回）とその前の同じ数との比較です（比べられなければ `null`）。`best` はそのリストのベストです（`GET /api/v1/rankings` の `best` と同じ）。
+- 記録が1件もなくても、同じ形で返します（`weekCount` は `0`、`accuracy` は `null`、`trends` は `[]`）。
 
 ## 書き込み（`-writable` のとき）
 

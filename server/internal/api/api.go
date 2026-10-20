@@ -76,6 +76,7 @@ type server struct {
 func New(source Source, writer Writer, verifier Verifier) http.Handler {
 	s := &server{source: source, writer: writer, verifier: verifier}
 	mux := http.NewServeMux()
+	mux.Handle("/api/v1/dashboard", s.route(dashboard))
 	mux.Handle("/api/v1/records", s.route(feed))
 	mux.Handle("/api/v1/rankings", s.route(rankings))
 	mux.Handle("/api/v1/rankings/{listId}", s.route(ranking))

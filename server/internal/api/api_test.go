@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/sparklingstadt/typle-r/server/internal/auth"
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
@@ -302,4 +303,27 @@ func TestRanking(t *testing.T) {
 	  "fallback":false,"otherCounts":[],"lastPracticed":null,"improved":false,"stats":{"recentCount":0,"recentTime":null,"recentAccuracy":null,"points":[]}}}`)
 	expect(t, serve(t, "GET", "/api/v1/rankings/missing"), 404, `{"error":"listNotFound"}`)
 	expect(t, serve(t, "GET", "/api/v1/rankings/l1?includeOthers=yes"), 400, `{"error":"invalidQuery"}`)
+}
+
+func TestDashboard(t *testing.T) {
+	// Monday 08:30 in Tokyo, still Sunday 23:30 in UTC.
+	clock = func() time.Time { return time.Date(2026, 10, 4, 23, 30, 0, 0, time.UTC) }
+	t.Cleanup(func() { clock = time.Now })
+	newest := `{"id":"new","time":4.25,"date":"2026-10-03T00:00:00.000Z","mistakes":0,"accuracy":100,"wordCount":2,"device":{"id":"d1","name":"自宅","layout":"JIS"}}`
+	rest := `"accuracy":{"recent":100,"recentCount":1,"change":null}},
+	  "next":[{"listId":"l2","listName":"空","lastPracticed":null,"reason":{"kind":"new"}}],
+	  "trends":[{"listId":"l1","listName":"英単語","count":3,"lastPracticed":"2026-10-03T00:00:00.000Z",
+	    "speed":{"points":[{"date":"2026-10-03T00:00:00.000Z","value":2.125}],"change":null},
+	    "accuracy":{"points":[{"date":"2026-10-03T00:00:00.000Z","value":100}],"change":null},"best":` + newest + `}]}`
+	expect(t, serve(t, "GET", "/api/v1/dashboard?tz=Asia/Tokyo"), 200, `{"summary":{"weekStart":"2026-10-04T15:00:00.000Z",
+	  "weekCount":0,"previousWeekCount":0,"weekSeconds":0,"previousWeekSeconds":0,"streak":0,"practicedToday":false,`+rest)
+	expect(t, serve(t, "GET", "/api/v1/dashboard?tz=UTC"), 200, `{"summary":{"weekStart":"2026-09-28T00:00:00.000Z",
+	  "weekCount":3,"previousWeekCount":0,"weekSeconds":15.25,"previousWeekSeconds":0,"streak":3,"practicedToday":false,`+rest)
+	for _, query := range []string{"tz=", "tz=Mars/Base"} {
+		expect(t, serve(t, "GET", "/api/v1/dashboard?"+query), 400, `{"error":"invalidQuery"}`)
+	}
+	// An account with nothing saved gets the same shape, empty.
+	expect(t, serveAs(saved(t), "Bearer bob", "GET", "/api/v1/dashboard?tz=UTC"), 200, `{"summary":{"weekStart":"2026-09-28T00:00:00.000Z",
+	  "weekCount":0,"previousWeekCount":0,"weekSeconds":0,"previousWeekSeconds":0,"streak":0,"practicedToday":false,"accuracy":null},
+	  "next":[],"trends":[]}`)
 }
