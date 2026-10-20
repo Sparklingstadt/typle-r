@@ -29,9 +29,9 @@ Android タブレットを横向きにして外付けキーボードをつなぎ
 | ページ | ホーム（ダッシュボード）、練習、練習記録、ベスト記録（一覧と詳細）、単語リスト、作成・編集（ページ）、一般、端末。それぞれ Web 版の同じページの並びと文言 |
 | 入力欄 | `EditText`（`AndroidView`）を包み、`inputType` を予測・自動修正・自動大文字なし（`TYPE_TEXT_FLAG_NO_SUGGESTIONS`。中国語・日本語の単語も打てるよう `VISIBLE_PASSWORD` は使わない）に、貼り付けとドロップを無効にする。変換中（composing span があるとき）の文字は判定せず、確定した文字だけを判定する。外付けキーボードの Esc（`KEYCODE_ESCAPE`）でやり直す |
 | 単語の編集 | Web 版・iPad 版と同じく、入力する文字が表示と同じなら空欄で表示し、空欄は表示と同じとして保存する。並べ替えはドラッグと「…」メニュー。CSV・TSV の取り込みはシステムのファイル選択、CSV の書き出しは共有シート |
-| 言語 | 日本語と英語。文言は Web 版の `src/messages/{ja,en}` から作った `values/strings.xml`・`values-en/strings.xml`（既定は日本語）。「一般」でその場で切り替える（`AppCompatDelegate.setApplicationLocales`）。既定は端末の言語。「このブラウザー」は「このタブレット」に言い換える |
+| 言語 | 日本語と英語。文言は iPad 版の文言（Web 版の `src/messages/{ja,en}` から作ったもの）を `android/app/src/main/assets/messages/{ja,en}.json` に置く（キーは iPad 版・Web 版と同じドット区切り。Android のリソース名にはドットが使えないため `strings.xml` は使わない）。「一般」でその場で切り替え、iPad 版と同じく画面を作り直す。既定は端末の言語。「このブラウザー」「この iPad」は「このタブレット」に言い換える |
 | テーマ | 上部バーのボタンで、いま表示している明るさの反対に固定する（Web 版と同じ）。既定はシステム |
-| 文言の確認 | `tests/android.test.cjs` が、コードで使っている文言キーが日本語・英語の両方にあり、プレースホルダーがそろっているかを確かめる |
+| 文言の確認 | `tests/android.test.cjs` が、コードで使っている文言キーが日本語・英語の両方にあり、プレースホルダーがそろっていて、「iPad」「ブラウザー」が残っていないかを確かめる |
 | CI | `.github/workflows/android.yml`（ubuntu）。`android/` を変えた PR と main への push で、`:core:test`、`:app:assembleDebug`、タブレットのエミュレーター（横 1280×800dp）で各ページをサンプルデータ（Debug ビルドだけの起動引数）で撮影してログに出す。debug APK を成果物に残す。リリース・デプロイ（`ci.yml`）には関わらない |
 | 配布 | CI の成果物の debug APK を手で入れる。Play ストアへの公開と署名鍵の管理は範囲外 |
 | その他 | `.vercelignore` に `android` を追加。README と `android/README.md`。v0.45.0 |
