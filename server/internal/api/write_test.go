@@ -362,3 +362,71 @@ func TestCopyListAllow(t *testing.T) {
 		t.Fatalf("Allow = %q", allow)
 	}
 }
+
+func TestImportList(t *testing.T) {
+	w := writable(t)
+	csv := "input,display,annotation\r\nneko,猫,cat\r\n"
+	response := sendAs(w, "Bearer alice", "POST", "/api/v1/lists/import?name=%E5%8B%95%E7%89%A9&format=csv", "text/csv; charset=utf-8", csv)
+	got := body(t, response)
+	if response.Code != 201 || !uuid.MatchString(got) || !strings.Contains(got, `"name":"動物","wordCount":1,"recordCount":0`) ||
+		!strings.Contains(got, `"words":[{"display":"猫","input":"neko","annotation":"cat"}]`) {
+		t.Fatalf("%d %s", response.Code, got)
+	}
+	for _, c := range []struct{ query, contentType, body string }{
+		{"name=b&format=tsv", "text/tab-separated-values", "input\tdisplay\nx\ty\n"},
+		{"name=c&format=csv", "text/plain", csv},
+	} {
+		if response := sendAs(w, "Bearer alice", "POST", "/api/v1/lists/import?"+c.query, c.contentType, c.body); response.Code != 201 {
+			t.Fatalf("%s: %d %s", c.query, response.Code, response.Body)
+		}
+	}
+	if len(w.workspace.Lists) != 5 {
+		t.Fatalf("lists = %d", len(w.workspace.Lists))
+	}
+}
+
+func TestImportErrors(t *testing.T) {
+	csv := "input,display\nx,y\n"
+	cases := []struct {
+		name, query, contentType, body string
+		status                         int
+		want                           string
+	}{
+		{"no name", "format=csv", "text/csv", csv, 400, `{"error":"listNameRequired"}`},
+		{"duplicate name", "name=%E8%8B%B1%E5%8D%98%E8%AA%9E&format=csv", "text/csv", csv, 400, `{"error":"listNameDuplicate"}`},
+		{"no format", "name=a", "text/csv", csv, 400, `{"error":"invalidQuery"}`},
+		{"bad format", "name=a&format=xls", "text/csv", csv, 400, `{"error":"invalidQuery"}`},
+		{"json", "name=a&format=csv", "application/json", csv, 415, `{"error":"unsupportedContentType"}`},
+		{"too large", "name=a&format=csv", "text/csv", strings.Repeat("a", workspace.MaxImportBytes+1), 413, `{"error":"importTooLarge"}`},
+		{"quote", "name=a&format=csv", "text/csv", "input,display\n\"a,b", 400, `{"error":"importQuote","line":2}`},
+		{"column count", "name=a&format=csv", "text/csv", "input,display\nx,y\nz", 400, `{"error":"importColumnCount","line":3}`},
+		{"header", "name=a&format=csv", "text/csv", "a,b\nx,y", 400, `{"error":"importHeaderRequired"}`},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			w := writable(t)
+			expect(t, sendAs(w, "Bearer alice", "POST", "/api/v1/lists/import?"+c.query, c.contentType, c.body), c.status, c.want)
+			if len(w.workspace.Lists) != 2 {
+				t.Fatalf("lists = %d", len(w.workspace.Lists))
+			}
+		})
+	}
+	expect(t, serveAs(saved(t), "Bearer alice", "POST", "/api/v1/lists/import?name=a&format=csv"), 405, `{"error":"methodNotAllowed"}`)
+}
+
+func TestExportCSV(t *testing.T) {
+	response := serve(t, "GET", "/api/v1/lists/l1/words.csv")
+	want := workspace.EncodeWordCSV([]workspace.Word{{Input: "apple", Display: "apple", Annotation: "りんご"}, {Input: "pear", Display: "pear"}})
+	if response.Code != 200 || response.Body.String() != want {
+		t.Fatalf("%d %q", response.Code, response.Body)
+	}
+	header := response.Header()
+	if header.Get("Content-Type") != "text/csv; charset=utf-8" || header.Get("Cache-Control") != "no-store" ||
+		header.Get("Content-Disposition") != `attachment; filename="___.csv"; filename*=UTF-8''%E8%8B%B1%E5%8D%98%E8%AA%9E.csv` {
+		t.Fatalf("headers = %v", header)
+	}
+	if response := serve(t, "HEAD", "/api/v1/lists/l1/words.csv"); response.Code != 200 {
+		t.Fatalf("HEAD = %d", response.Code)
+	}
+	expect(t, serve(t, "GET", "/api/v1/lists/missing/words.csv"), 404, `{"error":"listNotFound"}`)
+}
