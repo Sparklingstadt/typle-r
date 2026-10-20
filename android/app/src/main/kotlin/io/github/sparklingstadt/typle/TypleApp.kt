@@ -138,7 +138,8 @@ fun TypleRoot(app: AppModel = viewModel()) {
     MaterialTheme(colorScheme = scheme) {
       CompositionLocalProvider(
         LocalContentColor provides colors.foreground,
-        LocalTextStyle provides TextStyle(fontSize = 14.sp, color = colors.foreground),
+        // No colour in the text style: text takes LocalContentColor, which buttons and badges set for their content.
+        LocalTextStyle provides TextStyle(fontSize = 14.sp),
       ) {
         // Text comes from the chosen language's messages, so the whole tree is rebuilt when it changes.
         key(app.language) { RootView() }

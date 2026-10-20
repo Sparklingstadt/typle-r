@@ -17,7 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Cloud
-import androidx.compose.material.icons.outlined.Storage
+import androidx.compose.material.icons.outlined.TabletAndroid
 import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
@@ -104,7 +104,7 @@ fun GeneralSettingsView() {
       }
       T(L("settings.language.note"), size = 12.sp, color = Palette.mutedForeground)
     }
-    SettingsCard(if (app.storage == StorageKind.API) Icons.Outlined.Cloud else Icons.Outlined.Storage, L("settings.storage"), L("settings.storageHint")) {
+    SettingsCard(if (app.storage == StorageKind.API) Icons.Outlined.Cloud else Icons.Outlined.TabletAndroid, L("settings.storage"), L("settings.storageHint")) {
       Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Choice(kind == StorageKind.LOCAL, L("settings.storage.local"), L("settings.storage.localDetail"), Modifier.weight(1f)) { kind = StorageKind.LOCAL }
         Choice(kind == StorageKind.API, L("settings.storage.api"), L("settings.storage.apiDetail"), Modifier.weight(1f)) { kind = StorageKind.API }

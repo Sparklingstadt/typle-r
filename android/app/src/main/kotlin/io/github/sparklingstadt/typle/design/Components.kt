@@ -38,7 +38,7 @@ import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.Storage
+import androidx.compose.material.icons.outlined.TabletAndroid
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -237,7 +237,7 @@ fun StorageBadge() {
   val app = LocalApp.current
   val api = app.storage == StorageKind.API
   Pill {
-    Glyph(if (api) Icons.Outlined.Cloud else Icons.Outlined.Storage, size = 12.dp, tint = Palette.mutedForeground)
+    Glyph(if (api) Icons.Outlined.Cloud else Icons.Outlined.TabletAndroid, size = 12.dp, tint = Palette.mutedForeground)
     T(if (api) L("storage.account") else L("storage.local"), size = 12.sp, weight = FontWeight.Medium,
       color = Palette.foreground.copy(alpha = 0.7f), maxLines = 1)
   }
