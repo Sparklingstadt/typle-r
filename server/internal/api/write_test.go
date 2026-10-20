@@ -402,6 +402,8 @@ func TestImportErrors(t *testing.T) {
 		{"quote", "name=a&format=csv", "text/csv", "input,display\n\"a,b", 400, `{"error":"importQuote","line":2}`},
 		{"column count", "name=a&format=csv", "text/csv", "input,display\nx,y\nz", 400, `{"error":"importColumnCount","line":3}`},
 		{"header", "name=a&format=csv", "text/csv", "a,b\nx,y", 400, `{"error":"importHeaderRequired"}`},
+		// 猫,ねこ saved as Shift_JIS, as Excel saves a CSV in Japanese: the app refuses a file that is not UTF-8.
+		{"not utf-8", "name=a&format=csv", "text/csv", "input,display\n\x94\x4c,\x82\xcb\x82\xb1\n", 400, `{"error":"importFileEncoding"}`},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {

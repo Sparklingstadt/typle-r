@@ -15,13 +15,43 @@ const (
 	lowAccuracy = 90
 )
 
+// localTime is the time at this wall clock in loc, as JavaScript's Date reads it. A wall clock that a change of offset
+// skips is read with the offset from before the change, so it lands after the change (Go's time.Date lands before it,
+// on the day before when the change skips midnight), and one that happens twice is the first.
+func localTime(year int, month time.Month, day, hour, minute, second, nanosecond int, loc *time.Location) time.Time {
+	t := time.Date(year, month, day, hour, minute, second, nanosecond, loc)
+	wall := time.Date(year, month, day, hour, minute, second, nanosecond, time.UTC)
+	at := func(t time.Time) time.Time {
+		_, offset := t.Zone()
+		return wall.Add(-time.Duration(offset) * time.Second).In(loc)
+	}
+	if !wallClock(t).Equal(wall) {
+		return at(t)
+	}
+	if start, _ := t.ZoneBounds(); !start.IsZero() {
+		if earlier := at(start.Add(-time.Nanosecond)); earlier.Before(start) && wallClock(earlier).Equal(wall) {
+			return earlier
+		}
+	}
+	return t
+}
+
+// wallClock is the date and time t shows, as a time in UTC.
+func wallClock(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), t.Nanosecond(), time.UTC)
+}
+
 func startOfDay(t time.Time) time.Time {
 	year, month, day := t.Date()
-	return time.Date(year, month, day, 0, 0, 0, 0, t.Location())
+	return localTime(year, month, day, 0, 0, 0, 0, t.Location())
 }
 
 // addDays moves by calendar days, keeping the time of day across a change to or from summer time, as setDate does.
-func addDays(t time.Time, days int) time.Time { return t.AddDate(0, 0, days) }
+func addDays(t time.Time, days int) time.Time {
+	year, month, day := t.Date()
+	hour, minute, second := t.Clock()
+	return localTime(year, month, day+days, hour, minute, second, t.Nanosecond(), t.Location())
+}
 
 func startOfWeek(t time.Time) time.Time {
 	day := startOfDay(t)

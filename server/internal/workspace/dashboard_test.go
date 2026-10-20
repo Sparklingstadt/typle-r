@@ -224,3 +224,34 @@ func TestEmptyDashboard(t *testing.T) {
 		t.Errorf("next %#v", got)
 	}
 }
+
+func TestDaysWhereClocksSkipMidnight(t *testing.T) {
+	// Santiago moves from 00:00 to 01:00 on 2026-09-06; that day starts at 01:00 there, as in the browser.
+	santiago, err := time.LoadLocation("America/Santiago")
+	if err != nil {
+		t.Fatal(err)
+	}
+	now := time.Date(2026, 9, 6, 12, 0, 0, 0, santiago)
+	if got := FormatTime(startOfDay(now)); got != "2026-09-06T04:00:00.000Z" {
+		t.Errorf("start of day %s", got)
+	}
+	summary := Summarize([]List{dashList("a", dash("2026-09-06T14:00:00Z", 10), dash("2026-09-05T14:00:00Z", 10))}, now)
+	if !summary.PracticedToday || summary.Streak != 2 {
+		t.Errorf("today %v, streak %d", summary.PracticedToday, summary.Streak)
+	}
+	// A day counted back onto the skipped midnight also starts at 01:00.
+	if got := FormatTime(addDays(time.Date(2026, 9, 7, 0, 0, 0, 0, santiago), -1)); got != "2026-09-06T04:00:00.000Z" {
+		t.Errorf("day before %s", got)
+	}
+}
+
+func TestRepeatedWallClockIsTheEarlier(t *testing.T) {
+	// Lord Howe goes back from 02:00 to 01:30 on 2026-04-05, so 01:45 happens twice; JavaScript takes the first.
+	lordHowe, err := time.LoadLocation("Australia/Lord_Howe")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := FormatTime(addDays(time.Date(2026, 4, 12, 1, 45, 0, 0, lordHowe), -7)); got != "2026-04-04T14:45:00.000Z" {
+		t.Errorf("week before %s", got)
+	}
+}
