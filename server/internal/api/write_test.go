@@ -170,6 +170,9 @@ func TestWriteBodyErrors(t *testing.T) {
 		{"two values", "POST", "/api/v1/lists", "application/json", list + ` {}`, 400, "invalidJson"},
 		{"wrong type", "POST", "/api/v1/lists/l1/records", "application/json", `{"time":"3"}`, 400, "invalidJson"},
 		{"array", "POST", "/api/v1/lists", "application/json", `[]`, 400, "invalidJson"},
+		{"key in another case", "POST", "/api/v1/lists", "application/json", `{"NAME":"a","words":[{"display":"a","input":"a"}]}`, 400, "invalidJson"},
+		{"word key in another case", "POST", "/api/v1/lists", "application/json", `{"name":"a","words":[{"Display":"a","input":"a"}]}`, 400, "invalidJson"},
+		{"record key in another case", "POST", "/api/v1/lists/l1/records", "application/json", `{"Time":1,"date":"2026-10-12","mistakes":0,"accuracy":1}`, 400, "invalidJson"},
 		{"nothing to change", "PATCH", "/api/v1/lists/l1", "application/json", `{}`, 400, "invalidJson"},
 		{"only nulls", "PATCH", "/api/v1/lists/l1", "application/json", `{"name":null,"words":null}`, 400, "invalidJson"},
 	}
@@ -182,10 +185,13 @@ func TestWriteBodyErrors(t *testing.T) {
 			}
 		})
 	}
-	// Parameters of the media type are allowed.
-	if response := sendAs(writable(t), "Bearer alice", "POST", "/api/v1/lists", "Application/JSON; charset=utf-8", list); response.Code != 201 {
-		t.Fatalf("%d %s", response.Code, response.Body)
+	// Only the media type before ";" is looked at, as the app's own route does, so even a broken parameter is allowed.
+	for _, contentType := range []string{"Application/JSON; charset=utf-8", "application/json; charset", " application/json ;x"} {
+		if response := sendAs(writable(t), "Bearer alice", "POST", "/api/v1/lists", contentType, list); response.Code != 201 {
+			t.Fatalf("%q: %d %s", contentType, response.Code, response.Body)
+		}
 	}
+	expect(t, sendAs(writable(t), "Bearer alice", "POST", "/api/v1/lists", "application/jsonx", list), 415, `{"error":"unsupportedContentType"}`)
 }
 
 func TestWriteErrorStatuses(t *testing.T) {

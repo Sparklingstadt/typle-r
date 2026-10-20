@@ -29,7 +29,7 @@ DATABASE_URL='postgresql://…' go run ./cmd/typle-api
 - まだ一度も保存していないアカウント（行がない）は、アプリと同じく最初の単語リスト（サンプルと国名193か国）を返します。
 - `sslmode=prefer`・`require`・`verify-ca` は、アプリと同じく `verify-full` として接続し、サーバー証明書を検証します（`uselibpqcompat=true` のときはそのまま）。Neonの `channel_binding=require` も使えます。
 - 検証はアプリの読み込みと同じです（任意の項目の `null` だけは、省略と同じに扱います）。保存データが読めないときは `503 databaseUnavailable` を返し、理由をログに出します。
-- 以前の共有の項目（`shared`・`shareId`）は読み込み時に捨てます。
+- 以前の共有の項目（`shared`・`shareId`）は読み込み時に捨てます。ほかの知らない項目（リスト・単語・記録・記録の端末）は、アプリと同じく残し、書き込みでも消しません。
 - 記録の日時は `toISOString` の形（`2026-10-10T02:00:00.000Z`）と、`2024/09/22 10:05` のような形を読みます。時差のない日時はサーバーのタイムゾーンで解釈するため、ブラウザーと違う場合は `TZ=Asia/Tokyo` などを指定します。
 
 ## 認証
@@ -58,7 +58,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 | ステータス | キー | 状況 |
 |---|---|---|
 | 400 | `invalidQuery` | `since`・`limit` が不正 |
-| 400 | `invalidJson` | 本文がJSONの1つのオブジェクトでない、型が違う、未知の項目がある、`PATCH` で `name`・`words` のどちらもない |
+| 400 | `invalidJson` | 本文がJSONの1つのオブジェクトでない、型が違う、未知の項目がある（項目名は大文字小文字まで一致が必要）、`PATCH` で `name`・`words` のどちらもない |
 | 400 | `listNameRequired`・`listNameDuplicate`・`wordsRequired`・`wordFieldsRequired`・`invalidList`・`listLimit` | リストの内容が不正（下の「リストの検証」） |
 | 400 | `invalidRecord`・`recordLimit`・`deviceNotFound` | 記録の内容が不正（下の「記録の検証」） |
 | 401 | `invalidToken` | トークンがない、形式が違う、または GitHub が受け付けない |
@@ -67,7 +67,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 | 405 | `methodNotAllowed` | そのパスで使えないメソッド（`-writable` でない書き込みを含む）。`Allow` に使えるメソッドを付ける |
 | 413 | `requestTooLarge` | 本文が 1MiB を超える |
 | 413 | `workspaceTooLarge` | 保存後のリスト全体が 896KiB を超える |
-| 415 | `unsupportedContentType` | 書き込みの `Content-Type` が `application/json` でない |
+| 415 | `unsupportedContentType` | 書き込みの `Content-Type` の `;` より前が `application/json` でない |
 | 503 | `githubUnavailable` | GitHub でトークンを確かめられない。しばらくしてからやり直す |
 | 503 | `databaseUnavailable` | DBの障害、または保存済みのデータが読めない。しばらくしてからやり直す |
 
@@ -139,7 +139,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 }
 ```
 
-記録は保存されている形のまま返します。古い記録には `id`・`mistakes`・`accuracy`・`wordCount`・`device` がないことがあります。
+記録は保存されている形のまま（Typleの知らない項目も含めて）返します。古い記録には `id`・`mistakes`・`accuracy`・`wordCount`・`device` がないことがあります。
 
 ## 書き込み（`-writable` のとき）
 
@@ -156,9 +156,9 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 
 アプリでリストを保存するときと同じです。
 
-- `name`: 前後の空白を除いて1文字以上（`listNameRequired`）、ほかのリストと同じ名前は不可（前後の空白を除き、大文字小文字を区別しない。`listNameDuplicate`）。前後の空白を除いて保存する。
+- `name`: 前後の空白を除いて1文字以上（`listNameRequired`）、ほかのリストと同じ名前は不可（前後の空白を除き、大文字小文字を区別しない。比べ方はアプリと同じJavaScriptの `toLowerCase` で、語末の `Σ` は `ς`、`İ` は `i̇` になる。`listNameDuplicate`）。前後の空白を除いて保存する。
 - `words`: 1件以上（`wordsRequired`）。`display`・`input` は空白だけでない文字列（`wordFieldsRequired`）。`annotation` は省略すると `""`。単語の前後の空白はそのまま保存する。
-- 長さ（UTF-16の文字数）: 名前200、単語1000件、`display`・`input` 1000、`annotation` 2000。超えると `invalidList`。
+- 長さ（UTF-16の文字数）: 名前200、単語1000件、`display`・`input` 1000、`annotation` 2000。超えると `invalidList`。NUL文字（`\u0000`）はDBに保存できないため、名前・単語のどこにあっても `invalidList`。
 - リストが100件あるときの作成は `listLimit`。
 
 ### 記録の検証
