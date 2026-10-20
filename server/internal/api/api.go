@@ -240,46 +240,6 @@ func encodeRFC5987(name string) string {
 	return b.String()
 }
 
-// wordsCSV answers a list's words as a CSV file, as the app's export does, named by the list.
-func wordsCSV(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
-	list := ws.Find(r.PathValue("listId"))
-	if list == nil {
-		failure(w, http.StatusNotFound, "listNotFound")
-		return
-	}
-	filename := workspace.WordFilename(list.Name, "csv")
-	header := w.Header()
-	header.Set("Content-Type", "text/csv; charset=utf-8")
-	header.Set("Cache-Control", "no-store")
-	header.Set("X-Content-Type-Options", "nosniff")
-	header.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, asciiFilename(filename), encodeRFC5987(filename)))
-	w.WriteHeader(http.StatusOK)
-	_, _ = io.WriteString(w, workspace.EncodeWordCSV(list.Words))
-}
-
-// asciiFilename is the filename for clients that only read filename=: characters outside ASCII become _.
-func asciiFilename(name string) string {
-	return strings.Map(func(r rune) rune {
-		if r > 0x7e {
-			return '_'
-		}
-		return r
-	}, name)
-}
-
-// encodeRFC5987 percent-encodes a UTF-8 filename for filename*= (RFC 8187), keeping only attr-char.
-func encodeRFC5987(name string) string {
-	var b strings.Builder
-	for _, c := range []byte(name) {
-		if 'A' <= c && c <= 'Z' || 'a' <= c && c <= 'z' || '0' <= c && c <= '9' || strings.IndexByte("!#$&+-.^_`|~", c) >= 0 {
-			b.WriteByte(c)
-		} else {
-			fmt.Fprintf(&b, "%%%02X", c)
-		}
-	}
-	return b.String()
-}
-
 // device answers a registered device. The built-in one is not registered, as in the list of devices.
 func device(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
 	for _, device := range ws.Devices {
