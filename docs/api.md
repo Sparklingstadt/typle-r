@@ -3,7 +3,7 @@
 GitHubでログインしたアカウントのクラウド保存（`typle_workspaces`）を、スクリプトや別のアプリから読み書きするためのAPIです。`server/` のGoサーバーで、Typle本体とは別に起動します。Vercelの本番には載せていません。
 
 - 既定は読み取り専用です。`GET`・`HEAD` 以外は `405 methodNotAllowed` で、DBへの接続も読み取り専用（`default_transaction_read_only=on`）のため、書き込みはDBが拒否します。
-- `-writable` を付けて起動すると、リストの作成・変更・削除と記録の追加（v0.42.0 から）、リストの複製（v0.46.0 から）、端末の作成・変更・削除（v0.44.0 から）、記録の変更・削除（v0.45.0 から）もできます。
+- `-writable` を付けて起動すると、リストの作成・変更・削除と記録の追加（v0.42.0 から）、リストの複製（v0.47.0 から）、端末の作成・変更・削除（v0.44.0 から）、記録の変更・削除（v0.45.0 から）もできます。
 - GitHubのトークンで認証します。読み書きできるのは、そのトークンのGitHubユーザー本人のアカウント（アプリにGitHubでログインしたときと同じ `github:<ユーザーID>`）のデータだけです。ほかのアカウントのデータには届きません。
 - 形は v0.35.x までの `/api/v1` と同じです。共有リンクとプロファイルを削除したため `shared`・`shareUrl` と `/profiles/{p}` はありません。
 - ブラウザー保存（ログインしていないとき）のデータはサーバーにないため扱えません。
@@ -161,7 +161,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 | `POST /api/v1/lists` | `{ "name", "words": [{ "display", "input", "annotation"? }] }` | `201 { "list" }`。IDはサーバーが UUID で決め、`createdAt` は今の時刻。最後に追加する |
 | `PATCH /api/v1/lists/{l}` | `{ "name"?, "words"? }`（少なくとも一方） | `200 { "list" }`。`words` は全体を置き換える。記録・`createdAt`・並び順は残る |
 | `DELETE /api/v1/lists/{l}` | なし | `204`（本文なし）。記録も一緒に消える |
-| `POST /api/v1/lists/{l}/copy` | なし、または `{ "name"? }` | `201 { "list" }`。単語をコピーし、記録はコピーしない。名前を省略すると「元の名前（コピー）」、使われていれば「（コピー2）」…（200文字に収まるよう元の名前を切る）。最後に追加する（v0.46.0 から） |
+| `POST /api/v1/lists/{l}/copy` | なし、または `{ "name"? }` | `201 { "list" }`。単語をコピーし、記録はコピーしない。名前を省略すると「元の名前（コピー）」、使われていれば「（コピー2）」…（200文字に収まるよう元の名前を切る）。最後に追加する（v0.47.0 から） |
 | `POST /api/v1/lists/{l}/records` | `{ "id"?, "time", "date", "mistakes", "accuracy", "wordCount"?, "deviceId"? }` | 追加したら `201 { "record" }`。同じリストに同じ `id` の記録があれば追加せず、保存済みの記録を `200 { "record" }` で返す |
 | `POST /api/v1/devices` | `{ "name", "layout"? }` | `201 { "device" }`。IDはサーバーが UUID で決める。最後に追加する |
 | `PATCH /api/v1/devices/{d}` | `{ "name"?, "layout"? }`（少なくとも一方） | `200 { "device" }` |
