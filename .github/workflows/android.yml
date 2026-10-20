@@ -1,7 +1,8 @@
 name: Android app
 
-# Tests the shared rules in android/core and builds the tablet app in android/app. It is separate from ci.yml: the
-# Android app is not released or deployed by it, and it only runs when android/ changes.
+# Tests the shared rules in android/core, builds the tablet app in android/app and captures screenshots of every page
+# on a tablet emulator. It is separate from ci.yml: the Android app is not released or deployed by it, and it only runs
+# when android/ changes. The debug APK is kept as an artifact to install by hand.
 on:
   pull_request:
     paths:
@@ -26,7 +27,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -42,3 +43,52 @@ jobs:
       - name: Build the debug APK
         working-directory: android
         run: ./gradlew :app:assembleDebug --console=plain
+      - name: Enable KVM for the emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      # Each page with the sample data of DemoEntry.kt (debug build only), to compare with the web app's pages. The
+      # emulator has a hardware keyboard, as when practising with one, so the on-screen keyboard stays hidden.
+      - name: Capture screenshots
+        uses: reactivecircus/android-emulator-runner@b530d96654c385303d652368551fb075bc2f0b6b # v2.35.0
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_tablet
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          pre-emulator-launch-script: echo 'hw.keyboard=yes' >> ~/.android/avd/test.avd/config.ini
+          script: bash android/ci/screenshots.sh
+      # The artifact storage is not reachable from every reviewer's environment, so the screenshots are also printed
+      # into the log as small JPEGs (base64, one line each, after "SCREENSHOT <name>").
+      - name: Print screenshots
+        if: always()
+        run: |
+          python3 -m venv "$RUNNER_TEMP/pillow"
+          "$RUNNER_TEMP/pillow/bin/pip" install --quiet pillow
+          "$RUNNER_TEMP/pillow/bin/python" - <<'PY'
+          import base64, glob, io, os
+          from PIL import Image
+          for path in sorted(glob.glob('android/screenshots/*.png')):
+              image = Image.open(path).convert('RGB')
+              image.thumbnail((1400, 1400))
+              buffer = io.BytesIO()
+              image.save(buffer, 'JPEG', quality=55)
+              print('SCREENSHOT', os.path.splitext(os.path.basename(path))[0], base64.b64encode(buffer.getvalue()).decode())
+          PY
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: android-screenshots
+          path: android/screenshots
+          retention-days: 14
+          if-no-files-found: ignore
+      - name: Upload the debug APK
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: typle-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
