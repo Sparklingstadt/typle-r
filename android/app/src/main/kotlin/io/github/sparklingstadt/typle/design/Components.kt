@@ -24,10 +24,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Cancel
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.Search
@@ -260,6 +265,9 @@ fun InputBox(
   singleLine: Boolean = true,
   leading: (@Composable () -> Unit)? = null,
   trailing: (@Composable () -> Unit)? = null,
+  imeAction: ImeAction = ImeAction.Default,
+  onImeAction: (() -> Unit)? = null,
+  keyboardType: KeyboardType = KeyboardType.Text,
 ) {
   val shape = RoundedCornerShape(Radius.md)
   BasicTextField(
@@ -269,7 +277,8 @@ fun InputBox(
     singleLine = singleLine,
     textStyle = TextStyle(fontSize = 14.sp, color = Palette.foreground),
     cursorBrush = SolidColor(Palette.foreground),
-    keyboardOptions = KeyboardOptions(autoCorrectEnabled = false),
+    keyboardOptions = KeyboardOptions(autoCorrectEnabled = false, keyboardType = keyboardType, imeAction = imeAction),
+    keyboardActions = KeyboardActions(onAny = { onImeAction?.invoke() ?: defaultKeyboardAction(imeAction) }),
     decorationBox = { field ->
       Row(
         Modifier.fillMaxWidth().defaultMinSize(minHeight = height).clip(shape).background(Palette.card)
@@ -405,3 +414,53 @@ fun ColumnScope.Fill() = Spacer(Modifier.weight(1f))
 
 @Composable
 fun Gap(width: Dp) = Spacer(Modifier.width(width))
+
+/** A dashed rounded outline, like the web's `border-dashed` empty states and add buttons. */
+fun Modifier.dashed(color: Color, radius: Dp): Modifier = this.drawBehind {
+  val stroke = 1.dp.toPx()
+  drawRoundRect(
+    color = color,
+    topLeft = Offset(stroke / 2, stroke / 2),
+    size = size.copy(width = size.width - stroke, height = size.height - stroke),
+    cornerRadius = androidx.compose.ui.geometry.CornerRadius(radius.toPx()),
+    style = androidx.compose.ui.graphics.drawscope.Stroke(
+      width = stroke,
+      pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 3.dp.toPx())),
+    ),
+  )
+}
+
+/** A yes-or-no question in the card style, like the web's AlertDialog. */
+@Composable
+fun ConfirmDialog(
+  title: String,
+  message: String,
+  confirm: String,
+  onConfirm: () -> Unit,
+  onDismiss: () -> Unit,
+  destructive: Boolean = true,
+  dismiss: String = L("common.form.cancel"),
+) {
+  androidx.compose.material3.AlertDialog(
+    onDismissRequest = onDismiss,
+    title = { T(title, size = 18.sp, weight = FontWeight.SemiBold) },
+    text = { T(message, color = Palette.mutedForeground) },
+    confirmButton = {
+      TypleButton({ onDismiss(); onConfirm() }, variant = if (destructive) ButtonVariant.DESTRUCTIVE else ButtonVariant.PRIMARY) { ButtonText(confirm) }
+    },
+    dismissButton = { TypleButton(onDismiss, variant = ButtonVariant.OUTLINE) { ButtonText(dismiss) } },
+    containerColor = Palette.card,
+    shape = RoundedCornerShape(Radius.xl),
+  )
+}
+
+/** A success or failure line under a page heading. */
+@Composable
+fun StatusMessage(text: String, failed: Boolean) {
+  Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+    val color = if (failed) Palette.destructive else Palette.success
+    Glyph(if (failed) androidx.compose.material.icons.Icons.Outlined.WarningAmber else androidx.compose.material.icons.Icons.Outlined.CheckCircle,
+      size = 16.dp, tint = color)
+    T(text, color = color)
+  }
+}
