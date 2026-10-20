@@ -253,7 +253,8 @@ func TestCreateDevice(t *testing.T) {
 }
 
 func TestDevice(t *testing.T) {
-	expect(t, serve(t, "GET", "/api/v1/devices/d1"), 200, `{"device":{"id":"d1","name":"自宅","layout":"JIS"}}`)
+	expect(t, serve(t, "GET", "/api/v1/devices/d1"), 200, `{"device":{"id":"d1","name":"自宅","layout":"JIS","practiceCount":1,
+	  "lastPracticed":"2026-10-03T00:00:00.000Z"}}`)
 	expect(t, serve(t, "GET", "/api/v1/devices/missing"), 404, `{"error":"deviceNotFound"}`)
 	expect(t, serve(t, "GET", "/api/v1/devices/default"), 404, `{"error":"deviceNotFound"}`)
 }
@@ -273,7 +274,7 @@ func TestDeleteDevice(t *testing.T) {
 	if response.Code != 204 || response.Body.Len() != 0 || response.Header().Get("Cache-Control") != "no-store" {
 		t.Fatalf("%d %q %v", response.Code, response.Body, response.Header())
 	}
-	expect(t, send(w, "GET", "/api/v1/devices", ""), 200, `{"devices":[]}`)
+	expect(t, send(w, "GET", "/api/v1/devices", ""), 200, `{"devices":[],"default":{"practiceCount":0,"lastPracticed":null}}`)
 	expect(t, send(w, "DELETE", "/api/v1/devices/d1", ""), 404, `{"error":"deviceNotFound"}`)
 	// Records keep their copy of the deleted device.
 	if !strings.Contains(body(t, send(w, "GET", "/api/v1/lists/l1/records", "")), `"device":{"id":"d1","name":"自宅","layout":"JIS"}`) {

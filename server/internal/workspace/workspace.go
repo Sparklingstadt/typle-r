@@ -18,7 +18,7 @@ const (
 	maxDeviceID     = 100
 	maxDeviceName   = 100
 	maxDeviceLayout = 200
-	defaultDeviceID = "default"
+	DefaultDeviceID = "default"
 )
 
 type Word struct {
@@ -230,7 +230,7 @@ func decodeDevices(raw []json.RawMessage) ([]Device, error) {
 		}
 		device := Device{ID: *fields.ID, Name: *fields.Name, Layout: *fields.Layout}
 		// The built-in device is never stored with the registered ones.
-		if !isDevice(device) || device.ID == defaultDeviceID ||
+		if !isDevice(device) || device.ID == DefaultDeviceID ||
 			slices.ContainsFunc(devices, func(other Device) bool { return other.ID == device.ID }) {
 			return nil, invalid
 		}

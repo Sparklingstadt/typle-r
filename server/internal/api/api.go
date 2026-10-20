@@ -172,8 +172,32 @@ func failure(w http.ResponseWriter, status int, key string) {
 	respond(w, status, map[string]string{"error": key})
 }
 
+// usedDevice is a registered device with how often it was practised on.
+type usedDevice struct {
+	device workspace.Device
+	usage  workspace.Usage
+}
+
+// MarshalJSON writes the device's own fields, then the usage's.
+func (d usedDevice) MarshalJSON() ([]byte, error) {
+	device, err := json.Marshal(d.device)
+	if err != nil {
+		return nil, err
+	}
+	usage, err := json.Marshal(d.usage)
+	if err != nil {
+		return nil, err
+	}
+	return append(append(device[:len(device)-1], ','), usage[1:]...), nil
+}
+
 func devices(w http.ResponseWriter, _ *http.Request, ws *workspace.Workspace) {
-	respond(w, http.StatusOK, map[string]any{"devices": ws.Devices})
+	usage := workspace.DeviceUsage(ws.Lists)
+	devices := make([]usedDevice, 0, len(ws.Devices))
+	for _, device := range ws.Devices {
+		devices = append(devices, usedDevice{device: device, usage: usage[device.ID]})
+	}
+	respond(w, http.StatusOK, map[string]any{"devices": devices, "default": usage[workspace.DefaultDeviceID]})
 }
 
 // wordsCSV answers a list's words as a CSV file, as the app's export does, named by the list.
@@ -220,7 +244,7 @@ func encodeRFC5987(name string) string {
 func device(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
 	for _, device := range ws.Devices {
 		if device.ID == r.PathValue("deviceId") {
-			respond(w, http.StatusOK, map[string]any{"device": device})
+			respond(w, http.StatusOK, map[string]any{"device": usedDevice{device: device, usage: workspace.DeviceUsage(ws.Lists)[device.ID]}})
 			return
 		}
 	}

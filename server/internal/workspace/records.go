@@ -205,8 +205,8 @@ func DeleteRecord(w *Workspace, listID, recordID string) error {
 
 // findDevice returns a copy of a registered device, or of the built-in one.
 func findDevice(w *Workspace, id string) (*Device, bool) {
-	if id == defaultDeviceID {
-		return &Device{ID: defaultDeviceID, Name: defaultDeviceName, Layout: ""}, true
+	if id == DefaultDeviceID {
+		return &Device{ID: DefaultDeviceID, Name: defaultDeviceName, Layout: ""}, true
 	}
 	for _, device := range w.Devices {
 		if device.ID == id {
