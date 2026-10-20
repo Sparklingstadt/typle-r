@@ -26,8 +26,7 @@ protocol WorkspaceStore: AnyObject {
 /// is left untouched: every change fails until it is moved away or fixed.
 @MainActor
 final class LocalWorkspaceStore: WorkspaceStore {
-  static let accountId = "ipad:local"
-  let accountId = LocalWorkspaceStore.accountId
+  let accountId = "ipad:local"
   let canEditDevices = true
   let canDeleteRecords = true
 
