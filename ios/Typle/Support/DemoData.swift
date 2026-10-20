@@ -1,7 +1,6 @@
 #if DEBUG
 import Foundation
 import TypleCore
-import UIKit
 
 /// Sample data for screenshots: `-TypleDemo YES` starts with the starting lists, a device and two weeks of records in
 /// a temporary folder, so CI can show every page with content without touching real data.
@@ -15,14 +14,6 @@ enum DemoData {
     let file = WorkspaceFile(accountId: "ipad:local", revision: 1, document: document())
     if let data = try? encodeWorkspaceFile(file) { try? data.write(to: directory.appendingPathComponent("workspace.json")) }
     return LocalWorkspaceStore(directory: directory)
-  }
-
-  /// `-TypleOrientation landscape` turns the simulator, since `simctl` cannot.
-  @MainActor
-  static func applyOrientation() {
-    guard UserDefaults.standard.string(forKey: "TypleOrientation") == "landscape",
-          let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene else { return }
-    scene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscapeRight)) { _ in }
   }
 
   static func document(now: Date = Date()) -> WorkspaceDocument {

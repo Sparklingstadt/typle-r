@@ -41,10 +41,11 @@ jobs:
       - name: Generate the Xcode project
         working-directory: ios
         run: xcodegen generate
+      # Also builds TypleUITests, which only turns the simulator for the screenshots.
       - name: Build for the iPad simulator
         working-directory: ios
         run: |
-          xcodebuild build -project Typle.xcodeproj -scheme Typle \
+          xcodebuild build-for-testing -project Typle.xcodeproj -scheme Typle \
             -destination 'generic/platform=iOS Simulator' -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO | tee build.log
           exit "${PIPESTATUS[0]}"
@@ -60,12 +61,20 @@ jobs:
           set -euo pipefail
           app=build/Build/Products/Debug-iphonesimulator/Typle.app
           bundle=io.github.sparklingstadt.typle
+          xctestrun=$(ls build/Build/Products/*.xctestrun | head -1)
           mkdir -p screenshots
-          capture() { # device-udid prefix orientation language appearance route [extra args...]
-            local udid=$1 prefix=$2 orientation=$3 language=$4 appearance=$5 route=$6; shift 6
+          # iPadOS ignores an app's orientation requests when it supports Split View, and simctl cannot rotate a
+          # device, so a UI test turns it (ios/TypleUITests/OrientationTests.swift).
+          turn() { # device-udid Landscape|Portrait
+            xcodebuild test-without-building -xctestrun "$xctestrun" -destination "id=$1" \
+              -only-testing:"TypleUITests/OrientationTests/test$2" >"turn-$2.log" 2>&1 \
+              || { echo "::warning::Could not turn the simulator to $2"; tail -30 "turn-$2.log"; }
+          }
+          capture() { # device-udid prefix language appearance route [extra args...]
+            local udid=$1 prefix=$2 language=$3 appearance=$4 route=$5; shift 5
             xcrun simctl terminate "$udid" "$bundle" >/dev/null 2>&1 || true
             xcrun simctl ui "$udid" appearance "$appearance"
-            xcrun simctl launch "$udid" "$bundle" -TypleDemo YES -TypleRoute "$route" -TypleOrientation "$orientation" \
+            xcrun simctl launch "$udid" "$bundle" -TypleDemo YES -TypleRoute "$route" \
               -typle-r:language "$language" "$@" >/dev/null
             sleep 6
             xcrun simctl io "$udid" screenshot "screenshots/$prefix-$route.png" >/dev/null
@@ -77,19 +86,21 @@ jobs:
             xcrun simctl bootstatus "$udid" -b
             xcrun simctl status_bar "$udid" override --time 9:41 --batteryState charged --batteryLevel 100 || true
             xcrun simctl install "$udid" "$app"
+            turn "$udid" Landscape
             if [[ $name == *Air* ]]; then
               for route in home practice records rankings lists createList editList general devices; do
-                capture "$udid" air landscape ja light "$route"
+                capture "$udid" air ja light "$route"
               done
-              capture "$udid" air-typing landscape ja light practice -TypleTyping hogefx
-              capture "$udid" air-result landscape ja light practice -TypleTyping hogefoobar
-              capture "$udid" air-detail landscape ja light rankings -TypleRankingsList sample-1
-              capture "$udid" air-dark landscape ja dark practice
-              capture "$udid" air-en landscape en light practice
-              capture "$udid" air-portrait portrait ja light practice
+              capture "$udid" air-typing ja light practice -TypleTyping hogefx
+              capture "$udid" air-result ja light practice -TypleTyping hogefoobar
+              capture "$udid" air-detail ja light rankings -TypleRankingsList sample-1
+              capture "$udid" air-dark ja dark practice
+              capture "$udid" air-en en light practice
+              turn "$udid" Portrait
+              capture "$udid" air-portrait ja light practice
             else
-              capture "$udid" pro landscape ja light practice
-              capture "$udid" pro landscape ja light lists
+              capture "$udid" pro ja light practice
+              capture "$udid" pro ja light lists
             fi
             xcrun simctl shutdown "$udid"
           done

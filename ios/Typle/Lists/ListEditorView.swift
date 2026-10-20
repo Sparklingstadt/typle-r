@@ -139,6 +139,8 @@ struct ListEditorView: View {
           Text(L("wordLists.editor.input")).foregroundStyle(Palette.foreground)
           Text(L("wordLists.editor.inputHint"))
         }
+        .lineLimit(1)
+        .minimumScaleFactor(0.75)
         .frame(maxWidth: .infinity, alignment: .leading)
         Text(L("wordLists.editor.annotationOptional")).frame(maxWidth: .infinity, alignment: .leading)
         Color.clear.frame(width: 76, height: 1)

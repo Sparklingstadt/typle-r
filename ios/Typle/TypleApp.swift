@@ -57,9 +57,6 @@ struct RootView: View {
     .preferredColorScheme(app.appearance == .system ? nil : app.appearance == .dark ? .dark : .light)
     // Text comes from the chosen language's bundle, so the whole tree is rebuilt when it changes.
     .id(app.language)
-    #if DEBUG
-    .onAppear(perform: DemoData.applyOrientation)
-    #endif
   }
 
   private func closeDrawer() {
