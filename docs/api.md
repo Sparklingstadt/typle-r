@@ -3,7 +3,7 @@
 GitHubでログインしたアカウントのクラウド保存（`typle_workspaces`）を、スクリプトや別のアプリから読み書きするためのAPIです。`server/` のGoサーバーで、Typle本体とは別に起動します。Vercelの本番には載せていません。
 
 - 既定は読み取り専用です。`GET`・`HEAD` 以外は `405 methodNotAllowed` で、DBへの接続も読み取り専用（`default_transaction_read_only=on`）のため、書き込みはDBが拒否します。
-- `-writable` を付けて起動すると、リストの作成・変更・削除と記録の追加（v0.42.0 から）、端末の作成・変更・削除（v0.44.0 から）もできます。
+- `-writable` を付けて起動すると、リストの作成・変更・削除と記録の追加（v0.42.0 から）、端末の作成・変更・削除（v0.44.0 から）、記録の変更・削除（v0.45.0 から）もできます。
 - GitHubのトークンで認証します。読み書きできるのは、そのトークンのGitHubユーザー本人のアカウント（アプリにGitHubでログインしたときと同じ `github:<ユーザーID>`）のデータだけです。ほかのアカウントのデータには届きません。
 - 形は v0.35.x までの `/api/v1` と同じです。共有リンクとプロファイルを削除したため `shared`・`shareUrl` と `/profiles/{p}` はありません。
 - ブラウザー保存（ログインしていないとき）のデータはサーバーにないため扱えません。
@@ -65,6 +65,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 | 401 | `invalidToken` | トークンがない、形式が違う、または GitHub が受け付けない |
 | 404 | `listNotFound` | 指定したIDのリストがない |
 | 404 | `deviceNotFound` | パスで指定したIDの端末がない（組み込みの `default` も） |
+| 404 | `recordNotFound` | パスで指定したIDの記録がない（IDのない古い記録も） |
 | 404 | `notFound` | 未知のパス |
 | 405 | `methodNotAllowed` | そのパスで使えないメソッド（`-writable` でない書き込みを含む）。`Allow` に使えるメソッドを付ける |
 | 413 | `requestTooLarge` | 本文が 1MiB を超える |
@@ -147,6 +148,10 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 
 記録は保存されている形のまま（Typleの知らない項目も含めて）返します。古い記録には `id`・`mistakes`・`accuracy`・`wordCount`・`device` がないことがあります。
 
+### `GET /api/v1/lists/{l}/records/{r}`
+
+`id` が `{r}` の記録1件です（`{ "record": … }`、形は上と同じ）。`id` のない古い記録は指定できないため、`404 recordNotFound` です。
+
 ## 書き込み（`-writable` のとき）
 
 本文は `Content-Type: application/json` のJSONオブジェクトで、1MiB までです。応答の `list` は `GET /api/v1/lists/{l}` と同じ形です。
@@ -159,6 +164,8 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 | `POST /api/v1/lists/{l}/records` | `{ "id"?, "time", "date", "mistakes", "accuracy", "wordCount"?, "deviceId"? }` | 追加したら `201 { "record" }`。同じリストに同じ `id` の記録があれば追加せず、保存済みの記録を `200 { "record" }` で返す |
 | `POST /api/v1/devices` | `{ "name", "layout"? }` | `201 { "device" }`。IDはサーバーが UUID で決める。最後に追加する |
 | `PATCH /api/v1/devices/{d}` | `{ "name"?, "layout"? }`（少なくとも一方） | `200 { "device" }` |
+| `PATCH /api/v1/lists/{l}/records/{r}` | `{ "time"?, "date"?, "mistakes"?, "accuracy"?, "wordCount"?, "deviceId"? }`（少なくとも1つ） | `200 { "record" }`。送らなかった項目とTypleの知らない項目は残る。`id` は変えられない |
+| `DELETE /api/v1/lists/{l}/records/{r}` | なし | `204`（本文なし） |
 | `DELETE /api/v1/devices/{d}` | なし | `204`（本文なし） |
 
 記録には練習したときの端末のコピーが入っているため、端末の名前を変えても削除しても、過去の記録の端末はそのままです（アプリと同じ）。組み込みの `default` は変更・削除できません（`404 deviceNotFound`）。
@@ -187,6 +194,8 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 - `id`: 1〜100文字の英数字・`_`・`-`。省略するとサーバーが UUID で決める。同じ `id` で送り直しても記録は増えないので、失敗したら同じ本文でやり直せます。
 - `deviceId`: 省略できる。登録済みの端末のIDなら、その名前と配列を記録にコピーする。`default` は組み込みの「デフォルト」。どちらでもなければ `deviceNotFound`。
 - 1リストの記録は10000件まで（`recordLimit`）。ほかの誤りは `invalidRecord`。
+- 変更（`PATCH`）も同じ規則です。`deviceId` に `""` を指定すると記録から端末を外します（アプリの「未選択」と同じ）。
+- 変更・削除できるのは `id` のある記録だけです。`id` のない古い記録は、アプリの「練習記録」から削除してください。
 
 ### アプリと同時に保存したとき
 
@@ -227,6 +236,6 @@ DBのテスト（読み取りと書き込み）は、`npm run db:migrate` 済み
 
 - GitHub 以外の認証、ブラウザーでのログイン画面、許可するユーザーの制限
 - ローカルの開発用ログインのアカウント（`github:0`）。GitHub のトークンでは名乗れない
-- 記録の削除・変更、リストや端末の並べ替え、単語単位の追加・削除
+- `id` のない記録の変更・削除、記録の別のリストへの移動、リストや端末の並べ替え、単語単位の追加・削除
 - トークンごとの読み取り・書き込みの区別（書き込みはサーバーの `-writable` で決める）
 - ブラウザー保存のデータ

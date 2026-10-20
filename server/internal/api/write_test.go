@@ -138,11 +138,12 @@ func TestReadOnlyRefusesWrites(t *testing.T) {
 
 func TestAllowHeaders(t *testing.T) {
 	allowed := map[string]string{
-		"/api/v1/devices":          "GET, HEAD, POST",
-		"/api/v1/devices/d1":       "GET, HEAD, PATCH, DELETE",
-		"/api/v1/lists":            "GET, HEAD, POST",
-		"/api/v1/lists/l1":         "GET, HEAD, PATCH, DELETE",
-		"/api/v1/lists/l1/records": "GET, HEAD, POST",
+		"/api/v1/devices":              "GET, HEAD, POST",
+		"/api/v1/devices/d1":           "GET, HEAD, PATCH, DELETE",
+		"/api/v1/lists":                "GET, HEAD, POST",
+		"/api/v1/lists/l1":             "GET, HEAD, PATCH, DELETE",
+		"/api/v1/lists/l1/records":     "GET, HEAD, POST",
+		"/api/v1/lists/l1/records/new": "GET, HEAD, PATCH, DELETE",
 	}
 	for path, allow := range allowed {
 		w := writable(t)
@@ -286,6 +287,48 @@ func TestDeviceWritesNeedWritable(t *testing.T) {
 		expect(t, response, 405, `{"error":"methodNotAllowed"}`)
 		if response.Header().Get("Allow") != "GET, HEAD" {
 			t.Fatalf("%s %s: Allow = %q", c.method, c.path, response.Header().Get("Allow"))
+		}
+	}
+}
+
+func TestRecord(t *testing.T) {
+	expect(t, serve(t, "GET", "/api/v1/lists/l1/records/mid"), 200, `{"record":{"id":"mid","time":6,"date":"2026-10-02T00:00:00.000Z"}}`)
+	expect(t, serve(t, "GET", "/api/v1/lists/l1/records/missing"), 404, `{"error":"recordNotFound"}`)
+	expect(t, serve(t, "GET", "/api/v1/lists/missing/records/mid"), 404, `{"error":"listNotFound"}`)
+}
+
+func TestUpdateRecord(t *testing.T) {
+	w := writable(t)
+	expect(t, send(w, "PATCH", "/api/v1/lists/l1/records/mid", `{"accuracy":90,"date":"2026-10-02T09:00:00+09:00","deviceId":"d1"}`), 200,
+		`{"record":{"id":"mid","time":6,"date":"2026-10-02T00:00:00.000Z","accuracy":90,"device":{"id":"d1","name":"自宅","layout":"JIS"}}}`)
+	expect(t, send(w, "PATCH", "/api/v1/lists/l1/records/mid", `{"deviceId":""}`), 200,
+		`{"record":{"id":"mid","time":6,"date":"2026-10-02T00:00:00.000Z","accuracy":90}}`)
+	expect(t, send(w, "PATCH", "/api/v1/lists/l1/records/mid", `{}`), 400, `{"error":"invalidJson"}`)
+	expect(t, send(w, "PATCH", "/api/v1/lists/l1/records/mid", `{"id":"other"}`), 400, `{"error":"invalidJson"}`)
+	expect(t, send(w, "PATCH", "/api/v1/lists/l1/records/mid", `{"mistakes":-1}`), 400, `{"error":"invalidRecord"}`)
+	expect(t, send(w, "PATCH", "/api/v1/lists/l1/records/mid", `{"deviceId":"zz"}`), 400, `{"error":"deviceNotFound"}`)
+	expect(t, send(w, "PATCH", "/api/v1/lists/l1/records/missing", `{"time":1}`), 404, `{"error":"recordNotFound"}`)
+}
+
+func TestDeleteRecord(t *testing.T) {
+	w := writable(t)
+	response := send(w, "DELETE", "/api/v1/lists/l1/records/new", "")
+	if response.Code != 204 || response.Body.Len() != 0 || response.Header().Get("Cache-Control") != "no-store" {
+		t.Fatalf("%d %q %v", response.Code, response.Body, response.Header())
+	}
+	if records := w.workspace.Lists[0].Records; len(records) != 2 || *records[1].ID != "mid" {
+		t.Fatalf("records = %+v", records)
+	}
+	expect(t, send(w, "DELETE", "/api/v1/lists/l1/records/new", ""), 404, `{"error":"recordNotFound"}`)
+	expect(t, send(w, "DELETE", "/api/v1/lists/missing/records/mid", ""), 404, `{"error":"listNotFound"}`)
+}
+
+func TestRecordWritesNeedWritable(t *testing.T) {
+	for _, method := range []string{"PATCH", "DELETE"} {
+		response := serveAs(saved(t), "Bearer alice", method, "/api/v1/lists/l1/records/mid")
+		expect(t, response, 405, `{"error":"methodNotAllowed"}`)
+		if response.Header().Get("Allow") != "GET, HEAD" {
+			t.Fatalf("%s: Allow = %q", method, response.Header().Get("Allow"))
 		}
 	}
 }

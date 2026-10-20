@@ -383,3 +383,32 @@ func TestModifyWritesDevices(t *testing.T) {
 		t.Fatalf("revision = %d", revision)
 	}
 }
+
+// Changing and deleting records keeps the other records, and the fields Typle does not know, as they were saved.
+func TestModifyRecords(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	lists := `[{"id":"l1","name":"a","createdAt":"x","words":[{"display":"a","input":"a","annotation":""}],"records":[` +
+		`{"id":"r1","time":1,"date":"2026-10-10T00:00:00.000Z","keys":[1]},{"id":"r2","time":2,"date":"2026-10-11T00:00:00.000Z"},` +
+		`{"time":3,"date":"2024/09/22 10:05"}]}]`
+	if _, err := conn.Exec(ctx, `INSERT INTO typle_workspaces (owner_id, lists, devices) VALUES ($1, $2, '[]')`, id, lists); err != nil {
+		t.Fatal(err)
+	}
+	s := open(t, connection, true)
+	accuracy := 99.5
+	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) {
+		_, err := workspace.UpdateRecord(w, "l1", "r1", workspace.RecordChange{Accuracy: &accuracy})
+		return true, err
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) { return true, workspace.DeleteRecord(w, "l1", "r2") }); err != nil {
+		t.Fatal(err)
+	}
+	stored, revision, _ := row(t, conn, id)
+	want := `"records": [{"id": "r1", "date": "2026-10-10T00:00:00.000Z", "keys": [1], "time": 1, "accuracy": 99.5}, {"date": "2024/09/22 10:05", "time": 3}]`
+	if !strings.Contains(stored, want) || revision != 3 {
+		t.Fatalf("lists = %s, revision = %d", stored, revision)
+	}
+}
