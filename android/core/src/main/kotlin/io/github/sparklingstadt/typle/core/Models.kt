@@ -62,3 +62,7 @@ internal fun codePointString(codePoint: Int): String = String(Character.toChars(
 
 /** JavaScript's `Math.round`, which rounds halves up. */
 internal fun jsRound(value: Double): Double = kotlin.math.floor(value + 0.5)
+
+/** Array.prototype.sort with a "less than" test; Kotlin's sort is stable, as JavaScript's is. */
+internal fun <T> List<T>.stableSorted(less: (T, T) -> Boolean): List<T> =
+  sortedWith { a, b -> if (less(a, b)) -1 else if (less(b, a)) 1 else 0 }
