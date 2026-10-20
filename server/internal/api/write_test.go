@@ -332,3 +332,33 @@ func TestRecordWritesNeedWritable(t *testing.T) {
 		}
 	}
 }
+
+func TestCopyList(t *testing.T) {
+	w := writable(t)
+	response := sendAs(w, "Bearer alice", "POST", "/api/v1/lists/l1/copy", "", "")
+	got := body(t, response)
+	if response.Code != 201 || !uuid.MatchString(got) || !strings.Contains(got, `"name":"英単語（コピー）","wordCount":2,"recordCount":0`) {
+		t.Fatalf("%d %s", response.Code, got)
+	}
+	if response := send(w, "POST", "/api/v1/lists/l1/copy", `{"name":"x"}`); response.Code != 201 || !strings.Contains(body(t, response), `"name":"x"`) {
+		t.Fatalf("%d %s", response.Code, response.Body)
+	}
+	expect(t, sendAs(w, "Bearer alice", "POST", "/api/v1/lists/l1/copy", "text/plain", `{"name":"y"}`), 415, `{"error":"unsupportedContentType"}`)
+	expect(t, send(w, "POST", "/api/v1/lists/missing/copy", ""), 404, `{"error":"listNotFound"}`)
+	if len(w.workspace.Lists) != 4 {
+		t.Fatalf("lists = %d", len(w.workspace.Lists))
+	}
+}
+
+func TestCopyListAllow(t *testing.T) {
+	response := send(writable(t), "GET", "/api/v1/lists/l1/copy", "")
+	expect(t, response, 405, `{"error":"methodNotAllowed"}`)
+	if response.Header().Get("Allow") != "POST" {
+		t.Fatalf("Allow = %q", response.Header().Get("Allow"))
+	}
+	readOnly := serveAs(saved(t), "Bearer alice", "POST", "/api/v1/lists/l1/copy")
+	expect(t, readOnly, 405, `{"error":"methodNotAllowed"}`)
+	if allow, ok := readOnly.Header()["Allow"]; !ok || allow[0] != "" {
+		t.Fatalf("Allow = %q", allow)
+	}
+}

@@ -282,3 +282,30 @@ func (s *server) deleteRecord(w http.ResponseWriter, r *http.Request, owner stri
 	w.Header().Set("Cache-Control", "no-store")
 	w.WriteHeader(http.StatusNoContent)
 }
+
+// copyList takes an optional body: none copies with the generated name, { "name" } names the copy.
+func (s *server) copyList(w http.ResponseWriter, r *http.Request, owner string) {
+	var name *string
+	if r.ContentLength != 0 {
+		input, ok := decode[struct {
+			Name *string `json:"name"`
+		}](w, r)
+		if !ok {
+			return
+		}
+		name = input.Name
+	}
+	id, now := workspace.NewID(), time.Now()
+	var copied listDetail
+	if !s.modify(w, r, owner, func(ws *workspace.Workspace) (bool, error) {
+		list, err := workspace.CopyList(ws, r.PathValue("listId"), name, id, now)
+		if err != nil {
+			return false, err
+		}
+		copied = detail(list)
+		return true, nil
+	}) {
+		return
+	}
+	respond(w, http.StatusCreated, map[string]any{"list": copied})
+}
