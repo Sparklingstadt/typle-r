@@ -48,7 +48,7 @@ test('the iPad app bundles the same starting lists as the web app', () => {
 test('the iPad app has Japanese and English text for every key it uses, with the same placeholders', () => {
   const files = [...swiftFiles(path.join(ios, 'Typle')), ...swiftFiles(path.join(ios, 'TypleCore/Sources'))]
   const sources = files.map(file => fs.readFileSync(file, 'utf8')).join('\n')
-  const dynamic = { 'lists.order.': 'ListOrder', 'nav.': 'AppSection', 'rankings.sort.': 'ListSort' }
+  const dynamic = { 'wordLists.order.': 'ListOrder', 'rankings.list.sorts.': 'ListSort', 'settings.languageNames.': 'AppLanguage', 'settings.languages.': 'AppLanguage' }
   const used = new Set()
   for (const [, argument] of sources.matchAll(/\bL\(((?:"(?:[^"\\]|\\.)*"|[^,()"])*)/g)) {
     for (const [, key] of argument.matchAll(/"([^"]*)"/g)) {
