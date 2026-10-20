@@ -240,3 +240,35 @@ func TestGitHubUnavailable(t *testing.T) {
 		t.Fatalf("read %v", s.owners)
 	}
 }
+
+func TestRecordsFeed(t *testing.T) {
+	newest := `{"id":"new","time":4.25,"date":"2026-10-03T00:00:00.000Z","mistakes":0,"accuracy":100,"wordCount":2,
+	  "device":{"id":"d1","name":"自宅","layout":"JIS"},"listId":"l1","listName":"英単語","best":true,"day":"2026-10-03"}`
+	mid := `{"id":"mid","time":6,"date":"2026-10-02T00:00:00.000Z","listId":"l1","listName":"英単語","best":false,"day":"2026-10-02"}`
+	oldest := `{"time":5,"date":"2026-10-01T00:00:00.000Z","listId":"l1","listName":"英単語","best":false,"day":"2026-10-01"}`
+	expect(t, serve(t, "GET", "/api/v1/records?tz=UTC"), 200, `{"records":[`+newest+`,`+mid+`,`+oldest+`]}`)
+	expect(t, serve(t, "GET", "/api/v1/records?tz=UTC&list=l1&limit=1"), 200, `{"records":[`+newest+`]}`)
+	expect(t, serve(t, "GET", "/api/v1/records?tz=UTC&device=d1"), 200, `{"records":[`+newest+`]}`)
+	expect(t, serve(t, "GET", "/api/v1/records?tz=UTC&device=none&since=2026-10-01T12:00:00Z"), 200, `{"records":[`+mid+`]}`)
+	expect(t, serve(t, "GET", "/api/v1/records?list=l2"), 200, `{"records":[]}`)
+	for _, query := range []string{"tz=Mars/Base", "tz=", "limit=0", "since=abc"} {
+		expect(t, serve(t, "GET", "/api/v1/records?"+query), 400, `{"error":"invalidQuery"}`)
+	}
+	// An account with no records answers an empty list.
+	expect(t, serveAs(saved(t), "Bearer bob", "GET", "/api/v1/records"), 200, `{"records":[]}`)
+}
+
+// The day follows tz: 20:00 UTC on 10 October is 11 October in Tokyo.
+func TestRecordsFeedDay(t *testing.T) {
+	w, err := workspace.Decode([]byte(`[{"id":"l","name":"a","createdAt":"x","words":[{"display":"a","input":"a","annotation":""}],
+	  "records":[{"time":1,"date":"2026-10-10T20:00:00.000Z"}]}]`), []byte(`[]`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := &source{workspace: w}
+	for tz, day := range map[string]string{"Asia/Tokyo": "2026-10-11", "UTC": "2026-10-10", "America/New_York": "2026-10-10"} {
+		if got := body(t, serveFrom(s, "GET", "/api/v1/records?tz="+tz)); !strings.Contains(got, `"day":"`+day+`"`) {
+			t.Errorf("%s: %s", tz, got)
+		}
+	}
+}

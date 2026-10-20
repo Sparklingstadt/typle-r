@@ -170,6 +170,23 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 
 `id` が `{r}` の記録1件です（`{ "record": … }`、形は上と同じ）。`id` のない古い記録は指定できないため、`404 recordNotFound` です。
 
+### `GET /api/v1/records`
+
+すべてのリストの記録を新しい順に返します。アプリの「練習記録」と同じです（v0.51.0 から）。同じ日時の記録はリストの順・保存順です。
+
+| クエリ | 内容 |
+|---|---|
+| `list` | そのリストの記録だけ。知らない ID なら空 |
+| `device` | その端末の記録だけ（端末の ID。名前を変えた後の記録も含む）。`none` は端末のない記録 |
+| `since`・`limit` | `GET /api/v1/lists/{l}/records` と同じ |
+| `tz` | `day` を数えるタイムゾーン（IANA 名。例 `Asia/Tokyo`）。省略するとサーバーのタイムゾーン |
+
+各記録は保存されている形に、`listId`・`listName`・`best`（そのリストの今のベストか）・`day`（`tz` での日付 `YYYY-MM-DD`。アプリの日ごとのまとめの区切り）を足したものです。不正な値は `400 invalidQuery` です。
+
+```json
+{ "records": [{ "id": "r1", "time": 4.25, "date": "2026-10-10T20:00:00.000Z", "accuracy": 100, "listId": "l1", "listName": "英単語", "best": true, "day": "2026-10-11" }] }
+```
+
 ## 書き込み（`-writable` のとき）
 
 本文は `Content-Type: application/json` のJSONオブジェクトで、1MiB までです（本文のない `DELETE` と複製を除く）。応答の `list` は `GET /api/v1/lists/{l}` と同じ形です。
