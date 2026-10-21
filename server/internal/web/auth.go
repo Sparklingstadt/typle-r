@@ -5,7 +5,7 @@ import (
 	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/base64"
-	"errors"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -21,12 +21,14 @@ const (
 	localSub   = "github:0"
 	localName  = "ローカル練習用"
 	randomSize = 32
+	// maxReturnTo keeps the OAuth cookie, which holds returnTo, well under the 4096 bytes a browser accepts.
+	maxReturnTo = 1024
 )
 
 // safeReturnTo is where to go back to after the login: a path of this site. Anything else, such as another site, a
-// protocol-relative URL (//host) or one a browser reads as such (/\host), is /home.
+// protocol-relative URL (//host) or one a browser reads as such (/\host), or one over maxReturnTo bytes, is /home.
 func safeReturnTo(value string) string {
-	if len(value) < 1 || value[0] != '/' || (len(value) > 1 && (value[1] == '/' || value[1] == '\\')) {
+	if len(value) < 1 || len(value) > maxReturnTo || value[0] != '/' || (len(value) > 1 && (value[1] == '/' || value[1] == '\\')) {
 		return defaultTo
 	}
 	// Parsing also refuses control characters, which have no place in a Location.
@@ -47,26 +49,26 @@ func (s *server) secure() bool {
 	return s.config.BaseURL != nil && s.config.BaseURL.Scheme == "https"
 }
 
-// loginReady reports whether the login can run, and otherwise answers 503 with the reason in the log.
+// loginReady reports whether the login can run, and otherwise answers 503 and logs why. It is only logged, not
+// reported: a missing setting would otherwise send an error to the tracker with every request.
 func (s *server) loginReady(w http.ResponseWriter, r *http.Request) bool {
 	if s.config.OAuth == nil || s.config.GitHub == nil || s.config.BaseURL == nil {
-		s.report(r, errors.New("the login is not configured"), "auth.config")
-		refuse(w, http.StatusServiceUnavailable, "loginUnavailable")
+		log.Printf("%s %s: the login is not configured", r.Method, r.URL.Path)
+		refuse(w, http.StatusServiceUnavailable, "authUnavailable")
 		return false
 	}
 	return true
 }
 
-// methods lets only the listed methods through; GET also serves HEAD, as net/http leaves the body out.
-func methods(w http.ResponseWriter, r *http.Request, allow string) bool {
-	switch {
-	case r.Method == allow, allow == http.MethodGet && r.Method == http.MethodHead:
-		return true
-	case allow == http.MethodGet:
-		w.Header().Set("Allow", "GET, HEAD")
-	default:
-		w.Header().Set("Allow", allow)
+// methods lets only the listed methods through. The login steps list GET alone: they set cookies and call GitHub, which
+// a HEAD must not do.
+func methods(w http.ResponseWriter, r *http.Request, allow ...string) bool {
+	for _, method := range allow {
+		if r.Method == method {
+			return true
+		}
 	}
+	w.Header().Set("Allow", strings.Join(allow, ", "))
 	failure(w, http.StatusMethodNotAllowed, "methodNotAllowed")
 	return false
 }
@@ -118,8 +120,8 @@ func (s *server) signin(w http.ResponseWriter, r *http.Request) {
 		verifier, err = random()
 	}
 	if err != nil {
-		s.report(r, err, "auth.signin")
-		refuse(w, http.StatusServiceUnavailable, "loginUnavailable")
+		log.Printf("%s %s: %v", r.Method, r.URL.Path, err)
+		refuse(w, http.StatusServiceUnavailable, "authUnavailable")
 		return
 	}
 	sum := sha256.Sum256([]byte(verifier))
@@ -180,7 +182,7 @@ type sessionUser struct {
 
 // session says who is signed in. A session that has grown old is signed again, so an active user stays signed in.
 func (s *server) session(w http.ResponseWriter, r *http.Request) {
-	if !methods(w, r, http.MethodGet) {
+	if !methods(w, r, http.MethodGet, http.MethodHead) {
 		return
 	}
 	user, ok := s.owner(r)

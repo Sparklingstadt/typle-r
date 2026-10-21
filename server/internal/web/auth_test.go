@@ -130,17 +130,19 @@ func (h *loginHarness) sessionCookieName() string { return session.CookieName(h.
 
 func TestSafeReturnTo(t *testing.T) {
 	cases := map[string]string{
-		"/lists?x=1":           "/lists?x=1",
-		"/":                    "/",
-		"/%2F%2Fevil.example":  "/%2F%2Fevil.example",
-		"//evil.example":       "/home",
-		`/\evil.example`:       "/home",
-		"https://evil.example": "/home",
-		"evil":                 "/home",
-		"":                     "/home",
-		"/\nevil":              "/home",
-		"/a\x00b":              "/home",
-		"/%zz":                 "/home",
+		"/lists?x=1":                    "/lists?x=1",
+		"/":                             "/",
+		"/%2F%2Fevil.example":           "/%2F%2Fevil.example",
+		"//evil.example":                "/home",
+		`/\evil.example`:                "/home",
+		"https://evil.example":          "/home",
+		"evil":                          "/home",
+		"":                              "/home",
+		"/\nevil":                       "/home",
+		"/a\x00b":                       "/home",
+		"/%zz":                          "/home",
+		"/" + strings.Repeat("a", 1023): "/" + strings.Repeat("a", 1023),
+		"/" + strings.Repeat("a", 1024): "/home",
 	}
 	for value, want := range cases {
 		if got := safeReturnTo(value); got != want {
@@ -543,18 +545,22 @@ func TestCookieName(t *testing.T) {
 
 func TestAuthMethods(t *testing.T) {
 	h := newLoginHarness(t, testBase, true)
+	// signin and callback are GET alone: a HEAD must not set a cookie, call GitHub or sign anyone in.
 	for path, allow := range map[string]string{
-		"/api/auth/signin":          "GET, HEAD",
-		"/api/auth/callback/github": "GET, HEAD",
+		"/api/auth/signin":          "GET",
+		"/api/auth/callback/github": "GET",
 		"/api/auth/session":         "GET, HEAD",
 		"/api/auth/signout":         "POST",
 		"/api/auth/local":           "POST",
 	} {
 		methods := []string{http.MethodPut, http.MethodDelete}
 		if allow == "POST" {
-			methods = append(methods, http.MethodGet)
+			methods = append(methods, http.MethodGet, http.MethodHead)
 		} else {
 			methods = append(methods, http.MethodPost)
+		}
+		if allow == "GET" {
+			methods = append(methods, http.MethodHead)
 		}
 		for _, method := range methods {
 			response := h.do(method, path, withOrigin(testBase))
@@ -562,21 +568,21 @@ func TestAuthMethods(t *testing.T) {
 				strings.TrimSpace(response.Body.String()) != `{"error":"methodNotAllowed"}` {
 				t.Errorf("%s %s = %d %v %s", method, path, response.Code, response.Header(), response.Body)
 			}
+			if len(response.Result().Cookies()) != 0 {
+				t.Errorf("%s %s set cookies: %v", method, path, response.Result().Cookies())
+			}
 		}
 	}
 	if response := h.do(http.MethodHead, "/api/auth/session"); response.Code != http.StatusOK {
 		t.Errorf("HEAD session = %d", response.Code)
 	}
-	if response := h.do(http.MethodHead, "/api/auth/signin"); response.Code != http.StatusFound {
-		t.Errorf("HEAD signin = %d", response.Code)
-	}
-	if h.oauth.exchanges != 0 {
-		t.Error("exchanged")
+	if h.oauth.exchanges != 0 || h.users.calls != 0 || h.oauth.state != "" {
+		t.Error("a refused method reached GitHub")
 	}
 }
 
-// Without the OAuth App, the Keys or the base URL there is nothing to log in with: the request is answered with a 503
-// and nothing is set, not a panic.
+// Without the OAuth App or the base URL there is nothing to log in with: the request is answered with a 503 and
+// nothing is set, not a panic. It is logged, not reported, so that it does not flood the error tracker.
 func TestLoginUnavailable(t *testing.T) {
 	h := newLoginHarness(t, testBase, false)
 	for name, config := range map[string]Config{
@@ -585,13 +591,19 @@ func TestLoginUnavailable(t *testing.T) {
 		"no BaseURL": {Store: fakeStore{}, Keys: h.keys, OAuth: h.oauth, GitHub: h.users},
 	} {
 		t.Run(name, func(t *testing.T) {
+			reported := 0
+			config.Report = func(*http.Request, error, string) { reported++ }
 			handler := New(config)
 			for _, path := range []string{"/api/auth/signin", "/api/auth/callback/github?code=c&state=s"} {
 				response := httptest.NewRecorder()
 				handler.ServeHTTP(response, httptest.NewRequest(http.MethodGet, path, nil))
-				if response.Code != http.StatusServiceUnavailable || len(response.Result().Cookies()) != 0 {
-					t.Errorf("%s = %d %v", path, response.Code, response.Result().Cookies())
+				expectError(t, response, http.StatusServiceUnavailable, "authUnavailable")
+				if len(response.Result().Cookies()) != 0 {
+					t.Errorf("%s set cookies: %v", path, response.Result().Cookies())
 				}
+			}
+			if reported != 0 {
+				t.Errorf("reported %d times", reported)
 			}
 		})
 	}
