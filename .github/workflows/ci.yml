@@ -72,9 +72,8 @@ jobs:
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version: '1.25'
-          cache-dependency-path: server/go.sum
+          cache-dependency-path: go.sum
       - name: Check Go API
-        working-directory: server
         env:
           TYPLE_TEST_DATABASE_URL: ${{ env.DATABASE_URL }}
         run: |

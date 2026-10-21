@@ -13,8 +13,7 @@ GitHubでログインしたアカウントのクラウド保存（`typle_workspa
 Go 1.25以上が必要です。
 
 ```sh
-cd server
-DATABASE_URL='postgresql://…' go run ./cmd/typle-api
+DATABASE_URL='postgresql://…' go run ./server/cmd/typle-api
 ```
 
 | 設定 | 既定 | 内容 |
@@ -341,7 +340,6 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" -H 'Content-Type: application/json'
 ## 開発
 
 ```sh
-cd server
 gofmt -l .
 go vet ./...
 TYPLE_TEST_DATABASE_URL=postgresql://typle:…@127.0.0.1:5432/typle go test ./...
