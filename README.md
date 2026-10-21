@@ -3,6 +3,15 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
+## v0.58.0 — Kotlin のバックエンドを手元で使えるようにしました
+
+Go のバックエンド（`server/cmd/typle-web`：`/api/health`・`/api/workspace`・`/api/auth/*`）と同じ API を Kotlin（Ktor）で作り、`server-kotlin/` に置きました。`TYPLE_BACKEND=kotlin npm run dev`（`dev:local`・`dev:lan` も）で、Go の代わりにこちらを `next dev` と一緒に起動します。E2E も `TYPLE_BACKEND=kotlin npm run test:e2e` で Kotlin を相手に流せます。
+
+- 手元の開発と CI だけで使い、**本番（Vercel）と既定は Go のまま**です。本番のデプロイ物は変わりません（`.vercelignore` で `server-kotlin` を外しています）。
+- JDK 21 以上が必要です。Go のときと同じ環境変数と DB を使い、同じ `AUTH_SECRET` なら Go と Kotlin を入れ替えてもログインしたまま同じデータを読み書きできます。
+- 新しいワークフロー `Kotlin backend`（`.github/workflows/kotlin-server.yml`）が、PR と手動の実行で、Kotlin の単体テストと、バックエンドを Kotlin にした全 E2E を行います。リリース・デプロイ（`ci.yml`）の条件ではありません。
+- 使い方と Go との対応は [server-kotlin/README.md](server-kotlin/README.md) にあります。
+
 ## v0.57.0 — Android 版も Web版と同じ Go のバックエンドを使うようにしました
 
 Android タブレットのアプリ（`android/`）の「アカウント」の保存先を、自分で立てる API（`/api/v1`、`server/cmd/typle-api -writable`）と GitHub の個人用アクセストークンから、iPad 版（v0.56.0）と同じ、本番の Go の関数（`/api/auth/*`・`/api/workspace`）に切り替えました。「一般」で「GitHub でログイン」を押すと Web版と同じ GitHub ログインが開き、Web版と同じ単語リスト・記録・端末を読み書きします。サーバーを立てる必要も、GitHub のトークンを作る必要もなくなりました。
@@ -104,6 +113,7 @@ API（`server/`）はNext.jsとは独立したGoのコードで、モジュー�
 | `server/internal/auth` | `/api/v1` のトークン確認のほか、アプリのログイン用の GitHub OAuth クライアント（認可コードと PKCE）を持ちます |
 | `server/vercel` | `web` のハンドラーを Vercel の Go の関数として呼ぶ橋渡しです。リポジトリ直下の `api/health.go`・`api/workspace.go`・`api/auth/*.go`（`api/auth/token.go` を含む）がこれを呼びます。`/api/health` はログインの設定（`AUTH_SECRET`・`AUTH_URL`）がなくても DB だけで答え、`/api/workspace` はログインの設定がなければ DB を開かずに 503（`authUnavailable`）を返します |
 | `server/cmd/typle-web` | `web` のハンドラーを手元で起動します（既定 `127.0.0.1:8081`）。`npm run dev` と E2E が使います |
+| `server-kotlin/` | `typle-web` と同じ API の Kotlin（Ktor）版です。`TYPLE_BACKEND=kotlin` のとき `npm run dev` と E2E が Go の代わりに使います。本番には載せません（[server-kotlin/README.md](server-kotlin/README.md)） |
 | `server/internal/serve` | `typle-web` と `typle-api` の待受です。止めるとき（SIGINT・SIGTERM）は、処理中のリクエストが終わるまで最大5秒待ってから DB を閉じます |
 
 ### iPad と Android のログイン
@@ -258,7 +268,7 @@ Client IDとClient secretを `.env.local` の `AUTH_GITHUB_ID` / `AUTH_GITHUB_SE
 npm run dev
 ```
 
-`npm run dev` は2つのプロセスを起動します。Go のバックエンド（`go run ./server/cmd/typle-web`、`127.0.0.1:8081`）と `next dev`（`127.0.0.1:3000`）で、どちらかが止まるともう片方も止めます。`go` コマンドがないときは、メッセージを出して終了します。バックエンドは `.env.local` の値を使い、起動のたびにコンパイルするため、初回は少し時間がかかります。`npm run dev:local`・`npm run dev:lan` も同じです。`TYPLE_WEB_URL` を設定すると、`next.config.mjs` の転送先と、バックエンドの待受（その URL のホストとポート）の両方がそこに変わります。バックエンドは HTTP だけで待ち受けるため、`TYPLE_WEB_URL` が `https://` の URL なら起動せずにメッセージを出して終了します。DB に接続できなくても起動し、その間 `/api/workspace`・`/api/health` は 503（`databaseUnavailable`）を返しますが、ログインは使えます。GitHub のログインは `AUTH_GITHUB_ID`・`AUTH_GITHUB_SECRET` が揃っているときだけ使え、揃っていなければ `/api/auth/signin` だけが 503 になります（開発ログインだけで開発できます）。
+`npm run dev` は2つのプロセスを起動します。Go のバックエンド（`go run ./server/cmd/typle-web`、`127.0.0.1:8081`）と `next dev`（`127.0.0.1:3000`）で、どちらかが止まるともう片方も止めます。`go` コマンドがないときは、メッセージを出して終了します。バックエンドは `.env.local` の値を使い、起動のたびにコンパイルするため、初回は少し時間がかかります。`npm run dev:local`・`npm run dev:lan` も同じです。`TYPLE_WEB_URL` を設定すると、`next.config.mjs` の転送先と、バックエンドの待受（その URL のホストとポート）の両方がそこに変わります。バックエンドは HTTP だけで待ち受けるため、`TYPLE_WEB_URL` が `https://` の URL なら起動せずにメッセージを出して終了します。DB に接続できなくても起動し、その間 `/api/workspace`・`/api/health` は 503（`databaseUnavailable`）を返しますが、ログインは使えます。GitHub のログインは `AUTH_GITHUB_ID`・`AUTH_GITHUB_SECRET` が揃っているときだけ使え、揃っていなければ `/api/auth/signin` だけが 503 になります（開発ログインだけで開発できます）。`TYPLE_BACKEND=kotlin` を付けると、Go の代わりに Kotlin のバックエンド（`server-kotlin`、JDK 21 以上が必要）を同じアドレスで起動します（先に `server-kotlin/gradlew installDist` でビルドします）。
 
 [ローカルアプリ](http://localhost:3000) を開いてGitHubでログインします。通常の停止は `docker compose --env-file .env.local stop`、再開は `up -d --wait` です。`down -v` は保存データを削除するため使用しないでください。
 
@@ -294,6 +304,8 @@ npm run build
 npx playwright install chromium
 npm run test:e2e
 ```
+
+Kotlin のバックエンドは `cd server-kotlin && ./gradlew test` で確かめ、`TYPLE_BACKEND=kotlin npm run test:e2e` で同じ E2E を Kotlin を相手に流せます（先に `./gradlew installDist`。CI では `Kotlin backend` のワークフローが行います）。
 
 Goのバックエンドと API はリポジトリ直下で `gofmt -l .`・`go vet ./...`・`go test ./...` を実行します。ログインの Cookie、GitHub の OAuth（`httptest` で作った偽の GitHub を相手にします）、`/api/workspace`（検証・`revision` の競合・`409`）、iPad・Android のログイン（コード・トークン・Bearer）、セキュリティヘッダーなど、`server/internal/web` のハンドラーのテストも含みます。マイグレーション済みのテスト用DBを `TYPLE_TEST_DATABASE_URL` で指定すると、DBの読み書きも確かめます（CIの `verify` は `db:migrate` の後に実行します）。
 

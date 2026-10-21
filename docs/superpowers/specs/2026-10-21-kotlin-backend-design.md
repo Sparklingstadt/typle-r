@@ -24,7 +24,7 @@
 | 言語・枠組み | Kotlin（JVM 21）、Ktor（CIO エンジン）、JDBC（PostgreSQL ドライバー）＋ HikariCP、kotlinx.serialization |
 | 置き場所 | リポジトリ直下の `server-kotlin/`。独立した Gradle ビルド（Wrapper 同梱）。`android/` とはコードを共有しない |
 | 切り替え | 環境変数 `TYPLE_BACKEND`（`go` が既定、`kotlin`） |
-| CI | 新しいワークフロー `kotlin-server.yml`。`ci.yml` のリリースの条件にはしない |
+| CI | 新しいワークフロー `kotlin-server.yml`（PR と手動の実行）。`ci.yml` のリリースの条件にはしない |
 
 ### `android/core` を共有しない理由
 
@@ -144,7 +144,7 @@ Go の `server/internal/*` と 1 対 1 に対応させ、移すときに比べ�
 
 ## CI（`.github/workflows/kotlin-server.yml`）
 
-- きっかけ：すべての PR、main への push、`workflow_dispatch`。パスで絞らない（`src/`・`server/` の変更で Go と Kotlin がずれたら気づけるように）。
+- きっかけ：すべての PR と `workflow_dispatch`。パスで絞らない（`src/`・`server/` の変更で Go と Kotlin がずれたら気づけるように）。iPad・Android のワークフローと同じく、GitHub Actions の利用枠を節約するため main への push では動かさない（PR で通ったものを再び流さない）。
 - 手順：PostgreSQL（`ci.yml` と同じ）→ `npm ci` → `npm run db:migrate` → `setup-java`（temurin 21）・`setup-gradle` → `server-kotlin` の `./gradlew test installDist`（`TYPLE_TEST_DATABASE_URL` あり）→ `npm run build` → Playwright の準備（`ci.yml` と同じキャッシュ）→ `TYPLE_BACKEND=kotlin npm run test:e2e`。
 - `ci.yml` の `release`・`deploy` はこのワークフローを待たない。失敗したときは次の PR で直す（`android.yml` と同じ扱い）。
 
