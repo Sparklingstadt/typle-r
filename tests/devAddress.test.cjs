@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict')
 const test = require('node:test')
-const { webAddress } = require('../scripts/dev.cjs')
+const { webAddress, backendOf } = require('../scripts/dev.cjs')
 
 test('typle-web listens where TYPLE_WEB_URL points', () => {
   assert.equal(webAddress(undefined), '127.0.0.1:8081')
@@ -22,5 +22,16 @@ test('a TYPLE_WEB_URL with https is refused', () => {
 test('a TYPLE_WEB_URL that is not an http URL is refused', () => {
   for (const value of ['localhost:8081', 'ftp://x', 'not a url', 'http://']) {
     assert.throws(() => webAddress(value), /TYPLE_WEB_URL/, value)
+  }
+})
+
+// TYPLE_BACKEND picks the backend npm run dev starts beside next dev: the Go one unless it says kotlin.
+test('TYPLE_BACKEND picks the backend', () => {
+  assert.equal(backendOf(undefined), 'go')
+  assert.equal(backendOf(''), 'go')
+  assert.equal(backendOf('go'), 'go')
+  assert.equal(backendOf('kotlin'), 'kotlin')
+  for (const value of ['Kotlin', 'java', 'rust', ' go']) {
+    assert.throws(() => backendOf(value), error => /TYPLE_BACKEND/.test(error.message) && /go か kotlin/.test(error.message), value)
   }
 })
