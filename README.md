@@ -8,7 +8,7 @@
 Go のバックエンド（`server/cmd/typle-web`：`/api/health`・`/api/workspace`・`/api/auth/*`）と同じ API を Kotlin（Ktor）で作り、`server-kotlin/` に置きました。`TYPLE_BACKEND=kotlin npm run dev`（`dev:local`・`dev:lan` も）で、Go の代わりにこちらを `next dev` と一緒に起動します。E2E も `TYPLE_BACKEND=kotlin npm run test:e2e` で Kotlin を相手に流せます。
 
 - 手元の開発と CI だけで使い、**本番（Vercel）と既定は Go のまま**です。本番のデプロイ物は変わりません（`.vercelignore` で `server-kotlin` を外しています）。
-- JDK 21 以上が必要です。Go のときと同じ環境変数と DB を使い、同じ `AUTH_SECRET` なら Go と Kotlin を入れ替えてもログインしたまま同じデータを読み書きできます。
+- JDK 21 が必要です（Gradle 8.14 は Java 25 では動かないため、21 ちょうどです。`JAVA_HOME` で指定できます）。Go のときと同じ環境変数と DB を使い、同じ `AUTH_SECRET` なら Go と Kotlin を入れ替えてもログインしたまま同じデータを読み書きできます。
 - 新しいワークフロー `Kotlin backend`（`.github/workflows/kotlin-server.yml`）が、PR と手動の実行で、Kotlin の単体テストと、バックエンドを Kotlin にした全 E2E を行います。リリース・デプロイ（`ci.yml`）の条件ではありません。
 - 使い方と Go との対応は [server-kotlin/README.md](server-kotlin/README.md) にあります。
 
@@ -274,7 +274,7 @@ Client IDとClient secretを `.env.local` の `AUTH_GITHUB_ID` / `AUTH_GITHUB_SE
 npm run dev
 ```
 
-`npm run dev` は2つのプロセスを起動します。Go のバックエンド（`go run ./server/cmd/typle-web`、`127.0.0.1:8081`）と `next dev`（`127.0.0.1:3000`）で、どちらかが止まるともう片方も止めます。`go` コマンドがないときは、メッセージを出して終了します。バックエンドは `.env.local` の値を使い、起動のたびにコンパイルするため、初回は少し時間がかかります。`npm run dev:local`・`npm run dev:lan` も同じです。`TYPLE_WEB_URL` を設定すると、`next.config.mjs` の転送先と、バックエンドの待受（その URL のホストとポート）の両方がそこに変わります。バックエンドは HTTP だけで待ち受けるため、`TYPLE_WEB_URL` が `https://` の URL なら起動せずにメッセージを出して終了します。DB に接続できなくても起動し、その間 `/api/workspace`・`/api/health` は 503（`databaseUnavailable`）を返しますが、ログインは使えます。GitHub のログインは `AUTH_GITHUB_ID`・`AUTH_GITHUB_SECRET` が揃っているときだけ使え、揃っていなければ `/api/auth/signin` だけが 503 になります（開発ログインだけで開発できます）。`TYPLE_BACKEND=kotlin` を付けると、Go の代わりに Kotlin のバックエンド（`server-kotlin`、JDK 21 以上が必要）を同じアドレスで起動します（先に `server-kotlin/gradlew installDist` でビルドします）。
+`npm run dev` は2つのプロセスを起動します。Go のバックエンド（`go run ./server/cmd/typle-web`、`127.0.0.1:8081`）と `next dev`（`127.0.0.1:3000`）で、どちらかが止まるともう片方も止めます。`go` コマンドがないときは、メッセージを出して終了します。バックエンドは `.env.local` の値を使い、起動のたびにコンパイルするため、初回は少し時間がかかります。`npm run dev:local`・`npm run dev:lan` も同じです。`TYPLE_WEB_URL` を設定すると、`next.config.mjs` の転送先と、バックエンドの待受（その URL のホストとポート）の両方がそこに変わります。バックエンドは HTTP だけで待ち受けるため、`TYPLE_WEB_URL` が `https://` の URL なら起動せずにメッセージを出して終了します。DB に接続できなくても起動し、その間 `/api/workspace`・`/api/health` は 503（`databaseUnavailable`）を返しますが、ログインは使えます。GitHub のログインは `AUTH_GITHUB_ID`・`AUTH_GITHUB_SECRET` が揃っているときだけ使え、揃っていなければ `/api/auth/signin` だけが 503 になります（開発ログインだけで開発できます）。`TYPLE_BACKEND=kotlin` を付けると、Go の代わりに Kotlin のバックエンド（`server-kotlin`、JDK 21 が必要）を同じアドレスで起動します（先に `server-kotlin/gradlew installDist` でビルドします）。
 
 [ローカルアプリ](http://localhost:3000) を開いてGitHubでログインします。通常の停止は `docker compose --env-file .env.local stop`、再開は `up -d --wait` です。`down -v` は保存データを削除するため使用しないでください。
 

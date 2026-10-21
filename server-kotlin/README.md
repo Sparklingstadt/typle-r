@@ -4,7 +4,7 @@ Go のバックエンド `server/cmd/typle-web` と同じ API を、Kotlin（Kto
 
 ## 必要なもの
 
-- JDK 21 以上（Gradle は同梱の `gradlew` が取ってきます）
+- JDK 21（ちょうど 21。Gradle 8.14 は Java 25 では動かず、toolchain の 21 も自動では取ってきません。`JAVA_HOME` で指定できます。Gradle 本体は同梱の `gradlew` が取ってきます）
 - PostgreSQL（Go のときと同じ DB。`npm run db:migrate` 済みのもの）
 
 ## 使い方

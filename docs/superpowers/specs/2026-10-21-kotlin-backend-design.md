@@ -121,7 +121,7 @@ Go の `server/internal/*` と 1 対 1 に対応させ、移すときに比べ�
 
 - `TYPLE_BACKEND` が未設定か `go`：今と同じ（`go run ./server/cmd/typle-web`）。
 - `kotlin`：先に `server-kotlin/gradlew -p server-kotlin installDist`（同期、失敗したら終了）、次に `server-kotlin/build/install/typle-web/bin/typle-web -addr <アドレス>` を `next dev` と一緒に起動する。止め方（両方を同じように止める）は今と同じ。
-- それ以外の値は「`TYPLE_BACKEND` は go か kotlin」と日本語で出して終了。`kotlin` で `java` がなければ「JDK 21 以上が必要」と入れ方を出して終了。
+- それ以外の値は「`TYPLE_BACKEND` は go か kotlin」と日本語で出して終了。`kotlin` で `java` がなければ「JDK 21 が必要」（Gradle 8.14 は Java 25 では動かないため 21 ちょうど。`JAVA_HOME` があればその java で確かめる）と入れ方を出して終了。
 - `dev:local`・`dev:lan` は `startDev` を使うので同じく切り替わる。
 - `next.config.mjs` の rewrites は変えない（転送先のアドレスが同じ）。
 
