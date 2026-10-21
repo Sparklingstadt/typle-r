@@ -1,6 +1,6 @@
 # API（Go）
 
-GitHubでログインしたアカウントのクラウド保存（`typle_workspaces`）を、スクリプトや別のアプリから読み書きするためのAPIです。`server/` のGoサーバーで、Typle本体とは別に起動します。Vercelの本番には載せていません。
+GitHubでログインしたアカウントのクラウド保存（`typle_workspaces`）を、スクリプトや別のアプリから読み書きするためのAPIです。`server/` のGoサーバーで、Typle本体とは別に起動します。Vercelの本番には載せていません（v0.55.0 でもそのままです。本番の Go の関数は、アプリ自身のログインと保存の `/api/auth/*`・`/api/workspace`・`/api/health` だけです）。
 
 - 既定は読み取り専用です。`GET`・`HEAD` 以外は `405 methodNotAllowed` で、DBへの接続も読み取り専用（`default_transaction_read_only=on`）のため、書き込みはDBが拒否します。
 - `-writable` を付けて起動すると、リストの作成・変更・削除と記録の追加（v0.42.0 から）、リストの複製（v0.47.0 から）、CSV・TSV の取り込み（v0.48.0 から）、端末の作成・変更・削除（v0.44.0 から）、記録の変更・削除（v0.45.0 から）もできます。
@@ -337,6 +337,21 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" -H 'Content-Type: application/json'
   -d '{"id":"run-2026-10-20-001","time":12.3,"date":"2026-10-20T21:00:00+09:00","mistakes":1,"accuracy":98.5}' \
   "http://127.0.0.1:8080/api/v1/lists/$LIST_ID/records"
 ```
+
+## コードの構成
+
+モジュールはリポジトリ直下の `go.mod`、パッケージは `server/` の下です。`/api/v1` とアプリ自身のバックエンド（v0.55.0 から。GitHubログイン・`/api/workspace`・`/api/health`）が `internal/store`・`internal/workspace`・`internal/auth` を共有します。
+
+| 場所 | 内容 |
+|---|---|
+| `server/cmd/typle-api` | この API（`/api/v1`）を起動するコマンド。本番には載せない |
+| `server/cmd/typle-web` | アプリのバックエンドを手元で起動するコマンド（既定 `127.0.0.1:8081`）。`npm run dev` と E2E が使う |
+| `server/internal/api` | `/api/v1` のHTTPハンドラー |
+| `server/internal/auth` | GitHubのトークンからアカウントを確かめる（`/api/v1`）。アプリのログイン用の GitHub OAuth クライアントもここにある |
+| `server/internal/store` | `typle_workspaces` の読み書き（`/api/v1` の行ロック方式と、アプリの `revision` による更新） |
+| `server/internal/workspace` | 保存データの検証とリスト・記録・端末の変更 |
+| `server/internal/web` | アプリのバックエンドのHTTPハンドラー（ログイン・`/api/workspace`・`/api/health`）。Cookie は `server/internal/session` で署名する |
+| `server/vercel` | `internal/web` を Vercel の Go の関数（リポジトリ直下の `api/*.go`）から呼ぶ橋渡し |
 
 ## 開発
 

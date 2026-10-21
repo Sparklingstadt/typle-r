@@ -3,6 +3,14 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
+## v0.55.0 — アプリのバックエンドを Go にしました
+
+GitHub ログインと `/api/workspace`（クラウド保存）を、Next.js（Auth.js・Prisma）から Go に移しました。画面の見た目・文言と保存データ（`typle_workspaces`）の形は変わりません。Next.js には API ルートと Auth.js（`next-auth`）がなくなり、Prisma はマイグレーション（`npm run db:migrate`）と `npm run db:seed` だけに使います。Vercel の本番では、リポジトリ直下の `api/*.go` が Go の関数として動きます（`/api/health`・`/api/workspace`・`/api/auth/*`）。外部向けの `/api/v1`（`server/cmd/typle-api`）はこれまでどおり本番に載せません。
+
+- **一度ログインし直してください。** 切り替え前のログインは引き継がないため、v0.55.0 の公開後は全員が一度ログアウトした状態になります。もう一度 GitHub でログインすれば、アカウントに保存した単語リストと記録はそのまま表示されます（データはサーバーにあり、消えません）。ブラウザーに保存したデータにも影響はありません。
+- GitHub の OAuth App の設定（Homepage URL・callback URL `<AUTH_URL>/api/auth/callback/github`）と環境変数は変わりません。`AUTH_URL` はオリジン（`https://example.com` の部分）だけを使います。
+- 手元で開発するには Go 1.25 以上が必要です。`npm run dev`・`npm run dev:local`・`npm run dev:lan` は、Go のバックエンド（`server/cmd/typle-web`、`127.0.0.1:8081`）と `next dev` の2つを一緒に起動し、どちらかが止まるともう片方も止めます。詳しくは「Dockerでの仮運用」を参照してください。
+
 ## v0.46.0 — Androidタブレット版（Kotlin・Jetpack Compose）を追加しました
 
 `android/` に Android タブレットのネイティブアプリ（Kotlin・Jetpack Compose、Android 8.0以上）を追加しました。iPad 版と同じ全ページ（ホーム・練習・練習記録・ベスト記録・単語リストと作成・編集・端末・一般）を Web版と同じ見た目で備え、タブレットを横向きにして外付けキーボードで練習できます。データはこのタブレットに保存するか、[API（Go）](docs/api.md)にGitHubのトークンでつないでアカウントに保存します。GitHub Actions が作る debug APK を手で入れて使います。入れ方と範囲は [android/README.md](android/README.md) を参照してください。Web版・API・iPad版は変わりません。
@@ -59,12 +67,24 @@ Next.js のアプリは1つで、`src` を層に分けています。依存は�
 | 層 | 場所 | 内容 |
 |---|---|---|
 | 画面 | `src/app`・`src/components`・`src/i18n`・`src/lib` | ページ、UI、多言語化、React のフック。`useWordLists` は React の状態とブラウザーのイベント（フォーカス・他タブの変更）だけを受け持ち、読み込み・保存は core の `createWorkspaceSession` に任せます |
-| プラグイン | `src/plugins` | core のポートの実装と初期データ。`storage`：`cloud`（`/api/workspace` とPrisma）と `guest`（LocalStorage）を `workspaceStore(accountId)` がアカウントに応じて選びます。`formats`：CSV・TSV（`delimited.ts`）と旧バージョンのブラウザー保存からの移行（`legacy.ts`）。`packs`：最初に表示する単語リスト（サンプルと国名193か国） |
-| core | `src/core` | React・Next.js・Prisma・ブラウザーAPIに依存しない TypeScript。単語リスト・入力判定・記録・集計・ワークスペースのモデルと検証、保存先のポート `WorkspaceStore`（`workspaceStore.ts`、保存場所 `location` を含む）、ワークスペースの読み込み・保存 `createWorkspaceSession`（`workspaceSession.ts`。アカウントの切り替え後に届いた結果の破棄、保存の直列化、409での再読み込み、古いクラウド読み込みの無視）とファイル形式のポート `WordFormat`（`wordFormat.ts`） |
+| プラグイン | `src/plugins` | core のポートの実装と初期データ。`storage`：`cloud`（Goのバックエンドが提供する `/api/workspace`）と `guest`（LocalStorage）を `workspaceStore(accountId)` がアカウントに応じて選びます。`formats`：CSV・TSV（`delimited.ts`）と旧バージョンのブラウザー保存からの移行（`legacy.ts`）。`packs`：最初に表示する単語リスト（サンプルと国名193か国） |
+| core | `src/core` | React・Next.js・ブラウザーAPIに依存しない TypeScript。単語リスト・入力判定・記録・集計・ワークスペースのモデルと検証、保存先のポート `WorkspaceStore`（`workspaceStore.ts`、保存場所 `location` を含む）、ワークスペースの読み込み・保存 `createWorkspaceSession`（`workspaceSession.ts`。アカウントの切り替え後に届いた結果の破棄、保存の直列化、409での再読み込み、古いクラウド読み込みの無視）とファイル形式のポート `WordFormat`（`wordFormat.ts`） |
 
 保存先を増やすときは `WorkspaceStore` を実装したプラグインを `src/plugins/storage` に追加し、`workspaceStore` で選びます。ファイル形式を増やすときは `WordFormat` を実装して `src/plugins/formats/index.ts` の一覧に加えると、取り込みの拡張子判定と `accept` に反映されます。どちらも画面のコードは変わりません。
 
-API（`server/`）はNext.jsとは独立したGoのコードで、モジュールはリポジトリ直下の `go.mod` です。`internal/auth` がGitHubのトークンからアカウントを確かめ、`internal/store` が `typle_workspaces` を読み（`-writable` のときは行をロックして書き込み）、`internal/workspace` がそれをアプリの `decodeLists`・`decodeDevices` と同じ規則で検証して、リスト・記録・端末の変更もアプリと同じ規則で検証し、`internal/api` がHTTPで返し、`cmd/typle-api` が起動します。標準ライブラリ以外の依存は、PostgreSQLのドライバー（pgx）と、名前を日本語の照合で並べる `golang.org/x/text` だけです。
+API（`server/`）はNext.jsとは独立したGoのコードで、モジュールはリポジトリ直下の `go.mod` です。`internal/auth` がGitHubのトークンからアカウントを確かめ、`internal/store` が `typle_workspaces` を読み（`-writable` のときは行をロックして書き込み）、`internal/workspace` がそれをアプリの `decodeLists`・`decodeDevices` と同じ規則で検証して、リスト・記録・端末の変更もアプリと同じ規則で検証し、`internal/api` がHTTPで返し、`cmd/typle-api` が起動します。標準ライブラリ以外の依存は、PostgreSQLのドライバー（pgx）、名前を日本語の照合で並べる `golang.org/x/text`、エラー報告の `sentry-go` だけです。
+
+アプリ自身のバックエンド（v0.55.0 から）も同じ `server/` にあり、Next.js の `/api` は使いません。
+
+| 場所 | 内容 |
+|---|---|
+| `server/internal/web` | GitHub ログイン（`/api/auth/session`・`signin`・`signout`・`callback/github`）、`/api/workspace`（読み込みと、`revision` による保存）、`/api/health` を1つの `http.Handler` にまとめます。すべての応答に、`next.config.mjs` と同じ4つのセキュリティヘッダー（`Content-Security-Policy`・`X-Frame-Options`・`X-Content-Type-Options`・`Referrer-Policy`）を付けます。ローカル開発のログイン（`POST /api/auth/local`）もここにあり、`typle-web` でだけ有効です |
+| `server/internal/session` | ログインの Cookie（`HttpOnly`・`SameSite=Lax`・有効期限30日）の署名と検証です。値は `AUTH_SECRET` から導いた鍵で HMAC-SHA256 署名します。名前は `AUTH_URL` が HTTPS なら `__Host-typle-session`、HTTP なら `typle-session` です |
+| `server/internal/auth` | `/api/v1` のトークン確認のほか、アプリのログイン用の GitHub OAuth クライアント（認可コードと PKCE）を持ちます |
+| `server/vercel` | `web` のハンドラーを Vercel の Go の関数として呼ぶ橋渡しです。リポジトリ直下の `api/health.go`・`api/workspace.go`・`api/auth/*.go` がこれを呼びます |
+| `server/cmd/typle-web` | `web` のハンドラーを手元で起動します（既定 `127.0.0.1:8081`）。`npm run dev` と E2E が使います |
+
+画面は `src/lib/session.tsx` の `useSession`・`signIn`・`signOut` で `/api/auth/*` を呼びます。手元と E2E では、`next.config.mjs` が `/api/workspace`・`/api/health`・`/api/auth/*` を `TYPLE_WEB_URL`（既定 `http://127.0.0.1:8081`）へ転送します。Vercel 上では転送せず、同じパスの Go の関数が応答します。エラーは `SENTRY_DSN`（なければ `NEXT_PUBLIC_SENTRY_DSN`）で Sentry に送ります（[docs/sentry.md](docs/sentry.md)）。
 
 ## OGP・共有画像
 
@@ -156,7 +176,7 @@ Tailwind 4の対象ブラウザーはSafari 16.4以上、Chrome 111以上、Fire
 
 ## v0.4.0 — Prisma
 
-Prisma 7.10のClientとMigrateで保存処理を管理します。既存の `typle_workspaces` を `Workspace` モデルに対応付け、JSONB・所有者ID・revision・DB制約を維持しています。Clientはプロセス内で再利用し、revisionの条件付き更新で同時書き込みの衝突を検出します。
+Prisma 7.10のClientとMigrateで保存処理を管理します（v0.55.0 から保存処理は Go が行い、Prisma はマイグレーションと seed だけに使います）。既存の `typle_workspaces` を `Workspace` モデルに対応付け、JSONB・所有者ID・revision・DB制約を維持しています。Clientはプロセス内で再利用し、revisionの条件付き更新で同時書き込みの衝突を検出します。
 
 既存のv0.2.x/v0.3.x DBは、初回のみ `npm run db:baseline` を実行してください。スキーマ一致を確認した上で履歴を登録します。新規DBと以後の更新は `npm run db:migrate` を使用します。`migrate reset` や `db push` は通常運用では使用しません。
 
@@ -182,7 +202,7 @@ UIを標準HTMLとTailwind CSSのみで実装しています。MUI・Emotion・S
 
 ## Dockerでの仮運用
 
-Node.js 24以上、npm、Docker Composeを使用します。
+Node.js 24以上、npm、Go 1.25以上、Docker Composeを使用します。
 
 ```sh
 npm ci
@@ -204,6 +224,8 @@ Client IDとClient secretを `.env.local` の `AUTH_GITHUB_ID` / `AUTH_GITHUB_SE
 npm run dev
 ```
 
+`npm run dev` は2つのプロセスを起動します。Go のバックエンド（`go run ./server/cmd/typle-web`、`127.0.0.1:8081`）と `next dev`（`127.0.0.1:3000`）で、どちらかが止まるともう片方も止めます。`go` コマンドがないときは、メッセージを出して終了します。バックエンドは `.env.local` の値を使い、起動のたびにコンパイルするため、初回は少し時間がかかります。`npm run dev:local`・`npm run dev:lan` も同じです。転送先を変えるときは `TYPLE_WEB_URL` を設定します。
+
 [ローカルアプリ](http://localhost:3000) を開いてGitHubでログインします。通常の停止は `docker compose --env-file .env.local stop`、再開は `up -d --wait` です。`down -v` は保存データを削除するため使用しないでください。
 
 ## Neon / Vercelの構成
@@ -214,9 +236,9 @@ Vercel MarketplaceでNeonを接続し、サーバー用の環境変数を設定�
 - `DIRECT_URL`: マイグレーション用の直接接続URL（任意、未指定時はDATABASE_URL）。DATABASE_DRIVERは不要です。
 - `AUTH_SECRET`: 暗号学的にランダムな秘密値
 - `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`: 本番用OAuth Appの認証情報
-- `AUTH_URL`: 本番URL。本番OAuth callbackは `<本番URL>/api/auth/callback/github`
+- `AUTH_URL`: 本番URL。本番OAuth callbackは `<本番URL>/api/auth/callback/github`（v0.55.0 でも変わりません）。Go はこの値のオリジンだけを使います
 
-対象DBの環境変数を使って `npm run db:migrate` を実行してからデプロイします。DockerのDBからNeonへのデータコピーは自動ではありません。必要な場合はバックアップと復元を別途行います。本番への反映は検証済みのコミットからGitHub Actions内のVercel CLIで行います。
+Go の関数（`api/*.go`）も同じ環境変数を読むため、Vercel の設定は増やしません。対象DBの環境変数を使って `npm run db:migrate` を実行してからデプロイします。DockerのDBからNeonへのデータコピーは自動ではありません。必要な場合はバックアップと復元を別途行います。本番への反映は検証済みのコミットからGitHub Actions内のVercel CLIで行います。
 
 公式資料: [GitHub OAuth App](https://docs.github.com/ja/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps)、[Prisma](https://www.prisma.io/docs/orm/v7)、[PostgreSQL Docker image](https://hub.docker.com/_/postgres)。
 
@@ -228,7 +250,7 @@ Vercel MarketplaceでNeonを接続し、サーバー用の環境変数を設定�
 
 ## 検証
 
-Dockerを起動してマイグレーションを実行した状態で:
+Dockerを起動してマイグレーションを実行した状態で（Go 1.25以上が必要です）:
 
 ```sh
 npm run typecheck
@@ -239,9 +261,9 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-Goの API はリポジトリ直下で `gofmt -l .`・`go vet ./...`・`go test ./...` を実行します。マイグレーション済みのテスト用DBを `TYPLE_TEST_DATABASE_URL` で指定すると、DBの読み書きも確かめます（CIの `verify` は `db:migrate` の後に実行します）。
+Goのバックエンドと API はリポジトリ直下で `gofmt -l .`・`go vet ./...`・`go test ./...` を実行します。ログインの Cookie、GitHub の OAuth（`httptest` で作った偽の GitHub を相手にします）、`/api/workspace`（検証・`revision` の競合・`409`）、セキュリティヘッダーなど、`server/internal/web` のハンドラーのテストも含みます。マイグレーション済みのテスト用DBを `TYPLE_TEST_DATABASE_URL` で指定すると、DBの読み書きも確かめます（CIの `verify` は `db:migrate` の後に実行します）。
 
-単体テストは入力判定、記録、移行、形式検証と実PostgreSQL上のPrismaクエリを検証します。E2Eは上限2 workersでファイル内も並列実行します。テストごとにランダムなアカウントIDを使用します。本番ビルドをポート3101で起動し、実PostgreSQLとAPIを通して作成・編集・練習・再読み込み・削除、アカウント分離、401/403/409応答を確認します。テスト専用秘密値で署名したセッションを使うため、GitHub OAuth画面の実ログインは別途確認が必要です。テストユーザーの行だけを終了後に削除します。
+`npm test` は入力判定、記録、移行、形式検証などの単体テストです。E2Eは上限2 workersでファイル内も並列実行します。テストごとにランダムなアカウントIDを使用します。Playwright が Go のバックエンド（`go run ./server/cmd/typle-web`、ポート8081）と、本番ビルドの `next start`（ポート3101）を両方起動し、実PostgreSQLとAPIを通して作成・編集・練習・再読み込み・削除、アカウント分離、401/403/409応答を確認します。GitHub にはつながず、`tests/e2e/sessionCookie.ts` がテスト専用の秘密値で署名したログインの Cookie を作ります（Go の `server/internal/session` と同じ値になることは `tests/sessionCookie.test.cjs` が確かめます）。GitHub OAuth画面の実ログインは自動テストできないため、公開後に本番で別途確認が必要です。テストユーザーの行だけを終了後に削除します。
 
 元リポジトリではGitHub ActionsのCIを停止していました。この独立コピーにはCI定義を引き継いでいます。開発ビルド `.next` と本番ビルド `.next-production` は分離しています。
 
