@@ -71,16 +71,26 @@ class AccountSyncTest {
       }
     }
 
+    /** The data is changed by someone else; the server thread reads the same fields under the same lock. */
+    fun changeElsewhere(revision: Int, devices: List<PracticeDevice>) = synchronized(this) {
+      this.revision = revision
+      this.devices = devicesJson(devices)
+    }
+
     fun sync(token: String = "old") = AccountSync(fake.baseUrl, token, "github:1") { renewals.add(it) }
   }
 
   @Test fun `load checks the session and renews the token`() {
     val backend = Backend(sessionBody = """{"user":{"id":"github:1","name":"N","image":null},"token":"new"}""")
-    val document = backend.sync().load()
+    val sync = backend.sync()
+    val document = sync.load()
     assertEquals(listOf("new"), renewals)
     assertEquals(listOf(list), document.lists)
     assertEquals("Bearer old", backend.fake.requests.first { it.path == "/api/auth/session" }.header("Authorization"))
     assertEquals("Bearer new", backend.gets.single().header("Authorization"))
+    // Later saves use the renewed token too.
+    sync.change { it }
+    assertEquals("Bearer new", backend.puts.single().header("Authorization"))
   }
 
   @Test fun `load without a renewed token keeps the token`() {
@@ -124,6 +134,22 @@ class AccountSyncTest {
     assertEquals(0, backend.conflicts.get())
   }
 
+  @Test fun `an older answer does not replace the kept workspace`() {
+    val backend = Backend()
+    val sync = backend.sync()
+    sync.load()
+    // The save is answered with revision 2, older than the revision 3 that is kept.
+    val older = """{"lists":${listsJson(listOf(list))},"devices":${devicesJson(listOf(device("older")))},"revision":2,"accountId":"github:1"}"""
+    backend.fake.handle("PUT", "/api/workspace", 200, older)
+    val saved = sync.change { it.copy(devices = listOf(device("mine"))) }
+    assertEquals(WorkspaceDocument(listOf(list), emptyList()), saved)
+    sync.change { it }
+    assertEquals(
+      listOf(3, 3),
+      backend.puts.map { Json.parseToJsonElement(it.text).jsonObject.getValue("revision").jsonPrimitive.int },
+    )
+  }
+
   @Test fun `change before load`() {
     val backend = Backend()
     assertEquals("loadFailed", keyOf { backend.sync().change { it } })
@@ -135,8 +161,7 @@ class AccountSyncTest {
     val sync = backend.sync()
     sync.load()
     // Changed elsewhere since the load.
-    backend.revision = 5
-    backend.devices = devicesJson(listOf(device("other")))
+    backend.changeElsewhere(5, listOf(device("other")))
     val seen = mutableListOf<List<PracticeDevice>>()
     val saved = sync.change { document ->
       seen.add(document.devices)
@@ -162,7 +187,7 @@ class AccountSyncTest {
     sync.load()
     var transforms = 0
     assertEquals("conflict", keyOf { sync.change { transforms += 1; it } })
-    assertEquals(AccountSync.ATTEMPTS, 3)
+    assertEquals(3, AccountSync.ATTEMPTS)
     assertEquals(3, backend.puts.size)
     assertEquals(3, transforms)
     // Read again between the saves only: the load and two re-reads.
