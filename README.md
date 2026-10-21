@@ -7,7 +7,7 @@
 
 Android タブレットのアプリ（`android/`）の「アカウント」の保存先を、自分で立てる API（`/api/v1`、`server/cmd/typle-api -writable`）と GitHub の個人用アクセストークンから、iPad 版（v0.56.0）と同じ、本番の Go の関数（`/api/auth/*`・`/api/workspace`）に切り替えました。「一般」で「GitHub でログイン」を押すと Web版と同じ GitHub ログインが開き、Web版と同じ単語リスト・記録・端末を読み書きします。サーバーを立てる必要も、GitHub のトークンを作る必要もなくなりました。
 
-- アカウントでも、端末の追加・変更・削除と記録の削除ができるようになりました（以前の Android の API 接続では記録の削除に対応していませんでした）。
+- アカウントでも記録の削除ができるようになりました（以前の Android の API 接続でも端末の追加・変更・削除はできましたが、記録の削除はできませんでした）。
 - 別の画面で同時に保存されたとき（`409 conflict`）は、最新を読み直して同じ変更をやり直します（3回まで）。
 - Android は Cookie ではなく、ログインの最後に受け取るトークンを `Authorization: Bearer` で送ります。トークンは Android Keystore の鍵で暗号化して保存します。ログインは Android アプリが作った PKCE の検証値を持つアプリにしか完了できません（下の「iPad と Android のログイン」）。
 - サーバーの URL の初期値は本番の `https://typle-r-six.vercel.app` です。http は `localhost`・`127.0.0.1`・`10.0.2.2`・`*.local` だけで、エミュレーターから手元の `npm run dev` につなぐときは `http://10.0.2.2:<ポート>` です。

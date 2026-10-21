@@ -67,7 +67,7 @@ HTTP と PKCE と保存の決まりは core に置き、`com.sun.net.httpserver`
     保存して `useStorage(ACCOUNT)`。記録が無い・期限切れは `accountLoginFailed`。
   - `useStorage(kind)`、`signOut()`（token と user を消して `LOCAL` に）。端末の選択は
     `typle-r:device:${accountId}`。
-  - 起動時：保存先が `account` で token か user が無ければ `LOCAL` に戻す。保存先が旧 `api` なら `LOCAL` に戻し、
+  - 起動時：保存先が `ACCOUNT` で token か user が無ければ `LOCAL` に戻す。保存先が旧 `API` なら `LOCAL` に戻し、
     `typle-r:api-url` と旧 token を消す（1 回だけ）。
   - URL は https のみ。開発用に `localhost`・`127.0.0.1`・`10.0.2.2`・`*.local` は http も許す。
 - `MainActivity`：`launchMode="singleTask"`、VIEW の intent-filter（scheme `typle-r`、host `login`、`BROWSABLE`）。
