@@ -14,16 +14,20 @@ function exitCode(code, signal) {
 
 /**
  * The address typle-web listens on: the host and port of TYPLE_WEB_URL, which is where next.config.mjs forwards to, or
- * 127.0.0.1:8081 when it is not set. Throws when it is not an http(s) URL.
+ * 127.0.0.1:8081 when it is not set. Throws when it is not an http URL: typle-web speaks plain HTTP only, so with https
+ * next.config.mjs would forward to a TLS port that nothing serves.
  */
 function webAddress(url = process.env.TYPLE_WEB_URL) {
   if (!url) return DEFAULT_WEB_ADDRESS
   let parsed
   try { parsed = new URL(url) } catch { parsed = null }
-  if (!parsed || (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') || !parsed.hostname) {
-    throw new Error(`TYPLE_WEB_URL (${url}) は http か https の URL ではありません。例: http://${DEFAULT_WEB_ADDRESS}`)
+  if (parsed?.protocol === 'https:') {
+    throw new Error(`TYPLE_WEB_URL (${url}) に https は使えません。バックエンド（typle-web）は HTTP だけで待ち受けます。http:// の URL にしてください。例: http://${DEFAULT_WEB_ADDRESS}`)
   }
-  return `${parsed.hostname}:${parsed.port || (parsed.protocol === 'https:' ? '443' : '80')}`
+  if (!parsed || parsed.protocol !== 'http:' || !parsed.hostname) {
+    throw new Error(`TYPLE_WEB_URL (${url}) は http の URL ではありません。例: http://${DEFAULT_WEB_ADDRESS}`)
+  }
+  return `${parsed.hostname}:${parsed.port || '80'}`
 }
 
 /** Runs typle-web and `next dev <nextArgs>` until one of them ends. */
