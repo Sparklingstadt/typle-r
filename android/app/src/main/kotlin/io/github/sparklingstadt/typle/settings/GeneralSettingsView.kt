@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -66,6 +68,7 @@ import kotlinx.coroutines.launch
  * decides by signing in. The GitHub login is the web app's own, so the account holds the same data as there
  * (ios/Typle/Settings/GeneralSettingsView.swift).
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun GeneralSettingsView() {
   val app = LocalApp.current
@@ -146,7 +149,8 @@ fun GeneralSettingsView() {
           T(L("settings.accountHint"), size = 12.sp, color = Palette.mutedForeground)
         }
       }
-      Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+      // The buttons wrap where a narrow screen has no room for them in one line.
+      FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (kind == StorageKind.LOCAL) {
           TypleButton({ perform { app.useStorage(StorageKind.LOCAL) } }, size = ButtonSize.LG, enabled = !busy && app.storage != StorageKind.LOCAL) {
             ButtonText(L("settings.useLocal"))
@@ -169,7 +173,7 @@ fun GeneralSettingsView() {
             }
           }, variant = ButtonVariant.OUTLINE, size = ButtonSize.LG, enabled = !busy) { ButtonText(L("settings.signOut")) }
         }
-        if (busy) CircularProgressIndicator(Modifier.padding(start = 4.dp).size(18.dp), color = Palette.mutedForeground, strokeWidth = 2.dp)
+        if (busy) CircularProgressIndicator(Modifier.align(Alignment.CenterVertically).padding(start = 4.dp).size(18.dp), color = Palette.mutedForeground, strokeWidth = 2.dp)
       }
       // A login's result is the app's, since the login may finish while this screen is closed.
       val shown = app.signInMessage ?: message?.let { failed to it }
