@@ -35,17 +35,18 @@ DATABASE_URL='postgresql://…' go run ./cmd/typle-api
 
 ## 認証
 
-すべてのリクエストに `Authorization: Bearer <GitHubのトークン>` を付けます。
+すべてのリクエストに `Authorization: Bearer <GitHubのFine-grainedの個人用アクセストークン>` を付けます。
 
 ```sh
-export TYPLE_TOKEN="$(gh auth token)"   # または GitHub の個人用アクセストークン
+export TYPLE_TOKEN="github_pat_…"   # GitHub の Fine-grained の個人用アクセストークン
 curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 ```
 
 - サーバーはトークンで GitHub の `GET /user` を呼び、返ったユーザーIDのアカウントを読みます。サーバー側に秘密値や OAuth App の設定は要りません。
-- トークンはユーザーを確かめるためだけに使います。権限（スコープ）は要らないので、Fine-grained の個人用アクセストークンならリポジトリへのアクセスなし・権限なしで作れます。有効期限も付けてください。
+- 受け付けるのは `github_pat_` で始まる Fine-grained の個人用アクセストークンだけです（v0.54.0 から）。`gh auth token` の値（`gho_`）、ほかのサービスが GitHub 連携で持つトークン（`gho_`・`ghu_` など）、classic の個人用アクセストークン（`ghp_`）は、GitHub に問い合わせずに `401 invalidToken` で断ります。利用者がほかのサービスに渡したトークンで、そのサービスが Typle のデータを読み書きできないようにするためです。
+- トークンはユーザーを確かめるためだけに使います。GitHub の Settings → Developer settings → Fine-grained tokens で、リポジトリへのアクセスなし（Public repositories）・権限なしで作り、有効期限も付けてください。Typle 専用に作り、ほかの用途と使い回さないでください。
 - 確認できたトークンは5分間覚えておき、その間は GitHub に問い合わせません。そのため、失効したトークンも最大5分は使えます。メモリーに残すのはトークンのSHA-256だけです。GitHub が受け付けなかったトークンは覚えません。
-- ヘッダーがない、形式が違う（`Bearer` 以外、空白を含むなど）、GitHub が受け付けないトークンは、すべて `401 invalidToken` で、`WWW-Authenticate: Bearer` を付けます。
+- ヘッダーがない、形式が違う（`Bearer` 以外、空白を含むなど）、Fine-grained でない、GitHub が受け付けないトークンは、すべて `401 invalidToken` で、`WWW-Authenticate: Bearer` を付けます。
 - GitHub に届かない、レート制限（403・429）、GitHub の障害のときは `503 githubUnavailable` です。トークンが悪いとは限らないので、しばらくしてからやり直します。
 - 覚えていないトークンを GitHub に問い合わせるのは、まとめて20回、その後は1秒に10回までです。でたらめなトークンを大量に送られても、サーバーから GitHub へ大量に問い合わせません。超えた分も `503 githubUnavailable` です。覚えているトークンは制限されません。
 - 未知のパス（`404 notFound`）と、そのパスで使えないメソッド（`405`）は、認証より先に返します。書き込みの本文は認証の後で読みます。

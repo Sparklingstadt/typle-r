@@ -29,7 +29,7 @@ func fakeGitHub(t *testing.T, calls *atomic.Int32, answer func(w http.ResponseWr
 }
 
 func users(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("Authorization") != "Bearer good-token" {
+	if r.Header.Get("Authorization") != "Bearer github_pat_good" {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -39,12 +39,29 @@ func users(w http.ResponseWriter, r *http.Request) {
 func TestOwner(t *testing.T) {
 	var calls atomic.Int32
 	g := fakeGitHub(t, &calls, users)
-	owner, err := g.Owner(context.Background(), "good-token")
+	owner, err := g.Owner(context.Background(), "github_pat_good")
 	if err != nil || owner != "github:12345" {
 		t.Fatalf("owner = %q, %v", owner, err)
 	}
-	if _, err := g.Owner(context.Background(), "bad-token"); !errors.Is(err, ErrInvalidToken) {
+	if _, err := g.Owner(context.Background(), "github_pat_bad"); !errors.Is(err, ErrInvalidToken) {
 		t.Fatalf("bad token: %v", err)
+	}
+}
+
+func TestOnlyFineGrainedTokens(t *testing.T) {
+	var calls atomic.Int32
+	g := fakeGitHub(t, &calls, func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write([]byte(`{"id":12345}`)) })
+	// OAuth (gho_), app (ghu_, ghs_) and classic (ghp_) tokens, and anything else, are refused before GitHub is asked.
+	for _, token := range []string{"gho_abc", "ghu_abc", "ghs_abc", "ghp_abc", "github_pa_abc", "GITHUB_PAT_abc", "abc"} {
+		if _, err := g.Owner(context.Background(), token); !errors.Is(err, ErrInvalidToken) {
+			t.Errorf("%s: err = %v", token, err)
+		}
+	}
+	if calls.Load() != 0 {
+		t.Fatalf("calls = %d, want 0", calls.Load())
+	}
+	if owner, err := g.Owner(context.Background(), "github_pat_abc"); err != nil || owner != "github:12345" {
+		t.Fatalf("fine-grained: owner = %q, %v", owner, err)
 	}
 }
 
@@ -54,7 +71,7 @@ func TestOwnerIsCached(t *testing.T) {
 	now := time.Date(2026, 10, 19, 0, 0, 0, 0, time.UTC)
 	g.now = func() time.Time { return now }
 	for range 3 {
-		if owner, err := g.Owner(context.Background(), "good-token"); err != nil || owner != "github:12345" {
+		if owner, err := g.Owner(context.Background(), "github_pat_good"); err != nil || owner != "github:12345" {
 			t.Fatalf("owner = %q, %v", owner, err)
 		}
 	}
@@ -63,14 +80,14 @@ func TestOwnerIsCached(t *testing.T) {
 	}
 	// Refused tokens are not remembered, so a token that becomes valid works at once.
 	for range 2 {
-		_, _ = g.Owner(context.Background(), "bad-token")
+		_, _ = g.Owner(context.Background(), "github_pat_bad")
 	}
 	if calls.Load() != 3 {
 		t.Fatalf("calls = %d, want 3", calls.Load())
 	}
 	// After cacheFor, the token is checked again.
 	now = now.Add(cacheFor)
-	if _, err := g.Owner(context.Background(), "good-token"); err != nil || calls.Load() != 4 {
+	if _, err := g.Owner(context.Background(), "github_pat_good"); err != nil || calls.Load() != 4 {
 		t.Fatalf("err = %v, calls = %d", err, calls.Load())
 	}
 }
@@ -84,13 +101,13 @@ func TestOwnerUnavailable(t *testing.T) {
 	} {
 		var calls atomic.Int32
 		g := fakeGitHub(t, &calls, answer)
-		if _, err := g.Owner(context.Background(), "good-token"); !errors.Is(err, ErrUnavailable) {
+		if _, err := g.Owner(context.Background(), "github_pat_good"); !errors.Is(err, ErrUnavailable) {
 			t.Errorf("%s: err = %v", name, err)
 		}
 	}
 	g := NewGitHub()
 	g.BaseURL = "http://127.0.0.1:1"
-	if _, err := g.Owner(context.Background(), "good-token"); !errors.Is(err, ErrUnavailable) {
+	if _, err := g.Owner(context.Background(), "github_pat_good"); !errors.Is(err, ErrUnavailable) {
 		t.Errorf("unreachable: err = %v", err)
 	}
 }
@@ -100,19 +117,19 @@ func TestChecksAreLimited(t *testing.T) {
 	g := fakeGitHub(t, &calls, users)
 	now := time.Date(2026, 10, 21, 0, 0, 0, 0, time.UTC)
 	g.now = func() time.Time { return now }
-	if _, err := g.Owner(context.Background(), "good-token"); err != nil {
+	if _, err := g.Owner(context.Background(), "github_pat_good"); err != nil {
 		t.Fatal(err)
 	}
 	for i := range maxChecks - 1 {
-		if _, err := g.Owner(context.Background(), fmt.Sprintf("made-up-%d", i)); !errors.Is(err, ErrInvalidToken) {
+		if _, err := g.Owner(context.Background(), fmt.Sprintf("github_pat_made_up_%d", i)); !errors.Is(err, ErrInvalidToken) {
 			t.Fatalf("token %d: err = %v", i, err)
 		}
 	}
 	// The burst is spent: another unknown token is not sent to GitHub, but a cached one still works.
-	if _, err := g.Owner(context.Background(), "made-up"); !errors.Is(err, ErrUnavailable) {
+	if _, err := g.Owner(context.Background(), "github_pat_made_up"); !errors.Is(err, ErrUnavailable) {
 		t.Fatalf("over the limit: err = %v", err)
 	}
-	if owner, err := g.Owner(context.Background(), "good-token"); err != nil || owner != "github:12345" {
+	if owner, err := g.Owner(context.Background(), "github_pat_good"); err != nil || owner != "github:12345" {
 		t.Fatalf("cached: owner = %q, %v", owner, err)
 	}
 	if calls.Load() != maxChecks {
@@ -121,11 +138,11 @@ func TestChecksAreLimited(t *testing.T) {
 	// A second later, checksPerSecond more may start.
 	now = now.Add(time.Second)
 	for i := range checksPerSecond {
-		if _, err := g.Owner(context.Background(), fmt.Sprintf("later-%d", i)); !errors.Is(err, ErrInvalidToken) {
+		if _, err := g.Owner(context.Background(), fmt.Sprintf("github_pat_later_%d", i)); !errors.Is(err, ErrInvalidToken) {
 			t.Fatalf("later token %d: err = %v", i, err)
 		}
 	}
-	if _, err := g.Owner(context.Background(), "made-up"); !errors.Is(err, ErrUnavailable) {
+	if _, err := g.Owner(context.Background(), "github_pat_made_up"); !errors.Is(err, ErrUnavailable) {
 		t.Fatalf("over the limit again: err = %v", err)
 	}
 }
