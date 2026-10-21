@@ -150,8 +150,8 @@ func TestAuthDoesNotOpenTheDatabase(t *testing.T) {
 }
 
 // With a database that cannot be reached at all: the session answers, with the user of a valid cookie, while the
-// workspace says databaseUnavailable. Auth.js answered sessions without the database too, and the screen takes a failed
-// session for a signed-out user, so it must not fail with the database.
+// workspace says databaseUnavailable. Auth.js answered sessions without the database too, and a first session read that
+// keeps failing leaves the screen signed out, so it must not fail with the database.
 func TestHandlerSessionWithUnreachableDatabase(t *testing.T) {
 	reset(t)
 	settings(t)
