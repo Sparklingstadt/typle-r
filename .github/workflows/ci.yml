@@ -180,6 +180,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ needs.release.outputs.tag }}
         run: node scripts/ci/release.cjs check
+      # The checks below must see the new deployment. vercel deploy --prod can return while the production domain still
+      # serves the previous one, which answers the paths both have alike, so the deployment the page names
+      # (data-dpl-id) is kept here and the checks wait until it changes.
+      - name: Record the deployment production serves
+        id: before
+        run: |
+          id=$(curl --silent --show-error --location --retry 3 --max-time 60 https://typle-r-six.vercel.app/home | grep -o 'data-dpl-id="dpl_[A-Za-z0-9]*"' | head -n 1 || true)
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+          echo "Production serves ${id:-no named deployment} before the deployment"
       - name: Deploy released commit
         id: deploy
         env:
@@ -189,6 +198,20 @@ jobs:
           url=$(vercel deploy --prod --yes --token="$VERCEL_TOKEN" --meta "githubCommitSha=$SOURCE_SHA")
           echo "url=$url" >> "$GITHUB_OUTPUT"
           printf 'Production deployment: %s\n' "$url" >> "$GITHUB_STEP_SUMMARY"
+      - name: Wait for production to serve the new deployment
+        env:
+          BEFORE: ${{ steps.before.outputs.id }}
+        run: |
+          for attempt in $(seq 1 60); do
+            id=$(curl --silent --location --max-time 30 https://typle-r-six.vercel.app/home | grep -o 'data-dpl-id="dpl_[A-Za-z0-9]*"' | head -n 1 || true)
+            if [ -n "$id" ] && [ "$id" != "$BEFORE" ]; then
+              echo "Production serves $id (was ${BEFORE:-none}) after $attempt checks"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Production still serves ${id:-no named deployment} five minutes after the deployment (was ${BEFORE:-none})"
+          exit 1
       - name: Check production home and authentication boundary
         run: |
           curl --fail --silent --show-error --location --retry 3 --max-time 60 https://typle-r-six.vercel.app/home > /dev/null
