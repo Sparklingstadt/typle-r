@@ -64,7 +64,7 @@ Next.js のアプリは1つで、`src` を層に分けています。依存は�
 
 保存先を増やすときは `WorkspaceStore` を実装したプラグインを `src/plugins/storage` に追加し、`workspaceStore` で選びます。ファイル形式を増やすときは `WordFormat` を実装して `src/plugins/formats/index.ts` の一覧に加えると、取り込みの拡張子判定と `accept` に反映されます。どちらも画面のコードは変わりません。
 
-API（`server/`）はNext.jsとは独立したGoモジュールです。`internal/auth` がGitHubのトークンからアカウントを確かめ、`internal/store` が `typle_workspaces` を読み（`-writable` のときは行をロックして書き込み）、`internal/workspace` がそれをアプリの `decodeLists`・`decodeDevices` と同じ規則で検証して、リスト・記録・端末の変更もアプリと同じ規則で検証し、`internal/api` がHTTPで返し、`cmd/typle-api` が起動します。標準ライブラリ以外の依存は、PostgreSQLのドライバー（pgx）と、名前を日本語の照合で並べる `golang.org/x/text` だけです。
+API（`server/`）はNext.jsとは独立したGoのコードで、モジュールはリポジトリ直下の `go.mod` です。`internal/auth` がGitHubのトークンからアカウントを確かめ、`internal/store` が `typle_workspaces` を読み（`-writable` のときは行をロックして書き込み）、`internal/workspace` がそれをアプリの `decodeLists`・`decodeDevices` と同じ規則で検証して、リスト・記録・端末の変更もアプリと同じ規則で検証し、`internal/api` がHTTPで返し、`cmd/typle-api` が起動します。標準ライブラリ以外の依存は、PostgreSQLのドライバー（pgx）と、名前を日本語の照合で並べる `golang.org/x/text` だけです。
 
 ## OGP・共有画像
 
@@ -239,7 +239,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-Goの API は `server/` で `gofmt -l .`・`go vet ./...`・`go test ./...` を実行します。マイグレーション済みのテスト用DBを `TYPLE_TEST_DATABASE_URL` で指定すると、DBの読み書きも確かめます（CIの `verify` は `db:migrate` の後に実行します）。
+Goの API はリポジトリ直下で `gofmt -l .`・`go vet ./...`・`go test ./...` を実行します。マイグレーション済みのテスト用DBを `TYPLE_TEST_DATABASE_URL` で指定すると、DBの読み書きも確かめます（CIの `verify` は `db:migrate` の後に実行します）。
 
 単体テストは入力判定、記録、移行、形式検証と実PostgreSQL上のPrismaクエリを検証します。E2Eは上限2 workersでファイル内も並列実行します。テストごとにランダムなアカウントIDを使用します。本番ビルドをポート3101で起動し、実PostgreSQLとAPIを通して作成・編集・練習・再読み込み・削除、アカウント分離、401/403/409応答を確認します。テスト専用秘密値で署名したセッションを使うため、GitHub OAuth画面の実ログインは別途確認が必要です。テストユーザーの行だけを終了後に削除します。
 
