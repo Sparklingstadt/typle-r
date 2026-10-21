@@ -12,6 +12,12 @@ Go のバックエンド（`server/cmd/typle-web`：`/api/health`・`/api/worksp
 - 新しいワークフロー `Kotlin backend`（`.github/workflows/kotlin-server.yml`）が、PR と手動の実行で、Kotlin の単体テストと、バックエンドを Kotlin にした全 E2E を行います。リリース・デプロイ（`ci.yml`）の条件ではありません。
 - 使い方と Go との対応は [server-kotlin/README.md](server-kotlin/README.md) にあります。
 
+## v0.57.1 — iPad・Android のワークフローを main への push で動かさないようにしました
+
+`.github/workflows/ios.yml`（macOS のランナー）と `.github/workflows/android.yml`（エミュレーター）は、アプリを変えた PR と手動の実行（workflow_dispatch）だけで動き、マージ後の main への push では同じビルドをもう一度行いません。GitHub Actions の利用時間を大きく使うためです。main への push の CI（`ci.yml` の policy・verify・release・deploy）は変わりません。
+
+v0.57.0 は Actions の利用枠が上限に近づいて main の CI が起動せず、Release とデプロイが行われませんでした。v0.57.0 の変更（Android 版の GitHub ログイン）は、この v0.57.1 で一緒に公開します。
+
 ## v0.57.0 — Android 版も Web版と同じ Go のバックエンドを使うようにしました
 
 Android タブレットのアプリ（`android/`）の「アカウント」の保存先を、自分で立てる API（`/api/v1`、`server/cmd/typle-api -writable`）と GitHub の個人用アクセストークンから、iPad 版（v0.56.0）と同じ、本番の Go の関数（`/api/auth/*`・`/api/workspace`）に切り替えました。「一般」で「GitHub でログイン」を押すと Web版と同じ GitHub ログインが開き、Web版と同じ単語リスト・記録・端末を読み書きします。サーバーを立てる必要も、GitHub のトークンを作る必要もなくなりました。
