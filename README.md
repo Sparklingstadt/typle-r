@@ -7,7 +7,7 @@
 
 Android タブレットのアプリ（`android/`）の「アカウント」の保存先を、自分で立てる API（`/api/v1`、`server/cmd/typle-api -writable`）と GitHub の個人用アクセストークンから、iPad 版（v0.56.0）と同じ、本番の Go の関数（`/api/auth/*`・`/api/workspace`）に切り替えました。「一般」で「GitHub でログイン」を押すと Web版と同じ GitHub ログインが開き、Web版と同じ単語リスト・記録・端末を読み書きします。サーバーを立てる必要も、GitHub のトークンを作る必要もなくなりました。
 
-- アカウントでも、端末の追加・変更・削除と記録の削除ができるようになりました（`/api/v1` では記録の削除はできませんでした）。
+- アカウントでも、端末の追加・変更・削除と記録の削除ができるようになりました（以前の Android の API 接続では記録の削除に対応していませんでした）。
 - 別の画面で同時に保存されたとき（`409 conflict`）は、最新を読み直して同じ変更をやり直します（3回まで）。
 - Android は Cookie ではなく、ログインの最後に受け取るトークンを `Authorization: Bearer` で送ります。トークンは Android Keystore の鍵で暗号化して保存します。ログインは Android アプリが作った PKCE の検証値を持つアプリにしか完了できません（下の「iPad と Android のログイン」）。
 - サーバーの URL の初期値は本番の `https://typle-r-six.vercel.app` です。http は `localhost`・`127.0.0.1`・`10.0.2.2`・`*.local` だけで、エミュレーターから手元の `npm run dev` につなぐときは `http://10.0.2.2:<ポート>` です。
@@ -112,7 +112,7 @@ iPad アプリ（`ios/`）と Android アプリ（`android/`）は、Web版と�
 
 1. アプリが32バイトの乱数から検証値（verifier）を作り、システムのログイン画面（iPad は `ASWebAuthenticationSession`、Android は Custom Tabs）で `/api/auth/signin?client=<ipad|android>&code_challenge=<S256>` を開きます。チャレンジは OAuth の Cookie に入り、GitHub にはサーバー自身の PKCE を使います。
 2. `callback/github` は Cookie を発行せず、`typle-r://login?code=<コード>` へリダイレクトします。コードはユーザーとチャレンジに署名したもので、2分で切れます。失敗・キャンセルは `typle-r://login?error=loginFailed` です。Android は `MainActivity` の intent-filter（scheme `typle-r`・host `login`）でこの URL を受け取ります。アプリを離れてコールバックが来なかったときは、何も起きなかったものとして戻ります。
-3. アプリが `POST /api/auth/token`（`{"code","verifier"}`）を呼び、検証値の SHA-256 がチャレンジと一致すれば `{"token","user"}` を返します。コードを横取りしても、検証値がなければトークンにできません。間違いはすべて `400 loginFailed` です。Android は、ログインを始めてから10分たった記録は無効として `loginFailed` と同じに扱います。
+3. アプリが `POST /api/auth/token`（`{"code","verifier"}`）を呼び、検証値の SHA-256 がチャレンジと一致すれば `{"token","user"}` を返します。コードを横取りしても、検証値がなければトークンにできません。間違いはすべて `400 loginFailed` です。Android は、ログインを始めてから10分たったログイン途中の状態は無効とし、ログインに失敗したものとして扱います。
 4. アプリは `Authorization: Bearer <トークン>` で `/api/auth/session` と `/api/workspace` を呼びます。トークンは Cookie と別の鍵で署名した有効期限30日の値で、Cookie の値をトークンとして、トークンを Cookie として使うことはできません。`Authorization` ヘッダーがある要求はトークンだけで判断し（Cookie は見ません）、ブラウザーが自動では付けないため、`PUT /api/workspace` の Origin の確認は要りません（`Content-Type` の確認は残ります）。
 5. 発行から24時間たったトークンは、`/api/auth/session` の応答の `token` で新しくなります。ログアウトはアプリがトークンを消すだけです（Cookie と同じく、サーバーには取り消す記録がありません）。トークンは iPad では Keychain に、Android では Android Keystore の鍵で暗号化して保存します。
 
