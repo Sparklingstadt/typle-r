@@ -12,26 +12,17 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sparklingstadt/typle-r/server/internal/session"
 	"github.com/sparklingstadt/typle-r/server/internal/store"
 	"github.com/sparklingstadt/typle-r/server/internal/web"
 )
 
-// reset forgets the built handler and the failure back-off, so that each test builds its own from its environment, and
-// puts the package's settings back when the test is done.
+// backend is the Backend under test; reset gives each test a fresh one, built from its own environment.
+var backend *Backend
+
 func reset(t *testing.T) {
 	t.Helper()
-	forget := func() {
-		mu.Lock()
-		defer mu.Unlock()
-		ready.Store(nil)
-		failedAt, failure = time.Time{}, nil
-	}
-	forget()
-	opener, wait, clock := open, retryAfter, now
-	t.Cleanup(func() {
-		open, retryAfter, now = opener, wait, clock
-		forget()
-	})
+	backend = New(false)
 }
 
 // fakeStore is a database that answers.
@@ -59,7 +50,7 @@ func settings(t *testing.T) {
 
 func get(path string) *httptest.ResponseRecorder {
 	response := httptest.NewRecorder()
-	Handler().ServeHTTP(response, httptest.NewRequest(http.MethodGet, path, nil))
+	backend.ServeHTTP(response, httptest.NewRequest(http.MethodGet, path, nil))
 	return response
 }
 
@@ -82,7 +73,7 @@ func TestHandlerWithoutSecret(t *testing.T) {
 	reset(t)
 	settings(t)
 	var opened atomic.Int32
-	open = func(context.Context, string) (web.Store, error) { opened.Add(1); return fakeStore{}, nil }
+	backend.open = func(context.Context, string) (web.Store, error) { opened.Add(1); return fakeStore{}, nil }
 	t.Setenv("AUTH_SECRET", "")
 
 	expect(t, get("/api/auth/session"), http.StatusServiceUnavailable, `{"error":"authUnavailable"}`)
@@ -101,30 +92,112 @@ func TestHandlerWithoutSecret(t *testing.T) {
 func TestHandlerInvalidAuthURL(t *testing.T) {
 	reset(t)
 	settings(t)
-	open = func(context.Context, string) (web.Store, error) { return fakeStore{}, nil }
+	backend.open = func(context.Context, string) (web.Store, error) { return fakeStore{}, nil }
 	t.Setenv("AUTH_URL", "ftp://x")
 	expect(t, get("/api/auth/session"), http.StatusServiceUnavailable, `{"error":"authUnavailable"}`)
 }
 
-// When the database does not open, every path says databaseUnavailable, the auth ones too: even the session needs no
-// database, but a function that cannot reach it is not worth serving half of.
+// While the database does not open, /api/health and /api/workspace say databaseUnavailable, and the auth paths are
+// answered all the same: they need no database, and a signed-in user stays signed in.
 func TestHandlerDatabaseDown(t *testing.T) {
 	reset(t)
 	settings(t)
-	retryAfter = 0
-	open = func(context.Context, string) (web.Store, error) { return nil, errors.New("connection refused") }
-	for _, path := range []string{"/api/health", "/api/workspace", "/api/auth/session"} {
+	backend.retryAfter = 0
+	backend.open = func(context.Context, string) (web.Store, error) { return nil, errors.New("connection refused") }
+	for _, path := range []string{"/api/health", "/api/workspace"} {
 		expect(t, get(path), http.StatusServiceUnavailable, `{"error":"databaseUnavailable"}`)
 	}
-	open = func(context.Context, string) (web.Store, error) { return fakeStore{}, nil }
 	expect(t, get("/api/auth/session"), http.StatusOK, `{"user":null}`)
+	backend.open = func(context.Context, string) (web.Store, error) { return fakeStore{}, nil }
+	expect(t, get("/api/health"), http.StatusOK, `{"status":"ok"}`)
+}
+
+// The auth paths never open the database: not when they are the first request, and not while it is down.
+func TestAuthDoesNotOpenTheDatabase(t *testing.T) {
+	reset(t)
+	settings(t)
+	var opened atomic.Int32
+	backend.open = func(context.Context, string) (web.Store, error) { opened.Add(1); return nil, errors.New("down") }
+	for _, path := range []string{"/api/auth/session", "/api/auth/signin", "/api/auth/signout"} {
+		if code := get(path).Code; code == http.StatusServiceUnavailable {
+			t.Errorf("%s = %d", path, code)
+		}
+	}
+	if opened.Load() != 0 {
+		t.Fatalf("the database was opened %d times for the auth paths", opened.Load())
+	}
+	get("/api/workspace")
+	if opened.Load() != 1 {
+		t.Fatalf("the database was opened %d times for the workspace", opened.Load())
+	}
+}
+
+// With a database that cannot be reached at all: the session answers, with the user of a valid cookie, while the
+// workspace says databaseUnavailable. Auth.js answered sessions without the database too, and the screen takes a failed
+// session for a signed-out user, so it must not fail with the database.
+func TestHandlerSessionWithUnreachableDatabase(t *testing.T) {
+	reset(t)
+	settings(t)
+	t.Setenv("DATABASE_URL", "postgresql://typle@127.0.0.1:1/typle?connect_timeout=1")
+	expect(t, get("/api/auth/session"), http.StatusOK, `{"user":null}`)
+
+	keys, err := session.NewKeys("secret")
+	if err != nil {
+		t.Fatal(err)
+	}
+	cookie := &http.Cookie{Name: session.CookieName(true), Value: keys.Seal(session.New("github:1", "Octo", "https://avatars.test/1", time.Now()))}
+	request := httptest.NewRequest(http.MethodGet, "/api/auth/session", nil)
+	request.AddCookie(cookie)
+	response := httptest.NewRecorder()
+	backend.ServeHTTP(response, request)
+	expect(t, response, http.StatusOK, `{"user":{"id":"github:1","name":"Octo","image":"https://avatars.test/1"}}`)
+
+	request = httptest.NewRequest(http.MethodGet, "/api/workspace", nil)
+	request.AddCookie(cookie)
+	response = httptest.NewRecorder()
+	backend.ServeHTTP(response, request)
+	expect(t, response, http.StatusServiceUnavailable, `{"error":"databaseUnavailable"}`)
+	expect(t, get("/api/health"), http.StatusServiceUnavailable, `{"error":"databaseUnavailable"}`)
+}
+
+// Without the GitHub OAuth App the functions are served: only signin says authUnavailable.
+func TestHandlerWithoutGitHub(t *testing.T) {
+	reset(t)
+	settings(t)
+	t.Setenv("AUTH_GITHUB_ID", "")
+	t.Setenv("AUTH_GITHUB_SECRET", "")
+	backend.open = func(context.Context, string) (web.Store, error) { return fakeStore{}, nil }
+	expect(t, get("/api/auth/session"), http.StatusOK, `{"user":null}`)
+	expect(t, get("/api/auth/signin"), http.StatusServiceUnavailable, `{"error":"authUnavailable"}`)
+	expect(t, get("/api/health"), http.StatusOK, `{"status":"ok"}`)
+}
+
+// Once built, the auth handler is found without the lock, and without reading the environment again.
+func TestAuthHandlerBuiltIsKept(t *testing.T) {
+	reset(t)
+	settings(t)
+	expect(t, get("/api/auth/session"), http.StatusOK, `{"user":null}`)
+	first := backend.authHandler()
+	t.Setenv("AUTH_SECRET", "")
+	backend.mu.Lock()
+	defer backend.mu.Unlock()
+	done := make(chan http.Handler)
+	go func() { done <- backend.authHandler() }()
+	select {
+	case again := <-done:
+		if again != first {
+			t.Fatal("the auth handler was built again")
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("authHandler waits for the lock once the handler is built")
+	}
 }
 
 func TestHandlerWithoutDatabaseURL(t *testing.T) {
 	reset(t)
 	settings(t)
 	t.Setenv("DATABASE_URL", "")
-	open = func(context.Context, string) (web.Store, error) { return fakeStore{}, nil }
+	backend.open = func(context.Context, string) (web.Store, error) { return fakeStore{}, nil }
 	expect(t, get("/api/health"), http.StatusServiceUnavailable, `{"error":"databaseUnavailable"}`)
 	t.Setenv("POSTGRES_URL", "postgresql://typle@db.invalid/typle")
 	expect(t, get("/api/health"), http.StatusOK, `{"status":"ok"}`)
@@ -137,7 +210,7 @@ func TestHandlerConcurrentWhileDown(t *testing.T) {
 	settings(t)
 	var attempts atomic.Int32
 	started, release := make(chan struct{}), make(chan struct{})
-	open = func(context.Context, string) (web.Store, error) {
+	backend.open = func(context.Context, string) (web.Store, error) {
 		if attempts.Add(1) == 1 {
 			close(started)
 		}
@@ -157,10 +230,10 @@ func TestHandlerConcurrentWhileDown(t *testing.T) {
 	}
 	<-started
 	// While the connection is being made the lock is free, so that a request that does not need it is not held up.
-	if !mu.TryLock() {
+	if !backend.mu.TryLock() {
 		t.Fatal("the lock is held while the database is being opened")
 	}
-	mu.Unlock()
+	backend.mu.Unlock()
 	time.Sleep(50 * time.Millisecond)
 	close(release)
 	wg.Wait()
@@ -180,12 +253,12 @@ func TestHandlerConcurrentWhileDown(t *testing.T) {
 func TestHandlerBackOff(t *testing.T) {
 	reset(t)
 	settings(t)
-	retryAfter = time.Second
+	backend.retryAfter = time.Second
 	// A clock that moves only when the test says so.
 	moment := time.Date(2026, 10, 21, 12, 0, 0, 0, time.UTC)
-	now = func() time.Time { return moment }
+	backend.now = func() time.Time { return moment }
 	var attempts atomic.Int32
-	open = func(context.Context, string) (web.Store, error) {
+	backend.open = func(context.Context, string) (web.Store, error) {
 		attempts.Add(1)
 		return nil, errors.New("connection refused")
 	}
@@ -202,7 +275,7 @@ func TestHandlerBackOff(t *testing.T) {
 		t.Fatalf("%d attempts after the back-off", attempts.Load())
 	}
 	// The back-off does not hide a recovered database for longer than it lasts.
-	open = func(context.Context, string) (web.Store, error) { return fakeStore{}, nil }
+	backend.open = func(context.Context, string) (web.Store, error) { return fakeStore{}, nil }
 	expect(t, get("/api/health"), http.StatusServiceUnavailable, `{"error":"databaseUnavailable"}`)
 	moment = moment.Add(time.Second)
 	expect(t, get("/api/health"), http.StatusOK, `{"status":"ok"}`)
@@ -213,14 +286,14 @@ func TestHandlerBuiltIsKept(t *testing.T) {
 	reset(t)
 	settings(t)
 	var attempts atomic.Int32
-	open = func(context.Context, string) (web.Store, error) { attempts.Add(1); return fakeStore{}, nil }
+	backend.open = func(context.Context, string) (web.Store, error) { attempts.Add(1); return fakeStore{}, nil }
 	expect(t, serve(t), http.StatusOK, `{"status":"ok"}`)
-	first := Handler()
+	first := backend.databaseHandler()
 
-	mu.Lock()
-	defer mu.Unlock()
+	backend.mu.Lock()
+	defer backend.mu.Unlock()
 	done := make(chan http.Handler)
-	go func() { done <- Handler() }()
+	go func() { done <- backend.databaseHandler() }()
 	select {
 	case again := <-done:
 		if again != first {

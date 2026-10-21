@@ -75,10 +75,11 @@ export function signIn(): void {
   location.assign('/api/auth/signin?returnTo=' + encodeURIComponent(location.pathname + location.search))
 }
 
+/** Signs out and goes home. Rejects, and stays on the page signed in, when the sign-out request fails or is refused. */
 export async function signOut(): Promise<void> {
-  try { await fetch('/api/auth/signout', { method: 'POST' }) } finally {
-    // A full page load, so nothing from the signed-in session stays in memory.
-    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-    location.assign('/home')
-  }
+  const response = await fetch('/api/auth/signout', { method: 'POST' })
+  if (!response.ok) throw new Error('sign out failed')
+  // A full page load, so nothing from the signed-in session stays in memory.
+  // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+  location.assign('/home')
 }

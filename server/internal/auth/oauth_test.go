@@ -160,3 +160,31 @@ func TestExchangeBodyIsLimited(t *testing.T) {
 		t.Fatalf("token = %q, want an error", token)
 	}
 }
+
+// A redirect is not followed: the POST carries the client secret, and must not be replayed to the target. The 3xx is an
+// error, and the target is never called.
+func TestExchangeDoesNotFollowRedirects(t *testing.T) {
+	for _, status := range []int{http.StatusMovedPermanently, http.StatusFound, http.StatusTemporaryRedirect, http.StatusPermanentRedirect} {
+		var target atomic.Int32
+		other := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			target.Add(1)
+			_ = r.ParseForm()
+			_, _ = w.Write([]byte(`{"access_token":"gho_stolen"}`))
+		}))
+		var calls atomic.Int32
+		o := fakeTokenServer(t, &calls, func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, other.URL+"/steal", status)
+		})
+		token, err := o.Exchange(context.Background(), "c", "v", "r")
+		other.Close()
+		if err == nil || token != "" {
+			t.Fatalf("status %d: token = %q, err = %v, want an error", status, token, err)
+		}
+		if !strings.Contains(err.Error(), "answered") || strings.Contains(err.Error(), "client-secret") {
+			t.Errorf("status %d: err = %v", status, err)
+		}
+		if target.Load() != 0 || calls.Load() != 1 {
+			t.Errorf("status %d: the redirect target was called %d times, the token endpoint %d", status, target.Load(), calls.Load())
+		}
+	}
+}

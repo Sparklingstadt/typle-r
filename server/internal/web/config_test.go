@@ -1,9 +1,13 @@
 package web
 
 import (
+	"bytes"
+	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -42,7 +46,7 @@ func TestFromEnvBuildsConfig(t *testing.T) {
 }
 
 func TestFromEnvMissing(t *testing.T) {
-	for _, name := range []string{"AUTH_SECRET", "AUTH_URL", "AUTH_GITHUB_ID", "AUTH_GITHUB_SECRET"} {
+	for _, name := range []string{"AUTH_SECRET", "AUTH_URL"} {
 		values := validEnv()
 		delete(values, name)
 		_, err := FromEnv(env(values), false)
@@ -55,10 +59,91 @@ func TestFromEnvMissing(t *testing.T) {
 	if err == nil {
 		t.Fatal("no error")
 	}
-	for _, name := range []string{"AUTH_SECRET", "AUTH_URL", "AUTH_GITHUB_ID", "AUTH_GITHUB_SECRET"} {
+	for _, name := range []string{"AUTH_SECRET", "AUTH_URL"} {
 		if !strings.Contains(err.Error(), name) {
 			t.Errorf("err = %v, want %s", err, name)
 		}
+	}
+}
+
+// The GitHub OAuth App is optional: without it the config is built with OAuth and GitHub nil (really nil, not a nil
+// pointer in an interface), and one warning is logged.
+func TestFromEnvWithoutGitHub(t *testing.T) {
+	for _, missing := range [][]string{{"AUTH_GITHUB_ID"}, {"AUTH_GITHUB_SECRET"}, {"AUTH_GITHUB_ID", "AUTH_GITHUB_SECRET"}} {
+		values := validEnv()
+		for _, name := range missing {
+			delete(values, name)
+		}
+		var logged bytes.Buffer
+		log.SetOutput(&logged)
+		config, err := FromEnv(env(values), true)
+		log.SetOutput(os.Stderr)
+		if err != nil {
+			t.Errorf("without %v: %v", missing, err)
+			continue
+		}
+		if config.OAuth != nil || config.GitHub != nil {
+			t.Errorf("without %v: OAuth = %v, GitHub = %v, want nil", missing, config.OAuth, config.GitHub)
+		}
+		if config.BaseURL == nil || config.Keys.Seal(session.New("github:1", "n", "", time.Now())) == "" {
+			t.Errorf("without %v: the session settings are not built", missing)
+		}
+		if got := strings.Count(logged.String(), "AUTH_GITHUB_ID and AUTH_GITHUB_SECRET"); got != 1 {
+			t.Errorf("without %v: %d warnings (%q), want 1", missing, got, logged.String())
+		}
+	}
+	// With both there is no warning.
+	var logged bytes.Buffer
+	log.SetOutput(&logged)
+	_, err := FromEnv(env(validEnv()), false)
+	log.SetOutput(os.Stderr)
+	if err != nil || logged.Len() != 0 {
+		t.Errorf("with GitHub: err = %v, log = %q", err, logged.String())
+	}
+}
+
+// Without the GitHub OAuth App only the GitHub login is unavailable: the session, the workspace and the local login work.
+func TestWithoutGitHubOnlySigninIsUnavailable(t *testing.T) {
+	values := validEnv()
+	delete(values, "AUTH_GITHUB_ID")
+	delete(values, "AUTH_GITHUB_SECRET")
+	values["AUTH_URL"] = "http://127.0.0.1:3000"
+	values["LOCAL_DEVELOPMENT_LOGIN"] = "1"
+	log.SetOutput(io.Discard)
+	config, err := FromEnv(env(values), true)
+	log.SetOutput(os.Stderr)
+	if err != nil {
+		t.Fatal(err)
+	}
+	config.Store = fakeStore{}
+	handler := New(config)
+	do := func(method, path string, cookie *http.Cookie) *httptest.ResponseRecorder {
+		request := httptest.NewRequest(method, path, nil)
+		request.Header.Set("Origin", "http://127.0.0.1:3000")
+		if cookie != nil {
+			request.AddCookie(cookie)
+		}
+		response := httptest.NewRecorder()
+		handler.ServeHTTP(response, request)
+		return response
+	}
+
+	expectError(t, do(http.MethodGet, "/api/auth/signin", nil), http.StatusServiceUnavailable, "authUnavailable")
+	expectError(t, do(http.MethodGet, "/api/auth/callback/github?code=c&state=s", nil), http.StatusServiceUnavailable, "authUnavailable")
+	if response := do(http.MethodGet, "/api/auth/session", nil); response.Code != http.StatusOK ||
+		strings.TrimSpace(response.Body.String()) != `{"user":null}` {
+		t.Fatalf("session = %d %s", response.Code, response.Body)
+	}
+	local := do(http.MethodPost, "/api/auth/local", nil)
+	if local.Code >= 300 {
+		t.Fatalf("local login = %d %s", local.Code, local.Body)
+	}
+	cookie := findCookie(local, "typle-session")
+	if cookie == nil {
+		t.Fatalf("local login set no session: %v", local.Result().Cookies())
+	}
+	if response := do(http.MethodGet, "/api/workspace", cookie); response.Code != http.StatusOK {
+		t.Fatalf("workspace = %d %s", response.Code, response.Body)
 	}
 }
 

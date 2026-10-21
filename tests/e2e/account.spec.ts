@@ -44,6 +44,17 @@ test('user menu signs out and returns to home', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'GitHubでログイン' })).toBeVisible()
 })
 
+test('a failed sign-out keeps the user signed in and says so', async ({ page }) => {
+  await page.route('**/api/auth/signout', route => route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"databaseUnavailable"}' }))
+  await page.goto('/home')
+  await page.getByRole('button', { name: 'アカウントメニュー', exact: true }).click()
+  await page.getByRole('menuitem', { name: 'ログアウト', exact: true }).click()
+  await expect(page.getByRole('alert').filter({ hasText: 'ログアウトできませんでした' })).toBeVisible()
+  await expect(page).toHaveURL(/\/home$/)
+  await expect(page.getByRole('button', { name: 'アカウントメニュー', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'GitHubでログイン' })).toHaveCount(0)
+})
+
 test('real API rejects anonymous, cross-origin, account spoofing and stale writes', async ({ page, context }) => {
   await seed(page, [{ id: 'private', name: 'Private', createdAt: '2026-09-06', records: [], words: [{ display: 'a', input: 'a', annotation: '' }] }])
   const base = { accountId, revision: 1, lists: [] }

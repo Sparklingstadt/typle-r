@@ -213,10 +213,10 @@ func (s *Store) ReadRevision(ctx context.Context, owner string) (*Saved, error) 
 	return saved, err
 }
 
-// WriteRevision saves change over the workspace at revision, as workspaceRepository.write does in the app: revision 0
-// creates the row, any other revision replaces what is saved only if it is still that revision (else ErrConflict).
-// Lists may be more than MaxLists in saved data merged from removed profiles; a save may keep or lower that number,
-// never raise it. The size of the lists is not checked here: the app's route only limits the request.
+// WriteRevision saves change over the workspace at revision: revision 0 creates the row, any other revision replaces
+// what is saved only if it is still that revision (else ErrConflict). Lists may be more than MaxLists in saved data
+// merged from removed profiles; a save may keep or lower that number, never raise it. The size of the lists is not
+// checked here: the /api/workspace handler (server/internal/web) only limits the request.
 //
 // It returns ErrConflict for a stale revision, a *workspace.Error for lists past the limits of validateLists
 // (invalidWorkspace) or more lists than allowed (listLimit), and any other error when the change cannot be written or

@@ -5,15 +5,37 @@ const { spawn, spawnSync } = require('node:child_process')
 
 const GO_MISSING = 'go コマンドが見つかりません。バックエンドの起動に Go 1.25 以上が必要です。https://go.dev/dl/ からインストールしてください。'
 const STOP_TIMEOUT_MS = 5000
+const DEFAULT_WEB_ADDRESS = '127.0.0.1:8081'
 
 function exitCode(code, signal) {
   if (code !== null) return code
   return signal === 'SIGINT' ? 130 : signal === 'SIGTERM' ? 143 : 1
 }
 
+/**
+ * The address typle-web listens on: the host and port of TYPLE_WEB_URL, which is where next.config.mjs forwards to, or
+ * 127.0.0.1:8081 when it is not set. Throws when it is not an http(s) URL.
+ */
+function webAddress(url = process.env.TYPLE_WEB_URL) {
+  if (!url) return DEFAULT_WEB_ADDRESS
+  let parsed
+  try { parsed = new URL(url) } catch { parsed = null }
+  if (!parsed || (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') || !parsed.hostname) {
+    throw new Error(`TYPLE_WEB_URL (${url}) は http か https の URL ではありません。例: http://${DEFAULT_WEB_ADDRESS}`)
+  }
+  return `${parsed.hostname}:${parsed.port || (parsed.protocol === 'https:' ? '443' : '80')}`
+}
+
 /** Runs typle-web and `next dev <nextArgs>` until one of them ends. */
 function startDev(nextArgs = []) {
   loadEnvConfig(process.cwd(), true)
+  let address
+  try {
+    address = webAddress()
+  } catch (error) {
+    console.error(error.message)
+    process.exit(1)
+  }
   if (spawnSync('go', ['version'], { stdio: 'ignore' }).error) {
     console.error(GO_MISSING)
     process.exit(1)
@@ -21,7 +43,7 @@ function startDev(nextArgs = []) {
   // `go run` starts the server as its own child and does not pass SIGTERM on, so each process gets its own group and
   // signals go to the whole group.
   const children = [
-    spawn('go', ['run', './server/cmd/typle-web', '-addr', '127.0.0.1:8081'], { stdio: 'inherit', detached: true }),
+    spawn('go', ['run', './server/cmd/typle-web', '-addr', address], { stdio: 'inherit', detached: true }),
     spawn(process.execPath, [require.resolve('next/dist/bin/next'), 'dev', ...nextArgs], { stdio: 'inherit', detached: true }),
   ]
   const running = new Set(children)
@@ -51,5 +73,5 @@ function startDev(nextArgs = []) {
   }
 }
 
-module.exports = { startDev }
+module.exports = { startDev, webAddress }
 if (require.main === module) startDev(process.argv.slice(2))

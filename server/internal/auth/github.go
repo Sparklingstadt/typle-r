@@ -1,8 +1,8 @@
 // Package auth is the server's side of GitHub sign-in, in two parts that do not share a policy.
 //
 // GitHub.Owner tells who an /api/v1 request is from by its bearer token. The token is checked with GitHub's GET /user,
-// and the account is github:<numeric user id>, the id the app's GitHub login gives an account (src/auth.ts). It holds
-// no secret. Only fine-grained personal access tokens (github_pat_…) are accepted: one is made by its owner for a
+// and the account is github:<numeric user id>, the id the browser login (/api/auth/callback/github in server/internal/web)
+// gives an account. It holds no secret. Only fine-grained personal access tokens (github_pat_…) are accepted: one is made by its owner for a
 // purpose, while the OAuth and app tokens other services hold for a user (gho_, ghu_ …) would otherwise also open the
 // user's workspace. Verified tokens are cached and checks with GitHub are rate-limited.
 //

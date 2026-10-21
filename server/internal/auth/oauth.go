@@ -29,7 +29,11 @@ func NewOAuth(clientID, clientSecret string) *OAuth {
 		ClientSecret:      clientSecret,
 		AuthorizeEndpoint: "https://github.com/login/oauth/authorize",
 		TokenURL:          "https://github.com/login/oauth/access_token",
-		Client:            &http.Client{Timeout: 10 * time.Second},
+		// A redirect is never followed: the POST carries the client secret, and must not be replayed to the target of a
+		// 3xx. The 3xx is then an answer that is not 2xx, and an error.
+		Client: &http.Client{Timeout: 10 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error {
+			return http.ErrUseLastResponse
+		}},
 	}
 }
 

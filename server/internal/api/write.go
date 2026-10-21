@@ -22,7 +22,7 @@ var errTrailing = errors.New("more than one JSON value")
 
 // decode reads a JSON object of type T from the body, or answers the request: 415 for another content type, 413 for
 // a body over 1 MiB, and 400 invalidJson for anything else that is not exactly one object of T's fields. Only the
-// media type before ";" is looked at, as the app's own route does.
+// media type before ";" is looked at, as the /api/workspace handler does.
 func decode[T any](w http.ResponseWriter, r *http.Request) (*T, bool) {
 	mediaType, _, _ := strings.Cut(r.Header.Get("Content-Type"), ";")
 	if !strings.EqualFold(strings.TrimSpace(mediaType), "application/json") {

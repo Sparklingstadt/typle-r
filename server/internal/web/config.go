@@ -2,6 +2,7 @@ package web
 
 import (
 	"errors"
+	"log"
 	"net/netip"
 	"net/url"
 	"strings"
@@ -10,17 +11,20 @@ import (
 	"github.com/sparklingstadt/typle-r/server/internal/session"
 )
 
-// FromEnv reads the login settings from the environment: AUTH_SECRET, AUTH_URL (an http or https URL, of which only the origin is used),
-// AUTH_GITHUB_ID and AUTH_GITHUB_SECRET. When any is missing or unusable the error names each of them, so that one
-// message tells everything to fix. The Store and Report are left to the caller: nothing is opened here, and the Keys
-// always come from a successful session.NewKeys, because the zero Keys cannot seal a cookie.
+// FromEnv reads the login settings from the environment: AUTH_SECRET and AUTH_URL (an http or https URL, of which only
+// the origin is used), which are required, and AUTH_GITHUB_ID and AUTH_GITHUB_SECRET, which are optional. When a
+// required one is missing or unusable the error names each of them, so that one message tells everything to fix. When
+// either GitHub one is missing OAuth and GitHub are left nil, one warning is logged, and only signin and callback
+// answer 503 (authUnavailable): the session, the workspace and the local login do not need GitHub, so development with
+// the local login alone needs no OAuth App. The Store and Report are left to the caller: nothing is opened here, and the
+// Keys always come from a successful session.NewKeys, because the zero Keys cannot seal a cookie.
 //
 // local is for the typle-web command: only then may LocalLogin be turned on. It is on under the conditions of
 // localDevelopmentEnabled (src/lib/localDevelopment.ts) except NODE_ENV, which a Go server does not have.
 func FromEnv(getenv func(string) string, local bool) (Config, error) {
 	var problems []string
 	secret, id, clientSecret := getenv("AUTH_SECRET"), getenv("AUTH_GITHUB_ID"), getenv("AUTH_GITHUB_SECRET")
-	for _, name := range []string{"AUTH_SECRET", "AUTH_URL", "AUTH_GITHUB_ID", "AUTH_GITHUB_SECRET"} {
+	for _, name := range []string{"AUTH_SECRET", "AUTH_URL"} {
 		if getenv(name) == "" {
 			problems = append(problems, name+" is not set")
 		}
@@ -38,10 +42,14 @@ func FromEnv(getenv func(string) string, local bool) (Config, error) {
 	if len(problems) > 0 {
 		return Config{}, errors.New("the login settings are incomplete: " + strings.Join(problems, "; "))
 	}
-	return Config{
-		Keys: keys, BaseURL: base, OAuth: auth.NewOAuth(id, clientSecret), GitHub: auth.NewGitHub(),
-		LocalLogin: local && localLoginAllowed(getenv, base),
-	}, nil
+	config := Config{Keys: keys, BaseURL: base, LocalLogin: local && localLoginAllowed(getenv, base)}
+	if id != "" && clientSecret != "" {
+		// Assigned only here: a nil *auth.OAuth in the interface would not be nil.
+		config.OAuth, config.GitHub = auth.NewOAuth(id, clientSecret), auth.NewGitHub()
+	} else {
+		log.Print("AUTH_GITHUB_ID and AUTH_GITHUB_SECRET are not both set: signing in with GitHub is unavailable")
+	}
+	return config, nil
 }
 
 func parseBaseURL(value string) (*url.URL, error) {

@@ -23,7 +23,7 @@ func main() {
 	writable := flag.Bool("writable", false, "accept writes: create, change and delete lists and add records")
 	flag.Parse()
 
-	// The same variables as the app (src/plugins/storage/cloud/database.ts).
+	// The same variables as typle-web and the Vercel functions.
 	connection := os.Getenv("DATABASE_URL")
 	if connection == "" {
 		connection = os.Getenv("POSTGRES_URL")
