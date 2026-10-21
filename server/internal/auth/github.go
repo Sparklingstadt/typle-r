@@ -1,6 +1,8 @@
 // Package auth tells who a request is from by its GitHub token. The token is checked with GitHub's GET /user, and the
 // account is github:<numeric user id>, the id the app's GitHub login gives an account (src/auth.ts). The server holds
-// no secret: any token GitHub accepts for /user will do, such as a personal access token or `gh auth token`.
+// no secret. Only fine-grained personal access tokens (github_pat_…) are accepted: one is made by its owner for a
+// purpose, while the OAuth and app tokens other services hold for a user (gho_, ghu_ …) would otherwise also open the
+// user's workspace.
 package auth
 
 import (
@@ -22,6 +24,9 @@ var (
 	// ErrUnavailable is GitHub not answering, or answering in a way that says nothing about the token.
 	ErrUnavailable = errors.New("GitHub could not check the token")
 )
+
+// fineGrainedPrefix starts every fine-grained personal access token.
+const fineGrainedPrefix = "github_pat_"
 
 const (
 	// A verified token is trusted this long, so most requests need no call to GitHub. A revoked token can therefore
@@ -59,6 +64,10 @@ func NewGitHub() *GitHub {
 
 // Owner returns the account the token belongs to.
 func (g *GitHub) Owner(ctx context.Context, token string) (string, error) {
+	// Another kind of token is refused without asking GitHub.
+	if !strings.HasPrefix(token, fineGrainedPrefix) {
+		return "", ErrInvalidToken
+	}
 	// Only a hash of the token is kept in memory.
 	key := sha256.Sum256([]byte(token))
 	if owner, ok := g.lookup(key); ok {

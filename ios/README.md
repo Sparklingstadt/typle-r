@@ -44,7 +44,7 @@ Web 版と同じ画面構成・色・部品です。上部バー（ブランド�
 | 保存先 | 内容 |
 |---|---|
 | この iPad（既定） | アプリの Application Support の `workspace.json`。形は Web 版のブラウザー保存と同じです。読めないファイルは上書きしません |
-| アカウント（API） | [API（Go）](../docs/api.md) を `-writable` で起動し、HTTPS で公開したサーバーにつなぎます。GitHub のトークン（権限なしの Fine-grained で十分）は iPad の Keychain に保存します |
+| アカウント（API） | [API（Go）](../docs/api.md) を `-writable` で起動し、HTTPS で公開したサーバーにつなぎます。GitHub の Fine-grained の個人用アクセストークン（`github_pat_`、権限なしで十分。ほかの種類のトークンは使えません）は iPad の Keychain に保存します |
 
 - 2つのデータは別々で、切り替えてもコピーしません。
 - API ではリストの作成・変更・削除・複製と記録の追加ができます。端末は選べますが変更できず、記録の削除もできません（API が対応していないため）。Web 版で行ってください。
