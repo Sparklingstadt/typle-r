@@ -175,7 +175,12 @@ func aList(id, name string) string {
 func TestGetLoginRequired(t *testing.T) {
 	h := newHarness(t, &fakeWorkspaces{}, testBase)
 	tampered := h.cookie(testOwner, false)
-	tampered.Value = tampered.Value[:len(tampered.Value)-2] + "AA"
+	// The last character is made a different one whatever it was, since the signature differs every run.
+	last := "A"
+	if strings.HasSuffix(tampered.Value, "A") {
+		last = "B"
+	}
+	tampered.Value = tampered.Value[:len(tampered.Value)-1] + last
 	other, err := session.NewKeys("another secret")
 	if err != nil {
 		t.Fatal(err)
@@ -333,6 +338,19 @@ func (c *countingReader) Read(p []byte) (int, error) {
 	}
 	c.n += len(p)
 	return len(p), nil
+}
+
+// The login is checked before the size, and the size before the content.
+func TestPutCheckOrder(t *testing.T) {
+	fake := &fakeWorkspaces{}
+	h := newHarness(t, fake, testBase)
+	big := payload(testOwner, `"revision":0,"lists":[`) + strings.Repeat(" ", 1<<20) + `]}`
+	expectError(t, h.put("", big), http.StatusUnauthorized, "loginRequired")
+	expectError(t, h.put(testOwner, "x"+strings.Repeat(" ", 1<<20)), http.StatusRequestEntityTooLarge, "workspaceTooLarge")
+	expectError(t, h.put(testOwner, strings.Replace(big, testOwner, "github:7", 1)), http.StatusRequestEntityTooLarge, "workspaceTooLarge")
+	if fake.writes != 0 {
+		t.Fatalf("writes = %d", fake.writes)
+	}
 }
 
 func TestPutEmpty(t *testing.T) {
