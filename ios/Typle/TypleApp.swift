@@ -157,11 +157,11 @@ struct Brand: View {
   }
 }
 
-/// The web app's GitHub login button. On the iPad the account is the API connection set up in 一般.
+/// The web app's GitHub login button. On the iPad the login is in 一般, with where the data is kept.
 struct AccountButton: View {
   @Environment(AppModel.self) private var app
   var body: some View {
-    if app.storage == .api {
+    if app.storage == .account {
       Button { app.navigate(.general) } label: {
         Image(systemName: "person.fill").font(.system(size: 14))
           .foregroundStyle(Palette.mutedForeground)

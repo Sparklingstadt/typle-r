@@ -30,8 +30,13 @@ var (
 // readBody reads the body, giving up as soon as it is past maxBodyBytes rather than after reading all of it: one byte
 // more than the limit is enough to know.
 func readBody(body io.Reader) ([]byte, error) {
-	data, err := io.ReadAll(io.LimitReader(body, maxBodyBytes+1))
-	if err == nil && len(data) > maxBodyBytes {
+	return readLimited(body, maxBodyBytes)
+}
+
+// readLimited is readBody with another limit.
+func readLimited(body io.Reader, limit int64) ([]byte, error) {
+	data, err := io.ReadAll(io.LimitReader(body, limit+1))
+	if err == nil && int64(len(data)) > limit {
 		return nil, errTooLarge
 	}
 	return data, err

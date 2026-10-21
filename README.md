@@ -3,6 +3,16 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
+## v0.56.0 — iPadOS版が Web版と同じ Go のバックエンドを使うようにしました
+
+iPad アプリ（`ios/`）の「アカウント」の保存先を、自分で立てる API（`/api/v1`、`server/cmd/typle-api -writable`）から、本番の Go の関数（`/api/auth/*`・`/api/workspace`）に切り替えました。「一般」で「GitHub でログイン」を押すと Web版と同じ GitHub ログインが開き、Web版と同じ単語リスト・記録・端末を読み書きします。サーバーを立てる必要も、GitHub のトークンを作る必要もなくなりました。
+
+- アカウントでも、端末の追加・変更・削除と記録の削除ができるようになりました（`/api/v1` ではできませんでした）。
+- 別の画面で同時に保存されたとき（`409 conflict`）は、最新を読み直して同じ変更をやり直します（3回まで）。
+- iPad は Cookie ではなく、ログインの最後に受け取るトークンを `Authorization: Bearer` で送ります。ログインは iPad が作った PKCE の検証値を持つアプリにしか完了できません（下の「iPad のログイン」）。
+- 以前の「アカウント（API）」の設定とトークンは使わなくなり、更新後の初回起動で消して「この iPad」に戻ります。iPad に保存したデータは変わりません。
+- Web版・`/api/v1`・Android 版は変わりません。GitHub の OAuth App の設定と環境変数も変わりません。
+
 ## v0.55.0 — アプリのバックエンドを Go にしました
 
 GitHub ログインと `/api/workspace`（クラウド保存）を、Next.js（Auth.js・Prisma）から Go に移しました。画面の見た目・文言と保存データ（`typle_workspaces`）の形は変わりません。Next.js には API ルートと Auth.js（`next-auth`）がなくなり、Prisma はマイグレーション（`npm run db:migrate`）と `npm run db:seed` だけに使います。Vercel の本番では、リポジトリ直下の `api/*.go` が Go の関数として動きます（`/api/health`・`/api/workspace`・`/api/auth/*`）。外部向けの `/api/v1`（`server/cmd/typle-api`）はこれまでどおり本番に載せません。
@@ -78,11 +88,21 @@ API（`server/`）はNext.jsとは独立したGoのコードで、モジュー�
 
 | 場所 | 内容 |
 |---|---|
-| `server/internal/web` | GitHub ログイン（`/api/auth/session`・`signin`・`signout`・`callback/github`）、`/api/workspace`（読み込みと、`revision` による保存）、`/api/health` を1つの `http.Handler` にまとめます。すべての応答に、`next.config.mjs` と同じ4つのセキュリティヘッダー（`Content-Security-Policy`・`X-Frame-Options`・`X-Content-Type-Options`・`Referrer-Policy`）を付けます。ローカル開発のログイン（`POST /api/auth/local`）もここにあり、`typle-web` でだけ有効です |
-| `server/internal/session` | ログインの Cookie（`HttpOnly`・`SameSite=Lax`・有効期限30日）の署名と検証です。値は `AUTH_SECRET` から導いた鍵で HMAC-SHA256 署名します。名前は `AUTH_URL` が HTTPS なら `__Host-typle-session`、HTTP なら `typle-session` です |
+| `server/internal/web` | GitHub ログイン（`/api/auth/session`・`signin`・`signout`・`callback/github`、iPad 用の `token`）、`/api/workspace`（読み込みと、`revision` による保存）、`/api/health` を1つの `http.Handler` にまとめます。すべての応答に、`next.config.mjs` と同じ4つのセキュリティヘッダー（`Content-Security-Policy`・`X-Frame-Options`・`X-Content-Type-Options`・`Referrer-Policy`）を付けます。ローカル開発のログイン（`POST /api/auth/local`）もここにあり、`typle-web` でだけ有効です |
+| `server/internal/session` | ログインの Cookie（`HttpOnly`・`SameSite=Lax`・有効期限30日）と、iPad のログインのコード・トークンの署名と検証です。値は `AUTH_SECRET` から導いた鍵（種類ごとに別）で HMAC-SHA256 署名します。名前は `AUTH_URL` が HTTPS なら `__Host-typle-session`、HTTP なら `typle-session` です |
 | `server/internal/auth` | `/api/v1` のトークン確認のほか、アプリのログイン用の GitHub OAuth クライアント（認可コードと PKCE）を持ちます |
-| `server/vercel` | `web` のハンドラーを Vercel の Go の関数として呼ぶ橋渡しです。リポジトリ直下の `api/health.go`・`api/workspace.go`・`api/auth/*.go` がこれを呼びます |
+| `server/vercel` | `web` のハンドラーを Vercel の Go の関数として呼ぶ橋渡しです。リポジトリ直下の `api/health.go`・`api/workspace.go`・`api/auth/*.go`（`api/auth/token.go` を含む）がこれを呼びます |
 | `server/cmd/typle-web` | `web` のハンドラーを手元で起動します（既定 `127.0.0.1:8081`）。`npm run dev` と E2E が使います |
+
+### iPad のログイン
+
+iPad アプリ（`ios/`）は、Web版と同じ GitHub OAuth App でログインし、Cookie の代わりにトークンを使います（RFC 8252 のネイティブアプリの形）。
+
+1. アプリが32バイトの乱数から検証値（verifier）を作り、`ASWebAuthenticationSession` で `/api/auth/signin?client=ipad&code_challenge=<S256>` を開きます。チャレンジは OAuth の Cookie に入り、GitHub にはサーバー自身の PKCE を使います。
+2. `callback/github` は Cookie を発行せず、`typle-r://login?code=<コード>` へリダイレクトします。コードはユーザーとチャレンジに署名したもので、2分で切れます。失敗・キャンセルは `typle-r://login?error=loginFailed` です。
+3. アプリが `POST /api/auth/token`（`{"code","verifier"}`）を呼び、検証値の SHA-256 がチャレンジと一致すれば `{"token","user"}` を返します。コードを横取りしても、検証値がなければトークンにできません。間違いはすべて `400 loginFailed` です。
+4. アプリは `Authorization: Bearer <トークン>` で `/api/auth/session` と `/api/workspace` を呼びます。トークンは Cookie と別の鍵で署名した有効期限30日の値で、Cookie の値をトークンとして、トークンを Cookie として使うことはできません。`Authorization` ヘッダーがある要求はトークンだけで判断し（Cookie は見ません）、ブラウザーが自動では付けないため、`PUT /api/workspace` の Origin の確認は要りません（`Content-Type` の確認は残ります）。
+5. 発行から24時間たったトークンは、`/api/auth/session` の応答の `token` で新しくなります。ログアウトはアプリがトークンを消すだけです（Cookie と同じく、サーバーには取り消す記録がありません）。
 
 画面は `src/lib/session.tsx` の `useSession`・`signIn`・`signOut` で `/api/auth/*` を呼びます。手元と E2E では、`next.config.mjs` が `/api/workspace`・`/api/health`・`/api/auth/*` を `TYPLE_WEB_URL`（既定 `http://127.0.0.1:8081`）へ転送します。Vercel 上では転送せず、同じパスの Go の関数が応答します。エラーは `SENTRY_DSN`（なければ `NEXT_PUBLIC_SENTRY_DSN`）で Sentry に送ります（[docs/sentry.md](docs/sentry.md)）。
 
@@ -244,7 +264,7 @@ Go の関数（`api/*.go`）も同じ環境変数を読むため、Vercel の設
 
 ## 保存とアクセス制御
 
-`typle_workspaces` テーブルにユーザーごとのJSONBスナップショットとrevisionを保持します。APIとログインはGoのバックエンド（`server/`）が提供し、所有者はサーバーがログインセッションのGitHubユーザーIDから決定します。APIは未認証アクセスを拒否し、書き込みでOrigin、アカウント一致、形式、最大1MiBのサイズを検証します。共有ランキングはありません。
+`typle_workspaces` テーブルにユーザーごとのJSONBスナップショットとrevisionを保持します。APIとログインはGoのバックエンド（`server/`）が提供し、所有者はサーバーがログインセッション（iPad はトークン）のGitHubユーザーIDから決定します。APIは未認証アクセスを拒否し、書き込みでOrigin（Cookie のとき）、アカウント一致、形式、最大1MiBのサイズを検証します。共有ランキングはありません。
 
 旧形式のキーは `typle-r:word-lists:v1`、値は `{ version: 1, lists: [...] }` です。ホームの移行ボタンは現在のアカウントに追加し、同じ内容の再移行を重複させません。同名のリストは名前に移行番号を付けます。壊れた元データは変更しません。リスト削除はその記録も削除します。
 
@@ -261,7 +281,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-Goのバックエンドと API はリポジトリ直下で `gofmt -l .`・`go vet ./...`・`go test ./...` を実行します。ログインの Cookie、GitHub の OAuth（`httptest` で作った偽の GitHub を相手にします）、`/api/workspace`（検証・`revision` の競合・`409`）、セキュリティヘッダーなど、`server/internal/web` のハンドラーのテストも含みます。マイグレーション済みのテスト用DBを `TYPLE_TEST_DATABASE_URL` で指定すると、DBの読み書きも確かめます（CIの `verify` は `db:migrate` の後に実行します）。
+Goのバックエンドと API はリポジトリ直下で `gofmt -l .`・`go vet ./...`・`go test ./...` を実行します。ログインの Cookie、GitHub の OAuth（`httptest` で作った偽の GitHub を相手にします）、`/api/workspace`（検証・`revision` の競合・`409`）、iPad のログイン（コード・トークン・Bearer）、セキュリティヘッダーなど、`server/internal/web` のハンドラーのテストも含みます。マイグレーション済みのテスト用DBを `TYPLE_TEST_DATABASE_URL` で指定すると、DBの読み書きも確かめます（CIの `verify` は `db:migrate` の後に実行します）。
 
 `npm test` は入力判定、記録、移行、形式検証などの単体テストです。E2Eは上限2 workersでファイル内も並列実行します。テストごとにランダムなアカウントIDを使用します。Playwright が Go のバックエンド（`go run ./server/cmd/typle-web`、ポート8081）と、本番ビルドの `next start`（ポート3101）を両方起動し、実PostgreSQLとAPIを通して作成・編集・練習・再読み込み・削除、アカウント分離、401/403/409応答を確認します。GitHub にはつながず、`tests/e2e/sessionCookie.ts` がテスト専用の秘密値で署名したログインの Cookie を作ります（Go の `server/internal/session` と同じ値になることは `tests/sessionCookie.test.cjs` が確かめます）。GitHub OAuth画面の実ログインは自動テストできないため、公開後に本番で別途確認が必要です。テストユーザーの行だけを終了後に削除します。
 

@@ -1,16 +1,13 @@
 import Foundation
 import TypleCore
 
-/// Where a workspace is kept: on this iPad, or in an account through the Go API (docs/api.md). Each store keeps the
-/// document it last read or wrote, and applies every change to that, so changes made while another is in flight are
-/// not lost.
+/// Where a workspace is kept: on this iPad, or in the GitHub account through the web app's Go backend. Each store keeps
+/// the document it last read or wrote, and applies every change to that, so changes made while another is in flight
+/// are not lost.
 @MainActor
 protocol WorkspaceStore: AnyObject {
   /// Names the data the stored device choice belongs to, like `typle-r:device:<accountId>` in the web app.
   var accountId: String { get }
-  /// The API can neither change devices nor delete records.
-  var canEditDevices: Bool { get }
-  var canDeleteRecords: Bool { get }
 
   func load() async throws -> WorkspaceDocument
   func saveList(_ list: WordList, editing: Bool) async throws -> WorkspaceDocument
@@ -27,8 +24,6 @@ protocol WorkspaceStore: AnyObject {
 @MainActor
 final class LocalWorkspaceStore: WorkspaceStore {
   let accountId = "ipad:local"
-  let canEditDevices = true
-  let canDeleteRecords = true
 
   private let url: URL
   private var file: WorkspaceFile?

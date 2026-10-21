@@ -552,6 +552,7 @@ func TestAuthMethods(t *testing.T) {
 		"/api/auth/session":         "GET, HEAD",
 		"/api/auth/signout":         "POST",
 		"/api/auth/local":           "POST",
+		"/api/auth/token":           "POST",
 	} {
 		methods := []string{http.MethodPut, http.MethodDelete}
 		if allow == "POST" {
