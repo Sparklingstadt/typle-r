@@ -1,15 +1,10 @@
 name: iPad app
 
 # Builds the SwiftUI app in ios/, tests its shared rules and captures screenshots of every page. It is separate from
-# ci.yml: the iPad app is not released or deployed by it, and macOS runners only start when ios/ changes.
+# ci.yml: the iPad app is not released or deployed by it, and macOS runners only start for pull requests that change
+# ios/ and when started by hand (workflow_dispatch), not again on the push to main: their minutes count ten times.
 on:
   pull_request:
-    paths:
-      - 'ios/**'
-      - 'src/plugins/packs/**'
-      - '.github/workflows/ios.yml'
-  push:
-    branches: [main]
     paths:
       - 'ios/**'
       - 'src/plugins/packs/**'

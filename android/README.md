@@ -9,7 +9,7 @@ Typle の Android タブレット版です。Web 版（`src/`）・iPad 版（`i
 
 ## 入れ方
 
-GitHub Actions の `Android app` ワークフローが、PR と main への push のたびに debug APK を作り、成果物 `typle-debug-apk` に残します。ダウンロードした `app-debug.apk` をタブレットに送り、「提供元不明のアプリ」を許可して開くと入ります。Play ストアには出していません。
+GitHub Actions の `Android app` ワークフローが、`android/` を変えた PR と手動の実行（Actions の「Run workflow」）のたびに debug APK を作り、成果物 `typle-debug-apk` に残します。main の APK が欲しいときは、main で手動実行します。ダウンロードした `app-debug.apk` をタブレットに送り、「提供元不明のアプリ」を許可して開くと入ります。Play ストアには出していません。
 
 自分でビルドするときは次のとおりです。
 
@@ -74,7 +74,7 @@ Web 版と同じ画面構成・色・部品です。上部バー（ブランド�
 cd android/core && ../gradlew test
 ```
 
-- `.github/workflows/android.yml` が、`android/` を変えた PR と main への push で、core のテスト、debug APK のビルド、エミュレーターでの撮影を行います。Web 版のリリース・デプロイ（`ci.yml`）とは別です。
+- `.github/workflows/android.yml` が、`android/` を変えた PR と手動の実行で、core のテスト、debug APK のビルド、エミュレーターでの撮影を行います。マージ後の main への push では動きません（Actions の利用時間を節約するため）。Web 版のリリース・デプロイ（`ci.yml`）とは別です。
 - `npm test` の `tests/android.test.cjs` が、最初の単語リストのコピーが元と同じか、使っている文言が日本語・英語の両方にあり、プレースホルダーがそろっているか、「iPad」「ブラウザー」が残っていないかを確かめます。`src/plugins/packs` を変えたら `core/src/main/resources` にコピーしてください。
 
 ## 範囲外
