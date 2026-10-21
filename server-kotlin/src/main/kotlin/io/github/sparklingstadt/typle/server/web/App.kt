@@ -22,13 +22,18 @@ import kotlinx.coroutines.withContext
  */
 fun Application.typleWeb(config: Config) {
   intercept(ApplicationCallPipeline.Call) {
-    secure(call)
-    when (val path = call.request.path()) {
-      "/api/health" -> call.health(config)
-      "/api/workspace" -> call.workspace(config)
-      else -> if (!call.auth(config, path)) call.refuse(HttpStatusCode.NotFound, "notFound")
-    }
+    call.serve(config)
     finish()
+  }
+}
+
+/** Answers one request with config: the paths are matched exactly, and every response carries the security headers. */
+suspend fun ApplicationCall.serve(config: Config) {
+  secure(this)
+  when (val path = request.path()) {
+    "/api/health" -> health(config)
+    "/api/workspace" -> workspace(config)
+    else -> if (!auth(config, path)) refuse(HttpStatusCode.NotFound, "notFound")
   }
 }
 
