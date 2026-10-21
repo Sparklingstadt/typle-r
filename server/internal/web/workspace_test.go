@@ -682,3 +682,40 @@ func TestMatchesTypeScript(t *testing.T) {
 		t.Fatalf("device = %+v", change.Devices[0])
 	}
 }
+
+// PostgreSQL's jsonb cannot hold U+0000, so a NUL anywhere in what would be saved is an invalid workspace (400), found
+// before the store, not a failed save (503). Escapes are read as JSON reads them: \\u0000 is a backslash, not a NUL.
+func TestPutNUL(t *testing.T) {
+	fake := &fakeWorkspaces{}
+	h := newHarness(t, fake, testBase)
+	device := `{"id":"mac","name":"MacBook","layout":"JIS"}`
+	for name, fields := range map[string]string{
+		"list name":           `"revision":0,"lists":[` + aList("one", `a\u0000b`) + `]`,
+		"unknown field":       `"revision":0,"lists":[` + strings.Replace(oneList, `"records":[]`, `"records":[],"x":{"y":["\u0000"]}`, 1) + `]`,
+		"unknown key":         `"revision":0,"lists":[` + strings.Replace(oneList, `"records":[]`, `"records":[],"a\u0000":1`, 1) + `]`,
+		"word":                `"revision":0,"lists":[` + strings.Replace(oneList, `"annotation":""`, `"annotation":"\u0000"`, 1) + `]`,
+		"device":              `"revision":0,"devices":[` + strings.Replace(device, `"JIS"`, `"J\u0000"`, 1) + `]`,
+		"unknown device item": `"revision":0,"devices":[` + strings.Replace(device, `}`, `,"n":"\u0000"}`, 1) + `]`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			expectError(t, h.put(testOwner, payload(testOwner, fields)), http.StatusBadRequest, "invalidWorkspace")
+		})
+	}
+	if fake.writes != 0 {
+		t.Fatalf("writes = %d", fake.writes)
+	}
+	escaped := h.put(testOwner, payload(testOwner, `"revision":0,"lists":[`+aList("one", `a\\u0000b`)+`]`))
+	if escaped.Code != http.StatusOK || fake.writes != 1 || fake.change.Lists[0].Name != `a\u0000b` {
+		t.Fatalf("escaped backslash: response = %d %s, change %+v", escaped.Code, escaped.Body, fake.change)
+	}
+}
+
+// With the database: the NUL is refused before the save, so it is not reported as a failed one.
+func TestPutNULRealStore(t *testing.T) {
+	s, owner := realStore(t)
+	h := newHarness(t, s, testBase)
+	expectError(t, h.put(owner, payload(owner, `"revision":0,"lists":[`+aList("one", `a\u0000b`)+`]`)), http.StatusBadRequest, "invalidWorkspace")
+	if len(h.reports) != 0 {
+		t.Fatalf("reports = %v", h.reports)
+	}
+}

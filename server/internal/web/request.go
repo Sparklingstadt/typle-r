@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"strconv"
+	"strings"
 
 	"github.com/sparklingstadt/typle-r/server/internal/store"
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
@@ -94,6 +95,9 @@ func decodeFields(fields map[string]json.RawMessage) (revision int, change store
 			return 0, store.Change{}, errInvalid
 		}
 	}
+	if hasNUL(lists) || hasNUL(devices) {
+		return 0, store.Change{}, errInvalid
+	}
 	if !hasLists {
 		lists = json.RawMessage("[]")
 	}
@@ -110,6 +114,23 @@ func decodeFields(fields map[string]json.RawMessage) (revision int, change store
 		}
 	}
 	return revision, store.Change{Lists: decoded.Lists, Devices: decoded.Devices, HasLists: hasLists, HasDevices: hasDevices}, nil
+}
+
+// hasNUL reports whether a string or object key anywhere in the JSON value raw holds U+0000, which PostgreSQL's jsonb
+// cannot store: the save would fail in the database instead of being refused. The value is read token by token, so an
+// escaped backslash (\\u0000) is not taken for a NUL. A value that is not valid JSON is left to Decode to refuse.
+func hasNUL(raw json.RawMessage) bool {
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.UseNumber()
+	for {
+		token, err := decoder.Token()
+		if err != nil {
+			return false
+		}
+		if text, ok := token.(string); ok && strings.ContainsRune(text, 0) {
+			return true
+		}
+	}
 }
 
 // safeInteger reads a JSON number that Number.isSafeInteger accepts and is not below 0, which is what a revision is.
