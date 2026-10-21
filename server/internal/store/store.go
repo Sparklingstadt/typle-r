@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -39,6 +40,23 @@ type Store struct{ pool *pgxpool.Pool }
 
 // Open connects to the database and checks that it answers. Only a writable store can Modify.
 func Open(ctx context.Context, connection string, writable bool) (*Store, error) {
+	return connect(ctx, connection, func(config *pgxpool.Config) {
+		if !writable {
+			config.ConnConfig.RuntimeParams["default_transaction_read_only"] = "on"
+		}
+	})
+}
+
+// OpenApp connects as the app's backend does, writable and with a small pool: a serverless instance serves one request
+// at a time, and the database allows few connections in all. Connections idle for 30 seconds are closed.
+func OpenApp(ctx context.Context, connection string) (*Store, error) {
+	return connect(ctx, connection, func(config *pgxpool.Config) {
+		config.MaxConns = 5
+		config.MaxConnIdleTime = 30 * time.Second
+	})
+}
+
+func connect(ctx context.Context, connection string, configure func(*pgxpool.Config)) (*Store, error) {
 	strict, err := ConnString(connection)
 	if err != nil {
 		return nil, err
@@ -47,9 +65,7 @@ func Open(ctx context.Context, connection string, writable bool) (*Store, error)
 	if err != nil {
 		return nil, fmt.Errorf("database URL: %w", err)
 	}
-	if !writable {
-		config.ConnConfig.RuntimeParams["default_transaction_read_only"] = "on"
-	}
+	configure(config)
 	pool, err := pgxpool.NewWithConfig(ctx, config)
 	if err != nil {
 		return nil, err
@@ -59,6 +75,12 @@ func Open(ctx context.Context, connection string, writable bool) (*Store, error)
 		return nil, err
 	}
 	return &Store{pool: pool}, nil
+}
+
+// Ping checks that the database answers.
+func (s *Store) Ping(ctx context.Context) error {
+	var one int
+	return s.pool.QueryRow(ctx, `SELECT 1`).Scan(&one)
 }
 
 func (s *Store) Close() { s.pool.Close() }

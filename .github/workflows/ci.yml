@@ -192,5 +192,6 @@ jobs:
       - name: Check production home and authentication boundary
         run: |
           curl --fail --silent --show-error --location --retry 3 --max-time 60 https://typle-r-six.vercel.app/home > /dev/null
+          curl --fail --silent --show-error --retry 3 --max-time 60 https://typle-r-six.vercel.app/api/health > /dev/null
           status=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --max-time 60 https://typle-r-six.vercel.app/api/workspace)
           test "$status" = 401 || { echo "Expected anonymous API HTTP 401, got $status"; exit 1; }

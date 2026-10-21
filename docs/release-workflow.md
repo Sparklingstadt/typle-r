@@ -62,7 +62,7 @@ CI用Vercelトークンは90日期限で作成しています。期限前にSecr
    CLIはバージョンごとにmainのキャッシュに保存します。版を上げるときは`ci.yml`の`VERCEL_CLI_VERSION`だけを変えます。
    CLIはインストールスクリプトを実行せずに入れ、`VERCEL_TOKEN`はSecretの確認とデプロイの手順だけに渡します。
    読み出し不可のSecretが`[SENSITIVE]`になるため、Actionsでは`vercel pull`・`vercel build`を行いません。
-8. 本番ホームの成功応答と、匿名APIアクセスの401を確認します。
+8. 本番ホームの成功応答、Goの関数が返す`/api/health`の200（本番DBへの接続を含む）、匿名APIアクセスの401を確認します。
 
 verifyのDBは一時DBですが、deployから起動するVercel上のビルドは本番環境変数を使います。
 `vercel.json`に従い、ここで本番DBへmigrationが適用されます。DB更新に成功した後で

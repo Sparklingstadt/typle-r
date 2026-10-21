@@ -138,6 +138,22 @@ func TestConnectionIsReadOnly(t *testing.T) {
 	}
 }
 
+func TestOpenAppPing(t *testing.T) {
+	ctx := context.Background()
+	connection, _ := database(t)
+	s, err := OpenApp(ctx, connection)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	if err := s.Ping(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if config := s.pool.Config(); config.MaxConns != 5 || config.MaxConnIdleTime != 30*time.Second {
+		t.Fatalf("pool = %d connections, idle %v", config.MaxConns, config.MaxConnIdleTime)
+	}
+}
+
 func open(t *testing.T, connection string, writable bool) *Store {
 	t.Helper()
 	s, err := Open(context.Background(), connection, writable)
