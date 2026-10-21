@@ -60,7 +60,7 @@ HTTP と PKCE と保存の決まりは core に置き、`com.sun.net.httpserver`
   `canDeleteRecords = true`、端末の編集もできる。
 - `TokenVault`：そのまま使う（token）。user（id・name）は SharedPreferences `typle-r:account` に JSON で保存。
 - `AppModel`
-  - `StorageKind` は `LOCAL` と `ACCOUNT`（保存値 `local`/`account`）。
+  - `StorageKind` は `LOCAL` と `ACCOUNT`（保存値は既存の設定との互換のため列挙名の `LOCAL`/`ACCOUNT`。旧 `API` は `LOCAL` に直す）。
   - `serverUrl`（`typle-r:server-url`、初期値 `https://typle-r-six.vercel.app`）、`accountUser`。
   - `startSignIn(serverUrl)`：URL を確かめ、ログイン途中の記録（verifier・サーバー URL・開始時刻）を保存して
     signin URL を返す。`finishSignIn(uri)`：記録を必ず消し、10 分以内なら `AccountLogin.finish`、token と user を
