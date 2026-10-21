@@ -2,15 +2,10 @@ name: Android app
 
 # Tests the shared rules in android/core, builds the tablet app in android/app and captures screenshots of every page
 # on a tablet emulator. It is separate from ci.yml: the Android app is not released or deployed by it, and it only runs
-# when android/ changes. The debug APK is kept as an artifact to install by hand.
+# for pull requests that change android/ and when started by hand (workflow_dispatch), not again on the push to main,
+# since the emulator run takes many Actions minutes. The debug APK is kept as an artifact to install by hand.
 on:
   pull_request:
-    paths:
-      - 'android/**'
-      - 'src/plugins/packs/**'
-      - '.github/workflows/android.yml'
-  push:
-    branches: [main]
     paths:
       - 'android/**'
       - 'src/plugins/packs/**'

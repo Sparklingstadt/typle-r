@@ -69,7 +69,7 @@ Web 版と同じ画面構成・色・部品です。上部バー（ブランド�
 cd ios/TypleCore && swift test
 ```
 
-- `.github/workflows/ios.yml` が、`ios/` を変えた PR と main への push で、macOS 上の `swift test` と iPad シミュレーター向けのビルドを行います。Web 版のリリース・デプロイ（`ci.yml`）とは別です。
+- `.github/workflows/ios.yml` が、`ios/` を変えた PR と手動の実行で、macOS 上の `swift test` と iPad シミュレーター向けのビルドを行います。マージ後の main への push では動きません（macOS の利用時間は 10 倍で数えられるため）。Web 版のリリース・デプロイ（`ci.yml`）とは別です。
 - `npm test` の `tests/ios.test.cjs` が、最初の単語リストのコピーが元と同じか、使っている文言が日本語・英語の両方にあり、プレースホルダーがそろっているかを確かめます。`src/plugins/packs` を変えたら `TypleCore/Sources/TypleCore/Resources` にコピーしてください。
 
 ## 範囲外
