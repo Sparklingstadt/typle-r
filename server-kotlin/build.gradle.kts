@@ -1,6 +1,5 @@
 plugins {
   alias(libs.plugins.kotlin.jvm)
-  alias(libs.plugins.kotlin.serialization)
   application
 }
 
@@ -10,7 +9,6 @@ version = "0.58.0"
 dependencies {
   implementation(libs.ktor.server.core)
   implementation(libs.ktor.server.cio)
-  implementation(libs.serialization.json)
   implementation(libs.postgresql)
   implementation(libs.hikari)
   runtimeOnly(libs.slf4j.simple)

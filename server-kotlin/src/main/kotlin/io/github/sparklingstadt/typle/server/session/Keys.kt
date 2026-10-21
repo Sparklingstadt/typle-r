@@ -5,12 +5,12 @@ import java.security.MessageDigest
 import java.util.Base64
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.longOrNull
+import io.github.sparklingstadt.typle.server.json.JsonNull
+import io.github.sparklingstadt.typle.server.json.JsonNumber
+import io.github.sparklingstadt.typle.server.json.JsonObject
+import io.github.sparklingstadt.typle.server.json.JsonString
+import io.github.sparklingstadt.typle.server.json.JsonSyntaxException
+import io.github.sparklingstadt.typle.server.json.JsonValue
 
 // The only subject accepted: the numeric GitHub user id. ASCII digits only, as Go's \d.
 private val accountSub = Regex("github:[0-9]+")
@@ -111,8 +111,8 @@ class Keys private constructor(
     if (!MessageDigest.isEqual(got, sign(key, payload))) return null
     val data = strictDecode(payload) ?: return null
     return try {
-      Json.parseToJsonElement(String(data, Charsets.UTF_8)) as? JsonObject
-    } catch (_: IllegalArgumentException) {
+      JsonValue.parse(String(data, Charsets.UTF_8)) as? JsonObject
+    } catch (_: JsonSyntaxException) {
       null
     }
   }
@@ -148,14 +148,14 @@ private fun hkdf(secret: ByteArray, info: String): ByteArray {
 
 // Go's json.Unmarshal into the wire structs: a string field takes a string, and null or a missing field leaves it "";
 // an integer field takes an integer, and null or missing leaves it 0. Anything else does not open.
-private fun text(fields: JsonObject, name: String): String? = when (val v: JsonElement? = fields[name]) {
+private fun text(fields: JsonObject, name: String): String? = when (val v = fields.members[name]) {
   null, JsonNull -> ""
-  is JsonPrimitive -> if (v.isString) v.content else null
+  is JsonString -> v.value
   else -> null
 }
 
-private fun integer(fields: JsonObject, name: String): Long? = when (val v: JsonElement? = fields[name]) {
+private fun integer(fields: JsonObject, name: String): Long? = when (val v = fields.members[name]) {
   null, JsonNull -> 0
-  is JsonPrimitive -> if (v.isString || '.' in v.content || 'e' in v.content || 'E' in v.content) null else v.longOrNull
+  is JsonNumber -> v.literal.toLongOrNull()
   else -> null
 }
