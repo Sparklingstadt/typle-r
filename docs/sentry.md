@@ -1,7 +1,7 @@
 # Sentry エラー監視
 
 ブラウザーの未処理例外、React の全体エラー画面、Next.js のサーバー例外、
-`/api/workspace` の読み書きで捕捉した例外を収集します。
+Go のバックエンド（`/api/workspace` の読み書き、GitHub ログイン）で捕捉した例外を収集します。
 認証失敗・入力エラー・更新競合など、想定内の4xx応答は報告しません。
 
 ## 接続
@@ -28,7 +28,9 @@ Vercel の Production と Preview で環境名をそれぞれ設定してくだ�
 ## 収集する情報
 
 エラー内容・スタックトレース・実行環境を収集します。ワークスペースAPIの例外には
-`workspace.read` / `workspace.write` の操作タグを付けます。
+`workspace.read` / `workspace.write`、ログインの例外には `auth.callback` の操作タグを付けます。
+Go のバックエンドは `SENTRY_DSN`（なければ `NEXT_PUBLIC_SENTRY_DSN`）と `SENTRY_ENVIRONMENT`（なければ VERCEL_ENV）を読み、
+リクエストのメソッドとパスだけを送ります（本文・ヘッダー・Cookie・クエリーは送りません）。
 リクエスト本文、ヘッダー、Cookie、URLのクエリー・フラグメント、ユーザー情報、
 追加データ、操作履歴を送信前に除去します。Session Replay・性能トレースは無効です。
 例外メッセージ自体は診断に必要なため残します。入力した単語や秘密情報を例外メッセージに含めないでください。

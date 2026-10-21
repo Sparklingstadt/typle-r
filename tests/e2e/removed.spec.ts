@@ -8,13 +8,17 @@ test('removed server routes answer 404', async ({ page }) => {
   await expect(page.getByRole('banner', { name: 'トップバー' })).toBeVisible()
 })
 
-test('an unreadable session cookie falls back to the data in this browser', async ({ page, context }) => {
-  await context.addCookies([{ name: 'authjs.session-token', value: 'stale', url: 'http://127.0.0.1:3101' }])
-  const key = 'typle-r:guest-workspace:v1'
-  const lists = [{ id: 'kept', name: 'Kept in browser', createdAt: '2026-10-19', words: [{ display: 'a', input: 'a', annotation: '' }], records: [] }]
-  await page.addInitScript(([key, value]) => { if (!localStorage.getItem(key)) localStorage.setItem(key, value) },
-    [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists, devices: [] })])
-  await page.goto('/edit')
-  await expect(page.getByRole('button', { name: 'Kept in browser を編集', exact: true })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'GitHubでログイン' })).toBeVisible()
-})
+// authjs.session-token is what a browser that used the app before the Go backend still holds; typle-session=stale is an
+// unreadable cookie of the current format. Neither signs anyone in.
+for (const name of ['authjs.session-token', 'typle-session']) {
+  test(`an unreadable ${name} cookie falls back to the data in this browser`, async ({ page, context }) => {
+    await context.addCookies([{ name, value: 'stale', url: 'http://127.0.0.1:3101' }])
+    const key = 'typle-r:guest-workspace:v1'
+    const lists = [{ id: 'kept', name: 'Kept in browser', createdAt: '2026-10-19', words: [{ display: 'a', input: 'a', annotation: '' }], records: [] }]
+    await page.addInitScript(([key, value]) => { if (!localStorage.getItem(key)) localStorage.setItem(key, value) },
+      [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists, devices: [] })])
+    await page.goto('/edit')
+    await expect(page.getByRole('button', { name: 'Kept in browser を編集', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'GitHubでログイン' })).toBeVisible()
+  })
+}

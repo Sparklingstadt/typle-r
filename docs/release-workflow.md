@@ -63,6 +63,10 @@ CI用Vercelトークンは90日期限で作成しています。期限前にSecr
    CLIはインストールスクリプトを実行せずに入れ、`VERCEL_TOKEN`はSecretの確認とデプロイの手順だけに渡します。
    読み出し不可のSecretが`[SENSITIVE]`になるため、Actionsでは`vercel pull`・`vercel build`を行いません。
 8. 本番ホームの成功応答、Goの関数が返す`/api/health`の200（本番DBへの接続を含む）、匿名APIアクセスの401を確認します。
+   ログインの関数も確認します。`/api/auth/session`が200で本文がちょうど`{"user":null}`であること、
+   `/api/auth/signin`がリダイレクトを辿らずに302を返し、`Location`が`https://github.com/login/oauth/authorize?`で始まり
+   本番の`redirect_uri`（`https://typle-r-six.vercel.app/api/auth/callback/github`）を含むことです。
+   これにより、本番の関数で`AUTH_SECRET`・`AUTH_URL`・`AUTH_GITHUB_ID`・`AUTH_GITHUB_SECRET`が揃って設定されていることまで確かめます。
 
 verifyのDBは一時DBですが、deployから起動するVercel上のビルドは本番環境変数を使います。
 `vercel.json`に従い、ここで本番DBへmigrationが適用されます。DB更新に成功した後で

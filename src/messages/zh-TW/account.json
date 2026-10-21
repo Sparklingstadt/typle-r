@@ -7,6 +7,7 @@
   "signedInWithGitHub": "已透過 GitHub 登入",
   "manageDevices": "管理裝置",
   "signOut": "登出",
+  "signOutFailed": "無法登出。請再試一次。",
   "localLogin": {
     "title": "在這台 Mac 上使用 Typle",
     "description": "可以用 193 個國家的國名開始練習。清單與練習紀錄會儲存在這台 Mac 專用的資料庫中。",

@@ -79,6 +79,22 @@ func CheckSize(before, after int) error {
 	return nil
 }
 
+// CheckLimits refuses lists past the limits of validateLists (src/core/workspaceRequest.ts), which the app applies to
+// every save. The number of lists is not checked here: it is compared with the saved ones when the change is applied.
+func CheckLimits(lists []List) error {
+	for _, list := range lists {
+		if len(list.Words) > MaxWords || len(list.Records) > MaxRecords || length(list.Name) > MaxListName {
+			return &Error{Key: "invalidWorkspace"}
+		}
+		for _, word := range list.Words {
+			if length(word.Input) > MaxWordText || length(word.Display) > MaxWordText || length(word.Annotation) > MaxAnnotation {
+				return &Error{Key: "invalidWorkspace"}
+			}
+		}
+	}
+	return nil
+}
+
 // NewID returns a random UUID (version 4), as crypto.randomUUID does in the app.
 func NewID() string {
 	var b [16]byte

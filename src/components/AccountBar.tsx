@@ -1,5 +1,6 @@
 "use client"
-import { signIn, signOut, useSession } from 'next-auth/react'
+import { useState } from 'react'
+import { signIn, signOut, useSession } from '@/lib/session'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -21,35 +22,39 @@ function UserAvatar({ name, image, className }: { name: string; image?: string |
 export default function AccountBar() {
   const { data: session, status } = useSession()
   const t = useTranslations('account')
+  const [signOutFailed, setSignOutFailed] = useState(false)
   // Same size as the avatar button so the top bar does not shift once the session is known.
   if (status === 'loading') return <div className="flex size-10 items-center justify-center"><Skeleton className="size-8 rounded-full" /><span className="sr-only">{t('checking')}</span></div>
-  if (!session?.user) return <Button variant="outline" size="lg" className="gap-2 px-3" aria-label={t('signInWithGitHub')} onClick={() => signIn('github')}>
+  if (!session?.user) return <Button variant="outline" size="lg" className="gap-2 px-3" aria-label={t('signInWithGitHub')} onClick={() => signIn()}>
     <LogIn aria-hidden="true" /><span className="sm:hidden">{t('signIn')}</span><span className="hidden sm:inline">{t('signInWithGitHub')}</span>
   </Button>
   const name = session.user.name ?? t('githubUser')
-  return <DropdownMenu.Root>
-    <DropdownMenu.Trigger asChild>
-      <Button variant="ghost" size="icon" className="size-10 rounded-full" aria-label={t('menu')} title={name}>
-        <UserAvatar name={name} image={session.user.image} className="size-8" />
-      </Button>
-    </DropdownMenu.Trigger>
-    <DropdownMenu.Portal>
-      <DropdownMenu.Content align="end" sideOffset={8} className="z-50 w-60 rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md">
-        <DropdownMenu.Label className="flex items-center gap-3 px-3 py-2">
-          <UserAvatar name={name} image={session.user.image} className="size-9" />
-          <span className="grid min-w-0">
-            <span className="truncate text-sm font-medium">{name}</span>
-            <span className="text-xs text-muted-foreground">{t('signedInWithGitHub')}</span>
-          </span>
-        </DropdownMenu.Label>
-        <DropdownMenu.Separator className="-mx-1 my-1 h-px bg-border" />
-        <DropdownMenu.Item asChild className={itemClass}>
-          <Link href="/devices"><Monitor aria-hidden="true" />{t('manageDevices')}</Link>
-        </DropdownMenu.Item>
-        <DropdownMenu.Item className={itemClass} onSelect={() => { void signOut({ callbackUrl: '/home' }) }}>
-          <LogOut aria-hidden="true" />{t('signOut')}
-        </DropdownMenu.Item>
-      </DropdownMenu.Content>
-    </DropdownMenu.Portal>
-  </DropdownMenu.Root>
+  return <div className="relative">
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger asChild>
+        <Button variant="ghost" size="icon" className="size-10 rounded-full" aria-label={t('menu')} title={name}>
+          <UserAvatar name={name} image={session.user.image} className="size-8" />
+        </Button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content align="end" sideOffset={8} className="z-50 w-60 rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md">
+          <DropdownMenu.Label className="flex items-center gap-3 px-3 py-2">
+            <UserAvatar name={name} image={session.user.image} className="size-9" />
+            <span className="grid min-w-0">
+              <span className="truncate text-sm font-medium">{name}</span>
+              <span className="text-xs text-muted-foreground">{t('signedInWithGitHub')}</span>
+            </span>
+          </DropdownMenu.Label>
+          <DropdownMenu.Separator className="-mx-1 my-1 h-px bg-border" />
+          <DropdownMenu.Item asChild className={itemClass}>
+            <Link href="/devices"><Monitor aria-hidden="true" />{t('manageDevices')}</Link>
+          </DropdownMenu.Item>
+          <DropdownMenu.Item className={itemClass} onSelect={() => { setSignOutFailed(false); signOut().catch(() => setSignOutFailed(true)) }}>
+            <LogOut aria-hidden="true" />{t('signOut')}
+          </DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
+    {signOutFailed && <p role="alert" className="absolute top-full right-0 z-50 mt-2 w-56 rounded-md border bg-popover p-2 text-xs text-popover-foreground shadow-md">{t('signOutFailed')}</p>}
+  </div>
 }

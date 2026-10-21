@@ -195,3 +195,13 @@ jobs:
           curl --fail --silent --show-error --retry 3 --max-time 60 https://typle-r-six.vercel.app/api/health > /dev/null
           status=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --max-time 60 https://typle-r-six.vercel.app/api/workspace)
           test "$status" = 401 || { echo "Expected anonymous API HTTP 401, got $status"; exit 1; }
+          body=$(curl --fail --silent --show-error --retry 3 --max-time 60 https://typle-r-six.vercel.app/api/auth/session)
+          test "$body" = '{"user":null}' || { echo "Expected anonymous session {\"user\":null}, got $body"; exit 1; }
+          signin=$(curl --silent --show-error --retry 3 --max-time 60 --output "$RUNNER_TEMP/signin-response" --write-out '%{http_code} %{redirect_url}' https://typle-r-six.vercel.app/api/auth/signin)
+          status=${signin%% *}
+          location=${signin#* }
+          test "$status" = 302 || { echo "Expected sign-in HTTP 302, got $status"; exit 1; }
+          case "$location" in
+            "https://github.com/login/oauth/authorize?"*redirect_uri=https%3A%2F%2Ftyple-r-six.vercel.app%2Fapi%2Fauth%2Fcallback%2Fgithub*) ;;
+            *) echo "Expected sign-in to redirect to GitHub with the production callback, got $location"; exit 1 ;;
+          esac

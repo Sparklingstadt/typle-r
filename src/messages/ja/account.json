@@ -7,6 +7,7 @@
   "signedInWithGitHub": "GitHubでログイン中",
   "manageDevices": "端末を管理",
   "signOut": "ログアウト",
+  "signOutFailed": "ログアウトできませんでした。もう一度お試しください。",
   "localLogin": {
     "title": "このMacでTypleを使う",
     "description": "国名193か国の練習を始められます。リストと練習記録は、このMacの専用データベースに保存されます。",

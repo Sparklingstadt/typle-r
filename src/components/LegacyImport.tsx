@@ -1,6 +1,6 @@
 "use client"
 import { useState } from 'react'
-import { useSession } from 'next-auth/react'
+import { useSession } from '@/lib/session'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { decodeLists, SavedWordList } from '@/core/wordLists'

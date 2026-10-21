@@ -7,6 +7,7 @@
   "signedInWithGitHub": "Signed in with GitHub",
   "manageDevices": "Manage devices",
   "signOut": "Sign out",
+  "signOutFailed": "Could not sign out. Please try again.",
   "localLogin": {
     "title": "Use Typle on this Mac",
     "description": "Start practising with the names of 193 countries. Lists and practice records are saved in this Mac’s own database.",

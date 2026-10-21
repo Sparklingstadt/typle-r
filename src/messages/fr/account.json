@@ -7,6 +7,7 @@
   "signedInWithGitHub": "Connecté avec GitHub",
   "manageDevices": "Gérer les appareils",
   "signOut": "Se déconnecter",
+  "signOutFailed": "Déconnexion impossible. Veuillez réessayer.",
   "localLogin": {
     "title": "Utiliser Typle sur ce Mac",
     "description": "Commencez à vous entraîner avec les noms de 193 pays. Les listes et les résultats sont enregistrés dans une base de données propre à ce Mac.",
