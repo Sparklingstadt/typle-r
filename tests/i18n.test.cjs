@@ -93,7 +93,8 @@ test('source files have no hard-coded Japanese text', () => {
 
 // The screen shows the `error` of a failed /api/workspace (or other backend) answer through the `errors` messages, so
 // every key the Go backend answers with has one. methodNotAllowed and notFound are left out: the app's own requests
-// never get them.
+// never get them. So is loginFailed: only POST /api/auth/token answers it, which the iPad app calls and the web app
+// does not.
 test('every error key of the Go backend has a message', () => {
   const sources = ['server/internal/web', 'server/vercel'].flatMap(dir =>
     fs.readdirSync(path.join(__dirname, '..', dir)).filter(file => file.endsWith('.go') && !file.endsWith('_test.go'))
@@ -104,6 +105,7 @@ test('every error key of the Go backend has a message', () => {
   }
   keys.delete('methodNotAllowed')
   keys.delete('notFound')
+  keys.delete('loginFailed')
   assert.ok(keys.has('databaseUnavailable') && keys.has('loginRequired'), [...keys].join(', '))
   for (const locale of locales) {
     const errors = read(locale, 'errors.json')
