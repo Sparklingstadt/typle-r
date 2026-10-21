@@ -62,7 +62,10 @@ CI用Vercelトークンは90日期限で作成しています。期限前にSecr
    CLIはバージョンごとにmainのキャッシュに保存します。版を上げるときは`ci.yml`の`VERCEL_CLI_VERSION`だけを変えます。
    CLIはインストールスクリプトを実行せずに入れ、`VERCEL_TOKEN`はSecretの確認とデプロイの手順だけに渡します。
    読み出し不可のSecretが`[SENSITIVE]`になるため、Actionsでは`vercel pull`・`vercel build`を行いません。
-8. 本番ホームの成功応答、Goの関数が返す`/api/health`の200（本番DBへの接続を含む）、匿名APIアクセスの401を確認します。
+8. 本番のドメインが新しいデプロイを返すまで待ちます（v0.56.1 から）。`vercel deploy --prod` は、ドメインがまだ前のデプロイを返しているうちに終わることがあり、
+   前のデプロイにもあるパスは同じ応答になるため、そのままでは確認が新しいデプロイを見ません。デプロイ前に本番の `/home` が示すデプロイ（`data-dpl-id`）を記録し、
+   それと違うデプロイを返すまで5秒ごとに最大5分待ちます。変わらなければ失敗します。
+   その後、本番ホームの成功応答、Goの関数が返す`/api/health`の200（本番DBへの接続を含む）、匿名APIアクセスの401を確認します。
    ログインの関数も確認します。`/api/auth/session`が200で本文がちょうど`{"user":null}`であること、
    `/api/auth/signin`がリダイレクトを辿らずに302を返し、`Location`が`https://github.com/login/oauth/authorize?`で始まり
    本番の`redirect_uri`（`https://typle-r-six.vercel.app/api/auth/callback/github`）を含むことです。
