@@ -67,7 +67,30 @@ func New(c Config) http.Handler {
 	mux.HandleFunc("/api/auth/signout", s.signout)
 	mux.HandleFunc("/api/auth/local", s.localLogin)
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { failure(w, http.StatusNotFound, "notFound") })
-	return mux
+	return withSecurityHeaders(mux)
+}
+
+// The headers next.config.mjs sends with every Next.js response. On Vercel they do not reach the Go functions, so every
+// response of this handler carries them too: no other site may frame it, and responses are not sniffed into another
+// type or sent with the full URL as the referrer.
+var securityHeaders = [...][2]string{
+	{"Content-Security-Policy", "frame-ancestors 'none'; base-uri 'self'; object-src 'none'"},
+	{"X-Frame-Options", "DENY"},
+	{"X-Content-Type-Options", "nosniff"},
+	{"Referrer-Policy", "strict-origin-when-cross-origin"},
+}
+
+// A pointer, not a HandlerFunc, so that handlers can be compared.
+type secured struct{ next http.Handler }
+
+func withSecurityHeaders(next http.Handler) http.Handler { return &secured{next} }
+
+func (s *secured) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	header := w.Header()
+	for _, pair := range securityHeaders {
+		header.Set(pair[0], pair[1])
+	}
+	s.next.ServeHTTP(w, r)
 }
 
 // Nothing is cached, as in the other API responses.
@@ -87,5 +110,7 @@ func failure(w http.ResponseWriter, status int, key string) {
 // Unavailable answers every request with a 503 and the error key, in the same form as the handlers' own failures. The
 // Vercel entry point uses it for the parts it could not set up.
 func Unavailable(key string) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { failure(w, http.StatusServiceUnavailable, key) })
+	return withSecurityHeaders(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		failure(w, http.StatusServiceUnavailable, key)
+	}))
 }

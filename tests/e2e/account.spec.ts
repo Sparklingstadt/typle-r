@@ -1,13 +1,18 @@
 import { test, expect } from '@playwright/test'
-import { encode } from 'next-auth/jwt'
 import { randomBytes } from 'node:crypto'
+import { sealSession } from './sessionCookie'
 const origin = 'http://127.0.0.1:3101'
 const secret = 'typle-e2e-only-not-a-production-secret-32-bytes'
+// The Go backend's login cookie over HTTP; the sealed value is what it sets after GitHub.
+const cookieName = 'typle-session'
+const login = (sub: string, name: string) => {
+  const iat = Math.floor(Date.now() / 1000)
+  return sealSession(secret, { sub, name, image: '', iat, exp: iat + 3600 })
+}
 let accountId = ''
 test.beforeEach(async ({ context }) => {
   accountId = 'github:' + BigInt('0x' + randomBytes(16).toString('hex')).toString()
-  const token = await encode({ token: { sub: accountId, name: 'E2E User' }, secret, salt: 'authjs.session-token' })
-  await context.addCookies([{ name: 'authjs.session-token', value: token, url: origin, httpOnly: true, sameSite: 'Lax' }])
+  await context.addCookies([{ name: cookieName, value: login(accountId, 'E2E User'), url: origin, httpOnly: true, sameSite: 'Lax' }])
 })
 test.afterEach(async () => {
   // Test users are isolated; cleanup is handled through a direct DB connection below.
@@ -46,8 +51,7 @@ test('real API rejects anonymous, cross-origin, account spoofing and stale write
   expect((await page.request.put('/api/workspace', { headers: { Origin: origin }, data: { ...base, accountId: 'github:2' } })).status()).toBe(401)
   expect((await page.request.put('/api/workspace', { headers: { Origin: origin }, data: { ...base, revision: 0 } })).status()).toBe(409)
   const originalCookies = await context.cookies()
-  const token = await encode({ token: { sub: accountId + '1', name: 'Other' }, secret, salt: 'authjs.session-token' })
-  await context.addCookies([{ name: 'authjs.session-token', value: token, url: origin }])
+  await context.addCookies([{ name: cookieName, value: login(accountId + '1', 'Other'), url: origin }])
   expect((await (await page.request.get('/api/workspace')).json()).lists).toEqual([])
   await context.clearCookies()
   expect((await page.request.get('/api/workspace')).status()).toBe(401)
@@ -76,8 +80,7 @@ test('switching account refreshes the workspace without exposing the previous li
   await seed(page, [{ id: 'private-switch', name: 'Previous account list', createdAt: '2026-09-06', records: [], words: [{ display: 'a', input: 'a', annotation: '' }] }])
   await page.goto('/edit')
   await expect(page.getByRole('button', { name: 'Previous account list を編集', exact: true })).toBeVisible()
-  const token = await encode({ token: { sub: accountId + '1', name: 'Other account' }, secret, salt: 'authjs.session-token' })
-  await context.addCookies([{ name: 'authjs.session-token', value: token, url: origin }])
+  await context.addCookies([{ name: cookieName, value: login(accountId + '1', 'Other account'), url: origin }])
   await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')))
   await expect(page.getByRole('button', { name: 'アカウントメニュー', exact: true })).toHaveAttribute('title', 'Other account')
   await expect(page.getByRole('button', { name: 'Previous account list を編集', exact: true })).toHaveCount(0)

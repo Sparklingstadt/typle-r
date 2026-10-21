@@ -28,13 +28,22 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const refresh = useCallback(async () => {
     const next = await fetchSession()
     if (!mounted.current) return
-    setData(next)
+    // The same user keeps the same object, so a refresh on focus renders nothing again.
+    setData(prev => prev?.user.id === next?.user.id && prev?.user.name === next?.user.name && prev?.user.image === next?.user.image ? prev : next)
     setLoaded(true)
   }, [])
   useEffect(() => {
     mounted.current = true
     void refresh()
-    return () => { mounted.current = false }
+    // Another tab may have signed in or out, or switched account: look again whenever this one comes back into view.
+    const again = () => { if (document.visibilityState === 'visible') void refresh() }
+    document.addEventListener('visibilitychange', again)
+    window.addEventListener('focus', again)
+    return () => {
+      mounted.current = false
+      document.removeEventListener('visibilitychange', again)
+      window.removeEventListener('focus', again)
+    }
   }, [refresh])
   const value = useMemo<SessionState>(() => ({
     data,
