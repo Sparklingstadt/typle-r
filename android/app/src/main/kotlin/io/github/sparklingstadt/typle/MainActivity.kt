@@ -6,10 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import io.github.sparklingstadt.typle.core.AccountLogin
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
   // The same AppModel the screens get from viewModel(): the activity's store and default key.
@@ -38,12 +35,11 @@ class MainActivity : ComponentActivity() {
 
   /** Hands `typle-r://login?…` to the app, once. */
   private fun receiveLogin(intent: Intent) {
+    // A task the login started is opened again from the recent apps with the same intent, whose login was finished.
+    if ((intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0) return
     val data = intent.data ?: return
     if (data.scheme != AccountLogin.CALLBACK_SCHEME || data.host != "login") return
     setIntent(Intent(intent).setData(null))
-    val callback = data.toString()
-    val model = app
-    // Undispatched, so the login is marked as being finished before onResume, which follows this, looks.
-    lifecycleScope.launch(start = CoroutineStart.UNDISPATCHED) { model.finishSignIn(callback) }
+    app.receiveSignIn(data.toString())
   }
 }
