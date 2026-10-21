@@ -8,11 +8,20 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/sparklingstadt/typle-r/server/internal/store"
 )
 
 type fakeStore struct{ err error }
 
 func (f fakeStore) Ping(context.Context) error { return f.err }
+
+// The health check does not read workspaces; these only make fakeStore a Store.
+func (f fakeStore) ReadRevision(context.Context, string) (*store.Saved, error) { return nil, f.err }
+
+func (f fakeStore) WriteRevision(context.Context, string, int, store.Change) (*store.Saved, error) {
+	return nil, f.err
+}
 
 func get(t *testing.T, h http.Handler, method, path string) *httptest.ResponseRecorder {
 	t.Helper()
