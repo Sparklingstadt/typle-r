@@ -476,3 +476,234 @@ func TestModifyImportsList(t *testing.T) {
 		t.Fatalf("lists = %.300s…", stored[max(0, len(stored)-300):])
 	}
 }
+
+func newLists(n int) []workspace.List {
+	lists := make([]workspace.List, n)
+	for i := range lists {
+		lists[i] = workspace.List{ID: fmt.Sprintf("l%d", i), Name: fmt.Sprintf("list %d", i), CreatedAt: "2026-10-10T01:23:45.000Z",
+			Words: []workspace.Word{{Display: "a", Input: "a"}}, Records: []workspace.Record{}}
+	}
+	return lists
+}
+
+func insertLists(t *testing.T, conn *pgx.Conn, id string, n int) {
+	t.Helper()
+	encoded, err := workspace.Encode(newLists(n))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := conn.Exec(context.Background(), `INSERT INTO typle_workspaces (owner_id, lists) VALUES ($1, $2)`, id, string(encoded)); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func isListLimit(err error) bool {
+	var e *workspace.Error
+	return errors.As(err, &e) && e.Key == "listLimit"
+}
+
+func TestReadRevisionMissing(t *testing.T) {
+	connection, conn := database(t)
+	s := open(t, connection, true)
+	saved, err := s.ReadRevision(context.Background(), owner(t, conn))
+	if saved != nil || err != nil {
+		t.Fatalf("ReadRevision = %v, %v; want nil, nil", saved, err)
+	}
+}
+
+func TestWriteRevisionCreate(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	devices := []workspace.Device{{ID: "d1", Name: "自宅", Layout: "JIS"}}
+	saved, err := s.WriteRevision(ctx, id, 0, Change{Lists: newLists(2), HasLists: true, Devices: devices, HasDevices: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if saved.Revision != 1 || len(saved.Workspace.Lists) != 2 || len(saved.Workspace.Devices) != 1 {
+		t.Fatalf("saved = %+v", saved)
+	}
+	read, err := s.ReadRevision(ctx, id)
+	if err != nil || read == nil || read.Revision != 1 || len(read.Workspace.Lists) != 2 {
+		t.Fatalf("ReadRevision = %+v, %v", read, err)
+	}
+	if _, err := s.WriteRevision(ctx, id, 0, Change{Lists: newLists(1), HasLists: true}); !errors.Is(err, ErrConflict) {
+		t.Fatalf("second create: %v; want ErrConflict", err)
+	}
+}
+
+func TestWriteRevisionCreateOmitted(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	saved, err := s.WriteRevision(ctx, id, 0, Change{Devices: []workspace.Device{{ID: "d1", Name: "自宅", Layout: "JIS"}}, HasDevices: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(saved.Workspace.Lists) != 0 || len(saved.Workspace.Devices) != 1 {
+		t.Fatalf("saved = %+v", saved.Workspace)
+	}
+}
+
+func TestWriteRevisionUpdate(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	if _, err := s.WriteRevision(ctx, id, 0, Change{Lists: newLists(1), HasLists: true}); err != nil {
+		t.Fatal(err)
+	}
+	saved, err := s.WriteRevision(ctx, id, 1, Change{Lists: newLists(3), HasLists: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if saved.Revision != 2 || len(saved.Workspace.Lists) != 3 {
+		t.Fatalf("saved = %+v", saved)
+	}
+	if _, err := s.WriteRevision(ctx, id, 1, Change{Lists: newLists(1), HasLists: true}); !errors.Is(err, ErrConflict) {
+		t.Fatalf("stale revision: %v; want ErrConflict", err)
+	}
+	if _, err := s.WriteRevision(ctx, owner(t, conn), 1, Change{Lists: newLists(1), HasLists: true}); !errors.Is(err, ErrConflict) {
+		t.Fatalf("missing row: %v; want ErrConflict", err)
+	}
+	if _, revision, _ := row(t, conn, id); revision != 2 {
+		t.Fatalf("revision = %d after refused saves", revision)
+	}
+}
+
+func TestWriteRevisionKeepsOmitted(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	if _, err := s.WriteRevision(ctx, id, 0, Change{Lists: newLists(2), HasLists: true}); err != nil {
+		t.Fatal(err)
+	}
+	devices := []workspace.Device{{ID: "d1", Name: "自宅", Layout: "JIS"}}
+	saved, err := s.WriteRevision(ctx, id, 1, Change{Devices: devices, HasDevices: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if saved.Revision != 2 || len(saved.Workspace.Lists) != 2 || len(saved.Workspace.Devices) != 1 {
+		t.Fatalf("saved = %+v", saved.Workspace)
+	}
+	saved, err = s.WriteRevision(ctx, id, 2, Change{Lists: newLists(1), HasLists: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(saved.Workspace.Lists) != 1 || len(saved.Workspace.Devices) != 1 {
+		t.Fatalf("saved = %+v", saved.Workspace)
+	}
+}
+
+func TestWriteRevisionListLimit(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	s := open(t, connection, true)
+	over := workspace.MaxLists + 1
+
+	fresh := owner(t, conn)
+	if _, err := s.WriteRevision(ctx, fresh, 0, Change{Lists: newLists(over), HasLists: true}); !isListLimit(err) {
+		t.Fatalf("create with %d lists: %v; want listLimit", over, err)
+	}
+	if saved, _ := s.ReadRevision(ctx, fresh); saved != nil {
+		t.Fatal("a refused create left a row")
+	}
+
+	// Lists merged from removed profiles may exceed the limit; a save may keep that number or lower it, never raise it.
+	id := owner(t, conn)
+	insertLists(t, conn, id, over)
+	if _, err := s.WriteRevision(ctx, id, 1, Change{Lists: newLists(over + 1), HasLists: true}); !isListLimit(err) {
+		t.Fatalf("raising to %d lists: %v; want listLimit", over+1, err)
+	}
+	if _, err := s.WriteRevision(ctx, id, 1, Change{Lists: newLists(over), HasLists: true}); err != nil {
+		t.Fatalf("keeping %d lists: %v", over, err)
+	}
+	if _, err := s.WriteRevision(ctx, id, 1, Change{Lists: newLists(over + 1), HasLists: true}); !errors.Is(err, ErrConflict) {
+		t.Fatalf("stale revision with %d lists: %v; want ErrConflict before listLimit", over+1, err)
+	}
+}
+
+func TestWriteRevisionConcurrent(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	if _, err := s.WriteRevision(ctx, id, 0, Change{Lists: newLists(1), HasLists: true}); err != nil {
+		t.Fatal(err)
+	}
+	errs := make(chan error, 2)
+	for i := range 2 {
+		go func() {
+			_, err := s.WriteRevision(ctx, id, 1, Change{Lists: newLists(i + 2), HasLists: true})
+			errs <- err
+		}()
+	}
+	var conflicts, successes int
+	for range 2 {
+		switch err := <-errs; {
+		case err == nil:
+			successes++
+		case errors.Is(err, ErrConflict):
+			conflicts++
+		default:
+			t.Fatal(err)
+		}
+	}
+	if successes != 1 || conflicts != 1 {
+		t.Fatalf("successes = %d, conflicts = %d; want 1 and 1", successes, conflicts)
+	}
+	if _, revision, _ := row(t, conn, id); revision != 2 {
+		t.Fatalf("revision = %d, want 2", revision)
+	}
+}
+
+func TestWriteRevisionConcurrentCreate(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	errs := make(chan error, 2)
+	for range 2 {
+		go func() {
+			_, err := s.WriteRevision(ctx, id, 0, Change{Lists: newLists(1), HasLists: true})
+			errs <- err
+		}()
+	}
+	var conflicts int
+	for range 2 {
+		if err := <-errs; errors.Is(err, ErrConflict) {
+			conflicts++
+		} else if err != nil {
+			t.Fatal(err)
+		}
+	}
+	if conflicts != 1 {
+		t.Fatalf("conflicts = %d, want 1", conflicts)
+	}
+}
+
+func TestWriteRevisionKeepsUnknownFields(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	lists := newLists(1)
+	lists[0].Words[0].Extra = `{"x":{"a":[1,2]}}`
+	if _, err := s.WriteRevision(ctx, id, 0, Change{Lists: lists, HasLists: true}); err != nil {
+		t.Fatal(err)
+	}
+	saved, err := s.ReadRevision(ctx, id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := saved.Workspace.Lists[0].Words[0].Extra; got != `{"x":{"a":[1,2]}}` {
+		t.Fatalf("unknown field lost: %q", got)
+	}
+	stored, _, _ := row(t, conn, id)
+	if !strings.Contains(stored, `"x"`) {
+		t.Fatalf("stored lists = %s", stored)
+	}
+}

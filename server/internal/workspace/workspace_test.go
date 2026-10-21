@@ -2,6 +2,7 @@ package workspace
 
 import (
 	"bytes"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -142,6 +143,36 @@ func TestParseTime(t *testing.T) {
 	for _, input := range []string{"", "yesterday", "2026-13-01", "10:05"} {
 		if _, ok := ParseTime(input); ok {
 			t.Errorf("ParseTime(%q) succeeded", input)
+		}
+	}
+}
+
+func TestCheckLimits(t *testing.T) {
+	words := func(n int) []Word { return make([]Word, n) }
+	text := func(n int, unit string) string { return strings.Repeat(unit, n) }
+	ok := []List{
+		{Name: text(MaxListName, "a"), Words: words(MaxWords), Records: make([]Record, MaxRecords)},
+		{Name: text(MaxListName/2, "𠮷"), Words: []Word{{Input: text(MaxWordText, "a"), Display: text(MaxWordText, "a"), Annotation: text(MaxAnnotation, "a")}}},
+	}
+	if err := CheckLimits(ok); err != nil {
+		t.Fatalf("limits themselves refused: %v", err)
+	}
+	tooMany := []struct {
+		name string
+		list List
+	}{
+		{"words", List{Words: words(MaxWords + 1)}},
+		{"records", List{Records: make([]Record, MaxRecords+1)}},
+		{"name", List{Name: text(MaxListName+1, "a")}},
+		{"name in UTF-16 units", List{Name: text(MaxListName/2, "𠮷") + "a"}},
+		{"input", List{Words: []Word{{Input: text(MaxWordText+1, "a")}}}},
+		{"display", List{Words: []Word{{Display: text(MaxWordText+1, "a")}}}},
+		{"annotation", List{Words: []Word{{Annotation: text(MaxAnnotation+1, "a")}}}},
+	}
+	for _, c := range tooMany {
+		var e *Error
+		if err := CheckLimits([]List{ok[0], c.list}); !errors.As(err, &e) || e.Key != "invalidWorkspace" {
+			t.Errorf("%s over the limit: %v", c.name, err)
 		}
 	}
 }
