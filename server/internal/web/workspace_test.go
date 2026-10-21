@@ -229,7 +229,7 @@ func TestMethod(t *testing.T) {
 	h := newHarness(t, &fakeWorkspaces{}, testBase)
 	for _, method := range []string{http.MethodPost, http.MethodDelete, http.MethodPatch} {
 		response := h.request(method, "", testOwner)
-		if response.Code != http.StatusMethodNotAllowed || response.Header().Get("Allow") != "GET, PUT" {
+		if response.Code != http.StatusMethodNotAllowed || response.Header().Get("Allow") != "GET, HEAD, PUT" {
 			t.Fatalf("%s: response = %d %v", method, response.Code, response.Header())
 		}
 	}

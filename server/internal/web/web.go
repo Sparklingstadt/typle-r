@@ -66,7 +66,7 @@ func New(c Config) http.Handler {
 	mux.HandleFunc("/api/auth/session", s.session)
 	mux.HandleFunc("/api/auth/signout", s.signout)
 	mux.HandleFunc("/api/auth/local", s.localLogin)
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { failure(w, http.StatusNotFound, "notFound") })
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { refuse(w, http.StatusNotFound, "notFound") })
 	return withSecurityHeaders(mux)
 }
 
@@ -93,24 +93,26 @@ func (s *secured) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.next.ServeHTTP(w, r)
 }
 
-// Nothing is cached, as in the other API responses.
-func respond(w http.ResponseWriter, status int, value any) {
+// reply writes every JSON answer. Many are the account's own, and an error may depend on the cookie, so none is kept by
+// a cache, a shared one least of all. X-Content-Type-Options comes with the security headers.
+func reply(w http.ResponseWriter, status int, value any) {
 	header := w.Header()
 	header.Set("Content-Type", "application/json; charset=utf-8")
-	header.Set("Cache-Control", "no-store")
-	header.Set("X-Content-Type-Options", "nosniff")
+	header.Set("Cache-Control", "private, no-store")
+	header.Set("Vary", "Cookie")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(value)
 }
 
-func failure(w http.ResponseWriter, status int, key string) {
-	respond(w, status, map[string]string{"error": key})
+// Errors are keys of the app's `errors` messages; the screen shows them in the reader's language.
+func refuse(w http.ResponseWriter, status int, key string) {
+	reply(w, status, map[string]string{"error": key})
 }
 
 // Unavailable answers every request with a 503 and the error key, in the same form as the handlers' own failures. The
 // Vercel entry point uses it for the parts it could not set up.
 func Unavailable(key string) http.Handler {
 	return withSecurityHeaders(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		failure(w, http.StatusServiceUnavailable, key)
+		refuse(w, http.StatusServiceUnavailable, key)
 	}))
 }

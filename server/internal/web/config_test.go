@@ -243,7 +243,7 @@ func TestUnavailable(t *testing.T) {
 		t.Fatalf("response = %d %s", response.Code, response.Body)
 	}
 	header := response.Header()
-	if header.Get("Content-Type") != "application/json; charset=utf-8" || header.Get("Cache-Control") != "no-store" ||
+	if header.Get("Content-Type") != "application/json; charset=utf-8" || header.Get("Cache-Control") != "private, no-store" ||
 		header.Get("X-Content-Type-Options") != "nosniff" {
 		t.Fatalf("headers = %v", header)
 	}

@@ -3,7 +3,6 @@ package web
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -30,7 +29,7 @@ func (s *server) now() time.Time {
 
 // owner is the signed-in GitHub account, from the session cookie.
 func (s *server) owner(r *http.Request) (session.Session, bool) {
-	cookie, err := r.Cookie(session.CookieName(s.config.BaseURL != nil && s.config.BaseURL.Scheme == "https"))
+	cookie, err := r.Cookie(session.CookieName(s.secure()))
 	if err != nil {
 		return session.Session{}, false
 	}
@@ -61,35 +60,19 @@ func (s *server) report(r *http.Request, err error, operation string) {
 		s.config.Report(r, err, operation)
 		return
 	}
-	log.Printf("%s %s: %s: %v", r.Method, r.URL.Path, operation, err)
+	logOnly(r, err, operation)
 }
 
-// The answers are the account's own, so a shared cache must not keep them.
-func reply(w http.ResponseWriter, status int, value any) {
-	header := w.Header()
-	header.Set("Content-Type", "application/json; charset=utf-8")
-	header.Set("Cache-Control", "private, no-store")
-	header.Set("Vary", "Cookie")
-	header.Set("X-Content-Type-Options", "nosniff")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(value)
-}
-
-// Errors are keys of the app's `errors` messages; the screen shows them in the reader's language.
-func refuse(w http.ResponseWriter, status int, key string) {
-	reply(w, status, map[string]string{"error": key})
-}
-
+// HEAD is served as GET; net/http leaves the body out.
 func (s *server) workspace(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		s.readWorkspace(w, r)
-	case http.MethodPut:
-		s.writeWorkspace(w, r)
-	default:
-		w.Header().Set("Allow", "GET, PUT")
-		failure(w, http.StatusMethodNotAllowed, "methodNotAllowed")
+	if !methods(w, r, http.MethodGet, http.MethodHead, http.MethodPut) {
+		return
 	}
+	if r.Method == http.MethodPut {
+		s.writeWorkspace(w, r)
+		return
+	}
+	s.readWorkspace(w, r)
 }
 
 func (s *server) readWorkspace(w http.ResponseWriter, r *http.Request) {
