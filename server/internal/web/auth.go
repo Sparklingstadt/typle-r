@@ -5,9 +5,11 @@ import (
 	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/base64"
+	"encoding/json"
 	"log"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/sparklingstadt/typle-r/server/internal/session"
@@ -23,7 +25,30 @@ const (
 	randomSize = 32
 	// maxReturnTo keeps the OAuth cookie, which holds returnTo, well under the 4096 bytes a browser accepts.
 	maxReturnTo = 1024
+	// appClient is the signin's client for a login the iPad app starts, and appReturn where such a login ends: the
+	// app's ASWebAuthenticationSession waits for this scheme and gives the URL to the app alone.
+	appClient = "ipad"
+	appReturn = "typle-r://login"
+	// maxTokenRequest is far more than a code and a verifier take.
+	maxTokenRequest = 4096
 )
+
+// pkceValue is what RFC 7636 allows as a code verifier; an S256 challenge is 43 of these characters.
+var (
+	pkceValue     = regexp.MustCompile(`^[A-Za-z0-9._~-]{43,128}$`)
+	pkceChallenge = regexp.MustCompile(`^[A-Za-z0-9_-]{43}$`)
+)
+
+// challengeOf is the S256 code challenge of verifier.
+func challengeOf(verifier string) string {
+	sum := sha256.Sum256([]byte(verifier))
+	return base64.RawURLEncoding.EncodeToString(sum[:])
+}
+
+// toApp ends a login the iPad app started, with the code or the error.
+func toApp(w http.ResponseWriter, key, value string) {
+	goTo(w, appReturn+"?"+url.Values{key: {value}}.Encode())
+}
 
 // safeReturnTo is where to go back to after the login: a path of this site. Anything else, such as another site, a
 // protocol-relative URL (//host) or one a browser reads as such (/\host), or one over maxReturnTo bytes, is /home.
@@ -109,10 +134,19 @@ func random() (string, error) {
 }
 
 // signin sends the browser to GitHub with a state and a PKCE challenge, and keeps the state, the verifier and where to
-// return to in the signed OAuth cookie.
+// return to in the signed OAuth cookie. With client=ipad and the app's own S256 code_challenge, the login is the iPad
+// app's: it ends at appReturn with a code that only the holder of the challenge's verifier can trade for a token.
 func (s *server) signin(w http.ResponseWriter, r *http.Request) {
 	if !methods(w, r, http.MethodGet) || !s.loginReady(w, r) {
 		return
+	}
+	query := r.URL.Query()
+	var appChallenge string
+	if query.Get("client") == appClient {
+		if appChallenge = query.Get("code_challenge"); !pkceChallenge.MatchString(appChallenge) {
+			toApp(w, "error", "loginFailed")
+			return
+		}
 	}
 	state, err := random()
 	var verifier string
@@ -124,19 +158,18 @@ func (s *server) signin(w http.ResponseWriter, r *http.Request) {
 		refuse(w, http.StatusServiceUnavailable, "authUnavailable")
 		return
 	}
-	sum := sha256.Sum256([]byte(verifier))
-	challenge := base64.RawURLEncoding.EncodeToString(sum[:])
 	value := s.config.Keys.SealOAuth(session.OAuth{
-		State: state, Verifier: verifier, ReturnTo: safeReturnTo(r.URL.Query().Get("returnTo")),
+		State: state, Verifier: verifier, ReturnTo: safeReturnTo(query.Get("returnTo")), Challenge: appChallenge,
 		Expires: s.now().Add(session.OAuthMaxAge),
 	})
 	http.SetCookie(w, s.oauthCookie(value, int(session.OAuthMaxAge.Seconds())))
-	goTo(w, s.config.OAuth.AuthorizeURL(state, challenge, s.redirectURI()))
+	goTo(w, s.config.OAuth.AuthorizeURL(state, challengeOf(verifier), s.redirectURI()))
 }
 
 // callback is where GitHub sends the browser back to. Whatever happens, the OAuth cookie is spent and the browser goes
 // back to the page it left, signed in only if everything checked out. Errors are not shown: the screen has no page for
-// a failed login, and what GitHub says is not for the reader.
+// a failed login, and what GitHub says is not for the reader. A login the iPad app started goes back to the app
+// instead, with a code for it to trade for a token, or loginFailed; no cookie is set.
 func (s *server) callback(w http.ResponseWriter, r *http.Request) {
 	if !methods(w, r, http.MethodGet) || !s.loginReady(w, r) {
 		return
@@ -150,27 +183,82 @@ func (s *server) callback(w http.ResponseWriter, r *http.Request) {
 			returnTo = safeReturnTo(pending.ReturnTo)
 		}
 	}
+	app := opened && pending.Challenge != ""
+	fail := func() {
+		if app {
+			toApp(w, "error", "loginFailed")
+		} else {
+			goTo(w, returnTo)
+		}
+	}
 	query := r.URL.Query()
 	state, code := query.Get("state"), query.Get("code")
 	if !opened || query.Get("error") != "" || state == "" || code == "" ||
 		subtle.ConstantTimeCompare([]byte(state), []byte(pending.State)) != 1 {
-		goTo(w, returnTo)
+		fail()
 		return
 	}
 	token, err := s.config.OAuth.Exchange(r.Context(), code, pending.Verifier, s.redirectURI())
 	if err != nil {
 		s.report(r, err, "auth.callback")
-		goTo(w, returnTo)
+		fail()
 		return
 	}
 	user, err := s.config.GitHub.User(r.Context(), token)
 	if err != nil {
 		s.report(r, err, "auth.callback")
-		goTo(w, returnTo)
+		fail()
 		return
 	}
-	s.issue(w, user.Account(), strings.TrimSpace(user.DisplayName()), user.AvatarURL)
+	name := strings.TrimSpace(user.DisplayName())
+	if app {
+		toApp(w, "code", s.config.Keys.SealCode(session.AppCode{
+			Sub: user.Account(), Name: name, Image: user.AvatarURL, Challenge: pending.Challenge,
+			Expires: s.now().Add(session.AppCodeMaxAge),
+		}))
+		return
+	}
+	s.issue(w, user.Account(), name, user.AvatarURL)
 	goTo(w, returnTo)
+}
+
+// tokenAnswer is the iPad app's token and who it signs in.
+type tokenAnswer struct {
+	Token string       `json:"token"`
+	User  *sessionUser `json:"user"`
+}
+
+func userOf(s session.Session) *sessionUser {
+	body := &sessionUser{ID: s.Sub, Name: s.Name}
+	if s.Image != "" {
+		body.Image = &s.Image
+	}
+	return body
+}
+
+// token trades the code a login of the iPad app ended with, and the verifier of its challenge, for the app's token. It
+// takes no cookie and sets none, so it needs no Origin: only the app that started the login knows the verifier. Any
+// mistake is loginFailed, and the app starts the login again.
+func (s *server) token(w http.ResponseWriter, r *http.Request) {
+	if !methods(w, r, http.MethodPost) {
+		return
+	}
+	var body struct {
+		Code     string `json:"code"`
+		Verifier string `json:"verifier"`
+	}
+	data, err := readLimited(r.Body, maxTokenRequest)
+	if err != nil || json.Unmarshal(data, &body) != nil || !pkceValue.MatchString(body.Verifier) {
+		refuse(w, http.StatusBadRequest, "loginFailed")
+		return
+	}
+	code, ok := s.config.Keys.OpenCode(body.Code, s.now())
+	if !ok || subtle.ConstantTimeCompare([]byte(challengeOf(body.Verifier)), []byte(code.Challenge)) != 1 {
+		refuse(w, http.StatusBadRequest, "loginFailed")
+		return
+	}
+	signedIn := session.New(code.Sub, code.Name, code.Image, s.now())
+	reply(w, http.StatusOK, tokenAnswer{Token: s.config.Keys.SealApp(signedIn), User: userOf(signedIn)})
 }
 
 // sessionUser is the signed-in user as the screen sees them. The image is null when there is none.
@@ -180,24 +268,33 @@ type sessionUser struct {
 	Image *string `json:"image"`
 }
 
-// session says who is signed in. A session that has grown old is signed again, so an active user stays signed in.
+// sessionAnswer is who is signed in, and for the iPad app the token to use from now on when its own has grown old.
+type sessionAnswer struct {
+	User  *sessionUser `json:"user"`
+	Token string       `json:"token,omitempty"`
+}
+
+// session says who is signed in. A session that has grown old is signed again, so an active user stays signed in: a
+// cookie is set again, and the iPad app is given a new token.
 func (s *server) session(w http.ResponseWriter, r *http.Request) {
 	if !methods(w, r, http.MethodGet, http.MethodHead) {
 		return
 	}
 	user, ok := s.owner(r)
 	if !ok {
-		reply(w, http.StatusOK, map[string]*sessionUser{"user": nil})
+		reply(w, http.StatusOK, sessionAnswer{})
 		return
 	}
+	var answer sessionAnswer
 	if user.NeedsRenewal(s.now()) {
-		s.issue(w, user.Sub, user.Name, user.Image)
+		if fromApp(r) {
+			answer.Token = s.config.Keys.SealApp(session.New(user.Sub, user.Name, user.Image, s.now()))
+		} else {
+			s.issue(w, user.Sub, user.Name, user.Image)
+		}
 	}
-	body := &sessionUser{ID: user.Sub, Name: user.Name}
-	if user.Image != "" {
-		body.Image = &user.Image
-	}
-	reply(w, http.StatusOK, map[string]*sessionUser{"user": body})
+	answer.User = userOf(user)
+	reply(w, http.StatusOK, answer)
 }
 
 // signout forgets the session in the browser. The session is only a signed cookie, so there is nothing to revoke.

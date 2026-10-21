@@ -29,8 +29,23 @@ func (s *server) now() time.Time {
 	return time.Now()
 }
 
-// owner is the signed-in GitHub account, from the session cookie.
+// fromApp reports whether the request is the iPad app's: it carries an Authorization header, which a browser does not
+// send to this site on its own, and is then judged by that header alone.
+func fromApp(r *http.Request) bool {
+	return r.Header.Get("Authorization") != ""
+}
+
+// owner is the signed-in GitHub account: from the iPad app's bearer token when the request has an Authorization header,
+// and otherwise from the session cookie. A request with both is judged by the token, so a cookie never stands in for
+// a token that is refused.
 func (s *server) owner(r *http.Request) (session.Session, bool) {
+	if fromApp(r) {
+		token, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
+		if !ok || token == "" || strings.ContainsAny(token, " \t") {
+			return session.Session{}, false
+		}
+		return s.config.Keys.OpenApp(token, s.now())
+	}
 	cookie, err := r.Cookie(session.CookieName(s.secure()))
 	if err != nil {
 		return session.Session{}, false
@@ -97,7 +112,9 @@ func (s *server) readWorkspace(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) writeWorkspace(w http.ResponseWriter, r *http.Request) {
-	if !s.sameOrigin(r) || strings.TrimSpace(strings.SplitN(r.Header.Get("Content-Type"), ";", 2)[0]) != "application/json" {
+	// The Origin keeps other sites from saving with the browser's cookie. The iPad app's token is not sent by a browser
+	// on its own, so its requests, which have no Origin, need none.
+	if !(fromApp(r) || s.sameOrigin(r)) || strings.TrimSpace(strings.SplitN(r.Header.Get("Content-Type"), ";", 2)[0]) != "application/json" {
 		refuse(w, http.StatusForbidden, "forbiddenRequest")
 		return
 	}

@@ -67,6 +67,7 @@ CI用Vercelトークンは90日期限で作成しています。期限前にSecr
    `/api/auth/signin`がリダイレクトを辿らずに302を返し、`Location`が`https://github.com/login/oauth/authorize?`で始まり
    本番の`redirect_uri`（`https://typle-r-six.vercel.app/api/auth/callback/github`）を含むことです。
    これにより、本番の関数で`AUTH_SECRET`・`AUTH_URL`・`AUTH_GITHUB_ID`・`AUTH_GITHUB_SECRET`が揃って設定されていることまで確かめます。
+   iPad のログインの`POST /api/auth/token`が、本文`{}`に`400`と`{"error":"loginFailed"}`を返すことも確かめます。
 
 verifyのDBは一時DBですが、deployから起動するVercel上のビルドは本番環境変数を使います。
 `vercel.json`に従い、ここで本番DBへmigrationが適用されます。DB更新に成功した後で

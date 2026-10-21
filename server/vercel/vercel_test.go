@@ -135,7 +135,7 @@ func TestAuthDoesNotOpenTheDatabase(t *testing.T) {
 	settings(t)
 	var opened atomic.Int32
 	backend.open = func(context.Context, string) (web.Store, error) { opened.Add(1); return nil, errors.New("down") }
-	for _, path := range []string{"/api/auth/session", "/api/auth/signin", "/api/auth/signout"} {
+	for _, path := range []string{"/api/auth/session", "/api/auth/signin", "/api/auth/signout", "/api/auth/token"} {
 		if code := get(path).Code; code == http.StatusServiceUnavailable {
 			t.Errorf("%s = %d", path, code)
 		}

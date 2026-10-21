@@ -64,6 +64,7 @@ func New(c Config) http.Handler {
 	mux.HandleFunc("/api/auth/signin", s.signin)
 	mux.HandleFunc("/api/auth/callback/github", s.callback)
 	mux.HandleFunc("/api/auth/session", s.session)
+	mux.HandleFunc("/api/auth/token", s.token)
 	mux.HandleFunc("/api/auth/signout", s.signout)
 	mux.HandleFunc("/api/auth/local", s.localLogin)
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { refuse(w, http.StatusNotFound, "notFound") })

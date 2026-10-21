@@ -201,8 +201,8 @@ struct StorageBadge: View {
   @Environment(AppModel.self) private var app
   var body: some View {
     Pill {
-      Image(systemName: app.storage == .api ? "cloud" : "internaldrive").font(.system(size: 11)).foregroundStyle(Palette.mutedForeground)
-      Text(app.storage == .api ? L("storage.account") : L("storage.local")).foregroundStyle(Palette.foreground.opacity(0.7))
+      Image(systemName: app.storage == .account ? "cloud" : "internaldrive").font(.system(size: 11)).foregroundStyle(Palette.mutedForeground)
+      Text(app.storage == .account ? L("storage.account") : L("storage.local")).foregroundStyle(Palette.foreground.opacity(0.7))
     }
     .accessibilityElement(children: .combine)
   }

@@ -174,6 +174,37 @@ final class WordListTests: XCTestCase {
     XCTAssertEqual(try decodeWorkspaceFile(Data(web.utf8), accountId: "ipad:local").lists[0].records[0].time, 5)
   }
 
+  func testAccountWorkspace() throws {
+    // As /api/workspace answers: an unknown field is ignored, and a record without the optional fields is read.
+    let answer = #"{"lists":[{"id":"x","name":"X","createdAt":"2026-01-01","extra":1,"words":[{"display":"a","input":"a","annotation":""}],"records":[{"time":5,"date":"2024/09/22 10:05"}]}],"devices":[{"id":"d","name":" iPad ","layout":""}],"revision":4,"accountId":"github:1"}"#
+    let decoded = try decodeAccountWorkspace(Data(answer.utf8))
+    XCTAssertEqual(decoded.accountId, "github:1")
+    XCTAssertEqual(decoded.revision, 4)
+    XCTAssertEqual(decoded.document.lists.map(\.id), ["x"])
+    XCTAssertEqual(decoded.document.lists[0].records[0].time, 5)
+    XCTAssertEqual(decoded.document.devices, [PracticeDevice(id: "d", name: "iPad")])
+
+    // A save is the whole document for the revision it changes, and reads back as it was.
+    let body = try encodeAccountWorkspace(decoded)
+    let json = try XCTUnwrap(JSONSerialization.jsonObject(with: body) as? [String: Any])
+    XCTAssertEqual(Set(json.keys), ["lists", "devices", "revision", "accountId"])
+    XCTAssertEqual(json["revision"] as? Int, 4)
+    XCTAssertEqual(try decodeAccountWorkspace(body), decoded)
+
+    // An account that has saved nothing shows the starting lists, which its first save keeps.
+    let empty = try decodeAccountWorkspace(Data(#"{"lists":[],"devices":[],"revision":0,"accountId":"github:1"}"#.utf8))
+    XCTAssertEqual(empty.document.lists, initialLists())
+    XCTAssertEqual(empty.revision, 0)
+
+    for invalid in ["{}", #"{"lists":[],"devices":[],"revision":-1,"accountId":"github:1"}"#,
+                    #"{"lists":[],"devices":[],"revision":1,"accountId":""}"#, #"{"error":"loginRequired"}"#] {
+      XCTAssertThrowsError(try decodeAccountWorkspace(Data(invalid.utf8))) { XCTAssertEqual($0 as? TypleError, TypleError("invalidServerData")) }
+    }
+    var tooLarge = decoded
+    tooLarge.document.lists[0].words = Array(repeating: Word(display: String(repeating: "a", count: 1000), input: String(repeating: "a", count: 100)), count: 1000)
+    XCTAssertThrowsError(try encodeAccountWorkspace(tooLarge)) { XCTAssertEqual($0 as? TypleError, TypleError("workspaceTooLarge")) }
+  }
+
   func testInitialLists() {
     let lists = initialLists()
     XCTAssertEqual(lists.map(\.id).prefix(2), ["sample-1", "sample-2"])

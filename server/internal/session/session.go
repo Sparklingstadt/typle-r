@@ -1,7 +1,7 @@
-// Package session signs and checks the cookies of the Go server: the login session and the short-lived OAuth state
-// that lives between redirecting to GitHub and coming back. A cookie is base64url(JSON) + "." + base64url(HMAC-SHA256),
-// and the HMAC key is derived from AUTH_SECRET, with a different key for each kind of cookie, so one kind never opens
-// as the other. The end-to-end tests forge a session with the TypeScript twin of Seal (tests/e2e/sessionCookie.ts), so
+// Package session signs and checks the cookies and tokens of the Go server: the login session, the short-lived OAuth
+// state that lives between redirecting to GitHub and coming back, and for the iPad app the one-time code its login
+// ends with and the token it then signs in with. Each is base64url(JSON) + "." + base64url(HMAC-SHA256), and the HMAC
+// key is derived from AUTH_SECRET, with a different key for each kind, so one kind never opens as another. The end-to-end tests forge a session with the TypeScript twin of Seal (tests/e2e/sessionCookie.ts), so
 // the JSON field order and the key derivation here must not change without changing it too.
 package session
 
@@ -25,12 +25,16 @@ const (
 	OAuthMaxAge = 10 * time.Minute
 	// OAuthCookie is the name of the OAuth state cookie.
 	OAuthCookie = "typle-oauth"
+	// AppCodeMaxAge is how long the iPad app has to trade the code of its login for a token.
+	AppCodeMaxAge = 2 * time.Minute
 
 	// A session is sealed again once it is this old, so an active user stays signed in while MaxAge bounds an idle one.
 	renewAfter = 24 * time.Hour
 
 	sessionInfo = "typle session v1"
 	oauthInfo   = "typle oauth v1"
+	appInfo     = "typle app session v1"
+	codeInfo    = "typle app code v1"
 )
 
 // accountSub is the only subject accepted: the numeric GitHub user id, as the Next.js login used to give.
@@ -42,10 +46,17 @@ type Session struct {
 	IssuedAt, Expires time.Time
 }
 
-// OAuth is the state of one login in progress: the PKCE verifier and where to go afterwards.
+// OAuth is the state of one login in progress: the PKCE verifier and where to go afterwards. Challenge is the iPad
+// app's own PKCE challenge when the app started the login, and empty for the web app's.
 type OAuth struct {
-	State, Verifier, ReturnTo string
-	Expires                   time.Time
+	State, Verifier, ReturnTo, Challenge string
+	Expires                              time.Time
+}
+
+// AppCode is the end of a login the iPad app started: who signed in, for the app that holds the verifier of Challenge.
+type AppCode struct {
+	Sub, Name, Image, Challenge string
+	Expires                     time.Time
 }
 
 // Field order is the order of the JSON, and the bytes are signed, so it is also what the TypeScript side must build.
@@ -62,13 +73,23 @@ type oauthWire struct {
 	Verifier string `json:"verifier"`
 	ReturnTo string `json:"returnTo"`
 	Exp      int64  `json:"exp"`
+	// Left out for the web app's login, whose cookie thus stays as it was.
+	Challenge string `json:"challenge,omitempty"`
+}
+
+type codeWire struct {
+	Sub       string `json:"sub"`
+	Name      string `json:"name"`
+	Image     string `json:"image"`
+	Challenge string `json:"challenge"`
+	Exp       int64  `json:"exp"`
 }
 
 // Keys holds the signing key of each kind of cookie. The zero Keys has no keys: its Open and OpenOAuth refuse every
 // cookie, and its Seal and SealOAuth panic, because HMAC with an empty key is a signature anyone can make, and using
 // Keys that NewKeys never returned is a programming error that must not pass quietly.
 type Keys struct {
-	session, oauth []byte
+	session, oauth, app, code []byte
 }
 
 // NewKeys derives the keys from AUTH_SECRET. An empty secret would make every cookie forgeable, so it is refused.
@@ -84,7 +105,15 @@ func NewKeys(secret string) (Keys, error) {
 	if err != nil {
 		return Keys{}, err
 	}
-	return Keys{session: sessionKey, oauth: oauthKey}, nil
+	appKey, err := hkdf.Key(sha256.New, []byte(secret), nil, appInfo, sha256.Size)
+	if err != nil {
+		return Keys{}, err
+	}
+	codeKey, err := hkdf.Key(sha256.New, []byte(secret), nil, codeInfo, sha256.Size)
+	if err != nil {
+		return Keys{}, err
+	}
+	return Keys{session: sessionKey, oauth: oauthKey, app: appKey, code: codeKey}, nil
 }
 
 // New starts a session at now.
@@ -114,8 +143,23 @@ func (k Keys) Seal(s Session) string {
 
 // Open returns the session in value if it is ours, unexpired and for a GitHub account.
 func (k Keys) Open(value string, now time.Time) (Session, bool) {
+	return openSession(k.session, value, now)
+}
+
+// SealApp signs s as the iPad app's token, which it sends as a bearer token instead of the cookie. It panics on the
+// zero Keys.
+func (k Keys) SealApp(s Session) string {
+	return seal(k.app, sessionWire{s.Sub, s.Name, s.Image, s.IssuedAt.Unix(), s.Expires.Unix()})
+}
+
+// OpenApp returns the session in the iPad app's token value, as Open does for a cookie.
+func (k Keys) OpenApp(value string, now time.Time) (Session, bool) {
+	return openSession(k.app, value, now)
+}
+
+func openSession(key []byte, value string, now time.Time) (Session, bool) {
 	var w sessionWire
-	if !open(k.session, value, &w) || !now.Before(time.Unix(w.Exp, 0)) || !accountSub.MatchString(w.Sub) {
+	if !open(key, value, &w) || !now.Before(time.Unix(w.Exp, 0)) || !accountSub.MatchString(w.Sub) {
 		return Session{}, false
 	}
 	return Session{w.Sub, w.Name, w.Image, time.Unix(w.Iat, 0), time.Unix(w.Exp, 0)}, true
@@ -123,7 +167,7 @@ func (k Keys) Open(value string, now time.Time) (Session, bool) {
 
 // SealOAuth signs o with the OAuth key. It panics on the zero Keys.
 func (k Keys) SealOAuth(o OAuth) string {
-	return seal(k.oauth, oauthWire{o.State, o.Verifier, o.ReturnTo, o.Expires.Unix()})
+	return seal(k.oauth, oauthWire{o.State, o.Verifier, o.ReturnTo, o.Expires.Unix(), o.Challenge})
 }
 
 // OpenOAuth returns the login state in value if it is ours and unexpired.
@@ -132,7 +176,22 @@ func (k Keys) OpenOAuth(value string, now time.Time) (OAuth, bool) {
 	if !open(k.oauth, value, &w) || !now.Before(time.Unix(w.Exp, 0)) {
 		return OAuth{}, false
 	}
-	return OAuth{w.State, w.Verifier, w.ReturnTo, time.Unix(w.Exp, 0)}, true
+	return OAuth{w.State, w.Verifier, w.ReturnTo, w.Challenge, time.Unix(w.Exp, 0)}, true
+}
+
+// SealCode signs c with the code key. It panics on the zero Keys.
+func (k Keys) SealCode(c AppCode) string {
+	return seal(k.code, codeWire{c.Sub, c.Name, c.Image, c.Challenge, c.Expires.Unix()})
+}
+
+// OpenCode returns the code in value if it is ours, unexpired and for a GitHub account. It does not check the
+// verifier: the caller compares it with Challenge.
+func (k Keys) OpenCode(value string, now time.Time) (AppCode, bool) {
+	var w codeWire
+	if !open(k.code, value, &w) || !now.Before(time.Unix(w.Exp, 0)) || !accountSub.MatchString(w.Sub) || w.Challenge == "" {
+		return AppCode{}, false
+	}
+	return AppCode{w.Sub, w.Name, w.Image, w.Challenge, time.Unix(w.Exp, 0)}, true
 }
 
 func seal(key []byte, v any) string {

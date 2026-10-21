@@ -213,3 +213,78 @@ func TestOpenHTMLEscapedCookie(t *testing.T) {
 		t.Fatalf("Open = %+v, %v", got, ok)
 	}
 }
+
+// The iPad app's token and code open only as themselves, never as a cookie, and no cookie opens as either.
+func TestAppKeysAreSeparate(t *testing.T) {
+	keys := testKeys(t)
+	now := time.Unix(1700000000, 0)
+	s := New("github:42", "Ada", "https://example.com/a.png", now)
+	c := AppCode{Sub: "github:42", Name: "Ada", Challenge: "challenge", Expires: now.Add(AppCodeMaxAge)}
+	token, code, cookie := keys.SealApp(s), keys.SealCode(c), keys.Seal(s)
+	oauth := keys.SealOAuth(OAuth{State: "s", Verifier: "v", ReturnTo: "/", Expires: now.Add(OAuthMaxAge)})
+
+	if got, ok := keys.OpenApp(token, now); !ok || got != s {
+		t.Fatalf("OpenApp = %+v, %v; want %+v", got, ok, s)
+	}
+	if got, ok := keys.OpenCode(code, now); !ok || got != c {
+		t.Fatalf("OpenCode = %+v, %v; want %+v", got, ok, c)
+	}
+	for _, value := range []string{code, cookie, oauth} {
+		if _, ok := keys.OpenApp(value, now); ok {
+			t.Errorf("OpenApp opened %q", value)
+		}
+	}
+	for _, value := range []string{token, cookie, oauth} {
+		if _, ok := keys.OpenCode(value, now); ok {
+			t.Errorf("OpenCode opened %q", value)
+		}
+	}
+	for _, value := range []string{token, code} {
+		if _, ok := keys.Open(value, now); ok {
+			t.Errorf("Open opened %q as a cookie", value)
+		}
+		if _, ok := keys.OpenOAuth(value, now); ok {
+			t.Errorf("OpenOAuth opened %q", value)
+		}
+	}
+}
+
+func TestOpenCodeRefuses(t *testing.T) {
+	keys := testKeys(t)
+	now := time.Unix(1700000000, 0)
+	good := AppCode{Sub: "github:42", Challenge: "challenge", Expires: now.Add(AppCodeMaxAge)}
+	if _, ok := keys.OpenCode(keys.SealCode(good), good.Expires); ok {
+		t.Error("an expired code was accepted")
+	}
+	noChallenge := good
+	noChallenge.Challenge = ""
+	if _, ok := keys.OpenCode(keys.SealCode(noChallenge), now); ok {
+		t.Error("a code without a challenge was accepted")
+	}
+	local := good
+	local.Sub = "local"
+	if _, ok := keys.OpenCode(keys.SealCode(local), now); ok {
+		t.Error("a code for no GitHub account was accepted")
+	}
+	expired := New("github:42", "Ada", "", now.Add(-MaxAge))
+	if _, ok := keys.OpenApp(keys.SealApp(expired), now); ok {
+		t.Error("an expired token was accepted")
+	}
+}
+
+// The web app's OAuth cookie has no challenge, and is written as before the iPad app's login existed.
+func TestOAuthChallenge(t *testing.T) {
+	keys := testKeys(t)
+	now := time.Unix(1700000000, 0)
+	web := OAuth{State: "s", Verifier: "v", ReturnTo: "/", Expires: now.Add(OAuthMaxAge)}
+	payload, _, _ := strings.Cut(keys.SealOAuth(web), ".")
+	data, _ := base64.RawURLEncoding.DecodeString(payload)
+	if want := `{"state":"s","verifier":"v","returnTo":"/","exp":1700000600}`; string(data) != want {
+		t.Fatalf("web OAuth cookie = %s, want %s", data, want)
+	}
+	app := web
+	app.Challenge = "challenge"
+	if got, ok := keys.OpenOAuth(keys.SealOAuth(app), now); !ok || got != app {
+		t.Fatalf("OpenOAuth = %+v, %v; want %+v", got, ok, app)
+	}
+}

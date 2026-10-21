@@ -44,7 +44,7 @@ struct HomeView: View {
     VStack(alignment: .leading, spacing: 16) {
       VStack(alignment: .leading, spacing: 8) {
         Text(L("dashboard.title")).font(.system(size: 30, weight: .regular))
-        Text(app.storage == .api ? L("dashboard.sourceAccount") : L("dashboard.sourceLocal")).font(.system(size: 14)).foregroundStyle(Palette.mutedForeground)
+        Text(app.storage == .account ? L("dashboard.sourceAccount") : L("dashboard.sourceLocal")).font(.system(size: 14)).foregroundStyle(Palette.mutedForeground)
       }
       startButtons
     }

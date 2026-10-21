@@ -71,7 +71,7 @@ struct RecordsView: View {
                 VStack(spacing: 0) {
                   ForEach(group.rows.indices, id: \.self) { index in
                     if index > 0 { Hairline() }
-                    RecordRowView(row: group.rows[index], canDelete: app.store.canDeleteRecords) { deleting = group.rows[index] }
+                    RecordRowView(row: group.rows[index]) { deleting = group.rows[index] }
                   }
                 }
                 .card()
@@ -142,7 +142,6 @@ struct RecordsView: View {
 /// One record as a row of the table (src/components/Records/RecordRow.tsx).
 struct RecordRowView: View {
   var row: RecordRow
-  var canDelete: Bool
   var onDelete: () -> Void
 
   var body: some View {
@@ -186,17 +185,11 @@ struct RecordRowView: View {
       }
       .frame(width: 84, alignment: .trailing)
       Text(record.mistakes.map(String.init) ?? "—").font(.system(size: 14)).monospacedDigit().frame(width: 44, alignment: .trailing)
-      Group {
-        if canDelete {
-          Button(action: onDelete) { Image(systemName: "trash").font(.system(size: 14)) }
-            .buttonStyle(.typle(.ghost, size: .icon))
-            .foregroundStyle(Palette.mutedForeground)
-            .accessibilityLabel(L("records.row.deleteLabel", row.list.name, Format.date(record.date)))
-        } else {
-          Color.clear
-        }
-      }
-      .frame(width: 32)
+      Button(action: onDelete) { Image(systemName: "trash").font(.system(size: 14)) }
+        .buttonStyle(.typle(.ghost, size: .icon))
+        .foregroundStyle(Palette.mutedForeground)
+        .accessibilityLabel(L("records.row.deleteLabel", row.list.name, Format.date(record.date)))
+        .frame(width: 32)
     }
     .padding(.horizontal, 20)
     .frame(minHeight: 68)
