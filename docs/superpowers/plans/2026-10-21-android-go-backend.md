@@ -113,7 +113,7 @@ JDK の `com.sun.net.httpserver`（core のテスト）。
     答えを差し替え、受け取ったリクエスト（method・path・ヘッダー・本文）を記録する。`close()`。Task 4 でも使う。
 
 - [ ] **Step 1: 失敗するテストを書く**
-  - `challenge follows RFC 7636`：`challengeOf("dBjftJeZ4CVP-mJ92K9qhWaBtAFXIOLNgwT2ad_mBZo") == "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"`。
+  - `challenge follows RFC 7636`：`challengeOf("dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk") == "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"`。
   - `verifiers are 43 url-safe characters and differ`：`newVerifier()` が `^[A-Za-z0-9_-]{43}$`、2 回で違う。
   - `signin url names the android client`：`AccountLogin(URI("https://t.example/"), v).signinUrl.toString() == "https://t.example/api/auth/signin?client=android&code_challenge=${challengeOf(v)}"`。
   - `sends bearer token and json`：偽サーバーで `send("GET","api/workspace", token="t")` → `Authorization: Bearer t`、
