@@ -1,6 +1,6 @@
 "use client"
 import { Cloud, HardDrive } from "lucide-react"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/lib/session"
 import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
 

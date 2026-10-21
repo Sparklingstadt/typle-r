@@ -3,7 +3,7 @@
   "version": "0.54.1",
   "private": true,
   "scripts": {
-    "dev": "next dev --hostname 127.0.0.1",
+    "dev": "node scripts/dev.cjs --hostname 127.0.0.1",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings 0",
@@ -16,7 +16,7 @@
     "db:baseline": "node scripts/migrate.cjs --baseline",
     "postinstall": "prisma generate",
     "prebuild": "prisma generate",
-    "dev:local": "next dev --hostname 127.0.0.1 --port 3000",
+    "dev:local": "node scripts/dev.cjs --hostname 127.0.0.1 --port 3000",
     "dev:lan": "node scripts/dev-lan.cjs"
   },
   "dependencies": {

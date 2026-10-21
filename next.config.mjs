@@ -14,11 +14,20 @@ const securityHeaders = [
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
 ];
 
+const typleWebUrl = (process.env.TYPLE_WEB_URL || 'http://127.0.0.1:8081').replace(/\/+$/, '');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = (phase) => withNextIntl({
   // Keep local development and verification separate; Vercel expects .next.
   distDir: phase === 'phase-development-server' || process.env.VERCEL === '1' ? '.next' : '.next-production',
   headers: () => [{ source: '/:path*', headers: securityHeaders }],
+  // Locally the Go backend (npm run dev starts it) answers these paths; on Vercel the root api/*.go functions do.
+  // beforeFiles wins over the app's own routes.
+  rewrites: async () => process.env.VERCEL === '1' ? [] : {
+    beforeFiles: ['/api/workspace', '/api/health', '/api/auth/:path*'].map(source => ({ source, destination: `${typleWebUrl}${source}` })),
+    afterFiles: [],
+    fallback: [],
+  },
 });
 
 export default withSentryConfig(nextConfig, {

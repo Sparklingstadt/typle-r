@@ -1,7 +1,7 @@
 "use client"
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useSession } from '@/lib/session'
 import { useTranslations } from 'next-intl'
 import { useErrorText } from '@/i18n/useErrorText'
 import { AppError, type ErrorKey } from '../core/appError'

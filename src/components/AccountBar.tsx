@@ -1,5 +1,5 @@
 "use client"
-import { signIn, signOut, useSession } from 'next-auth/react'
+import { signIn, signOut, useSession } from '@/lib/session'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -23,7 +23,7 @@ export default function AccountBar() {
   const t = useTranslations('account')
   // Same size as the avatar button so the top bar does not shift once the session is known.
   if (status === 'loading') return <div className="flex size-10 items-center justify-center"><Skeleton className="size-8 rounded-full" /><span className="sr-only">{t('checking')}</span></div>
-  if (!session?.user) return <Button variant="outline" size="lg" className="gap-2 px-3" aria-label={t('signInWithGitHub')} onClick={() => signIn('github')}>
+  if (!session?.user) return <Button variant="outline" size="lg" className="gap-2 px-3" aria-label={t('signInWithGitHub')} onClick={() => signIn()}>
     <LogIn aria-hidden="true" /><span className="sm:hidden">{t('signIn')}</span><span className="hidden sm:inline">{t('signInWithGitHub')}</span>
   </Button>
   const name = session.user.name ?? t('githubUser')
@@ -46,7 +46,7 @@ export default function AccountBar() {
         <DropdownMenu.Item asChild className={itemClass}>
           <Link href="/devices"><Monitor aria-hidden="true" />{t('manageDevices')}</Link>
         </DropdownMenu.Item>
-        <DropdownMenu.Item className={itemClass} onSelect={() => { void signOut({ callbackUrl: '/home' }) }}>
+        <DropdownMenu.Item className={itemClass} onSelect={() => { void signOut() }}>
           <LogOut aria-hidden="true" />{t('signOut')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>

@@ -1,11 +1,11 @@
 "use client"
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useSession } from '@/lib/session'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 
-export default function LocalLoginForm({ login }: { login: () => Promise<void> }) {
+export default function LocalLoginForm() {
   const [error, setError] = useState('')
   const t = useTranslations('account.localLogin')
   const router = useRouter()
@@ -13,7 +13,8 @@ export default function LocalLoginForm({ login }: { login: () => Promise<void> }
   return <form action={async () => {
     setError('')
     try {
-      await login()
+      const response = await fetch('/api/auth/local', { method: 'POST' })
+      if (!response.ok) throw new Error('local login failed')
       await update()
       router.push('/play')
       router.refresh()
