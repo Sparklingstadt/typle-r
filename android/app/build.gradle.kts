@@ -47,6 +47,7 @@ dependencies {
   implementation(libs.compose.material.icons)
   implementation(libs.activity.compose)
   implementation(libs.lifecycle.viewmodel.compose)
+  implementation(libs.androidx.browser)
   implementation(libs.coroutines.android)
   debugImplementation(libs.compose.ui.tooling)
 }

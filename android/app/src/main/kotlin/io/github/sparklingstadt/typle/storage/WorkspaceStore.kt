@@ -25,14 +25,14 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /**
- * Where a workspace is kept: on this tablet, or in an account through the Go API (docs/api.md). Each store keeps the
- * document it last read or wrote, and applies every change to that, so changes made while another is in flight are
- * not lost.
+ * Where a workspace is kept: on this tablet, or in the account of the web app's GitHub login (`/api/workspace`). Each
+ * store keeps the document it last read or wrote, and applies every change to that, so changes made while another is
+ * in flight are not lost.
  */
 interface WorkspaceStore {
   /** Names the data the stored device choice belongs to, like `typle-r:device:<accountId>` in the web app. */
   val accountId: String
-  /** The app does not delete records through the API yet. */
+  /** Whether the records page offers deleting a record; both stores do. */
   val canDeleteRecords: Boolean
 
   suspend fun load(): WorkspaceDocument

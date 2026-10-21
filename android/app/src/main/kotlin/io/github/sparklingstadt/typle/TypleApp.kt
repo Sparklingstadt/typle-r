@@ -276,11 +276,11 @@ private fun Brand(onClick: () -> Unit) {
   }
 }
 
-/** The web app's GitHub login button. On the tablet the account is the API connection set up in 一般. */
+/** The web app's GitHub login button. On the tablet the GitHub login is in 一般, where the account is chosen. */
 @Composable
 private fun AccountButton() {
   val app = LocalApp.current
-  if (app.storage == StorageKind.API) {
+  if (app.storage == StorageKind.ACCOUNT) {
     Box(
       Modifier.padding(horizontal = 4.dp).size(32.dp).clip(CircleShape).background(Palette.muted)
         .clickable(role = Role.Button) { app.navigate(Route.General) }.semantics { contentDescription = L("account.connected") },
