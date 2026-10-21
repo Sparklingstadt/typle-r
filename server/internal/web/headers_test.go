@@ -64,6 +64,7 @@ func TestJSONHeadersUniform(t *testing.T) {
 		"not found":          h.do(http.MethodGet, "/nowhere"),
 		"method not allowed": h.do(http.MethodDelete, "/api/workspace"),
 		"login method":       h.do(http.MethodPut, "/api/auth/session"),
+		"token refused":      h.do(http.MethodPost, "/api/auth/token"),
 		"unavailable":        get(t, Unavailable("databaseUnavailable"), http.MethodGet, "/api/workspace"),
 		"health down":        get(t, New(Config{Store: fakeStore{err: errors.New("down")}}), http.MethodGet, "/api/health"),
 		"login missing":      get(t, New(Config{Store: fakeStore{}}), http.MethodGet, "/api/auth/signin"),

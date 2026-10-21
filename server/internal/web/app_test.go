@@ -261,3 +261,43 @@ func TestWorkspaceWithAppToken(t *testing.T) {
 func jsonString(raw json.RawMessage, into *string) error {
 	return json.Unmarshal(raw, into)
 }
+
+// The iPad app's requests go through the same checks and answers as the browser's: U+0000 and lone surrogates are
+// refused before the store, HEAD is answered as GET, the stored JSON is answered as it is, and the headers are the same.
+func TestWorkspaceWithAppTokenChecks(t *testing.T) {
+	stored := `[{"id":"a","name":"A","createdAt":"2026-09-06","words":[{"display":"a","input":"a","annotation":""}],"records":[],"extra":{"kept":true}}]`
+	fake := &fakeWorkspaces{saved: &store.Saved{Lists: json.RawMessage(stored), Devices: json.RawMessage("[]"), Revision: 3}}
+	h := newHarness(t, fake, "https://typle.test")
+	token := h.keys.SealApp(session.New(testOwner, "", "", time.Now()))
+	app := func(r *http.Request) {
+		r.Header.Del("Origin")
+		r.Header.Set("Authorization", "Bearer "+token)
+	}
+
+	got := h.get("", app)
+	expectPrivate(t, got)
+	if got.Code != http.StatusOK || string(decodeBody(t, got)["lists"]) != stored {
+		t.Fatalf("GET = %d %s", got.Code, got.Body)
+	}
+	head := h.request(http.MethodHead, "", "", app)
+	expectPrivate(t, head)
+	if head.Code != http.StatusOK {
+		t.Fatalf("HEAD = %d", head.Code)
+	}
+	for name, fields := range map[string]string{
+		"NUL":            `"revision":3,"lists":[` + aList("one", `a\u0000b`) + `]`,
+		"lone surrogate": `"revision":3,"lists":[` + aList("one", `a\ud800b`) + `]`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			expectError(t, h.put("", payload(testOwner, fields), app), http.StatusBadRequest, "invalidWorkspace")
+		})
+	}
+	if fake.writes != 0 {
+		t.Fatalf("writes = %d", fake.writes)
+	}
+	put := h.put("", payload(testOwner, `"revision":3,"lists":[`+aList("one", "A")+`]`), app)
+	expectPrivate(t, put)
+	if put.Code != http.StatusOK || fake.writes != 1 {
+		t.Fatalf("PUT = %d %s (writes %d)", put.Code, put.Body, fake.writes)
+	}
+}
