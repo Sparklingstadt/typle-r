@@ -10,7 +10,7 @@ import (
 	"github.com/sparklingstadt/typle-r/server/internal/session"
 )
 
-// FromEnv reads the login settings from the environment: AUTH_SECRET, AUTH_URL (an http or https URL),
+// FromEnv reads the login settings from the environment: AUTH_SECRET, AUTH_URL (an http or https URL, of which only the origin is used),
 // AUTH_GITHUB_ID and AUTH_GITHUB_SECRET. When any is missing or unusable the error names each of them, so that one
 // message tells everything to fix. The Store and Report are left to the caller: nothing is opened here, and the Keys
 // always come from a successful session.NewKeys, because the zero Keys cannot seal a cookie.
@@ -52,7 +52,10 @@ func parseBaseURL(value string) (*url.URL, error) {
 	if (parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.Hostname() == "" {
 		return nil, errors.New("not an http or https URL")
 	}
-	return parsed, nil
+	// Only the origin is kept. The Go functions are served at the domain root, so the callback is always
+	// <origin>/api/auth/callback/github, whatever path AUTH_URL has (Auth.js allowed one, such as https://host/api/auth),
+	// and a state-changing request is judged by its origin alone.
+	return &url.URL{Scheme: parsed.Scheme, Host: parsed.Host}, nil
 }
 
 // localLoginAllowed is localDevelopmentEnabled without the NODE_ENV test: LOCAL_DEVELOPMENT_LOGIN is 1 and AUTH_URL is

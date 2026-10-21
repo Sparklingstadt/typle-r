@@ -42,6 +42,9 @@ const openTimeout = 10 * time.Second
 // is a variable for the tests.
 var retryAfter = time.Second
 
+// now is the clock of the back-off; the tests replace it.
+var now = time.Now
+
 // open connects to the database; the tests replace it.
 var open = func(ctx context.Context, connection string) (web.Store, error) {
 	source, err := store.OpenApp(ctx, connection)
@@ -109,7 +112,7 @@ func connect(config web.Config, connection string) http.Handler {
 		mu.Unlock()
 		return *built
 	}
-	if failure != nil && time.Since(failedAt) < retryAfter {
+	if failure != nil && now().Sub(failedAt) < retryAfter {
 		recent := failure
 		mu.Unlock()
 		return recent
@@ -130,7 +133,7 @@ func connect(config web.Config, connection string) http.Handler {
 		if built := ready.Load(); built != nil {
 			failure = nil
 		} else {
-			failedAt, failure = time.Now(), mine.handler
+			failedAt, failure = now(), mine.handler
 		}
 		mu.Unlock()
 		close(mine.done)

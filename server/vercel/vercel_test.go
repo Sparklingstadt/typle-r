@@ -27,9 +27,9 @@ func reset(t *testing.T) {
 		failedAt, failure = time.Time{}, nil
 	}
 	forget()
-	opener, wait := open, retryAfter
+	opener, wait, clock := open, retryAfter, now
 	t.Cleanup(func() {
-		open, retryAfter = opener, wait
+		open, retryAfter, now = opener, wait, clock
 		forget()
 	})
 }
@@ -180,7 +180,10 @@ func TestHandlerConcurrentWhileDown(t *testing.T) {
 func TestHandlerBackOff(t *testing.T) {
 	reset(t)
 	settings(t)
-	retryAfter = 100 * time.Millisecond
+	retryAfter = time.Second
+	// A clock that moves only when the test says so.
+	moment := time.Date(2026, 10, 21, 12, 0, 0, 0, time.UTC)
+	now = func() time.Time { return moment }
 	var attempts atomic.Int32
 	open = func(context.Context, string) (web.Store, error) {
 		attempts.Add(1)
@@ -188,18 +191,20 @@ func TestHandlerBackOff(t *testing.T) {
 	}
 	for i := 0; i < 5; i++ {
 		expect(t, get("/api/health"), http.StatusServiceUnavailable, `{"error":"databaseUnavailable"}`)
+		moment = moment.Add(100 * time.Millisecond)
 	}
 	if attempts.Load() != 1 {
 		t.Fatalf("%d attempts within the back-off", attempts.Load())
 	}
-	time.Sleep(150 * time.Millisecond)
+	moment = moment.Add(time.Second)
 	get("/api/health")
 	if attempts.Load() != 2 {
 		t.Fatalf("%d attempts after the back-off", attempts.Load())
 	}
 	// The back-off does not hide a recovered database for longer than it lasts.
 	open = func(context.Context, string) (web.Store, error) { return fakeStore{}, nil }
-	time.Sleep(150 * time.Millisecond)
+	expect(t, get("/api/health"), http.StatusServiceUnavailable, `{"error":"databaseUnavailable"}`)
+	moment = moment.Add(time.Second)
 	expect(t, get("/api/health"), http.StatusOK, `{"status":"ok"}`)
 }
 

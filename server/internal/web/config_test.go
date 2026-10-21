@@ -3,6 +3,7 @@ package web
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -75,6 +76,37 @@ func TestFromEnvInvalidURL(t *testing.T) {
 		values["AUTH_URL"] = value
 		if _, err := FromEnv(env(values), false); err != nil {
 			t.Errorf("AUTH_URL=%q: %v", value, err)
+		}
+	}
+}
+
+// Only the origin of AUTH_URL is kept: the functions live at the domain root, so the callback is always
+// <origin>/api/auth/callback/github, and sameOrigin compares origins.
+func TestFromEnvKeepsOnlyTheOrigin(t *testing.T) {
+	for value, want := range map[string]string{
+		"https://typle.example":                    "https://typle.example",
+		"https://typle.example/":                   "https://typle.example",
+		"https://typle.example/app/":               "https://typle.example",
+		"https://typle.example/api/auth":           "https://typle.example",
+		"https://typle.example:8443/a?b=c#d":       "https://typle.example:8443",
+		"http://127.0.0.1:3000/api/auth/?x=1#frag": "http://127.0.0.1:3000",
+	} {
+		values := validEnv()
+		values["AUTH_URL"] = value
+		config, err := FromEnv(env(values), false)
+		if err != nil {
+			t.Errorf("AUTH_URL=%q: %v", value, err)
+			continue
+		}
+		if config.BaseURL.String() != want {
+			t.Errorf("AUTH_URL=%q: BaseURL = %s, want %s", value, config.BaseURL, want)
+		}
+		// The redirect_uri GitHub is given.
+		response := httptest.NewRecorder()
+		New(config).ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/api/auth/signin", nil))
+		wantURI := url.QueryEscape(want + "/api/auth/callback/github")
+		if location := response.Header().Get("Location"); !strings.Contains(location, "redirect_uri="+wantURI) {
+			t.Errorf("AUTH_URL=%q: Location = %s, want redirect_uri=%s", value, location, wantURI)
 		}
 	}
 }
