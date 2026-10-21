@@ -217,10 +217,19 @@ func (s *Store) ReadRevision(ctx context.Context, owner string) (*Saved, error) 
 // creates the row, any other revision replaces what is saved only if it is still that revision (else ErrConflict).
 // Lists may be more than MaxLists in saved data merged from removed profiles; a save may keep or lower that number,
 // never raise it. The size of the lists is not checked here: the app's route only limits the request.
+//
+// It returns ErrConflict for a stale revision, a *workspace.Error for lists past the limits of validateLists
+// (invalidWorkspace) or more lists than allowed (listLimit), and any other error when the change cannot be written or
+// the saved workspace cannot be read. A change that Decode would refuse is never written: the account would no longer
+// load, here or in the app. All of this, apart from the conflict and the saved number of lists, is checked before the
+// database is touched.
 func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, change Change) (*Saved, error) {
 	lists, devices := []byte("[]"), []byte("[]")
 	var err error
 	if change.HasLists {
+		if err := workspace.CheckLimits(change.Lists); err != nil {
+			return nil, err
+		}
 		if lists, err = workspace.Encode(change.Lists); err != nil {
 			return nil, err
 		}
@@ -229,6 +238,10 @@ func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, c
 		if devices, err = workspace.EncodeDevices(change.Devices); err != nil {
 			return nil, err
 		}
+	}
+	// A part left out is saved as it is, so only the other one can be refused; it is read with an empty one.
+	if _, err := workspace.Decode(lists, devices); err != nil {
+		return nil, fmt.Errorf("changed workspace of %s: %w", owner, err)
 	}
 	if revision == 0 {
 		if len(change.Lists) > workspace.MaxLists {

@@ -634,12 +634,45 @@ func TestWriteRevisionConcurrent(t *testing.T) {
 	if _, err := s.WriteRevision(ctx, id, 0, Change{Lists: newLists(1), HasLists: true}); err != nil {
 		t.Fatal(err)
 	}
+	// Both writers read revision 1 before either updates: a lock held on the row makes the UPDATEs wait, and the
+	// lock is released only once both are waiting. Only the revision in the UPDATE then decides who wins.
+	holder, err := pgx.Connect(ctx, connection)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer holder.Close(ctx)
+	tx, err := holder.Begin(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer tx.Rollback(ctx)
+	if _, err := tx.Exec(ctx, `SELECT 1 FROM typle_workspaces WHERE owner_id = $1 FOR UPDATE`, id); err != nil {
+		t.Fatal(err)
+	}
 	errs := make(chan error, 2)
 	for i := range 2 {
 		go func() {
 			_, err := s.WriteRevision(ctx, id, 1, Change{Lists: newLists(i + 2), HasLists: true})
 			errs <- err
 		}()
+	}
+	deadline := time.Now().Add(10 * time.Second)
+	for {
+		var waiting int
+		if err := conn.QueryRow(ctx, `SELECT count(*) FROM pg_stat_activity WHERE wait_event_type = 'Lock'
+			AND query LIKE 'UPDATE typle_workspaces%' AND datname = current_database()`).Scan(&waiting); err != nil {
+			t.Fatal(err)
+		}
+		if waiting == 2 {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("%d writers are waiting at the UPDATE, want 2", waiting)
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	if err := tx.Rollback(ctx); err != nil {
+		t.Fatal(err)
 	}
 	var conflicts, successes int
 	for range 2 {
@@ -705,5 +738,92 @@ func TestWriteRevisionKeepsUnknownFields(t *testing.T) {
 	stored, _, _ := row(t, conn, id)
 	if !strings.Contains(stored, `"x"`) {
 		t.Fatalf("stored lists = %s", stored)
+	}
+}
+
+func TestWriteRevisionRefusesUnreadableLists(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	s := open(t, connection, true)
+	twice := newLists(2)
+	twice[1].ID = twice[0].ID
+	unnamed := newLists(1)
+	unnamed[0].Name = " "
+	for name, lists := range map[string][]workspace.List{"same id": twice, "empty name": unnamed} {
+		fresh := owner(t, conn)
+		_, err := s.WriteRevision(ctx, fresh, 0, Change{Lists: lists, HasLists: true})
+		var e *workspace.Error
+		if err == nil || errors.Is(err, ErrConflict) || errors.As(err, &e) {
+			t.Fatalf("%s, create: %v; want a plain error", name, err)
+		}
+		if saved, err := s.ReadRevision(ctx, fresh); saved != nil || err != nil {
+			t.Fatalf("%s: a refused create left a row (%v, %v)", name, saved, err)
+		}
+
+		id := owner(t, conn)
+		if _, err := s.WriteRevision(ctx, id, 0, Change{Lists: newLists(1), HasLists: true}); err != nil {
+			t.Fatal(err)
+		}
+		before, _, _ := row(t, conn, id)
+		_, err = s.WriteRevision(ctx, id, 1, Change{Lists: lists, HasLists: true})
+		if err == nil || errors.Is(err, ErrConflict) || errors.As(err, &e) {
+			t.Fatalf("%s, update: %v; want a plain error", name, err)
+		}
+		if after, revision, _ := row(t, conn, id); after != before || revision != 1 {
+			t.Fatalf("%s: a refused update changed the row (revision %d)", name, revision)
+		}
+		if _, err := s.ReadRevision(ctx, id); err != nil {
+			t.Fatalf("%s: the account no longer loads: %v", name, err)
+		}
+	}
+}
+
+func TestWriteRevisionRefusesUnreadableDevices(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	if _, err := s.WriteRevision(ctx, id, 0, Change{Lists: newLists(1), HasLists: true}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.WriteRevision(ctx, id, 1, Change{Devices: []workspace.Device{{ID: "d1", Name: " ", Layout: "JIS"}}, HasDevices: true}); err == nil {
+		t.Fatal("a device without a name was saved")
+	}
+	if _, revision, _ := row(t, conn, id); revision != 1 {
+		t.Fatalf("revision = %d after a refused save", revision)
+	}
+}
+
+func TestWriteRevisionLimits(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	s := open(t, connection, true)
+	long := newLists(1)
+	long[0].Name = strings.Repeat("a", workspace.MaxListName+1)
+	manyWords := newLists(1)
+	manyWords[0].Words = make([]workspace.Word, workspace.MaxWords+1)
+	for i := range manyWords[0].Words {
+		manyWords[0].Words[i] = workspace.Word{Display: "a", Input: "a"}
+	}
+	for name, lists := range map[string][]workspace.List{"name": long, "words": manyWords} {
+		fresh := owner(t, conn)
+		_, err := s.WriteRevision(ctx, fresh, 0, Change{Lists: lists, HasLists: true})
+		var e *workspace.Error
+		if !errors.As(err, &e) || e.Key != "invalidWorkspace" {
+			t.Fatalf("%s, create: %v; want invalidWorkspace", name, err)
+		}
+		if saved, _ := s.ReadRevision(ctx, fresh); saved != nil {
+			t.Fatalf("%s: a refused create left a row", name)
+		}
+		id := owner(t, conn)
+		if _, err := s.WriteRevision(ctx, id, 0, Change{Lists: newLists(1), HasLists: true}); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := s.WriteRevision(ctx, id, 1, Change{Lists: lists, HasLists: true}); !errors.As(err, &e) || e.Key != "invalidWorkspace" {
+			t.Fatalf("%s, update: %v; want invalidWorkspace", name, err)
+		}
+		if _, revision, _ := row(t, conn, id); revision != 1 {
+			t.Fatalf("%s: revision = %d after a refused save", name, revision)
+		}
 	}
 }
