@@ -63,7 +63,9 @@ type oauthWire struct {
 	Exp      int64  `json:"exp"`
 }
 
-// Keys holds the signing key of each kind of cookie.
+// Keys holds the signing key of each kind of cookie. The zero Keys has no keys: its Open and OpenOAuth refuse every
+// cookie, and its Seal and SealOAuth panic, because HMAC with an empty key is a signature anyone can make, and using
+// Keys that NewKeys never returned is a programming error that must not pass quietly.
 type Keys struct {
 	session, oauth []byte
 }
@@ -104,7 +106,7 @@ func CookieName(secure bool) string {
 	return "typle-session"
 }
 
-// Seal signs s. It does not check s: Open does.
+// Seal signs s. It does not check s: Open does. It panics on the zero Keys.
 func (k Keys) Seal(s Session) string {
 	return seal(k.session, sessionWire{s.Sub, s.Name, s.Image, s.IssuedAt.Unix(), s.Expires.Unix()})
 }
@@ -118,7 +120,7 @@ func (k Keys) Open(value string, now time.Time) (Session, bool) {
 	return Session{w.Sub, w.Name, w.Image, time.Unix(w.Iat, 0), time.Unix(w.Exp, 0)}, true
 }
 
-// SealOAuth signs o with the OAuth key.
+// SealOAuth signs o with the OAuth key. It panics on the zero Keys.
 func (k Keys) SealOAuth(o OAuth) string {
 	return seal(k.oauth, oauthWire{o.State, o.Verifier, o.ReturnTo, o.Expires.Unix()})
 }
@@ -133,6 +135,9 @@ func (k Keys) OpenOAuth(value string, now time.Time) (OAuth, bool) {
 }
 
 func seal(key []byte, v any) string {
+	if len(key) == 0 {
+		panic("session: sealing with an empty key")
+	}
 	// The wire structs hold only strings and integers, which always encode.
 	data, _ := json.Marshal(v)
 	payload := base64.RawURLEncoding.EncodeToString(data)
@@ -141,7 +146,7 @@ func seal(key []byte, v any) string {
 
 func open(key []byte, value string, v any) bool {
 	payload, signature, ok := strings.Cut(value, ".")
-	if !ok {
+	if !ok || len(key) == 0 {
 		return false
 	}
 	// Strict, so one signature has one spelling.
