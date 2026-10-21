@@ -83,3 +83,9 @@ func respond(w http.ResponseWriter, status int, value any) {
 func failure(w http.ResponseWriter, status int, key string) {
 	respond(w, status, map[string]string{"error": key})
 }
+
+// Unavailable answers every request with a 503 and the error key, in the same form as the handlers' own failures. The
+// Vercel entry point uses it for the parts it could not set up.
+func Unavailable(key string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { failure(w, http.StatusServiceUnavailable, key) })
+}
