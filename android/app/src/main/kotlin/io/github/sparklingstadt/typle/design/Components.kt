@@ -235,10 +235,10 @@ fun CountBadge(text: String) {
 @Composable
 fun StorageBadge() {
   val app = LocalApp.current
-  val api = app.storage == StorageKind.API
+  val account = app.storage == StorageKind.ACCOUNT
   Pill {
-    Glyph(if (api) Icons.Outlined.Cloud else Icons.Outlined.TabletAndroid, size = 12.dp, tint = Palette.mutedForeground)
-    T(if (api) L("storage.account") else L("storage.local"), size = 12.sp, weight = FontWeight.Medium,
+    Glyph(if (account) Icons.Outlined.Cloud else Icons.Outlined.TabletAndroid, size = 12.dp, tint = Palette.mutedForeground)
+    T(if (account) L("storage.account") else L("storage.local"), size = 12.sp, weight = FontWeight.Medium,
       color = Palette.foreground.copy(alpha = 0.7f), maxLines = 1)
   }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- The token must not travel in plain text: HTTPS only, except this tablet itself, the emulator's host and local
-     network names (*.local), as ApiWorkspaceStore.apiUrl allows. -->
+     network names (*.local), as accountAddress (android/core) allows. -->
 <network-security-config>
   <base-config cleartextTrafficPermitted="false" />
   <domain-config cleartextTrafficPermitted="true">

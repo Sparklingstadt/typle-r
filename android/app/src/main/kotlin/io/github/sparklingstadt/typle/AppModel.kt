@@ -2,6 +2,7 @@ package io.github.sparklingstadt.typle
 
 import android.app.Application
 import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -9,13 +10,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.sparklingstadt.typle.core.AccountLogin
+import io.github.sparklingstadt.typle.core.AccountUser
+import io.github.sparklingstadt.typle.core.DEFAULT_ACCOUNT_URL
 import io.github.sparklingstadt.typle.core.PracticeDevice
 import io.github.sparklingstadt.typle.core.StoredRecord
 import io.github.sparklingstadt.typle.core.TypleException
+import io.github.sparklingstadt.typle.core.TypleJson
 import io.github.sparklingstadt.typle.core.WordList
 import io.github.sparklingstadt.typle.core.WorkspaceDocument
+import io.github.sparklingstadt.typle.core.accountAddress
 import io.github.sparklingstadt.typle.core.chosenDevice
-import io.github.sparklingstadt.typle.storage.ApiWorkspaceStore
+import io.github.sparklingstadt.typle.storage.AccountWorkspaceStore
 import io.github.sparklingstadt.typle.storage.LocalWorkspaceStore
 import io.github.sparklingstadt.typle.storage.TokenVault
 import io.github.sparklingstadt.typle.storage.WorkspaceStore
@@ -24,9 +30,13 @@ import io.github.sparklingstadt.typle.support.L
 import io.github.sparklingstadt.typle.support.Localization
 import io.github.sparklingstadt.typle.support.errorText
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 
 /** The web app's pages, in the order of its sidebar. */
 sealed interface Route {
@@ -64,9 +74,16 @@ enum class Appearance { SYSTEM, LIGHT, DARK }
 enum class StorageKind {
   /** This tablet's file, the default. */
   LOCAL,
-  /** An account through the Go API. */
-  API,
+  /** The account of the web app's GitHub login, through its Go backend (`/api/workspace`). */
+  ACCOUNT,
 }
+
+/**
+ * A GitHub login that has been opened and not yet finished: kept on this tablet, since the app's process may end while
+ * the login is shown. The verifier never leaves the app.
+ */
+@Serializable
+private data class PendingLogin(val verifier: String, val url: String, val startedAt: Long)
 
 /** What a launch asks for before the first screen: set by the debug build's sample data for screenshots. */
 object Launch {
@@ -96,10 +113,22 @@ class AppModel(application: Application) : AndroidViewModel(application) {
   var practiceVisit by mutableIntStateOf(0)
     private set
 
-  var storage by mutableStateOf(StorageKind.entries.firstOrNull { it.name == prefs.getString("typle-r:storage", null) } ?: StorageKind.LOCAL)
+  var storage by mutableStateOf(StorageKind.LOCAL)
     private set
-  var serverUrl by mutableStateOf(prefs.getString("typle-r:api-url", null) ?: "")
+  /** The web app the account is kept in, the production deployment unless another was signed in to. */
+  var serverUrl by mutableStateOf(prefs.getString("typle-r:server-url", null) ?: DEFAULT_ACCOUNT_URL)
     private set
+  /** The GitHub account signed in with, kept until signing out. */
+  var accountUser by mutableStateOf(readAccountUser())
+    private set
+  /** Whether a GitHub login is open or being finished; the settings screen waits while it is. */
+  var signingIn by mutableStateOf(false)
+    private set
+  /** What the last login came to, for the settings screen: (failed, text). */
+  var signInMessage by mutableStateOf<Pair<Boolean, String>?>(null)
+    private set
+  // Counts the login callbacks being finished, so returning to the app, or another callback, does not end the wait.
+  private var finishingSignIns = 0
   var store by mutableStateOf<WorkspaceStore>(LocalWorkspaceStore(application.filesDir))
     private set
   var document by mutableStateOf<WorkspaceDocument?>(null)
@@ -130,7 +159,21 @@ class AppModel(application: Application) : AndroidViewModel(application) {
       Launch.route?.let { route = it }
       rankingsList = Launch.rankingsList
     } else {
-      makeStore(storage, serverUrl)?.let { store = it }
+      forgetApiStorage()
+      // An account whose token is gone (the Keystore's key was reset) is signed out, as the iPad app treats it.
+      if (accountUser != null && vault.read() == null) {
+        accountUser = null
+        prefs.edit().remove("typle-r:account").apply()
+      }
+      val saved = StorageKind.entries.firstOrNull { it.name == prefs.getString("typle-r:storage", null) } ?: StorageKind.LOCAL
+      val made = makeStore(saved)
+      if (made != null) {
+        storage = saved
+        store = made
+      } else {
+        // Signed out or the token is gone: this tablet's data, until signing in again.
+        prefs.edit().putString("typle-r:storage", StorageKind.LOCAL.name).apply()
+      }
       selectedDeviceId = prefs.getString("typle-r:device:${store.accountId}", null)
     }
     viewModelScope.launch { reload() }
@@ -158,13 +201,53 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     prefs.edit().putBoolean("typle-r:live-stats-hidden", !visible).apply()
   }
 
-  private fun makeStore(kind: StorageKind, serverUrl: String): WorkspaceStore? = when (kind) {
+  /**
+   * Earlier versions kept the account through the self-hosted `/api/v1` with a GitHub token. That storage is gone: its
+   * address and token are forgotten once, and the app starts on this tablet's data.
+   */
+  private fun forgetApiStorage() {
+    val wasApi = prefs.getString("typle-r:storage", null) == "API"
+    if (!wasApi && !prefs.contains("typle-r:api-url")) return
+    vault.write(null)
+    val editor = prefs.edit().remove("typle-r:api-url")
+    if (wasApi) editor.putString("typle-r:storage", StorageKind.LOCAL.name)
+    editor.apply()
+  }
+
+  private fun makeStore(kind: StorageKind): WorkspaceStore? = when (kind) {
     StorageKind.LOCAL -> LocalWorkspaceStore(getApplication<Application>().filesDir)
-    StorageKind.API -> {
-      val url = ApiWorkspaceStore.apiUrl(serverUrl)
+    StorageKind.ACCOUNT -> {
+      val url = accountAddress(serverUrl)
       val token = vault.read()
-      if (url == null || token == null) null else ApiWorkspaceStore(url, token)
+      val user = accountUser
+      if (url == null || token == null || user == null) null
+      else {
+        lateinit var made: AccountWorkspaceStore
+        // A token the backend renewed replaces the old one; if it cannot be kept, the old one still works for now. A
+        // store no longer in use, after a sign-out or a login to another account, keeps nothing.
+        made = AccountWorkspaceStore(url, token, user.id) { if (made === store && storage == StorageKind.ACCOUNT) keepToken(it) }
+        made
+      }
     }
+  }
+
+  private fun readAccountUser(): AccountUser? {
+    val text = prefs.getString("typle-r:account", null) ?: return null
+    return try {
+      TypleJson.decodeFromString(AccountUser.serializer(), text)
+    } catch (_: SerializationException) {
+      null
+    } catch (_: IllegalArgumentException) {
+      null
+    }
+  }
+
+  /** Keeps the token in the Android Keystore's care; false when this tablet cannot. */
+  private fun keepToken(token: String): Boolean = try {
+    vault.write(token)
+    true
+  } catch (_: Exception) {
+    false
   }
 
   val lists: List<WordList> get() = document?.lists ?: emptyList()
@@ -199,15 +282,98 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     loading = false
   }
 
-  /** Switches where the workspace is kept. The two are separate and nothing is copied between them. */
-  suspend fun useStorage(kind: StorageKind, serverUrl: String? = null, token: String? = null) {
-    if (serverUrl != null) {
-      if (ApiWorkspaceStore.apiUrl(serverUrl) == null) throw TypleException("apiInvalidURL")
-      this.serverUrl = serverUrl.trim()
-      prefs.edit().putString("typle-r:api-url", this.serverUrl).apply()
+  /**
+   * Starts a GitHub login through the web app at [serverUrl] and returns where it begins, for a custom tab to show. The
+   * login ends at `typle-r://login?code=…`, which MainActivity hands to [receiveSignIn].
+   */
+  fun startSignIn(serverUrl: String): Uri {
+    val url = accountAddress(serverUrl) ?: throw TypleException("accountInvalidURL")
+    val login = AccountLogin(url)
+    val pending = PendingLogin(login.verifier, url.toString(), System.currentTimeMillis())
+    prefs.edit().putString("typle-r:login", TypleJson.encodeToString(PendingLogin.serializer(), pending)).apply()
+    signInMessage = null
+    signingIn = true
+    return Uri.parse(login.signinUrl.toString())
+  }
+
+  /**
+   * Finishes the login [callback] ended at. It runs in the app's own scope rather than the activity's, so the activity
+   * going away does not stop it.
+   */
+  fun receiveSignIn(callback: String) {
+    // Undispatched, so the login is marked as being finished before onResume, which follows this, looks.
+    viewModelScope.launch(start = CoroutineStart.UNDISPATCHED) { finishSignIn(callback) }
+  }
+
+  /**
+   * Trades the address the login ended at for the app's token, keeps the account and switches to it. What came of it
+   * is left in [signInMessage]. A login is finished once: its record is removed first.
+   */
+  private suspend fun finishSignIn(callback: String) {
+    finishingSignIns++
+    signingIn = true
+    signInMessage = null
+    val saved = prefs.getString("typle-r:login", null)
+    prefs.edit().remove("typle-r:login").apply()
+    // The record of the app's own login, when this is it coming back in time.
+    val pending = saved?.let { decodePendingLogin(it) }?.takeIf { System.currentTimeMillis() - it.startedAt in 0..LOGIN_LIFETIME_MILLIS }
+    val url = pending?.let { accountAddress(it.url) }
+    // The result is shown in 一般, which may not be open when the app was started again for the login. Any other
+    // `typle-r://login` leaves the page as it is, so a practice run or an unsaved list is not lost to it.
+    if (url != null) navigate(Route.General)
+    try {
+      val result = try {
+        if (pending == null || url == null) throw TypleException("accountLoginFailed")
+        // The code is traded once, so the account it brings is kept even when the app is closed meanwhile, and the
+        // next launch starts with it.
+        withContext(NonCancellable) {
+          val (token, user) = withContext(Dispatchers.IO) { AccountLogin(url, pending.verifier).finish(callback) }
+          if (!keepToken(token)) throw TypleException("accountSaveFailed")
+          prefs.edit()
+            .putString("typle-r:account", TypleJson.encodeToString(AccountUser.serializer(), user))
+            .putString("typle-r:server-url", url.toString())
+            .putString("typle-r:storage", StorageKind.ACCOUNT.name)
+            .apply()
+          accountUser = user
+          serverUrl = url.toString()
+        }
+        useStorage(StorageKind.ACCOUNT)
+        loadError?.let { true to it } ?: (false to L("settings.connected", lists.size))
+      } catch (e: CancellationException) {
+        throw e
+      } catch (e: Exception) {
+        true to errorText(e)
+      }
+      signInMessage = result
+    } finally {
+      finishingSignIns--
+      if (finishingSignIns == 0) signingIn = false
     }
-    if (token != null) vault.write(token.trim())
-    val next = makeStore(kind, this.serverUrl) ?: throw TypleException("apiNotConfigured")
+  }
+
+  private fun decodePendingLogin(text: String): PendingLogin? = try {
+    TypleJson.decodeFromString(PendingLogin.serializer(), text)
+  } catch (_: SerializationException) {
+    null
+  } catch (_: IllegalArgumentException) {
+    null
+  }
+
+  /**
+   * Ends the wait when the app is shown again without the login's callback, as when the custom tab was closed. The
+   * record stays, so a callback that still comes is finished.
+   */
+  fun cancelSignInIfIdle() {
+    if (finishingSignIns == 0) signingIn = false
+  }
+
+  fun dismissSignInMessage() {
+    signInMessage = null
+  }
+
+  /** Switches where the workspace is kept. The two are separate and nothing is copied between them. */
+  suspend fun useStorage(kind: StorageKind) {
+    val next = makeStore(kind) ?: throw TypleException("accountLoginRequired")
     storage = kind
     prefs.edit().putString("typle-r:storage", kind.name).apply()
     store = next
@@ -216,13 +382,17 @@ class AppModel(application: Application) : AndroidViewModel(application) {
     reload()
   }
 
-  /** Forgets the token and goes back to this tablet's data. */
+  /**
+   * Forgets the token and the account and goes back to this tablet's data. The token is a signed value the backend
+   * keeps no record of, as the web app's cookie is, so there is nothing to revoke.
+   */
   suspend fun signOut() {
     vault.write(null)
+    prefs.edit().remove("typle-r:account").apply()
+    accountUser = null
+    signInMessage = null
     try { useStorage(StorageKind.LOCAL) } catch (_: TypleException) {}
   }
-
-  val hasToken: Boolean get() = vault.read() != null
 
   // Changes. Each throws the reason it failed, for the screen to show; the shown data stays as it was.
 
@@ -266,5 +436,10 @@ class AppModel(application: Application) : AndroidViewModel(application) {
   fun showRankings(listId: String?) {
     rankingsList = listId
     route = Route.Rankings
+  }
+
+  private companion object {
+    /** How long a login may stay open before its callback is no longer accepted. */
+    const val LOGIN_LIFETIME_MILLIS = 10 * 60 * 1000L
   }
 }

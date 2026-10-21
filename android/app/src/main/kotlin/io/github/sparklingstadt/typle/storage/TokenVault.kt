@@ -12,8 +12,8 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
 /**
- * The GitHub token for the API, encrypted with a key that never leaves this tablet's Android Keystore. A token that
- * can no longer be decrypted (the key was reset) reads as none.
+ * The token of Typle's GitHub login (`/api/auth/token`), encrypted with a key that never leaves this tablet's Android
+ * Keystore. A token that can no longer be decrypted (the key was reset) reads as none.
  */
 class TokenVault(context: Context) {
   private val prefs = context.getSharedPreferences("typle-token", Context.MODE_PRIVATE)

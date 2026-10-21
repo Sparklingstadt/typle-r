@@ -12,15 +12,24 @@
     android:supportsRtl="true"
     android:theme="@style/Theme.Typle">
     <!-- Compose follows turning the tablet, attaching a keyboard and switching dark mode itself, so the activity is
-         kept and nothing being typed (a list being edited, the API address) is lost. -->
+         kept and nothing being typed (a list being edited, the Typle URL) is lost. singleTask: the GitHub login's
+         callback returns to this activity, closing the custom tab above it, instead of starting a second one. -->
     <activity
       android:name=".MainActivity"
       android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|uiMode|density"
       android:exported="true"
+      android:launchMode="singleTask"
       android:windowSoftInputMode="adjustResize">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+      <!-- Where the GitHub login ends: typle-r://login?code=… (server/internal/web/auth.go). -->
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="typle-r" android:host="login" />
       </intent-filter>
     </activity>
     <!-- Shares exported CSV files from the cache directory. -->

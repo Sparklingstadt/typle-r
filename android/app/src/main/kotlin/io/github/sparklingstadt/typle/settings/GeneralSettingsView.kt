@@ -7,8 +7,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -17,10 +18,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Cloud
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.TabletAndroid
 import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,19 +32,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.sparklingstadt.typle.LocalApp
 import io.github.sparklingstadt.typle.StorageKind
+import io.github.sparklingstadt.typle.core.DEFAULT_ACCOUNT_URL
+import io.github.sparklingstadt.typle.core.accountAddress
 import io.github.sparklingstadt.typle.design.ButtonSize
 import io.github.sparklingstadt.typle.design.ButtonText
 import io.github.sparklingstadt.typle.design.ButtonVariant
+import io.github.sparklingstadt.typle.design.Glyph
 import io.github.sparklingstadt.typle.design.IconTile
 import io.github.sparklingstadt.typle.design.InputBox
 import io.github.sparklingstadt.typle.design.PageHeader
@@ -51,7 +57,6 @@ import io.github.sparklingstadt.typle.design.Radius
 import io.github.sparklingstadt.typle.design.StatusMessage
 import io.github.sparklingstadt.typle.design.T
 import io.github.sparklingstadt.typle.design.TypleButton
-import io.github.sparklingstadt.typle.design.Glyph
 import io.github.sparklingstadt.typle.design.card
 import io.github.sparklingstadt.typle.support.AppLanguage
 import io.github.sparklingstadt.typle.support.L
@@ -60,26 +65,34 @@ import kotlinx.coroutines.launch
 
 /**
  * 一般 (src/app/settings/page.tsx): the display language, and on the tablet where the data is kept, which the web app
- * decides by signing in.
+ * decides by signing in. The GitHub login is the web app's own, so the account holds the same data as there
+ * (ios/Typle/Settings/GeneralSettingsView.swift).
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun GeneralSettingsView() {
   val app = LocalApp.current
+  val context = LocalContext.current
   val scope = rememberCoroutineScope()
   var kind by remember { mutableStateOf(app.storage) }
   var serverUrl by remember { mutableStateOf(app.serverUrl) }
-  var token by remember { mutableStateOf("") }
   var working by remember { mutableStateOf(false) }
   var message by remember { mutableStateOf<String?>(null) }
   var failed by remember { mutableStateOf(false) }
+  val busy = working || app.signingIn
+  val signedIn = app.accountUser
 
-  fun apply() {
+  // A login finished while this screen was shown, or a sign-out, changes where the data is kept: the choice follows.
+  LaunchedEffect(app.storage) { kind = app.storage }
+
+  /** Switches where the data is kept, and says what came of it. */
+  fun perform(action: suspend () -> Unit) {
     working = true
     message = null
+    app.dismissSignInMessage()
     scope.launch {
       try {
-        app.useStorage(kind, if (kind == StorageKind.API) serverUrl else null, if (kind == StorageKind.API && token.isNotEmpty()) token else null)
-        token = ""
+        action()
         val error = app.loadError
         failed = error != null
         message = error ?: L("settings.connected", app.lists.size)
@@ -88,6 +101,19 @@ fun GeneralSettingsView() {
         message = errorText(e)
       }
       working = false
+    }
+  }
+
+  // The login goes on in a custom tab; MainActivity hands its callback to the app, which shows the result here.
+  fun signIn() {
+    message = null
+    app.dismissSignInMessage()
+    try {
+      openSignIn(context, app.startSignIn(serverUrl))
+    } catch (e: Exception) {
+      app.cancelSignInIfIdle()
+      failed = true
+      message = errorText(e)
     }
   }
 
@@ -104,41 +130,55 @@ fun GeneralSettingsView() {
       }
       T(L("settings.language.note"), size = 12.sp, color = Palette.mutedForeground)
     }
-    SettingsCard(if (app.storage == StorageKind.API) Icons.Outlined.Cloud else Icons.Outlined.TabletAndroid, L("settings.storage"), L("settings.storageHint")) {
+    SettingsCard(if (app.storage == StorageKind.ACCOUNT) Icons.Outlined.Cloud else Icons.Outlined.TabletAndroid, L("settings.storage"), L("settings.storageHint")) {
       Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Choice(kind == StorageKind.LOCAL, L("settings.storage.local"), L("settings.storage.localDetail"), Modifier.weight(1f)) { kind = StorageKind.LOCAL }
-        Choice(kind == StorageKind.API, L("settings.storage.api"), L("settings.storage.apiDetail"), Modifier.weight(1f)) { kind = StorageKind.API }
+        Choice(kind == StorageKind.ACCOUNT, L("settings.storage.account"), L("settings.storage.accountDetail"), Modifier.weight(1f)) { kind = StorageKind.ACCOUNT }
       }
-      if (kind == StorageKind.API) {
+      if (kind == StorageKind.ACCOUNT) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
           Labelled(L("settings.serverURL")) {
-            InputBox(serverUrl, { serverUrl = it }, Modifier.fillMaxWidth(), placeholder = "https://typle-api.example.com", keyboardType = KeyboardType.Uri)
+            InputBox(serverUrl, { serverUrl = it }, Modifier.fillMaxWidth(), placeholder = DEFAULT_ACCOUNT_URL, keyboardType = KeyboardType.Uri)
           }
-          Labelled(L("settings.token")) {
-            InputBox(token, { token = it }, Modifier.fillMaxWidth(), placeholder = if (app.hasToken) L("settings.tokenSaved") else "github_pat_…",
-              keyboardType = KeyboardType.Password, password = true)
+          if (signedIn != null) {
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+              Glyph(Icons.Outlined.Person, size = 16.dp, tint = Palette.foreground)
+              T(L("settings.signedIn", signedIn.name), color = Palette.foreground)
+            }
           }
-          T(L("settings.apiHint"), size = 12.sp, color = Palette.mutedForeground)
+          T(L("settings.accountHint"), size = 12.sp, color = Palette.mutedForeground)
         }
       }
-      Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-        TypleButton(::apply, size = ButtonSize.LG, enabled = !working && !(kind == app.storage && kind == StorageKind.LOCAL)) {
-          ButtonText(if (kind == StorageKind.API) L("settings.connect") else L("settings.useLocal"))
+      // The buttons wrap where a narrow screen has no room for them in one line.
+      FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (kind == StorageKind.LOCAL) {
+          TypleButton({ perform { app.useStorage(StorageKind.LOCAL) } }, size = ButtonSize.LG, enabled = !busy && app.storage != StorageKind.LOCAL) {
+            ButtonText(L("settings.useLocal"))
+          }
+        } else {
+          TypleButton(::signIn, size = ButtonSize.LG, enabled = !busy) { ButtonText(L("settings.signIn")) }
+          // Signed in, but keeping the data on this tablet for now.
+          if (signedIn != null && app.storage == StorageKind.LOCAL && accountAddress(serverUrl)?.toString() == app.serverUrl) {
+            TypleButton({ perform { app.useStorage(StorageKind.ACCOUNT) } }, variant = ButtonVariant.OUTLINE, size = ButtonSize.LG, enabled = !busy) {
+              ButtonText(L("settings.useAccount"))
+            }
+          }
         }
-        if (app.storage == StorageKind.API) {
+        if (signedIn != null) {
           TypleButton({
-            token = ""
             scope.launch {
               app.signOut()
               kind = StorageKind.LOCAL
               message = null
             }
-          }, variant = ButtonVariant.OUTLINE, size = ButtonSize.LG) { ButtonText(L("settings.signOut")) }
+          }, variant = ButtonVariant.OUTLINE, size = ButtonSize.LG, enabled = !busy) { ButtonText(L("settings.signOut")) }
         }
-        if (working) CircularProgressIndicator(Modifier.padding(start = 4.dp).size(18.dp), color = Palette.mutedForeground, strokeWidth = 2.dp)
+        if (busy) CircularProgressIndicator(Modifier.align(Alignment.CenterVertically).padding(start = 4.dp).size(18.dp), color = Palette.mutedForeground, strokeWidth = 2.dp)
       }
-      message?.let { StatusMessage(it, failed) }
-      T(L("settings.current", if (app.storage == StorageKind.API) L("settings.storage.api") else L("settings.storage.local")),
+      // A login's result is the app's, since the login may finish while this screen is closed.
+      val shown = app.signInMessage ?: message?.let { failed to it }
+      shown?.let { (shownFailed, text) -> StatusMessage(text, shownFailed) }
+      T(L("settings.current", if (app.storage == StorageKind.ACCOUNT) L("settings.storage.account") else L("settings.storage.local")),
         size = 12.sp, color = Palette.mutedForeground)
     }
   }

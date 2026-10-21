@@ -22,7 +22,13 @@ const (
 // appSignin starts a login as the iPad app does and returns the OAuth cookie and its state.
 func (h *loginHarness) appSignin(t *testing.T) (*http.Cookie, session.OAuth) {
 	t.Helper()
-	response := h.do(http.MethodGet, "/api/auth/signin?client=ipad&code_challenge="+appChallenge+"&returnTo=%2Flists")
+	return h.appSigninAs(t, "ipad")
+}
+
+// appSigninAs starts a login as the app of the given client (ipad or android) does.
+func (h *loginHarness) appSigninAs(t *testing.T, client string) (*http.Cookie, session.OAuth) {
+	t.Helper()
+	response := h.do(http.MethodGet, "/api/auth/signin?client="+client+"&code_challenge="+appChallenge+"&returnTo=%2Flists")
 	cookie := findCookie(response, session.OAuthCookie)
 	if response.Code != http.StatusFound || cookie == nil {
 		t.Fatalf("signin = %d %v", response.Code, response.Header())
@@ -112,6 +118,32 @@ func TestAppLogin(t *testing.T) {
 	}
 }
 
+// The Android app logs in exactly as the iPad app does.
+func TestAppLoginAndroidClient(t *testing.T) {
+	h := newLoginHarness(t, testBase, false)
+	cookie, opened := h.appSigninAs(t, "android")
+	response := h.callback("code=the-code&state="+url.QueryEscape(opened.State), cookie)
+	query := appLocation(t, response)
+	if findCookie(response, "typle-session") != nil {
+		t.Fatal("the app's login set a session cookie")
+	}
+	code, ok := h.keys.OpenCode(query.Get("code"), h.now)
+	if !ok || code.Sub != "github:1" || code.Challenge != appChallenge || len(query) != 1 {
+		t.Fatalf("code = %+v, %v (%v)", code, ok, query)
+	}
+	traded := h.trade(`{"code":"` + query.Get("code") + `","verifier":"` + appVerifier + `"}`)
+	if traded.Code != http.StatusOK || len(traded.Result().Cookies()) != 0 {
+		t.Fatalf("token = %d %s %v", traded.Code, traded.Body, traded.Result().Cookies())
+	}
+	var token string
+	if err := jsonString(decodeBody(t, traded)["token"], &token); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := h.keys.OpenApp(token, h.now); !ok {
+		t.Fatal("the token does not open as an app token")
+	}
+}
+
 // A login of the app that fails in any way goes back to the app, so its sheet closes, and gives it no code.
 func TestAppLoginFails(t *testing.T) {
 	for name, fail := range map[string]func(h *loginHarness, state string) string{
@@ -138,16 +170,18 @@ func TestAppLoginFails(t *testing.T) {
 
 func TestAppSigninRefusesBadChallenge(t *testing.T) {
 	h := newLoginHarness(t, testBase, false)
-	for _, challenge := range []string{"", "short", appChallenge + "A", strings.Replace(appChallenge, "-", "+", 1)} {
-		response := h.do(http.MethodGet, "/api/auth/signin?client=ipad&code_challenge="+url.QueryEscape(challenge))
-		if query := appLocation(t, response); query.Get("error") != "loginFailed" {
-			t.Errorf("%q: query = %v", challenge, query)
-		}
-		if findCookie(response, session.OAuthCookie) != nil || h.oauth.state != "" {
-			t.Errorf("%q: the login started", challenge)
+	for _, client := range []string{"ipad", "android"} {
+		for _, challenge := range []string{"", "short", appChallenge + "A", strings.Replace(appChallenge, "-", "+", 1)} {
+			response := h.do(http.MethodGet, "/api/auth/signin?client="+client+"&code_challenge="+url.QueryEscape(challenge))
+			if query := appLocation(t, response); query.Get("error") != "loginFailed" {
+				t.Errorf("%s %q: query = %v", client, challenge, query)
+			}
+			if findCookie(response, session.OAuthCookie) != nil || h.oauth.state != "" {
+				t.Errorf("%s %q: the login started", client, challenge)
+			}
 		}
 	}
-	// Without client=ipad the challenge is not the app's, and the login is the web app's.
+	// Without a client of an app the challenge is not the app's, and the login is the web app's.
 	response := h.do(http.MethodGet, "/api/auth/signin?code_challenge="+appChallenge)
 	opened, _ := h.keys.OpenOAuth(findCookie(response, session.OAuthCookie).Value, h.now)
 	if opened.Challenge != "" || opened.ReturnTo != "/home" {

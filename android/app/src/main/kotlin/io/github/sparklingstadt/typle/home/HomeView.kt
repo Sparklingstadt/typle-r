@@ -132,7 +132,7 @@ private fun Dashboard(now: Instant) {
   Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
       T(L("dashboard.title"), size = 30.sp)
-      T(if (app.storage == StorageKind.API) L("dashboard.sourceAccount") else L("dashboard.sourceLocal"), color = Palette.mutedForeground)
+      T(if (app.storage == StorageKind.ACCOUNT) L("dashboard.sourceAccount") else L("dashboard.sourceLocal"), color = Palette.mutedForeground)
     }
     StartButtons()
   }
