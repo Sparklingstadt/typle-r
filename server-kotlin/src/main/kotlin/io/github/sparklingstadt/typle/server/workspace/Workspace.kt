@@ -44,10 +44,13 @@ class InvalidWorkspaceException(message: String) : Exception(message)
 private fun invalid(message: String): Nothing = throw InvalidWorkspaceException(message)
 
 /** Reads a saved row: its lists and devices columns. */
-fun decode(lists: String, devices: String): Workspace {
-  val rawLists = parse(lists, "lists")
+fun decode(lists: String, devices: String): Workspace = decodeValues(parse(lists, "lists"), parse(devices, "devices"))
+
+/** decode for lists and devices already read as JSON, such as the parts of a save. */
+fun decodeValues(lists: JsonValue, devices: JsonValue): Workspace {
+  val rawLists = lists
   if (rawLists !is JsonArray) invalid("lists must be an array")
-  val rawDevices = when (val parsed = parse(devices, "devices")) {
+  val rawDevices = when (val parsed = devices) {
     is JsonArray -> parsed.items
     JsonNull -> emptyList()
     else -> invalid("devices are not valid")
