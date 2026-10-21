@@ -80,19 +80,6 @@ func refuse(w http.ResponseWriter, status int, key string) {
 	reply(w, status, map[string]string{"error": key})
 }
 
-// encode writes a workspace as it is stored, which also makes sure that empty lists and devices are [] and not null.
-func encode(owner string, result *store.Saved) (saved, error) {
-	lists, err := workspace.Encode(result.Workspace.Lists)
-	if err != nil {
-		return saved{}, err
-	}
-	devices, err := workspace.EncodeDevices(result.Workspace.Devices)
-	if err != nil {
-		return saved{}, err
-	}
-	return saved{lists, devices, result.Revision, owner}, nil
-}
-
 func (s *server) workspace(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -112,20 +99,16 @@ func (s *server) readWorkspace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	result, err := s.config.Store.ReadRevision(r.Context(), user.Sub)
-	var body saved
-	if err == nil {
-		if result == nil {
-			// An account that has saved nothing has no lists, not the first list that /api/v1 starts with.
-			result = &store.Saved{Workspace: &workspace.Workspace{}}
-		}
-		body, err = encode(user.Sub, result)
-	}
 	if err != nil {
 		s.report(r, err, "workspace.read")
 		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
 		return
 	}
-	reply(w, http.StatusOK, body)
+	if result == nil {
+		// An account that has saved nothing has no lists, not the first list that /api/v1 starts with.
+		result = &store.Saved{Lists: json.RawMessage("[]"), Devices: json.RawMessage("[]")}
+	}
+	reply(w, http.StatusOK, saved{result.Lists, result.Devices, result.Revision, user.Sub})
 }
 
 func (s *server) writeWorkspace(w http.ResponseWriter, r *http.Request) {
@@ -182,12 +165,6 @@ func (s *server) writeWorkspace(w http.ResponseWriter, r *http.Request) {
 		s.report(r, err, "workspace.write")
 		refuse(w, http.StatusServiceUnavailable, "workspaceSaveFailed")
 	default:
-		body, err := encode(user.Sub, result)
-		if err != nil {
-			s.report(r, err, "workspace.write")
-			refuse(w, http.StatusServiceUnavailable, "workspaceSaveFailed")
-			return
-		}
-		reply(w, http.StatusOK, body)
+		reply(w, http.StatusOK, saved{result.Lists, result.Devices, result.Revision, user.Sub})
 	}
 }

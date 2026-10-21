@@ -58,8 +58,9 @@ func accountID(fields map[string]json.RawMessage) (string, bool) {
 }
 
 // decodeRequest reads a save, as validateWorkspaceRequest does: the error is errLegacy for a profile that no longer
-// exists and any other error for a request to refuse (400). The number of lists is not checked here; the store compares
-// it with the saved lists.
+// exists and any other error for a request to refuse (400). The limits of validateLists (workspace.CheckLimits) and the
+// number of lists are not checked here: Store.WriteRevision checks them, before it touches the database, and answers
+// a *workspace.Error that is refused with a 400 all the same.
 func decodeRequest(body []byte) (revision int, change store.Change, err error) {
 	fields, err := parseObject(body)
 	if err != nil {
@@ -104,14 +105,10 @@ func decodeFields(fields map[string]json.RawMessage) (revision int, change store
 	if !hasDevices {
 		devices = json.RawMessage("[]")
 	}
+	// The limits of the lists and the number of them are checked by the store, before it touches the database.
 	decoded, err := workspace.Decode(lists, devices)
 	if err != nil {
 		return 0, store.Change{}, err
-	}
-	if hasLists {
-		if err := workspace.CheckLimits(decoded.Lists); err != nil {
-			return 0, store.Change{}, err
-		}
 	}
 	return revision, store.Change{Lists: decoded.Lists, Devices: decoded.Devices, HasLists: hasLists, HasDevices: hasDevices}, nil
 }

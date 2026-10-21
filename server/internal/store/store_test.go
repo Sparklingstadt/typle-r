@@ -498,6 +498,16 @@ func insertLists(t *testing.T, conn *pgx.Conn, id string, n int) {
 	}
 }
 
+// decoded reads a saved workspace, as the app does with the answer of /api/workspace.
+func decoded(t *testing.T, saved *Saved) *workspace.Workspace {
+	t.Helper()
+	w, err := workspace.Decode(saved.Lists, saved.Devices)
+	if err != nil {
+		t.Fatalf("saved %s %s: %v", saved.Lists, saved.Devices, err)
+	}
+	return w
+}
+
 func isListLimit(err error) bool {
 	var e *workspace.Error
 	return errors.As(err, &e) && e.Key == "listLimit"
@@ -522,11 +532,11 @@ func TestWriteRevisionCreate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if saved.Revision != 1 || len(saved.Workspace.Lists) != 2 || len(saved.Workspace.Devices) != 1 {
+	if saved.Revision != 1 || len(decoded(t, saved).Lists) != 2 || len(decoded(t, saved).Devices) != 1 {
 		t.Fatalf("saved = %+v", saved)
 	}
 	read, err := s.ReadRevision(ctx, id)
-	if err != nil || read == nil || read.Revision != 1 || len(read.Workspace.Lists) != 2 {
+	if err != nil || read == nil || read.Revision != 1 || len(decoded(t, read).Lists) != 2 {
 		t.Fatalf("ReadRevision = %+v, %v", read, err)
 	}
 	if _, err := s.WriteRevision(ctx, id, 0, Change{Lists: newLists(1), HasLists: true}); !errors.Is(err, ErrConflict) {
@@ -543,8 +553,8 @@ func TestWriteRevisionCreateOmitted(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(saved.Workspace.Lists) != 0 || len(saved.Workspace.Devices) != 1 {
-		t.Fatalf("saved = %+v", saved.Workspace)
+	if len(decoded(t, saved).Lists) != 0 || len(decoded(t, saved).Devices) != 1 {
+		t.Fatalf("saved = %+v", decoded(t, saved))
 	}
 }
 
@@ -560,7 +570,7 @@ func TestWriteRevisionUpdate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if saved.Revision != 2 || len(saved.Workspace.Lists) != 3 {
+	if saved.Revision != 2 || len(decoded(t, saved).Lists) != 3 {
 		t.Fatalf("saved = %+v", saved)
 	}
 	if _, err := s.WriteRevision(ctx, id, 1, Change{Lists: newLists(1), HasLists: true}); !errors.Is(err, ErrConflict) {
@@ -587,15 +597,15 @@ func TestWriteRevisionKeepsOmitted(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if saved.Revision != 2 || len(saved.Workspace.Lists) != 2 || len(saved.Workspace.Devices) != 1 {
-		t.Fatalf("saved = %+v", saved.Workspace)
+	if saved.Revision != 2 || len(decoded(t, saved).Lists) != 2 || len(decoded(t, saved).Devices) != 1 {
+		t.Fatalf("saved = %+v", decoded(t, saved))
 	}
 	saved, err = s.WriteRevision(ctx, id, 2, Change{Lists: newLists(1), HasLists: true})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(saved.Workspace.Lists) != 1 || len(saved.Workspace.Devices) != 1 {
-		t.Fatalf("saved = %+v", saved.Workspace)
+	if len(decoded(t, saved).Lists) != 1 || len(decoded(t, saved).Devices) != 1 {
+		t.Fatalf("saved = %+v", decoded(t, saved))
 	}
 }
 
@@ -733,7 +743,7 @@ func TestWriteRevisionKeepsUnknownFields(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := saved.Workspace.Lists[0].Words[0].Extra; got != `{"x":{"a":[1,2]}}` {
+	if got := decoded(t, saved).Lists[0].Words[0].Extra; got != `{"x":{"a":[1,2]}}` {
 		t.Fatalf("unknown field lost: %q", got)
 	}
 	stored, _, _ := row(t, conn, id)
@@ -826,5 +836,36 @@ func TestWriteRevisionLimits(t *testing.T) {
 		if _, revision, _ := row(t, conn, id); revision != 1 {
 			t.Fatalf("%s: revision = %d after a refused save", name, revision)
 		}
+	}
+}
+
+// An update reads only the saved revision and number of lists, not the lists themselves: saved lists that Decode would
+// refuse are replaced by a save of new lists, and kept as they are, in the database, by a save of the devices alone.
+func TestWriteRevisionDoesNotDecodeSavedLists(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	s := open(t, connection, true)
+	const unreadable = `[{"id": "x"}]`
+	replaced, kept := owner(t, conn), owner(t, conn)
+	if _, err := conn.Exec(ctx, `INSERT INTO typle_workspaces (owner_id, lists) VALUES ($1, $3), ($2, $3)`, replaced, kept, unreadable); err != nil {
+		t.Fatal(err)
+	}
+	saved, err := s.WriteRevision(ctx, replaced, 1, Change{Lists: newLists(1), HasLists: true})
+	if err != nil || saved.Revision != 2 {
+		t.Fatalf("replacing unreadable lists: %+v, %v", saved, err)
+	}
+	if _, err := s.ReadRevision(ctx, replaced); err != nil {
+		t.Fatalf("the replaced lists do not load: %v", err)
+	}
+	saved, err = s.WriteRevision(ctx, kept, 1, Change{Devices: []workspace.Device{{ID: "d1", Name: "自宅", Layout: "JIS"}}, HasDevices: true})
+	if err != nil || saved.Revision != 2 {
+		t.Fatalf("saving devices beside unreadable lists: %+v, %v", saved, err)
+	}
+	var devices string
+	if err := conn.QueryRow(ctx, `SELECT devices::text FROM typle_workspaces WHERE owner_id = $1`, kept).Scan(&devices); err != nil {
+		t.Fatal(err)
+	}
+	if lists, _, _ := row(t, conn, kept); lists != unreadable || !strings.Contains(devices, `"d1"`) {
+		t.Fatalf("lists = %s, devices = %s", lists, devices)
 	}
 }

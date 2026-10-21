@@ -49,7 +49,15 @@ func (f *fakeWorkspaces) WriteRevision(_ context.Context, _ string, revision int
 	if f.err != nil {
 		return nil, f.err
 	}
-	return &store.Saved{Workspace: &workspace.Workspace{Lists: change.Lists, Devices: change.Devices}, Revision: revision + 1}, nil
+	lists, err := workspace.Encode(change.Lists)
+	if err != nil {
+		return nil, err
+	}
+	devices, err := workspace.EncodeDevices(change.Devices)
+	if err != nil {
+		return nil, err
+	}
+	return &store.Saved{Lists: lists, Devices: devices, Revision: revision + 1}, nil
 }
 
 // The database tests need the app's tables (npm run db:migrate). They use a random account and delete its row.
@@ -382,7 +390,6 @@ func TestPutAccountChanged(t *testing.T) {
 func TestPutInvalid(t *testing.T) {
 	fake := &fakeWorkspaces{}
 	h := newHarness(t, fake, testBase)
-	name201 := strings.Repeat("a", 201)
 	bodies := map[string]string{
 		"negative":        payload(testOwner, `"revision":-1,"lists":[]`),
 		"fraction":        payload(testOwner, `"revision":1.5,"lists":[]`),
@@ -392,7 +399,6 @@ func TestPutInvalid(t *testing.T) {
 		"true":            payload(testOwner, `"revision":true,"lists":[]`),
 		"overflow":        payload(testOwner, `"revision":1e400,"lists":[]`),
 		"not safe":        payload(testOwner, `"revision":9007199254740992,"lists":[]`),
-		"name too long":   payload(testOwner, `"revision":0,"lists":[`+strings.Replace(oneList, `"One"`, `"`+name201+`"`, 1)+`]`),
 		"null lists":      payload(testOwner, `"revision":0,"lists":null`),
 		"null devices":    payload(testOwner, `"revision":0,"devices":null`),
 		"lists object":    payload(testOwner, `"revision":0,"lists":{}`),
@@ -515,6 +521,17 @@ func TestPutListLimit(t *testing.T) {
 	}
 }
 
+// The limits of validateLists are checked by the store, before the database: a list name that is too long is a 400.
+func TestPutLimits(t *testing.T) {
+	s, owner := realStore(t)
+	h := newHarness(t, s, testBase)
+	long := aList("one", strings.Repeat("a", workspace.MaxListName+1))
+	expectError(t, h.put(owner, payload(owner, `"revision":0,"lists":[`+long+`]`)), http.StatusBadRequest, "invalidWorkspace")
+	if string(decodeBody(t, h.get(owner))["revision"]) != "0" || len(h.reports) != 0 {
+		t.Fatalf("a refused save created the workspace or was reported: %v", h.reports)
+	}
+}
+
 // The store's own refusals keep their keys; anything else is a failed save.
 func TestPutStoreErrors(t *testing.T) {
 	cases := map[string]struct {
@@ -606,12 +623,14 @@ func TestNowIsUsed(t *testing.T) {
 }
 
 // These are the inputs of tests/workspace.test.cjs for validateWorkspaceRequest, and what it does with each; this
-// checks that the request is read the same way here. The number of lists is checked by the store, not by the request.
+// checks that the request is read the same way here. The limits of the lists (workspace.CheckLimits) and their number
+// are checked by the store, not by the request: limits is a request that the store's CheckLimits refuses.
 func TestMatchesTypeScript(t *testing.T) {
 	const (
 		accepted = iota
 		invalid
 		legacy
+		limits
 	)
 	name201 := strings.Repeat("a", 201)
 	many := make([]string, 101)
@@ -636,7 +655,7 @@ func TestMatchesTypeScript(t *testing.T) {
 		{"revision 1.0", `{"revision":1.0,"lists":[]}`, accepted, 1, 0, -1},
 		{"revision 1e2", `{"revision":1e2,"lists":[]}`, accepted, 100, 0, -1},
 		{"revision -0", `{"revision":-0,"lists":[]}`, accepted, 0, 0, -1},
-		{"name of 201 characters", `{"revision":0,"lists":[` + aList("one", name201) + `]}`, invalid, 0, 0, 0},
+		{"name of 201 characters", `{"revision":0,"lists":[` + aList("one", name201) + `]}`, limits, 0, 1, -1},
 		{"name of 200 characters", `{"revision":0,"lists":[` + aList("one", name201[1:]) + `]}`, accepted, 0, 1, -1},
 		{"profileId default", `{"revision":0,"profileId":"default","lists":[` + oneList + `]}`, accepted, 0, 1, -1},
 		{"profileId zh", `{"revision":1,"profileId":"zh","lists":[]}`, legacy, 0, 0, 0},
@@ -658,6 +677,11 @@ func TestMatchesTypeScript(t *testing.T) {
 			case legacy:
 				if !errors.Is(err, errLegacy) {
 					t.Fatalf("err = %v; want legacy", err)
+				}
+			case limits:
+				var refused *workspace.Error
+				if err != nil || !errors.As(workspace.CheckLimits(change.Lists), &refused) || refused.Key != "invalidWorkspace" {
+					t.Fatalf("err = %v, limits not refused for %+v", err, change)
 				}
 			default:
 				if err != nil {
