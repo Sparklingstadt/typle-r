@@ -15,14 +15,17 @@ const SessionContext = createContext<SessionState>({ data: null, status: 'loadin
 // The waits before the first read is tried again. When all have failed, the session settles on signed out, so the app is
 // usable as a guest.
 const RETRY_DELAYS_MS = [1000, 2000, 4000]
+const SESSION_TIMEOUT_MS = 10_000
 
 /**
  * Reads the signed-in user from the Go backend. Only a 200 answer says who is signed in: null when its `user` is null
- * or left out. Anything else (a failed request, another status, a body that is not the session) rejects, since it does
- * not say that the user signed out.
+ * or left out. Anything else (a failed request, one that timed out, another status, a body that is not the session)
+ * rejects, since it does not say that the user signed out.
  */
 async function fetchSession(): Promise<SessionData> {
-  const response = await fetch('/api/auth/session', { cache: 'no-store' })
+  // A request that hangs (a network that is half there) fails after a while, so that it does not stay in flight for good
+  // and hold back every later check.
+  const response = await fetch('/api/auth/session', { cache: 'no-store', signal: AbortSignal.timeout(SESSION_TIMEOUT_MS) })
   if (response.status !== 200) throw new Error(`session answered ${response.status}`)
   const body: unknown = await response.json()
   if (!body || typeof body !== 'object') throw new Error('session answer is not an object')

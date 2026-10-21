@@ -206,7 +206,9 @@ type Change struct {
 
 // ReadRevision returns the owner's saved workspace with its revision, or nil when nothing has been saved. Unlike Read
 // it does not make up initial lists: the app's /api/workspace answers revision 0 for an account without a row. The row
-// is checked with Decode, so saved data that the app could not read is an error, but answered as stored.
+// is checked with Decode, so saved data that Go cannot read is an error, but it is answered as stored (the jsonb text),
+// not as Go decoded it. Data that Go reads and the app's decodeLists or decodeDevices refuses therefore reaches the
+// browser, which says savedDataCorrupted, rather than being quietly changed here.
 func (s *Store) ReadRevision(ctx context.Context, owner string) (*Saved, error) {
 	saved, err := scanSaved(s.pool.QueryRow(ctx,
 		`SELECT lists::text, devices::text, revision FROM typle_workspaces WHERE owner_id = $1`, owner))

@@ -246,9 +246,14 @@ func TestHandlerConcurrentWhileDown(t *testing.T) {
 		}()
 	}
 	<-started
-	// While the connection is being made the lock is free, so that a request that does not need it is not held up.
-	if !backend.mu.TryLock() {
-		t.Fatal("the lock is held while the database is being opened")
+	// While the connection is being made the lock is free, so that a request that does not need it is not held up. The
+	// other callers take it for a moment to find the attempt, so it is tried for a while rather than once.
+	deadline := time.Now().Add(time.Second)
+	for !backend.mu.TryLock() {
+		if time.Now().After(deadline) {
+			t.Fatal("the lock is held while the database is being opened")
+		}
+		time.Sleep(time.Millisecond)
 	}
 	backend.mu.Unlock()
 	time.Sleep(50 * time.Millisecond)

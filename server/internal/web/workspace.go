@@ -12,7 +12,9 @@ import (
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
 
-// saved is the answer of GET and PUT. The lists and devices are written as stored, with the fields Typle does not know.
+// saved is the answer of GET and PUT. The lists and devices are the stored jsonb text, with the fields Typle does not
+// know: Go decodes them only to check them (store.ReadRevision), so where Go and the app's decoders differ, the browser
+// is the one to refuse the data (savedDataCorrupted).
 type saved struct {
 	Lists     json.RawMessage `json:"lists"`
 	Devices   json.RawMessage `json:"devices"`

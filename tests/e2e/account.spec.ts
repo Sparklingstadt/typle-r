@@ -144,3 +144,21 @@ test('a session check that keeps failing settles on signed out', async ({ page }
   await expect(page.getByRole('button', { name: 'GitHubでログイン' })).toBeVisible()
   expect(calls).toBe(4)
 })
+
+// A check that never answers gives up after a while, so that it does not hold back every later check.
+test('a session check that hangs gives way to the next one', async ({ page }) => {
+  test.setTimeout(45_000)
+  await page.goto('/home')
+  const menu = page.getByRole('button', { name: 'アカウントメニュー', exact: true })
+  await expect(menu).toBeVisible()
+  // The first check is never answered; later ones go through.
+  let checks = 0
+  await page.route('**/api/auth/session', route => ++checks === 1 ? undefined : route.continue())
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+  await expect.poll(() => checks).toBe(1)
+  await page.waitForTimeout(11_000)
+  const next = page.waitForRequest('**/api/auth/session', { timeout: 5_000 })
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+  await next
+  await expect(menu).toBeVisible()
+})

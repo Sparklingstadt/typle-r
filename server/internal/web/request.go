@@ -8,6 +8,7 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"unicode/utf16"
 
 	"github.com/sparklingstadt/typle-r/server/internal/store"
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
@@ -96,7 +97,7 @@ func decodeFields(fields map[string]json.RawMessage) (revision int, change store
 			return 0, store.Change{}, errInvalid
 		}
 	}
-	if hasNUL(lists) || hasNUL(devices) {
+	if unstorable(lists) || unstorable(devices) {
 		return 0, store.Change{}, errInvalid
 	}
 	if !hasLists {
@@ -113,21 +114,69 @@ func decodeFields(fields map[string]json.RawMessage) (revision int, change store
 	return revision, store.Change{Lists: decoded.Lists, Devices: decoded.Devices, HasLists: hasLists, HasDevices: hasDevices}, nil
 }
 
-// hasNUL reports whether a string or object key anywhere in the JSON value raw holds U+0000, which PostgreSQL's jsonb
-// cannot store: the save would fail in the database instead of being refused. The value is read token by token, so an
-// escaped backslash (\\u0000) is not taken for a NUL. A value that is not valid JSON is left to Decode to refuse.
-func hasNUL(raw json.RawMessage) bool {
-	decoder := json.NewDecoder(bytes.NewReader(raw))
-	decoder.UseNumber()
-	for {
-		token, err := decoder.Token()
-		if err != nil {
-			return false
-		}
-		if text, ok := token.(string); ok && strings.ContainsRune(text, 0) {
-			return true
+// unstorable reports whether a string or object key anywhere in the JSON value raw holds what PostgreSQL's jsonb cannot
+// store, so that the save would fail in the database instead of being refused: U+0000, or a UTF-16 surrogate escape
+// that is not part of a pair (Go's decoder reads that as U+FFFD, but a field Typle does not know is saved as written).
+// Both can only be written as \u escapes in valid JSON. Most bodies have neither, which a byte search finds without
+// reading them; otherwise the strings are read escape by escape, so an escaped backslash (\\u0000) is not taken for
+// one. A value that is not valid JSON is left to Decode to refuse.
+func unstorable(raw json.RawMessage) bool {
+	if !escapeCandidate(raw) {
+		return false
+	}
+	inString := false
+	for i := 0; i < len(raw); i++ {
+		switch c := raw[i]; {
+		case !inString:
+			inString = c == '"'
+		case c == '"':
+			inString = false
+		case c == '\\':
+			if i+1 < len(raw) && raw[i+1] != 'u' {
+				i++
+				continue
+			}
+			unit, ok := escapedUnit(raw, i)
+			if !ok {
+				return false
+			}
+			i += 5
+			switch {
+			case unit == 0 || utf16.IsSurrogate(rune(unit)) && unit >= 0xdc00:
+				return true
+			case utf16.IsSurrogate(rune(unit)):
+				low, ok := escapedUnit(raw, i+1)
+				if !ok || low < 0xdc00 || low > 0xdfff {
+					return true
+				}
+				i += 6
+			}
 		}
 	}
+	return false
+}
+
+// escapeCandidate reports whether raw has an escape that may be U+0000 or a surrogate: \u0000 or \uD800 to \uDFFF.
+func escapeCandidate(raw []byte) bool {
+	for rest := raw; ; {
+		at := bytes.Index(rest, []byte(`\u`))
+		if at < 0 || at+6 > len(rest) {
+			return false
+		}
+		if hex := rest[at+2 : at+6]; string(hex) == "0000" || (hex[0]|0x20 == 'd' && strings.IndexByte("89abcdefABCDEF", hex[1]) >= 0) {
+			return true
+		}
+		rest = rest[at+2:]
+	}
+}
+
+// escapedUnit reads the \uXXXX escape at raw[at] as a UTF-16 code unit.
+func escapedUnit(raw []byte, at int) (uint16, bool) {
+	if at+6 > len(raw) || raw[at] != '\\' || raw[at+1] != 'u' {
+		return 0, false
+	}
+	unit, err := strconv.ParseUint(string(raw[at+2:at+6]), 16, 16)
+	return uint16(unit), err == nil
 }
 
 // safeInteger reads a JSON number that Number.isSafeInteger accepts and is not below 0, which is what a revision is.

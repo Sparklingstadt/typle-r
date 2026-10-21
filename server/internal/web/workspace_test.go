@@ -743,3 +743,38 @@ func TestPutNULRealStore(t *testing.T) {
 		t.Fatalf("reports = %v", h.reports)
 	}
 }
+
+// jsonb also refuses a UTF-16 surrogate escape that is not part of a pair, which Go would read as U+FFFD: it is refused
+// as NUL is, before the store. A pair is a character like any other.
+func TestPutLoneSurrogate(t *testing.T) {
+	fake := &fakeWorkspaces{}
+	h := newHarness(t, fake, testBase)
+	for name, fields := range map[string]string{
+		"list name":     `"revision":0,"lists":[` + aList("one", `a\ud800b`) + `]`,
+		"unknown field": `"revision":0,"lists":[` + strings.Replace(oneList, `"records":[]`, `"records":[],"x":["\uDC00"]`, 1) + `]`,
+		"unknown key":   `"revision":0,"lists":[` + strings.Replace(oneList, `"records":[]`, `"records":[],"\ud83d":1`, 1) + `]`,
+		"device":        `"revision":0,"devices":[{"id":"mac","name":"Mac\ud800","layout":"JIS"}]`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			expectError(t, h.put(testOwner, payload(testOwner, fields)), http.StatusBadRequest, "invalidWorkspace")
+		})
+	}
+	if fake.writes != 0 {
+		t.Fatalf("writes = %d", fake.writes)
+	}
+	pair := h.put(testOwner, payload(testOwner, `"revision":0,"lists":[`+aList("one", `\ud842\udfb7`)+`]`))
+	if pair.Code != http.StatusOK || fake.change.Lists[0].Name != "𠮷" {
+		t.Fatalf("surrogate pair: response = %d %s", pair.Code, pair.Body)
+	}
+}
+
+// With the database: a lone surrogate in a field Typle does not know reaches jsonb as written, and is refused before.
+func TestPutLoneSurrogateRealStore(t *testing.T) {
+	s, owner := realStore(t)
+	h := newHarness(t, s, testBase)
+	list := strings.Replace(oneList, `"records":[]`, `"records":[],"x":"\ud800"`, 1)
+	expectError(t, h.put(owner, payload(owner, `"revision":0,"lists":[`+list+`]`)), http.StatusBadRequest, "invalidWorkspace")
+	if len(h.reports) != 0 {
+		t.Fatalf("reports = %v", h.reports)
+	}
+}
