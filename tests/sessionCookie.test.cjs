@@ -13,3 +13,13 @@ test('sealSession produces the cookie the Go server produces', () => {
   const session = { sub: 'github:1', name: 'E2E User', image: '', iat: 1700000000, exp: 1702592000 }
   assert.equal(sealSession(secret, session), VECTOR)
 })
+
+// The same as TestEscapedVector: & < > are written as they are, and U+2028 as \u2028, as Go's encoder writes them.
+const ESCAPED_VECTOR =
+  'eyJzdWIiOiJnaXRodWI6MiIsIm5hbWUiOiJBICYgQiA8eD5cdTIwMjgiLCJpbWFnZSI6IiIsImlhdCI6MTcwMDAwMDAwMCwiZXhwIjoxNzAyNTkyMDAwfQ.kC3xQIvDOm0YGs1xA85LEKb4SB8PCoSntK11CucuLmk'
+
+test('sealSession writes a name with & < > and U+2028 as the Go server does', () => {
+  const secret = 'typle-e2e-only-not-a-production-secret-32-bytes'
+  const session = { sub: 'github:2', name: 'A & B <x>\u2028', image: '', iat: 1700000000, exp: 1702592000 }
+  assert.equal(sealSession(secret, session), ESCAPED_VECTOR)
+})

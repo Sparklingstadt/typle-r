@@ -14,6 +14,10 @@ const testSecret = "typle-e2e-only-not-a-production-secret-32-bytes"
 // vector is what the TypeScript sealSession (tests/e2e/sessionCookie.ts) must produce for the same input.
 const vector = "eyJzdWIiOiJnaXRodWI6MSIsIm5hbWUiOiJFMkUgVXNlciIsImltYWdlIjoiIiwiaWF0IjoxNzAwMDAwMDAwLCJleHAiOjE3MDI1OTIwMDB9.PnYQedkDC_8_wH2YdnWBCStw6T-q-WuuzlkmghaPRro"
 
+// escapedVector is the same contract for a name that JSON may spell in more than one way: & < > are written as they are,
+// and U+2028 as \u2028, on both sides.
+const escapedVector = "eyJzdWIiOiJnaXRodWI6MiIsIm5hbWUiOiJBICYgQiA8eD5cdTIwMjgiLCJpbWFnZSI6IiIsImlhdCI6MTcwMDAwMDAwMCwiZXhwIjoxNzAyNTkyMDAwfQ.kC3xQIvDOm0YGs1xA85LEKb4SB8PCoSntK11CucuLmk"
+
 func testKeys(t *testing.T) Keys {
 	t.Helper()
 	keys, err := NewKeys(testSecret)
@@ -185,5 +189,27 @@ func TestVector(t *testing.T) {
 	s := Session{Sub: "github:1", Name: "E2E User", Image: "", IssuedAt: time.Unix(1700000000, 0), Expires: time.Unix(1702592000, 0)}
 	if got := keys.Seal(s); got != vector {
 		t.Fatalf("Seal = %q, want %q", got, vector)
+	}
+}
+
+func TestEscapedVector(t *testing.T) {
+	keys := testKeys(t)
+	s := Session{Sub: "github:2", Name: "A & B <x>\u2028", Image: "", IssuedAt: time.Unix(1700000000, 0), Expires: time.Unix(1702592000, 0)}
+	if got := keys.Seal(s); got != escapedVector {
+		t.Fatalf("Seal = %q, want %q", got, escapedVector)
+	}
+	if got, ok := keys.Open(escapedVector, time.Unix(1700000000, 0)); !ok || got != s {
+		t.Fatalf("Open = %+v, %v", got, ok)
+	}
+}
+
+// A cookie sealed before & < > were written as they are (json.Marshal wrote \u0026 \u003c \u003e) still opens: the
+// signature is over the payload as it was received, which is then read as JSON.
+func TestOpenHTMLEscapedCookie(t *testing.T) {
+	keys := testKeys(t)
+	payload := base64.RawURLEncoding.EncodeToString([]byte(`{"sub":"github:2","name":"A \u0026 B \u003cx\u003e","image":"","iat":1700000000,"exp":1702592000}`))
+	cookie := payload + "." + base64.RawURLEncoding.EncodeToString(sign(keys.session, payload))
+	if got, ok := keys.Open(cookie, time.Unix(1700000000, 0)); !ok || got.Name != "A & B <x>" {
+		t.Fatalf("Open = %+v, %v", got, ok)
 	}
 }

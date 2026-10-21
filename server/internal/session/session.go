@@ -6,6 +6,7 @@
 package session
 
 import (
+	"bytes"
 	"crypto/hkdf"
 	"crypto/hmac"
 	"crypto/sha256"
@@ -138,10 +139,21 @@ func seal(key []byte, v any) string {
 	if len(key) == 0 {
 		panic("session: sealing with an empty key")
 	}
-	// The wire structs hold only strings and integers, which always encode.
-	data, _ := json.Marshal(v)
-	payload := base64.RawURLEncoding.EncodeToString(data)
+	payload := base64.RawURLEncoding.EncodeToString(encode(v))
 	return payload + "." + base64.RawURLEncoding.EncodeToString(sign(key, payload))
+}
+
+// encode writes the JSON as the TypeScript twin's JSON.stringify does, so that both sign the same bytes: & < > are
+// written as they are. The encoder still writes U+2028 and U+2029 as \u2028 and \u2029, which JSON.stringify does not,
+// so the twin replaces those two after stringify. Open signs the payload as received and only then reads it as JSON,
+// so cookies sealed with json.Marshal (& < > as \u0026 \u003c \u003e) still open.
+func encode(v any) []byte {
+	var buffer bytes.Buffer
+	encoder := json.NewEncoder(&buffer)
+	encoder.SetEscapeHTML(false)
+	// The wire structs hold only strings and integers, which always encode.
+	_ = encoder.Encode(v)
+	return bytes.TrimSuffix(buffer.Bytes(), []byte("\n"))
 }
 
 func open(key []byte, value string, v any) bool {
