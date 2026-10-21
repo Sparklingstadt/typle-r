@@ -49,7 +49,10 @@ func main() {
 	if *writable {
 		writer, mode = source, "read-write"
 	}
-	server := &http.Server{Addr: *addr, Handler: api.New(source, writer, auth.NewGitHub()), ReadHeaderTimeout: 10 * time.Second}
+	// A client that sends or reads slowly, or keeps an idle connection open, does not hold it for ever. A request takes
+	// at most a GitHub check (10 seconds) and a few queries, with a body of at most 1 MiB.
+	server := &http.Server{Addr: *addr, Handler: api.New(source, writer, auth.NewGitHub()), ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout: 30 * time.Second, WriteTimeout: time.Minute, IdleTimeout: 2 * time.Minute}
 	go func() {
 		<-ctx.Done()
 		shutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)

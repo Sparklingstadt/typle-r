@@ -135,10 +135,10 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
     permissions:
       contents: read
+    # VERCEL_TOKEN is given only to the steps that need it, never to the CLI's installation.
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_CLI_VERSION: 60.1.3
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -154,22 +154,24 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ needs.release.outputs.tag }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           test -n "$VERCEL_TOKEN" || { echo 'Missing VERCEL_TOKEN'; exit 1; }
           test -n "$VERCEL_ORG_ID" || { echo 'Missing VERCEL_ORG_ID'; exit 1; }
           test -n "$VERCEL_PROJECT_ID" || { echo 'Missing VERCEL_PROJECT_ID'; exit 1; }
           node scripts/ci/release.cjs check
       # The pinned CLI is kept in its own prefix and cached by version. Only main-branch runs deploy, and they only
-      # restore caches saved on main, so a pull request cannot supply the CLI that receives the token.
+      # restore caches saved on main, so a pull request cannot supply the CLI that receives the token. A global install
+      # has no lockfile, so the CLI's dependencies' install scripts are not run.
       - name: Cache pinned Vercel CLI
         id: vercel-cache
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ~/.vercel-cli
-          key: vercel-cli-${{ runner.os }}-node24-${{ env.VERCEL_CLI_VERSION }}
+          key: vercel-cli-${{ runner.os }}-node24-${{ env.VERCEL_CLI_VERSION }}-ignore-scripts
       - name: Install pinned Vercel CLI
         if: steps.vercel-cache.outputs.cache-hit != 'true'
-        run: npm install --global --prefix "$HOME/.vercel-cli" "vercel@$VERCEL_CLI_VERSION"
+        run: npm install --global --ignore-scripts --prefix "$HOME/.vercel-cli" "vercel@$VERCEL_CLI_VERSION"
       - name: Use pinned Vercel CLI
         run: |
           echo "$HOME/.vercel-cli/bin" >> "$GITHUB_PATH"
@@ -183,6 +185,7 @@ jobs:
         id: deploy
         env:
           SOURCE_SHA: ${{ needs.release.outputs.sha }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           url=$(vercel deploy --prod --yes --token="$VERCEL_TOKEN" --meta "githubCommitSha=$SOURCE_SHA")
           echo "url=$url" >> "$GITHUB_OUTPUT"

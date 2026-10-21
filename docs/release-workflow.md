@@ -60,6 +60,7 @@ CI用Vercelトークンは90日期限で作成しています。期限前にSecr
 7. 同じSHAをチェックアウトし、ReleaseのタグのSHAを再確認します。
    Vercel CLI 60.1.3の`vercel deploy --prod`でソースを送り、Vercel内で本番ビルド・デプロイします。
    CLIはバージョンごとにmainのキャッシュに保存します。版を上げるときは`ci.yml`の`VERCEL_CLI_VERSION`だけを変えます。
+   CLIはインストールスクリプトを実行せずに入れ、`VERCEL_TOKEN`はSecretの確認とデプロイの手順だけに渡します。
    読み出し不可のSecretが`[SENSITIVE]`になるため、Actionsでは`vercel pull`・`vercel build`を行いません。
 8. 本番ホームの成功応答と、匿名APIアクセスの401を確認します。
 

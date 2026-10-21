@@ -29,6 +29,10 @@ const (
 	cacheFor   = 5 * time.Minute
 	maxCached  = 1000
 	maxBodyLen = 1 << 20
+	// Tokens not in the cache are checked with GitHub at most this often, after a burst of maxChecks, so a flood of
+	// made-up tokens cannot make the server flood GitHub. Cached tokens are never held back.
+	checksPerSecond = 10
+	maxChecks       = 20
 )
 
 type cached struct {
@@ -44,6 +48,9 @@ type GitHub struct {
 
 	mu    sync.Mutex
 	cache map[[sha256.Size]byte]cached
+	// checks is how many checks can start now; it refills at checksPerSecond since checked.
+	checks  float64
+	checked time.Time
 }
 
 func NewGitHub() *GitHub {
@@ -56,6 +63,9 @@ func (g *GitHub) Owner(ctx context.Context, token string) (string, error) {
 	key := sha256.Sum256([]byte(token))
 	if owner, ok := g.lookup(key); ok {
 		return owner, nil
+	}
+	if !g.allowCheck() {
+		return "", fmt.Errorf("%w: too many tokens to check", ErrUnavailable)
 	}
 	owner, err := g.fetch(ctx, token)
 	if err != nil {
@@ -82,6 +92,24 @@ func (g *GitHub) store(key [sha256.Size]byte, owner string) {
 		g.cache = map[[sha256.Size]byte]cached{}
 	}
 	g.cache[key] = cached{owner: owner, expires: g.now().Add(cacheFor)}
+}
+
+// allowCheck takes one of the checks that may start now, or reports that none is left.
+func (g *GitHub) allowCheck() bool {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	now := g.now()
+	if g.checked.IsZero() {
+		g.checks = maxChecks
+	} else {
+		g.checks = min(maxChecks, g.checks+now.Sub(g.checked).Seconds()*checksPerSecond)
+	}
+	g.checked = now
+	if g.checks < 1 {
+		return false
+	}
+	g.checks--
+	return true
 }
 
 func (g *GitHub) fetch(ctx context.Context, token string) (string, error) {
