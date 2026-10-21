@@ -10,3 +10,4 @@ server/cmd
 *_test.go
 ios
 android
+server-kotlin

@@ -2,6 +2,12 @@ import { defineConfig } from '@playwright/test'
 import { loadEnvConfig } from '@next/env'
 loadEnvConfig(process.cwd())
 
+// TYPLE_BACKEND=kotlin runs the same tests against the Kotlin backend (server-kotlin), which must be built first:
+// server-kotlin/gradlew -p server-kotlin installDist.
+const backend = process.env.TYPLE_BACKEND === 'kotlin'
+  ? 'server-kotlin/build/install/typle-web/bin/typle-web -addr 127.0.0.1:8081'
+  : 'go run ./server/cmd/typle-web -addr 127.0.0.1:8081'
+
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
@@ -16,7 +22,7 @@ export default defineConfig({
   webServer: [
     {
       // go run compiles first, which can take a while on a cold cache.
-      command: 'go run ./server/cmd/typle-web -addr 127.0.0.1:8081',
+      command: backend,
       env: {
         AUTH_SECRET: 'typle-e2e-only-not-a-production-secret-32-bytes',
         AUTH_URL: 'http://127.0.0.1:3101',
