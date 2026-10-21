@@ -35,7 +35,7 @@ func TestHealthOK(t *testing.T) {
 	if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != `{"status":"ok"}` {
 		t.Fatalf("response = %d %s", response.Code, response.Body)
 	}
-	if response.Header().Get("Cache-Control") != "no-store" || response.Header().Get("Content-Type") != "application/json; charset=utf-8" {
+	if response.Header().Get("Cache-Control") != "private, no-store" || response.Header().Get("Content-Type") != "application/json; charset=utf-8" {
 		t.Fatalf("headers = %v", response.Header())
 	}
 }
@@ -50,7 +50,7 @@ func TestHealthHead(t *testing.T) {
 	}
 	defer response.Body.Close()
 	body, _ := io.ReadAll(response.Body)
-	if response.StatusCode != http.StatusOK || len(body) != 0 || response.Header.Get("Cache-Control") != "no-store" ||
+	if response.StatusCode != http.StatusOK || len(body) != 0 || response.Header.Get("Cache-Control") != "private, no-store" ||
 		response.Header.Get("Content-Type") != "application/json; charset=utf-8" {
 		t.Fatalf("response = %d %q %v", response.StatusCode, body, response.Header)
 	}
@@ -61,7 +61,7 @@ func TestHealthDatabaseDown(t *testing.T) {
 	if response.Code != http.StatusServiceUnavailable || strings.TrimSpace(response.Body.String()) != `{"error":"databaseUnavailable"}` {
 		t.Fatalf("response = %d %s", response.Code, response.Body)
 	}
-	if response.Header().Get("Cache-Control") != "no-store" {
+	if response.Header().Get("Cache-Control") != "private, no-store" {
 		t.Fatalf("headers = %v", response.Header())
 	}
 }
@@ -76,6 +76,19 @@ func TestHealthMethod(t *testing.T) {
 func TestNotFound(t *testing.T) {
 	response := get(t, New(Config{Store: fakeStore{}}), http.MethodGet, "/api/nothing")
 	if response.Code != http.StatusNotFound || strings.TrimSpace(response.Body.String()) != `{"error":"notFound"}` {
+		t.Fatalf("response = %d %s", response.Code, response.Body)
+	}
+}
+
+// Health answers as New does, without any login settings.
+func TestHealthAlone(t *testing.T) {
+	response := get(t, Health(fakeStore{}), http.MethodGet, "/api/health")
+	if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != `{"status":"ok"}` {
+		t.Fatalf("response = %d %s", response.Code, response.Body)
+	}
+	checkSecurityHeaders(t, "health", response.Header())
+	response = get(t, Health(fakeStore{err: errors.New("down")}), http.MethodGet, "/api/health")
+	if response.Code != http.StatusServiceUnavailable || strings.TrimSpace(response.Body.String()) != `{"error":"databaseUnavailable"}` {
 		t.Fatalf("response = %d %s", response.Code, response.Body)
 	}
 }

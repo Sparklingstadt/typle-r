@@ -15,7 +15,8 @@ export default function LocalLoginForm() {
     try {
       const response = await fetch('/api/auth/local', { method: 'POST' })
       if (!response.ok) throw new Error('local login failed')
-      await update()
+      // A session that could not be read keeps the one before, which is not this sign-in.
+      if (!await update()) throw new Error('local login did not sign in')
       router.push('/play')
       router.refresh()
     } catch { setError(t('failed')) }

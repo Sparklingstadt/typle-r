@@ -96,3 +96,69 @@ test('switching account refreshes the workspace without exposing the previous li
   await expect(page.getByRole('button', { name: 'アカウントメニュー', exact: true })).toHaveAttribute('title', 'Other account')
   await expect(page.getByRole('button', { name: 'Previous account list を編集', exact: true })).toHaveCount(0)
 })
+
+// A session check that fails (the backend is unreachable, as on waking from sleep before the network is back) is not
+// an answer: the user stays signed in and the lists stay the cloud ones, instead of switching to the guest workspace.
+test('a failed session check keeps the signed-in user and the cloud lists', async ({ page }) => {
+  await seed(page, [{ id: 'cloud-keep', name: 'Cloud list', createdAt: '2026-09-06', records: [], words: [{ display: 'a', input: 'a', annotation: '' }] }])
+  await page.goto('/edit')
+  const menu = page.getByRole('button', { name: 'アカウントメニュー', exact: true })
+  const list = page.getByRole('button', { name: 'Cloud list を編集', exact: true })
+  await expect(menu).toBeVisible()
+  await expect(list).toBeVisible()
+  const failures: [string, (route: import('@playwright/test').Route) => Promise<void>][] = [
+    ['503', route => route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"databaseUnavailable"}' })],
+    ['network error', route => route.abort()],
+    ['not JSON', route => route.fulfill({ status: 200, contentType: 'application/json', body: '<html>' })],
+  ]
+  for (const [name, fail] of failures) {
+    await page.route('**/api/auth/session', fail)
+    for (const trigger of ['visibilitychange', 'focus']) {
+      const checked = page.waitForRequest('**/api/auth/session')
+      await page.evaluate(event => event === 'focus' ? window.dispatchEvent(new Event('focus')) : document.dispatchEvent(new Event(event)), trigger)
+      await checked
+      // Give the failed answer time to be applied, were it taken for a sign-out.
+      await page.waitForTimeout(500)
+      await expect(menu, `${name} on ${trigger}`).toBeVisible()
+      await expect(list, `${name} on ${trigger}`).toBeVisible()
+      await expect(page.getByRole('button', { name: 'GitHubでログイン' }), `${name} on ${trigger}`).toHaveCount(0)
+    }
+    await page.unroute('**/api/auth/session', fail)
+  }
+})
+
+test('the first session check is tried again until it answers', async ({ page }) => {
+  let calls = 0
+  await page.route('**/api/auth/session', route => ++calls <= 2
+    ? route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"authUnavailable"}' })
+    : route.continue())
+  await page.goto('/home')
+  await expect(page.getByRole('button', { name: 'アカウントメニュー', exact: true })).toBeVisible()
+  expect(calls).toBeGreaterThanOrEqual(3)
+})
+
+test('a session check that keeps failing settles on signed out', async ({ page }) => {
+  let calls = 0
+  await page.route('**/api/auth/session', route => { calls++; return route.abort() })
+  await page.goto('/home')
+  await expect(page.getByRole('button', { name: 'GitHubでログイン' })).toBeVisible()
+  expect(calls).toBe(4)
+})
+
+// A check that never answers gives up after a while, so that it does not hold back every later check.
+test('a session check that hangs gives way to the next one', async ({ page }) => {
+  test.setTimeout(45_000)
+  await page.goto('/home')
+  const menu = page.getByRole('button', { name: 'アカウントメニュー', exact: true })
+  await expect(menu).toBeVisible()
+  // The first check is never answered; later ones go through.
+  let checks = 0
+  await page.route('**/api/auth/session', route => ++checks === 1 ? undefined : route.continue())
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+  await expect.poll(() => checks).toBe(1)
+  await page.waitForTimeout(11_000)
+  const next = page.waitForRequest('**/api/auth/session', { timeout: 5_000 })
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+  await next
+  await expect(menu).toBeVisible()
+})

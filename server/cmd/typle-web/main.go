@@ -6,15 +6,16 @@ package main
 
 import (
 	"context"
-	"errors"
 	"flag"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/sparklingstadt/typle-r/server/internal/serve"
 	"github.com/sparklingstadt/typle-r/server/vercel"
 )
 
@@ -36,14 +37,8 @@ func main() {
 
 	// The timeouts of typle-api: a client that sends or reads slowly, or keeps an idle connection open, does not hold it
 	// for ever.
-	server := &http.Server{Addr: *addr, Handler: backend, ReadHeaderTimeout: 10 * time.Second,
+	server := &http.Server{Handler: backend, ReadHeaderTimeout: 10 * time.Second,
 		ReadTimeout: 30 * time.Second, WriteTimeout: time.Minute, IdleTimeout: 2 * time.Minute}
-	go func() {
-		<-ctx.Done()
-		shutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		_ = server.Shutdown(shutdown)
-	}()
 	// Open the database in the background, so that the server is up at once. The reason of a failure is logged by the
 	// attempt itself.
 	go func() {
@@ -53,8 +48,13 @@ func main() {
 		}
 	}()
 
+	listener, err := net.Listen("tcp", *addr)
+	if err != nil {
+		log.Fatal(err)
+	}
 	log.Printf("serving the app's backend on http://%s", *addr)
-	if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+	// On SIGINT or SIGTERM, requests in flight get 5 seconds to finish before the deferred Close releases the database.
+	if err := serve.Serve(ctx, server, listener, 5*time.Second); err != nil {
 		log.Fatal(err)
 	}
 }

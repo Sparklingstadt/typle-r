@@ -3,6 +3,7 @@
   "invalidServerData": "サーバーからのデータが不正です。",
   "loginRequired": "ログインしてください。",
   "databaseUnavailable": "DBに接続できません。しばらくしてから再試行してください。",
+  "authUnavailable": "ログイン機能を利用できません。しばらくしてから再試行してください。",
   "forbiddenRequest": "許可されていないリクエストです。",
   "emptyRequest": "データがありません。",
   "workspaceTooLarge": "保存データは1MB以内にしてください。",

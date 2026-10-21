@@ -3,7 +3,6 @@ package web
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -13,7 +12,9 @@ import (
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
 
-// saved is the answer of GET and PUT. The lists and devices are written as stored, with the fields Typle does not know.
+// saved is the answer of GET and PUT. The lists and devices are the stored jsonb text, with the fields Typle does not
+// know: Go decodes them only to check them (store.ReadRevision), so where Go and the app's decoders differ, the browser
+// is the one to refuse the data (savedDataCorrupted).
 type saved struct {
 	Lists     json.RawMessage `json:"lists"`
 	Devices   json.RawMessage `json:"devices"`
@@ -45,7 +46,7 @@ func (s *server) owner(r *http.Request) (session.Session, bool) {
 		}
 		return s.config.Keys.OpenApp(token, s.now())
 	}
-	cookie, err := r.Cookie(session.CookieName(s.config.BaseURL != nil && s.config.BaseURL.Scheme == "https"))
+	cookie, err := r.Cookie(session.CookieName(s.secure()))
 	if err != nil {
 		return session.Session{}, false
 	}
@@ -76,48 +77,19 @@ func (s *server) report(r *http.Request, err error, operation string) {
 		s.config.Report(r, err, operation)
 		return
 	}
-	log.Printf("%s %s: %s: %v", r.Method, r.URL.Path, operation, err)
+	logOnly(r, err, operation)
 }
 
-// The answers are the account's own, so a shared cache must not keep them.
-func reply(w http.ResponseWriter, status int, value any) {
-	header := w.Header()
-	header.Set("Content-Type", "application/json; charset=utf-8")
-	header.Set("Cache-Control", "private, no-store")
-	header.Set("Vary", "Cookie")
-	header.Set("X-Content-Type-Options", "nosniff")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(value)
-}
-
-// Errors are keys of the app's `errors` messages; the screen shows them in the reader's language.
-func refuse(w http.ResponseWriter, status int, key string) {
-	reply(w, status, map[string]string{"error": key})
-}
-
-// encode writes a workspace as it is stored, which also makes sure that empty lists and devices are [] and not null.
-func encode(owner string, result *store.Saved) (saved, error) {
-	lists, err := workspace.Encode(result.Workspace.Lists)
-	if err != nil {
-		return saved{}, err
-	}
-	devices, err := workspace.EncodeDevices(result.Workspace.Devices)
-	if err != nil {
-		return saved{}, err
-	}
-	return saved{lists, devices, result.Revision, owner}, nil
-}
-
+// HEAD is served as GET; net/http leaves the body out.
 func (s *server) workspace(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		s.readWorkspace(w, r)
-	case http.MethodPut:
-		s.writeWorkspace(w, r)
-	default:
-		w.Header().Set("Allow", "GET, PUT")
-		failure(w, http.StatusMethodNotAllowed, "methodNotAllowed")
+	if !methods(w, r, http.MethodGet, http.MethodHead, http.MethodPut) {
+		return
 	}
+	if r.Method == http.MethodPut {
+		s.writeWorkspace(w, r)
+		return
+	}
+	s.readWorkspace(w, r)
 }
 
 func (s *server) readWorkspace(w http.ResponseWriter, r *http.Request) {
@@ -127,20 +99,16 @@ func (s *server) readWorkspace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	result, err := s.config.Store.ReadRevision(r.Context(), user.Sub)
-	var body saved
-	if err == nil {
-		if result == nil {
-			// An account that has saved nothing has no lists, not the first list that /api/v1 starts with.
-			result = &store.Saved{Workspace: &workspace.Workspace{}}
-		}
-		body, err = encode(user.Sub, result)
-	}
 	if err != nil {
 		s.report(r, err, "workspace.read")
 		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
 		return
 	}
-	reply(w, http.StatusOK, body)
+	if result == nil {
+		// An account that has saved nothing has no lists, not the first list that /api/v1 starts with.
+		result = &store.Saved{Lists: json.RawMessage("[]"), Devices: json.RawMessage("[]")}
+	}
+	reply(w, http.StatusOK, saved{result.Lists, result.Devices, result.Revision, user.Sub})
 }
 
 func (s *server) writeWorkspace(w http.ResponseWriter, r *http.Request) {
@@ -199,12 +167,6 @@ func (s *server) writeWorkspace(w http.ResponseWriter, r *http.Request) {
 		s.report(r, err, "workspace.write")
 		refuse(w, http.StatusServiceUnavailable, "workspaceSaveFailed")
 	default:
-		body, err := encode(user.Sub, result)
-		if err != nil {
-			s.report(r, err, "workspace.write")
-			refuse(w, http.StatusServiceUnavailable, "workspaceSaveFailed")
-			return
-		}
-		reply(w, http.StatusOK, body)
+		reply(w, http.StatusOK, saved{result.Lists, result.Devices, result.Revision, user.Sub})
 	}
 }

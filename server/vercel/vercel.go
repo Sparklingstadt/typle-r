@@ -16,28 +16,30 @@ import (
 	"github.com/sparklingstadt/typle-r/server/internal/web"
 )
 
-// Backend is the app's handler, built lazily from the environment, in two parts that do not depend on each other:
+// Backend is the app's handler, built lazily from the environment, in parts that need different settings:
 //
 //   - /api/auth/*: needs the login settings only (web.FromEnv). Its handlers do not use the database, so the session
 //     keeps being answered, and a signed-in user stays signed in, while the database is down.
-//   - everything else (/api/health, /api/workspace): needs the login settings to read the session cookie, and the database.
+//   - /api/health: needs the database only, so that it tells the database's state whatever the login settings are.
+//   - everything else (/api/workspace): needs the login settings to read the session cookie, and the database.
 //
 // Each part is built on first use and then found with one atomic load, without the lock.
 type Backend struct {
 	local bool
 
-	// login and ready are the finished handlers of the two parts.
-	login, ready atomic.Pointer[http.Handler]
+	// login, health and ready are the finished handlers of the parts.
+	login, health, ready atomic.Pointer[http.Handler]
 	// settings is the web.Config that web.FromEnv built, kept so that it is read (and its warnings logged) once.
 	settings atomic.Pointer[web.Config]
+	// source is the database, once it is open.
+	source atomic.Pointer[web.Store]
 
 	// mu guards the fields below. It is never held while the database is being opened (up to openTimeout): it is taken
 	// only to read or write them, so a request is never queued behind someone else's connection attempt by the lock.
 	mu       sync.Mutex
-	flight   *attempt     // the connection attempt in progress, if any
-	failedAt time.Time    // when the last attempt failed
-	failure  http.Handler // and the 503 it gave
-	closer   closer       // the database, once it is open
+	flight   *attempt  // the connection attempt in progress, if any
+	failedAt time.Time // when the last attempt failed, or the zero time
+	closer   closer    // the database, once it is open
 
 	// open connects to the database, and retryAfter and now are the clock of the back-off; the tests replace them.
 	open       func(ctx context.Context, connection string) (web.Store, error)
@@ -51,8 +53,8 @@ type closer interface{ Close() }
 // attempt is one try at opening the database. The requests that come while it is in progress wait for its answer (at
 // most openTimeout) rather than each trying on its own, so N requests cost one connection attempt, not N in turn.
 type attempt struct {
-	done    chan struct{}
-	handler http.Handler
+	done   chan struct{}
+	source web.Store // nil when it failed
 }
 
 const openTimeout = 10 * time.Second
@@ -73,8 +75,6 @@ func New(local bool) *Backend {
 }
 
 var (
-	// Without the login settings only the login is unavailable, as far as the answer tells; the rest says the database,
-	// as the paths did before the login settings existed.
 	authUnavailable     = web.Unavailable("authUnavailable")
 	databaseUnavailable = web.Unavailable("databaseUnavailable")
 
@@ -84,13 +84,16 @@ var (
 // Handler returns the handler of the Vercel functions: the Backend of this process.
 func Handler() http.Handler { return shared }
 
-// ServeHTTP serves /api/auth/* from the login part and any other path from the database part.
+// ServeHTTP serves /api/auth/* from the login part, /api/health from the database part and any other path from both.
 func (b *Backend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if strings.HasPrefix(r.URL.Path, "/api/auth/") {
+	switch {
+	case strings.HasPrefix(r.URL.Path, "/api/auth/"):
 		b.authHandler().ServeHTTP(w, r)
-		return
+	case r.URL.Path == "/api/health":
+		b.healthHandler().ServeHTTP(w, r)
+	default:
+		b.databaseHandler().ServeHTTP(w, r)
 	}
-	b.databaseHandler().ServeHTTP(w, r)
 }
 
 // Check reports whether the login settings are usable (web.FromEnv), without opening the database.
@@ -101,8 +104,7 @@ func (b *Backend) Check() error {
 
 // Ready tries to open the database if that has not been done, and reports whether it is open. A failure is logged.
 func (b *Backend) Ready() bool {
-	b.databaseHandler()
-	return b.ready.Load() != nil
+	return b.database() != nil
 }
 
 // Close closes the database, if it was opened.
@@ -147,19 +149,50 @@ func (b *Backend) authHandler() http.Handler {
 	return *b.login.Load()
 }
 
-// databaseHandler serves /api/health, /api/workspace and any other path outside /api/auth/. When it cannot be built
+// healthHandler serves /api/health from the database alone: without the login settings it still says whether the
+// database answers. While the database does not open it says databaseUnavailable.
+func (b *Backend) healthHandler() http.Handler {
+	if built := b.health.Load(); built != nil {
+		return *built
+	}
+	source := b.database()
+	if source == nil {
+		return databaseUnavailable
+	}
+	handler := web.Health(source)
+	b.health.CompareAndSwap(nil, &handler)
+	return *b.health.Load()
+}
+
+// databaseHandler serves /api/workspace and any other path outside /api/auth/ and /api/health. When it cannot be built
 // the request gets a 503, the reason is logged, and nothing is kept, so a later request tries again:
 //
-//   - the login settings are missing or invalid: databaseUnavailable. The database is not opened.
-//   - there is no database URL, or the database does not open: databaseUnavailable. A failed connection is remembered
-//     for retryAfter (see attempt).
+//   - the login settings are missing or invalid: authUnavailable. The database is not opened.
+//   - there is no database URL, or the database does not open: databaseUnavailable.
 func (b *Backend) databaseHandler() http.Handler {
 	if built := b.ready.Load(); built != nil {
 		return *built
 	}
 	config, err := b.config()
 	if err != nil {
+		return authUnavailable
+	}
+	source := b.database()
+	if source == nil {
 		return databaseUnavailable
+	}
+	config.Store = source
+	handler := web.New(config)
+	b.ready.CompareAndSwap(nil, &handler)
+	return *b.ready.Load()
+}
+
+// database opens the database for the request that finds it not open yet, or waits for the attempt already in
+// progress, or gives up at once while the last failure is recent (retryAfter). It is nil while the database is not
+// open; the reason is logged.
+func (b *Backend) database() web.Store {
+	if open := b.source.Load(); open != nil {
+		return *open
 	}
 	// The same variables as typle-api.
 	connection := os.Getenv("DATABASE_URL")
@@ -168,41 +201,35 @@ func (b *Backend) databaseHandler() http.Handler {
 	}
 	if connection == "" {
 		log.Print("start the backend: set DATABASE_URL (or POSTGRES_URL)")
-		return databaseUnavailable
+		return nil
 	}
-	return b.connect(config, connection)
-}
 
-// connect opens the database for the request that finds the handler not built yet, or waits for the attempt already in
-// progress, or answers from the last failure while it is recent.
-func (b *Backend) connect(config web.Config, connection string) http.Handler {
 	b.mu.Lock()
-	if built := b.ready.Load(); built != nil {
+	if open := b.source.Load(); open != nil {
 		b.mu.Unlock()
-		return *built
+		return *open
 	}
-	if b.failure != nil && b.now().Sub(b.failedAt) < b.retryAfter {
-		recent := b.failure
+	if !b.failedAt.IsZero() && b.now().Sub(b.failedAt) < b.retryAfter {
 		b.mu.Unlock()
-		return recent
+		return nil
 	}
 	if running := b.flight; running != nil {
 		b.mu.Unlock()
 		<-running.done
-		return running.handler
+		return running.source
 	}
-	mine := &attempt{done: make(chan struct{}), handler: databaseUnavailable}
+	mine := &attempt{done: make(chan struct{})}
 	b.flight = mine
 	b.mu.Unlock()
 
-	// Whatever happens, the waiters are released with the 503 unless there is a handler.
+	// Whatever happens, the waiters are released, with nil unless the database opened.
 	defer func() {
 		b.mu.Lock()
 		b.flight = nil
-		if built := b.ready.Load(); built != nil {
-			b.failure = nil
+		if mine.source != nil {
+			b.failedAt = time.Time{}
 		} else {
-			b.failedAt, b.failure = b.now(), mine.handler
+			b.failedAt = b.now()
 		}
 		b.mu.Unlock()
 		close(mine.done)
@@ -213,16 +240,14 @@ func (b *Backend) connect(config web.Config, connection string) http.Handler {
 	source, err := b.open(ctx, connection)
 	if err != nil {
 		log.Printf("start the backend: connect to the database: %v", err)
-		return mine.handler
+		return nil
 	}
-	config.Store = source
-	built := web.New(config)
-	mine.handler = built
 	if open, ok := source.(closer); ok {
 		b.mu.Lock()
 		b.closer = open
 		b.mu.Unlock()
 	}
-	b.ready.Store(&built)
-	return built
+	mine.source = source
+	b.source.Store(&source)
+	return source
 }

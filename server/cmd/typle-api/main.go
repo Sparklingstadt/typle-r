@@ -4,9 +4,9 @@ package main
 
 import (
 	"context"
-	"errors"
 	"flag"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,6 +15,7 @@ import (
 
 	"github.com/sparklingstadt/typle-r/server/internal/api"
 	"github.com/sparklingstadt/typle-r/server/internal/auth"
+	"github.com/sparklingstadt/typle-r/server/internal/serve"
 	"github.com/sparklingstadt/typle-r/server/internal/store"
 )
 
@@ -51,17 +52,16 @@ func main() {
 	}
 	// A client that sends or reads slowly, or keeps an idle connection open, does not hold it for ever. A request takes
 	// at most a GitHub check (10 seconds) and a few queries, with a body of at most 1 MiB.
-	server := &http.Server{Addr: *addr, Handler: api.New(source, writer, auth.NewGitHub()), ReadHeaderTimeout: 10 * time.Second,
+	server := &http.Server{Handler: api.New(source, writer, auth.NewGitHub()), ReadHeaderTimeout: 10 * time.Second,
 		ReadTimeout: 30 * time.Second, WriteTimeout: time.Minute, IdleTimeout: 2 * time.Minute}
-	go func() {
-		<-ctx.Done()
-		shutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		_ = server.Shutdown(shutdown)
-	}()
 
+	listener, err := net.Listen("tcp", *addr)
+	if err != nil {
+		log.Fatal(err)
+	}
 	log.Printf("serving workspaces %s to their GitHub accounts on http://%s", mode, *addr)
-	if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+	// On SIGINT or SIGTERM, requests in flight get 5 seconds to finish before the deferred Close releases the database.
+	if err := serve.Serve(ctx, server, listener, 5*time.Second); err != nil {
 		log.Fatal(err)
 	}
 }

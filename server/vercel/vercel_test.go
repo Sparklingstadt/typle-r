@@ -66,9 +66,9 @@ func expect(t *testing.T, response *httptest.ResponseRecorder, status int, body 
 	}
 }
 
-// Without the login settings the auth paths say authUnavailable and the others databaseUnavailable, nothing panics
-// (a zero web.Config would panic on the first session), and nothing of that failure is kept: once the settings are
-// there, the next request is served.
+// Without the login settings the auth paths and the workspace say authUnavailable, without opening the database, and
+// nothing panics (a zero web.Config would panic on the first session). The health check needs no login settings: it
+// says what the database says. Nothing of the failure is kept: once the settings are there, the next request is served.
 func TestHandlerWithoutSecret(t *testing.T) {
 	reset(t)
 	settings(t)
@@ -78,15 +78,32 @@ func TestHandlerWithoutSecret(t *testing.T) {
 
 	expect(t, get("/api/auth/session"), http.StatusServiceUnavailable, `{"error":"authUnavailable"}`)
 	expect(t, get("/api/auth/callback/github?code=x&state=y"), http.StatusServiceUnavailable, `{"error":"authUnavailable"}`)
-	expect(t, get("/api/workspace"), http.StatusServiceUnavailable, `{"error":"databaseUnavailable"}`)
-	expect(t, get("/api/health"), http.StatusServiceUnavailable, `{"error":"databaseUnavailable"}`)
+	expect(t, get("/api/workspace"), http.StatusServiceUnavailable, `{"error":"authUnavailable"}`)
 	if opened.Load() != 0 {
-		t.Fatal("the database was opened without the login settings")
+		t.Fatal("the database was opened for a path that cannot be served without the login settings")
+	}
+	expect(t, get("/api/health"), http.StatusOK, `{"status":"ok"}`)
+	if opened.Load() != 1 {
+		t.Fatalf("the database was opened %d times for the health check", opened.Load())
 	}
 
 	t.Setenv("AUTH_SECRET", "secret")
 	expect(t, get("/api/auth/session"), http.StatusOK, `{"user":null}`)
+	expect(t, get("/api/workspace"), http.StatusUnauthorized, `{"error":"loginRequired"}`)
 	expect(t, get("/api/health"), http.StatusOK, `{"status":"ok"}`)
+	if opened.Load() != 1 {
+		t.Fatalf("the database was opened %d times", opened.Load())
+	}
+}
+
+// Without the login settings, the health check still tells a database that is down.
+func TestHealthWithoutSecretDatabaseDown(t *testing.T) {
+	reset(t)
+	settings(t)
+	t.Setenv("AUTH_URL", "")
+	backend.open = func(context.Context, string) (web.Store, error) { return nil, errors.New("connection refused") }
+	expect(t, get("/api/health"), http.StatusServiceUnavailable, `{"error":"databaseUnavailable"}`)
+	expect(t, get("/api/workspace"), http.StatusServiceUnavailable, `{"error":"authUnavailable"}`)
 }
 
 func TestHandlerInvalidAuthURL(t *testing.T) {
@@ -133,8 +150,8 @@ func TestAuthDoesNotOpenTheDatabase(t *testing.T) {
 }
 
 // With a database that cannot be reached at all: the session answers, with the user of a valid cookie, while the
-// workspace says databaseUnavailable. Auth.js answered sessions without the database too, and the screen takes a failed
-// session for a signed-out user, so it must not fail with the database.
+// workspace says databaseUnavailable. Auth.js answered sessions without the database too, and a first session read that
+// keeps failing leaves the screen signed out, so it must not fail with the database.
 func TestHandlerSessionWithUnreachableDatabase(t *testing.T) {
 	reset(t)
 	settings(t)
@@ -229,9 +246,14 @@ func TestHandlerConcurrentWhileDown(t *testing.T) {
 		}()
 	}
 	<-started
-	// While the connection is being made the lock is free, so that a request that does not need it is not held up.
-	if !backend.mu.TryLock() {
-		t.Fatal("the lock is held while the database is being opened")
+	// While the connection is being made the lock is free, so that a request that does not need it is not held up. The
+	// other callers take it for a moment to find the attempt, so it is tried for a while rather than once.
+	deadline := time.Now().Add(time.Second)
+	for !backend.mu.TryLock() {
+		if time.Now().After(deadline) {
+			t.Fatal("the lock is held while the database is being opened")
+		}
+		time.Sleep(time.Millisecond)
 	}
 	backend.mu.Unlock()
 	time.Sleep(50 * time.Millisecond)

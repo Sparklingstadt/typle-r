@@ -5,6 +5,7 @@ package store
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -188,10 +189,11 @@ func lock(ctx context.Context, tx pgx.Tx, owner string) (*workspace.Workspace, e
 	}
 }
 
-// Saved is a workspace as stored, with the revision a later save must name.
+// Saved is a workspace as stored: its lists and devices columns as JSON, with the revision a later save must name. The
+// JSON is the database's own text of the jsonb, so object keys may be in another order than they were written in.
 type Saved struct {
-	Workspace *workspace.Workspace
-	Revision  int
+	Lists, Devices json.RawMessage
+	Revision       int
 }
 
 // Change is what a save sets. A part that is not set (HasLists, HasDevices) stays as it is.
@@ -203,14 +205,23 @@ type Change struct {
 }
 
 // ReadRevision returns the owner's saved workspace with its revision, or nil when nothing has been saved. Unlike Read
-// it does not make up initial lists: the app's /api/workspace answers revision 0 for an account without a row.
+// it does not make up initial lists: the app's /api/workspace answers revision 0 for an account without a row. The row
+// is checked with Decode, so saved data that Go cannot read is an error, but it is answered as stored (the jsonb text),
+// not as Go decoded it. Data that Go reads and the app's decodeLists or decodeDevices refuses therefore reaches the
+// browser, which says savedDataCorrupted, rather than being quietly changed here.
 func (s *Store) ReadRevision(ctx context.Context, owner string) (*Saved, error) {
 	saved, err := scanSaved(s.pool.QueryRow(ctx,
-		`SELECT lists::text, devices::text, revision FROM typle_workspaces WHERE owner_id = $1`, owner), owner)
+		`SELECT lists::text, devices::text, revision FROM typle_workspaces WHERE owner_id = $1`, owner))
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
-	return saved, err
+	if err != nil {
+		return nil, err
+	}
+	if _, err := workspace.Decode(saved.Lists, saved.Devices); err != nil {
+		return nil, fmt.Errorf("saved workspace of %s: %w", owner, err)
+	}
+	return saved, nil
 }
 
 // WriteRevision saves change over the workspace at revision: revision 0 creates the row, any other revision replaces
@@ -219,12 +230,15 @@ func (s *Store) ReadRevision(ctx context.Context, owner string) (*Saved, error) 
 // checked here: the /api/workspace handler (server/internal/web) only limits the request.
 //
 // It returns ErrConflict for a stale revision, a *workspace.Error for lists past the limits of validateLists
-// (invalidWorkspace) or more lists than allowed (listLimit), and any other error when the change cannot be written or
-// the saved workspace cannot be read. A change that Decode would refuse is never written: the account would no longer
-// load, here or in the app. All of this, apart from the conflict and the saved number of lists, is checked before the
-// database is touched.
+// (invalidWorkspace) or more lists than allowed (listLimit), and any other error when the change cannot be written. A
+// change that Decode would refuse is never written: the account would no longer load, here or in the app. All of this,
+// apart from the conflict and the saved number of lists, is checked before the database is touched.
+//
+// What is saved is not read back through Decode: only the saved revision and number of lists are read, a part left
+// out is kept by the UPDATE itself, and the result is the row's JSON as stored.
 func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, change Change) (*Saved, error) {
-	lists, devices := []byte("[]"), []byte("[]")
+	// nil is a part left out: NULL in the queries below.
+	var lists, devices []byte
 	var err error
 	if change.HasLists {
 		if err := workspace.CheckLimits(change.Lists); err != nil {
@@ -240,7 +254,7 @@ func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, c
 		}
 	}
 	// A part left out is saved as it is, so only the other one can be refused; it is read with an empty one.
-	if _, err := workspace.Decode(lists, devices); err != nil {
+	if _, err := workspace.Decode(orEmpty(lists), orEmpty(devices)); err != nil {
 		return nil, fmt.Errorf("changed workspace of %s: %w", owner, err)
 	}
 	if revision == 0 {
@@ -249,56 +263,56 @@ func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, c
 		}
 		// Unique owner makes the existence check and the insert one atomic operation.
 		saved, err := scanSaved(s.pool.QueryRow(ctx, `INSERT INTO typle_workspaces (owner_id, lists, devices) VALUES ($1, $2::jsonb, $3::jsonb)
-			ON CONFLICT (owner_id) DO NOTHING RETURNING lists::text, devices::text, revision`, owner, string(lists), string(devices)), owner)
+			ON CONFLICT (owner_id) DO NOTHING RETURNING lists::text, devices::text, revision`,
+			owner, string(orEmpty(lists)), string(orEmpty(devices))))
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrConflict
 		}
 		return saved, err
 	}
-	var savedLists, savedDevices []byte
-	var savedRevision int
-	err = s.pool.QueryRow(ctx, `SELECT lists::text, devices::text, revision FROM typle_workspaces WHERE owner_id = $1`, owner).
-		Scan(&savedLists, &savedDevices, &savedRevision)
+	var savedRevision, savedLists int
+	err = s.pool.QueryRow(ctx, `SELECT revision, jsonb_array_length(lists) FROM typle_workspaces WHERE owner_id = $1`, owner).
+		Scan(&savedRevision, &savedLists)
 	if errors.Is(err, pgx.ErrNoRows) || (err == nil && savedRevision != revision) {
 		return nil, ErrConflict
 	}
 	if err != nil {
 		return nil, err
 	}
-	current, err := workspace.Decode(savedLists, savedDevices)
-	if err != nil {
-		return nil, fmt.Errorf("saved workspace of %s: %w", owner, err)
-	}
-	if len(change.Lists) > workspace.MaxLists && len(change.Lists) > len(current.Lists) {
+	if len(change.Lists) > workspace.MaxLists && len(change.Lists) > savedLists {
 		return nil, &workspace.Error{Key: "listLimit"}
 	}
-	if !change.HasLists {
-		lists = savedLists
-	}
-	if !change.HasDevices {
-		devices = savedDevices
-	}
 	// Matching the revision in the UPDATE itself makes the comparison and the write one atomic operation.
-	saved, err := scanSaved(s.pool.QueryRow(ctx, `UPDATE typle_workspaces SET lists = $3::jsonb, devices = $4::jsonb,
-		revision = revision + 1, updated_at = now() WHERE owner_id = $1 AND revision = $2
-		RETURNING lists::text, devices::text, revision`, owner, revision, string(lists), string(devices)), owner)
+	saved, err := scanSaved(s.pool.QueryRow(ctx, `UPDATE typle_workspaces SET lists = COALESCE($3::jsonb, lists),
+		devices = COALESCE($4::jsonb, devices), revision = revision + 1, updated_at = now() WHERE owner_id = $1 AND revision = $2
+		RETURNING lists::text, devices::text, revision`, owner, revision, nullable(lists), nullable(devices)))
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, ErrConflict
 	}
 	return saved, err
 }
 
-// scanSaved reads a row back through Decode, so that what is answered is exactly what is stored. A no-rows error is
-// passed on as it is.
-func scanSaved(row pgx.Row, owner string) (*Saved, error) {
+func orEmpty(part []byte) []byte {
+	if part == nil {
+		return []byte("[]")
+	}
+	return part
+}
+
+// nullable is a part to write as a query argument: NULL when it is left out.
+func nullable(part []byte) any {
+	if part == nil {
+		return nil
+	}
+	return string(part)
+}
+
+// scanSaved reads a row as stored. A no-rows error is passed on as it is.
+func scanSaved(row pgx.Row) (*Saved, error) {
 	var lists, devices []byte
 	var revision int
 	if err := row.Scan(&lists, &devices, &revision); err != nil {
 		return nil, err
 	}
-	w, err := workspace.Decode(lists, devices)
-	if err != nil {
-		return nil, fmt.Errorf("saved workspace of %s: %w", owner, err)
-	}
-	return &Saved{Workspace: w, Revision: revision}, nil
+	return &Saved{Lists: lists, Devices: devices, Revision: revision}, nil
 }

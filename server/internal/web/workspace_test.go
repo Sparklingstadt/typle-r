@@ -49,7 +49,15 @@ func (f *fakeWorkspaces) WriteRevision(_ context.Context, _ string, revision int
 	if f.err != nil {
 		return nil, f.err
 	}
-	return &store.Saved{Workspace: &workspace.Workspace{Lists: change.Lists, Devices: change.Devices}, Revision: revision + 1}, nil
+	lists, err := workspace.Encode(change.Lists)
+	if err != nil {
+		return nil, err
+	}
+	devices, err := workspace.EncodeDevices(change.Devices)
+	if err != nil {
+		return nil, err
+	}
+	return &store.Saved{Lists: lists, Devices: devices, Revision: revision + 1}, nil
 }
 
 // The database tests need the app's tables (npm run db:migrate). They use a random account and delete its row.
@@ -221,7 +229,7 @@ func TestMethod(t *testing.T) {
 	h := newHarness(t, &fakeWorkspaces{}, testBase)
 	for _, method := range []string{http.MethodPost, http.MethodDelete, http.MethodPatch} {
 		response := h.request(method, "", testOwner)
-		if response.Code != http.StatusMethodNotAllowed || response.Header().Get("Allow") != "GET, PUT" {
+		if response.Code != http.StatusMethodNotAllowed || response.Header().Get("Allow") != "GET, HEAD, PUT" {
 			t.Fatalf("%s: response = %d %v", method, response.Code, response.Header())
 		}
 	}
@@ -382,7 +390,6 @@ func TestPutAccountChanged(t *testing.T) {
 func TestPutInvalid(t *testing.T) {
 	fake := &fakeWorkspaces{}
 	h := newHarness(t, fake, testBase)
-	name201 := strings.Repeat("a", 201)
 	bodies := map[string]string{
 		"negative":        payload(testOwner, `"revision":-1,"lists":[]`),
 		"fraction":        payload(testOwner, `"revision":1.5,"lists":[]`),
@@ -392,7 +399,6 @@ func TestPutInvalid(t *testing.T) {
 		"true":            payload(testOwner, `"revision":true,"lists":[]`),
 		"overflow":        payload(testOwner, `"revision":1e400,"lists":[]`),
 		"not safe":        payload(testOwner, `"revision":9007199254740992,"lists":[]`),
-		"name too long":   payload(testOwner, `"revision":0,"lists":[`+strings.Replace(oneList, `"One"`, `"`+name201+`"`, 1)+`]`),
 		"null lists":      payload(testOwner, `"revision":0,"lists":null`),
 		"null devices":    payload(testOwner, `"revision":0,"devices":null`),
 		"lists object":    payload(testOwner, `"revision":0,"lists":{}`),
@@ -515,6 +521,17 @@ func TestPutListLimit(t *testing.T) {
 	}
 }
 
+// The limits of validateLists are checked by the store, before the database: a list name that is too long is a 400.
+func TestPutLimits(t *testing.T) {
+	s, owner := realStore(t)
+	h := newHarness(t, s, testBase)
+	long := aList("one", strings.Repeat("a", workspace.MaxListName+1))
+	expectError(t, h.put(owner, payload(owner, `"revision":0,"lists":[`+long+`]`)), http.StatusBadRequest, "invalidWorkspace")
+	if string(decodeBody(t, h.get(owner))["revision"]) != "0" || len(h.reports) != 0 {
+		t.Fatalf("a refused save created the workspace or was reported: %v", h.reports)
+	}
+}
+
 // The store's own refusals keep their keys; anything else is a failed save.
 func TestPutStoreErrors(t *testing.T) {
 	cases := map[string]struct {
@@ -606,12 +623,14 @@ func TestNowIsUsed(t *testing.T) {
 }
 
 // These are the inputs of tests/workspace.test.cjs for validateWorkspaceRequest, and what it does with each; this
-// checks that the request is read the same way here. The number of lists is checked by the store, not by the request.
+// checks that the request is read the same way here. The limits of the lists (workspace.CheckLimits) and their number
+// are checked by the store, not by the request: limits is a request that the store's CheckLimits refuses.
 func TestMatchesTypeScript(t *testing.T) {
 	const (
 		accepted = iota
 		invalid
 		legacy
+		limits
 	)
 	name201 := strings.Repeat("a", 201)
 	many := make([]string, 101)
@@ -636,7 +655,7 @@ func TestMatchesTypeScript(t *testing.T) {
 		{"revision 1.0", `{"revision":1.0,"lists":[]}`, accepted, 1, 0, -1},
 		{"revision 1e2", `{"revision":1e2,"lists":[]}`, accepted, 100, 0, -1},
 		{"revision -0", `{"revision":-0,"lists":[]}`, accepted, 0, 0, -1},
-		{"name of 201 characters", `{"revision":0,"lists":[` + aList("one", name201) + `]}`, invalid, 0, 0, 0},
+		{"name of 201 characters", `{"revision":0,"lists":[` + aList("one", name201) + `]}`, limits, 0, 1, -1},
 		{"name of 200 characters", `{"revision":0,"lists":[` + aList("one", name201[1:]) + `]}`, accepted, 0, 1, -1},
 		{"profileId default", `{"revision":0,"profileId":"default","lists":[` + oneList + `]}`, accepted, 0, 1, -1},
 		{"profileId zh", `{"revision":1,"profileId":"zh","lists":[]}`, legacy, 0, 0, 0},
@@ -659,6 +678,11 @@ func TestMatchesTypeScript(t *testing.T) {
 				if !errors.Is(err, errLegacy) {
 					t.Fatalf("err = %v; want legacy", err)
 				}
+			case limits:
+				var refused *workspace.Error
+				if err != nil || !errors.As(workspace.CheckLimits(change.Lists), &refused) || refused.Key != "invalidWorkspace" {
+					t.Fatalf("err = %v, limits not refused for %+v", err, change)
+				}
 			default:
 				if err != nil {
 					t.Fatal(err)
@@ -680,5 +704,77 @@ func TestMatchesTypeScript(t *testing.T) {
 	_, change, _ = decodeRequest([]byte(cases[17].body))
 	if change.Devices[0].Name != "MacBook" {
 		t.Fatalf("device = %+v", change.Devices[0])
+	}
+}
+
+// PostgreSQL's jsonb cannot hold U+0000, so a NUL anywhere in what would be saved is an invalid workspace (400), found
+// before the store, not a failed save (503). Escapes are read as JSON reads them: \\u0000 is a backslash, not a NUL.
+func TestPutNUL(t *testing.T) {
+	fake := &fakeWorkspaces{}
+	h := newHarness(t, fake, testBase)
+	device := `{"id":"mac","name":"MacBook","layout":"JIS"}`
+	for name, fields := range map[string]string{
+		"list name":           `"revision":0,"lists":[` + aList("one", `a\u0000b`) + `]`,
+		"unknown field":       `"revision":0,"lists":[` + strings.Replace(oneList, `"records":[]`, `"records":[],"x":{"y":["\u0000"]}`, 1) + `]`,
+		"unknown key":         `"revision":0,"lists":[` + strings.Replace(oneList, `"records":[]`, `"records":[],"a\u0000":1`, 1) + `]`,
+		"word":                `"revision":0,"lists":[` + strings.Replace(oneList, `"annotation":""`, `"annotation":"\u0000"`, 1) + `]`,
+		"device":              `"revision":0,"devices":[` + strings.Replace(device, `"JIS"`, `"J\u0000"`, 1) + `]`,
+		"unknown device item": `"revision":0,"devices":[` + strings.Replace(device, `}`, `,"n":"\u0000"}`, 1) + `]`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			expectError(t, h.put(testOwner, payload(testOwner, fields)), http.StatusBadRequest, "invalidWorkspace")
+		})
+	}
+	if fake.writes != 0 {
+		t.Fatalf("writes = %d", fake.writes)
+	}
+	escaped := h.put(testOwner, payload(testOwner, `"revision":0,"lists":[`+aList("one", `a\\u0000b`)+`]`))
+	if escaped.Code != http.StatusOK || fake.writes != 1 || fake.change.Lists[0].Name != `a\u0000b` {
+		t.Fatalf("escaped backslash: response = %d %s, change %+v", escaped.Code, escaped.Body, fake.change)
+	}
+}
+
+// With the database: the NUL is refused before the save, so it is not reported as a failed one.
+func TestPutNULRealStore(t *testing.T) {
+	s, owner := realStore(t)
+	h := newHarness(t, s, testBase)
+	expectError(t, h.put(owner, payload(owner, `"revision":0,"lists":[`+aList("one", `a\u0000b`)+`]`)), http.StatusBadRequest, "invalidWorkspace")
+	if len(h.reports) != 0 {
+		t.Fatalf("reports = %v", h.reports)
+	}
+}
+
+// jsonb also refuses a UTF-16 surrogate escape that is not part of a pair, which Go would read as U+FFFD: it is refused
+// as NUL is, before the store. A pair is a character like any other.
+func TestPutLoneSurrogate(t *testing.T) {
+	fake := &fakeWorkspaces{}
+	h := newHarness(t, fake, testBase)
+	for name, fields := range map[string]string{
+		"list name":     `"revision":0,"lists":[` + aList("one", `a\ud800b`) + `]`,
+		"unknown field": `"revision":0,"lists":[` + strings.Replace(oneList, `"records":[]`, `"records":[],"x":["\uDC00"]`, 1) + `]`,
+		"unknown key":   `"revision":0,"lists":[` + strings.Replace(oneList, `"records":[]`, `"records":[],"\ud83d":1`, 1) + `]`,
+		"device":        `"revision":0,"devices":[{"id":"mac","name":"Mac\ud800","layout":"JIS"}]`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			expectError(t, h.put(testOwner, payload(testOwner, fields)), http.StatusBadRequest, "invalidWorkspace")
+		})
+	}
+	if fake.writes != 0 {
+		t.Fatalf("writes = %d", fake.writes)
+	}
+	pair := h.put(testOwner, payload(testOwner, `"revision":0,"lists":[`+aList("one", `\ud842\udfb7`)+`]`))
+	if pair.Code != http.StatusOK || fake.change.Lists[0].Name != "𠮷" {
+		t.Fatalf("surrogate pair: response = %d %s", pair.Code, pair.Body)
+	}
+}
+
+// With the database: a lone surrogate in a field Typle does not know reaches jsonb as written, and is refused before.
+func TestPutLoneSurrogateRealStore(t *testing.T) {
+	s, owner := realStore(t)
+	h := newHarness(t, s, testBase)
+	list := strings.Replace(oneList, `"records":[]`, `"records":[],"x":"\ud800"`, 1)
+	expectError(t, h.put(owner, payload(owner, `"revision":0,"lists":[`+list+`]`)), http.StatusBadRequest, "invalidWorkspace")
+	if len(h.reports) != 0 {
+		t.Fatalf("reports = %v", h.reports)
 	}
 }

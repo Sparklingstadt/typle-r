@@ -94,7 +94,7 @@ func methods(w http.ResponseWriter, r *http.Request, allow ...string) bool {
 		}
 	}
 	w.Header().Set("Allow", strings.Join(allow, ", "))
-	failure(w, http.StatusMethodNotAllowed, "methodNotAllowed")
+	refuse(w, http.StatusMethodNotAllowed, "methodNotAllowed")
 	return false
 }
 
@@ -313,7 +313,7 @@ func (s *server) signout(w http.ResponseWriter, r *http.Request) {
 // localLogin signs in as a made-up account, for practice on a development machine. It is off unless Config.LocalLogin.
 func (s *server) localLogin(w http.ResponseWriter, r *http.Request) {
 	if !s.config.LocalLogin {
-		failure(w, http.StatusNotFound, "notFound")
+		refuse(w, http.StatusNotFound, "notFound")
 		return
 	}
 	if !methods(w, r, http.MethodPost) {
