@@ -79,3 +79,16 @@ func TestNotFound(t *testing.T) {
 		t.Fatalf("response = %d %s", response.Code, response.Body)
 	}
 }
+
+// Health answers as New does, without any login settings.
+func TestHealthAlone(t *testing.T) {
+	response := get(t, Health(fakeStore{}), http.MethodGet, "/api/health")
+	if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != `{"status":"ok"}` {
+		t.Fatalf("response = %d %s", response.Code, response.Body)
+	}
+	checkSecurityHeaders(t, "health", response.Header())
+	response = get(t, Health(fakeStore{err: errors.New("down")}), http.MethodGet, "/api/health")
+	if response.Code != http.StatusServiceUnavailable || strings.TrimSpace(response.Body.String()) != `{"error":"databaseUnavailable"}` {
+		t.Fatalf("response = %d %s", response.Code, response.Body)
+	}
+}

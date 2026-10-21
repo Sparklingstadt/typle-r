@@ -3,6 +3,7 @@
   "invalidServerData": "服务器返回的数据无效。",
   "loginRequired": "请登录。",
   "databaseUnavailable": "无法连接到数据库。请稍后重试。",
+  "authUnavailable": "登录功能暂时不可用。请稍后重试。",
   "forbiddenRequest": "不允许的请求。",
   "emptyRequest": "没有数据。",
   "workspaceTooLarge": "保存的数据不能超过 1 MB。",

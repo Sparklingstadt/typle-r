@@ -3,6 +3,7 @@
   "invalidServerData": "Les données reçues du serveur ne sont pas valides.",
   "loginRequired": "Veuillez vous connecter.",
   "databaseUnavailable": "Impossible de se connecter à la base de données. Réessayez dans quelques instants.",
+  "authUnavailable": "La connexion est indisponible pour le moment. Réessayez dans quelques instants.",
   "forbiddenRequest": "Cette requête n’est pas autorisée.",
   "emptyRequest": "Aucune donnée n’a été envoyée.",
   "workspaceTooLarge": "Les données enregistrées ne doivent pas dépasser 1 Mo.",

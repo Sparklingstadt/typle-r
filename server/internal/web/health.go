@@ -7,6 +7,12 @@ import (
 	"time"
 )
 
+// Health serves /api/health from the database alone, for a backend that has no login settings to build New with. Its
+// answers are the same as New's.
+func Health(s Store) http.Handler {
+	return withSecurityHeaders(http.HandlerFunc((&server{config: Config{Store: s}}).health))
+}
+
 // health answers 200 once the database answers, which is what a deployment check needs to know. HEAD is served as GET;
 // net/http leaves the body out.
 func (s *server) health(w http.ResponseWriter, r *http.Request) {

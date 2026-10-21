@@ -3,6 +3,7 @@
   "invalidServerData": "伺服器傳回的資料無效。",
   "loginRequired": "請登入。",
   "databaseUnavailable": "無法連線至資料庫。請稍後再試。",
+  "authUnavailable": "登入功能暫時無法使用。請稍後再試。",
   "forbiddenRequest": "不允許的請求。",
   "emptyRequest": "沒有資料。",
   "workspaceTooLarge": "儲存的資料不得超過 1 MB。",
