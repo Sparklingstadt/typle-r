@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"sync/atomic"
@@ -91,6 +92,41 @@ func TestOwnerUnavailable(t *testing.T) {
 	g.BaseURL = "http://127.0.0.1:1"
 	if _, err := g.Owner(context.Background(), "good-token"); !errors.Is(err, ErrUnavailable) {
 		t.Errorf("unreachable: err = %v", err)
+	}
+}
+
+func TestChecksAreLimited(t *testing.T) {
+	var calls atomic.Int32
+	g := fakeGitHub(t, &calls, users)
+	now := time.Date(2026, 10, 21, 0, 0, 0, 0, time.UTC)
+	g.now = func() time.Time { return now }
+	if _, err := g.Owner(context.Background(), "good-token"); err != nil {
+		t.Fatal(err)
+	}
+	for i := range maxChecks - 1 {
+		if _, err := g.Owner(context.Background(), fmt.Sprintf("made-up-%d", i)); !errors.Is(err, ErrInvalidToken) {
+			t.Fatalf("token %d: err = %v", i, err)
+		}
+	}
+	// The burst is spent: another unknown token is not sent to GitHub, but a cached one still works.
+	if _, err := g.Owner(context.Background(), "made-up"); !errors.Is(err, ErrUnavailable) {
+		t.Fatalf("over the limit: err = %v", err)
+	}
+	if owner, err := g.Owner(context.Background(), "good-token"); err != nil || owner != "github:12345" {
+		t.Fatalf("cached: owner = %q, %v", owner, err)
+	}
+	if calls.Load() != maxChecks {
+		t.Fatalf("calls = %d, want %d", calls.Load(), maxChecks)
+	}
+	// A second later, checksPerSecond more may start.
+	now = now.Add(time.Second)
+	for i := range checksPerSecond {
+		if _, err := g.Owner(context.Background(), fmt.Sprintf("later-%d", i)); !errors.Is(err, ErrInvalidToken) {
+			t.Fatalf("later token %d: err = %v", i, err)
+		}
+	}
+	if _, err := g.Owner(context.Background(), "made-up"); !errors.Is(err, ErrUnavailable) {
+		t.Fatalf("over the limit again: err = %v", err)
 	}
 }
 
