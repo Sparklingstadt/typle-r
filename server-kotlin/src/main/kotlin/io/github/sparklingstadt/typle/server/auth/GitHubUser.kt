@@ -13,8 +13,18 @@ data class GitHubAccount(val id: Long, val login: String, val name: String, val 
   val account: String get() = "github:$id"
 
   /** The name to show: the profile name if it says anything, else the login. */
-  val displayName: String get() = if (name.isBlank()) login else name
+  val displayName: String get() = if (goTrimSpace(name).isEmpty()) login else name
 }
+
+// Go's unicode.IsSpace: White_Space, which is JavaScript's trim set without U+FEFF and with U+0085.
+private fun isGoSpace(c: Char) = when (c) {
+  '\t', '\n', '\u000b', '\u000c', '\r', ' ', '\u0085', '\u00a0', '\u1680', '\u2028', '\u2029', '\u202f', '\u205f',
+  '\u3000' -> true
+  else -> c in '\u2000'..'\u200a'
+}
+
+/** Go's strings.TrimSpace. */
+fun goTrimSpace(value: String): String = value.trim(::isGoSpace)
 
 /** Tells who an OAuth access token belongs to (GitHub.User in Go). */
 interface UserSource {

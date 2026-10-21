@@ -23,10 +23,10 @@ import kotlinx.coroutines.withContext
 fun Application.typleWeb(config: Config) {
   intercept(ApplicationCallPipeline.Call) {
     secure(call)
-    when (call.request.path()) {
+    when (val path = call.request.path()) {
       "/api/health" -> call.health(config)
       "/api/workspace" -> call.workspace(config)
-      else -> call.refuse(HttpStatusCode.NotFound, "notFound")
+      else -> if (!call.auth(config, path)) call.refuse(HttpStatusCode.NotFound, "notFound")
     }
     finish()
   }
