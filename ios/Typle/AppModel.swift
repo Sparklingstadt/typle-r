@@ -28,8 +28,8 @@ enum Appearance: String {
 enum StorageKind: String, CaseIterable, Identifiable {
   /// This iPad's file, the default.
   case local
-  /// An account through the Go API.
-  case api
+  /// The GitHub account, the same data as the web app's after its login.
+  case account
   var id: String { rawValue }
 }
 
@@ -46,7 +46,10 @@ final class AppModel {
   var practiceRequest: String? = nil
 
   private(set) var storage: StorageKind
+  /// The web app the account is on.
   private(set) var serverURL: String
+  /// Who the iPad signed in as, while it has a token.
+  private(set) var accountUser: AccountUser?
   private(set) var store: any WorkspaceStore
   private(set) var document: WorkspaceDocument? = nil
   private(set) var loading = false
@@ -62,10 +65,15 @@ final class AppModel {
 
   init(defaults: UserDefaults = .standard) {
     self.defaults = defaults
-    let storage = StorageKind(rawValue: defaults.string(forKey: "typle-r:storage") ?? "") ?? .local
-    let serverURL = defaults.string(forKey: "typle-r:api-url") ?? ""
+    // The self-hosted API (storage "api") is gone; its choice falls back to this iPad.
+    Keychain.removeLegacyToken()
+    var storage = StorageKind(rawValue: defaults.string(forKey: "typle-r:storage") ?? "") ?? .local
+    let serverURL = defaults.string(forKey: "typle-r:server-url") ?? Self.defaultServerURL
+    let accountUser = Keychain.token() == nil ? nil : defaults.data(forKey: "typle-r:account").flatMap { try? JSONDecoder().decode(AccountUser.self, from: $0) }
+    if accountUser == nil { storage = .local }
     self.storage = storage
     self.serverURL = serverURL
+    self.accountUser = accountUser
     liveStatsVisible = !defaults.bool(forKey: "typle-r:live-stats-hidden")
     let language = AppLanguage(rawValue: defaults.string(forKey: "typle-r:language") ?? "") ?? .preferred
     self.language = language
@@ -82,7 +90,7 @@ final class AppModel {
       return
     }
     #endif
-    let store = Self.makeStore(storage, serverURL: serverURL) ?? LocalWorkspaceStore()
+    let store = Self.makeStore(storage, serverURL: serverURL, user: accountUser) ?? LocalWorkspaceStore()
     self.store = store
     selectedDeviceId = defaults.string(forKey: "typle-r:device:\(store.accountId)")
   }
@@ -108,18 +116,21 @@ final class AppModel {
     defaults.set(!visible, forKey: "typle-r:live-stats-hidden")
   }
 
-  private static func makeStore(_ storage: StorageKind, serverURL: String) -> (any WorkspaceStore)? {
+  /// The web app in production (docs/release-workflow.md).
+  static let defaultServerURL = "https://typle-r-six.vercel.app"
+
+  private static func makeStore(_ storage: StorageKind, serverURL: String, user: AccountUser?) -> (any WorkspaceStore)? {
     switch storage {
     case .local: return LocalWorkspaceStore()
-    case .api:
-      guard let url = apiURL(serverURL), let token = Keychain.token() else { return nil }
-      return APIWorkspaceStore(baseURL: url, token: token)
+    case .account:
+      guard let url = serverAddress(serverURL), let token = Keychain.token(), let user else { return nil }
+      return AccountWorkspaceStore(baseURL: url, token: token, accountId: user.id) { Keychain.setToken($0) }
     }
   }
 
   /// An HTTPS address, since the token must not travel in plain text. Plain HTTP is allowed for this iPad itself
-  /// and local network names only, as when the API runs on a Mac next to it.
-  static func apiURL(_ text: String) -> URL? {
+  /// and local network names only, as when the web app runs on a Mac next to it (npm run dev).
+  static func serverAddress(_ text: String) -> URL? {
     let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
     guard let url = URL(string: trimmed), let host = url.host, !host.isEmpty else { return nil }
     if url.scheme == "https" { return url }
@@ -158,15 +169,23 @@ final class AppModel {
     loading = false
   }
 
+  /// Signs in with GitHub through the web app at serverURL, and then keeps the workspace in that account.
+  /// `authenticate` shows the login (ASWebAuthenticationSession) and returns the URL it ended at.
+  func signIn(serverURL text: String, authenticate: (URL, String) async throws -> URL) async throws {
+    guard let url = Self.serverAddress(text) else { throw TypleError("accountInvalidURL") }
+    let login = AccountLogin(baseURL: url)
+    let (token, user) = try await login.finish(try await authenticate(login.signinURL, AccountLogin.callbackScheme))
+    guard Keychain.setToken(token), let saved = try? JSONEncoder().encode(user) else { throw TypleError("accountKeychainFailed") }
+    serverURL = url.absoluteString
+    defaults.set(serverURL, forKey: "typle-r:server-url")
+    defaults.set(saved, forKey: "typle-r:account")
+    accountUser = user
+    try await useStorage(.account)
+  }
+
   /// Switches where the workspace is kept. The two are separate and nothing is copied between them.
-  func useStorage(_ kind: StorageKind, serverURL: String? = nil, token: String? = nil) async throws {
-    if let serverURL {
-      guard Self.apiURL(serverURL) != nil else { throw TypleError("apiInvalidURL") }
-      self.serverURL = serverURL.trimmingCharacters(in: .whitespacesAndNewlines)
-      defaults.set(self.serverURL, forKey: "typle-r:api-url")
-    }
-    if let token { Keychain.setToken(token.trimmingCharacters(in: .whitespacesAndNewlines)) }
-    guard let next = Self.makeStore(kind, serverURL: self.serverURL) else { throw TypleError("apiNotConfigured") }
+  func useStorage(_ kind: StorageKind) async throws {
+    guard let next = Self.makeStore(kind, serverURL: serverURL, user: accountUser) else { throw TypleError("accountLoginRequired") }
     storage = kind
     defaults.set(kind.rawValue, forKey: "typle-r:storage")
     store = next
@@ -175,13 +194,14 @@ final class AppModel {
     await reload()
   }
 
-  /// Forgets the token and goes back to this iPad's data.
+  /// Forgets the token and goes back to this iPad's data. The token is a signed value the backend keeps no record of,
+  /// as the web app's cookie is, so there is nothing to revoke.
   func signOut() async {
     Keychain.setToken(nil)
+    defaults.removeObject(forKey: "typle-r:account")
+    accountUser = nil
     try? await useStorage(.local)
   }
-
-  var hasToken: Bool { Keychain.token() != nil }
 
   // MARK: Changes. Each throws the reason it failed, for the screen to show; the shown data stays as it was.
 

@@ -25,7 +25,7 @@ struct DevicesView: View {
         Text(L("devices.listHeading")).font(.system(size: 16, weight: .bold))
         if !app.devices.isEmpty { CountBadge(text: L("devices.count", app.devices.count)) }
         Spacer()
-        if app.store.canEditDevices && !app.devices.isEmpty {
+        if !app.devices.isEmpty {
           Button { creating = true } label: { Label(L("devices.add"), systemImage: "plus") }
             .buttonStyle(.typle(.primary, size: .lg))
             .disabled(app.devices.count >= maxDevices)
@@ -36,12 +36,9 @@ struct DevicesView: View {
         row(defaultDevice(name: app.defaultDeviceName), usage: usage[defaultDeviceId], chosen: chosen?.id == defaultDeviceId,
             detail: L("devices.defaultDetail"), editable: false)
         ForEach(app.devices) { device in
-          row(device, usage: usage[device.id], chosen: chosen?.id == device.id, detail: device.layout, editable: app.store.canEditDevices)
+          row(device, usage: usage[device.id], chosen: chosen?.id == device.id, detail: device.layout, editable: true)
         }
         if app.devices.isEmpty { empty }
-      }
-      if !app.store.canEditDevices {
-        Text(L("devices.readOnly")).font(.system(size: 12)).foregroundStyle(Palette.mutedForeground)
       }
     }
     .sheet(isPresented: $creating) { DeviceEditor(device: nil) { message = L("devices.added", $0); failed = false } }
@@ -140,9 +137,7 @@ struct DevicesView: View {
       IconTile(systemName: "desktopcomputer", size: 48)
       Text(L("devices.empty.title")).font(.system(size: 16, weight: .semibold))
       Text(L("devices.empty.description")).font(.system(size: 14)).foregroundStyle(Palette.mutedForeground).multilineTextAlignment(.center).frame(maxWidth: 360)
-      if app.store.canEditDevices {
-        Button { creating = true } label: { Label(L("devices.add"), systemImage: "plus") }.buttonStyle(.typle(.primary, size: .lg))
-      }
+      Button { creating = true } label: { Label(L("devices.add"), systemImage: "plus") }.buttonStyle(.typle(.primary, size: .lg))
       Text(L("devices.empty.example")).font(.system(size: 12)).foregroundStyle(Palette.mutedForeground)
     }
     .frame(maxWidth: .infinity)

@@ -205,3 +205,7 @@ jobs:
             "https://github.com/login/oauth/authorize?"*redirect_uri=https%3A%2F%2Ftyple-r-six.vercel.app%2Fapi%2Fauth%2Fcallback%2Fgithub*) ;;
             *) echo "Expected sign-in to redirect to GitHub with the production callback, got $location"; exit 1 ;;
           esac
+          # The iPad app's token exchange is deployed, and refuses a request without a valid code.
+          status=$(curl --silent --show-error --retry 3 --max-time 60 --request POST --header 'Content-Type: application/json' --data '{}' --output "$RUNNER_TEMP/token-response" --write-out '%{http_code}' https://typle-r-six.vercel.app/api/auth/token)
+          body=$(cat "$RUNNER_TEMP/token-response")
+          test "$status $body" = '400 {"error":"loginFailed"}' || { echo "Expected the token exchange to answer 400 loginFailed, got $status $body"; exit 1; }

@@ -1,13 +1,14 @@
+import AuthenticationServices
 import SwiftUI
 import UIKit
 
 /// 一般 (src/app/settings/page.tsx): the display language, and on the iPad where the data is kept, which the web app
-/// decides by signing in.
+/// decides by signing in. The GitHub login is the web app's own, so the account holds the same data as there.
 struct GeneralSettingsView: View {
   @Environment(AppModel.self) private var app
+  @Environment(\.webAuthenticationSession) private var webAuthenticationSession
   @State private var kind = StorageKind.local
   @State private var serverURL = ""
-  @State private var token = ""
   @State private var working = false
   @State private var message: String?
   @State private var failed = false
@@ -40,15 +41,15 @@ struct GeneralSettingsView: View {
   }
 
   private var storage: some View {
-    settingsCard(icon: app.storage == .api ? "cloud" : "internaldrive", title: L("settings.storage"), description: L("settings.storageHint")) {
+    settingsCard(icon: app.storage == .account ? "cloud" : "internaldrive", title: L("settings.storage"), description: L("settings.storageHint")) {
       LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
         choice(selected: kind == .local, title: L("settings.storage.local"), subtitle: L("settings.storage.localDetail")) { kind = .local }
-        choice(selected: kind == .api, title: L("settings.storage.api"), subtitle: L("settings.storage.apiDetail")) { kind = .api }
+        choice(selected: kind == .account, title: L("settings.storage.account"), subtitle: L("settings.storage.accountDetail")) { kind = .account }
       }
-      if kind == .api {
+      if kind == .account {
         VStack(alignment: .leading, spacing: 12) {
           labelled(L("settings.serverURL")) {
-            TextField("https://typle-api.example.com", text: $serverURL)
+            TextField(AppModel.defaultServerURL, text: $serverURL)
               .keyboardType(.URL)
               .textInputAutocapitalization(.never)
               .autocorrectionDisabled()
@@ -57,25 +58,31 @@ struct GeneralSettingsView: View {
               .background(Palette.card, in: RoundedRectangle(cornerRadius: Radius.md))
               .outlined(radius: Radius.md, color: Palette.input)
           }
-          labelled(L("settings.token")) {
-            SecureField(app.hasToken ? L("settings.tokenSaved") : "github_pat_…", text: $token)
-              .textInputAutocapitalization(.never)
-              .autocorrectionDisabled()
-              .font(.system(size: 14))
-              .padding(.horizontal, 12).frame(height: 40)
-              .background(Palette.card, in: RoundedRectangle(cornerRadius: Radius.md))
-              .outlined(radius: Radius.md, color: Palette.input)
+          if let user = app.accountUser {
+            Label(L("settings.signedIn", user.name), systemImage: "person.crop.circle")
+              .font(.system(size: 14)).foregroundStyle(Palette.foreground)
           }
-          Text(L("settings.apiHint")).font(.system(size: 12)).foregroundStyle(Palette.mutedForeground).fixedSize(horizontal: false, vertical: true)
+          Text(L("settings.accountHint")).font(.system(size: 12)).foregroundStyle(Palette.mutedForeground).fixedSize(horizontal: false, vertical: true)
         }
       }
       HStack(spacing: 8) {
-        Button(kind == .api ? L("settings.connect") : L("settings.useLocal")) { apply() }
-          .buttonStyle(.typle(.primary, size: .lg))
-          .disabled(working || (kind == app.storage && kind == .local))
-        if app.storage == .api {
+        if kind == .local {
+          Button(L("settings.useLocal")) { run { try await app.useStorage(.local) } }
+            .buttonStyle(.typle(.primary, size: .lg))
+            .disabled(working || app.storage == .local)
+        } else {
+          Button(L("settings.signIn")) { run { try await app.signIn(serverURL: serverURL, authenticate: authenticate) } }
+            .buttonStyle(.typle(.primary, size: .lg))
+            .disabled(working)
+          // Signed in, but keeping the data on this iPad for now.
+          if app.accountUser != nil && app.storage == .local && sameServer {
+            Button(L("settings.useAccount")) { run { try await app.useStorage(.account) } }
+              .buttonStyle(.typle(.outline, size: .lg))
+              .disabled(working)
+          }
+        }
+        if app.accountUser != nil {
           Button(L("settings.signOut"), role: .destructive) {
-            token = ""
             Task {
               await app.signOut()
               kind = .local
@@ -83,6 +90,7 @@ struct GeneralSettingsView: View {
             }
           }
           .buttonStyle(.typle(.outline, size: .lg))
+          .disabled(working)
         }
         if working { ProgressView().padding(.leading, 4) }
       }
@@ -90,9 +98,18 @@ struct GeneralSettingsView: View {
         Label(message, systemImage: failed ? "exclamationmark.triangle" : "checkmark.circle")
           .font(.system(size: 13)).foregroundStyle(failed ? Palette.destructive : Palette.success)
       }
-      Text(L("settings.current", app.storage == .api ? L("settings.storage.api") : L("settings.storage.local")))
+      Text(L("settings.current", app.storage == .account ? L("settings.storage.account") : L("settings.storage.local")))
         .font(.system(size: 12)).foregroundStyle(Palette.mutedForeground)
     }
+  }
+
+  private var sameServer: Bool {
+    AppModel.serverAddress(serverURL)?.absoluteString == app.serverURL
+  }
+
+  /// The GitHub login in the system's sheet, which shares Safari's sign-in to GitHub.
+  private func authenticate(_ url: URL, _ scheme: String) async throws -> URL {
+    try await webAuthenticationSession.authenticate(using: url, callbackURLScheme: scheme, preferredBrowserSession: .shared)
   }
 
   private func settingsCard<Content: View>(icon: String, title: String, description: String, @ViewBuilder content: () -> Content) -> some View {
@@ -144,13 +161,13 @@ struct GeneralSettingsView: View {
     }
   }
 
-  private func apply() {
+  /// Switches or signs in, and says what came of it. Closing the login sheet is no failure and says nothing.
+  private func run(_ action: @escaping () async throws -> Void) {
     working = true
     message = nil
     Task {
       do {
-        try await app.useStorage(kind, serverURL: kind == .api ? serverURL : nil, token: kind == .api && !token.isEmpty ? token : nil)
-        token = ""
+        try await action()
         if let error = app.loadError {
           failed = true
           message = error
@@ -158,6 +175,8 @@ struct GeneralSettingsView: View {
           failed = false
           message = L("settings.connected", app.lists.count)
         }
+      } catch let error as ASWebAuthenticationSessionError where error.code == .canceledLogin {
+        message = nil
       } catch {
         failed = true
         message = errorText(error)
