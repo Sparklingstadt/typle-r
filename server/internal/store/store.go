@@ -15,8 +15,8 @@ import (
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
 
-// ConnString keeps the server certificate verified, as strictSslUrl (src/plugins/storage/cloud/databaseUrl.ts) does
-// for the app: sslmode=prefer, require and verify-ca become verify-full. uselibpqcompat=true, which asks node-postgres
+// ConnString keeps the server certificate verified, as the app's database connection did before the Go
+// backend: sslmode=prefer, require and verify-ca become verify-full. uselibpqcompat=true, which asks node-postgres
 // for libpq's meaning of those modes, is pgx's own behaviour, so it keeps the mode and only the parameter is dropped.
 func ConnString(connection string) (string, error) {
 	parsed, err := url.Parse(connection)

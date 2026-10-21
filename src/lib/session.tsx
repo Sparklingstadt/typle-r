@@ -25,18 +25,29 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [data, setData] = useState<SessionData>(null)
   const [loaded, setLoaded] = useState(false)
   const mounted = useRef(true)
-  const refresh = useCallback(async () => {
-    const next = await fetchSession()
-    if (!mounted.current) return
-    // The same user keeps the same object, so a refresh on focus renders nothing again.
-    setData(prev => prev?.user.id === next?.user.id && prev?.user.name === next?.user.name && prev?.user.image === next?.user.image ? prev : next)
-    setLoaded(true)
+  const latest = useRef(0)
+  const inflight = useRef<Promise<void> | null>(null)
+  // A forced read (update) always starts a new request. Only the newest request started is applied, so an older one that
+  // resolves late cannot overwrite a fresher result. A read that is not forced joins the one already under way.
+  const load = useCallback((force: boolean): Promise<void> => {
+    if (!force && inflight.current) return inflight.current
+    const id = ++latest.current
+    const request: Promise<void> = fetchSession().then(next => {
+      if (inflight.current === request) inflight.current = null
+      if (!mounted.current || id !== latest.current) return
+      // The same user keeps the same object, so a refresh on focus renders nothing again.
+      setData(prev => prev?.user.id === next?.user.id && prev?.user.name === next?.user.name && prev?.user.image === next?.user.image ? prev : next)
+      setLoaded(true)
+    })
+    inflight.current = request
+    return request
   }, [])
+  const refresh = useCallback(() => load(true), [load])
   useEffect(() => {
     mounted.current = true
-    void refresh()
+    void load(false)
     // Another tab may have signed in or out, or switched account: look again whenever this one comes back into view.
-    const again = () => { if (document.visibilityState === 'visible') void refresh() }
+    const again = () => { if (document.visibilityState === 'visible') void load(false) }
     document.addEventListener('visibilitychange', again)
     window.addEventListener('focus', again)
     return () => {
@@ -44,7 +55,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       document.removeEventListener('visibilitychange', again)
       window.removeEventListener('focus', again)
     }
-  }, [refresh])
+  }, [load])
   const value = useMemo<SessionState>(() => ({
     data,
     status: !loaded ? 'loading' : data ? 'authenticated' : 'unauthenticated',

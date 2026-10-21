@@ -17,14 +17,15 @@ import (
 
 func TestConnString(t *testing.T) {
 	cases := map[string]string{
-		"postgres://u:p@h/db":                                           "postgres://u:p@h/db",
-		"postgresql://u:p@h/db?sslmode=require":                         "postgresql://u:p@h/db?sslmode=verify-full",
-		"postgresql://u:p@h/db?sslmode=prefer":                          "postgresql://u:p@h/db?sslmode=verify-full",
-		"postgresql://u:p@h/db?sslmode=verify-ca":                       "postgresql://u:p@h/db?sslmode=verify-full",
-		"postgresql://u:p@h/db?sslmode=disable":                         "postgresql://u:p@h/db?sslmode=disable",
-		"postgresql://u:p@h/db?sslmode=verify-full":                     "postgresql://u:p@h/db?sslmode=verify-full",
-		"postgresql://u:p@h/db?channel_binding=require&sslmode=require": "postgresql://u:p@h/db?channel_binding=require&sslmode=verify-full",
-		"postgresql://u:p@h/db?sslmode=require&uselibpqcompat=true":     "postgresql://u:p@h/db?sslmode=require",
+		"postgres://u:p@h/db":                                                   "postgres://u:p@h/db",
+		"postgresql://u:p@h/db?sslmode=require":                                 "postgresql://u:p@h/db?sslmode=verify-full",
+		"postgresql://u:p@h/db?sslmode=prefer":                                  "postgresql://u:p@h/db?sslmode=verify-full",
+		"postgresql://u:p@h/db?sslmode=verify-ca":                               "postgresql://u:p@h/db?sslmode=verify-full",
+		"postgresql://u:p@h/db?sslmode=disable":                                 "postgresql://u:p@h/db?sslmode=disable",
+		"postgresql://u:p@h/db?sslmode=verify-full":                             "postgresql://u:p@h/db?sslmode=verify-full",
+		"postgresql://u:p@h/db?channel_binding=require&sslmode=require":         "postgresql://u:p@h/db?channel_binding=require&sslmode=verify-full",
+		"postgresql://u:p@h/db?sslmode=require&uselibpqcompat=true":             "postgresql://u:p@h/db?sslmode=require",
+		"postgresql://user:p%40ss@h/db?sslmode=require&channel_binding=require": "postgresql://user:p%40ss@h/db?channel_binding=require&sslmode=verify-full",
 	}
 	for input, want := range cases {
 		if got, err := ConnString(input); err != nil || got != want {
