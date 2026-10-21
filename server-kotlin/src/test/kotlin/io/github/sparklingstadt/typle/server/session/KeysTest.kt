@@ -67,7 +67,7 @@ class KeysTest {
   // A cookie whose JSON spells & < > as & < > still opens: the signature is over the payload as received.
   @Test fun opensHtmlEscapedCookie() {
     val payload = Base64.getUrlEncoder().withoutPadding().encodeToString(
-      """{"sub":"github:2","name":"A & B <x>","image":"","iat":1700000000,"exp":1702592000}""".toByteArray())
+      """{"sub":"github:2","name":"A \u0026 B \u003cx\u003e","image":"","iat":1700000000,"exp":1702592000}""".toByteArray())
     val cookie = payload + "." + Base64.getUrlEncoder().withoutPadding().encodeToString(keys.signSession(payload))
     assertEquals("A & B <x>", keys.open(cookie, NOW)?.name)
   }

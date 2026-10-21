@@ -30,7 +30,7 @@ class RequestTest {
       """["\ud800\ud800"]""" to true,
       """{"\udc00":1}""" to true,
       """["𠮷"]""" to false,
-      """["𠮷"]""" to false,
+      """["\ud842\udfb7"]""" to false,
       """["𠮷", "\\ud800"]""" to false,
       """["あé"]""" to false,
       """["𠮷\ud800"]""" to true,
