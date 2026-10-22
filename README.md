@@ -3,7 +3,7 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
-## v0.60.1 — CSV・TSV の取り込みダイアログの説明を直しました
+## v0.61.1 — CSV・TSV の取り込みダイアログの説明を直しました
 
 取り込みダイアログは「display は必須、input・annotation は省略できます」と案内していましたが、取り込みは `input` と `display` の列を両方必須にしています。6言語の説明を実際の動作（`input` と `display` は必須、`annotation` は省略できる）に合わせました。取り込みの動作は変わりません。
 
@@ -124,7 +124,7 @@ Next.js のアプリは1つで、`src` を層に分けています。依存は�
 | 層 | 場所 | 内容 |
 |---|---|---|
 | 画面 | `src/app`・`src/components`・`src/i18n`・`src/lib` | ページ、UI、多言語化、React のフック。`useWordLists` は React の状態とブラウザーのイベント（フォーカス・他タブの変更）だけを受け持ち、読み込み・保存は core の `createWorkspaceSession` に任せます |
-| プラグイン | `src/plugins` | core のポートの実装と初期データ。`storage`：`cloud`（Goのバックエンドが提供する `/api/workspace`）と `guest`（LocalStorage）を `workspaceStore(accountId)` がアカウントに応じて選びます。`formats`：CSV・TSV（`delimited.ts`）と旧バージョンのブラウザー保存からの移行（`legacy.ts`）。`packs`：最初に表示する単語リスト（サンプルと国名193か国） |
+| プラグイン | `src/plugins` | core のポートの実装と初期データ。`storage`：`cloud`（Goのバックエンドが提供する `/api/workspace`）と `guest`（LocalStorage）を `workspaceStore(accountId)` がアカウントに応じて選びます。`formats`：CSV・TSV（`delimited.ts`）と旧バージョンのブラウザー保存からの移行（`legacy.ts`）。`packs`：最初に表示する単語リスト（サンプル、国名193か国、Linuxコマンドの5リスト） |
 | core | `src/core` | React・Next.js・ブラウザーAPIに依存しない TypeScript。単語リスト・入力判定・記録・集計・ワークスペースのモデルと検証、保存先のポート `WorkspaceStore`（`workspaceStore.ts`、保存場所 `location` を含む）、ワークスペースの読み込み・保存 `createWorkspaceSession`（`workspaceSession.ts`。アカウントの切り替え後に届いた結果の破棄、保存の直列化、409での再読み込み、古いクラウド読み込みの無視）とファイル形式のポート `WordFormat`（`wordFormat.ts`） |
 
 保存先を増やすときは `WorkspaceStore` を実装したプラグインを `src/plugins/storage` に追加し、`workspaceStore` で選びます。ファイル形式を増やすときは `WordFormat` を実装して `src/plugins/formats/index.ts` の一覧に加えると、取り込みの拡張子判定と `accept` に反映されます。どちらも画面のコードは変わりません。
@@ -357,6 +357,22 @@ UIはshadcn/ui（Radix / Nova）とTailwind CSS 4で構成しています。設�
 ### 国名データの出典・検証
 
 [提供されたZIP](https://chatgpt.com/library/share/libfile_e75c8143a78c8191804af85bfd9d46a9?account_id=personal)と同じファイルの生成データ193行を利用しています。中国語名・拼音・日本語名は元資料の表記を維持しています。入力する文字は拼音から声調記号・隔音記号（'）・括弧を除いたアルファベットで、üはピンイン入力と同じvで入力します（例: 菲律宾 → Feilvbin）。`tests/countries.test.cjs` で元データ（入力を中国語名に戻した状態）とのSHA-256一致、193件の重複なし、入力が拼音から作られていることを検証します。
+
+### Linuxコマンドの単語リスト
+
+`src/plugins/packs/linux.json` の5リスト（611語）は、提供されたLinuxコマンド表のCSV（学習用フラット一覧、64表・659行。SHA-256 `17ce06e70c8113a84b850034cd86100633a660b3ce2638c72fa2d0429273864f`）から作っています。
+
+| リスト | 元の表 | 語数 |
+|---|---|---|
+| Linuxコマンド：基本 | 第1編のコマンド・シェル記法・開発での実践例（表01・03・05・09・11・13・15〜18） | 118 |
+| Linuxコマンド：オプション | よく使うオプション、tar・sysctl・ulimitのオプション、共通オプション、シェルの重要なオプション（表02・04・06・10・12・14・19・22・24・27・29・54・58・59） | 146 |
+| Linuxコマンド：応用 | 第2編のコマンド（ストレージ・ハードウェア・ネットワーク・systemd・デバッグ・Docker・DBなど。表20・21・23・25・26・28・30〜35） | 131 |
+| Linux：シェルとBash | 特殊な記法・リダイレクト・シグナル関連コマンド・特殊変数・展開・条件式・スクリプト関連（表41・45・47〜51） | 76 |
+| Linux：システムの仕組み | ディレクトリ構造・/proc・/sys・/dev・FD・シグナル・IPC・inode・リソース制限・Namespace・障害調査（表38〜40・42〜44・46・52・53・55・57・60〜63） | 140 |
+
+表示と入力は同じ文字列（使用例があれば使用例、なければ項目そのもの。オプションは「コマンド オプション」）、補足は名前の由来と用途です（例: `ls -la` → 「ls（List）：ファイル・フォルダの一覧表示」）。同じリストで入力が重なる行は最初の1つだけを残します。比較表・練習チェックリスト・chmodの計算表（表07・08・36・37・56・64）は入力する語がないため含めません。`tests/linux.test.cjs` で、リストの読み込み、語数、入力が前後に空白のないASCIIで表示と一致すること、リスト内で入力が重複しないことを確かめます。
+
+初期リストなので、まだ一度も保存していないアカウントとブラウザーに表示されます。保存済みのアカウントには `npm run db:seed -- --owner github:<ID>` で、同じIDまたは同じ名前のリストがない場合だけ追加できます。
 
 ### 共通レイアウト（トップバー・サイドバー）
 

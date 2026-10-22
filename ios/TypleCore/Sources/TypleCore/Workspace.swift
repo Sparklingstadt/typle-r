@@ -20,10 +20,15 @@ public func initialLists() -> [WordList] {
   do {
     let samples = try JSONDecoder().decode([PackList].self, from: load("samples"))
     let countries = try JSONDecoder().decode(PackList.self, from: load("countries"))
-    return samples.enumerated().map { index, list in
+    let linux = try JSONDecoder().decode([PackList].self, from: load("linux"))
+    let lists: [WordList] = samples.enumerated().map { index, list in
       WordList(id: "sample-\(index + 1)", name: list.name, words: list.words, records: [], createdAt: list.createdAt)
     } + [WordList(id: countries.id ?? "countries", name: countries.name, words: countries.words,
                   records: countries.records ?? [], createdAt: countries.createdAt)]
+    // Each list of linux.json names its own id (tests/linux.test.cjs).
+    return lists + linux.map { list in
+      WordList(id: list.id ?? list.name, name: list.name, words: list.words, records: list.records ?? [], createdAt: list.createdAt)
+    }
   } catch {
     fatalError("Unreadable bundled pack: \(error)")
   }

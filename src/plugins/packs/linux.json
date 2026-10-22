@@ -1,0 +1,3097 @@
+[
+  {
+    "id": "linux-commands-basic",
+    "name": "Linuxコマンド：基本",
+    "words": [
+      {
+        "display": "pwd",
+        "input": "pwd",
+        "annotation": "Print Working Directory：現在のディレクトリを表示"
+      },
+      {
+        "display": "ls -la",
+        "input": "ls -la",
+        "annotation": "ls（List）：ファイル・フォルダの一覧表示"
+      },
+      {
+        "display": "cd /home",
+        "input": "cd /home",
+        "annotation": "cd（Change Directory）：ディレクトリ移動"
+      },
+      {
+        "display": "mkdir -p app/src",
+        "input": "mkdir -p app/src",
+        "annotation": "mkdir（Make Directory）：ディレクトリ作成"
+      },
+      {
+        "display": "rmdir old",
+        "input": "rmdir old",
+        "annotation": "rmdir（Remove Directory）：空のディレクトリ削除"
+      },
+      {
+        "display": "touch index.js",
+        "input": "touch index.js",
+        "annotation": "touch（Touch）：ファイル作成・更新日時変更"
+      },
+      {
+        "display": "cp -r src backup",
+        "input": "cp -r src backup",
+        "annotation": "cp（Copy）：ファイル・ディレクトリのコピー"
+      },
+      {
+        "display": "mv old.txt new.txt",
+        "input": "mv old.txt new.txt",
+        "annotation": "mv（Move）：移動・名前変更"
+      },
+      {
+        "display": "rm -r old",
+        "input": "rm -r old",
+        "annotation": "rm（Remove）：ファイル・ディレクトリ削除"
+      },
+      {
+        "display": "find . -name \"*.js\"",
+        "input": "find . -name \"*.js\"",
+        "annotation": "find（Find）：ファイル・ディレクトリ検索"
+      },
+      {
+        "display": "ln -s target link",
+        "input": "ln -s target link",
+        "annotation": "ln（Link）：ハードリンク・シンボリックリンク作成"
+      },
+      {
+        "display": "file app.log",
+        "input": "file app.log",
+        "annotation": "file（File）：ファイル形式を判別"
+      },
+      {
+        "display": "stat app.log",
+        "input": "stat app.log",
+        "annotation": "stat（Status）：ファイルの詳細情報表示"
+      },
+      {
+        "display": "cat config.json",
+        "input": "cat config.json",
+        "annotation": "cat（Concatenate）：内容表示・ファイル連結"
+      },
+      {
+        "display": "less server.log",
+        "input": "less server.log",
+        "annotation": "less（Moreの対比から）：長いファイルをページ単位で閲覧"
+      },
+      {
+        "display": "head -n 20 app.log",
+        "input": "head -n 20 app.log",
+        "annotation": "head（先頭）：ファイル冒頭を表示"
+      },
+      {
+        "display": "tail -f app.log",
+        "input": "tail -f app.log",
+        "annotation": "tail（末尾）：ファイル末尾を表示"
+      },
+      {
+        "display": "grep -n \"ERROR\" app.log",
+        "input": "grep -n \"ERROR\" app.log",
+        "annotation": "grep（Global Regular Expression Print）：文字列・正規表現で検索"
+      },
+      {
+        "display": "sed 's/old/new/g' file",
+        "input": "sed 's/old/new/g' file",
+        "annotation": "sed（Stream Editor）：文字列置換・行編集"
+      },
+      {
+        "display": "awk '{print $1}' file",
+        "input": "awk '{print $1}' file",
+        "annotation": "awk（開発者3名の姓の頭文字）：列単位のテキスト処理"
+      },
+      {
+        "display": "sort names.txt",
+        "input": "sort names.txt",
+        "annotation": "sort（Sort）：行を並び替える"
+      },
+      {
+        "display": "uniq -c names.txt",
+        "input": "uniq -c names.txt",
+        "annotation": "uniq（Unique）：隣接する重複行を整理"
+      },
+      {
+        "display": "wc -l app.log",
+        "input": "wc -l app.log",
+        "annotation": "wc（Word Count）：行数・単語数・バイト数の集計"
+      },
+      {
+        "display": "cut -d, -f2 data.csv",
+        "input": "cut -d, -f2 data.csv",
+        "annotation": "cut（Cut）：特定の列を抽出"
+      },
+      {
+        "display": "diff -u old.txt new.txt",
+        "input": "diff -u old.txt new.txt",
+        "annotation": "diff（Difference）：ファイル間の差分表示"
+      },
+      {
+        "display": "echo hello | tee out.txt",
+        "input": "echo hello | tee out.txt",
+        "annotation": "tee（T字分岐）：出力を画面とファイルに分岐"
+      },
+      {
+        "display": "sudo apt update",
+        "input": "sudo apt update",
+        "annotation": "sudo（Superuser Do（一般的な説明））：別ユーザーの権限でコマンド実行"
+      },
+      {
+        "display": "su - alice",
+        "input": "su - alice",
+        "annotation": "su（Substitute User）：ユーザー切り替え"
+      },
+      {
+        "display": "whoami",
+        "input": "whoami",
+        "annotation": "Who Am I：実行ユーザー名表示"
+      },
+      {
+        "display": "id",
+        "input": "id",
+        "annotation": "Identity：UID・GIDなどを表示"
+      },
+      {
+        "display": "who",
+        "input": "who",
+        "annotation": "Who：ログイン中のユーザー表示"
+      },
+      {
+        "display": "passwd",
+        "input": "passwd",
+        "annotation": "Password：パスワード変更"
+      },
+      {
+        "display": "chmod 755 script.sh",
+        "input": "chmod 755 script.sh",
+        "annotation": "chmod（Change Mode）：権限変更"
+      },
+      {
+        "display": "sudo chown alice:dev app",
+        "input": "sudo chown alice:dev app",
+        "annotation": "chown（Change Owner）：所有者変更"
+      },
+      {
+        "display": "chgrp dev app",
+        "input": "chgrp dev app",
+        "annotation": "chgrp（Change Group）：グループ変更"
+      },
+      {
+        "display": "sudo useradd -m alice",
+        "input": "sudo useradd -m alice",
+        "annotation": "useradd（User Add）：ユーザー作成"
+      },
+      {
+        "display": "sudo usermod -aG sudo alice",
+        "input": "sudo usermod -aG sudo alice",
+        "annotation": "usermod（User Modify）：ユーザー設定変更"
+      },
+      {
+        "display": "sudo userdel alice",
+        "input": "sudo userdel alice",
+        "annotation": "userdel（User Delete）：ユーザー削除"
+      },
+      {
+        "display": "ps aux",
+        "input": "ps aux",
+        "annotation": "ps（Process Status）：プロセス一覧"
+      },
+      {
+        "display": "top",
+        "input": "top",
+        "annotation": "Top：CPU・メモリ使用状況の監視"
+      },
+      {
+        "display": "htop",
+        "input": "htop",
+        "annotation": "Hisham's top：対話的なプロセス監視"
+      },
+      {
+        "display": "kill 1234",
+        "input": "kill 1234",
+        "annotation": "kill（Kill）：PIDを指定してシグナル送信"
+      },
+      {
+        "display": "pkill node",
+        "input": "pkill node",
+        "annotation": "pkill（Process Kill）：名前などでプロセスにシグナル送信"
+      },
+      {
+        "display": "jobs",
+        "input": "jobs",
+        "annotation": "Jobs：シェルのジョブ一覧"
+      },
+      {
+        "display": "bg %1",
+        "input": "bg %1",
+        "annotation": "bg（Background）：ジョブをバックグラウンド再開"
+      },
+      {
+        "display": "fg %1",
+        "input": "fg %1",
+        "annotation": "fg（Foreground）：ジョブを前面に戻す"
+      },
+      {
+        "display": "nohup command &",
+        "input": "nohup command &",
+        "annotation": "nohup（No Hang Up）：端末切断時のSIGHUPを無視して実行"
+      },
+      {
+        "display": "free -h",
+        "input": "free -h",
+        "annotation": "free（Free）：メモリ状況の表示"
+      },
+      {
+        "display": "df -h",
+        "input": "df -h",
+        "annotation": "df（Disk Free）：ファイルシステム空き容量"
+      },
+      {
+        "display": "du -sh .",
+        "input": "du -sh .",
+        "annotation": "du（Disk Usage）：ディレクトリ使用容量"
+      },
+      {
+        "display": "uname -a",
+        "input": "uname -a",
+        "annotation": "uname（Unix Name）：カーネル・OS情報表示"
+      },
+      {
+        "display": "uptime",
+        "input": "uptime",
+        "annotation": "Up Time：稼働時間・負荷表示"
+      },
+      {
+        "display": "systemctl status nginx",
+        "input": "systemctl status nginx",
+        "annotation": "systemctl（System Control）：systemdサービス操作"
+      },
+      {
+        "display": "journalctl -u nginx",
+        "input": "journalctl -u nginx",
+        "annotation": "journalctl（Journal Control）：systemdログ閲覧"
+      },
+      {
+        "display": "ip addr",
+        "input": "ip addr",
+        "annotation": "ip（IP）：IPアドレス・経路確認"
+      },
+      {
+        "display": "ping -c 4 example.com",
+        "input": "ping -c 4 example.com",
+        "annotation": "ping（Ping）：ネットワーク疎通確認"
+      },
+      {
+        "display": "curl -I https://example.com",
+        "input": "curl -I https://example.com",
+        "annotation": "curl（Client URL）：HTTP通信・APIテスト"
+      },
+      {
+        "display": "wget https://example.com/file.zip",
+        "input": "wget https://example.com/file.zip",
+        "annotation": "wget（World Wide Web Get）：ファイルダウンロード"
+      },
+      {
+        "display": "ssh user@server",
+        "input": "ssh user@server",
+        "annotation": "ssh（Secure Shell）：リモートサーバー接続"
+      },
+      {
+        "display": "scp file user@server:/tmp/",
+        "input": "scp file user@server:/tmp/",
+        "annotation": "scp（Secure Copy）：SSH経由のファイル転送"
+      },
+      {
+        "display": "rsync -av src/ backup/",
+        "input": "rsync -av src/ backup/",
+        "annotation": "rsync（Remote Sync）：ファイル同期"
+      },
+      {
+        "display": "ss -tuln",
+        "input": "ss -tuln",
+        "annotation": "ss（Socket Statistics）：通信ポートの状態確認"
+      },
+      {
+        "display": "dig example.com",
+        "input": "dig example.com",
+        "annotation": "dig（Domain Information Groper）：DNS情報確認"
+      },
+      {
+        "display": "nslookup example.com",
+        "input": "nslookup example.com",
+        "annotation": "nslookup（Name Server Lookup）：DNS問い合わせ"
+      },
+      {
+        "display": "traceroute example.com",
+        "input": "traceroute example.com",
+        "annotation": "traceroute（Trace Route）：通信経路の確認"
+      },
+      {
+        "display": "hostname",
+        "input": "hostname",
+        "annotation": "Host Name：ホスト名の表示"
+      },
+      {
+        "display": "tar -czvf backup.tar.gz app/",
+        "input": "tar -czvf backup.tar.gz app/",
+        "annotation": "tar（Tape Archive）：ファイルをまとめる・展開"
+      },
+      {
+        "display": "gzip file.log",
+        "input": "gzip file.log",
+        "annotation": "gzip（GNU Zip）：gzip圧縮"
+      },
+      {
+        "display": "gunzip file.log.gz",
+        "input": "gunzip file.log.gz",
+        "annotation": "gunzip（GNU Unzip）：gzip展開"
+      },
+      {
+        "display": "zip -r app.zip app/",
+        "input": "zip -r app.zip app/",
+        "annotation": "zip（Zip）：ZIP形式に圧縮"
+      },
+      {
+        "display": "unzip app.zip",
+        "input": "unzip app.zip",
+        "annotation": "unzip（Unzip）：ZIP形式を展開"
+      },
+      {
+        "display": "xz file.log",
+        "input": "xz file.log",
+        "annotation": "xz（XZ）：高圧縮率の圧縮形式"
+      },
+      {
+        "display": "sudo apt install git",
+        "input": "sudo apt install git",
+        "annotation": "apt（Ubuntu / Debian）：パッケージ管理"
+      },
+      {
+        "display": "sudo apt-get update",
+        "input": "sudo apt-get update",
+        "annotation": "apt-get（Ubuntu / Debian）：スクリプトにも使いやすいパッケージ管理"
+      },
+      {
+        "display": "dpkg -l",
+        "input": "dpkg -l",
+        "annotation": "dpkg（Debian系）：.debパッケージ操作"
+      },
+      {
+        "display": "sudo dnf install git",
+        "input": "sudo dnf install git",
+        "annotation": "dnf（Fedora / RHEL系）：パッケージ管理"
+      },
+      {
+        "display": "rpm -qa",
+        "input": "rpm -qa",
+        "annotation": "rpm（RPM系）：.rpmパッケージ操作"
+      },
+      {
+        "display": "sudo pacman -S git",
+        "input": "sudo pacman -S git",
+        "annotation": "pacman（Arch Linux）：パッケージ管理"
+      },
+      {
+        "display": "apt update",
+        "input": "apt update",
+        "annotation": "パッケージ一覧情報を更新"
+      },
+      {
+        "display": "apt upgrade",
+        "input": "apt upgrade",
+        "annotation": "インストール済みパッケージを更新"
+      },
+      {
+        "display": "apt install",
+        "input": "apt install",
+        "annotation": "パッケージをインストール"
+      },
+      {
+        "display": "apt remove",
+        "input": "apt remove",
+        "annotation": "パッケージを削除"
+      },
+      {
+        "display": "apt purge",
+        "input": "apt purge",
+        "annotation": "パッケージとシステム設定ファイルを削除"
+      },
+      {
+        "display": "apt search",
+        "input": "apt search",
+        "annotation": "パッケージを検索"
+      },
+      {
+        "display": "apt show",
+        "input": "apt show",
+        "annotation": "パッケージ詳細表示"
+      },
+      {
+        "display": "apt autoremove",
+        "input": "apt autoremove",
+        "annotation": "不要になった依存パッケージを削除"
+      },
+      {
+        "display": "echo $HOME",
+        "input": "echo $HOME",
+        "annotation": "echo：文字列や変数を表示"
+      },
+      {
+        "display": "export NODE_ENV=production",
+        "input": "export NODE_ENV=production",
+        "annotation": "export：環境変数を子プロセスに引き継ぐ"
+      },
+      {
+        "display": "env",
+        "input": "env",
+        "annotation": "環境変数表示・指定して実行"
+      },
+      {
+        "display": "which node",
+        "input": "which node",
+        "annotation": "which：PATH上の実行ファイル検索"
+      },
+      {
+        "display": "type node",
+        "input": "type node",
+        "annotation": "type：コマンドの種類・解決先確認"
+      },
+      {
+        "display": "alias ll='ls -la'",
+        "input": "alias ll='ls -la'",
+        "annotation": "alias：コマンドの別名登録"
+      },
+      {
+        "display": "history",
+        "input": "history",
+        "annotation": "コマンド履歴表示"
+      },
+      {
+        "display": "man ls",
+        "input": "man ls",
+        "annotation": "man：Manual：マニュアル表示"
+      },
+      {
+        "display": "clear",
+        "input": "clear",
+        "annotation": "画面の表示を消去"
+      },
+      {
+        "display": "echo hello > out.txt",
+        "input": "echo hello > out.txt",
+        "annotation": ">：標準出力をファイルに上書き"
+      },
+      {
+        "display": "echo hello >> out.txt",
+        "input": "echo hello >> out.txt",
+        "annotation": ">>：標準出力をファイルに追記"
+      },
+      {
+        "display": "wc -l < file.txt",
+        "input": "wc -l < file.txt",
+        "annotation": "<：ファイルを標準入力として渡す"
+      },
+      {
+        "display": "command 2> error.log",
+        "input": "command 2> error.log",
+        "annotation": "2>：標準エラー出力をファイルへ"
+      },
+      {
+        "display": "command > all.log 2>&1",
+        "input": "command > all.log 2>&1",
+        "annotation": "2>&1：標準エラー出力を標準出力と同じ先へ"
+      },
+      {
+        "display": "ps aux | grep node",
+        "input": "ps aux | grep node",
+        "annotation": "|：パイプ：前の標準出力を次の標準入力へ"
+      },
+      {
+        "display": "npm install && npm run dev",
+        "input": "npm install && npm run dev",
+        "annotation": "&&：前の処理が成功した場合のみ実行"
+      },
+      {
+        "display": "command || echo failed",
+        "input": "command || echo failed",
+        "annotation": "||：前の処理が失敗した場合のみ実行"
+      },
+      {
+        "display": "pwd; ls",
+        "input": "pwd; ls",
+        "annotation": ";：成否に関係なく順番に実行"
+      },
+      {
+        "display": "sleep 10 &",
+        "input": "sleep 10 &",
+        "annotation": "&：バックグラウンド実行"
+      },
+      {
+        "display": "command -v node",
+        "input": "command -v node",
+        "annotation": "Node.jsの実行場所を調べる"
+      },
+      {
+        "display": "node -v",
+        "input": "node -v",
+        "annotation": "Node.jsのバージョン確認"
+      },
+      {
+        "display": "npm -v",
+        "input": "npm -v",
+        "annotation": "npmのバージョン確認"
+      },
+      {
+        "display": "pwd && ls -la",
+        "input": "pwd && ls -la",
+        "annotation": "現在のディレクトリとファイル一覧を確認"
+      },
+      {
+        "display": "ls -la .env*",
+        "input": "ls -la .env*",
+        "annotation": ".envファイルの存在確認"
+      },
+      {
+        "display": "ps aux | grep '[n]ode'",
+        "input": "ps aux | grep '[n]ode'",
+        "annotation": "プロセスを調べる"
+      },
+      {
+        "display": "ss -ltnp '( sport = :3000 )'",
+        "input": "ss -ltnp '( sport = :3000 )'",
+        "annotation": "3000番ポートの待受確認"
+      },
+      {
+        "display": "curl -s https://api.example.com/data",
+        "input": "curl -s https://api.example.com/data",
+        "annotation": "JSON APIを呼び出す"
+      },
+      {
+        "display": "tail -f server.log",
+        "input": "tail -f server.log",
+        "annotation": "ログをリアルタイム監視"
+      },
+      {
+        "display": "du -sh node_modules",
+        "input": "du -sh node_modules",
+        "annotation": "特定ディレクトリの容量確認"
+      },
+      {
+        "display": "command -v git",
+        "input": "command -v git",
+        "annotation": "Gitの場所を確認"
+      },
+      {
+        "display": "git status",
+        "input": "git status",
+        "annotation": "Gitの状態確認"
+      },
+      {
+        "display": "npm run dev",
+        "input": "npm run dev",
+        "annotation": "開発サーバー起動"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-22T00:00:00.000Z"
+  },
+  {
+    "id": "linux-commands-options",
+    "name": "Linuxコマンド：オプション",
+    "words": [
+      {
+        "display": "ls -l",
+        "input": "ls -l",
+        "annotation": "詳細表示（権限、所有者、サイズなど）"
+      },
+      {
+        "display": "ls -a",
+        "input": "ls -a",
+        "annotation": "隠しファイルも表示"
+      },
+      {
+        "display": "ls -h",
+        "input": "ls -h",
+        "annotation": "サイズをKB、MBなどで読みやすく表示（通常-lと併用）"
+      },
+      {
+        "display": "ls -t",
+        "input": "ls -t",
+        "annotation": "更新時刻順に並べる"
+      },
+      {
+        "display": "mkdir -p",
+        "input": "mkdir -p",
+        "annotation": "親ディレクトリもまとめて作成"
+      },
+      {
+        "display": "cp -r",
+        "input": "cp -r",
+        "annotation": "ディレクトリを再帰的にコピー"
+      },
+      {
+        "display": "cp -i",
+        "input": "cp -i",
+        "annotation": "上書き前に確認"
+      },
+      {
+        "display": "cp -a",
+        "input": "cp -a",
+        "annotation": "属性を保持してコピー"
+      },
+      {
+        "display": "mv -i",
+        "input": "mv -i",
+        "annotation": "上書き前に確認"
+      },
+      {
+        "display": "rm -r",
+        "input": "rm -r",
+        "annotation": "ディレクトリ内部も再帰的に削除"
+      },
+      {
+        "display": "rm -f",
+        "input": "rm -f",
+        "annotation": "確認なしで強制削除"
+      },
+      {
+        "display": "rm -i",
+        "input": "rm -i",
+        "annotation": "削除前に確認"
+      },
+      {
+        "display": "ln -s",
+        "input": "ln -s",
+        "annotation": "シンボリックリンクを作成"
+      },
+      {
+        "display": "find -name",
+        "input": "find -name",
+        "annotation": "名前で検索（大文字小文字を区別）"
+      },
+      {
+        "display": "find -type f",
+        "input": "find -type f",
+        "annotation": "通常ファイルのみ検索"
+      },
+      {
+        "display": "find -type d",
+        "input": "find -type d",
+        "annotation": "ディレクトリのみ検索"
+      },
+      {
+        "display": "head -n 10",
+        "input": "head -n 10",
+        "annotation": "先頭10行を表示"
+      },
+      {
+        "display": "tail -n 50",
+        "input": "tail -n 50",
+        "annotation": "末尾50行を表示"
+      },
+      {
+        "display": "tail -f",
+        "input": "tail -f",
+        "annotation": "ファイル末尾を継続監視"
+      },
+      {
+        "display": "grep -i",
+        "input": "grep -i",
+        "annotation": "大文字・小文字を区別しない"
+      },
+      {
+        "display": "grep -n",
+        "input": "grep -n",
+        "annotation": "行番号を表示"
+      },
+      {
+        "display": "grep -r",
+        "input": "grep -r",
+        "annotation": "ディレクトリを再帰検索"
+      },
+      {
+        "display": "grep -v",
+        "input": "grep -v",
+        "annotation": "一致しなかった行を表示"
+      },
+      {
+        "display": "grep -E",
+        "input": "grep -E",
+        "annotation": "拡張正規表現を使用"
+      },
+      {
+        "display": "sed -n",
+        "input": "sed -n",
+        "annotation": "自動出力を抑制"
+      },
+      {
+        "display": "sed -i",
+        "input": "sed -i",
+        "annotation": "ファイルを直接編集"
+      },
+      {
+        "display": "sort -n",
+        "input": "sort -n",
+        "annotation": "数値として並び替える"
+      },
+      {
+        "display": "sort -r",
+        "input": "sort -r",
+        "annotation": "逆順に並び替える"
+      },
+      {
+        "display": "uniq -c",
+        "input": "uniq -c",
+        "annotation": "隣接する同一行の出現回数を表示"
+      },
+      {
+        "display": "wc -l",
+        "input": "wc -l",
+        "annotation": "行数を数える"
+      },
+      {
+        "display": "wc -w",
+        "input": "wc -w",
+        "annotation": "単語数を数える"
+      },
+      {
+        "display": "cut -d",
+        "input": "cut -d",
+        "annotation": "区切り文字を指定"
+      },
+      {
+        "display": "cut -f",
+        "input": "cut -f",
+        "annotation": "抽出するフィールド番号を指定"
+      },
+      {
+        "display": "diff -u",
+        "input": "diff -u",
+        "annotation": "Unified形式で差分を表示"
+      },
+      {
+        "display": "sudo -u username",
+        "input": "sudo -u username",
+        "annotation": "指定ユーザーとして実行"
+      },
+      {
+        "display": "su -",
+        "input": "su -",
+        "annotation": "ログインシェルとして切り替え"
+      },
+      {
+        "display": "chmod -R",
+        "input": "chmod -R",
+        "annotation": "ディレクトリ以下も再帰的に変更"
+      },
+      {
+        "display": "chown -R",
+        "input": "chown -R",
+        "annotation": "所有者を再帰的に変更"
+      },
+      {
+        "display": "useradd -m",
+        "input": "useradd -m",
+        "annotation": "ホームディレクトリも作成"
+      },
+      {
+        "display": "usermod -aG",
+        "input": "usermod -aG",
+        "annotation": "補助グループに追加"
+      },
+      {
+        "display": "userdel -r",
+        "input": "userdel -r",
+        "annotation": "ホームディレクトリなども削除"
+      },
+      {
+        "display": "passwd -l",
+        "input": "passwd -l",
+        "annotation": "パスワードをロック"
+      },
+      {
+        "display": "ps aux",
+        "input": "ps aux",
+        "annotation": "全ユーザーのプロセスを詳細表示（BSD形式）"
+      },
+      {
+        "display": "ps -ef",
+        "input": "ps -ef",
+        "annotation": "全プロセスを表示（UNIX形式）"
+      },
+      {
+        "display": "kill -15",
+        "input": "kill -15",
+        "annotation": "SIGTERM：正常終了を要求（デフォルト）"
+      },
+      {
+        "display": "kill -9",
+        "input": "kill -9",
+        "annotation": "SIGKILL：強制終了"
+      },
+      {
+        "display": "free -h",
+        "input": "free -h",
+        "annotation": "メモリ量を読みやすく表示"
+      },
+      {
+        "display": "df -h",
+        "input": "df -h",
+        "annotation": "容量を読みやすく表示"
+      },
+      {
+        "display": "du -s",
+        "input": "du -s",
+        "annotation": "合計サイズのみ表示"
+      },
+      {
+        "display": "du -h",
+        "input": "du -h",
+        "annotation": "容量を読みやすく表示"
+      },
+      {
+        "display": "uname -a",
+        "input": "uname -a",
+        "annotation": "全情報を表示"
+      },
+      {
+        "display": "uname -r",
+        "input": "uname -r",
+        "annotation": "カーネルリリースを表示"
+      },
+      {
+        "display": "systemctl --now",
+        "input": "systemctl --now",
+        "annotation": "enable/disableと同時に起動/停止"
+      },
+      {
+        "display": "journalctl -u",
+        "input": "journalctl -u",
+        "annotation": "サービス単位でログを表示"
+      },
+      {
+        "display": "journalctl -f",
+        "input": "journalctl -f",
+        "annotation": "ログを継続監視"
+      },
+      {
+        "display": "journalctl -b",
+        "input": "journalctl -b",
+        "annotation": "現在の起動以降のログを表示"
+      },
+      {
+        "display": "ping -c 4",
+        "input": "ping -c 4",
+        "annotation": "4回送信して終了"
+      },
+      {
+        "display": "curl -I",
+        "input": "curl -I",
+        "annotation": "HTTPヘッダーのみ取得"
+      },
+      {
+        "display": "curl -X POST",
+        "input": "curl -X POST",
+        "annotation": "HTTPメソッドを指定"
+      },
+      {
+        "display": "curl -H",
+        "input": "curl -H",
+        "annotation": "HTTPリクエストヘッダーを追加"
+      },
+      {
+        "display": "curl -d",
+        "input": "curl -d",
+        "annotation": "リクエストボディを送信"
+      },
+      {
+        "display": "curl -L",
+        "input": "curl -L",
+        "annotation": "リダイレクトを追跡"
+      },
+      {
+        "display": "curl -v",
+        "input": "curl -v",
+        "annotation": "詳細な通信情報を表示"
+      },
+      {
+        "display": "wget -O",
+        "input": "wget -O",
+        "annotation": "保存先ファイル名を指定"
+      },
+      {
+        "display": "ssh -p",
+        "input": "ssh -p",
+        "annotation": "接続ポート指定"
+      },
+      {
+        "display": "ssh -i",
+        "input": "ssh -i",
+        "annotation": "秘密鍵ファイル指定"
+      },
+      {
+        "display": "scp -r",
+        "input": "scp -r",
+        "annotation": "ディレクトリを再帰コピー"
+      },
+      {
+        "display": "rsync -a",
+        "input": "rsync -a",
+        "annotation": "属性を維持しながら再帰的に同期"
+      },
+      {
+        "display": "rsync -v",
+        "input": "rsync -v",
+        "annotation": "詳細表示"
+      },
+      {
+        "display": "rsync --delete",
+        "input": "rsync --delete",
+        "annotation": "送信元にない宛先のファイルを削除"
+      },
+      {
+        "display": "ss -t",
+        "input": "ss -t",
+        "annotation": "TCPソケット"
+      },
+      {
+        "display": "ss -u",
+        "input": "ss -u",
+        "annotation": "UDPソケット"
+      },
+      {
+        "display": "ss -l",
+        "input": "ss -l",
+        "annotation": "待ち受け中のみ"
+      },
+      {
+        "display": "ss -n",
+        "input": "ss -n",
+        "annotation": "数値表示（名前解決しない）"
+      },
+      {
+        "display": "ss -p",
+        "input": "ss -p",
+        "annotation": "関連プロセス表示"
+      },
+      {
+        "display": "tar -c",
+        "input": "tar -c",
+        "annotation": "Create：アーカイブ作成"
+      },
+      {
+        "display": "tar -x",
+        "input": "tar -x",
+        "annotation": "Extract：アーカイブ展開"
+      },
+      {
+        "display": "tar -t",
+        "input": "tar -t",
+        "annotation": "List：内容一覧表示"
+      },
+      {
+        "display": "tar -v",
+        "input": "tar -v",
+        "annotation": "Verbose：処理詳細表示"
+      },
+      {
+        "display": "tar -f",
+        "input": "tar -f",
+        "annotation": "File：アーカイブファイル指定"
+      },
+      {
+        "display": "tar -z",
+        "input": "tar -z",
+        "annotation": "Gzip：gzip形式で圧縮・展開"
+      },
+      {
+        "display": "tar -J",
+        "input": "tar -J",
+        "annotation": "XZ：xz形式で圧縮・展開"
+      },
+      {
+        "display": "tar -C",
+        "input": "tar -C",
+        "annotation": "Directory変更：指定ディレクトリに移動して処理"
+      },
+      {
+        "display": "-a",
+        "input": "-a",
+        "annotation": "All：全て表示"
+      },
+      {
+        "display": "-l",
+        "input": "-l",
+        "annotation": "Long：詳細表示"
+      },
+      {
+        "display": "-h",
+        "input": "-h",
+        "annotation": "Human-readable / Help：読みやすい形式 / ヘルプ"
+      },
+      {
+        "display": "-r",
+        "input": "-r",
+        "annotation": "Recursive / Reverse：再帰 / 逆順"
+      },
+      {
+        "display": "-R",
+        "input": "-R",
+        "annotation": "Recursive：再帰処理"
+      },
+      {
+        "display": "-f",
+        "input": "-f",
+        "annotation": "Force / File：強制 / ファイル指定"
+      },
+      {
+        "display": "-i",
+        "input": "-i",
+        "annotation": "Interactive / Ignore case：対話的確認 / 大文字小文字無視"
+      },
+      {
+        "display": "-v",
+        "input": "-v",
+        "annotation": "Verbose / Invert：詳細表示 / 反転検索"
+      },
+      {
+        "display": "-n",
+        "input": "-n",
+        "annotation": "Number / Numeric：行番号 / 件数 / 数値扱い"
+      },
+      {
+        "display": "-p",
+        "input": "-p",
+        "annotation": "Parents / Port：親ディレクトリ / ポートなど"
+      },
+      {
+        "display": "-u",
+        "input": "-u",
+        "annotation": "User：ユーザーなど"
+      },
+      {
+        "display": "-s",
+        "input": "-s",
+        "annotation": "Silent / Summarize：静音 / 要約"
+      },
+      {
+        "display": "lscpu -e",
+        "input": "lscpu -e",
+        "annotation": "CPUごとの情報を表形式で表示"
+      },
+      {
+        "display": "lshw -short",
+        "input": "lshw -short",
+        "annotation": "簡潔に表示"
+      },
+      {
+        "display": "vmstat -s",
+        "input": "vmstat -s",
+        "annotation": "統計を項目ごとに表示"
+      },
+      {
+        "display": "mpstat -P ALL",
+        "input": "mpstat -P ALL",
+        "annotation": "全CPUコアの統計を表示"
+      },
+      {
+        "display": "sar -u",
+        "input": "sar -u",
+        "annotation": "CPU使用率"
+      },
+      {
+        "display": "sar -r",
+        "input": "sar -r",
+        "annotation": "メモリ使用状況"
+      },
+      {
+        "display": "dmesg -T",
+        "input": "dmesg -T",
+        "annotation": "時刻を読みやすく表示"
+      },
+      {
+        "display": "dmesg -w",
+        "input": "dmesg -w",
+        "annotation": "新しいカーネルメッセージを監視"
+      },
+      {
+        "display": "tcpdump -i",
+        "input": "tcpdump -i",
+        "annotation": "インターフェース指定"
+      },
+      {
+        "display": "tcpdump -n",
+        "input": "tcpdump -n",
+        "annotation": "名前解決を無効化"
+      },
+      {
+        "display": "tcpdump -w",
+        "input": "tcpdump -w",
+        "annotation": "キャプチャ結果をファイル保存"
+      },
+      {
+        "display": "nmap -p",
+        "input": "nmap -p",
+        "annotation": "ポート指定"
+      },
+      {
+        "display": "nmap -sT",
+        "input": "nmap -sT",
+        "annotation": "TCP Connectスキャン"
+      },
+      {
+        "display": "nc -z",
+        "input": "nc -z",
+        "annotation": "データ送受信なしでポート確認"
+      },
+      {
+        "display": "nc -v",
+        "input": "nc -v",
+        "annotation": "詳細表示"
+      },
+      {
+        "display": "mtr -r",
+        "input": "mtr -r",
+        "annotation": "レポート形式で表示"
+      },
+      {
+        "display": "pgrep -a",
+        "input": "pgrep -a",
+        "annotation": "PIDとコマンドラインを表示"
+      },
+      {
+        "display": "pgrep -f",
+        "input": "pgrep -f",
+        "annotation": "コマンドライン全体を検索"
+      },
+      {
+        "display": "pstree -p",
+        "input": "pstree -p",
+        "annotation": "PIDを表示"
+      },
+      {
+        "display": "lsof -i",
+        "input": "lsof -i",
+        "annotation": "ネットワーク関連ファイルを検索"
+      },
+      {
+        "display": "strace -p",
+        "input": "strace -p",
+        "annotation": "PIDを指定して追跡"
+      },
+      {
+        "display": "strace -e trace=network",
+        "input": "strace -e trace=network",
+        "annotation": "ネットワーク関連システムコールを追跡"
+      },
+      {
+        "display": "nice -n",
+        "input": "nice -n",
+        "annotation": "nice値を指定"
+      },
+      {
+        "display": "watch -n",
+        "input": "watch -n",
+        "annotation": "実行間隔を秒単位で指定"
+      },
+      {
+        "display": "watch -d",
+        "input": "watch -d",
+        "annotation": "変更箇所を強調表示"
+      },
+      {
+        "display": "set -e",
+        "input": "set -e",
+        "annotation": "単純な失敗時にシェル終了（例外あり）"
+      },
+      {
+        "display": "set -u",
+        "input": "set -u",
+        "annotation": "未定義変数の参照をエラーにする"
+      },
+      {
+        "display": "set -x",
+        "input": "set -x",
+        "annotation": "実行するコマンドをトレース表示"
+      },
+      {
+        "display": "set -o pipefail",
+        "input": "set -o pipefail",
+        "annotation": "パイプライン途中の失敗を終了ステータスに反映"
+      },
+      {
+        "display": "bash -n script.sh",
+        "input": "bash -n script.sh",
+        "annotation": "スクリプトの構文チェック"
+      },
+      {
+        "display": "bash -x script.sh",
+        "input": "bash -x script.sh",
+        "annotation": "スクリプト実行をトレース"
+      },
+      {
+        "display": "ipcs -m",
+        "input": "ipcs -m",
+        "annotation": "共有メモリを表示"
+      },
+      {
+        "display": "ipcs -s",
+        "input": "ipcs -s",
+        "annotation": "セマフォを表示"
+      },
+      {
+        "display": "ipcs -q",
+        "input": "ipcs -q",
+        "annotation": "メッセージキューを表示"
+      },
+      {
+        "display": "ipcrm -m",
+        "input": "ipcrm -m",
+        "annotation": "共有メモリIDを指定して削除"
+      },
+      {
+        "display": "flock -n",
+        "input": "flock -n",
+        "annotation": "ロック取得を待たない"
+      },
+      {
+        "display": "flock -w 10",
+        "input": "flock -w 10",
+        "annotation": "最大10秒待つ"
+      },
+      {
+        "display": "ss -x",
+        "input": "ss -x",
+        "annotation": "Unixソケットを表示"
+      },
+      {
+        "display": "sysctl -a",
+        "input": "sysctl -a",
+        "annotation": "カーネルパラメータ一覧"
+      },
+      {
+        "display": "sysctl -n",
+        "input": "sysctl -n",
+        "annotation": "値だけ表示"
+      },
+      {
+        "display": "sysctl -w",
+        "input": "sysctl -w",
+        "annotation": "パラメータ変更"
+      },
+      {
+        "display": "sysctl -p",
+        "input": "sysctl -p",
+        "annotation": "指定設定ファイルの内容を反映"
+      },
+      {
+        "display": "sysctl --system",
+        "input": "sysctl --system",
+        "annotation": "システムのsysctl設定ファイルをまとめて反映"
+      },
+      {
+        "display": "ulimit -a",
+        "input": "ulimit -a",
+        "annotation": "全制限値を表示"
+      },
+      {
+        "display": "ulimit -n",
+        "input": "ulimit -n",
+        "annotation": "開けるファイルディスクリプタ数"
+      },
+      {
+        "display": "ulimit -u",
+        "input": "ulimit -u",
+        "annotation": "ユーザーのプロセス数などの制限"
+      },
+      {
+        "display": "ulimit -s",
+        "input": "ulimit -s",
+        "annotation": "スタックサイズ"
+      },
+      {
+        "display": "ulimit -c",
+        "input": "ulimit -c",
+        "annotation": "コアダンプファイルの最大サイズ"
+      },
+      {
+        "display": "ulimit -v",
+        "input": "ulimit -v",
+        "annotation": "仮想メモリサイズ制限"
+      },
+      {
+        "display": "ulimit -H",
+        "input": "ulimit -H",
+        "annotation": "ハード制限"
+      },
+      {
+        "display": "ulimit -S",
+        "input": "ulimit -S",
+        "annotation": "ソフト制限"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-22T00:00:00.000Z"
+  },
+  {
+    "id": "linux-commands-advanced",
+    "name": "Linuxコマンド：応用",
+    "words": [
+      {
+        "display": "lsblk -f",
+        "input": "lsblk -f",
+        "annotation": "lsblk（List Block Devices）：ディスクやパーティション一覧"
+      },
+      {
+        "display": "sudo blkid",
+        "input": "sudo blkid",
+        "annotation": "blkid（Block ID）：UUIDやファイルシステム形式確認"
+      },
+      {
+        "display": "mount /dev/sdb1 /mnt",
+        "input": "mount /dev/sdb1 /mnt",
+        "annotation": "mount（Mount）：ファイルシステムのマウント"
+      },
+      {
+        "display": "umount /mnt",
+        "input": "umount /mnt",
+        "annotation": "umount（Unmount）：マウント解除"
+      },
+      {
+        "display": "sudo fdisk -l",
+        "input": "sudo fdisk -l",
+        "annotation": "fdisk（Fixed Disk）：パーティション操作"
+      },
+      {
+        "display": "sudo parted -l",
+        "input": "sudo parted -l",
+        "annotation": "parted（Partition Editor）：パーティション管理"
+      },
+      {
+        "display": "mkfs.ext4 /dev/sdb1",
+        "input": "mkfs.ext4 /dev/sdb1",
+        "annotation": "mkfs（Make Filesystem）：ファイルシステム作成"
+      },
+      {
+        "display": "fsck /dev/sdb1",
+        "input": "fsck /dev/sdb1",
+        "annotation": "fsck（Filesystem Check）：ファイルシステム検査"
+      },
+      {
+        "display": "swapon --show",
+        "input": "swapon --show",
+        "annotation": "swapon（Swap On）：スワップ有効化"
+      },
+      {
+        "display": "sudo swapoff /swapfile",
+        "input": "sudo swapoff /swapfile",
+        "annotation": "swapoff（Swap Off）：スワップ無効化"
+      },
+      {
+        "display": "iostat -xz 1",
+        "input": "iostat -xz 1",
+        "annotation": "iostat（I/O Statistics）：ディスク入出力性能確認"
+      },
+      {
+        "display": "sudo iotop",
+        "input": "sudo iotop",
+        "annotation": "iotop（I/O Top）：プロセス単位のI/O監視"
+      },
+      {
+        "display": "lscpu",
+        "input": "lscpu",
+        "annotation": "List CPU：CPUの詳細情報"
+      },
+      {
+        "display": "sudo lshw -short",
+        "input": "sudo lshw -short",
+        "annotation": "lshw（List Hardware）：ハードウェア情報"
+      },
+      {
+        "display": "lspci",
+        "input": "lspci",
+        "annotation": "List PCI：PCIデバイス一覧"
+      },
+      {
+        "display": "lsusb",
+        "input": "lsusb",
+        "annotation": "List USB：USBデバイス一覧"
+      },
+      {
+        "display": "lsmod",
+        "input": "lsmod",
+        "annotation": "List Modules：カーネルモジュール一覧"
+      },
+      {
+        "display": "sudo modprobe overlay",
+        "input": "sudo modprobe overlay",
+        "annotation": "modprobe（Module Probe）：カーネルモジュール読み込み"
+      },
+      {
+        "display": "vmstat 1",
+        "input": "vmstat 1",
+        "annotation": "vmstat（Virtual Memory Statistics）：メモリ・CPU・I/Oの統計"
+      },
+      {
+        "display": "mpstat -P ALL 1",
+        "input": "mpstat -P ALL 1",
+        "annotation": "mpstat（Multiprocessor Statistics）：CPUコア別使用状況"
+      },
+      {
+        "display": "sar -u 1 5",
+        "input": "sar -u 1 5",
+        "annotation": "sar（System Activity Reporter）：システム統計の収集・表示"
+      },
+      {
+        "display": "sudo dmesg -T",
+        "input": "sudo dmesg -T",
+        "annotation": "dmesg（Diagnostic Messages）：カーネルログの確認"
+      },
+      {
+        "display": "sensors",
+        "input": "sensors",
+        "annotation": "Sensors：CPU温度などの監視"
+      },
+      {
+        "display": "sudo tcpdump -i eth0",
+        "input": "sudo tcpdump -i eth0",
+        "annotation": "tcpdump（TCP Dump）：ネットワークパケットを取得"
+      },
+      {
+        "display": "nmap localhost",
+        "input": "nmap localhost",
+        "annotation": "nmap（Network Mapper）：ポート・ホスト調査"
+      },
+      {
+        "display": "nc -vz localhost 5432",
+        "input": "nc -vz localhost 5432",
+        "annotation": "nc（Netcat）：TCP・UDP通信や接続確認"
+      },
+      {
+        "display": "telnet localhost 80",
+        "input": "telnet localhost 80",
+        "annotation": "telnet（Teletype Network）：TCP接続テストなど"
+      },
+      {
+        "display": "mtr example.com",
+        "input": "mtr example.com",
+        "annotation": "mtr（My Traceroute）：pingと経路調査を組み合わせる"
+      },
+      {
+        "display": "ethtool eth0",
+        "input": "ethtool eth0",
+        "annotation": "ethtool（Ethernet Tool）：NICの速度・リンク情報"
+      },
+      {
+        "display": "nmcli device status",
+        "input": "nmcli device status",
+        "annotation": "nmcli（NetworkManager CLI）：ネットワーク設定管理"
+      },
+      {
+        "display": "resolvectl status",
+        "input": "resolvectl status",
+        "annotation": "resolvectl（Resolver Control）：DNS設定・名前解決確認"
+      },
+      {
+        "display": "hostnamectl",
+        "input": "hostnamectl",
+        "annotation": "Hostname Control：ホスト名・OS情報管理"
+      },
+      {
+        "display": "ipcalc 192.168.1.0/24",
+        "input": "ipcalc 192.168.1.0/24",
+        "annotation": "ipcalc（IP Calculator）：IPアドレスとサブネット計算"
+      },
+      {
+        "display": "sudo systemctl start nginx",
+        "input": "sudo systemctl start nginx",
+        "annotation": "systemctl start：サービス起動"
+      },
+      {
+        "display": "sudo systemctl stop nginx",
+        "input": "sudo systemctl stop nginx",
+        "annotation": "systemctl stop：サービス停止"
+      },
+      {
+        "display": "sudo systemctl restart nginx",
+        "input": "sudo systemctl restart nginx",
+        "annotation": "systemctl restart：サービス再起動"
+      },
+      {
+        "display": "sudo systemctl reload nginx",
+        "input": "sudo systemctl reload nginx",
+        "annotation": "systemctl reload：再起動せずに設定再読み込みを要求"
+      },
+      {
+        "display": "sudo systemctl enable nginx",
+        "input": "sudo systemctl enable nginx",
+        "annotation": "systemctl enable：起動時に自動開始するよう設定"
+      },
+      {
+        "display": "sudo systemctl disable nginx",
+        "input": "sudo systemctl disable nginx",
+        "annotation": "systemctl disable：自動起動を無効化"
+      },
+      {
+        "display": "systemctl is-active nginx",
+        "input": "systemctl is-active nginx",
+        "annotation": "systemctl is-active：サービス稼働確認"
+      },
+      {
+        "display": "systemctl is-enabled nginx",
+        "input": "systemctl is-enabled nginx",
+        "annotation": "systemctl is-enabled：自動起動設定確認"
+      },
+      {
+        "display": "systemctl list-units --type=service",
+        "input": "systemctl list-units --type=service",
+        "annotation": "systemctl list-units：Unit一覧"
+      },
+      {
+        "display": "sudo systemctl daemon-reload",
+        "input": "sudo systemctl daemon-reload",
+        "annotation": "systemctl daemon-reload：Unit定義を再読み込み"
+      },
+      {
+        "display": "journalctl --since \"1 hour ago\"",
+        "input": "journalctl --since \"1 hour ago\"",
+        "annotation": "journalctl --since：指定日時以降のログ"
+      },
+      {
+        "display": "journalctl -p err -b",
+        "input": "journalctl -p err -b",
+        "annotation": "journalctl -p：優先度別ログ"
+      },
+      {
+        "display": "pgrep -a node",
+        "input": "pgrep -a node",
+        "annotation": "pgrep（Process Grep）：名前などからPIDを検索"
+      },
+      {
+        "display": "pstree -p",
+        "input": "pstree -p",
+        "annotation": "pstree（Process Tree）：プロセスをツリー表示"
+      },
+      {
+        "display": "pidof nginx",
+        "input": "pidof nginx",
+        "annotation": "pidof（Process ID Of）：プログラムのPID確認"
+      },
+      {
+        "display": "lsof -i :3000",
+        "input": "lsof -i :3000",
+        "annotation": "lsof（List Open Files）：プロセスが開くファイルやソケット確認"
+      },
+      {
+        "display": "fuser -n tcp 3000",
+        "input": "fuser -n tcp 3000",
+        "annotation": "fuser（File User）：ファイル・ポート使用プロセス確認"
+      },
+      {
+        "display": "strace -p 1234",
+        "input": "strace -p 1234",
+        "annotation": "strace（System Call Trace）：システムコール追跡"
+      },
+      {
+        "display": "ltrace ./app",
+        "input": "ltrace ./app",
+        "annotation": "ltrace（Library Call Trace）：ライブラリ呼び出し追跡"
+      },
+      {
+        "display": "nice -n 10 ./script.sh",
+        "input": "nice -n 10 ./script.sh",
+        "annotation": "nice（Nice）：優先度を指定して実行"
+      },
+      {
+        "display": "renice 10 -p 1234",
+        "input": "renice 10 -p 1234",
+        "annotation": "renice（Re-nice）：実行中プロセスの優先度変更"
+      },
+      {
+        "display": "timeout 30s command",
+        "input": "timeout 30s command",
+        "annotation": "timeout（Timeout）：指定時間でコマンドを終了させる"
+      },
+      {
+        "display": "watch -n 2 free -h",
+        "input": "watch -n 2 free -h",
+        "annotation": "watch（Watch）：コマンドを定期実行"
+      },
+      {
+        "display": "time npm run build",
+        "input": "time npm run build",
+        "annotation": "time（Time）：コマンド実行時間を測定"
+      },
+      {
+        "display": "printenv PATH",
+        "input": "printenv PATH",
+        "annotation": "printenv（Print Environment）：環境変数を表示"
+      },
+      {
+        "display": "unset MY_VAR",
+        "input": "unset MY_VAR",
+        "annotation": "unset（Unset）：変数や関数を削除"
+      },
+      {
+        "display": "set -e",
+        "input": "set -e",
+        "annotation": "set（Set）：シェルオプション・変数管理"
+      },
+      {
+        "display": "source ~/.bashrc",
+        "input": "source ~/.bashrc",
+        "annotation": "source（Source）：現在のシェルでスクリプト実行"
+      },
+      {
+        "display": "exec bash",
+        "input": "exec bash",
+        "annotation": "exec（Execute）：現在のプロセスをコマンドで置換"
+      },
+      {
+        "display": "read -r name",
+        "input": "read -r name",
+        "annotation": "read（Read）：標準入力から値を読み取る"
+      },
+      {
+        "display": "printf '%s\\n' hello",
+        "input": "printf '%s\\n' hello",
+        "annotation": "printf（Print Formatted）：書式指定出力"
+      },
+      {
+        "display": "printf '%s\\n' a b | xargs echo",
+        "input": "printf '%s\\n' a b | xargs echo",
+        "annotation": "xargs（Extended Arguments）：標準入力をコマンド引数に変換"
+      },
+      {
+        "display": "basename /app/file.txt",
+        "input": "basename /app/file.txt",
+        "annotation": "basename（Base Name）：パスの最後の構成要素を取得"
+      },
+      {
+        "display": "dirname /app/file.txt",
+        "input": "dirname /app/file.txt",
+        "annotation": "dirname（Directory Name）：パスの親ディレクトリを取得"
+      },
+      {
+        "display": "realpath ./src",
+        "input": "realpath ./src",
+        "annotation": "realpath（Real Path）：絶対パスの正規化"
+      },
+      {
+        "display": "readlink -f ./link",
+        "input": "readlink -f ./link",
+        "annotation": "readlink（Read Link）：シンボリックリンクの参照先表示"
+      },
+      {
+        "display": "seq 1 10",
+        "input": "seq 1 10",
+        "annotation": "seq（Sequence）：連番を生成"
+      },
+      {
+        "display": "sleep 5",
+        "input": "sleep 5",
+        "annotation": "sleep（Sleep）：指定時間だけ待機"
+      },
+      {
+        "display": "test -f package.json",
+        "input": "test -f package.json",
+        "annotation": "test（Test）：条件判定"
+      },
+      {
+        "display": "crontab -e",
+        "input": "crontab -e",
+        "annotation": "crontab（Cron Table）：定期実行設定"
+      },
+      {
+        "display": "at 23:00",
+        "input": "at 23:00",
+        "annotation": "at（At）：指定時刻に1回実行"
+      },
+      {
+        "display": "atq",
+        "input": "atq",
+        "annotation": "At Queue：予約ジョブ一覧"
+      },
+      {
+        "display": "atrm 3",
+        "input": "atrm 3",
+        "annotation": "atrm（At Remove）：予約ジョブ削除"
+      },
+      {
+        "display": "batch",
+        "input": "batch",
+        "annotation": "Batch：システム負荷を考慮してジョブ実行"
+      },
+      {
+        "display": "systemd-run --on-active=5m /path/to/script",
+        "input": "systemd-run --on-active=5m /path/to/script",
+        "annotation": "systemd-run（Systemd Run）：一時的なUnitやタイマーを作成"
+      },
+      {
+        "display": "sudo ufw status",
+        "input": "sudo ufw status",
+        "annotation": "ufw（Uncomplicated Firewall）：ファイアウォール管理"
+      },
+      {
+        "display": "sudo firewall-cmd --list-all",
+        "input": "sudo firewall-cmd --list-all",
+        "annotation": "firewall-cmd（Firewall Command）：firewalld操作"
+      },
+      {
+        "display": "sudo nft list ruleset",
+        "input": "sudo nft list ruleset",
+        "annotation": "nft（nftables）：パケットフィルタリング管理"
+      },
+      {
+        "display": "sudo iptables -L",
+        "input": "sudo iptables -L",
+        "annotation": "iptables（IP Tables）：従来型のファイアウォール管理"
+      },
+      {
+        "display": "ssh-keygen -t ed25519",
+        "input": "ssh-keygen -t ed25519",
+        "annotation": "ssh-keygen（SSH Key Generator）：SSH鍵ペア作成"
+      },
+      {
+        "display": "ssh-copy-id user@server",
+        "input": "ssh-copy-id user@server",
+        "annotation": "ssh-copy-id（SSH Copy ID）：公開鍵を接続先へ登録"
+      },
+      {
+        "display": "openssl version",
+        "input": "openssl version",
+        "annotation": "openssl（OpenSSL）：証明書・暗号関連操作"
+      },
+      {
+        "display": "sha256sum file.zip",
+        "input": "sha256sum file.zip",
+        "annotation": "sha256sum（SHA-256 Checksum）：ファイルのハッシュ算出"
+      },
+      {
+        "display": "getfacl file",
+        "input": "getfacl file",
+        "annotation": "getfacl（Get File ACL）：詳細アクセス権を確認"
+      },
+      {
+        "display": "setfacl -m u:alice:r file",
+        "input": "setfacl -m u:alice:r file",
+        "annotation": "setfacl（Set File ACL）：詳細アクセス権を設定"
+      },
+      {
+        "display": "docker ps",
+        "input": "docker ps",
+        "annotation": "実行中コンテナ一覧"
+      },
+      {
+        "display": "docker ps -a",
+        "input": "docker ps -a",
+        "annotation": "停止中を含めた一覧"
+      },
+      {
+        "display": "docker images",
+        "input": "docker images",
+        "annotation": "ローカルイメージ一覧"
+      },
+      {
+        "display": "docker build -t myapp .",
+        "input": "docker build -t myapp .",
+        "annotation": "docker build：イメージをビルド"
+      },
+      {
+        "display": "docker run -d -p 3000:3000 myapp",
+        "input": "docker run -d -p 3000:3000 myapp",
+        "annotation": "docker run：コンテナ新規作成・起動"
+      },
+      {
+        "display": "docker exec -it myapp sh",
+        "input": "docker exec -it myapp sh",
+        "annotation": "docker exec：起動中コンテナ内でコマンド実行"
+      },
+      {
+        "display": "docker logs -f myapp",
+        "input": "docker logs -f myapp",
+        "annotation": "docker logs：コンテナログ確認"
+      },
+      {
+        "display": "docker inspect myapp",
+        "input": "docker inspect myapp",
+        "annotation": "docker inspect：詳細設定・状態確認"
+      },
+      {
+        "display": "docker stats",
+        "input": "docker stats",
+        "annotation": "リソース使用状況確認"
+      },
+      {
+        "display": "docker stop myapp",
+        "input": "docker stop myapp",
+        "annotation": "docker stop：コンテナ停止"
+      },
+      {
+        "display": "docker rm myapp",
+        "input": "docker rm myapp",
+        "annotation": "docker rm：コンテナ削除"
+      },
+      {
+        "display": "docker compose up -d",
+        "input": "docker compose up -d",
+        "annotation": "docker compose up：Compose構成でコンテナ起動"
+      },
+      {
+        "display": "docker compose down",
+        "input": "docker compose down",
+        "annotation": "Compose構成のコンテナなどを停止・削除"
+      },
+      {
+        "display": "docker compose logs -f",
+        "input": "docker compose logs -f",
+        "annotation": "docker compose logs：Composeのログ確認"
+      },
+      {
+        "display": "psql -U postgres -d mydb",
+        "input": "psql -U postgres -d mydb",
+        "annotation": "psql（PostgreSQL Interactive Terminal）：PostgreSQL接続・SQL実行"
+      },
+      {
+        "display": "createdb mydb",
+        "input": "createdb mydb",
+        "annotation": "createdb（Create Database）：DB作成"
+      },
+      {
+        "display": "dropdb mydb",
+        "input": "dropdb mydb",
+        "annotation": "dropdb（Drop Database）：DB削除"
+      },
+      {
+        "display": "pg_dump -Fc mydb > backup.dump",
+        "input": "pg_dump -Fc mydb > backup.dump",
+        "annotation": "pg_dump（PostgreSQL Dump）：データベースバックアップ"
+      },
+      {
+        "display": "pg_restore -d mydb backup.dump",
+        "input": "pg_restore -d mydb backup.dump",
+        "annotation": "pg_restore（PostgreSQL Restore）：バックアップから復元"
+      },
+      {
+        "display": "pg_isready -h localhost -p 5432",
+        "input": "pg_isready -h localhost -p 5432",
+        "annotation": "pg_isready（PostgreSQL Is Ready）：DB接続可能状態の確認"
+      },
+      {
+        "display": "mysql -u root -p",
+        "input": "mysql -u root -p",
+        "annotation": "mysql（MySQL Client）：MySQL接続"
+      },
+      {
+        "display": "sqlite3 app.db",
+        "input": "sqlite3 app.db",
+        "annotation": "sqlite3（SQLite CLI）：SQLite操作"
+      },
+      {
+        "display": "redis-cli ping",
+        "input": "redis-cli ping",
+        "annotation": "redis-cli（Redis CLI）：Redis操作"
+      },
+      {
+        "display": "\\l",
+        "input": "\\l",
+        "annotation": "データベース一覧"
+      },
+      {
+        "display": "\\c",
+        "input": "\\c",
+        "annotation": "データベース切り替え"
+      },
+      {
+        "display": "\\dt",
+        "input": "\\dt",
+        "annotation": "テーブル一覧"
+      },
+      {
+        "display": "\\d users",
+        "input": "\\d users",
+        "annotation": "テーブル構造確認"
+      },
+      {
+        "display": "\\du",
+        "input": "\\du",
+        "annotation": "ロール一覧"
+      },
+      {
+        "display": "\\conninfo",
+        "input": "\\conninfo",
+        "annotation": "現在の接続情報"
+      },
+      {
+        "display": "\\timing",
+        "input": "\\timing",
+        "annotation": "クエリ実行時間の表示切り替え"
+      },
+      {
+        "display": "\\q",
+        "input": "\\q",
+        "annotation": "psql終了"
+      },
+      {
+        "display": "tree -L 2",
+        "input": "tree -L 2",
+        "annotation": "tree（Tree）：ディレクトリ構造をツリー表示"
+      },
+      {
+        "display": "rg \"TODO\" src/",
+        "input": "rg \"TODO\" src/",
+        "annotation": "rg（Ripgrep）：高速なテキスト検索"
+      },
+      {
+        "display": "fd '\\.tsx$'",
+        "input": "fd '\\.tsx$'",
+        "annotation": "fd（Findの代替）：高速なファイル検索"
+      },
+      {
+        "display": "jq '.name' package.json",
+        "input": "jq '.name' package.json",
+        "annotation": "jq（JSON Query）：JSONの整形・抽出"
+      },
+      {
+        "display": "yq '.services' compose.yaml",
+        "input": "yq '.services' compose.yaml",
+        "annotation": "yq（YAML Query）：YAMLの抽出・加工"
+      },
+      {
+        "display": "history | fzf",
+        "input": "history | fzf",
+        "annotation": "fzf（Fuzzy Finder）：対話的な曖昧検索"
+      },
+      {
+        "display": "bat index.ts",
+        "input": "bat index.ts",
+        "annotation": "bat（catの拡張）：シンタックスハイライト付き表示"
+      },
+      {
+        "display": "btop",
+        "input": "btop",
+        "annotation": "システム監視ツール：CPU・メモリ・プロセスの可視化"
+      },
+      {
+        "display": "tldr tar",
+        "input": "tldr tar",
+        "annotation": "tldr（Too Long; Didn't Read）：コマンドの簡潔な使用例"
+      },
+      {
+        "display": "shellcheck script.sh",
+        "input": "shellcheck script.sh",
+        "annotation": "shellcheck（Shell Check）：シェルスクリプトの静的解析"
+      },
+      {
+        "display": "shfmt -w script.sh",
+        "input": "shfmt -w script.sh",
+        "annotation": "shfmt（Shell Format）：シェルスクリプト整形"
+      },
+      {
+        "display": "hyperfine 'npm run build'",
+        "input": "hyperfine 'npm run build'",
+        "annotation": "hyperfine（ベンチマークツール）：コマンド実行速度比較"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-22T00:00:00.000Z"
+  },
+  {
+    "id": "linux-shell-bash",
+    "name": "Linux：シェルとBash",
+    "words": [
+      {
+        "display": "$$",
+        "input": "$$",
+        "annotation": "現在のシェルのPID（Bash）"
+      },
+      {
+        "display": "$!",
+        "input": "$!",
+        "annotation": "直近にバックグラウンド起動したジョブのPID"
+      },
+      {
+        "display": "$?",
+        "input": "$?",
+        "annotation": "直前のコマンドの終了ステータス"
+      },
+      {
+        "display": "/proc/self",
+        "input": "/proc/self",
+        "annotation": "アクセス中のプロセス自身"
+      },
+      {
+        "display": "/proc/$$",
+        "input": "/proc/$$",
+        "annotation": "シェルのPIDに対応するディレクトリ"
+      },
+      {
+        "display": ">",
+        "input": ">",
+        "annotation": "標準出力を上書き保存"
+      },
+      {
+        "display": ">>",
+        "input": ">>",
+        "annotation": "標準出力を追記保存"
+      },
+      {
+        "display": "<",
+        "input": "<",
+        "annotation": "ファイルから標準入力へ"
+      },
+      {
+        "display": "2>",
+        "input": "2>",
+        "annotation": "標準エラー出力だけ保存"
+      },
+      {
+        "display": "2>>",
+        "input": "2>>",
+        "annotation": "標準エラー出力を追記"
+      },
+      {
+        "display": "2>&1",
+        "input": "2>&1",
+        "annotation": "FD2を現在のFD1と同じ出力先へ接続"
+      },
+      {
+        "display": "1>&2",
+        "input": "1>&2",
+        "annotation": "FD1を現在のFD2と同じ出力先へ接続"
+      },
+      {
+        "display": "&>",
+        "input": "&>",
+        "annotation": "標準出力とエラー出力をまとめて保存（Bash）"
+      },
+      {
+        "display": "<<<",
+        "input": "<<<",
+        "annotation": "Here String：文字列を標準入力に渡す（Bash）"
+      },
+      {
+        "display": "<<EOF",
+        "input": "<<EOF",
+        "annotation": "Here Document：複数行を入力に渡す"
+      },
+      {
+        "display": "|&",
+        "input": "|&",
+        "annotation": "標準出力と標準エラー出力をパイプへ（Bash）"
+      },
+      {
+        "display": "kill -l",
+        "input": "kill -l",
+        "annotation": "シグナル一覧表示"
+      },
+      {
+        "display": "kill -TERM 1234",
+        "input": "kill -TERM 1234",
+        "annotation": "kill -TERM：終了を要求"
+      },
+      {
+        "display": "kill -HUP 1234",
+        "input": "kill -HUP 1234",
+        "annotation": "kill -HUP：HUPシグナル送信"
+      },
+      {
+        "display": "kill -STOP 1234",
+        "input": "kill -STOP 1234",
+        "annotation": "kill -STOP：プロセスを停止"
+      },
+      {
+        "display": "kill -CONT 1234",
+        "input": "kill -CONT 1234",
+        "annotation": "kill -CONT：プロセスを再開"
+      },
+      {
+        "display": "trap 'echo interrupted' INT",
+        "input": "trap 'echo interrupted' INT",
+        "annotation": "trap：シグナル等を受けた際の処理設定"
+      },
+      {
+        "display": "wait \"$pid\"",
+        "input": "wait \"$pid\"",
+        "annotation": "wait：子プロセスなどの完了を待つ"
+      },
+      {
+        "display": "disown %1",
+        "input": "disown %1",
+        "annotation": "disown：シェルのジョブ管理から外す（Bash）"
+      },
+      {
+        "display": "echo \"$0\"",
+        "input": "echo \"$0\"",
+        "annotation": "$0：スクリプト名など"
+      },
+      {
+        "display": "echo \"$1\"",
+        "input": "echo \"$1\"",
+        "annotation": "$1：第1引数"
+      },
+      {
+        "display": "echo \"$2\"",
+        "input": "echo \"$2\"",
+        "annotation": "$2：第2引数"
+      },
+      {
+        "display": "echo \"$#\"",
+        "input": "echo \"$#\"",
+        "annotation": "$#：引数の個数"
+      },
+      {
+        "display": "printf '%s\\n' \"$@\"",
+        "input": "printf '%s\\n' \"$@\"",
+        "annotation": "$@：全引数"
+      },
+      {
+        "display": "echo \"$*\"",
+        "input": "echo \"$*\"",
+        "annotation": "$*：全引数（引用方法に注意）"
+      },
+      {
+        "display": "echo \"$$\"",
+        "input": "echo \"$$\"",
+        "annotation": "$$：シェルのPID"
+      },
+      {
+        "display": "echo \"$?\"",
+        "input": "echo \"$?\"",
+        "annotation": "$?：直前の終了ステータス"
+      },
+      {
+        "display": "echo \"$!\"",
+        "input": "echo \"$!\"",
+        "annotation": "$!：直近のバックグラウンドジョブのPID"
+      },
+      {
+        "display": "echo \"$-\"",
+        "input": "echo \"$-\"",
+        "annotation": "$-：現在有効なシェルオプション"
+      },
+      {
+        "display": "echo \"$HOME\"",
+        "input": "echo \"$HOME\"",
+        "annotation": "$HOME：ホームディレクトリ"
+      },
+      {
+        "display": "echo \"$PATH\"",
+        "input": "echo \"$PATH\"",
+        "annotation": "$PATH：コマンド検索パス"
+      },
+      {
+        "display": "echo \"$PWD\"",
+        "input": "echo \"$PWD\"",
+        "annotation": "$PWD：現在のディレクトリ"
+      },
+      {
+        "display": "${HOME}",
+        "input": "${HOME}",
+        "annotation": "${VAR}：変数展開"
+      },
+      {
+        "display": "${PORT:-3000}",
+        "input": "${PORT:-3000}",
+        "annotation": "${VAR:-default}：未設定・空ならデフォルト値"
+      },
+      {
+        "display": "${PORT:=3000}",
+        "input": "${PORT:=3000}",
+        "annotation": "${VAR:=default}：未設定・空なら代入して展開"
+      },
+      {
+        "display": "${API_KEY:?required}",
+        "input": "${API_KEY:?required}",
+        "annotation": "${VAR:?error}：未設定・空ならエラー"
+      },
+      {
+        "display": "${#NAME}",
+        "input": "${#NAME}",
+        "annotation": "${#VAR}：文字列長"
+      },
+      {
+        "display": "${FILE#*.}",
+        "input": "${FILE#*.}",
+        "annotation": "${VAR#pattern}：先頭から最短一致部分を除去"
+      },
+      {
+        "display": "${FILE%.*}",
+        "input": "${FILE%.*}",
+        "annotation": "${VAR%pattern}：末尾から最短一致部分を除去"
+      },
+      {
+        "display": "${NAME/foo/bar}",
+        "input": "${NAME/foo/bar}",
+        "annotation": "${VAR/old/new}：最初の一致部分を置換"
+      },
+      {
+        "display": "$(date)",
+        "input": "$(date)",
+        "annotation": "$(command)：コマンド置換"
+      },
+      {
+        "display": "$((1 + 2))",
+        "input": "$((1 + 2))",
+        "annotation": "$((expression))：算術展開"
+      },
+      {
+        "display": "echo {1..5}",
+        "input": "echo {1..5}",
+        "annotation": "{1..5}：ブレース展開"
+      },
+      {
+        "display": "ls *.js",
+        "input": "ls *.js",
+        "annotation": "*.js：ファイル名のパターン展開"
+      },
+      {
+        "display": "ls ?.txt",
+        "input": "ls ?.txt",
+        "annotation": "?.txt：任意の1文字に一致"
+      },
+      {
+        "display": "[[ -f file ]]",
+        "input": "[[ -f file ]]",
+        "annotation": "通常ファイルが存在する"
+      },
+      {
+        "display": "[[ -d dir ]]",
+        "input": "[[ -d dir ]]",
+        "annotation": "ディレクトリが存在する"
+      },
+      {
+        "display": "[[ -e path ]]",
+        "input": "[[ -e path ]]",
+        "annotation": "ファイルなどが存在する"
+      },
+      {
+        "display": "[[ -L path ]]",
+        "input": "[[ -L path ]]",
+        "annotation": "シンボリックリンクである"
+      },
+      {
+        "display": "[[ -r file ]]",
+        "input": "[[ -r file ]]",
+        "annotation": "読み取り可能"
+      },
+      {
+        "display": "[[ -w file ]]",
+        "input": "[[ -w file ]]",
+        "annotation": "書き込み可能"
+      },
+      {
+        "display": "[[ -x file ]]",
+        "input": "[[ -x file ]]",
+        "annotation": "実行・検索可能"
+      },
+      {
+        "display": "[[ -z \"$VAR\" ]]",
+        "input": "[[ -z \"$VAR\" ]]",
+        "annotation": "文字列が空"
+      },
+      {
+        "display": "[[ -n \"$VAR\" ]]",
+        "input": "[[ -n \"$VAR\" ]]",
+        "annotation": "文字列が空ではない"
+      },
+      {
+        "display": "[[ \"$A\" == \"$B\" ]]",
+        "input": "[[ \"$A\" == \"$B\" ]]",
+        "annotation": "文字列が等しい"
+      },
+      {
+        "display": "[[ \"$A\" != \"$B\" ]]",
+        "input": "[[ \"$A\" != \"$B\" ]]",
+        "annotation": "文字列が異なる"
+      },
+      {
+        "display": "[[ \"$A\" =~ regex ]]",
+        "input": "[[ \"$A\" =~ regex ]]",
+        "annotation": "正規表現に一致"
+      },
+      {
+        "display": "(( A > B ))",
+        "input": "(( A > B ))",
+        "annotation": "数値比較"
+      },
+      {
+        "display": "bash script.sh",
+        "input": "bash script.sh",
+        "annotation": "Bashスクリプト実行"
+      },
+      {
+        "display": "bash -n script.sh",
+        "input": "bash -n script.sh",
+        "annotation": "構文確認"
+      },
+      {
+        "display": "bash -x script.sh",
+        "input": "bash -x script.sh",
+        "annotation": "実行過程を表示"
+      },
+      {
+        "display": "declare -i",
+        "input": "declare -i",
+        "annotation": "整数属性の変数を宣言"
+      },
+      {
+        "display": "declare -a",
+        "input": "declare -a",
+        "annotation": "配列を宣言"
+      },
+      {
+        "display": "local",
+        "input": "local",
+        "annotation": "関数内のローカル変数"
+      },
+      {
+        "display": "readonly",
+        "input": "readonly",
+        "annotation": "変数を読み取り専用にする"
+      },
+      {
+        "display": "return",
+        "input": "return",
+        "annotation": "関数から戻る"
+      },
+      {
+        "display": "exit",
+        "input": "exit",
+        "annotation": "シェル・スクリプトを終了"
+      },
+      {
+        "display": "shift",
+        "input": "shift",
+        "annotation": "位置引数をずらす"
+      },
+      {
+        "display": "getopts",
+        "input": "getopts",
+        "annotation": "短いオプションを解析"
+      },
+      {
+        "display": "mapfile",
+        "input": "mapfile",
+        "annotation": "標準入力などを配列へ読み込む"
+      },
+      {
+        "display": "shopt",
+        "input": "shopt",
+        "annotation": "Bash固有のシェル設定を管理"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-22T00:00:00.000Z"
+  },
+  {
+    "id": "linux-system",
+    "name": "Linux：システムの仕組み",
+    "words": [
+      {
+        "display": "/",
+        "input": "/",
+        "annotation": "Root：ファイルシステムの起点"
+      },
+      {
+        "display": "/bin",
+        "input": "/bin",
+        "annotation": "Binaries：基本的な実行ファイル"
+      },
+      {
+        "display": "/sbin",
+        "input": "/sbin",
+        "annotation": "System Binaries：システム管理用実行ファイル"
+      },
+      {
+        "display": "/usr",
+        "input": "/usr",
+        "annotation": "Unix System Resourcesなどと説明される歴史的名称：アプリ・ライブラリ・共有データ"
+      },
+      {
+        "display": "/usr/bin",
+        "input": "/usr/bin",
+        "annotation": "User Binaries：一般的なコマンド"
+      },
+      {
+        "display": "/usr/sbin",
+        "input": "/usr/sbin",
+        "annotation": "System Binaries：システム管理用コマンド"
+      },
+      {
+        "display": "/etc",
+        "input": "/etc",
+        "annotation": "Etcetera：システム全体の設定"
+      },
+      {
+        "display": "/var",
+        "input": "/var",
+        "annotation": "Variable：ログなど変化するデータ"
+      },
+      {
+        "display": "/var/log",
+        "input": "/var/log",
+        "annotation": "Log：システムログ"
+      },
+      {
+        "display": "/home",
+        "input": "/home",
+        "annotation": "Home：一般ユーザーのホーム"
+      },
+      {
+        "display": "/root",
+        "input": "/root",
+        "annotation": "Root：rootユーザーのホーム"
+      },
+      {
+        "display": "/tmp",
+        "input": "/tmp",
+        "annotation": "Temporary：一時ファイル"
+      },
+      {
+        "display": "/run",
+        "input": "/run",
+        "annotation": "Runtime：起動後の実行時データ"
+      },
+      {
+        "display": "/dev",
+        "input": "/dev",
+        "annotation": "Devices：デバイスファイル"
+      },
+      {
+        "display": "/proc",
+        "input": "/proc",
+        "annotation": "Processes：プロセス・カーネル情報"
+      },
+      {
+        "display": "/sys",
+        "input": "/sys",
+        "annotation": "System：デバイス・カーネルの属性"
+      },
+      {
+        "display": "/boot",
+        "input": "/boot",
+        "annotation": "Boot：カーネル・起動関連"
+      },
+      {
+        "display": "/lib",
+        "input": "/lib",
+        "annotation": "Libraries：共有ライブラリなど"
+      },
+      {
+        "display": "/opt",
+        "input": "/opt",
+        "annotation": "Optional：追加アプリケーション"
+      },
+      {
+        "display": "/mnt",
+        "input": "/mnt",
+        "annotation": "Mount：一時的なマウント先"
+      },
+      {
+        "display": "/media",
+        "input": "/media",
+        "annotation": "Media：リムーバブルメディアのマウント先"
+      },
+      {
+        "display": "ls -la /",
+        "input": "ls -la /",
+        "annotation": "ルート直下を表示"
+      },
+      {
+        "display": "tree -L 2 /etc",
+        "input": "tree -L 2 /etc",
+        "annotation": "/etcの構造を2階層表示"
+      },
+      {
+        "display": "findmnt",
+        "input": "findmnt",
+        "annotation": "ファイルシステムのマウント状況"
+      },
+      {
+        "display": "findmnt /",
+        "input": "findmnt /",
+        "annotation": "ルートファイルシステムの情報"
+      },
+      {
+        "display": "stat /etc/passwd",
+        "input": "stat /etc/passwd",
+        "annotation": "ファイルの詳細情報"
+      },
+      {
+        "display": "realpath /bin",
+        "input": "realpath /bin",
+        "annotation": "パスの実体を確認"
+      },
+      {
+        "display": "cat /proc/cpuinfo",
+        "input": "cat /proc/cpuinfo",
+        "annotation": "/proc/cpuinfo：CPU情報"
+      },
+      {
+        "display": "cat /proc/meminfo",
+        "input": "cat /proc/meminfo",
+        "annotation": "/proc/meminfo：メモリ情報"
+      },
+      {
+        "display": "cat /proc/version",
+        "input": "cat /proc/version",
+        "annotation": "/proc/version：カーネルバージョンなど"
+      },
+      {
+        "display": "cat /proc/uptime",
+        "input": "cat /proc/uptime",
+        "annotation": "/proc/uptime：システム稼働時間"
+      },
+      {
+        "display": "cat /proc/loadavg",
+        "input": "cat /proc/loadavg",
+        "annotation": "/proc/loadavg：システム負荷"
+      },
+      {
+        "display": "cat /proc/mounts",
+        "input": "cat /proc/mounts",
+        "annotation": "/proc/mounts：マウント情報"
+      },
+      {
+        "display": "cat /proc/filesystems",
+        "input": "cat /proc/filesystems",
+        "annotation": "/proc/filesystems：対応ファイルシステム"
+      },
+      {
+        "display": "ls /proc/sys",
+        "input": "ls /proc/sys",
+        "annotation": "/proc/sys：カーネル設定項目"
+      },
+      {
+        "display": "cat /proc/1234/status",
+        "input": "cat /proc/1234/status",
+        "annotation": "/proc/PID/status：プロセス状態・メモリなど"
+      },
+      {
+        "display": "tr '\\0' ' ' < /proc/1234/cmdline",
+        "input": "tr '\\0' ' ' < /proc/1234/cmdline",
+        "annotation": "/proc/PID/cmdline：起動時の引数"
+      },
+      {
+        "display": "ls -l /proc/1234/fd",
+        "input": "ls -l /proc/1234/fd",
+        "annotation": "/proc/PID/fd：開いているファイルディスクリプタ"
+      },
+      {
+        "display": "cat /proc/1234/maps",
+        "input": "cat /proc/1234/maps",
+        "annotation": "/proc/PID/maps：メモリマッピング"
+      },
+      {
+        "display": "cat /proc/1234/cgroup",
+        "input": "cat /proc/1234/cgroup",
+        "annotation": "/proc/PID/cgroup：所属cgroup情報"
+      },
+      {
+        "display": "/sys/class/net",
+        "input": "/sys/class/net",
+        "annotation": "ネットワークインターフェース"
+      },
+      {
+        "display": "/sys/class/block",
+        "input": "/sys/class/block",
+        "annotation": "ブロックデバイス"
+      },
+      {
+        "display": "/sys/class/power_supply",
+        "input": "/sys/class/power_supply",
+        "annotation": "電源・バッテリー関連"
+      },
+      {
+        "display": "/sys/devices/system/cpu",
+        "input": "/sys/devices/system/cpu",
+        "annotation": "CPU構成"
+      },
+      {
+        "display": "/sys/devices/system/node",
+        "input": "/sys/devices/system/node",
+        "annotation": "NUMAノード"
+      },
+      {
+        "display": "/sys/fs/cgroup",
+        "input": "/sys/fs/cgroup",
+        "annotation": "cgroupsによるリソース管理"
+      },
+      {
+        "display": "/sys/module",
+        "input": "/sys/module",
+        "annotation": "カーネルモジュール"
+      },
+      {
+        "display": "/sys/class/thermal",
+        "input": "/sys/class/thermal",
+        "annotation": "温度管理関連"
+      },
+      {
+        "display": "/dev/null",
+        "input": "/dev/null",
+        "annotation": "Null Device：書き込んだデータを破棄"
+      },
+      {
+        "display": "/dev/zero",
+        "input": "/dev/zero",
+        "annotation": "Zero Device：0のバイト列を読み出す"
+      },
+      {
+        "display": "/dev/random",
+        "input": "/dev/random",
+        "annotation": "Random：乱数データを取得"
+      },
+      {
+        "display": "/dev/urandom",
+        "input": "/dev/urandom",
+        "annotation": "Unblocking Random：乱数データを取得"
+      },
+      {
+        "display": "/dev/tty",
+        "input": "/dev/tty",
+        "annotation": "Teletype：現在の制御端末"
+      },
+      {
+        "display": "/dev/stdin",
+        "input": "/dev/stdin",
+        "annotation": "Standard Input：標準入力"
+      },
+      {
+        "display": "/dev/stdout",
+        "input": "/dev/stdout",
+        "annotation": "Standard Output：標準出力"
+      },
+      {
+        "display": "/dev/stderr",
+        "input": "/dev/stderr",
+        "annotation": "Standard Error：標準エラー出力"
+      },
+      {
+        "display": "/dev/sda",
+        "input": "/dev/sda",
+        "annotation": "SCSI Diskなどに由来：ブロックデバイスの例"
+      },
+      {
+        "display": "/dev/nvme0n1",
+        "input": "/dev/nvme0n1",
+        "annotation": "NVMe：NVMeストレージの例"
+      },
+      {
+        "display": "/dev/loop0",
+        "input": "/dev/loop0",
+        "annotation": "Loop Device：ファイルをブロックデバイスとして扱う"
+      },
+      {
+        "display": "/dev/pts",
+        "input": "/dev/pts",
+        "annotation": "Pseudo Terminals：疑似端末関連"
+      },
+      {
+        "display": "stdin",
+        "input": "stdin",
+        "annotation": "FD 0：標準入力"
+      },
+      {
+        "display": "stdout",
+        "input": "stdout",
+        "annotation": "FD 1：標準出力"
+      },
+      {
+        "display": "stderr",
+        "input": "stderr",
+        "annotation": "FD 2：標準エラー出力"
+      },
+      {
+        "display": "SIGHUP",
+        "input": "SIGHUP",
+        "annotation": "1番（Hang Up）：端末切断通知・設定再読み込み"
+      },
+      {
+        "display": "SIGINT",
+        "input": "SIGINT",
+        "annotation": "2番（Interrupt）：Ctrl+Cによる割り込み"
+      },
+      {
+        "display": "SIGQUIT",
+        "input": "SIGQUIT",
+        "annotation": "3番（Quit）：終了要求・コアダンプ"
+      },
+      {
+        "display": "SIGKILL",
+        "input": "SIGKILL",
+        "annotation": "9番（Kill）：強制終了"
+      },
+      {
+        "display": "SIGUSR1",
+        "input": "SIGUSR1",
+        "annotation": "10番（User Signal 1）：アプリ固有の処理"
+      },
+      {
+        "display": "SIGSEGV",
+        "input": "SIGSEGV",
+        "annotation": "11番（Segmentation Violation）：不正メモリアクセス"
+      },
+      {
+        "display": "SIGUSR2",
+        "input": "SIGUSR2",
+        "annotation": "12番（User Signal 2）：アプリ固有の処理"
+      },
+      {
+        "display": "SIGPIPE",
+        "input": "SIGPIPE",
+        "annotation": "13番（Broken Pipe）：読み取り側が閉じたパイプへの書き込み"
+      },
+      {
+        "display": "SIGALRM",
+        "input": "SIGALRM",
+        "annotation": "14番（Alarm）：タイマー通知"
+      },
+      {
+        "display": "SIGTERM",
+        "input": "SIGTERM",
+        "annotation": "15番（Terminate）：正常終了の要求"
+      },
+      {
+        "display": "SIGCONT",
+        "input": "SIGCONT",
+        "annotation": "18番（Continue）：停止中プロセスの再開"
+      },
+      {
+        "display": "SIGSTOP",
+        "input": "SIGSTOP",
+        "annotation": "19番（Stop）：強制停止"
+      },
+      {
+        "display": "SIGTSTP",
+        "input": "SIGTSTP",
+        "annotation": "20番（Terminal Stop）：Ctrl+Zによる停止"
+      },
+      {
+        "display": "Pipe",
+        "input": "Pipe",
+        "annotation": "パイプ：プロセス間でデータを流す"
+      },
+      {
+        "display": "FIFO",
+        "input": "FIFO",
+        "annotation": "名前付きパイプ：ファイルシステム上の名前を持つパイプ"
+      },
+      {
+        "display": "Unix Domain Socket",
+        "input": "Unix Domain Socket",
+        "annotation": "Unixドメインソケット：同一ホスト上のプロセス間通信"
+      },
+      {
+        "display": "TCP Socket",
+        "input": "TCP Socket",
+        "annotation": "TCPソケット：ネットワーク通信"
+      },
+      {
+        "display": "Shared Memory",
+        "input": "Shared Memory",
+        "annotation": "共有メモリ：複数プロセスがメモリを共有"
+      },
+      {
+        "display": "Semaphore",
+        "input": "Semaphore",
+        "annotation": "セマフォ：同期・排他制御"
+      },
+      {
+        "display": "Message Queue",
+        "input": "Message Queue",
+        "annotation": "メッセージキュー：メッセージ単位でデータを受け渡す"
+      },
+      {
+        "display": "Signal",
+        "input": "Signal",
+        "annotation": "シグナル：プロセスへの通知"
+      },
+      {
+        "display": "mkfifo /tmp/myfifo",
+        "input": "mkfifo /tmp/myfifo",
+        "annotation": "mkfifo（Make FIFO）：名前付きパイプ作成"
+      },
+      {
+        "display": "ipcs -a",
+        "input": "ipcs -a",
+        "annotation": "ipcs（IPC Status）：System V IPC資源の確認"
+      },
+      {
+        "display": "ipcrm -m 1234",
+        "input": "ipcrm -m 1234",
+        "annotation": "ipcrm（IPC Remove）：System V IPC資源削除"
+      },
+      {
+        "display": "ss -xlp",
+        "input": "ss -xlp",
+        "annotation": "ss -x（Unix Socket）：Unixソケット確認"
+      },
+      {
+        "display": "flock -n /tmp/task.lock ./task.sh",
+        "input": "flock -n /tmp/task.lock ./task.sh",
+        "annotation": "flock（File Lock）：ファイルロックによる排他制御"
+      },
+      {
+        "display": "socat - UNIX-CONNECT:/tmp/app.sock",
+        "input": "socat - UNIX-CONNECT:/tmp/app.sock",
+        "annotation": "socat（Socket CAT）：通信経路の接続・中継"
+      },
+      {
+        "display": "ls -i file.txt",
+        "input": "ls -i file.txt",
+        "annotation": "ls -i：inode番号を表示"
+      },
+      {
+        "display": "stat file.txt",
+        "input": "stat file.txt",
+        "annotation": "stat：inode番号・リンク数・時刻などを表示"
+      },
+      {
+        "display": "df -i",
+        "input": "df -i",
+        "annotation": "inode使用率確認"
+      },
+      {
+        "display": "find . -inum 12345",
+        "input": "find . -inum 12345",
+        "annotation": "find -inum：inode番号で検索"
+      },
+      {
+        "display": "find . -links +1",
+        "input": "find . -links +1",
+        "annotation": "find -links：ハードリンク数で検索"
+      },
+      {
+        "display": "ln original.txt hardlink.txt",
+        "input": "ln original.txt hardlink.txt",
+        "annotation": "ln：ハードリンク作成"
+      },
+      {
+        "display": "ln -s original.txt symlink.txt",
+        "input": "ln -s original.txt symlink.txt",
+        "annotation": "ln -s：シンボリックリンク作成"
+      },
+      {
+        "display": "readlink symlink.txt",
+        "input": "readlink symlink.txt",
+        "annotation": "readlink：シンボリックリンクの参照先表示"
+      },
+      {
+        "display": "namei -l /home/user/app",
+        "input": "namei -l /home/user/app",
+        "annotation": "namei：パスの各構成要素を調査"
+      },
+      {
+        "display": "filefrag -v file.txt",
+        "input": "filefrag -v file.txt",
+        "annotation": "filefrag：ファイルの配置情報確認"
+      },
+      {
+        "display": "sysctl vm.swappiness",
+        "input": "sysctl vm.swappiness",
+        "annotation": "sysctl：カーネルパラメータの表示・変更"
+      },
+      {
+        "display": "ulimit -a",
+        "input": "ulimit -a",
+        "annotation": "ulimit：シェルのリソース制限"
+      },
+      {
+        "display": "prlimit --pid 1234",
+        "input": "prlimit --pid 1234",
+        "annotation": "prlimit：プロセスのリソース制限を表示・設定"
+      },
+      {
+        "display": "taskset -pc 1234",
+        "input": "taskset -pc 1234",
+        "annotation": "taskset：CPUアフィニティ管理"
+      },
+      {
+        "display": "ionice -p 1234",
+        "input": "ionice -p 1234",
+        "annotation": "ionice：I/O優先度管理"
+      },
+      {
+        "display": "chrt -p 1234",
+        "input": "chrt -p 1234",
+        "annotation": "chrt：スケジューリング方針・優先度管理"
+      },
+      {
+        "display": "numactl --hardware",
+        "input": "numactl --hardware",
+        "annotation": "numactl：NUMAポリシー指定"
+      },
+      {
+        "display": "Mount",
+        "input": "Mount",
+        "annotation": "Mount Namespace：マウントポイントの隔離"
+      },
+      {
+        "display": "PID",
+        "input": "PID",
+        "annotation": "PID Namespace：プロセスID空間の隔離"
+      },
+      {
+        "display": "Network",
+        "input": "Network",
+        "annotation": "Network Namespace：ネットワークインターフェース・経路などの隔離"
+      },
+      {
+        "display": "UTS",
+        "input": "UTS",
+        "annotation": "UTS Namespace：ホスト名・ドメイン名の隔離"
+      },
+      {
+        "display": "IPC",
+        "input": "IPC",
+        "annotation": "IPC Namespace：IPC資源の隔離"
+      },
+      {
+        "display": "User",
+        "input": "User",
+        "annotation": "User Namespace：ユーザー・グループID空間の隔離"
+      },
+      {
+        "display": "Cgroup",
+        "input": "Cgroup",
+        "annotation": "Cgroup Namespace：cgroupの表示階層の隔離"
+      },
+      {
+        "display": "Time",
+        "input": "Time",
+        "annotation": "Time Namespace：一部のシステム時刻情報の隔離"
+      },
+      {
+        "display": "lsns",
+        "input": "lsns",
+        "annotation": "Namespace一覧"
+      },
+      {
+        "display": "unshare --user --map-root-user sh",
+        "input": "unshare --user --map-root-user sh",
+        "annotation": "unshare：新しいNamespaceで実行"
+      },
+      {
+        "display": "sudo nsenter -t 1234 -n ip addr",
+        "input": "sudo nsenter -t 1234 -n ip addr",
+        "annotation": "nsenter：既存のNamespaceに参加"
+      },
+      {
+        "display": "systemd-cgls",
+        "input": "systemd-cgls",
+        "annotation": "cgroupの階層表示"
+      },
+      {
+        "display": "systemd-cgtop",
+        "input": "systemd-cgtop",
+        "annotation": "cgroupごとのリソース監視"
+      },
+      {
+        "display": "systemd-run --user --scope sleep 10",
+        "input": "systemd-run --user --scope sleep 10",
+        "annotation": "systemd-run：一時的なUnitでコマンド実行"
+      },
+      {
+        "display": "Namespace",
+        "input": "Namespace",
+        "annotation": "何を見えるようにするか：プロセス・ネットワーク等の隔離"
+      },
+      {
+        "display": "cgroups",
+        "input": "cgroups",
+        "annotation": "どれだけ資源を使えるか：CPU・メモリなどの管理"
+      },
+      {
+        "display": "Capabilities",
+        "input": "Capabilities",
+        "annotation": "どの特権操作を許可するか：root権限を細分化"
+      },
+      {
+        "display": "Seccomp",
+        "input": "Seccomp",
+        "annotation": "どのシステムコールを許可するか：カーネル操作の制限"
+      },
+      {
+        "display": "top",
+        "input": "top",
+        "annotation": "サーバーが重い：CPU使用率・負荷"
+      },
+      {
+        "display": "free -h",
+        "input": "free -h",
+        "annotation": "メモリ不足：メモリ・スワップ使用量"
+      },
+      {
+        "display": "df -h",
+        "input": "df -h",
+        "annotation": "ディスク不足：ファイルシステムの空き"
+      },
+      {
+        "display": "du -h --max-depth=1 /var",
+        "input": "du -h --max-depth=1 /var",
+        "annotation": "容量を使う場所が不明：ディレクトリ別使用量"
+      },
+      {
+        "display": "journalctl -p err -b",
+        "input": "journalctl -p err -b",
+        "annotation": "プロセスが落ちる：エラー記録"
+      },
+      {
+        "display": "journalctl -k -b",
+        "input": "journalctl -k -b",
+        "annotation": "OOM Killの疑い：カーネルログ"
+      },
+      {
+        "display": "systemctl status nginx",
+        "input": "systemctl status nginx",
+        "annotation": "サービスが起動しない：サービス状態"
+      },
+      {
+        "display": "curl -v http://localhost:3000",
+        "input": "curl -v http://localhost:3000",
+        "annotation": "APIに接続できない：HTTP接続・レスポンス"
+      },
+      {
+        "display": "sudo ss -ltnp",
+        "input": "sudo ss -ltnp",
+        "annotation": "ポートが使えない：待受ポートとプロセス"
+      },
+      {
+        "display": "dig example.com",
+        "input": "dig example.com",
+        "annotation": "DNS解決が失敗する：DNS応答"
+      },
+      {
+        "display": "namei -l /path/to/file",
+        "input": "namei -l /path/to/file",
+        "annotation": "ファイルにアクセスできない：経路上のアクセス権"
+      },
+      {
+        "display": "type -a node",
+        "input": "type -a node",
+        "annotation": "プログラムの位置が不明：コマンドの解決先"
+      },
+      {
+        "display": "ldd ./program",
+        "input": "ldd ./program",
+        "annotation": "実行ファイルの依存関係調査：共有ライブラリの参照先"
+      },
+      {
+        "display": "sudo lsof +L1",
+        "input": "sudo lsof +L1",
+        "annotation": "削除したログの容量が残る：削除済みファイルを開くプロセス"
+      },
+      {
+        "display": "bash -x script.sh",
+        "input": "bash -x script.sh",
+        "annotation": "シェルスクリプトが動かない：実行経路のトレース"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-22T00:00:00.000Z"
+  }
+]

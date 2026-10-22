@@ -8,7 +8,9 @@ let package = Package(
   platforms: [.iOS(.v17), .macOS(.v14)],
   products: [.library(name: "TypleCore", targets: ["TypleCore"])],
   targets: [
-    .target(name: "TypleCore", resources: [.copy("Resources/samples.json"), .copy("Resources/countries.json")]),
+    .target(name: "TypleCore", resources: [
+      .copy("Resources/samples.json"), .copy("Resources/countries.json"), .copy("Resources/linux.json"),
+    ]),
     .testTarget(name: "TypleCoreTests", dependencies: ["TypleCore"]),
   ]
 )
