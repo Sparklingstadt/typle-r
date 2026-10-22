@@ -10,6 +10,7 @@
     <!-- The starting lists are the web app's own files, not copies. -->
     <EmbeddedResource Include="../../src/plugins/packs/samples.json" LogicalName="samples.json" />
     <EmbeddedResource Include="../../src/plugins/packs/countries.json" LogicalName="countries.json" />
+    <EmbeddedResource Include="../../src/plugins/packs/linux.json" LogicalName="linux.json" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Typle.Core.Tests" />

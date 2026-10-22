@@ -44,7 +44,8 @@ class WorkspaceTest {
   @Test fun initialListsMatchThePacks() {
     val lists = initialLists()
     assertEquals(listOf("sample-1", "sample-2"), lists.map { it.id }.take(2))
-    assertEquals(193, lists.last().words.size)
+    assertEquals(193, lists[2].words.size)
+    assertEquals(listOf("linux-commands-basic", "linux-system"), listOf(lists[3].id, lists.last().id))
     validateLists(lists)
   }
 }
