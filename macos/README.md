@@ -1,6 +1,6 @@
 # Typle for Mac（SwiftUI）
 
-Typle の macOS 版です。Web 版（`src/`）と同じ画面・判定・記録・ベストの規則で、Mac のキーボードで練習できます。アカウントの保存先は、Web 版・iPad 版・Android 版と同じ Go のバックエンド（本番の `/api/auth/*`・`/api/workspace`）です。
+Typle の macOS 版です。Web 版（`src/`）と同じ画面・判定・記録・ベストの規則で、Mac のキーボードで練習できます。アカウントの保存先は、Web 版・iPad 版・Android 版・Windows 版と同じ Go のバックエンド（本番の `/api/auth/*`・`/api/workspace`）です。
 
 iPad 版（`ios/`）の SwiftUI のコードと共通の規則（`ios/TypleCore`）をそのまま使い、Mac で違うところだけをこのフォルダーに置いています。そのため、iPad 版で直したことは Mac 版にも入ります。
 
@@ -31,6 +31,8 @@ open Typle.xcodeproj
 
 iPad 版のプロジェクト（`ios/Typle.xcodeproj`）を「My Mac (Designed for iPad)」で動かしたものは Mac 版ではありません（Team も要ります）。
 
+Xcode は同じローカルの Swift Package（`ios/TypleCore`）を2つのプロジェクトで同時に開けません。「Missing package product 'TypleCore'」や「Couldn't load TypleCore because it is already opened from another project or workspace」と出たら、iPad 版のウインドウ（`ios/Typle.xcodeproj`）を閉じてから、File → Packages → Resolve Package Versions を実行してください。
+
 ## 見た目と操作
 
 Web 版と同じ画面構成・色・部品です。上部バー（ブランド・保存先・ライト／ダーク・アカウント）、ウインドウの幅が 1280pt 以上ならサイドバー、それより狭ければメニューボタンで開くドロワー。色と角丸は iPad 版と同じく `src/app/globals.css` の値（`ios/Typle/Design/Theme.swift`）です。
@@ -58,7 +60,7 @@ Web 版と同じ画面構成・色・部品です。上部バー（ブランド�
 
 - 2つのデータは別々で、切り替えてもコピーしません。
 - アカウントでも、この Mac と同じくすべての操作ができます。変更のたびに、読み込んだときの `revision` を付けてデータ全体を保存します。別の画面で先に保存されていたとき（`409 conflict`）は、最新を読み直して同じ変更をやり直します（3回まで）。
-- ログインは「一般」の「GitHub でログイン」で、システムのログイン画面（`ASWebAuthenticationSession`。Safari の GitHub のログインを使えます）が開きます。サーバーには `client=macos` で始め、流れは iPad と同じです（[README の「iPad と Mac と Android のログイン」](../README.md#ipad-と-mac-と-android-のログイン)）。受け取ったトークンは Mac のキーチェーンにだけ保存し、有効期限は30日です。使っているあいだは自動で延びます。
+- ログインは「一般」の「GitHub でログイン」で、システムのログイン画面（`ASWebAuthenticationSession`。Safari の GitHub のログインを使えます）が開きます。サーバーには `client=macos` で始め、流れは iPad と同じです（[README の「iPad と Mac と Android と Windows のログイン」](../README.md#ipad-と-mac-と-android-と-windows-のログイン)）。受け取ったトークンは Mac のキーチェーンにだけ保存し、有効期限は30日です。使っているあいだは自動で延びます。
 - ログアウトするとトークンを消して「この Mac」に戻ります。
 - サーバーの URL は https だけです。http は `localhost`・`127.0.0.1`・`*.local` に限ります。手元の Web 版（`npm run dev`）で試すときは `http://localhost:<ポート>` を入れます。GitHub の OAuth App の callback URL がサーバー（`AUTH_URL`）のものである必要があり、開発用ログインはアプリでは使えません。
 - アプリは App Sandbox の中で動き、使う権限はネットワークへの接続と、自分で選んだファイルの読み書きだけです（`Typle/Typle.entitlements`）。
