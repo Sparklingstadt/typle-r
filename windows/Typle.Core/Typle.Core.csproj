@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The rules of src/core, without Windows: judging input, records, bests, rankings, word lists, devices, CSV, the
+       dashboard and the account's sync with the Go backend. It builds and is tested on any OS (dotnet test). -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Typle.Core</RootNamespace>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- The starting lists are the web app's own files, not copies. -->
+    <EmbeddedResource Include="../../src/plugins/packs/samples.json" LogicalName="samples.json" />
+    <EmbeddedResource Include="../../src/plugins/packs/countries.json" LogicalName="countries.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Typle.Core.Tests" />
+  </ItemGroup>
+</Project>
