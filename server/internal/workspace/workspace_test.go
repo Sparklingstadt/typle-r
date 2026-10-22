@@ -67,13 +67,13 @@ func TestInitial(t *testing.T) {
 		}
 	}
 	if strings.Join(ids, ",") != "sample-1,sample-2,un-member-states-chinese-193,linux-commands-basic,linux-commands-options,"+
-		"linux-commands-advanced,linux-shell-bash,linux-system" || len(w.Lists[2].Words) != 193 {
+		"linux-commands-advanced,linux-shell-bash,linux-system,vercel-cli,gcloud-cli,aws-cli,macos-zsh" || len(w.Lists[2].Words) != 193 {
 		t.Fatalf("ids = %v", ids)
 	}
 }
 
 func TestPacksMatchApp(t *testing.T) {
-	for name, copy := range map[string][]byte{"samples.json": samplesJSON, "countries.json": countriesJSON, "linux.json": linuxJSON} {
+	for name, copy := range map[string][]byte{"samples.json": samplesJSON, "countries.json": countriesJSON, "commands.json": commandsJSON} {
 		original, err := os.ReadFile(filepath.Join("..", "..", "..", "src", "plugins", "packs", name))
 		if err != nil {
 			t.Fatal(err)

@@ -3093,5 +3093,1062 @@
     ],
     "records": [],
     "createdAt": "2026-10-22T00:00:00.000Z"
+  },
+  {
+    "id": "vercel-cli",
+    "name": "Vercel CLIコマンド",
+    "words": [
+      {
+        "display": "vercel login",
+        "input": "vercel login",
+        "annotation": "ログイン：Vercelアカウントで認証する"
+      },
+      {
+        "display": "vercel switch",
+        "input": "vercel switch",
+        "annotation": "チーム切替：操作するチームを切り替える"
+      },
+      {
+        "display": "vercel link",
+        "input": "vercel link",
+        "annotation": "プロジェクト連携：手元のフォルダをVercelプロジェクトに紐づける"
+      },
+      {
+        "display": "vercel pull",
+        "input": "vercel pull",
+        "annotation": "設定取得：環境変数とプロジェクト設定を取得する"
+      },
+      {
+        "display": "vercel dev",
+        "input": "vercel dev",
+        "annotation": "ローカル開発：Vercelの実行環境をローカルで再現して動作確認する"
+      },
+      {
+        "display": "vercel build",
+        "input": "vercel build",
+        "annotation": "ビルド：ローカルやCI環境でビルドする"
+      },
+      {
+        "display": "vercel deploy",
+        "input": "vercel deploy",
+        "annotation": "プレビュー公開：確認用のデプロイを作成する"
+      },
+      {
+        "display": "vercel deploy --prod",
+        "input": "vercel deploy --prod",
+        "annotation": "本番公開：本番環境にデプロイする"
+      },
+      {
+        "display": "vercel redeploy <URL>",
+        "input": "vercel redeploy <URL>",
+        "annotation": "再デプロイ：既存のデプロイを再ビルドして公開する"
+      },
+      {
+        "display": "vercel promote <URL>",
+        "input": "vercel promote <URL>",
+        "annotation": "本番への昇格：既存のデプロイを本番に切り替える"
+      },
+      {
+        "display": "vercel rollback",
+        "input": "vercel rollback",
+        "annotation": "ロールバック：本番を過去のデプロイに戻す"
+      },
+      {
+        "display": "vercel inspect <URL> --logs",
+        "input": "vercel inspect <URL> --logs",
+        "annotation": "デプロイ調査：デプロイの状態やビルドログを確認する"
+      },
+      {
+        "display": "vercel logs",
+        "input": "vercel logs",
+        "annotation": "実行ログ：アプリの実行ログを取得する"
+      },
+      {
+        "display": "vercel curl /api/hello",
+        "input": "vercel curl /api/hello",
+        "annotation": "HTTP動作確認：保護されたデプロイにも認証付きでリクエストする"
+      },
+      {
+        "display": "vercel domains ls",
+        "input": "vercel domains ls",
+        "annotation": "ドメイン：独自ドメインの一覧・追加・購入などを行う"
+      },
+      {
+        "display": "vercel dns ls example.com",
+        "input": "vercel dns ls example.com",
+        "annotation": "DNS：DNSレコードを確認・追加・削除する"
+      },
+      {
+        "display": "vercel cache purge",
+        "input": "vercel cache purge",
+        "annotation": "キャッシュ：CDN・データキャッシュを削除・無効化する"
+      },
+      {
+        "display": "vercel blob put image.png",
+        "input": "vercel blob put image.png",
+        "annotation": "ファイル保存：Vercel Blobのファイルをアップロード・取得する"
+      },
+      {
+        "display": "vercel firewall rules list",
+        "input": "vercel firewall rules list",
+        "annotation": "セキュリティ：FirewallのルールやIPブロックを管理する"
+      },
+      {
+        "display": "vercel flags list",
+        "input": "vercel flags list",
+        "annotation": "機能切替：Feature Flagsを管理する"
+      },
+      {
+        "display": "vercel crons ls",
+        "input": "vercel crons ls",
+        "annotation": "定期処理：Cronの一覧確認・設定追加・手動実行を行う（ベータ）"
+      },
+      {
+        "display": "vercel usage",
+        "input": "vercel usage",
+        "annotation": "利用状況：利用量と費用を確認する"
+      },
+      {
+        "display": "vercel api /v2/user",
+        "input": "vercel api /v2/user",
+        "annotation": "API操作：Vercel REST APIを認証付きで呼び出す"
+      },
+      {
+        "display": "vercel env ls",
+        "input": "vercel env ls",
+        "annotation": "環境変数の確認：登録された環境変数の一覧を表示する"
+      },
+      {
+        "display": "vercel env add API_KEY production",
+        "input": "vercel env add API_KEY production",
+        "annotation": "環境変数の登録：本番・プレビュー・開発環境ごとに登録する"
+      },
+      {
+        "display": "vercel env pull .env.local",
+        "input": "vercel env pull .env.local",
+        "annotation": "環境変数の取得：ローカルのファイルに書き出す"
+      },
+      {
+        "display": "vercel project ls",
+        "input": "vercel project ls",
+        "annotation": "プロジェクト一覧：チーム内のプロジェクトを一覧表示する"
+      },
+      {
+        "display": "vercel project create my-app",
+        "input": "vercel project create my-app",
+        "annotation": "プロジェクト作成：新しいプロジェクトを作成する"
+      },
+      {
+        "display": "vercel project update --framework nextjs",
+        "input": "vercel project update --framework nextjs",
+        "annotation": "ビルド設定変更：フレームワークやビルドコマンドを変更する"
+      },
+      {
+        "display": "vercel project pause",
+        "input": "vercel project pause",
+        "annotation": "公開の停止：本番トラフィックを一時停止する"
+      },
+      {
+        "display": "vercel project resume",
+        "input": "vercel project resume",
+        "annotation": "公開の再開：本番トラフィックを再開する"
+      },
+      {
+        "display": "vercel integration discover",
+        "input": "vercel integration discover",
+        "annotation": "外部サービス連携：Marketplaceのサービスを探して導入する"
+      },
+      {
+        "display": "vercel integration list",
+        "input": "vercel integration list",
+        "annotation": "連携リソース確認：プロジェクトに紐づく連携サービスを確認する"
+      },
+      {
+        "display": "vercel metrics schema",
+        "input": "vercel metrics schema",
+        "annotation": "性能・アクセス分析：照会できる指標の一覧を表示する（多くの指標の照会にはObservability Plusが必要）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-22T00:00:00.000Z"
+  },
+  {
+    "id": "gcloud-cli",
+    "name": "Google Cloud CLI（gcloud）コマンド",
+    "words": [
+      {
+        "display": "gcloud init",
+        "input": "gcloud init",
+        "annotation": "初期設定：認証とプロジェクトなどの初期設定"
+      },
+      {
+        "display": "gcloud auth login",
+        "input": "gcloud auth login",
+        "annotation": "ログイン：GoogleアカウントでCLIを認証"
+      },
+      {
+        "display": "gcloud auth list",
+        "input": "gcloud auth list",
+        "annotation": "アカウント確認：認証済みアカウントを一覧表示"
+      },
+      {
+        "display": "gcloud config list",
+        "input": "gcloud config list",
+        "annotation": "設定確認：現在のCLI設定を表示"
+      },
+      {
+        "display": "gcloud config set project PROJECT_ID",
+        "input": "gcloud config set project PROJECT_ID",
+        "annotation": "プロジェクト選択：操作対象の既定プロジェクトを設定（PROJECT_IDを置換）"
+      },
+      {
+        "display": "gcloud config configurations activate CONFIG_NAME",
+        "input": "gcloud config configurations activate CONFIG_NAME",
+        "annotation": "設定セット切替：保存した設定セットを有効化（CONFIG_NAMEを置換）"
+      },
+      {
+        "display": "gcloud projects list",
+        "input": "gcloud projects list",
+        "annotation": "一覧表示：アクセス可能なプロジェクトを一覧表示"
+      },
+      {
+        "display": "gcloud projects",
+        "input": "gcloud projects",
+        "annotation": "作成・詳細確認：プロジェクトを作成・管理（コマンドグループ）"
+      },
+      {
+        "display": "gcloud services",
+        "input": "gcloud services",
+        "annotation": "API有効化・無効化：Google Cloud APIの利用設定（コマンドグループ）"
+      },
+      {
+        "display": "gcloud iam",
+        "input": "gcloud iam",
+        "annotation": "IAM・サービスアカウント管理：ロールやサービスアカウントを管理（プロジェクト権限の付与にはgcloud projects add-iam-policy-bindingなどを使用）"
+      },
+      {
+        "display": "gcloud compute",
+        "input": "gcloud compute",
+        "annotation": "VM管理：VMの作成・起動・停止やディスクを管理（コマンドグループ） / ネットワーク管理：VPC・ファイアウォール・IPアドレスを管理（コマンドグループ）"
+      },
+      {
+        "display": "gcloud compute instances list",
+        "input": "gcloud compute instances list",
+        "annotation": "VM一覧：プロジェクト内のVMを一覧表示"
+      },
+      {
+        "display": "gcloud compute ssh VM_NAME --zone=ZONE",
+        "input": "gcloud compute ssh VM_NAME --zone=ZONE",
+        "annotation": "SSH接続：指定したVMにSSH接続（VM_NAMEとZONEを置換）"
+      },
+      {
+        "display": "gcloud run",
+        "input": "gcloud run",
+        "annotation": "Cloud Run管理：サービス・実行バージョン・設定を管理（コマンドグループ）"
+      },
+      {
+        "display": "gcloud run deploy SERVICE_NAME --source . --region asia-northeast1",
+        "input": "gcloud run deploy SERVICE_NAME --source . --region asia-northeast1",
+        "annotation": "ソースからデプロイ：現在のディレクトリからCloud Runにデプロイ（SERVICE_NAMEを置換。ソースがビルドに対応している必要あり）"
+      },
+      {
+        "display": "gcloud run services update SERVICE_NAME --update-env-vars KEY=VALUE --region asia-northeast1",
+        "input": "gcloud run services update SERVICE_NAME --update-env-vars KEY=VALUE --region asia-northeast1",
+        "annotation": "環境変数更新：Cloud Runの環境変数を追加・更新（SERVICE_NAMEとKEY=VALUEを置換）"
+      },
+      {
+        "display": "gcloud app",
+        "input": "gcloud app",
+        "annotation": "アプリ管理：デプロイ・バージョン・ログの確認（コマンドグループ）"
+      },
+      {
+        "display": "gcloud container",
+        "input": "gcloud container",
+        "annotation": "GKE管理：クラスタの作成・管理・接続設定の取得（Podなどの操作にはkubectlも使用）"
+      },
+      {
+        "display": "gcloud storage",
+        "input": "gcloud storage",
+        "annotation": "Cloud Storage管理：ファイル転送・バケット・オブジェクト管理（コマンドグループ）"
+      },
+      {
+        "display": "gcloud sql",
+        "input": "gcloud sql",
+        "annotation": "Cloud SQL管理：インスタンス・バックアップ・エクスポートを管理（コマンドグループ）"
+      },
+      {
+        "display": "gcloud sql instances list",
+        "input": "gcloud sql instances list",
+        "annotation": "Cloud SQL一覧：Cloud SQLインスタンスを一覧表示"
+      },
+      {
+        "display": "gcloud builds",
+        "input": "gcloud builds",
+        "annotation": "Cloud Build管理：ソースコードやコンテナのビルドを実行・管理（コマンドグループ）"
+      },
+      {
+        "display": "gcloud artifacts",
+        "input": "gcloud artifacts",
+        "annotation": "Artifact Registry管理：コンテナイメージなどのリポジトリを管理（コマンドグループ）"
+      },
+      {
+        "display": "gcloud secrets",
+        "input": "gcloud secrets",
+        "annotation": "機密情報管理：APIキーなどのシークレットとバージョンを管理（コマンドグループ）"
+      },
+      {
+        "display": "gcloud kms",
+        "input": "gcloud kms",
+        "annotation": "暗号鍵管理：Cloud KMSの暗号鍵や暗号化・復号を管理（コマンドグループ）"
+      },
+      {
+        "display": "gcloud logging",
+        "input": "gcloud logging",
+        "annotation": "ログ検索・管理：ログの検索・取得・転送設定（コマンドグループ）"
+      },
+      {
+        "display": "gcloud dns",
+        "input": "gcloud dns",
+        "annotation": "DNS管理：DNSゾーンとレコードを管理（コマンドグループ）"
+      },
+      {
+        "display": "gcloud scheduler",
+        "input": "gcloud scheduler",
+        "annotation": "定期実行：Cloud Schedulerのジョブを管理（コマンドグループ）"
+      },
+      {
+        "display": "gcloud pubsub",
+        "input": "gcloud pubsub",
+        "annotation": "メッセージ配信：Pub/Subのトピックやサブスクリプションを管理（コマンドグループ）"
+      },
+      {
+        "display": "gcloud tasks",
+        "input": "gcloud tasks",
+        "annotation": "タスクキュー：Cloud Tasksのキューとタスクを管理（コマンドグループ）"
+      },
+      {
+        "display": "gcloud workflows",
+        "input": "gcloud workflows",
+        "annotation": "処理連携：Workflowsのデプロイ・実行・管理（コマンドグループ）"
+      },
+      {
+        "display": "gcloud ai",
+        "input": "gcloud ai",
+        "annotation": "Vertex AI管理：モデル・エンドポイント・学習ジョブなどを管理（コマンドグループ）"
+      },
+      {
+        "display": "gcloud COMMAND --help",
+        "input": "gcloud COMMAND --help",
+        "annotation": "ヘルプ表示：コマンドの構文やオプションを確認（COMMANDを対象コマンドに置換）"
+      },
+      {
+        "display": "gcloud projects list --format=json",
+        "input": "gcloud projects list --format=json",
+        "annotation": "JSON出力：プロジェクト一覧をJSONで出力"
+      },
+      {
+        "display": "gcloud projects list --format='csv(projectId,name)'",
+        "input": "gcloud projects list --format='csv(projectId,name)'",
+        "annotation": "CSV出力：プロジェクトIDと名前をCSVで出力"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-22T00:00:00.000Z"
+  },
+  {
+    "id": "aws-cli",
+    "name": "AWS CLIコマンド",
+    "words": [
+      {
+        "display": "aws --version",
+        "input": "aws --version",
+        "annotation": "AWS CLI：バージョン確認（AWS CLI v2を想定）"
+      },
+      {
+        "display": "aws ec2 describe-instances help",
+        "input": "aws ec2 describe-instances help",
+        "annotation": "ヘルプ：サービス・操作の使い方を確認（aws help / aws ec2 helpでも確認可能）"
+      },
+      {
+        "display": "aws configure sso --profile development",
+        "input": "aws configure sso --profile development",
+        "annotation": "IAM Identity Center：SSO用プロファイルの初期設定（IAM Identity Centerの事前設定が必要）"
+      },
+      {
+        "display": "aws sso login --profile development",
+        "input": "aws sso login --profile development",
+        "annotation": "IAM Identity Center：SSOログイン（設定済みのプロファイルを指定）"
+      },
+      {
+        "display": "aws sts get-caller-identity",
+        "input": "aws sts get-caller-identity",
+        "annotation": "STS：操作中のアカウント・権限を確認（Account・Arn・UserIdを確認）"
+      },
+      {
+        "display": "aws ec2 describe-instances --profile development --region ap-northeast-1",
+        "input": "aws ec2 describe-instances --profile development --region ap-northeast-1",
+        "annotation": "プロファイル・リージョン：操作対象の認証設定とリージョンを指定（東京リージョンの例）"
+      },
+      {
+        "display": "aws ec2 describe-instances --output table",
+        "input": "aws ec2 describe-instances --output table",
+        "annotation": "出力形式：結果をJSON・表・テキストなどで表示（--output json / text / table / yamlなど）"
+      },
+      {
+        "display": "aws ec2 describe-instances --query 'Reservations[].Instances[].{ID:InstanceId,State:State.Name}' --output table",
+        "input": "aws ec2 describe-instances --query 'Reservations[].Instances[].{ID:InstanceId,State:State.Name}' --output table",
+        "annotation": "結果抽出：必要な項目だけを取り出す（--queryはJMESPathで記述）"
+      },
+      {
+        "display": "aws s3 ls",
+        "input": "aws s3 ls",
+        "annotation": "S3：バケット・オブジェクトの一覧確認（aws s3 ls s3://my-bucket/で中身を確認）"
+      },
+      {
+        "display": "aws s3 cp ./image.png s3://my-bucket/image.png",
+        "input": "aws s3 cp ./image.png s3://my-bucket/image.png",
+        "annotation": "S3：ファイルをアップロード（転送先に同じキーがある場合は上書き）"
+      },
+      {
+        "display": "aws s3 cp s3://my-bucket/image.png ./image.png",
+        "input": "aws s3 cp s3://my-bucket/image.png ./image.png",
+        "annotation": "S3：ファイルをダウンロード（転送元と転送先を逆に指定）"
+      },
+      {
+        "display": "aws s3 sync ./dist s3://my-bucket",
+        "input": "aws s3 sync ./dist s3://my-bucket",
+        "annotation": "S3：ローカルフォルダーをS3に同期（--dryrunで予定を確認可能。--deleteを付けると転送元にない転送先ファイルも削除）"
+      },
+      {
+        "display": "aws ec2 describe-instances",
+        "input": "aws ec2 describe-instances",
+        "annotation": "EC2：サーバー一覧・稼働状態の確認（--filtersでタグや状態を絞り込み）"
+      },
+      {
+        "display": "aws ec2 start-instances --instance-ids i-0123456789abcdef0",
+        "input": "aws ec2 start-instances --instance-ids i-0123456789abcdef0",
+        "annotation": "EC2：サーバーの起動（実在するインスタンスIDに置き換える）"
+      },
+      {
+        "display": "aws ec2 stop-instances --instance-ids i-0123456789abcdef0",
+        "input": "aws ec2 stop-instances --instance-ids i-0123456789abcdef0",
+        "annotation": "EC2：サーバーの停止（停止可能なインスタンスが対象。ストレージなどは残る）"
+      },
+      {
+        "display": "aws rds describe-db-instances",
+        "input": "aws rds describe-db-instances",
+        "annotation": "RDS / Aurora：DBの作成・設定変更・バックアップ・復元（例はDB一覧の取得。通常のSQL実行にはpsqlなどを使用）"
+      },
+      {
+        "display": "aws dynamodb list-tables",
+        "input": "aws dynamodb list-tables",
+        "annotation": "DynamoDB：テーブル管理・データの読み書き・検索（get-item / put-item / queryなど）"
+      },
+      {
+        "display": "aws lambda list-functions",
+        "input": "aws lambda list-functions",
+        "annotation": "Lambda：関数の作成・設定変更・一覧確認（create-function / update-function-configurationなど）"
+      },
+      {
+        "display": "aws lambda update-function-code --function-name my-function --zip-file fileb://function.zip",
+        "input": "aws lambda update-function-code --function-name my-function --zip-file fileb://function.zip",
+        "annotation": "Lambda：関数コードの更新（ZIP形式の関数の例。コンテナイメージ形式もある）"
+      },
+      {
+        "display": "aws apigatewayv2 get-apis",
+        "input": "aws apigatewayv2 get-apis",
+        "annotation": "API Gateway：API・ルートの作成や設定・デプロイ（HTTP API・WebSocket APIの例。REST APIはapigatewayを使用）"
+      },
+      {
+        "display": "aws ecr describe-repositories",
+        "input": "aws ecr describe-repositories",
+        "annotation": "ECR：コンテナイメージ保管庫の管理（イメージのビルド・pushには通常Dockerなども使用）"
+      },
+      {
+        "display": "aws ecs list-clusters",
+        "input": "aws ecs list-clusters",
+        "annotation": "ECS：クラスター・サービス・タスクの管理（コンテナの実行・更新・スケーリング設定）"
+      },
+      {
+        "display": "aws eks list-clusters",
+        "input": "aws eks list-clusters",
+        "annotation": "EKS：Kubernetesクラスターの管理（Kubernetes内部の操作には通常kubectlを使用）"
+      },
+      {
+        "display": "aws ec2 describe-vpcs",
+        "input": "aws ec2 describe-vpcs",
+        "annotation": "VPC / EC2：VPC・サブネット・通信ルールの管理（VPC関連操作は主にec2配下）"
+      },
+      {
+        "display": "aws elbv2 describe-load-balancers",
+        "input": "aws elbv2 describe-load-balancers",
+        "annotation": "ELB：ロードバランサーの管理（ALB・NLBなどの例）"
+      },
+      {
+        "display": "aws route53 list-hosted-zones",
+        "input": "aws route53 list-hosted-zones",
+        "annotation": "Route 53：DNSゾーン・レコードの管理（DNSの設定確認・変更）"
+      },
+      {
+        "display": "aws cloudfront list-distributions",
+        "input": "aws cloudfront list-distributions",
+        "annotation": "CloudFront：CDN設定・配信状況・キャッシュの管理（キャッシュ削除にはcreate-invalidationを使用）"
+      },
+      {
+        "display": "aws iam list-roles",
+        "input": "aws iam list-roles",
+        "annotation": "IAM：ユーザー・ロール・ポリシーの管理（実行できる操作はIAM権限で制限される）"
+      },
+      {
+        "display": "aws cognito-idp list-user-pools --max-results 10",
+        "input": "aws cognito-idp list-user-pools --max-results 10",
+        "annotation": "Cognito：アプリのユーザー認証基盤を管理（ユーザープールの作成・設定・ユーザー管理）"
+      },
+      {
+        "display": "aws ssm get-parameter --name /my-app/config",
+        "input": "aws ssm get-parameter --name /my-app/config",
+        "annotation": "Systems Manager Parameter Store：設定値の保存・取得（暗号化パラメーターは権限に応じて--with-decryptionを指定）"
+      },
+      {
+        "display": "aws secretsmanager list-secrets",
+        "input": "aws secretsmanager list-secrets",
+        "annotation": "Secrets Manager：シークレットの保存・取得・更新（例はメタデータ一覧。値の取得にはget-secret-valueを使用）"
+      },
+      {
+        "display": "aws logs tail /aws/lambda/my-function --follow",
+        "input": "aws logs tail /aws/lambda/my-function --follow",
+        "annotation": "CloudWatch Logs：ログの取得・追跡（--since 1hなどで期間指定）"
+      },
+      {
+        "display": "aws cloudwatch describe-alarms",
+        "input": "aws cloudwatch describe-alarms",
+        "annotation": "CloudWatch：メトリクス・アラームの管理（CPU使用率などの監視設定・確認）"
+      },
+      {
+        "display": "aws cloudtrail lookup-events",
+        "input": "aws cloudtrail lookup-events",
+        "annotation": "CloudTrail：AWS操作履歴の確認（ユーザーやイベント名などで絞り込み可能）"
+      },
+      {
+        "display": "aws cloudformation describe-stacks",
+        "input": "aws cloudformation describe-stacks",
+        "annotation": "CloudFormation：テンプレートから環境を作成・更新・削除（deployでテンプレートを適用）"
+      },
+      {
+        "display": "aws events list-rules",
+        "input": "aws events list-rules",
+        "annotation": "EventBridge：イベントルール・連携先の管理（定期実行の専用機能はEventBridge Scheduler）"
+      },
+      {
+        "display": "aws scheduler list-schedules",
+        "input": "aws scheduler list-schedules",
+        "annotation": "EventBridge Scheduler：スケジュール実行の管理（定期実行や一回限りの実行を設定）"
+      },
+      {
+        "display": "aws stepfunctions list-state-machines",
+        "input": "aws stepfunctions list-state-machines",
+        "annotation": "Step Functions：処理フローの作成・実行・確認（複数サービスをつなぐワークフロー）"
+      },
+      {
+        "display": "aws sqs list-queues",
+        "input": "aws sqs list-queues",
+        "annotation": "SQS：キューの管理・メッセージの送受信（send-message / receive-messageなど）"
+      },
+      {
+        "display": "aws sns list-topics",
+        "input": "aws sns list-topics",
+        "annotation": "SNS：通知トピック・購読の管理と通知送信（publishで通知を送信）"
+      },
+      {
+        "display": "aws sesv2 list-email-identities",
+        "input": "aws sesv2 list-email-identities",
+        "annotation": "SES：メール送信・送信ドメインの管理（送信には認証済みIDや送信権限などが必要）"
+      },
+      {
+        "display": "aws athena list-work-groups",
+        "input": "aws athena list-work-groups",
+        "annotation": "Athena：SQLクエリの実行・結果取得（start-query-executionでSQL実行）"
+      },
+      {
+        "display": "aws glue get-databases",
+        "input": "aws glue get-databases",
+        "annotation": "Glue：データカタログ・ETLジョブの管理（ジョブの作成・実行・状態確認）"
+      },
+      {
+        "display": "aws bedrock list-foundation-models",
+        "input": "aws bedrock list-foundation-models",
+        "annotation": "Bedrock：モデル情報の確認・生成AI関連リソースの管理（推論にはbedrock-runtime配下のコマンドを使用）"
+      },
+      {
+        "display": "aws ce get-cost-and-usage --time-period Start=2026-10-01,End=2026-10-22 --granularity MONTHLY --metrics UnblendedCost",
+        "input": "aws ce get-cost-and-usage --time-period Start=2026-10-01,End=2026-10-22 --granularity MONTHLY --metrics UnblendedCost",
+        "annotation": "Cost Explorer：料金・利用量の期間別集計（Endは含まない。Cost Explorerの利用設定・権限が必要）"
+      },
+      {
+        "display": "aws budgets describe-budgets --account-id 123456789012",
+        "input": "aws budgets describe-budgets --account-id 123456789012",
+        "annotation": "Budgets：予算の設定・確認（自分のAWSアカウントIDに置き換える）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-22T00:00:00.000Z"
+  },
+  {
+    "id": "macos-zsh",
+    "name": "macOSターミナル（zsh）コマンド",
+    "words": [
+      {
+        "display": "pwd",
+        "input": "pwd",
+        "annotation": "現在のフォルダを表示"
+      },
+      {
+        "display": "ls",
+        "input": "ls",
+        "annotation": "ファイルとフォルダの一覧"
+      },
+      {
+        "display": "ls -la",
+        "input": "ls -la",
+        "annotation": "隠しファイルを含む詳細一覧"
+      },
+      {
+        "display": "ls -lh",
+        "input": "ls -lh",
+        "annotation": "容量を読みやすく表示"
+      },
+      {
+        "display": "cd ~/Downloads",
+        "input": "cd ~/Downloads",
+        "annotation": "cd：フォルダを移動（スペースを含むパスは引用符で囲む）"
+      },
+      {
+        "display": "cd ..",
+        "input": "cd ..",
+        "annotation": "1つ上へ移動"
+      },
+      {
+        "display": "cd ~",
+        "input": "cd ~",
+        "annotation": "ホームへ移動"
+      },
+      {
+        "display": "cd -",
+        "input": "cd -",
+        "annotation": "直前のフォルダへ戻る"
+      },
+      {
+        "display": "open .",
+        "input": "open .",
+        "annotation": ".：現在のフォルダを表す（パスの記号） / Finderで現在のフォルダを開く"
+      },
+      {
+        "display": "ls ..",
+        "input": "ls ..",
+        "annotation": "..：1つ上のフォルダを表す（パスの記号）"
+      },
+      {
+        "display": "ls ~/Desktop",
+        "input": "ls ~/Desktop",
+        "annotation": "~：ホームフォルダを表す（パスの記号）"
+      },
+      {
+        "display": "mkdir project",
+        "input": "mkdir project",
+        "annotation": "mkdir：フォルダを作成"
+      },
+      {
+        "display": "mkdir -p project/src/components",
+        "input": "mkdir -p project/src/components",
+        "annotation": "mkdir -p：階層をまとめて作成"
+      },
+      {
+        "display": "touch memo.txt",
+        "input": "touch memo.txt",
+        "annotation": "touch：ファイル作成・更新日時変更（既存ファイルの内容は変更しない）"
+      },
+      {
+        "display": "cp memo.txt memo-backup.txt",
+        "input": "cp memo.txt memo-backup.txt",
+        "annotation": "cp：ファイルをコピー（同名のコピー先を上書きする場合がある）"
+      },
+      {
+        "display": "cp -R src src-backup",
+        "input": "cp -R src src-backup",
+        "annotation": "cp -R：フォルダをコピー"
+      },
+      {
+        "display": "mv old.txt new.txt",
+        "input": "mv old.txt new.txt",
+        "annotation": "mv：移動・名前変更（同名の移動先を上書きする場合がある）"
+      },
+      {
+        "display": "rm -i memo.txt",
+        "input": "rm -i memo.txt",
+        "annotation": "rm -i：確認しながら削除（ゴミ箱を経由しない）"
+      },
+      {
+        "display": "rm -r old-folder",
+        "input": "rm -r old-folder",
+        "annotation": "rm -r：フォルダと中身を削除（ゴミ箱を経由しない。対象を確認する）"
+      },
+      {
+        "display": "rmdir empty-folder",
+        "input": "rmdir empty-folder",
+        "annotation": "rmdir：空のフォルダを削除"
+      },
+      {
+        "display": "ln -s ~/Documents/docs docs-link",
+        "input": "ln -s ~/Documents/docs docs-link",
+        "annotation": "ln -s：シンボリックリンクを作成"
+      },
+      {
+        "display": "file image.png",
+        "input": "file image.png",
+        "annotation": "file：ファイル形式を判定"
+      },
+      {
+        "display": "stat memo.txt",
+        "input": "stat memo.txt",
+        "annotation": "stat：ファイル属性を表示（Linux版とオプションが異なる）"
+      },
+      {
+        "display": "cat memo.txt",
+        "input": "cat memo.txt",
+        "annotation": "cat：内容を表示"
+      },
+      {
+        "display": "less app.log",
+        "input": "less app.log",
+        "annotation": "less：長い内容をスクロール表示（qで終了。/文字列で検索）"
+      },
+      {
+        "display": "head -n 20 app.log",
+        "input": "head -n 20 app.log",
+        "annotation": "head：先頭を表示"
+      },
+      {
+        "display": "tail -n 20 app.log",
+        "input": "tail -n 20 app.log",
+        "annotation": "tail：末尾を表示"
+      },
+      {
+        "display": "tail -f app.log",
+        "input": "tail -f app.log",
+        "annotation": "tail -f：ログの追記を追跡（Control + Cで終了）"
+      },
+      {
+        "display": "nano memo.txt",
+        "input": "nano memo.txt",
+        "annotation": "nano：テキストを編集（Control + Oで保存、Control + Xで終了）"
+      },
+      {
+        "display": "grep -n \"ERROR\" app.log",
+        "input": "grep -n \"ERROR\" app.log",
+        "annotation": "grep：一致する行を検索（-nは行番号表示）"
+      },
+      {
+        "display": "grep -Rn \"TODO\" src",
+        "input": "grep -Rn \"TODO\" src",
+        "annotation": "grep -R：フォルダ内を再帰検索"
+      },
+      {
+        "display": "find . -name \"*.tsx\"",
+        "input": "find . -name \"*.tsx\"",
+        "annotation": "find：名前などでファイル検索（パターンを引用符で囲む）"
+      },
+      {
+        "display": "mdfind 'kMDItemFSName == \"*.pdf\"'",
+        "input": "mdfind 'kMDItemFSName == \"*.pdf\"'",
+        "annotation": "mdfind：Spotlightの索引から検索（索引対象に依存する）"
+      },
+      {
+        "display": "wc -l memo.txt",
+        "input": "wc -l memo.txt",
+        "annotation": "wc -l：行数を数える（正確には改行文字の数）"
+      },
+      {
+        "display": "sort names.txt",
+        "input": "sort names.txt",
+        "annotation": "sort：行を並べ替える"
+      },
+      {
+        "display": "sort names.txt | uniq",
+        "input": "sort names.txt | uniq",
+        "annotation": "uniq：隣接する重複行をまとめる（離れた重複はそのままでは除去しない）"
+      },
+      {
+        "display": "diff -u old.txt new.txt",
+        "input": "diff -u old.txt new.txt",
+        "annotation": "diff：ファイルの差分を表示"
+      },
+      {
+        "display": "open report.pdf",
+        "input": "open report.pdf",
+        "annotation": "open：既定アプリで開く"
+      },
+      {
+        "display": "open -a TextEdit memo.txt",
+        "input": "open -a TextEdit memo.txt",
+        "annotation": "open -a：アプリを指定して開く"
+      },
+      {
+        "display": "open https://example.com",
+        "input": "open https://example.com",
+        "annotation": "open URL：ブラウザでURLを開く"
+      },
+      {
+        "display": "pwd | pbcopy",
+        "input": "pwd | pbcopy",
+        "annotation": "pbcopy：クリップボードへコピー"
+      },
+      {
+        "display": "pbpaste > memo.txt",
+        "input": "pbpaste > memo.txt",
+        "annotation": "pbpaste：クリップボードを出力（例は既存ファイルを上書き）"
+      },
+      {
+        "display": "screencapture ~/Desktop/screen.png",
+        "input": "screencapture ~/Desktop/screen.png",
+        "annotation": "screencapture：スクリーンショットを保存（画面収録権限が必要な場合がある）"
+      },
+      {
+        "display": "sips -g pixelWidth -g pixelHeight image.png",
+        "input": "sips -g pixelWidth -g pixelHeight image.png",
+        "annotation": "sips：画像情報を表示・画像変換（例は幅と高さの表示）"
+      },
+      {
+        "display": "say \"こんにちは\"",
+        "input": "say \"こんにちは\"",
+        "annotation": "say：文字を読み上げる"
+      },
+      {
+        "display": "caffeinate -i",
+        "input": "caffeinate -i",
+        "annotation": "アイドルスリープを防ぐ（Control + Cで解除）"
+      },
+      {
+        "display": "sw_vers",
+        "input": "sw_vers",
+        "annotation": "macOSバージョンを表示"
+      },
+      {
+        "display": "system_profiler SPHardwareDataType",
+        "input": "system_profiler SPHardwareDataType",
+        "annotation": "system_profiler：ハードウェア情報を表示"
+      },
+      {
+        "display": "ps aux",
+        "input": "ps aux",
+        "annotation": "プロセスを一覧表示"
+      },
+      {
+        "display": "top",
+        "input": "top",
+        "annotation": "CPU・メモリ使用状況を表示（qで終了）"
+      },
+      {
+        "display": "pgrep -fl node",
+        "input": "pgrep -fl node",
+        "annotation": "pgrep -fl：名前でプロセス検索"
+      },
+      {
+        "display": "kill 12345",
+        "input": "kill 12345",
+        "annotation": "kill：プロセスに終了を要求（12345を対象PIDに置き換える）"
+      },
+      {
+        "display": "lsof -nP -iTCP:3000 -sTCP:LISTEN",
+        "input": "lsof -nP -iTCP:3000 -sTCP:LISTEN",
+        "annotation": "lsof -i：ポートの使用状況を確認（例は3000番の待受プロセス）"
+      },
+      {
+        "display": "df -h",
+        "input": "df -h",
+        "annotation": "ディスクの空き容量を表示"
+      },
+      {
+        "display": "du -sh ~/Downloads",
+        "input": "du -sh ~/Downloads",
+        "annotation": "du -sh：フォルダの使用容量を表示"
+      },
+      {
+        "display": "curl -I https://example.com",
+        "input": "curl -I https://example.com",
+        "annotation": "curl -I：HTTPヘッダーを確認（HEADリクエストを送る）"
+      },
+      {
+        "display": "curl -L -o page.html https://example.com",
+        "input": "curl -L -o page.html https://example.com",
+        "annotation": "curl -L -o：URLからファイルを取得（-Lはリダイレクト追従。既存出力を上書き）"
+      },
+      {
+        "display": "ping -c 4 example.com",
+        "input": "ping -c 4 example.com",
+        "annotation": "ping：ネットワーク疎通を確認（応答がなくても通信不可とは限らない）"
+      },
+      {
+        "display": "dig example.com",
+        "input": "dig example.com",
+        "annotation": "dig：DNS情報を確認"
+      },
+      {
+        "display": "ssh user@hostname",
+        "input": "ssh user@hostname",
+        "annotation": "ssh：リモートへSSH接続（接続先のアカウントと認証が必要）"
+      },
+      {
+        "display": "scp memo.txt user@hostname:~/",
+        "input": "scp memo.txt user@hostname:~/",
+        "annotation": "scp：SSH経由でファイル転送（接続先の認証が必要）"
+      },
+      {
+        "display": "project=ffpf-portal",
+        "input": "project=ffpf-portal",
+        "annotation": "名前=値：シェル変数を設定"
+      },
+      {
+        "display": "echo \"$project\"",
+        "input": "echo \"$project\"",
+        "annotation": "echo：文字や変数を表示"
+      },
+      {
+        "display": "export NODE_ENV=development",
+        "input": "export NODE_ENV=development",
+        "annotation": "export：環境変数を設定（子プロセスにも渡される）"
+      },
+      {
+        "display": "unset NODE_ENV",
+        "input": "unset NODE_ENV",
+        "annotation": "unset：変数を解除"
+      },
+      {
+        "display": "print -l $path",
+        "input": "print -l $path",
+        "annotation": "コマンド検索先を1行ずつ表示（zshのpath配列）"
+      },
+      {
+        "display": "command -v node",
+        "input": "command -v node",
+        "annotation": "command -v：コマンドの場所・定義を確認"
+      },
+      {
+        "display": "type -a python3",
+        "input": "type -a python3",
+        "annotation": "type -a：同名コマンドの候補を確認"
+      },
+      {
+        "display": "alias ll='ls -lah'",
+        "input": "alias ll='ls -lah'",
+        "annotation": "alias：コマンドの別名を設定（永続化する場合は~/.zshrcに記述）"
+      },
+      {
+        "display": "unalias ll",
+        "input": "unalias ll",
+        "annotation": "unalias：別名を解除"
+      },
+      {
+        "display": "history",
+        "input": "history",
+        "annotation": "コマンド履歴を表示"
+      },
+      {
+        "display": "source ~/.zshrc",
+        "input": "source ~/.zshrc",
+        "annotation": "source：現在のシェルで設定等を読み込む（指定ファイルの内容を実行する）"
+      },
+      {
+        "display": "jobs",
+        "input": "jobs",
+        "annotation": "ジョブを一覧表示（現在のシェルのジョブが対象）"
+      },
+      {
+        "display": "fg",
+        "input": "fg",
+        "annotation": "ジョブを前面で再開"
+      },
+      {
+        "display": "exit",
+        "input": "exit",
+        "annotation": "シェルを終了"
+      },
+      {
+        "display": "cat app.log | grep \"ERROR\"",
+        "input": "cat app.log | grep \"ERROR\"",
+        "annotation": "|：左の標準出力を右の標準入力へ渡す"
+      },
+      {
+        "display": "echo \"hello\" > memo.txt",
+        "input": "echo \"hello\" > memo.txt",
+        "annotation": ">：出力を保存・上書き（既存内容を上書き）"
+      },
+      {
+        "display": "echo \"追加\" >> memo.txt",
+        "input": "echo \"追加\" >> memo.txt",
+        "annotation": ">>：末尾へ追記"
+      },
+      {
+        "display": "ls /nonexistent 2> error.log",
+        "input": "ls /nonexistent 2> error.log",
+        "annotation": "2>：標準エラー出力を保存（既存のエラーログを上書き）"
+      },
+      {
+        "display": "mkdir demo && cd demo",
+        "input": "mkdir demo && cd demo",
+        "annotation": "&&：成功した場合だけ次を実行"
+      },
+      {
+        "display": "command -v node || echo \"見つかりません\"",
+        "input": "command -v node || echo \"見つかりません\"",
+        "annotation": "||：失敗した場合だけ次を実行"
+      },
+      {
+        "display": "pwd; ls",
+        "input": "pwd; ls",
+        "annotation": ";：成否に関係なく順番に実行"
+      },
+      {
+        "display": "sleep 60 &",
+        "input": "sleep 60 &",
+        "annotation": "&：バックグラウンドで実行"
+      },
+      {
+        "display": "echo \"現在地: $(pwd)\"",
+        "input": "echo \"現在地: $(pwd)\"",
+        "annotation": "$(...)：コマンド出力を埋め込む"
+      },
+      {
+        "display": "ls *.png",
+        "input": "ls *.png",
+        "annotation": "*：ファイル名の任意の文字列に一致（zshでは通常、一致がないとno matches found）"
+      },
+      {
+        "display": "man ls",
+        "input": "man ls",
+        "annotation": "man：コマンドのマニュアルを表示（qで終了）"
+      },
+      {
+        "display": "man zshbuiltins",
+        "input": "man zshbuiltins",
+        "annotation": "zsh組み込み機能のマニュアル（qで終了）"
+      },
+      {
+        "display": "sed -i '' 's/old/new/g' file.txt",
+        "input": "sed -i '' 's/old/new/g' file.txt",
+        "annotation": "sed -i ''：ファイルを直接置換編集（macOS形式。バックアップを作らず上書き）"
+      },
+      {
+        "display": "date -v+1d",
+        "input": "date -v+1d",
+        "annotation": "翌日の日付を表示（macOS形式。システム時刻は変更しない）"
+      },
+      {
+        "display": "stat -f '%N %z bytes' file.txt",
+        "input": "stat -f '%N %z bytes' file.txt",
+        "annotation": "stat -f：書式を指定して属性を表示（macOS形式）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-22T00:00:00.000Z"
   }
 ]
