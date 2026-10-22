@@ -126,7 +126,7 @@
   "import": {
     "open": "Importer un CSV/TSV",
     "title": "Importer depuis un CSV/TSV",
-    "description": "La première ligne contient les noms de colonnes. display est obligatoire ; input et annotation sont facultatifs. L’ordre des colonnes est libre.",
+    "description": "La première ligne contient les noms de colonnes. input et display sont obligatoires ; annotation est facultative. L’ordre des colonnes est libre.",
     "fileLabel": "Choisir un fichier CSV ou TSV",
     "readFailed": "Impossible de lire le fichier.",
     "addFailed": "Impossible d’ajouter les mots.",

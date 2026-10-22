@@ -126,7 +126,7 @@
   "import": {
     "open": "Import CSV/TSV",
     "title": "Import from CSV/TSV",
-    "description": "The first row holds the column names. display is required; input and annotation are optional. Columns can be in any order.",
+    "description": "The first row holds the column names. input and display are required; annotation is optional. Columns can be in any order.",
     "fileLabel": "Choose a CSV or TSV file",
     "readFailed": "Could not read the file.",
     "addFailed": "Could not add the words.",
