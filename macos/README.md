@@ -27,7 +27,9 @@ xcodegen generate      # project.yml から Typle.xcodeproj を作る（コミ�
 open Typle.xcodeproj
 ```
 
-Xcode で「Signing & Capabilities」の Team を自分のもの（または「Sign to Run Locally」）にして、「My Mac」で実行します。
+開いたウインドウのタイトルが `macos/Typle.xcodeproj` であることを確かめ、実行先を「My Mac」にして ⌘R で実行します。署名は「Sign to Run Locally」（アドホック署名）にしてあるので、Team を選ばなくても起動できます。自分の証明書で署名したいときは、「Signing & Capabilities」で Team を選びます。
+
+iPad 版のプロジェクト（`ios/Typle.xcodeproj`）を「My Mac (Designed for iPad)」で動かしたものは Mac 版ではありません（Team も要ります）。
 
 ## 見た目と操作
 
