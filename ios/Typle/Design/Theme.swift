@@ -1,12 +1,22 @@
 import SwiftUI
+#if canImport(UIKit)
 import UIKit
+#else
+import AppKit
+#endif
 
 /// The web app's design tokens (src/app/globals.css, shadcn's neutral theme), as colours that follow light and dark.
 enum Palette {
   private static func color(_ light: UInt32, _ dark: UInt32, darkAlpha: CGFloat = 1) -> Color {
+    #if canImport(UIKit)
     Color(UIColor { traits in
       traits.userInterfaceStyle == .dark ? UIColor(hex: dark, alpha: darkAlpha) : UIColor(hex: light)
     })
+    #else
+    Color(NSColor(name: nil) { appearance in
+      appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua ? NSColor(hex: dark, alpha: darkAlpha) : NSColor(hex: light)
+    })
+    #endif
   }
 
   /// The top bar and the sidebar.
@@ -36,11 +46,19 @@ enum Palette {
   static let pending = color(0xA1A1A1, 0x737373)
 }
 
+#if canImport(UIKit)
 extension UIColor {
   convenience init(hex: UInt32, alpha: CGFloat = 1) {
     self.init(red: CGFloat((hex >> 16) & 0xFF) / 255, green: CGFloat((hex >> 8) & 0xFF) / 255, blue: CGFloat(hex & 0xFF) / 255, alpha: alpha)
   }
 }
+#else
+extension NSColor {
+  convenience init(hex: UInt32, alpha: CGFloat = 1) {
+    self.init(srgbRed: CGFloat((hex >> 16) & 0xFF) / 255, green: CGFloat((hex >> 8) & 0xFF) / 255, blue: CGFloat(hex & 0xFF) / 255, alpha: alpha)
+  }
+}
+#endif
 
 /// Corner radii of `--radius` (10px) and its steps.
 enum Radius {
@@ -78,6 +96,46 @@ extension View {
 /// A full-width hairline, the web's `border-t` between sections.
 struct Hairline: View {
   var body: some View { Rectangle().fill(Palette.border).frame(height: 1) }
+}
+
+// MARK: The iPad and the Mac
+
+extension View {
+  /// Text typed as it is: no capitals, corrections or the text field's own frame, which the parts draw themselves.
+  func plainInput() -> some View {
+    #if os(iOS)
+    return textFieldStyle(.plain).textInputAutocapitalization(.never).autocorrectionDisabled()
+    #else
+    return textFieldStyle(.plain).autocorrectionDisabled()
+    #endif
+  }
+
+  /// A menu that shows its label as it is drawn, as on the iPad. The Mac's menu button would draw its own frame.
+  func plainMenu() -> some View {
+    #if os(macOS)
+    return menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
+    #else
+    return self
+    #endif
+  }
+
+  /// A picker inside a menu, whose choices are the menu's items as on the iPad, not a submenu.
+  func menuPicker() -> some View {
+    #if os(macOS)
+    return pickerStyle(.inline).labelsHidden()
+    #else
+    return self
+    #endif
+  }
+
+  /// A sheet's size on the Mac, where a sheet is as large as its content; the iPad's sheets size themselves.
+  func sheetSize(width: CGFloat, height: CGFloat? = nil) -> some View {
+    #if os(macOS)
+    return frame(width: width, height: height)
+    #else
+    return self
+    #endif
+  }
 }
 
 // MARK: Buttons
@@ -244,8 +302,7 @@ struct SearchField: View {
       Image(systemName: "magnifyingglass").font(.system(size: 14)).foregroundStyle(Palette.mutedForeground)
       TextField(prompt, text: $text)
         .font(.system(size: 14))
-        .textInputAutocapitalization(.never)
-        .autocorrectionDisabled()
+        .plainInput()
       if !text.isEmpty {
         Button { text = "" } label: { Image(systemName: "xmark.circle.fill").foregroundStyle(Palette.mutedForeground) }
           .buttonStyle(.plain)
@@ -269,8 +326,7 @@ struct InputBox: View {
   var body: some View {
     TextField(placeholder, text: $text)
       .font(.system(size: 14))
-      .textInputAutocapitalization(.never)
-      .autocorrectionDisabled()
+      .plainInput()
       .padding(.horizontal, 12)
       .frame(minHeight: height)
       .background(Palette.card, in: RoundedRectangle(cornerRadius: Radius.md))

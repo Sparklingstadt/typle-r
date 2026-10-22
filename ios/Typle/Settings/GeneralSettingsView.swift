@@ -1,6 +1,5 @@
 import AuthenticationServices
 import SwiftUI
-import UIKit
 
 /// 一般 (src/app/settings/page.tsx): the display language, and on the iPad where the data is kept, which the web app
 /// decides by signing in. The GitHub login is the web app's own, so the account holds the same data as there.
@@ -50,9 +49,10 @@ struct GeneralSettingsView: View {
         VStack(alignment: .leading, spacing: 12) {
           labelled(L("settings.serverURL")) {
             TextField(AppModel.defaultServerURL, text: $serverURL)
+              #if os(iOS)
               .keyboardType(.URL)
-              .textInputAutocapitalization(.never)
-              .autocorrectionDisabled()
+              #endif
+              .plainInput()
               .font(.system(size: 14))
               .padding(.horizontal, 12).frame(height: 40)
               .background(Palette.card, in: RoundedRectangle(cornerRadius: Radius.md))

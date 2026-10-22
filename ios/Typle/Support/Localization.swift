@@ -1,7 +1,7 @@
 import Foundation
 import TypleCore
 
-/// The languages the iPad app has text for. 一般 switches between them in place, as the web app's settings do.
+/// The languages the app has text for. 一般 switches between them in place, as the web app's settings do.
 enum AppLanguage: String, CaseIterable, Identifiable {
   case ja, en
   var id: String { rawValue }
@@ -27,8 +27,19 @@ enum Localization {
 /// The text for a key in Localizable.strings, in the chosen language. Screens never hold literal text, as in the web
 /// app's messages.
 func L(_ key: String, _ arguments: CVarArg...) -> String {
-  let format = Localization.bundle.localizedString(forKey: key, value: nil, table: nil)
+  let format = localizedText(key)
   return arguments.isEmpty ? format : String(format: format, locale: Localization.locale, arguments: arguments)
+}
+
+/// The text for a key, or the key itself when there is none. The Mac app's Mac.strings (macos/) holds the Mac's own
+/// text, such as 「この Mac」, for the keys whose iPad text names the iPad; every other key is the iPad's.
+private func localizedText(_ key: String) -> String {
+  #if os(macOS)
+  let missing = "\u{1}"
+  let mac = Localization.bundle.localizedString(forKey: key, value: missing, table: "Mac")
+  if mac != missing { return mac }
+  #endif
+  return Localization.bundle.localizedString(forKey: key, value: nil, table: nil)
 }
 
 /// Fills `{name}` placeholders, the form error messages share with the web app.
@@ -40,7 +51,7 @@ func fill(_ text: String, _ values: [String: String]) -> String {
 func errorText(_ error: Error) -> String {
   if let error = error as? TypleError {
     let key = "errors.\(error.key)"
-    let text = Localization.bundle.localizedString(forKey: key, value: nil, table: nil)
+    let text = localizedText(key)
     return text == key ? L("errors.workspaceRequestFailed") : fill(text, error.values)
   }
   return L("errors.workspaceRequestFailed")

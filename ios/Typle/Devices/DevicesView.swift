@@ -79,6 +79,7 @@ struct DevicesView: View {
             .background(Palette.card, in: RoundedRectangle(cornerRadius: Radius.md))
             .outlined(radius: Radius.md)
         }
+        .plainMenu()
         .accessibilityLabel(L("devices.current.changeLabel", chosen.map { Format.device($0) } ?? L("devices.choice.notSelected")))
         Button { app.navigate(.practice) } label: { Label(L("devices.current.practice"), systemImage: "keyboard") }
           .buttonStyle(.typle(.outline, size: .lg))
@@ -201,6 +202,7 @@ struct DeviceEditor: View {
     }
     .padding(24)
     .background(Palette.card)
+    .sheetSize(width: 480)
     .presentationDetents([.medium])
     .onAppear {
       guard !loaded else { return }

@@ -2,7 +2,7 @@ import CryptoKit
 import Foundation
 import TypleCore
 
-/// The GitHub account the iPad app signed in with, as `/api/auth/token` and `/api/auth/session` name it.
+/// The GitHub account the app signed in with, as `/api/auth/token` and `/api/auth/session` name it.
 struct AccountUser: Codable, Equatable {
   var id: String
   var name: String
@@ -84,7 +84,7 @@ struct AccountLogin {
   /// Where the login starts, for ASWebAuthenticationSession.
   var signinURL: URL {
     let challenge = Self.base64URL(Data(SHA256.hash(data: Data(verifier.utf8))))
-    return client.url("api/auth/signin", query: [URLQueryItem(name: "client", value: "ipad"), URLQueryItem(name: "code_challenge", value: challenge)])
+    return client.url("api/auth/signin", query: [URLQueryItem(name: "client", value: Platform.loginClient), URLQueryItem(name: "code_challenge", value: challenge)])
   }
 
   private struct TokenRequest: Encodable { var code: String; var verifier: String }
