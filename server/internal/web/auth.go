@@ -25,16 +25,16 @@ const (
 	randomSize = 32
 	// maxReturnTo keeps the OAuth cookie, which holds returnTo, well under the 4096 bytes a browser accepts.
 	maxReturnTo = 1024
-	// appReturn is where a login an app (the iPad or the Android app) starts ends: the iPad app's
-	// ASWebAuthenticationSession and the Android app's intent filter wait for this scheme and give the URL to the app
-	// alone.
+	// appReturn is where a login an app (the iPad, the Android or the macOS app) starts ends: the iPad app's
+	// ASWebAuthenticationSession, the Android app's intent filter and the macOS app's URL type wait for this scheme and
+	// give the URL to the app alone.
 	appReturn = "typle-r://login"
 	// maxTokenRequest is far more than a code and a verifier take.
 	maxTokenRequest = 4096
 )
 
-// appClients are the signin's clients for a login an app starts. Both apps log in the same way.
-var appClients = map[string]bool{"ipad": true, "android": true}
+// appClients are the signin's clients for a login an app starts. All the apps log in the same way.
+var appClients = map[string]bool{"ipad": true, "android": true, "macos": true}
 
 // pkceValue is what RFC 7636 allows as a code verifier; an S256 challenge is 43 of these characters.
 var (
@@ -48,7 +48,7 @@ func challengeOf(verifier string) string {
 	return base64.RawURLEncoding.EncodeToString(sum[:])
 }
 
-// toApp ends a login an app (iPad or Android) started, with the code or the error.
+// toApp ends a login an app (iPad, Android or macOS) started, with the code or the error.
 func toApp(w http.ResponseWriter, key, value string) {
 	goTo(w, appReturn+"?"+url.Values{key: {value}}.Encode())
 }
@@ -137,9 +137,9 @@ func random() (string, error) {
 }
 
 // signin sends the browser to GitHub with a state and a PKCE challenge, and keeps the state, the verifier and where to
-// return to in the signed OAuth cookie. With client=ipad or client=android and the app's own S256 code_challenge, the
-// login is that app's: it ends at appReturn with a code that only the holder of the challenge's verifier can trade
-// for a token.
+// return to in the signed OAuth cookie. With client=ipad, client=android or client=macos and the app's own S256
+// code_challenge, the login is that app's: it ends at appReturn with a code that only the holder of the challenge's
+// verifier can trade for a token.
 func (s *server) signin(w http.ResponseWriter, r *http.Request) {
 	if !methods(w, r, http.MethodGet) || !s.loginReady(w, r) {
 		return
@@ -172,7 +172,7 @@ func (s *server) signin(w http.ResponseWriter, r *http.Request) {
 
 // callback is where GitHub sends the browser back to. Whatever happens, the OAuth cookie is spent and the browser goes
 // back to the page it left, signed in only if everything checked out. Errors are not shown: the screen has no page for
-// a failed login, and what GitHub says is not for the reader. A login an app (iPad or Android) started goes back to
+// a failed login, and what GitHub says is not for the reader. A login an app (iPad, Android or macOS) started goes back to
 // the app instead, with a code for it to trade for a token, or loginFailed; no cookie is set.
 func (s *server) callback(w http.ResponseWriter, r *http.Request) {
 	if !methods(w, r, http.MethodGet) || !s.loginReady(w, r) {
@@ -240,9 +240,9 @@ func userOf(s session.Session) *sessionUser {
 	return body
 }
 
-// token trades the code a login of an app (iPad or Android) ended with, and the verifier of its challenge, for the
-// app's token. It takes no cookie and sets none, so it needs no Origin: only the app that started the login knows the
-// verifier. Any mistake is loginFailed, and the app starts the login again.
+// token trades the code a login of an app (iPad, Android or macOS) ended with, and the verifier of its challenge, for
+// the app's token. It takes no cookie and sets none, so it needs no Origin: only the app that started the login knows
+// the verifier. Any mistake is loginFailed, and the app starts the login again.
 func (s *server) token(w http.ResponseWriter, r *http.Request) {
 	if !methods(w, r, http.MethodPost) {
 		return

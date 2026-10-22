@@ -118,10 +118,16 @@ func TestAppLogin(t *testing.T) {
 	}
 }
 
-// The Android app logs in exactly as the iPad app does.
-func TestAppLoginAndroidClient(t *testing.T) {
+// The Android and the macOS app log in exactly as the iPad app does.
+func TestAppLoginOtherClients(t *testing.T) {
+	for _, client := range []string{"android", "macos"} {
+		t.Run(client, func(t *testing.T) { testAppLoginAs(t, client) })
+	}
+}
+
+func testAppLoginAs(t *testing.T, client string) {
 	h := newLoginHarness(t, testBase, false)
-	cookie, opened := h.appSigninAs(t, "android")
+	cookie, opened := h.appSigninAs(t, client)
 	response := h.callback("code=the-code&state="+url.QueryEscape(opened.State), cookie)
 	query := appLocation(t, response)
 	if findCookie(response, "typle-session") != nil {
@@ -170,7 +176,7 @@ func TestAppLoginFails(t *testing.T) {
 
 func TestAppSigninRefusesBadChallenge(t *testing.T) {
 	h := newLoginHarness(t, testBase, false)
-	for _, client := range []string{"ipad", "android"} {
+	for _, client := range []string{"ipad", "android", "macos"} {
 		for _, challenge := range []string{"", "short", appChallenge + "A", strings.Replace(appChallenge, "-", "+", 1)} {
 			response := h.do(http.MethodGet, "/api/auth/signin?client="+client+"&code_challenge="+url.QueryEscape(challenge))
 			if query := appLocation(t, response); query.Get("error") != "loginFailed" {
