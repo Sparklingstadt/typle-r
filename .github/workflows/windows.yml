@@ -1,0 +1,90 @@
+name: Windows app
+
+# Tests the shared rules in windows/Typle.Core, builds the Windows 11 app in windows/Typle (WinUI 3, unpackaged and
+# self-contained) and captures screenshots of every page with sample data. It is separate from ci.yml: the Windows app
+# is not released or deployed by it, and like the iPad and Android workflows it only runs for pull requests that change
+# windows/ and when started by hand (workflow_dispatch), not again on the push to main, since Windows runners take many
+# Actions minutes. The app is kept as a zip artifact to download and run by hand.
+on:
+  pull_request:
+    paths:
+      - 'windows/**'
+      - 'src/plugins/packs/**'
+      - '.github/workflows/windows.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+        with:
+          dotnet-version: '10.0.x'
+      - name: Test core
+        run: dotnet test windows/Typle.Core.Tests --logger "console;verbosity=normal"
+      # The screens have no XAML, so the whole app compiles here too; Windows builds and runs it below.
+      - name: Check that the app compiles
+        run: >-
+          dotnet build windows/Typle/Typle.csproj -p:Platform=x64 -r win-x64 -p:AppxGeneratePriEnabled=false
+          -p:WindowsAppSDKSelfContained=false -warnaserror
+
+  app:
+    needs: core
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+        with:
+          dotnet-version: '10.0.x'
+      - name: Build the app
+        run: dotnet publish windows/Typle/Typle.csproj -c Release -r win-x64 -p:Platform=x64 -o windows/publish
+      # Each page with the sample data of Demo.cs, to compare with the web app's pages.
+      - name: Capture screenshots
+        shell: pwsh
+        run: ./windows/ci/screenshots.ps1 -App windows/publish/Typle.exe -Out windows/screenshots
+      # The artifact storage is not reachable from every reviewer's environment, so the screenshots are also printed
+      # into the log as small JPEGs (base64, one line each, after "SCREENSHOT <name>").
+      - name: Print screenshots
+        if: always()
+        shell: bash
+        run: |
+          python -m venv "$RUNNER_TEMP/pillow"
+          "$RUNNER_TEMP/pillow/Scripts/pip" install --quiet pillow
+          "$RUNNER_TEMP/pillow/Scripts/python" - <<'PY'
+          import base64, glob, io, os
+          from PIL import Image
+          for path in sorted(glob.glob('windows/screenshots/*.png')):
+              image = Image.open(path).convert('RGB')
+              image.thumbnail((1400, 1400))
+              buffer = io.BytesIO()
+              image.save(buffer, 'JPEG', quality=55)
+              print('SCREENSHOT', os.path.splitext(os.path.basename(path))[0], base64.b64encode(buffer.getvalue()).decode())
+          PY
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: windows-screenshots
+          path: windows/screenshots
+          retention-days: 14
+          if-no-files-found: ignore
+      - name: Upload the app
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: typle-windows-x64
+          path: windows/publish
+          retention-days: 14
