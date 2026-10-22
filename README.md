@@ -3,11 +3,19 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
+## v0.60.0 — macOS版（SwiftUI）を追加しました
+
+`macos/` に Mac のネイティブアプリ（SwiftUI、macOS 14以上）を追加しました。Web版と同じ全ページ（ホーム・練習・練習記録・ベスト記録・単語リストと作成・編集・端末・一般）を Web版と同じ見た目で備え、Mac のキーボードで練習できます。データはこの Mac に保存するか、Web版・iPad版・Android版・Windows版と同じ GitHub ログインで、本番の Go のバックエンド（`/api/auth/*`・`/api/workspace`）のアカウントに保存します。GitHub Actions が作るアプリ（`typle-macos-app`）を手で入れるか、Xcode で `macos/` を開いて起動します。入れ方と範囲は [macos/README.md](macos/README.md) を参照してください。
+
+- iPad 版（`ios/`）の SwiftUI のコードと共通の規則（`ios/TypleCore`）をそのまま使い、Mac で違うところ（練習欄の AppKit の入力欄、メニューバーとショートカット、CSV の保存、「この Mac」などの文言、色の切り替え）だけを `#if os(macOS)` と `macos/` に置きました。iPad 版の見た目と動きは変わりません。
+- サーバーは `client=macos` のログインも受け付けるようになりました（Go のバックエンドと、手元用の Kotlin のバックエンド。下の「iPad と Mac と Android と Windows のログイン」）。Web版・iPad版・Android版・Windows版・`/api/v1` は変わりません。GitHub の OAuth App の設定と環境変数も変わりません。
+- 新しいワークフロー `Mac app`（`.github/workflows/macos.yml`）が、`macos/` か `ios/` を変えた PR と手動の実行で、Mac 向けのビルド、各ページのスクリーンショット、配布用のアプリを作ります。リリース・デプロイ（`ci.yml`）の条件ではなく、本番のデプロイ物も変わりません（`.vercelignore` で `macos` を外しています）。
+
 ## v0.59.0 — Windows 11 版（WinUI 3）を追加しました
 
 `windows/` に Windows 11 のネイティブアプリ（C#・WinUI 3・Windows App SDK、Windows 10 1809 以上で動きます）を追加しました。Web版と同じ全ページ（ホーム・練習・練習記録・ベスト記録・単語リストと作成・編集・端末・一般）を Web版と同じ見た目・判定・記録の規則で備えます。データはこのパソコンに保存するか、「一般」で「GitHub でログイン」を押して、Web版・iPad 版・Android 版と同じ本番の Go のバックエンド（`/api/auth/*`・`/api/workspace`）でアカウントに保存します。
 
-- ログインは既定のブラウザーで開き、終わると `typle-r://login?code=…` で Typle に戻ります（Typle は起動のたびにこのアドレスをこの Windows ユーザーに登録します）。トークンは Windows のデータ保護（DPAPI）で暗号化して、このパソコンにだけ保存します（下の「iPad と Android と Windows のログイン」）。
+- ログインは既定のブラウザーで開き、終わると `typle-r://login?code=…` で Typle に戻ります（Typle は起動のたびにこのアドレスをこの Windows ユーザーに登録します）。トークンは Windows のデータ保護（DPAPI）で暗号化して、このパソコンにだけ保存します（下の「iPad と Mac と Android と Windows のログイン」）。
 - サーバーは `client=windows` も受け付けるようになりました（Go のバックエンドと、手元用の Kotlin のバックエンド）。流れは iPad・Android と同じで、Web版・iPad 版・Android 版・`/api/v1` は変わりません。GitHub の OAuth App の設定と環境変数も変わりません。
 - GitHub Actions の新しいワークフロー `Windows app`（`.github/workflows/windows.yml`）が、`windows/` を変えた PR と手動の実行で、共通の規則（`windows/Typle.Core`）のテスト、アプリのビルド、各ページのスクリーンショットを行い、アプリを成果物 `typle-windows-x64` に残します。リリース・デプロイ（`ci.yml`）の条件ではなく、本番のデプロイ物も変わりません（`.vercelignore` で `windows` を外しています）。
 - 入れ方と範囲は [windows/README.md](windows/README.md) にあります。
@@ -33,7 +41,7 @@ Android タブレットのアプリ（`android/`）の「アカウント」の�
 
 - アカウントでも記録の削除ができるようになりました（以前の Android の API 接続でも端末の追加・変更・削除はできましたが、記録の削除はできませんでした）。
 - 別の画面で同時に保存されたとき（`409 conflict`）は、最新を読み直して同じ変更をやり直します（3回まで）。
-- Android は Cookie ではなく、ログインの最後に受け取るトークンを `Authorization: Bearer` で送ります。トークンは Android Keystore の鍵で暗号化して保存します。ログインは Android アプリが作った PKCE の検証値を持つアプリにしか完了できません（下の「iPad と Android と Windows のログイン」）。
+- Android は Cookie ではなく、ログインの最後に受け取るトークンを `Authorization: Bearer` で送ります。トークンは Android Keystore の鍵で暗号化して保存します。ログインは Android アプリが作った PKCE の検証値を持つアプリにしか完了できません（下の「iPad と Mac と Android と Windows のログイン」）。
 - サーバーの URL の初期値は本番の `https://typle-r-six.vercel.app` です。http は `localhost`・`127.0.0.1`・`10.0.2.2`・`*.local` だけで、エミュレーターから手元の `npm run dev` につなぐときは `http://10.0.2.2:<ポート>` です。
 - 以前の「アカウント（API）」の設定とトークンは使わなくなり、更新後の初回起動で消して「このタブレット」に戻ります。タブレットに保存したデータは変わりません。
 - サーバーは `client=android` も受け付けるようになりました。Web版・iPad 版・`/api/v1` は変わりません。GitHub の OAuth App の設定と環境変数も変わりません。
@@ -44,7 +52,7 @@ iPad アプリ（`ios/`）の「アカウント」の保存先を、自分で立
 
 - アカウントでも、端末の追加・変更・削除と記録の削除ができるようになりました（`/api/v1` ではできませんでした）。
 - 別の画面で同時に保存されたとき（`409 conflict`）は、最新を読み直して同じ変更をやり直します（3回まで）。
-- iPad は Cookie ではなく、ログインの最後に受け取るトークンを `Authorization: Bearer` で送ります。ログインは iPad が作った PKCE の検証値を持つアプリにしか完了できません（下の「iPad と Android と Windows のログイン」）。
+- iPad は Cookie ではなく、ログインの最後に受け取るトークンを `Authorization: Bearer` で送ります。ログインは iPad が作った PKCE の検証値を持つアプリにしか完了できません（下の「iPad と Mac と Android と Windows のログイン」）。
 - 以前の「アカウント（API）」の設定とトークンは使わなくなり、更新後の初回起動で消して「この iPad」に戻ります。iPad に保存したデータは変わりません。
 - Web版・`/api/v1`・Android 版は変わりません。GitHub の OAuth App の設定と環境変数も変わりません。
 
@@ -131,15 +139,15 @@ API（`server/`）はNext.jsとは独立したGoのコードで、モジュー�
 | `server-kotlin/` | `typle-web` と同じ API の Kotlin（Ktor）版です。`TYPLE_BACKEND=kotlin` のとき `npm run dev` と E2E が Go の代わりに使います。本番には載せません（[server-kotlin/README.md](server-kotlin/README.md)） |
 | `server/internal/serve` | `typle-web` と `typle-api` の待受です。止めるとき（SIGINT・SIGTERM）は、処理中のリクエストが終わるまで最大5秒待ってから DB を閉じます |
 
-### iPad と Android と Windows のログイン
+### iPad と Mac と Android と Windows のログイン
 
-iPad アプリ（`ios/`）・Android アプリ（`android/`）・Windows アプリ（`windows/`）は、Web版と同じ GitHub OAuth App でログインし、Cookie の代わりにトークンを使います（RFC 8252 のネイティブアプリの形）。サーバーの側は `client` が `ipad`・`android`・`windows` のどれかだけが違い、流れは同じです。
+iPad アプリ（`ios/`）・Mac アプリ（`macos/`）・Android アプリ（`android/`）・Windows アプリ（`windows/`）は、Web版と同じ GitHub OAuth App でログインし、Cookie の代わりにトークンを使います（RFC 8252 のネイティブアプリの形）。サーバーの側は `client` が `ipad`・`macos`・`android`・`windows` のどれかだけが違い、流れは同じです。
 
-1. アプリが32バイトの乱数から検証値（verifier）を作り、システムのログイン画面（iPad は `ASWebAuthenticationSession`、Android は Custom Tabs、Windows は既定のブラウザー）で `/api/auth/signin?client=<ipad|android|windows>&code_challenge=<S256>` を開きます。チャレンジは OAuth の Cookie に入り、GitHub にはサーバー自身の PKCE を使います。
+1. アプリが32バイトの乱数から検証値（verifier）を作り、システムのログイン画面（iPad と Mac は `ASWebAuthenticationSession`、Android は Custom Tabs、Windows は既定のブラウザー）で `/api/auth/signin?client=<ipad|macos|android|windows>&code_challenge=<S256>` を開きます。チャレンジは OAuth の Cookie に入り、GitHub にはサーバー自身の PKCE を使います。
 2. `callback/github` は Cookie を発行せず、`typle-r://login?code=<コード>` へリダイレクトします。コードはユーザーとチャレンジに署名したもので、2分で切れます。失敗・キャンセルは `typle-r://login?error=loginFailed` です。Android は `MainActivity` の intent-filter（scheme `typle-r`・host `login`）で、Windows は起動のたびに登録するプロトコル（`typle-r`、この Windows ユーザーの `HKEY_CURRENT_USER`）でこの URL を受け取ります。Windows では、ブラウザーが開いた2つ目の Typle が、動いている Typle にこの URL を渡して終わります。アプリを離れてコールバックが来なかったときは、何も起きなかったものとして戻ります（Windows は「ログインをやめる」で待つのをやめます）。
 3. アプリが `POST /api/auth/token`（`{"code","verifier"}`）を呼び、検証値の SHA-256 がチャレンジと一致すれば `{"token","user"}` を返します。コードを横取りしても、検証値がなければトークンにできません。間違いはすべて `400 loginFailed` です。Android と Windows は、ログインを始めてから10分たったログイン途中の状態は無効とし、ログインに失敗したものとして扱います。
 4. アプリは `Authorization: Bearer <トークン>` で `/api/auth/session` と `/api/workspace` を呼びます。トークンは Cookie と別の鍵で署名した有効期限30日の値で、Cookie の値をトークンとして、トークンを Cookie として使うことはできません。`Authorization` ヘッダーがある要求はトークンだけで判断し（Cookie は見ません）、ブラウザーが自動では付けないため、`PUT /api/workspace` の Origin の確認は要りません（`Content-Type` の確認は残ります）。
-5. 発行から24時間たったトークンは、`/api/auth/session` の応答の `token` で新しくなります。ログアウトはアプリがトークンを消すだけです（Cookie と同じく、サーバーには取り消す記録がありません）。トークンは iPad では Keychain に、Android では Android Keystore の鍵で暗号化して、Windows では Windows のデータ保護（DPAPI）で暗号化して保存します。
+5. 発行から24時間たったトークンは、`/api/auth/session` の応答の `token` で新しくなります。ログアウトはアプリがトークンを消すだけです（Cookie と同じく、サーバーには取り消す記録がありません）。トークンは iPad と Mac では Keychain に、Android では Android Keystore の鍵で暗号化して、Windows では Windows のデータ保護（DPAPI）で暗号化して保存します。
 
 Android のエミュレーターから手元の `npm run dev` で試すときは、サーバー URL に `http://10.0.2.2:<ポート>`（エミュレーターから見たホストの `localhost`）を入れます。ただし GitHub の OAuth App の callback URL は `AUTH_URL` に合わせたもの（`<AUTH_URL>/api/auth/callback/github`）でなければならず、開発用ログイン（`POST /api/auth/local`）はアプリでは使えません。
 
@@ -322,7 +330,7 @@ npm run test:e2e
 
 Kotlin のバックエンドは `cd server-kotlin && ./gradlew test` で確かめ、`TYPLE_BACKEND=kotlin npm run test:e2e` で同じ E2E を Kotlin を相手に流せます（先に `./gradlew installDist`。CI では `Kotlin backend` のワークフローが行います）。
 
-Goのバックエンドと API はリポジトリ直下で `gofmt -l .`・`go vet ./...`・`go test ./...` を実行します。ログインの Cookie、GitHub の OAuth（`httptest` で作った偽の GitHub を相手にします）、`/api/workspace`（検証・`revision` の競合・`409`）、iPad・Android のログイン（コード・トークン・Bearer）、セキュリティヘッダーなど、`server/internal/web` のハンドラーのテストも含みます。マイグレーション済みのテスト用DBを `TYPLE_TEST_DATABASE_URL` で指定すると、DBの読み書きも確かめます（CIの `verify` は `db:migrate` の後に実行します）。
+Goのバックエンドと API はリポジトリ直下で `gofmt -l .`・`go vet ./...`・`go test ./...` を実行します。ログインの Cookie、GitHub の OAuth（`httptest` で作った偽の GitHub を相手にします）、`/api/workspace`（検証・`revision` の競合・`409`）、iPad・Mac・Android・Windows のログイン（コード・トークン・Bearer）、セキュリティヘッダーなど、`server/internal/web` のハンドラーのテストも含みます。マイグレーション済みのテスト用DBを `TYPLE_TEST_DATABASE_URL` で指定すると、DBの読み書きも確かめます（CIの `verify` は `db:migrate` の後に実行します）。
 
 `npm test` は入力判定、記録、移行、形式検証などの単体テストです。E2Eは上限2 workersでファイル内も並列実行します。テストごとにランダムなアカウントIDを使用します。Playwright が Go のバックエンド（`go run ./server/cmd/typle-web`、ポート8081）と、本番ビルドの `next start`（ポート3101）を両方起動し、実PostgreSQLとAPIを通して作成・編集・練習・再読み込み・削除、アカウント分離、401/403/409応答を確認します。GitHub にはつながず、`tests/e2e/sessionCookie.ts` がテスト専用の秘密値で署名したログインの Cookie を作ります（Go の `server/internal/session` と同じ値になることは `tests/sessionCookie.test.cjs` が確かめます）。GitHub OAuth画面の実ログインは自動テストできないため、公開後に本番で別途確認が必要です。テストユーザーの行だけを終了後に削除します。
 

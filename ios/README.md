@@ -48,7 +48,7 @@ Web 版と同じ画面構成・色・部品です。上部バー（ブランド�
 
 - 2つのデータは別々で、切り替えてもコピーしません。
 - アカウントでも、この iPad と同じくすべての操作ができます。変更のたびに、読み込んだときの `revision` を付けてデータ全体を保存します。別の画面で先に保存されていたとき（`409 conflict`）は、最新を読み直して同じ変更をやり直します（3回まで）。
-- ログインは「一般」の「GitHub でログイン」で、システムのログイン画面（`ASWebAuthenticationSession`。Safari の GitHub のログインを使えます）が開きます。流れは [README の「iPad と Android と Windows のログイン」](../README.md#ipad-と-android-と-windows-のログイン) にあります。受け取ったトークンは iPad の Keychain にだけ保存し、有効期限は30日です。使っているあいだは自動で延びます。期限が切れたら、もう一度ログインしてください。
+- ログインは「一般」の「GitHub でログイン」で、システムのログイン画面（`ASWebAuthenticationSession`。Safari の GitHub のログインを使えます）が開きます。流れは [README の「iPad と Mac と Android と Windows のログイン」](../README.md#ipad-と-mac-と-android-と-windows-のログイン) にあります。受け取ったトークンは iPad の Keychain にだけ保存し、有効期限は30日です。使っているあいだは自動で延びます。期限が切れたら、もう一度ログインしてください。
 - ログアウトするとトークンを消して「この iPad」に戻ります。ログインしたまま「この iPad」に切り替え、あとで「アカウントに切り替える」で戻ることもできます。
 - 同じネットワークの Mac で Web 版を動かして試すときは、`http://<名前>.local:3000` も使えます。それ以外は HTTPS が必要です。GitHub の OAuth App の callback URL がその URL のものである必要があります（開発用ログインは iPad では使えません）。
 - v0.55.0 までの「アカウント（API）」（自分で立てる `/api/v1` に GitHub のトークンでつなぐ）はなくなりました。更新後の初回起動で、その設定とトークンを消して「この iPad」に戻ります。
@@ -60,6 +60,8 @@ Web 版と同じ画面構成・色・部品です。上部バー（ブランド�
 | `TypleCore/` | Foundation だけに依存する Swift Package。`src/core` の入力判定・記録・ベスト・ランキング・単語リスト・端末・CSV と、最初の単語リスト（`src/plugins/packs` のコピー）。`swift test` で確認します |
 | `Typle/` | SwiftUI のアプリ。`Storage/`（この iPad とアカウント、ログイン）、`Practice/`、`Lists/`、`Records/`、`Devices/`、`Resources/`（文言とアイコン） |
 | `project.yml` | XcodeGen の設定 |
+
+Mac 版（`macos/`）は `Typle/` と `TypleCore/` をそのまま使います（v0.60.0 から）。Mac で違うところは `#if os(macOS)` と `Typle/Support/Platform.swift` にあり、iPad のビルドには入りません。`Typle/` を変えたら、PR の `Mac app` ワークフロー（`.github/workflows/macos.yml`）でも Mac のビルドを確かめます。`Practice/PracticeTextField.swift` の引数を変えたら、Mac の `macos/Typle/Practice/PracticeTextField.swift` もそろえてください（`tests/macos.test.cjs` が確かめます）。Xcode は同じ `TypleCore` を2つのプロジェクトで同時に開けないため、iPad 版と Mac 版のプロジェクトは片方ずつ開きます。
 
 文字は JavaScript の `Array.from` と同じくコードポイントで数えるため、Web 版と同じ入力が同じミス数・正確率になります。
 

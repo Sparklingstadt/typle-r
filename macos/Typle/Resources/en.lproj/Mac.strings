@@ -1,0 +1,23 @@
+/* The Mac's own text: keys whose iPad text (ios/Typle/Resources/en.lproj/Localizable.strings) names the iPad, and
+   the Mac's menus. Every other key is the iPad's. */
+"dashboard.sourceLocal" = "Totals are based on the records saved on this Mac.";
+"devices.description" = "Register the Macs and keyboards you practise on. Choose one in “Practice” and your records will show which device you used.";
+"devices.empty.example" = "e.g. MacBook Air (JIS), Mac + HHKB (US)";
+"devices.current.heading" = "Device this Mac uses for practice";
+"devices.current.changeLabel" = "Change the device this Mac uses for practice (current: %@)";
+"devices.dialog.namePlaceholder" = "e.g. MacBook Air";
+"devices.dialog.use" = "Use this device for practice on this Mac";
+"storage.local" = "Saved on this Mac";
+"practice.word.resume" = "Click or press any key to resume";
+"settings.language.note" = "The language you choose is saved on this Mac.";
+"settings.storage.local" = "This Mac";
+"settings.storage.localDetail" = "Saved only on this Mac";
+"settings.storageHint" = "Data on this Mac and in your account are separate. Switching does not copy anything.";
+"settings.accountHint" = "Signs in to the web app of Typle with GitHub, and reads and writes the same word lists, records and devices. The sign-in is kept only in this Mac’s keychain.";
+"settings.useLocal" = "Switch to this Mac";
+"settings.signOut" = "Sign out and go back to this Mac";
+"errors.localReadFailed" = "Cannot read the data saved on this Mac. The original data has not been changed.";
+"errors.localWriteFailed" = "Cannot save on this Mac. Check the free space and try again.";
+"errors.accountKeychainFailed" = "Could not keep the sign-in on this Mac.";
+"mac.menu.settings" = "Settings…";
+"mac.menu.go" = "Go";

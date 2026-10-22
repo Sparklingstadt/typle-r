@@ -11,14 +11,14 @@ enum DemoData {
     let directory = FileManager.default.temporaryDirectory.appendingPathComponent("typle-demo", isDirectory: true)
     try? FileManager.default.removeItem(at: directory)
     try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-    let file = WorkspaceFile(accountId: "ipad:local", revision: 1, document: document())
+    let file = WorkspaceFile(accountId: Platform.localAccountId, revision: 1, document: document())
     if let data = try? encodeWorkspaceFile(file) { try? data.write(to: directory.appendingPathComponent("workspace.json")) }
     return LocalWorkspaceStore(directory: directory)
   }
 
   static func document(now: Date = Date()) -> WorkspaceDocument {
     var lists = initialLists()
-    let device = PracticeDevice(id: "demo-ipad", name: "iPad＋Magic Keyboard", layout: "JIS")
+    let device = PracticeDevice(id: "demo-device", name: Platform.demoDeviceName, layout: "JIS")
     func date(daysAgo: Int, hour: Int) -> String {
       let day = Calendar.current.date(byAdding: .day, value: -daysAgo, to: Calendar.current.startOfDay(for: now))!
       return isoString(day.addingTimeInterval(Double(hour) * 3600))

@@ -103,6 +103,7 @@ struct ListEditorView: View {
       }
       TextField("", text: $name)
         .font(.system(size: 14))
+        .textFieldStyle(.plain)
         .focused($focus, equals: .name)
         .padding(.horizontal, 12)
         .frame(height: 44)
@@ -217,6 +218,7 @@ struct ListEditorView: View {
         } label: {
           Image(systemName: "ellipsis").font(.system(size: 14)).frame(width: 32, height: 36).contentShape(Rectangle())
         }
+        .plainMenu()
         .foregroundStyle(Palette.foreground)
         .accessibilityLabel(L("wordLists.editor.wordActions", index + 1))
         Button { remove(index) } label: { Image(systemName: "trash").font(.system(size: 14)) }
@@ -241,8 +243,7 @@ struct ListEditorView: View {
   private func cell(_ placeholder: String, _ text: Binding<String>, field: Field, invalid: Bool, label: String) -> some View {
     TextField(placeholder, text: text)
       .font(.system(size: 14))
-      .textInputAutocapitalization(.never)
-      .autocorrectionDisabled()
+      .plainInput()
       .focused($focus, equals: field)
       .submitLabel(.next)
       .onSubmit { next(after: field) }

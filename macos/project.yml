@@ -1,0 +1,67 @@
+# The Xcode project for the Mac app. Generate it with `xcodegen generate` in this directory (see macos/README.md);
+# Typle.xcodeproj is not committed. The app is built from the iPad app's sources (../ios/Typle) and its shared rules
+# (../ios/TypleCore), with the Mac's own parts in Typle/ here.
+name: Typle
+options:
+  bundleIdPrefix: io.github.sparklingstadt
+  deploymentTarget:
+    macOS: "14.0"
+  developmentLanguage: ja
+  createIntermediateGroups: true
+packages:
+  TypleCore:
+    path: ../ios/TypleCore
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "0.60.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  Typle:
+    type: application
+    platform: macOS
+    sources:
+      - path: ../ios/Typle
+        excludes:
+          # The iPad's UITextField and its icon; the Mac's are in Typle/ here.
+          - Practice/PracticeTextField.swift
+          - Resources/Assets.xcassets
+          - Info.plist
+      - path: Typle
+        excludes:
+          - Info.plist
+          - Typle.entitlements
+    dependencies:
+      - package: TypleCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.sparklingstadt.typle
+        PRODUCT_NAME: Typle
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Typle
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.education
+        INFOPLIST_KEY_NSHumanReadableCopyright: ""
+        # The web app may run on this Mac or one on the same network (http://<name>.local:3000) while trying it out.
+        INFOPLIST_KEY_NSLocalNetworkUsageDescription: Typle が同じネットワークの開発用の Typle に接続するために使います。
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        # Signed to run locally (ad hoc), so the app builds and runs without choosing a development team. Choose one in
+        # Signing & Capabilities to sign with your own certificate instead.
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "-"
+        DEVELOPMENT_TEAM: ""
+        CODE_SIGN_ENTITLEMENTS: Typle/Typle.entitlements
+        ENABLE_HARDENED_RUNTIME: YES
+        ENABLE_PREVIEWS: YES
+    info:
+      path: Typle/Info.plist
+      properties:
+        CFBundleLocalizations: [ja, en]
+        CFBundleAllowMixedLocalizations: true
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
+schemes:
+  Typle:
+    build:
+      targets:
+        Typle: all

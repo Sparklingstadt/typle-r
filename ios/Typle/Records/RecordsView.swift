@@ -31,9 +31,11 @@ struct RecordsView: View {
                 Text(L("records.filterMenu.option", list.name, list.records.count)).tag(String?.some(list.id))
               }
             }
+            .menuPicker()
           } label: {
             FilterLabel(name: L("records.filter.list"), value: listFilter.flatMap { id in app.lists.first { $0.id == id }?.name } ?? L("records.filterMenu.all"))
           }
+          .plainMenu()
           Menu {
             Picker(L("records.filter.device"), selection: $deviceFilter) {
               Text(L("records.filter.allDevices")).tag(String?.none)
@@ -42,11 +44,13 @@ struct RecordsView: View {
                   .tag(String?.some(option.value))
               }
             }
+            .menuPicker()
           } label: {
             FilterLabel(name: L("records.filter.device"), value: deviceFilter.map { value in
               value == noDevice ? L("format.noDeviceRecorded") : Format.device(options.first { $0.value == value }?.device)
             } ?? L("records.filterMenu.all"))
           }
+          .plainMenu()
           if listFilter != nil || deviceFilter != nil {
             Button(L("records.filter.clear")) { listFilter = nil; deviceFilter = nil }.buttonStyle(.typle(.ghost))
           }

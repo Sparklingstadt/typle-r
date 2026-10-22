@@ -2,7 +2,7 @@
 
 GitHubでログインしたアカウントのクラウド保存（`typle_workspaces`）を、スクリプトや別のアプリから読み書きするためのAPIです。`server/` のGoサーバーで、Typle本体とは別に起動します。Vercelの本番には載せていません（v0.55.0 でもそのままです。本番の Go の関数は、アプリ自身のログインと保存の `/api/auth/*`・`/api/workspace`・`/api/health` だけです）。
 
-- iPad 版は v0.56.0 から、Android 版は v0.57.0 から、この API を使いません。Windows 版（v0.59.0 から）も使いません。どれも Web版と同じ GitHub ログインで本番の `/api/workspace` を使います（[README の「iPad と Android と Windows のログイン」](../README.md#ipad-と-android-と-windows-のログイン)）。
+- iPad 版は v0.56.0 から、Android 版は v0.57.0 から、この API を使いません。Windows 版（v0.59.0 から）と Mac 版（v0.60.0 から）も使いません。どれも Web版と同じ GitHub ログインで本番の `/api/workspace` を使います（[README の「iPad と Mac と Android と Windows のログイン」](../README.md#ipad-と-mac-と-android-と-windows-のログイン)）。
 - 既定は読み取り専用です。`GET`・`HEAD` 以外は `405 methodNotAllowed` で、DBへの接続も読み取り専用（`default_transaction_read_only=on`）のため、書き込みはDBが拒否します。
 - `-writable` を付けて起動すると、リストの作成・変更・削除と記録の追加（v0.42.0 から）、リストの複製（v0.47.0 から）、CSV・TSV の取り込み（v0.48.0 から）、端末の作成・変更・削除（v0.44.0 から）、記録の変更・削除（v0.45.0 から）もできます。
 - GitHubのトークンで認証します。読み書きできるのは、そのトークンのGitHubユーザー本人のアカウント（アプリにGitHubでログインしたときと同じ `github:<ユーザーID>`）のデータだけです。ほかのアカウントのデータには届きません。

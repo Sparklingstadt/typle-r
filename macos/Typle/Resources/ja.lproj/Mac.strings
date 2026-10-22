@@ -1,0 +1,23 @@
+/* The Mac's own text: keys whose iPad text (ios/Typle/Resources/ja.lproj/Localizable.strings) names the iPad, and
+   the Mac's menus. Every other key is the iPad's. */
+"dashboard.sourceLocal" = "この Mac に保存された記録から集計しています。";
+"devices.description" = "練習に使う Mac やキーボードを登録します。「練習する」で選ぶと、どの端末で練習したかが記録に残ります。";
+"devices.empty.example" = "例：MacBook Air（JIS）、Mac＋HHKB（US）";
+"devices.current.heading" = "この Mac で練習に使う端末";
+"devices.current.changeLabel" = "この Mac で練習に使う端末を変更（現在：%@）";
+"devices.dialog.namePlaceholder" = "例：MacBook Air";
+"devices.dialog.use" = "この Mac で練習に使う端末にする";
+"storage.local" = "この Mac に保存";
+"practice.word.resume" = "クリックまたは任意のキーで再開";
+"settings.language.note" = "選んだ言語はこの Mac に保存されます。";
+"settings.storage.local" = "この Mac";
+"settings.storage.localDetail" = "この Mac だけに保存します";
+"settings.storageHint" = "この Mac とアカウントのデータは別々です。切り替えてもコピーはしません。";
+"settings.accountHint" = "Web 版の Typle に GitHub でログインし、同じ単語リスト・記録・端末を読み書きします。ログインの情報はこの Mac のキーチェーンにだけ保存します。";
+"settings.useLocal" = "この Mac に切り替える";
+"settings.signOut" = "ログアウトして この Mac に戻る";
+"errors.localReadFailed" = "この Mac の保存データを読み込めません。元のデータは変更していません。";
+"errors.localWriteFailed" = "この Mac に保存できません。空き容量を確認して再試行してください。";
+"errors.accountKeychainFailed" = "ログインの情報をこの Mac に保存できませんでした。";
+"mac.menu.settings" = "設定…";
+"mac.menu.go" = "移動";

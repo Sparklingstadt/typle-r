@@ -23,11 +23,13 @@ struct RankingsView: View {
               Text(option.value == noDevice ? L("format.noDeviceRecorded") : Format.device(option.device)).tag(String?.some(option.value))
             }
           }
+          .menuPicker()
         } label: {
           FilterLabel(name: L("rankings.filter.device"), value: device.map { value in
             value == noDevice ? L("format.noDeviceRecorded") : Format.device(devices.first { $0.value == value }?.device)
           } ?? L("records.filterMenu.all"))
         }
+        .plainMenu()
         SegmentedPills(options: [(RankOrder.accuracy, L("rankings.order.accuracy")), (RankOrder.speed, L("rankings.order.speed"))], selection: $order)
         HStack(spacing: 4) {
           Image(systemName: "info.circle").font(.system(size: 11))
@@ -57,6 +59,7 @@ struct RankingsView: View {
           Picker(L("rankings.list.sortLabel", ""), selection: $sort) {
             ForEach(ListSort.allCases, id: \.self) { sort in Text(L("rankings.list.sorts.\(sort.rawValue)")).tag(sort) }
           }
+          .menuPicker()
         } label: {
           HStack(spacing: 4) {
             Text(L("rankings.list.sorts.\(sort.rawValue)"))
@@ -64,6 +67,7 @@ struct RankingsView: View {
           }
           .font(.system(size: 13)).foregroundStyle(Palette.mutedForeground)
         }
+        .plainMenu()
       }
       .padding(12)
       Hairline()

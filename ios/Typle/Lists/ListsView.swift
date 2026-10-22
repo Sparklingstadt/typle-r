@@ -35,6 +35,7 @@ struct ListsView: View {
             Picker(L("wordLists.order.label"), selection: $order) {
               ForEach(ListOrder.allCases, id: \.self) { order in Text(L("wordLists.order.\(order.rawValue)")).tag(order) }
             }
+            .menuPicker()
           } label: {
             HStack(spacing: 6) {
               Text(L("wordLists.order.label")).foregroundStyle(Palette.mutedForeground)
@@ -47,6 +48,7 @@ struct ListsView: View {
             .background(Palette.card, in: RoundedRectangle(cornerRadius: Radius.md))
             .outlined(radius: Radius.md, color: Palette.input)
           }
+          .plainMenu()
           Spacer()
           Text(query.isEmpty ? L("wordLists.manager.count", all.count) : L("wordLists.manager.countFiltered", items.count, all.count))
             .font(.system(size: 14)).foregroundStyle(Palette.mutedForeground)
@@ -119,6 +121,7 @@ struct ListsView: View {
       Menu { menu(item.list) } label: {
         Image(systemName: "ellipsis").font(.system(size: 15)).frame(width: 36, height: 36).contentShape(Rectangle())
       }
+      .plainMenu()
       .foregroundStyle(Palette.foreground)
       .accessibilityLabel(L("wordLists.row.moreFor", item.list.name))
     }
@@ -133,9 +136,14 @@ struct ListsView: View {
     Button { app.showRankings(listId: list.id) } label: { Label(L("wordLists.row.rankings"), systemImage: "trophy") }
     Button { app.navigate(.records) } label: { Label(L("wordLists.row.records"), systemImage: "clock.arrow.circlepath") }
     Divider()
+    #if os(macOS)
+    // The Mac saves the file where the reader chooses, as the web app downloads it.
+    Button { CsvExport(list: list).save() } label: { Label(L("wordLists.row.export"), systemImage: "square.and.arrow.down") }
+    #else
     ShareLink(item: CsvExport(list: list), preview: SharePreview(list.name)) {
       Label(L("wordLists.row.export"), systemImage: "square.and.arrow.up")
     }
+    #endif
     Button { duplicate(list) } label: { Label(L("wordLists.row.copy"), systemImage: "plus.square.on.square") }
       .disabled(app.lists.count >= maxLists)
     Divider()
@@ -177,13 +185,20 @@ struct CsvExport: Transferable {
     FileRepresentation(exportedContentType: .commaSeparatedText) { export in SentTransferredFile(try export.write()) }
   }
 
-  func write() throws -> URL {
+  /// The file's name: the list's name without the characters a file name cannot have.
+  var fileName: String {
     let unsafe = CharacterSet(charactersIn: "/\\?%*|\"<>:").union(.newlines).union(.controlCharacters)
     let name = list.name.components(separatedBy: unsafe).joined(separator: "_").trimmingCharacters(in: .whitespaces)
+    return (name.isEmpty ? "words" : name) + ".csv"
+  }
+
+  var data: Data { Data(encodeWordCsv(list.words).utf8) }
+
+  func write() throws -> URL {
     let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
     try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-    let url = directory.appendingPathComponent((name.isEmpty ? "words" : name) + ".csv")
-    try Data(encodeWordCsv(list.words).utf8).write(to: url, options: .atomic)
+    let url = directory.appendingPathComponent(fileName)
+    try data.write(to: url, options: .atomic)
     return url
   }
 }

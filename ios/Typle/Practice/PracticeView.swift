@@ -209,7 +209,7 @@ struct PracticeView: View {
     .overlay {
       if showResume {
         Button { model.focusRequest += 1 } label: {
-          Label(L("practice.word.resume"), systemImage: "hand.tap")
+          Label(L("practice.word.resume"), systemImage: Platform.resumeIcon)
             .font(.system(size: 14, weight: .medium))
             .labelStyle(TightLabelStyle())
             .foregroundStyle(Palette.primaryForeground)

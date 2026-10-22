@@ -23,7 +23,7 @@ protocol WorkspaceStore: AnyObject {
 /// is left untouched: every change fails until it is moved away or fixed.
 @MainActor
 final class LocalWorkspaceStore: WorkspaceStore {
-  let accountId = "ipad:local"
+  let accountId = Platform.localAccountId
 
   private let url: URL
   private var file: WorkspaceFile?
@@ -56,7 +56,11 @@ final class LocalWorkspaceStore: WorkspaceStore {
     let data = try encodeWorkspaceFile(next)
     do {
       try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+      #if os(iOS)
       try data.write(to: url, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
+      #else
+      try data.write(to: url, options: .atomic)
+      #endif
     } catch {
       throw TypleError("localWriteFailed")
     }

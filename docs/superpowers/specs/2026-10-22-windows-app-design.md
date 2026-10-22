@@ -67,5 +67,5 @@ Go の関数（`/api/auth/*`・`/api/workspace`）を使い、同じ GitHub ロ�
 
 ## バージョン・ドキュメント
 
-- `package.json` を 0.59.0。`README.md` に v0.59.0 の節と「iPad と Android と Windows のログイン」。
+- `package.json` を 0.59.0。`README.md` に v0.59.0 の節と「iPad と Mac と Android と Windows のログイン」。
   `windows/README.md`。`docs/api.md` に Windows も `/api/v1` を使わないことを書く。`.vercelignore` に `windows`。

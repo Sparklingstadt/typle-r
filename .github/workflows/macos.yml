@@ -1,0 +1,123 @@
+name: Mac app
+
+# Builds the Mac app in macos/ (the iPad app's SwiftUI sources in ios/ with the Mac's own parts) and captures
+# screenshots of every page. It is separate from ci.yml: the Mac app is not released or deployed by it, and macOS
+# runners only start for pull requests that change macos/ or the shared ios/ and when started by hand
+# (workflow_dispatch), not again on the push to main: their minutes count ten times. The app, signed to run locally,
+# is kept as an artifact to install by hand.
+on:
+  pull_request:
+    paths:
+      - 'macos/**'
+      - 'ios/Typle/**'
+      - 'ios/TypleCore/**'
+      - 'src/plugins/packs/**'
+      - '.github/workflows/macos.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Show Xcode
+        run: xcodebuild -version
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate the Xcode project
+        working-directory: macos
+        run: xcodegen generate
+      # Unsigned, so the sandbox's entitlements do not apply and the screenshots can be written anywhere.
+      - name: Build for screenshots (Debug)
+        working-directory: macos
+        run: |
+          xcodebuild build -project Typle.xcodeproj -scheme Typle -configuration Debug \
+            -destination 'platform=macOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO | tee build.log
+          exit "${PIPESTATUS[0]}"
+      - name: Show build errors
+        if: failure()
+        working-directory: macos
+        run: |
+          grep -E 'error:|warning: .*(Sendable|actor)' build.log | sort -u | head -100 || true
+      # Each page with the sample data of `-TypleDemo` (ios/Typle/Support/DemoData.swift), saved by the app itself
+      # (MacSnapshot in macos/Typle/MacCommands.swift), to compare with the web app's and the iPad's pages.
+      - name: Capture screenshots
+        working-directory: macos
+        run: |
+          set -euo pipefail
+          app=build/Build/Products/Debug/Typle.app/Contents/MacOS/Typle
+          mkdir -p screenshots
+          capture() { # name language appearance route [extra args...]
+            local name=$1 language=$2 appearance=$3 route=$4; shift 4
+            # Arguments override the stored choices: the language of 一般 and the top bar's light and dark switch.
+            "$app" -TypleDemo YES -TypleRoute "$route" -typle-r:language "$language" -typle-r:theme "$appearance" \
+              -TypleSnapshot "$PWD/screenshots/$name.png" "$@" >"$name.log" 2>&1 &
+            local pid=$!
+            for _ in $(seq 1 40); do kill -0 "$pid" 2>/dev/null || break; sleep 0.5; done
+            if kill -0 "$pid" 2>/dev/null; then
+              echo "::warning::$name did not finish"; kill "$pid" || true
+            fi
+            [ -s "screenshots/$name.png" ] || { echo "::warning::No screenshot for $name"; cat "$name.log"; }
+          }
+          for route in home practice records rankings lists createList editList general devices; do
+            capture "$route" ja light "$route"
+          done
+          capture typing ja light practice -TypleTyping hogefx
+          capture result ja light practice -TypleTyping hogefoobar
+          capture detail ja light rankings -TypleRankingsList sample-1
+          capture dark ja dark practice
+          capture dark-lists ja dark lists
+          capture en en light practice
+          ls -l screenshots
+      # The artifact storage is not reachable from every reviewer's environment, so the screenshots are also printed
+      # into the log as small JPEGs (base64, one line each, after "SCREENSHOT <name>").
+      - name: Print screenshots
+        if: always()
+        working-directory: macos
+        run: |
+          mkdir -p small
+          for file in screenshots/*.png; do
+            [ -e "$file" ] || continue
+            name=$(basename "$file" .png)
+            sips -s format jpeg -s formatOptions 55 -Z 1400 "$file" --out "small/$name.jpg" >/dev/null
+            echo "SCREENSHOT $name $(base64 -i "small/$name.jpg" | tr -d '\n')"
+          done
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: mac-screenshots
+          path: macos/screenshots
+          retention-days: 14
+          if-no-files-found: ignore
+      # Signed ad hoc (to run locally, with the sandbox), for both Apple silicon and Intel Macs.
+      - name: Build the app (Release)
+        working-directory: macos
+        run: |
+          xcodebuild build -project Typle.xcodeproj -scheme Typle -configuration Release \
+            -destination 'generic/platform=macOS' -derivedDataPath build ARCHS='arm64 x86_64' ONLY_ACTIVE_ARCH=NO \
+            CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= | tee release.log
+          exit "${PIPESTATUS[0]}"
+      - name: Package the app
+        working-directory: macos
+        run: |
+          app=build/Build/Products/Release/Typle.app
+          codesign --verify --deep --strict "$app"
+          codesign -d --entitlements - "$app"
+          ditto -c -k --keepParent "$app" Typle-macOS.zip
+      - name: Upload the app
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: typle-macos-app
+          path: macos/Typle-macOS.zip
+          retention-days: 30
