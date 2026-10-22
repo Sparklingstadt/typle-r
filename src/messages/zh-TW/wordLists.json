@@ -126,7 +126,7 @@
   "import": {
     "open": "匯入 CSV/TSV",
     "title": "從 CSV/TSV 匯入",
-    "description": "第一列為欄位名稱。display 為必填，input、annotation 可省略。欄位順序不限。",
+    "description": "第一列為欄位名稱。input 與 display 為必填，annotation 可省略。欄位順序不限。",
     "fileLabel": "選擇 CSV/TSV 檔案",
     "readFailed": "無法讀取檔案。",
     "addFailed": "無法新增單字。",

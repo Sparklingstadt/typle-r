@@ -126,7 +126,7 @@
   "import": {
     "open": "CSV・TSVを読み込む",
     "title": "CSV・TSVから読み込む",
-    "description": "1行目は列名です。display は必須、input・annotation は省略できます。列の順番は自由です。",
+    "description": "1行目は列名です。input と display は必須、annotation は省略できます。列の順番は自由です。",
     "fileLabel": "CSV・TSVファイルを選択",
     "readFailed": "ファイルを読み込めませんでした。",
     "addFailed": "単語を追加できませんでした。",

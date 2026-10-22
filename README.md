@@ -3,6 +3,10 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
+## v0.60.1 — CSV・TSV の取り込みダイアログの説明を直しました
+
+取り込みダイアログは「display は必須、input・annotation は省略できます」と案内していましたが、取り込みは `input` と `display` の列を両方必須にしています。6言語の説明を実際の動作（`input` と `display` は必須、`annotation` は省略できる）に合わせました。取り込みの動作は変わりません。
+
 ## v0.60.0 — macOS版（SwiftUI）を追加しました
 
 `macos/` に Mac のネイティブアプリ（SwiftUI、macOS 14以上）を追加しました。Web版と同じ全ページ（ホーム・練習・練習記録・ベスト記録・単語リストと作成・編集・端末・一般）を Web版と同じ見た目で備え、Mac のキーボードで練習できます。データはこの Mac に保存するか、Web版・iPad版・Android版・Windows版と同じ GitHub ログインで、本番の Go のバックエンド（`/api/auth/*`・`/api/workspace`）のアカウントに保存します。GitHub Actions が作るアプリ（`typle-macos-app`）を手で入れるか、Xcode で `macos/` を開いて起動します。入れ方と範囲は [macos/README.md](macos/README.md) を参照してください。
