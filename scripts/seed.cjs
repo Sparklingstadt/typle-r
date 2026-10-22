@@ -3,11 +3,13 @@ const { PrismaClient } = require('@prisma/client')
 const { PrismaPg } = require('@prisma/adapter-pg')
 
 const countries = require('../src/plugins/packs/countries.json')
+const linux = require('../src/plugins/packs/linux.json')
 
 const templates = [
   { id: 'seed-test-1', name: 'Test 1', words: ['hoge', 'foo', 'bar'] },
   { id: 'seed-test-2', name: 'test 2', words: ['one', 'two', 'three'] },
   countries,
+  ...linux,
 ]
 
 async function applySeed(tx, ownerId) {

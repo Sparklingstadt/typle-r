@@ -66,13 +66,14 @@ func TestInitial(t *testing.T) {
 			t.Fatalf("%s has records", list.ID)
 		}
 	}
-	if strings.Join(ids, ",") != "sample-1,sample-2,un-member-states-chinese-193" || len(w.Lists[2].Words) != 193 {
+	if strings.Join(ids, ",") != "sample-1,sample-2,un-member-states-chinese-193,linux-commands-basic,linux-commands-options,"+
+		"linux-commands-advanced,linux-shell-bash,linux-system" || len(w.Lists[2].Words) != 193 {
 		t.Fatalf("ids = %v", ids)
 	}
 }
 
 func TestPacksMatchApp(t *testing.T) {
-	for name, copy := range map[string][]byte{"samples.json": samplesJSON, "countries.json": countriesJSON} {
+	for name, copy := range map[string][]byte{"samples.json": samplesJSON, "countries.json": countriesJSON, "linux.json": linuxJSON} {
 		original, err := os.ReadFile(filepath.Join("..", "..", "..", "src", "plugins", "packs", name))
 		if err != nil {
 			t.Fatal(err)
