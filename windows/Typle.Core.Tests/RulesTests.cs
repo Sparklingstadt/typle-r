@@ -382,7 +382,7 @@ public class WorkspaceTests
         var lists = Workspace.InitialLists();
         Assert.Equal(["sample-1", "sample-2"], lists.Select(list => list.Id).Take(2));
         Assert.Equal(193, lists[2].Words.Count);
-        Assert.Equal(["linux-commands-basic", "gcloud-cli"], new[] { lists[3], lists[^1] }.Select(list => list.Id));
+        Assert.Equal(["linux-commands-basic", "macos-zsh"], new[] { lists[3], lists[^1] }.Select(list => list.Id));
         WordLists.ValidateAll(lists);
     }
 }
