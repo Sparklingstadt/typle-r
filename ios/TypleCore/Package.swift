@@ -9,7 +9,7 @@ let package = Package(
   products: [.library(name: "TypleCore", targets: ["TypleCore"])],
   targets: [
     .target(name: "TypleCore", resources: [
-      .copy("Resources/samples.json"), .copy("Resources/countries.json"), .copy("Resources/linux.json"),
+      .copy("Resources/samples.json"), .copy("Resources/countries.json"), .copy("Resources/commands.json"),
     ]),
     .testTarget(name: "TypleCoreTests", dependencies: ["TypleCore"]),
   ]

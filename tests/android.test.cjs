@@ -40,7 +40,7 @@ function enumCases(sources, name) {
 }
 
 test('the Android app bundles the same starting lists as the web app', () => {
-  for (const name of ['samples.json', 'countries.json', 'linux.json']) {
+  for (const name of ['samples.json', 'countries.json', 'commands.json']) {
     assert.equal(fs.readFileSync(path.join(android, 'core/src/main/resources', name), 'utf8'),
       fs.readFileSync(path.join(root, 'src/plugins/packs', name), 'utf8'), `${name}: copy src/plugins/packs/${name} again`)
   }

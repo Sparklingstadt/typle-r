@@ -22,13 +22,13 @@ private fun pack(name: String): String =
 fun initialLists(): List<WordList> {
   val samples = TypleJson.decodeFromString(ListSerializer(PackList.serializer()), pack("samples"))
   val countries = TypleJson.decodeFromString(PackList.serializer(), pack("countries"))
-  val linux = TypleJson.decodeFromString(ListSerializer(PackList.serializer()), pack("linux"))
+  val commands = TypleJson.decodeFromString(ListSerializer(PackList.serializer()), pack("commands"))
   return samples.mapIndexed { index, list ->
     WordList(id = "sample-${index + 1}", name = list.name, words = list.words, createdAt = list.createdAt)
   } + WordList(id = countries.id ?: "countries", name = countries.name, words = countries.words,
     records = countries.records ?: emptyList(), createdAt = countries.createdAt) +
-    // Each list of linux.json names its own id (tests/linux.test.cjs).
-    linux.map { list ->
+    // Each list of commands.json names its own id (tests/commands.test.cjs).
+    commands.map { list ->
       WordList(id = list.id ?: list.name, name = list.name, words = list.words, records = list.records ?: emptyList(),
         createdAt = list.createdAt)
     }

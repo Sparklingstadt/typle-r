@@ -55,7 +55,7 @@ public static class Workspace
     {
         var samples = JsonSerializer.Deserialize<List<PackList>>(Pack("samples.json"), TypleJson.Options)!;
         var countries = JsonSerializer.Deserialize<PackList>(Pack("countries.json"), TypleJson.Options)!;
-        var linux = JsonSerializer.Deserialize<List<PackList>>(Pack("linux.json"), TypleJson.Options)!;
+        var commands = JsonSerializer.Deserialize<List<PackList>>(Pack("commands.json"), TypleJson.Options)!;
         return
         [
             .. samples.Select((list, index) => new WordList
@@ -67,8 +67,8 @@ public static class Workspace
                 Id = countries.Id ?? "countries", Name = countries.Name, Words = countries.Words, Records = countries.Records ?? [],
                 CreatedAt = countries.CreatedAt,
             },
-            // Each list of linux.json names its own id (tests/linux.test.cjs).
-            .. linux.Select(list => new WordList
+            // Each list of commands.json names its own id (tests/commands.test.cjs).
+            .. commands.Select(list => new WordList
             {
                 Id = list.Id ?? list.Name, Name = list.Name, Words = list.Words, Records = list.Records ?? [], CreatedAt = list.CreatedAt,
             }),
