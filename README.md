@@ -3,6 +3,15 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
+## v0.74.0 — 40語を超える初期リストを初級・中級・上級に分けました
+
+1つのリストが最大193語あり、1回の練習が長すぎたため、40語を超える18リストを40語以下に分けました。初期リストは22件から64件になります（分けたリストは23〜40語）。
+
+- 分け方：40語以下になる最少の数に、語数をそろえて分けます。打ちやすい語から順に、2つなら（初級）（上級）、3つなら（初級）（中級）（上級）、4つなら（初級）（中級1）（中級2）（上級）、5つなら（初級1）（初級2）（中級）（上級1）（上級2）です（例：「Kotlin構文（初級1）」）。国名は「国名：中国語・国連加盟国（初級1）」「国名：中国語・国連加盟国（小文字・初級1）」のようにします。
+- 難しさ：入力する文字数で比べ、記号と日本語の文字は2文字として数えます（大文字・小文字は区別しません）。リストの最初の語（`pwd` や `// Prisma ORM 7 / TypeScript / PostgreSQL` などの前提の説明）は、初級の最初に残します。各リストの中は元の順（話題のまとまり）のままです。
+- 保存済みのアカウント：マイグレーション `0018_split_long_initial_lists` が、元のリストをその位置で分けたリストに置き換えます。練習記録があるリストや語を編集したリストは、記録と語をそのまま残し、その後ろに分けたリストを加えます。削除したリストは戻しません。同じIDか同じ名前のリストがあればそのリストは加えず、100リストか保存できる大きさを超えるアカウントは変えません。
+- 40語以下の Vercel CLI（34語）・gcloud（35語）とサンプル2件はそのままです。Android・iPad・Mac・Windows の初期リストも同じです（`countries.json` は複数のリストの配列になりました）。
+
 ## v0.73.1 — Next.js を 16.4.2 に上げました（セキュリティ修正）
 
 Next.js 16.4.0 に見つかった脆弱性を直すため、`next`・`@next/env`・`eslint-config-next` を 16.4.2 にしました。対象は次の3件です。
@@ -156,7 +165,7 @@ Next.js のアプリは1つで、`src` を層に分けています。依存は�
 | 層 | 場所 | 内容 |
 |---|---|---|
 | 画面 | `src/app`・`src/components`・`src/i18n`・`src/lib` | ページ、UI、多言語化、React のフック。`useWordLists` は React の状態とブラウザーのイベント（フォーカス・他タブの変更）だけを受け持ち、読み込み・保存は core の `createWorkspaceSession` に任せます |
-| プラグイン | `src/plugins` | core のポートの実装と初期データ。`storage`：`cloud`（Goのバックエンドが提供する `/api/workspace`）と `guest`（LocalStorage）を `workspaceStore(accountId)` がアカウントに応じて選びます。`formats`：CSV・TSV（`delimited.ts`）と旧バージョンのブラウザー保存からの移行（`legacy.ts`）。`packs`：最初に表示する単語リスト（サンプル、国名193か国、Linux・Vercel CLI・gcloud・AWS CLI・macOS（zsh）・Arch Linux・Vim・Go構文・Java構文・Kotlin構文・PostgreSQL構文・Prisma構文・Jest構文・Playwright構文の18リスト） |
+| プラグイン | `src/plugins` | core のポートの実装と初期データ。`storage`：`cloud`（Goのバックエンドが提供する `/api/workspace`）と `guest`（LocalStorage）を `workspaceStore(accountId)` がアカウントに応じて選びます。`formats`：CSV・TSV（`delimited.ts`）と旧バージョンのブラウザー保存からの移行（`legacy.ts`）。`packs`：最初に表示する単語リスト（サンプル、国名193か国、Linux・Vercel CLI・gcloud・AWS CLI・macOS（zsh）・Arch Linux・Vim・Go構文・Java構文・Kotlin構文・PostgreSQL構文・Prisma構文・Jest構文・Playwright構文の18種類。40語を超えるものは初級・中級・上級に分け、全部で64リスト） |
 | core | `src/core` | React・Next.js・ブラウザーAPIに依存しない TypeScript。単語リスト・入力判定・記録・集計・ワークスペースのモデルと検証、保存先のポート `WorkspaceStore`（`workspaceStore.ts`、保存場所 `location` を含む）、ワークスペースの読み込み・保存 `createWorkspaceSession`（`workspaceSession.ts`。アカウントの切り替え後に届いた結果の破棄、保存の直列化、409での再読み込み、古いクラウド読み込みの無視）とファイル形式のポート `WordFormat`（`wordFormat.ts`） |
 
 保存先を増やすときは `WorkspaceStore` を実装したプラグインを `src/plugins/storage` に追加し、`workspaceStore` で選びます。ファイル形式を増やすときは `WordFormat` を実装して `src/plugins/formats/index.ts` の一覧に加えると、取り込みの拡張子判定と `accept` に反映されます。どちらも画面のコードは変わりません。
@@ -388,13 +397,13 @@ UIはshadcn/ui（Radix / Nova）とTailwind CSS 4で構成しています。設�
 
 ### 国名データの出典・検証
 
-[提供されたZIP](https://chatgpt.com/library/share/libfile_e75c8143a78c8191804af85bfd9d46a9?account_id=personal)と同じファイルの生成データ193行を利用しています。中国語名・拼音・日本語名は元資料の表記を維持しています。入力する文字は拼音から声調記号・隔音記号（'）・括弧を除いたアルファベットで、üはピンイン入力と同じvで入力します（例: 菲律宾 → Feilvbin）。`tests/countries.test.cjs` で元データ（入力を中国語名に戻した状態）とのSHA-256一致、193件の重複なし、入力が拼音から作られていることを検証します。
+[提供されたZIP](https://chatgpt.com/library/share/libfile_e75c8143a78c8191804af85bfd9d46a9?account_id=personal)と同じファイルの生成データ193行を利用しています。中国語名・拼音・日本語名は元資料の表記を維持しています。入力する文字は拼音から声調記号・隔音記号（'）・括弧を除いたアルファベットで、üはピンイン入力と同じvで入力します（例: 菲律宾 → Feilvbin）。`tests/countries.test.cjs` で元データ（入力を中国語名に戻し、中国語名の順に並べた状態。v0.74.0 から初級〜上級の5リストに分けたため）とのSHA-256一致、193件の重複なし、入力が拼音から作られていることを検証します。
 
-入力を小文字にした「国名：中国語・国連加盟193か国（小文字）」（v0.69.0 から）も初期リストにあります。表示・補足は同じで、入力は上のリストの拼音を小文字にしたものです。空白は残します（例: 安提瓜和巴布达 → `antigua he babuda`）。`src/plugins/packs/commands.json` の最後のリストで、保存済みのアカウントにはマイグレーション `0015_seed_lowercase_country_list` が追加します（コマンドのリストと同じ規則）。
+入力を小文字にした「国名：中国語・国連加盟193か国（小文字）」（v0.69.0 から。v0.74.0 から「国名：中国語・国連加盟国（小文字・初級1）」〜「（小文字・上級2）」の5リスト）も初期リストにあります。表示・補足は同じで、入力は上のリストの拼音を小文字にしたものです。空白は残します（例: 安提瓜和巴布达 → `antigua he babuda`）。`src/plugins/packs/commands.json` の最後のリストで、保存済みのアカウントにはマイグレーション `0015_seed_lowercase_country_list` が追加します（コマンドのリストと同じ規則）。
 
 ### コマンドの単語リスト（Linux・Vercel CLI・gcloud・AWS CLI・macOS・Arch Linux・Vim・Go・Java・Kotlin・PostgreSQL・Prisma・Jest・Playwright）
 
-`src/plugins/packs/commands.json` の18リスト（1,779語）のうち、Linuxの5リスト（611語）は、提供されたLinuxコマンド表のCSV（学習用フラット一覧、64表・659行。SHA-256 `17ce06e70c8113a84b850034cd86100633a660b3ce2638c72fa2d0429273864f`）から作っています。
+`src/plugins/packs/commands.json` の18種類（1,779語）のうち、Linuxの5リスト（611語）は、提供されたLinuxコマンド表のCSV（学習用フラット一覧、64表・659行。SHA-256 `17ce06e70c8113a84b850034cd86100633a660b3ce2638c72fa2d0429273864f`）から作っています。
 
 | リスト | 元の表 | 語数 |
 |---|---|---|
@@ -444,6 +453,8 @@ Prisma構文・Jest構文・Playwright構文もコード例を入力し、補足
 `tests/commands.test.cjs` で、18リストの読み込み、語数、入力が前後に空白のないASCII（Go・Java・Kotlin・PostgreSQL・Prisma・Jest・Playwright構文と、日本語を含む13語を除く）で表示と一致すること、リスト内で入力が重複しないことを確かめます。
 
 初期リストなので、まだ一度も保存していないアカウントとブラウザーには最初から表示されます。v0.63.0 から、すでに保存しているアカウントにも、マイグレーション `0009_seed_command_lists`（`npm run db:migrate`。本番ではデプロイ時に実行）が9リストを、v0.64.0 から `0010_seed_arch_linux_list` がArch Linuxのリストを、v0.65.0 から `0011_seed_vim_list` がVimのリストを、v0.66.0 から `0012_seed_go_syntax_list` がGo構文のリストを、v0.67.0 から `0013_seed_java_syntax_list` がJava構文のリストを、v0.68.0 から `0014_seed_kotlin_syntax_list` がKotlin構文のリストを、v0.71.0 から `0016_seed_postgresql_syntax_list` がPostgreSQL構文のリストを、v0.72.0 から `0017_seed_test_framework_lists` がPrisma・Jest・Playwright構文の3リストを追加します。小文字の国名リストも、同じ規則で `0015_seed_lowercase_country_list` が追加します。`scripts/seed.cjs` と同じく、同じIDまたは同じ名前のリストがある場合はそのリストを追加せず、ほかのリストと練習記録はそのまま残します。追加すると100リストか保存できる大きさ（`MaxListsBytes`）を超えるアカウントには追加しません。マイグレーションは1回だけ実行されるため、その後に削除したリストは戻りません。改めて追加するときは `npm run db:seed -- --owner github:<ID>` を使います。このブラウザーに保存している場合（ログインしていない場合）はマイグレーションの対象外です。
+
+上の表の語数は元のリストのものです。v0.74.0 から、40語を超えるリストは初級・中級・上級などに分けて `commands.json`・`countries.json` に入れています（分け方は v0.74.0 の説明、確かめ方は `tests/commands.test.cjs`）。保存済みのアカウントでは `0018_split_long_initial_lists` が分けたリストに置き換えます。
 
 ### 共通レイアウト（トップバー・サイドバー）
 

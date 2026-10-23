@@ -22,7 +22,7 @@ var (
 // registered devices.
 func Initial() (*Workspace, error) {
 	var samples []*rawList
-	var countries *rawList
+	var countries []*rawList
 	var commands []*rawList
 	if err := json.Unmarshal(samplesJSON, &samples); err != nil {
 		return nil, err
@@ -38,7 +38,7 @@ func Initial() (*Workspace, error) {
 		list.ID = &id
 		list.Records = []*rawRecord{}
 	}
-	lists, err := decodeLists(append(append(samples, countries), commands...))
+	lists, err := decodeLists(append(append(samples, countries...), commands...))
 	if err != nil {
 		return nil, fmt.Errorf("initial lists: %w", err)
 	}

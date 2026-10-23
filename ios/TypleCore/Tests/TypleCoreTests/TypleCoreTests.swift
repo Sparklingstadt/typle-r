@@ -208,8 +208,10 @@ final class WordListTests: XCTestCase {
   func testInitialLists() {
     let lists = initialLists()
     XCTAssertEqual(lists.map(\.id).prefix(2), ["sample-1", "sample-2"])
-    XCTAssertEqual(lists[2].words.count, 193)
-    XCTAssertEqual([lists[3].id, lists.last?.id], ["linux-commands-basic", "playwright-syntax"])
+    XCTAssertEqual(lists.count, 64)
+    XCTAssertEqual([lists[2].id, lists[7].id, lists.last?.id],
+                   ["un-member-states-chinese-193-beginner-1", "linux-commands-basic-beginner", "playwright-syntax-advanced"])
+    XCTAssertTrue(lists.allSatisfy { $0.words.count <= 40 })
     XCTAssertNoThrow(try validateLists(lists))
   }
 }

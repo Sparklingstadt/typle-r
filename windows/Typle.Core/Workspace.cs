@@ -54,7 +54,7 @@ public static class Workspace
     public static IReadOnlyList<WordList> InitialLists()
     {
         var samples = JsonSerializer.Deserialize<List<PackList>>(Pack("samples.json"), TypleJson.Options)!;
-        var countries = JsonSerializer.Deserialize<PackList>(Pack("countries.json"), TypleJson.Options)!;
+        var countries = JsonSerializer.Deserialize<List<PackList>>(Pack("countries.json"), TypleJson.Options)!;
         var commands = JsonSerializer.Deserialize<List<PackList>>(Pack("commands.json"), TypleJson.Options)!;
         return
         [
@@ -62,13 +62,8 @@ public static class Workspace
             {
                 Id = $"sample-{index + 1}", Name = list.Name, Words = list.Words, CreatedAt = list.CreatedAt,
             }),
-            new WordList
-            {
-                Id = countries.Id ?? "countries", Name = countries.Name, Words = countries.Words, Records = countries.Records ?? [],
-                CreatedAt = countries.CreatedAt,
-            },
-            // Each list of commands.json names its own id (tests/commands.test.cjs).
-            .. commands.Select(list => new WordList
+            // Each list of countries.json and commands.json names its own id (tests/commands.test.cjs).
+            .. countries.Concat(commands).Select(list => new WordList
             {
                 Id = list.Id ?? list.Name, Name = list.Name, Words = list.Words, Records = list.Records ?? [], CreatedAt = list.CreatedAt,
             }),
