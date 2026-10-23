@@ -183,7 +183,7 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
     {error && <Alert variant="destructive" className="mb-4"><AlertDescription>{error}</AlertDescription></Alert>}
     {!list?.words.length ? <Card className="px-5 py-8 text-base sm:px-8"><p>{t.rich('empty', { link: chunks => <Link href="/create" className="underline">{chunks}</Link> })}</p></Card> :
     <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-      <Card className="min-w-0 gap-0 self-stretch py-0 text-base">
+      <Card className="min-w-0 gap-0 py-0 text-base">
         <div className="flex h-14 items-center gap-1.5 border-b px-2 sm:h-16 sm:gap-3 sm:px-3">
           <button type="button" onClick={openPicker} aria-haspopup="dialog" aria-label={t('header.switchList', { name: list.name })}
             className="flex h-10 min-w-0 items-center gap-2 rounded-lg px-1.5 text-muted-foreground outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 sm:px-2.5">

@@ -3,6 +3,10 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
+## v0.72.1 — 練習画面で入力する単語が画面の外に出る問題を直しました
+
+練習画面のカードが右の単語リストの高さまで伸び、入力する単語がその縦の中央に置かれていました。単語リストが増えると（初期リストは22件）、開いたときに入力欄へスクロールした分だけ単語が画面の上に隠れていました（1440×900 で約80px、1280×720 で約260px 上）。カードを内容の高さにし、単語を入力欄のすぐ上に表示します。練習完了の画面の下の大きな空白もなくなります。E2E（`tests/e2e/play.spec.ts`）で、22リストのときに単語と入力欄がどちらも画面に収まることを確かめます。
+
 ## v0.70.0 — Android・iPad・Mac・Windows・Kotlin のワークフローを削除しました
 
 GitHub Actions の利用時間を減らすため、`Android app`・`iPad app`・`Mac app`・`Windows app`・`Kotlin backend` の5つのワークフロー（`.github/workflows/android.yml`・`ios.yml`・`macos.yml`・`windows.yml`・`kotlin-server.yml`）を削除しました。macOS と Windows のランナーは利用時間が多く数えられ、`src/plugins/packs/` を変える PR でも4つが動いていました。残るのは Web 版の検証・リリース・デプロイ（`ci.yml`）だけで、その内容は変わりません。
