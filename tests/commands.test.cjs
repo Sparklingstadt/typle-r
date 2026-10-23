@@ -4,18 +4,50 @@ const assert = require('node:assert/strict')
 const commands = require('../src/plugins/packs/commands.json')
 const { decodeLists, validateList } = require('../src/core/wordLists.ts')
 
-const words = id => commands.find(list => list.id === id).words
+// A list over 40 words is kept as its 初級, 中級 and 上級 parts (`<id>-beginner`, `<id>-intermediate-1`, ...), and words(id)
+// joins them again.
+const level = /-(beginner|intermediate|advanced)(-\d)?$/
+const source = id => id.replace(level, '')
+const parts = id => commands.filter(list => source(list.id) === id)
+const words = id => parts(id).flatMap(list => list.words)
+const sources = [...new Set(commands.map(list => source(list.id)))]
 
 test('the command lists decode in Typle with their own ids and names', () => {
   const lists = decodeLists(JSON.stringify({ version: 1, lists: commands }))
-  assert.deepEqual(lists.map(list => [list.id, list.words.length]), [
-    ['linux-commands-basic', 118], ['linux-commands-options', 146], ['linux-commands-advanced', 131],
-    ['linux-shell-bash', 76], ['linux-system', 140], ['vercel-cli', 34], ['gcloud-cli', 35], ['aws-cli', 46], ['macos-zsh', 90], ['arch-linux', 96], ['vim', 112], ['go-syntax', 109], ['java-syntax', 130], ['kotlin-syntax', 163], ['un-member-states-chinese-193-lowercase', 193], ['postgresql-syntax', 152],
-    ['prisma-syntax', 64], ['jest-syntax', 67], ['playwright-syntax', 70],
+  assert.deepEqual(sources.map(id => [id, parts(id).map(list => list.words.length)]), [
+    ['linux-commands-basic', [40, 39, 39]], ['linux-commands-options', [37, 37, 36, 36]], ['linux-commands-advanced', [33, 33, 33, 32]],
+    ['linux-shell-bash', [38, 38]], ['linux-system', [35, 35, 35, 35]], ['vercel-cli', [34]], ['gcloud-cli', [35]], ['aws-cli', [23, 23]],
+    ['macos-zsh', [30, 30, 30]], ['arch-linux', [32, 32, 32]], ['vim', [38, 37, 37]], ['go-syntax', [37, 36, 36]],
+    ['java-syntax', [33, 33, 32, 32]], ['kotlin-syntax', [33, 33, 33, 32, 32]], ['un-member-states-chinese-193-lowercase', [39, 39, 39, 38, 38]],
+    ['postgresql-syntax', [38, 38, 38, 38]], ['prisma-syntax', [32, 32]], ['jest-syntax', [34, 33]], ['playwright-syntax', [35, 35]],
   ])
+  assert.equal(lists.length, commands.length)
   const { initialLists } = require('../src/plugins/packs/index.ts')
   for (const list of lists) validateList(list, initialLists.filter(other => other.id !== list.id))
   assert.ok(lists.every(list => list.records.length === 0))
+})
+
+test('a list over 40 words is split into the fewest parts of at most 40, from the easiest words to type to the hardest', () => {
+  const { initialLists } = require('../src/plugins/packs/index.ts')
+  assert.ok(initialLists.every(list => list.words.length <= 40), initialLists.find(list => list.words.length > 40)?.name)
+  // A symbol or a Japanese character counts as two letters. The first word introduces the list, so it opens 初級.
+  const score = word => [...word.input.toLowerCase()].reduce((sum, c) => sum + (/[a-z0-9 ]/.test(c) ? 1 : 2), 0)
+  const labels = { 2: ['初級', '上級'], 3: ['初級', '中級', '上級'], 4: ['初級', '中級1', '中級2', '上級'], 5: ['初級1', '初級2', '中級', '上級1', '上級2'] }
+  const countries = require('../src/plugins/packs/countries.json')
+  const grouped = [...new Set(initialLists.map(list => source(list.id)))]
+    .map(id => initialLists.filter(list => source(list.id) === id)).filter(group => group.length > 1)
+  assert.equal(grouped.length, 18)
+  for (const group of grouped) {
+    const total = group.reduce((sum, list) => sum + list.words.length, 0)
+    assert.equal(group.length, Math.ceil(total / 40), group[0].id)
+    assert.ok(group.every(list => Math.abs(list.words.length - total / group.length) < 1), group[0].id)
+    assert.deepEqual(group.map(list => list.name.match(/（(?:小文字・)?([^（）]+)）$/)[1]), labels[group.length], group[0].id)
+    const scores = group.map((list, index) => (index ? list.words : list.words.slice(1)).map(score))
+    for (let index = 1; index < scores.length; index++) {
+      assert.ok(Math.max(...scores[index - 1]) <= Math.min(...scores[index]), group[index].id)
+    }
+  }
+  assert.deepEqual(countries.map(list => list.name), ['初級1', '初級2', '中級', '上級1', '上級2'].map(label => `国名：中国語・国連加盟国（${label}）`))
 })
 
 test('each command is typed as shown, in ASCII, once per list, with an explanation', () => {
@@ -25,12 +57,12 @@ test('each command is typed as shown, in ASCII, once per list, with an explanati
     'git clone https://aur.archlinux.org/パッケージ名.git', 'systemctl --user status 名前',
     ':w 名前', ':saveas パス', '/文字列', '?文字列', '/\\V文字列', ':sp ファイル', ':vsp ファイル']
   // The lowercase country list shows the Chinese name; its own test below checks it.
-  for (const list of commands.filter(list => list.id !== 'un-member-states-chinese-193-lowercase')) {
+  for (const list of commands.filter(list => source(list.id) !== 'un-member-states-chinese-193-lowercase')) {
     assert.equal(new Set(list.words.map(word => word.input)).size, list.words.length, list.name)
     for (const word of list.words) {
       assert.equal(word.display, word.input)
       // Go, Java, Kotlin, PostgreSQL, Prisma, Jest and Playwright examples hold Japanese strings and comments.
-      assert.match(['go-syntax', 'java-syntax', 'kotlin-syntax', 'postgresql-syntax', 'prisma-syntax', 'jest-syntax', 'playwright-syntax'].includes(list.id) || japanese.includes(word.input) ? word.input.replace(/[^\x20-\x7e]/g, 'x') : word.input,
+      assert.match(['go-syntax', 'java-syntax', 'kotlin-syntax', 'postgresql-syntax', 'prisma-syntax', 'jest-syntax', 'playwright-syntax'].includes(source(list.id)) || japanese.includes(word.input) ? word.input.replace(/[^\x20-\x7e]/g, 'x') : word.input,
         /^[\x21-\x7e]([\x20-\x7e]*[\x21-\x7e])?$/, word.input)
       assert.ok(word.annotation.trim(), word.input)
     }
@@ -61,8 +93,21 @@ test('migrations 0009 to 0017 add the command lists to saved workspaces', () => 
     const literal = sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'")
     return decodeLists(JSON.stringify({ version: 1, lists: JSON.parse(literal) }))
   })
-  assert.deepEqual(added.map(list => list.id), commands.map(list => list.id))
+  assert.deepEqual(added.map(list => list.id), sources)
   assert.ok(added.every(list => list.records.length === 0))
+})
+
+test('migration 0018 puts the parts of each split list in its place in saved workspaces', () => {
+  const fs = require('node:fs')
+  const sql = fs.readFileSync(require.resolve('../prisma/migrations/0018_split_long_initial_lists/migration.sql'), 'utf8')
+  const pack = JSON.parse(sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'"))
+  const lists = [...require('../src/plugins/packs/countries.json'), ...commands]
+  const split = [...new Set(lists.map(list => source(list.id)))].filter(id => lists.filter(list => source(list.id) === id).length > 1)
+  assert.deepEqual(pack.map(item => item.id), split)
+  for (const item of pack) {
+    assert.match(item.words, /^[0-9a-f]{32}$/)
+    assert.deepEqual(item.parts, lists.filter(list => source(list.id) === item.id))
+  }
 })
 
 test('the Arch list keeps one word per example', () => {
@@ -114,7 +159,7 @@ test('the Kotlin list types each code example on one line, ending statements whe
 test('the lowercase country list types the pinyin of the country list in lowercase, spaces kept', () => {
   const countries = require('../src/plugins/packs/countries.json')
   const lower = words('un-member-states-chinese-193-lowercase')
-  assert.deepEqual(lower, countries.words.map(word => ({ ...word, input: word.input.toLowerCase() })))
+  assert.deepEqual(lower, countries.flatMap(list => list.words).map(word => ({ ...word, input: word.input.toLowerCase() })))
   assert.ok(lower.every(word => /^[a-z]+( [a-z]+)*$/.test(word.input)))
   assert.equal(lower.find(word => word.display === '安提瓜和巴布达').input, 'antigua he babuda')
   assert.equal(lower.find(word => word.display === '菲律宾').input, 'feilvbin')

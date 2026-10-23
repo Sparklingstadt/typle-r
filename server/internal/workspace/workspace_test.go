@@ -66,10 +66,14 @@ func TestInitial(t *testing.T) {
 			t.Fatalf("%s has records", list.ID)
 		}
 	}
-	if strings.Join(ids, ",") != "sample-1,sample-2,un-member-states-chinese-193,linux-commands-basic,linux-commands-options,"+
-		"linux-commands-advanced,linux-shell-bash,linux-system,vercel-cli,gcloud-cli,aws-cli,macos-zsh,arch-linux,vim,go-syntax,java-syntax,kotlin-syntax,un-member-states-chinese-193-lowercase,postgresql-syntax,"+
-		"prisma-syntax,jest-syntax,playwright-syntax" || len(w.Lists[2].Words) != 193 {
+	if len(ids) != 64 || strings.Join(ids[:3], ",") != "sample-1,sample-2,un-member-states-chinese-193-beginner-1" ||
+		ids[7] != "linux-commands-basic-beginner" || ids[len(ids)-1] != "playwright-syntax-advanced" {
 		t.Fatalf("ids = %v", ids)
+	}
+	for _, list := range w.Lists {
+		if len(list.Words) > 40 {
+			t.Fatalf("%s has %d words", list.ID, len(list.Words))
+		}
 	}
 }
 

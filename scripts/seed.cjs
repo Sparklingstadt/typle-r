@@ -10,7 +10,7 @@ const samples = require('../src/plugins/packs/samples.json')
 // The same lists, ids included, that a new account starts with (src/plugins/packs/index.ts).
 const templates = [
   ...samples.map((list, index) => ({ id: `sample-${index + 1}`, name: list.name, words: list.words })),
-  countries,
+  ...countries,
   ...commands,
 ]
 
