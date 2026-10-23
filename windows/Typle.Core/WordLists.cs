@@ -22,7 +22,7 @@ public sealed record DuplicateResult(IReadOnlyList<WordList> Lists, WordList Cop
 // src/core/wordLists.ts, src/core/listOverview.ts and the limits of src/core/workspaceRequest.ts
 public static partial class WordLists
 {
-    public const int MaxLists = 100;
+    public const int MaxLists = 150;
     public const int MaxListName = 200;
     public const int MaxWords = 1000;
     public const int MaxWordField = 1000;

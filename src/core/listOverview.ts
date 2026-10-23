@@ -1,7 +1,7 @@
 import { AppError } from './appError'
 import type { SavedWordList } from './wordLists'
 
-export const MAX_LISTS = 100
+export const MAX_LISTS = 150
 export const MAX_LIST_NAME = 200
 
 export type ListOverview = {
