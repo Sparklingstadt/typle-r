@@ -161,6 +161,28 @@ final class WordListTests: XCTestCase {
     XCTAssertEqual(result.lists.count, 3)
   }
 
+  // The category and tags (v0.78.0) are kept through a read, a save, an edit and a copy, and left out when there are none.
+  func testCategoryAndTags() throws {
+    let answer = #"{"lists":[{"id":"x","name":"X","category":"プログラミング","tags":["Go","CLI"],"createdAt":"2026-01-01","words":[{"display":"a","input":"a","annotation":""}],"records":[]},{"id":"y","name":"Y","createdAt":"2026-01-01","words":[{"display":"a","input":"a","annotation":""}],"records":[]}],"devices":[],"revision":1,"accountId":"github:1"}"#
+    let decoded = try decodeAccountWorkspace(Data(answer.utf8))
+    XCTAssertEqual(decoded.document.lists[0].category, "プログラミング")
+    XCTAssertEqual(decoded.document.lists[0].tags, ["Go", "CLI"])
+    let body = String(decoding: try encodeAccountWorkspace(decoded), as: UTF8.self)
+    XCTAssertTrue(body.contains(#""tags":["Go","CLI"]"#), body)
+    XCTAssertEqual(body.components(separatedBy: "category").count, 2, body)
+    var edited = decoded.document.lists[0]
+    edited.category = " 語学 "
+    edited.tags = [" Go", "go", ""]
+    let saved = try saveList(decoded.document.lists, edited, editing: true)
+    XCTAssertEqual(saved[0].category, "語学")
+    XCTAssertEqual(saved[0].tags, ["Go"])
+    let copy = try duplicateList(saved, id: "x", copyId: "z", suffix: { _ in "（コピー）" }).copy
+    XCTAssertEqual(copy.tags, ["Go"])
+    XCTAssertTrue(matchesQuery(saved[0], "語学"))
+    XCTAssertTrue(initialLists().allSatisfy { $0.category != nil && !($0.tags ?? []).isEmpty })
+    XCTAssertThrowsError(try validateLists([WordList(id: "a", name: "A", words: words, createdAt: "x", tags: [String(repeating: "t", count: 51)])]))
+  }
+
   func testWorkspaceFileRoundTrip() throws {
     let list = WordList(id: "1", name: "A", words: words, records: [StoredRecord(id: "r", time: 1.5, date: "2026-01-01T00:00:00.000Z", mistakes: 0, accuracy: 100, wordCount: 1)], createdAt: "2026-01-01")
     let file = WorkspaceFile(accountId: "ipad:local", revision: 3, document: WorkspaceDocument(lists: [list], devices: [PracticeDevice(id: "d", name: " iPad ")]))

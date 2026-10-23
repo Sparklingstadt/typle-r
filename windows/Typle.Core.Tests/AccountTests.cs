@@ -121,7 +121,7 @@ public class AccountWorkspaceTests
         }
         Assert.Equal(new TypleException("accountLoginFailed"), Accounts.Error("loginFailed", 401));
         Assert.Equal(new TypleException("accountUnavailable"), Accounts.Error("authUnavailable", 503));
-        Assert.Equal(TypleException.With("listLimit", "max", "100"), Accounts.Error("listLimit", 400));
+        Assert.Equal(TypleException.With("listLimit", "max", "150"), Accounts.Error("listLimit", 400));
         foreach (var key in new[]
                  {
                      "conflict", "workspaceTooLarge", "databaseUnavailable", "invalidWorkspace", "workspaceSaveFailed", "forbiddenRequest",

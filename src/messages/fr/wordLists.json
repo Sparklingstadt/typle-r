@@ -18,11 +18,11 @@
     "limitTitle": "Jusqu’à {max} listes",
     "create": "Créer une liste",
     "full": "Vous pouvez enregistrer jusqu’à {max} listes de mots. Supprimez celles que vous n’utilisez plus pour en créer de nouvelles.",
-    "search": "Rechercher par nom de liste ou mot",
+    "search": "Rechercher par nom, catégorie, étiquette ou mot",
     "clearSearch": "Effacer la recherche",
     "countFiltered": "{shown} sur {total}",
     "count": "{total, plural, one {# liste} other {# listes}}",
-    "noMatch": "Aucune liste ne correspond à « {query} ». La recherche porte sur les noms de listes et les mots.",
+    "noMatch": "Aucune liste ne correspond à « {query} ». La recherche porte sur les noms de listes, catégories, étiquettes et mots.",
     "csvNote": "L’export CSV enregistre les mots affichés, le texte à saisir et les notes (l’historique n’est pas inclus). Vous pouvez le réimporter avec « Importer un CSV/TSV » sur l’écran de création ou de modification."
   },
   "delete": {
@@ -44,6 +44,25 @@
     "practiced": "Entraînement récent",
     "name": "Nom",
     "words": "Nombre de mots"
+  },
+  "labels": {
+    "category": "Catégorie",
+    "tag": "Étiquette"
+  },
+  "filter": {
+    "category": "Filtrer par catégorie",
+    "allCategories": "Toutes les catégories",
+    "noCategory": "Sans catégorie",
+    "categoryCurrent": "Catégorie : {category}",
+    "allTags": "Toutes les étiquettes",
+    "tagsCurrent": "Étiquettes : {tags}",
+    "separator": ", ",
+    "tagsHint": "Listes ayant toutes les étiquettes choisies",
+    "clearTags": "Effacer les étiquettes",
+    "clear": "Effacer les filtres",
+    "clearAll": "Effacer la recherche et les filtres",
+    "noMatch": "Aucune liste ne correspond à ces filtres.",
+    "option": "{name} ({count})"
   },
   "empty": {
     "title": "Aucune liste de mots pour l’instant",
@@ -121,7 +140,16 @@
     "discardTitle": "Vous avez des modifications non enregistrées",
     "discardDescription": "Si vous quittez cette page maintenant, vos saisies seront perdues.",
     "keepEditing": "Continuer à modifier",
-    "discard": "Abandonner et quitter"
+    "discard": "Abandonner et quitter",
+    "category": "Catégorie (facultatif)",
+    "categoryPlaceholder": "Programmation, Langues…",
+    "categoryHelp": "Un grand groupe. Vos listes et l’écran d’entraînement peuvent être filtrés par catégorie.",
+    "tags": "Étiquettes (facultatif)",
+    "tagList": "Étiquettes de cette liste",
+    "removeTag": "Retirer l’étiquette « {tag} »",
+    "tagsFull": "{max} étiquettes au maximum",
+    "tagPlaceholder": "Kotlin, PostgreSQL…",
+    "tagsHelp": "Appuyez sur Entrée ou tapez une virgule pour l’ajouter ({max} au maximum). La recherche porte aussi sur les étiquettes."
   },
   "import": {
     "open": "Importer un CSV/TSV",

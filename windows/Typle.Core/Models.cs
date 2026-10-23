@@ -61,15 +61,25 @@ public sealed record WordList
 
     public required string Name { get; init; }
 
+    /// <summary>
+    /// A broad grouping, such as プログラミング (v0.78.0). Left out of the stored list when it has none, as the web
+    /// app saves it.
+    /// </summary>
+    public string? Category { get; init; }
+
+    /// <summary>What the list is about, such as Kotlin (v0.78.0). Left out when there are none.</summary>
+    public IReadOnlyList<string>? Tags { get; init; }
+
     public required IReadOnlyList<Word> Words { get; init; }
 
     public IReadOnlyList<StoredRecord> Records { get; init; } = [];
 
     public required string CreatedAt { get; init; }
 
-    // Lists compare by their words and records, as Kotlin's data classes and Swift's structs do.
+    // Lists compare by their tags, words and records, as Kotlin's data classes and Swift's structs do.
     public bool Equals(WordList? other) =>
-        other is not null && Id == other.Id && Name == other.Name && CreatedAt == other.CreatedAt &&
+        other is not null && Id == other.Id && Name == other.Name && CreatedAt == other.CreatedAt && Category == other.Category &&
+        (Tags ?? []).SequenceEqual(other.Tags ?? []) && (Tags is null) == (other.Tags is null) &&
         Words.SequenceEqual(other.Words) && Records.SequenceEqual(other.Records);
 
     public override int GetHashCode() => HashCode.Combine(Id, Name, Words.Count, Records.Count);

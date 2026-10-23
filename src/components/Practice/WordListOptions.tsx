@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { listBest } from '@/core/records'
 import type { SavedWordList } from '@/core/wordLists'
+import ListLabels from '@/components/WordLists/ListLabels'
 
 export default function WordListOptions({ lists, selectedId, onSelect, label }: {
   lists: SavedWordList[]
@@ -25,6 +26,7 @@ export default function WordListOptions({ lists, selectedId, onSelect, label }: 
           </span>
           <span className="grid min-w-0">
             <span className="line-clamp-2 text-sm font-medium [overflow-wrap:anywhere]" title={list.name}>{list.name}</span>
+            <ListLabels list={list} className="my-0.5" />
             <span id={`${id}-${index}`} className="text-xs text-muted-foreground">{best ? t('withBest', { count: list.words.length, time: best.time.toFixed(2) }) : t('noRecord', { count: list.words.length })}</span>
           </span>
         </button>

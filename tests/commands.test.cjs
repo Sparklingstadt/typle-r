@@ -13,6 +13,8 @@ const words = id => parts(id).flatMap(list => list.words)
 const sources = [...new Set(commands.map(list => source(list.id)))]
 // The lists of v0.75.0 come in three levels whatever their length, and migration 0019 adds them.
 const leveled = ['typescript-syntax', 'hono-methods', 'php-syntax', 'rails-methods', 'express-methods', 'oracle-plsql-syntax', 'sql-server-tsql-syntax']
+// The lists as migrations before 0021 added them: without the category and tags, which 0021 adds.
+const unlabeled = lists => lists.map(({ category: _category, tags: _tags, ...list }) => list)
 
 test('the command lists decode in Typle with their own ids and names', () => {
   const lists = decodeLists(JSON.stringify({ version: 1, lists: commands }))
@@ -106,7 +108,7 @@ test('migration 0019 adds the lists of v0.75.0 to saved workspaces', () => {
   const fs = require('node:fs')
   const sql = fs.readFileSync(require.resolve('../prisma/migrations/0019_seed_framework_and_sql_lists/migration.sql'), 'utf8')
   const literal = sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'")
-  assert.deepEqual(decodeLists(JSON.stringify({ version: 1, lists: JSON.parse(literal) })), commands.filter(list => leveled.includes(source(list.id))))
+  assert.deepEqual(decodeLists(JSON.stringify({ version: 1, lists: JSON.parse(literal) })), unlabeled(commands.filter(list => leveled.includes(source(list.id)))))
 })
 
 test('migration 0020 adds the lists of 0019 again, up to 150 lists, where 0019 added none of them', () => {
@@ -129,7 +131,7 @@ test('migration 0018 puts the parts of each split list in its place in saved wor
   assert.deepEqual(pack.map(item => item.id), split)
   for (const item of pack) {
     assert.match(item.words, /^[0-9a-f]{32}$/)
-    assert.deepEqual(item.parts, lists.filter(list => source(list.id) === item.id))
+    assert.deepEqual(item.parts, unlabeled(lists.filter(list => source(list.id) === item.id)))
   }
 })
 

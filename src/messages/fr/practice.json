@@ -50,12 +50,12 @@
     "bestOrder": "Par précision décroissante, puis par vitesse",
     "bestOrderAtCount": "Par précision décroissante, puis par vitesse · résultats à {count, plural, one {# mot} other {# mots}} uniquement",
     "allBest": "Tous les meilleurs résultats",
-    "filter": "Filtrer les listes de mots par nom"
+    "filter": "Filtrer les listes de mots par nom, catégorie ou étiquette"
   },
   "picker": {
     "title": "Choisir une liste de mots",
     "description": "Si vous choisissez une autre liste en cours d’entraînement, une confirmation vous sera demandée.",
-    "filter": "Filtrer par nom de liste",
+    "filter": "Filtrer par nom, catégorie ou étiquette",
     "candidates": "Listes de mots correspondantes",
     "noMatch": "Aucune liste ne correspond."
   },

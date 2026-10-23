@@ -10,6 +10,8 @@ import kotlinx.serialization.builtins.ListSerializer
 private data class PackList(
   val id: String? = null,
   val name: String,
+  val category: String? = null,
+  val tags: List<String>? = null,
   val words: List<Word>,
   val records: List<StoredRecord>? = null,
   val createdAt: String,
@@ -24,12 +26,13 @@ fun initialLists(): List<WordList> {
   val countries = TypleJson.decodeFromString(ListSerializer(PackList.serializer()), pack("countries"))
   val commands = TypleJson.decodeFromString(ListSerializer(PackList.serializer()), pack("commands"))
   return samples.mapIndexed { index, list ->
-    WordList(id = "sample-${index + 1}", name = list.name, words = list.words, createdAt = list.createdAt)
+    WordList(id = "sample-${index + 1}", name = list.name, words = list.words, createdAt = list.createdAt,
+      category = list.category, tags = list.tags)
   } +
     // Each list of countries.json and commands.json names its own id (tests/commands.test.cjs).
     (countries + commands).map { list ->
       WordList(id = list.id ?: list.name, name = list.name, words = list.words, records = list.records ?: emptyList(),
-        createdAt = list.createdAt)
+        createdAt = list.createdAt, category = list.category, tags = list.tags)
     }
 }
 

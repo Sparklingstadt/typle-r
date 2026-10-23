@@ -53,8 +53,11 @@ type Record struct {
 }
 
 type List struct {
-	ID        string
-	Name      string
+	ID   string
+	Name string
+	// Category and Tags are "" and nil when the list has none, which is how they are stored: left out.
+	Category  string
+	Tags      []string
 	Words     []Word
 	Records   []Record
 	CreatedAt string
@@ -99,6 +102,8 @@ type rawRecord struct {
 type rawList struct {
 	ID        *string      `json:"id"`
 	Name      *string      `json:"name"`
+	Category  *string      `json:"category"`
+	Tags      []*string    `json:"tags"`
 	CreatedAt *string      `json:"createdAt"`
 	Words     []*rawWord   `json:"words"`
 	Records   []*rawRecord `json:"records"`
@@ -167,6 +172,18 @@ func decodeList(raw *rawList) (List, error) {
 		}
 		words = append(words, Word{Display: *word.Display, Input: *word.Input, Annotation: *word.Annotation, Extra: word.extra})
 	}
+	// The category and tags are optional; decodeLists checks only that they are a string and strings.
+	category := ""
+	if raw.Category != nil {
+		category = *raw.Category
+	}
+	var tags []string
+	for _, tag := range raw.Tags {
+		if tag == nil {
+			return List{}, errors.New("tags must be strings")
+		}
+		tags = append(tags, *tag)
+	}
 	records := make([]Record, 0, len(raw.Records))
 	for index, item := range raw.Records {
 		record, err := decodeRecord(item)
@@ -175,7 +192,8 @@ func decodeList(raw *rawList) (List, error) {
 		}
 		records = append(records, record)
 	}
-	return List{ID: *raw.ID, Name: *raw.Name, Words: words, Records: records, CreatedAt: *raw.CreatedAt, Extra: raw.extra}, nil
+	return List{ID: *raw.ID, Name: *raw.Name, Category: category, Tags: tags, Words: words, Records: records, CreatedAt: *raw.CreatedAt,
+		Extra: raw.extra}, nil
 }
 
 func decodeRecord(raw *rawRecord) (Record, error) {
@@ -260,7 +278,7 @@ func (r *rawRecord) UnmarshalJSON(data []byte) (err error) {
 func (r *rawList) UnmarshalJSON(data []byte) (err error) {
 	type plain rawList
 	if err = json.Unmarshal(data, (*plain)(r)); err == nil {
-		r.extra, err = unknown(data, "id", "name", "createdAt", "words", "records", "shared", "shareId")
+		r.extra, err = unknown(data, "id", "name", "category", "tags", "createdAt", "words", "records", "shared", "shareId")
 	}
 	return err
 }

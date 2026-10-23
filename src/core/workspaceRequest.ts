@@ -1,5 +1,5 @@
 import { decodeDevices } from './devices'
-import { decodeLists, type SavedWordList } from './wordLists'
+import { decodeLists, MAX_CATEGORY, MAX_TAG, MAX_TAGS, type SavedWordList } from './wordLists'
 import { LEGACY_PROFILE_ID, type WorkspaceChange } from './workspaceDocument'
 
 export const MAX_WORKSPACE_BYTES = 1024 * 1024
@@ -12,6 +12,7 @@ export class LegacyProfileRequest extends Error {}
 export function validateLists(value: unknown): SavedWordList[] {
   const lists = decodeLists(JSON.stringify({ version: 1, lists: value }))
   if (lists.some(list => list.words.length > 1000 || list.records.length > 10000 || list.name.length > 200 ||
+    (list.category?.length ?? 0) > MAX_CATEGORY || (list.tags?.length ?? 0) > MAX_TAGS || list.tags?.some(tag => tag.length > MAX_TAG) ||
     list.words.some(word => word.input.length > 1000 || word.display.length > 1000 || word.annotation.length > 2000))) {
     throw new Error('Workspace too large')
   }

@@ -18,11 +18,11 @@
     "limitTitle": "{max}件まで保存できます",
     "create": "新しいリストを作成",
     "full": "単語リストは{max}件まで保存できます。使わなくなったリストを削除すると作成できます。",
-    "search": "リスト名・単語で検索",
+    "search": "リスト名・カテゴリ・タグ・単語で検索",
     "clearSearch": "検索をクリア",
     "countFiltered": "{shown}件 / 全{total}件",
     "count": "{total}件",
-    "noMatch": "「{query}」に一致するリストはありません。リスト名と単語から探します。",
+    "noMatch": "「{query}」に一致するリストはありません。リスト名・カテゴリ・タグ・単語から探します。",
     "csvNote": "CSVエクスポートは表示する単語・入力する文字・補足を保存します（練習記録は含みません）。作成・編集画面の「CSV・TSVを読み込む」で使えます。"
   },
   "delete": {
@@ -44,6 +44,25 @@
     "practiced": "最近練習した順",
     "name": "名前順",
     "words": "単語が多い順"
+  },
+  "labels": {
+    "category": "カテゴリ",
+    "tag": "タグ"
+  },
+  "filter": {
+    "category": "カテゴリで絞り込む",
+    "allCategories": "すべてのカテゴリ",
+    "noCategory": "カテゴリなし",
+    "categoryCurrent": "カテゴリ：{category}",
+    "allTags": "すべてのタグ",
+    "tagsCurrent": "タグ：{tags}",
+    "separator": "・",
+    "tagsHint": "選んだタグをすべて持つリスト",
+    "clearTags": "タグの選択を解除",
+    "clear": "絞り込みを解除",
+    "clearAll": "検索と絞り込みを解除",
+    "noMatch": "条件に一致するリストはありません。",
+    "option": "{name}（{count}）"
   },
   "empty": {
     "title": "単語リストはまだありません",
@@ -121,7 +140,16 @@
     "discardTitle": "保存していない変更があります",
     "discardDescription": "このまま移動すると、入力した内容は失われます。",
     "keepEditing": "編集を続ける",
-    "discard": "破棄して移動"
+    "discard": "破棄して移動",
+    "category": "カテゴリ（任意）",
+    "categoryPlaceholder": "プログラミング、語学など",
+    "categoryHelp": "大まかな分類を1つ付けます。一覧や練習画面で絞り込めます。",
+    "tags": "タグ（任意）",
+    "tagList": "付けたタグ",
+    "removeTag": "タグ「{tag}」を外す",
+    "tagsFull": "タグは{max}個までです",
+    "tagPlaceholder": "Kotlin、PostgreSQLなど",
+    "tagsHelp": "Enterかカンマで追加します（{max}個まで）。リスト名やタグでの検索に使えます。"
   },
   "import": {
     "open": "CSV・TSVを読み込む",

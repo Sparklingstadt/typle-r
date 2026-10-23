@@ -38,6 +38,12 @@ data class WordList(
   val words: List<Word>,
   val records: List<StoredRecord> = emptyList(),
   val createdAt: String,
+  /**
+   * A broad grouping, such as プログラミング, and what the list is about, such as Kotlin (v0.78.0). Both are left out
+   * of the stored list when it has none, as the web app saves them.
+   */
+  val category: String? = null,
+  val tags: List<String>? = null,
 )
 
 data class WorkspaceDocument(val lists: List<WordList>, val devices: List<PracticeDevice>)

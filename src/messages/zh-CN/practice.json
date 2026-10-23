@@ -50,12 +50,12 @@
     "bestOrder": "按正确率从高到低，相同时按速度从快到慢",
     "bestOrderAtCount": "按正确率从高到低，相同时按速度从快到慢 · 仅当前 {count} 个单词的记录",
     "allBest": "全部最佳记录",
-    "filter": "按名称筛选单词列表"
+    "filter": "按名称、分类或标签筛选单词列表"
   },
   "picker": {
     "title": "选择单词列表",
     "description": "练习途中选择其他列表时，会先确认是否中断。",
-    "filter": "按列表名称筛选",
+    "filter": "按列表名称、分类或标签筛选",
     "candidates": "候选单词列表",
     "noMatch": "没有匹配的列表。"
   },

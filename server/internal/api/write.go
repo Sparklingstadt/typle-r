@@ -159,7 +159,7 @@ func (s *server) updateList(w http.ResponseWriter, r *http.Request, owner string
 	if !ok {
 		return
 	}
-	if input.Name == nil && input.Words == nil {
+	if input.Name == nil && input.Category == nil && input.Tags == nil && input.Words == nil {
 		failure(w, http.StatusBadRequest, "invalidJson")
 		return
 	}

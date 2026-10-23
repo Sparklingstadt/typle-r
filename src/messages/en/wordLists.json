@@ -18,11 +18,11 @@
     "limitTitle": "You can save up to {max} lists",
     "create": "Create a new list",
     "full": "You can save up to {max} word lists. Delete lists you no longer use to create new ones.",
-    "search": "Search by list name or word",
+    "search": "Search by list name, category, tag or word",
     "clearSearch": "Clear search",
     "countFiltered": "{shown} of {total}",
     "count": "{total, plural, one {# list} other {# lists}}",
-    "noMatch": "No lists match “{query}”. Searches list names and words.",
+    "noMatch": "No lists match “{query}”. Searches list names, categories, tags and words.",
     "csvNote": "CSV export saves the words, what to type, and notes (practice history is not included). Use it with “Import CSV/TSV” on the create and edit screens."
   },
   "delete": {
@@ -44,6 +44,25 @@
     "practiced": "Recently practiced",
     "name": "Name",
     "words": "Most words"
+  },
+  "labels": {
+    "category": "Category",
+    "tag": "Tag"
+  },
+  "filter": {
+    "category": "Filter by category",
+    "allCategories": "All categories",
+    "noCategory": "No category",
+    "categoryCurrent": "Category: {category}",
+    "allTags": "All tags",
+    "tagsCurrent": "Tags: {tags}",
+    "separator": ", ",
+    "tagsHint": "Lists with every chosen tag",
+    "clearTags": "Clear tags",
+    "clear": "Clear filters",
+    "clearAll": "Clear search and filters",
+    "noMatch": "No lists match these filters.",
+    "option": "{name} ({count})"
   },
   "empty": {
     "title": "No word lists yet",
@@ -121,7 +140,16 @@
     "discardTitle": "You have unsaved changes",
     "discardDescription": "If you leave now, your changes will be lost.",
     "keepEditing": "Keep editing",
-    "discard": "Discard and leave"
+    "discard": "Discard and leave",
+    "category": "Category (optional)",
+    "categoryPlaceholder": "Programming, Languages…",
+    "categoryHelp": "One broad group. Your lists and the practice screen can be filtered by it.",
+    "tags": "Tags (optional)",
+    "tagList": "Tags on this list",
+    "removeTag": "Remove tag “{tag}”",
+    "tagsFull": "Up to {max} tags",
+    "tagPlaceholder": "Kotlin, PostgreSQL…",
+    "tagsHelp": "Press Enter or type a comma to add one (up to {max}). Searches look at tags too."
   },
   "import": {
     "open": "Import CSV/TSV",

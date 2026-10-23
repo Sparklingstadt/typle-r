@@ -36,8 +36,8 @@ func copyName(w *Workspace, name string) string {
 	}
 }
 
-// CopyList follows duplicateList (src/core/listOverview.ts): a new list after the others with the same words (and
-// their fields Typle does not know) and no records. Without a name, the copy is named by copyName.
+// CopyList follows duplicateList (src/core/listOverview.ts): a new list after the others with the same category, tags
+// and words (and their fields Typle does not know) and no records. Without a name, the copy is named by copyName.
 func CopyList(w *Workspace, sourceID string, name *string, id string, now time.Time) (*List, error) {
 	at := index(w, sourceID)
 	if at < 0 {
@@ -51,5 +51,6 @@ func CopyList(w *Workspace, sourceID string, name *string, id string, now time.T
 		generated := copyName(w, source.Name)
 		name = &generated
 	}
-	return CreateList(w, ListInput{Name: name, Words: slices.Clone(source.Words)}, id, now)
+	tags := slices.Clone(source.Tags)
+	return CreateList(w, ListInput{Name: name, Category: &source.Category, Tags: &tags, Words: slices.Clone(source.Words)}, id, now)
 }

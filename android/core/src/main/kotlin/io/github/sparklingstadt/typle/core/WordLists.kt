@@ -12,6 +12,20 @@ const val MAX_WORDS = 1000
 const val MAX_WORD_FIELD = 1000
 const val MAX_ANNOTATION = 2000
 const val MAX_RECORDS = 10000
+const val MAX_CATEGORY = 50
+const val MAX_TAG = 50
+const val MAX_TAGS = 20
+
+/**
+ * normalizeLabels: the category and tags trimmed, without empty ones or a tag repeated in another case, and null when
+ * there are none.
+ */
+fun normalizeLabels(category: String?, tags: List<String>?): Pair<String?, List<String>?> {
+  val name = (category ?: "").trimmed
+  val seen = mutableSetOf<String>()
+  val kept = (tags ?: emptyList()).map { it.trimmed }.filter { it.isNotEmpty() && seen.add(it.lowercase()) }
+  return Pair(name.ifEmpty { null }, kept.ifEmpty { null })
+}
 
 fun validateList(list: WordList, others: List<WordList> = emptyList()) {
   val name = list.name.trimmed
@@ -38,6 +52,7 @@ fun validateLists(lists: List<WordList>) {
   }
   if (lists.any { list ->
       list.words.size > MAX_WORDS || list.records.size > MAX_RECORDS || list.name.length > MAX_LIST_NAME ||
+        (list.category?.length ?: 0) > MAX_CATEGORY || (list.tags?.size ?: 0) > MAX_TAGS || (list.tags ?: emptyList()).any { it.length > MAX_TAG } ||
         list.words.any { it.input.length > MAX_WORD_FIELD || it.display.length > MAX_WORD_FIELD || it.annotation.length > MAX_ANNOTATION }
     }) throw TypleException("invalidWorkspace")
 }
@@ -49,7 +64,8 @@ fun validateLists(lists: List<WordList>) {
 fun saveList(lists: List<WordList>, list: WordList, editing: Boolean): List<WordList> {
   if (editing && lists.none { it.id == list.id }) throw TypleException("listDeleted")
   validateList(list, lists.filter { it.id != list.id })
-  val normalized = list.copy(name = list.name.trimmed)
+  val (category, tags) = normalizeLabels(list.category, list.tags)
+  val normalized = list.copy(name = list.name.trimmed, category = category, tags = tags)
   if (lists.any { it.id == list.id }) {
     return lists.map { item -> if (item.id != list.id) item else normalized.copy(records = item.records) }
   }
@@ -106,11 +122,12 @@ private fun naturalCompare(a: String, b: String, collator: Collator): Int {
   return x.size.compareTo(y.size)
 }
 
-/** Matches the list name and the words, so a list can be found by one of its words. */
+/** Matches the list name, its category and tags, and the words, so a list can be found by one of its words. */
 fun matchesQuery(list: WordList, query: String): Boolean {
   val needle = query.trimmed.lowercase()
   if (needle.isEmpty()) return true
-  return list.name.lowercase().contains(needle) ||
+  return list.name.lowercase().contains(needle) || (list.category?.lowercase()?.contains(needle) ?: false) ||
+    (list.tags ?: emptyList()).any { it.lowercase().contains(needle) } ||
     list.words.any { it.display.lowercase().contains(needle) || it.input.lowercase().contains(needle) }
 }
 
@@ -135,10 +152,11 @@ fun copyName(lists: List<WordList>, name: String, suffix: (Int) -> String): Stri
 
 data class DuplicateResult(val lists: List<WordList>, val copy: WordList)
 
-/** A copy keeps the words but starts without records, so its best is its own. */
+/** A copy keeps the words, category and tags but starts without records, so its best is its own. */
 fun duplicateList(lists: List<WordList>, id: String, copyId: String, suffix: (Int) -> String, now: Instant = Instant.now()): DuplicateResult {
   val source = lists.firstOrNull { it.id == id } ?: throw TypleException("listDeleted")
   if (lists.size >= MAX_LISTS) throw TypleException("listLimit", mapOf("max" to MAX_LISTS.toString()))
-  val copy = WordList(id = copyId, name = copyName(lists, source.name, suffix), words = source.words, createdAt = isoString(now))
+  val copy = WordList(id = copyId, name = copyName(lists, source.name, suffix), words = source.words, createdAt = isoString(now),
+    category = source.category, tags = source.tags)
   return DuplicateResult(lists + copy, copy)
 }
