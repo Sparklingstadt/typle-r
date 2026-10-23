@@ -5,9 +5,11 @@ const { PrismaPg } = require('@prisma/adapter-pg')
 const countries = require('../src/plugins/packs/countries.json')
 const commands = require('../src/plugins/packs/commands.json')
 
+const samples = require('../src/plugins/packs/samples.json')
+
+// The same lists, ids included, that a new account starts with (src/plugins/packs/index.ts).
 const templates = [
-  { id: 'seed-test-1', name: 'Test 1', words: ['hoge', 'foo', 'bar'] },
-  { id: 'seed-test-2', name: 'test 2', words: ['one', 'two', 'three'] },
+  ...samples.map((list, index) => ({ id: `sample-${index + 1}`, name: list.name, words: list.words })),
   countries,
   ...commands,
 ]

@@ -31,8 +31,12 @@ test('lists show their words and use, and can be searched and ordered', async ({
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/edit')
   await expect(page.getByRole('heading', { level: 1, name: '単語リスト', exact: true })).toBeVisible()
-  await expect(page.getByRole('main').getByText('このブラウザーに保存')).toBeVisible()
+  // Where the data is saved shows once: in the top bar, or beside the heading on a phone, where the top bar hides it.
   await expect(page.getByRole('banner', { name: 'トップバー' })).toContainText('このブラウザーに保存')
+  await expect(page.getByRole('main').getByText('このブラウザーに保存')).toBeHidden()
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(page.getByRole('main').getByText('このブラウザーに保存')).toBeVisible()
+  await page.setViewportSize({ width: 1440, height: 900 })
   // Newest first by default.
   expect(await rowNames(page)).toEqual([lists()[2].name, 'Kana', 'Fruits'])
   await expect(row(page, 'fruits')).toContainText('apple・banana・cherry・grape・lemon・melon ほか1語')

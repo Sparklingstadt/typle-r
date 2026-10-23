@@ -49,7 +49,8 @@
     "best": "最佳记录",
     "bestOrder": "按正确率从高到低，相同时按速度从快到慢",
     "bestOrderAtCount": "按正确率从高到低，相同时按速度从快到慢 · 仅当前 {count} 个单词的记录",
-    "allBest": "全部最佳记录"
+    "allBest": "全部最佳记录",
+    "filter": "按名称筛选单词列表"
   },
   "picker": {
     "title": "选择单词列表",

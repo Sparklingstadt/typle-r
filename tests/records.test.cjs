@@ -72,3 +72,11 @@ test('per-word speed and accuracy fall back to a dash for older records', () => 
   assert.equal(formatAccuracy(100), '100%')
   assert.equal(formatAccuracy(undefined), '—')
 })
+
+test('lists to choose from put the most recently practised first and keep the saved order for the rest', () => {
+  const { byRecentPractice } = require('../src/core/records.ts')
+  const list = (id, ...dates) => ({ id, records: dates.map(date => ({ date })) })
+  const lists = [list('a'), list('b', '2026-10-01T00:00:00Z'), list('c'), list('d', '2026-09-01T00:00:00Z', '2026-10-05T00:00:00Z'), list('e', 'not a date')]
+  assert.deepEqual(byRecentPractice(lists).map(item => item.id), ['d', 'b', 'a', 'c', 'e'])
+  assert.deepEqual(lists.map(item => item.id), ['a', 'b', 'c', 'd', 'e'])
+})

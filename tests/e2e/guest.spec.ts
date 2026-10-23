@@ -179,3 +179,13 @@ test('a guest’s lists of removed profiles are merged after the first profile�
   await expect(page.getByRole('button', { name: 'Main（中国語） を編集', exact: true })).toBeVisible()
   expect(JSON.parse(await page.evaluate(key => localStorage.getItem(key) ?? '{}', key)).revision).toBe(3)
 })
+
+test('the home page explains browser storage and offers to move old data only when this browser has some', async ({ page }) => {
+  await page.goto('/home')
+  await expect(page.getByText('ログインせずにすべての練習', { exact: false })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '以前のデータを移行', exact: true })).toHaveCount(0)
+  await page.evaluate(() => localStorage.setItem('typle-r:word-lists:v1', JSON.stringify({ version: 1, lists: [] })))
+  await page.reload()
+  await expect(page.getByRole('heading', { name: '以前のデータを移行', exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: '以前のデータを移行' })).toContainText('このブラウザーに追加します。')
+})

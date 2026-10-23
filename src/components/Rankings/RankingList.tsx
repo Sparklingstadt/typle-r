@@ -52,7 +52,7 @@ export default function RankingList({ rankings, selectedId, filtered, sort, onSo
         <button type="button" data-list-id={item.list.id} onClick={() => onChoose(item.list.id)} aria-current={item.list.id === selectedId ? 'true' : undefined}
           className={cn('flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-muted-foreground outline-none hover:bg-muted/60 focus-visible:ring-3 focus-visible:ring-ring/50',
             item.list.id === selectedId && 'bg-muted text-foreground')}>
-          <span className="min-w-0 flex-1 truncate">{item.list.name}</span>
+          <span className="line-clamp-2 min-w-0 flex-1 [overflow-wrap:anywhere]" title={item.list.name}>{item.list.name}</span>
           <span className="shrink-0 text-xs tabular-nums">{t('words', { count: item.list.words.length })}</span>
           <ChevronRight className="size-4 shrink-0 xl:hidden" aria-hidden="true" />
         </button>
@@ -73,7 +73,7 @@ function ListItem({ item, now, current, onChoose }: { item: ListRanking; now: Da
     <button type="button" data-list-id={item.list.id} onClick={onChoose} aria-current={current ? 'true' : undefined}
       className={cn('relative grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-0.5 rounded-lg px-2.5 py-2 text-left outline-none hover:bg-muted/60 focus-visible:ring-3 focus-visible:ring-ring/50',
         current && 'bg-muted before:absolute before:inset-y-2 before:left-0 before:w-[3px] before:rounded-full before:bg-foreground hover:bg-muted')}>
-      <span className="truncate text-sm font-medium">{item.list.name}</span>
+      <span className="line-clamp-2 text-sm font-medium [overflow-wrap:anywhere]" title={item.list.name}>{item.list.name}</span>
       <span className="text-xs text-muted-foreground tabular-nums">{item.lastPracticed && <><span className="sr-only">{t('lastPracticed')} </span>{format.day(item.lastPracticed, now)}</>}</span>
       <span className="flex min-w-0 items-center gap-1.5 text-[13px] tabular-nums">
         <Trophy className="size-3.5 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden="true" />

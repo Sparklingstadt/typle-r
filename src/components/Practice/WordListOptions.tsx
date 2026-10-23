@@ -24,7 +24,7 @@ export default function WordListOptions({ lists, selectedId, onSelect, label }: 
             {selected && <Check className="size-3" strokeWidth={3} />}
           </span>
           <span className="grid min-w-0">
-            <span className="truncate text-sm font-medium">{list.name}</span>
+            <span className="line-clamp-2 text-sm font-medium [overflow-wrap:anywhere]" title={list.name}>{list.name}</span>
             <span id={`${id}-${index}`} className="text-xs text-muted-foreground">{best ? t('withBest', { count: list.words.length, time: best.time.toFixed(2) }) : t('noRecord', { count: list.words.length })}</span>
           </span>
         </button>

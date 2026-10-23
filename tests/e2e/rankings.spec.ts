@@ -43,7 +43,9 @@ test('ranks runs at the current word count, switches order and device, and keeps
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/rankings')
   await expect(page.getByRole('heading', { level: 1, name: 'ベスト記録', exact: true })).toBeVisible()
-  await expect(page.getByText('このブラウザーに保存', { exact: true })).toBeVisible()
+  // Where the data is saved shows once, in the top bar; the page's own badge is only for narrow screens.
+  await expect(page.getByRole('banner', { name: 'トップバー' })).toContainText('このブラウザーに保存')
+  await expect(page.getByRole('main').getByText('このブラウザーに保存', { exact: true })).toBeHidden()
   const lists = page.getByRole('region', { name: '単語リスト', exact: true })
   // The most recently practised list opens first, and its best was set within the last week.
   await expect(lists.getByRole('button', { name: /^English/ })).toHaveAttribute('aria-current', 'true')
