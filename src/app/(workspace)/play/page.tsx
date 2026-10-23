@@ -1,5 +1,5 @@
 "use client"
-import { Suspense, useEffect, useRef, useState } from "react"
+import { Suspense, useEffect, useLayoutEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
@@ -84,11 +84,32 @@ function LiveStats({ session, accuracy }: { session: TypingSession; accuracy: nu
   </dl>
 }
 
-// Shorter text gets the large size; anything over 24 characters wraps as a left-aligned paragraph.
-function wordSize(text: string) {
+// Text that would wrap to 3, 4, 5, or 6 and more lines at that size gets a step smaller each time.
+const wrappedSizes = ['text-lg sm:text-[22px]', 'text-[17px] sm:text-xl', 'text-base sm:text-lg', 'text-[15px] sm:text-base']
+
+// Shorter text gets the large size; anything over 24 characters wraps as a left-aligned paragraph,
+// and text that would still wrap to three or more lines steps down through `wrappedSizes`.
+function wordSize(text: string, lines = 1) {
+  if (lines >= 3) return cn('leading-relaxed text-left max-w-[40em]', wrappedSizes[Math.min(lines, 6) - 3])
   const length = Array.from(text).length
   if (length > 24) return 'text-xl leading-relaxed text-left sm:text-[26px] max-w-[34em]'
   return length > 10 ? 'text-[32px] leading-tight sm:text-[44px]' : 'text-[44px] leading-tight sm:text-[64px]'
+}
+
+// How many lines the word wraps to at its usual size. It measures a hidden zero-height copy (scrollHeight still
+// holds the full text), so the smaller size can't change the count it was chosen from.
+// The copy is held in state, so it is measured again when it remounts, e.g. after the result screen.
+function useWrappedLines(text: string | undefined) {
+  const [element, setElement] = useState<HTMLParagraphElement | null>(null)
+  const [lines, setLines] = useState(1)
+  useLayoutEffect(() => {
+    if (!element) return
+    // The observer reports once on observe and again whenever the width changes, before the frame is painted.
+    const observer = new ResizeObserver(() => setLines(Math.round(element.scrollHeight / parseFloat(getComputedStyle(element).lineHeight))))
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [element, text])
+  return [setElement, lines] as const
 }
 
 function Practice({ wordLists, listId, error, update, devices, accountId }: {
@@ -125,6 +146,7 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
   const bestCandidates = selectedList ? comparableRecords(selectedList) : []
   // Colour only committed text: IME composition (romaji, pinyin) is shown in the input but never judged.
   const comparison = compareInput(word?.input ?? '', session.input)
+  const [wordCopy, wrappedLines] = useWrappedLines(word?.display)
   const hasError = comparison.errorIndex >= 0
   const dialogOpen = pickerOpen || pendingSwitch !== null || menuOpen
   const showResume = focusedOnce && !inputFocused && !finished && !dialogOpen && words.length > 0
@@ -238,11 +260,12 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
           device={practiceDevice} record={record} records={selectedRecords} saveState={saveState} onRestart={() => restart()} onRetry={retrySave} onChooseList={openPicker} />
         : <>
           <div className="relative flex min-h-44 flex-1 flex-col items-center justify-center gap-3 px-4 pt-6 pb-2 text-center sm:min-h-52 sm:gap-3.5 sm:px-6 sm:pt-11">
+            {word && <p ref={wordCopy} aria-hidden="true" className={cn('invisible absolute inset-x-4 top-0 m-0 h-0 overflow-hidden font-medium whitespace-pre-wrap [overflow-wrap:anywhere] sm:inset-x-6', wordSize(word.display))}>{word.display}</p>}
             {word?.annotation && <p className="max-w-full text-base break-words text-foreground">{word.annotation}</p>}
             {word && word.display === word.input
-              ? <TargetText id="wordDisplay" {...comparison} className={wordSize(word.display)} />
+              ? <TargetText id="wordDisplay" {...comparison} className={wordSize(word.display, wrappedLines)} />
               : word && <>
-                <p id="wordDisplay" className={cn('m-0 max-w-full font-medium whitespace-pre-wrap [overflow-wrap:anywhere]', wordSize(word.display))}>{word.display}</p>
+                <p id="wordDisplay" className={cn('m-0 max-w-full font-medium whitespace-pre-wrap [overflow-wrap:anywhere]', wordSize(word.display, wrappedLines))}>{word.display}</p>
                 <div className="flex max-w-full flex-wrap items-center justify-center gap-2.5">
                   <span className="rounded-full border px-2 text-xs text-muted-foreground">{t('word.typeThis')}</span>
                   <TargetText {...comparison} className="text-2xl tracking-wide sm:text-3xl" />
