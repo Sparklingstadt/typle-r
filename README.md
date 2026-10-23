@@ -130,7 +130,7 @@ Next.js のアプリは1つで、`src` を層に分けています。依存は�
 | 層 | 場所 | 内容 |
 |---|---|---|
 | 画面 | `src/app`・`src/components`・`src/i18n`・`src/lib` | ページ、UI、多言語化、React のフック。`useWordLists` は React の状態とブラウザーのイベント（フォーカス・他タブの変更）だけを受け持ち、読み込み・保存は core の `createWorkspaceSession` に任せます |
-| プラグイン | `src/plugins` | core のポートの実装と初期データ。`storage`：`cloud`（Goのバックエンドが提供する `/api/workspace`）と `guest`（LocalStorage）を `workspaceStore(accountId)` がアカウントに応じて選びます。`formats`：CSV・TSV（`delimited.ts`）と旧バージョンのブラウザー保存からの移行（`legacy.ts`）。`packs`：最初に表示する単語リスト（サンプル、国名193か国、Linux・Vercel CLI・gcloud・AWS CLI・macOS（zsh）・Arch Linux・Vim・Go構文・Java構文・Kotlin構文・PostgreSQL構文の15リスト） |
+| プラグイン | `src/plugins` | core のポートの実装と初期データ。`storage`：`cloud`（Goのバックエンドが提供する `/api/workspace`）と `guest`（LocalStorage）を `workspaceStore(accountId)` がアカウントに応じて選びます。`formats`：CSV・TSV（`delimited.ts`）と旧バージョンのブラウザー保存からの移行（`legacy.ts`）。`packs`：最初に表示する単語リスト（サンプル、国名193か国、Linux・Vercel CLI・gcloud・AWS CLI・macOS（zsh）・Arch Linux・Vim・Go構文・Java構文・Kotlin構文・PostgreSQL構文・Prisma構文・Jest構文・Playwright構文の18リスト） |
 | core | `src/core` | React・Next.js・ブラウザーAPIに依存しない TypeScript。単語リスト・入力判定・記録・集計・ワークスペースのモデルと検証、保存先のポート `WorkspaceStore`（`workspaceStore.ts`、保存場所 `location` を含む）、ワークスペースの読み込み・保存 `createWorkspaceSession`（`workspaceSession.ts`。アカウントの切り替え後に届いた結果の破棄、保存の直列化、409での再読み込み、古いクラウド読み込みの無視）とファイル形式のポート `WordFormat`（`wordFormat.ts`） |
 
 保存先を増やすときは `WorkspaceStore` を実装したプラグインを `src/plugins/storage` に追加し、`workspaceStore` で選びます。ファイル形式を増やすときは `WordFormat` を実装して `src/plugins/formats/index.ts` の一覧に加えると、取り込みの拡張子判定と `accept` に反映されます。どちらも画面のコードは変わりません。
@@ -366,9 +366,9 @@ UIはshadcn/ui（Radix / Nova）とTailwind CSS 4で構成しています。設�
 
 入力を小文字にした「国名：中国語・国連加盟193か国（小文字）」（v0.69.0 から）も初期リストにあります。表示・補足は同じで、入力は上のリストの拼音を小文字にしたものです。空白は残します（例: 安提瓜和巴布达 → `antigua he babuda`）。`src/plugins/packs/commands.json` の最後のリストで、保存済みのアカウントにはマイグレーション `0015_seed_lowercase_country_list` が追加します（コマンドのリストと同じ規則）。
 
-### コマンドの単語リスト（Linux・Vercel CLI・gcloud・AWS CLI・macOS・Arch Linux・Vim・Go・Java・Kotlin・PostgreSQL）
+### コマンドの単語リスト（Linux・Vercel CLI・gcloud・AWS CLI・macOS・Arch Linux・Vim・Go・Java・Kotlin・PostgreSQL・Prisma・Jest・Playwright）
 
-`src/plugins/packs/commands.json` の15リスト（1,578語）のうち、Linuxの5リスト（611語）は、提供されたLinuxコマンド表のCSV（学習用フラット一覧、64表・659行。SHA-256 `17ce06e70c8113a84b850034cd86100633a660b3ce2638c72fa2d0429273864f`）から作っています。
+`src/plugins/packs/commands.json` の18リスト（1,779語）のうち、Linuxの5リスト（611語）は、提供されたLinuxコマンド表のCSV（学習用フラット一覧、64表・659行。SHA-256 `17ce06e70c8113a84b850034cd86100633a660b3ce2638c72fa2d0429273864f`）から作っています。
 
 | リスト | 元の表 | 語数 |
 |---|---|---|
@@ -379,7 +379,7 @@ UIはshadcn/ui（Radix / Nova）とTailwind CSS 4で構成しています。設�
 | Linux：システムの仕組み | ディレクトリ構造・/proc・/sys・/dev・FD・シグナル・IPC・inode・リソース制限・Namespace・障害調査（表38〜40・42〜44・46・52・53・55・57・60〜63） | 140 |
 
 表示と入力は同じ文字列（使用例があれば使用例、なければ項目そのもの。オプションは「コマンド オプション」）、補足は名前の由来と用途です（例: `ls -la` → 「ls（List）：ファイル・フォルダの一覧表示」）。同じリストで入力が重なる行は最初の1つだけを残します。比較表・練習チェックリスト・chmodの計算表（表07・08・36・37・56・64）は入力する語がないため含めません。
-残りの10リストは、提供されたコマンド一覧のCSVから作っています。
+残りの13リストは、提供されたコマンド一覧のCSVから作っています。
 
 | リスト | 元のCSV | 語数 |
 |---|---|---|
@@ -393,6 +393,9 @@ UIはshadcn/ui（Radix / Nova）とTailwind CSS 4で構成しています。設�
 | Java構文 | `java_syntax.csv`（138行。SHA-256 `fe632c5f280b54550a2b0f550f1b0c4f9a8656972832a4cbb0ed08ce5933414b`） | 130 |
 | Kotlin構文 | `kotlin_syntax.csv`（144行。SHA-256 `a414e920c594b709c65a9aafd834581513b2e21eb63c67c418214590cc14d72d`） | 163 |
 | PostgreSQL構文 | `postgresql_syntax.csv`（152行。SHA-256 `7d114285ec432c16cd7494677f5a78c68bb1e6177ee8464a235ff36660b1a067`） | 152 |
+| Prisma構文 | `prisma_syntax.csv`（63行。SHA-256 `18348391c8639f5050ec8797549ff41322aba83b8fff5461b0b5affa13026c86`） | 64 |
+| Jest構文 | `jest_syntax.csv`（65行。SHA-256 `2e7c6bb5af7ffd52721d8858f8d03230fa0eaf27a61567c9131049611290af3d`） | 67 |
+| Playwright構文 | `playwright_syntax.csv`（66行。SHA-256 `1d0b10a579cdf8c38bccfaae43ad4c045d181b1e139dfc2550fff6a09a63acf0`） | 70 |
 
 入力はコマンド例（`<URL>`・`PROJECT_ID` などの置き換える部分もそのまま）、補足は「用途：できること」に備考を括弧で添えたものです（例: `vercel deploy --prod` → 「本番公開：本番環境にデプロイする」）。1行に2つあるコマンド（`vercel project pause` / `vercel project resume`）は2語に分け、2行にある同じコマンド（`gcloud compute`）は補足を「 / 」でつないで1語にします。AWS CLIの補足は「サービス・機能：できること」に主なオプション・補足を添えます。
 
@@ -410,9 +413,11 @@ Kotlin構文も、Goと同じく改行が文の区切りになるため、文が
 
 PostgreSQL構文もSQL例を入力し、補足は「構文：用途」に注意点を添えます。SQLは改行に意味がないので行を空白でつなぎ（`(` の後ろと `)` の前の空白は詰めます）、`BEGIN; UPDATE ...; COMMIT;` のような複数の文は `;` で区切ったまま1行に並べます。`-- 1行コメント` は、つないだ後の行まで消さないよう `/* 1行コメント */` に置き換えます。152語すべてを PostgreSQL の構文解析器（pglast 8.7）で、構文が正しいことを確かめています（表や列があるかは確かめません）。`#NAME?` になっていた構文（`age <> 20` の比較）は「比較演算子」に置き換え、注意点からは除きます。文字列やコメントの日本語はIMEで入力します。
 
-`tests/commands.test.cjs` で、15リストの読み込み、語数、入力が前後に空白のないASCII（Go・Java・Kotlin・PostgreSQL構文と、日本語を含む13語を除く）で表示と一致すること、リスト内で入力が重複しないことを確かめます。
+Prisma構文・Jest構文・Playwright構文もコード例を入力し、補足は「構文・API：用途」に注意点を添えます。TypeScript（JavaScript）のコード例は、Javaと同じく行を空白でつなぎ、`(`・`[` の後ろと `)`・`]` の前は空白を入れず、その前の行末のカンマも省きます（例: `await prisma.$transaction([prisma.user.update(...), prisma.post.updateMany(...)]);`）。`}` の前のカンマも省きます。複数行の例の中の `//` コメントは `/* */` に置き換えます。TypeScript（6.0）の構文解析で、Prismaの40語、Jestの62語、Playwrightの61語が正しいことを確かめています（`webServer: { ... }` は設定の一部として）。`npx` で始まるターミナルのコマンドは、1行に1つずつ別の語にします（`npx prisma format` と `npx prisma validate` など）。Prismaのスキーマ（`model Note { id Int @id @default(autoincrement()) body String }` など16語）も同じく1行にし、桁をそろえる空白は1つにします。スキーマは改行がフィールドの区切りなので、1行にした形はPrismaのスキーマとしては正しくありません。元の複数行の形は `prisma validate`（Prisma 7）で確かめています。
 
-初期リストなので、まだ一度も保存していないアカウントとブラウザーには最初から表示されます。v0.63.0 から、すでに保存しているアカウントにも、マイグレーション `0009_seed_command_lists`（`npm run db:migrate`。本番ではデプロイ時に実行）が9リストを、v0.64.0 から `0010_seed_arch_linux_list` がArch Linuxのリストを、v0.65.0 から `0011_seed_vim_list` がVimのリストを、v0.66.0 から `0012_seed_go_syntax_list` がGo構文のリストを、v0.67.0 から `0013_seed_java_syntax_list` がJava構文のリストを、v0.68.0 から `0014_seed_kotlin_syntax_list` がKotlin構文のリストを、v0.71.0 から `0016_seed_postgresql_syntax_list` がPostgreSQL構文のリストを追加します。小文字の国名リストも、同じ規則で `0015_seed_lowercase_country_list` が追加します。`scripts/seed.cjs` と同じく、同じIDまたは同じ名前のリストがある場合はそのリストを追加せず、ほかのリストと練習記録はそのまま残します。追加すると100リストか保存できる大きさ（`MaxListsBytes`）を超えるアカウントには追加しません。マイグレーションは1回だけ実行されるため、その後に削除したリストは戻りません。改めて追加するときは `npm run db:seed -- --owner github:<ID>` を使います。このブラウザーに保存している場合（ログインしていない場合）はマイグレーションの対象外です。
+`tests/commands.test.cjs` で、18リストの読み込み、語数、入力が前後に空白のないASCII（Go・Java・Kotlin・PostgreSQL・Prisma・Jest・Playwright構文と、日本語を含む13語を除く）で表示と一致すること、リスト内で入力が重複しないことを確かめます。
+
+初期リストなので、まだ一度も保存していないアカウントとブラウザーには最初から表示されます。v0.63.0 から、すでに保存しているアカウントにも、マイグレーション `0009_seed_command_lists`（`npm run db:migrate`。本番ではデプロイ時に実行）が9リストを、v0.64.0 から `0010_seed_arch_linux_list` がArch Linuxのリストを、v0.65.0 から `0011_seed_vim_list` がVimのリストを、v0.66.0 から `0012_seed_go_syntax_list` がGo構文のリストを、v0.67.0 から `0013_seed_java_syntax_list` がJava構文のリストを、v0.68.0 から `0014_seed_kotlin_syntax_list` がKotlin構文のリストを、v0.71.0 から `0016_seed_postgresql_syntax_list` がPostgreSQL構文のリストを、v0.72.0 から `0017_seed_test_framework_lists` がPrisma・Jest・Playwright構文の3リストを追加します。小文字の国名リストも、同じ規則で `0015_seed_lowercase_country_list` が追加します。`scripts/seed.cjs` と同じく、同じIDまたは同じ名前のリストがある場合はそのリストを追加せず、ほかのリストと練習記録はそのまま残します。追加すると100リストか保存できる大きさ（`MaxListsBytes`）を超えるアカウントには追加しません。マイグレーションは1回だけ実行されるため、その後に削除したリストは戻りません。改めて追加するときは `npm run db:seed -- --owner github:<ID>` を使います。このブラウザーに保存している場合（ログインしていない場合）はマイグレーションの対象外です。
 
 ### 共通レイアウト（トップバー・サイドバー）
 

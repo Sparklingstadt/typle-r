@@ -11,6 +11,7 @@ test('the command lists decode in Typle with their own ids and names', () => {
   assert.deepEqual(lists.map(list => [list.id, list.words.length]), [
     ['linux-commands-basic', 118], ['linux-commands-options', 146], ['linux-commands-advanced', 131],
     ['linux-shell-bash', 76], ['linux-system', 140], ['vercel-cli', 34], ['gcloud-cli', 35], ['aws-cli', 46], ['macos-zsh', 90], ['arch-linux', 96], ['vim', 112], ['go-syntax', 109], ['java-syntax', 130], ['kotlin-syntax', 163], ['un-member-states-chinese-193-lowercase', 193], ['postgresql-syntax', 152],
+    ['prisma-syntax', 64], ['jest-syntax', 67], ['playwright-syntax', 70],
   ])
   const { initialLists } = require('../src/plugins/packs/index.ts')
   for (const list of lists) validateList(list, initialLists.filter(other => other.id !== list.id))
@@ -28,8 +29,8 @@ test('each command is typed as shown, in ASCII, once per list, with an explanati
     assert.equal(new Set(list.words.map(word => word.input)).size, list.words.length, list.name)
     for (const word of list.words) {
       assert.equal(word.display, word.input)
-      // Go, Java, Kotlin and PostgreSQL examples hold Japanese strings and comments.
-      assert.match(['go-syntax', 'java-syntax', 'kotlin-syntax', 'postgresql-syntax'].includes(list.id) || japanese.includes(word.input) ? word.input.replace(/[^\x20-\x7e]/g, 'x') : word.input,
+      // Go, Java, Kotlin, PostgreSQL, Prisma, Jest and Playwright examples hold Japanese strings and comments.
+      assert.match(['go-syntax', 'java-syntax', 'kotlin-syntax', 'postgresql-syntax', 'prisma-syntax', 'jest-syntax', 'playwright-syntax'].includes(list.id) || japanese.includes(word.input) ? word.input.replace(/[^\x20-\x7e]/g, 'x') : word.input,
         /^[\x21-\x7e]([\x20-\x7e]*[\x21-\x7e])?$/, word.input)
       assert.ok(word.annotation.trim(), word.input)
     }
@@ -53,9 +54,9 @@ test('the zsh list leaves out key presses and keeps one word per example', () =>
     'STS：操作中のアカウント・権限を確認（Account・Arn・UserIdを確認）')
 })
 
-test('migrations 0009 to 0016 add the command lists to saved workspaces', () => {
+test('migrations 0009 to 0017 add the command lists to saved workspaces', () => {
   const fs = require('node:fs')
-  const added = ['0009_seed_command_lists', '0010_seed_arch_linux_list', '0011_seed_vim_list', '0012_seed_go_syntax_list', '0013_seed_java_syntax_list', '0014_seed_kotlin_syntax_list', '0015_seed_lowercase_country_list', '0016_seed_postgresql_syntax_list'].flatMap(name => {
+  const added = ['0009_seed_command_lists', '0010_seed_arch_linux_list', '0011_seed_vim_list', '0012_seed_go_syntax_list', '0013_seed_java_syntax_list', '0014_seed_kotlin_syntax_list', '0015_seed_lowercase_country_list', '0016_seed_postgresql_syntax_list', '0017_seed_test_framework_lists'].flatMap(name => {
     const sql = fs.readFileSync(require.resolve(`../prisma/migrations/${name}/migration.sql`), 'utf8')
     const literal = sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'")
     return decodeLists(JSON.stringify({ version: 1, lists: JSON.parse(literal) }))
@@ -126,4 +127,18 @@ test('the PostgreSQL list types each SQL example on one line, with no line comme
   assert.ok(sql.some(word => word.input === 'WITH totals AS (SELECT user_id, SUM(amount) AS total FROM orders GROUP BY user_id) SELECT * FROM totals WHERE total >= 1000;'))
   assert.equal(sql.find(word => word.input === 'SELECT * FROM users WHERE age <> 20;').annotation, '比較演算子：比較（NULLとの通常比較は真偽がunknownになる）')
   assert.equal(sql.find(word => word.input === 'SELECT * FROM users WHERE email IS NULL;').annotation, 'IS NULL / IS NOT NULL：NULLの判定')
+})
+
+test('the Prisma, Jest and Playwright lists type each code example on one line and each command as its own word', () => {
+  const code = ['prisma-syntax', 'jest-syntax', 'playwright-syntax'].flatMap(words)
+  assert.ok(code.every(word => !/[\n\t]/.test(word.input) && !/\S \/\/ /.test(word.input)))
+  // Lines join with a space, and with no space or trailing comma inside the brackets of a call or an array.
+  assert.ok(code.every(word => !/[([] |,? [)\]]|, }/.test(word.input)), code.find(word => /[([] |,? [)\]]|, }/.test(word.input))?.input)
+  const prisma = words('prisma-syntax')
+  assert.ok(prisma.some(word => word.input === 'model Note { id Int @id @default(autoincrement()) body String }'))
+  assert.ok(prisma.some(word => word.input === 'await prisma.$transaction([prisma.user.update({ where: { id: 1 }, data: { active: true } }), prisma.post.updateMany({ where: { authorId: 1 }, data: { published: true } })]);'))
+  assert.ok(['npx prisma format', 'npx prisma validate'].every(input => prisma.find(word => word.input === input).annotation === 'prisma format / validate：スキーマ整形・検証（ターミナルで実行）'))
+  assert.equal(words('jest-syntax').find(word => word.input === 'expect(1 + 2).toBe(3);').annotation, 'toBe：Object.is相当の比較（オブジェクト内容の比較はtoEqual等）')
+  assert.ok(words('playwright-syntax').some(word => word.input === "import { devices } from '@playwright/test'; /* defineConfig内: */ /* projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }] */"))
+  assert.ok(words('playwright-syntax').some(word => word.input === 'npx playwright test --headed'))
 })

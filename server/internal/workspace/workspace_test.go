@@ -67,7 +67,8 @@ func TestInitial(t *testing.T) {
 		}
 	}
 	if strings.Join(ids, ",") != "sample-1,sample-2,un-member-states-chinese-193,linux-commands-basic,linux-commands-options,"+
-		"linux-commands-advanced,linux-shell-bash,linux-system,vercel-cli,gcloud-cli,aws-cli,macos-zsh,arch-linux,vim,go-syntax,java-syntax,kotlin-syntax,un-member-states-chinese-193-lowercase,postgresql-syntax" || len(w.Lists[2].Words) != 193 {
+		"linux-commands-advanced,linux-shell-bash,linux-system,vercel-cli,gcloud-cli,aws-cli,macos-zsh,arch-linux,vim,go-syntax,java-syntax,kotlin-syntax,un-member-states-chinese-193-lowercase,postgresql-syntax,"+
+		"prisma-syntax,jest-syntax,playwright-syntax" || len(w.Lists[2].Words) != 193 {
 		t.Fatalf("ids = %v", ids)
 	}
 }

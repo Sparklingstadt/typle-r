@@ -8981,5 +8981,1034 @@
     ],
     "records": [],
     "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "prisma-syntax",
+    "name": "Prisma構文",
+    "words": [
+      {
+        "display": "// Prisma ORM 7 / TypeScript / PostgreSQL",
+        "input": "// Prisma ORM 7 / TypeScript / PostgreSQL",
+        "annotation": "対象環境：例の前提（コードは断片。生成済みClient・DB接続・モデル等が必要。v6以前と設定が異なる）"
+      },
+      {
+        "display": "generator client { provider = \"prisma-client\" output = \"../src/generated/prisma\" } datasource db { provider = \"postgresql\" } model User { id Int @id @default(autoincrement()) email String @unique name String? age Int? active Boolean @default(true) createdAt DateTime @default(now()) tags String[] profile Json? posts Post[] } model Post { id Int @id @default(autoincrement()) title String published Boolean @default(false) authorId Int author User @relation(fields: [authorId], references: [id]) }",
+        "input": "generator client { provider = \"prisma-client\" output = \"../src/generated/prisma\" } datasource db { provider = \"postgresql\" } model User { id Int @id @default(autoincrement()) email String @unique name String? age Int? active Boolean @default(true) createdAt DateTime @default(now()) tags String[] profile Json? posts Post[] } model Post { id Int @id @default(autoincrement()) title String published Boolean @default(false) authorId Int author User @relation(fields: [authorId], references: [id]) }",
+        "annotation": "サンプルschema.prisma：クエリ例に使うモデル（PostgreSQL向け。Client生成・マイグレーションが必要。コード例は独立した断片）"
+      },
+      {
+        "display": "import \"dotenv/config\"; import { defineConfig, env } from \"prisma/config\"; export default defineConfig({ schema: \"prisma/schema.prisma\", migrations: { path: \"prisma/migrations\" }, datasource: { url: env(\"DATABASE_URL\") } });",
+        "input": "import \"dotenv/config\"; import { defineConfig, env } from \"prisma/config\"; export default defineConfig({ schema: \"prisma/schema.prisma\", migrations: { path: \"prisma/migrations\" }, datasource: { url: env(\"DATABASE_URL\") } });",
+        "annotation": "prisma.config.ts：CLIの接続設定（Prisma 7の例。dotenv等の依存とDATABASE_URLが必要）"
+      },
+      {
+        "display": "import \"dotenv/config\"; import { PrismaClient } from \"./generated/prisma/client\"; import { PrismaPg } from \"@prisma/adapter-pg\"; const connectionString = process.env.DATABASE_URL; if (!connectionString) throw new Error(\"DATABASE_URL is required\"); const adapter = new PrismaPg({ connectionString }); const prisma = new PrismaClient({ adapter });",
+        "input": "import \"dotenv/config\"; import { PrismaClient } from \"./generated/prisma/client\"; import { PrismaPg } from \"@prisma/adapter-pg\"; const connectionString = process.env.DATABASE_URL; if (!connectionString) throw new Error(\"DATABASE_URL is required\"); const adapter = new PrismaPg({ connectionString }); const prisma = new PrismaClient({ adapter });",
+        "annotation": "PrismaClient / adapter：PostgreSQLに接続するClient（src/db.tsを想定。生成先・拡張子等は環境に合わせる。Prisma 7の通常の直接接続向け）"
+      },
+      {
+        "display": "await prisma.$disconnect();",
+        "input": "await prisma.$disconnect();",
+        "annotation": "$disconnect：接続リソースを終了（短命スクリプトの終了時等。サーバーで毎リクエスト切断しない）"
+      },
+      {
+        "display": "generator client { provider = \"prisma-client\" output = \"../src/generated/prisma\" }",
+        "input": "generator client { provider = \"prisma-client\" output = \"../src/generated/prisma\" }",
+        "annotation": "generator：Client生成方法を指定（Prisma 7ではoutput指定が必要。schema.prismaに記述）"
+      },
+      {
+        "display": "datasource db { provider = \"postgresql\" }",
+        "input": "datasource db { provider = \"postgresql\" }",
+        "annotation": "datasource：DBプロバイダー指定（Prisma 7の接続URLはprisma.config.ts側）"
+      },
+      {
+        "display": "model Note { id Int @id @default(autoincrement()) body String }",
+        "input": "model Note { id Int @id @default(autoincrement()) body String }",
+        "annotation": "model：モデル定義（Prisma Schema Language）"
+      },
+      {
+        "display": "name String?",
+        "input": "name String?",
+        "annotation": "String?：任意フィールド（DBでは通常NULL許容）"
+      },
+      {
+        "display": "tags String[]",
+        "input": "tags String[]",
+        "annotation": "String[]：配列フィールド（対応DBに依存。このCSVはPostgreSQL）"
+      },
+      {
+        "display": "id Int @id @default(autoincrement())",
+        "input": "id Int @id @default(autoincrement())",
+        "annotation": "@id：主キー"
+      },
+      {
+        "display": "email String @unique",
+        "input": "email String @unique",
+        "annotation": "@unique：一意制約"
+      },
+      {
+        "display": "active Boolean @default(true)",
+        "input": "active Boolean @default(true)",
+        "annotation": "@default：既定値"
+      },
+      {
+        "display": "createdAt DateTime @default(now())",
+        "input": "createdAt DateTime @default(now())",
+        "annotation": "@default(now())：作成時日時"
+      },
+      {
+        "display": "updatedAt DateTime @updatedAt",
+        "input": "updatedAt DateTime @updatedAt",
+        "annotation": "@updatedAt：Prisma更新時の日時（Prisma ORMレベルで管理。外部SQL更新では自動反映されない）"
+      },
+      {
+        "display": "author User @relation(fields: [authorId], references: [id])",
+        "input": "author User @relation(fields: [authorId], references: [id])",
+        "annotation": "@relation：リレーション（対応するauthorId・反対側フィールド等が必要）"
+      },
+      {
+        "display": "@@unique([authorId, title])",
+        "input": "@@unique([authorId, title])",
+        "annotation": "@@unique：複合一意制約（モデルブロック内。既存データと制約を確認）"
+      },
+      {
+        "display": "@@index([authorId, published])",
+        "input": "@@index([authorId, published])",
+        "annotation": "@@index：インデックス（モデルブロック内。変更はDBへ適用が必要）"
+      },
+      {
+        "display": "displayName String @map(\"display_name\") @@map(\"users\")",
+        "input": "displayName String @map(\"display_name\") @@map(\"users\")",
+        "annotation": "@map / @@map：DB上の名前と対応付け（モデル内の別々の宣言例）"
+      },
+      {
+        "display": "enum Role { ADMIN MEMBER }",
+        "input": "enum Role { ADMIN MEMBER }",
+        "annotation": "enum：列挙型（モデル側で型として参照。DB対応を確認）"
+      },
+      {
+        "display": "const users = await prisma.user.findMany();",
+        "input": "const users = await prisma.user.findMany();",
+        "annotation": "findMany：複数件取得（全件取得はデータ量に注意）"
+      },
+      {
+        "display": "const user = await prisma.user.findUnique({ where: { id: 1 } });",
+        "input": "const user = await prisma.user.findUnique({ where: { id: 1 } });",
+        "annotation": "findUnique：一意条件で1件（なければnull）"
+      },
+      {
+        "display": "const user = await prisma.user.findUniqueOrThrow({ where: { id: 1 } });",
+        "input": "const user = await prisma.user.findUniqueOrThrow({ where: { id: 1 } });",
+        "annotation": "findUniqueOrThrow：なければ例外"
+      },
+      {
+        "display": "const user = await prisma.user.findFirst({ where: { active: true }, orderBy: { id: 'asc' } });",
+        "input": "const user = await prisma.user.findFirst({ where: { active: true }, orderBy: { id: 'asc' } });",
+        "annotation": "findFirst：条件に合う先頭の1件（なければnull。順序が必要ならorderBy）"
+      },
+      {
+        "display": "await prisma.user.findMany({ where: { age: { gte: 20 } } });",
+        "input": "await prisma.user.findMany({ where: { age: { gte: 20 } } });",
+        "annotation": "where：絞り込み"
+      },
+      {
+        "display": "await prisma.user.findMany({ where: { active: true, OR: [{ age: { gte: 20 } }, { age: null }] } });",
+        "input": "await prisma.user.findMany({ where: { active: true, OR: [{ age: { gte: 20 } }, { age: null }] } });",
+        "annotation": "AND / OR / NOT：条件の組合せ"
+      },
+      {
+        "display": "await prisma.user.findMany({ where: { id: { in: [1, 2, 3] } } });",
+        "input": "await prisma.user.findMany({ where: { id: { in: [1, 2, 3] } } });",
+        "annotation": "in / notIn：候補で絞る（NULLの扱いに注意）"
+      },
+      {
+        "display": "await prisma.user.findMany({ where: { email: { contains: 'example.com', mode: 'insensitive' } } });",
+        "input": "await prisma.user.findMany({ where: { email: { contains: 'example.com', mode: 'insensitive' } } });",
+        "annotation": "contains / mode：文字列部分一致（modeはPostgreSQL向け。DBによって対応が異なる）"
+      },
+      {
+        "display": "await prisma.user.findMany({ where: { name: null } });",
+        "input": "await prisma.user.findMany({ where: { name: null } });",
+        "annotation": "null：NULL条件（undefinedと同じ意味ではない。未定義値の扱いは設定も確認）"
+      },
+      {
+        "display": "await prisma.user.findMany({ select: { id: true, email: true } });",
+        "input": "await prisma.user.findMany({ select: { id: true, email: true } });",
+        "annotation": "select：取得するフィールドを限定（同じ階層でincludeと併用不可）"
+      },
+      {
+        "display": "await prisma.user.findUnique({ where: { id: 1 }, include: { posts: true } });",
+        "input": "await prisma.user.findUnique({ where: { id: 1 }, include: { posts: true } });",
+        "annotation": "include：関連データを取得（関連件数・クエリ負荷に注意）"
+      },
+      {
+        "display": "await prisma.user.findMany({ where: { posts: { some: { published: true } } } });",
+        "input": "await prisma.user.findMany({ where: { posts: { some: { published: true } } } });",
+        "annotation": "relation some：関連行の存在条件（none・every等もある。everyは関連0件でも真）"
+      },
+      {
+        "display": "await prisma.user.findMany({ orderBy: [{ createdAt: 'desc' }, { id: 'desc' }] });",
+        "input": "await prisma.user.findMany({ orderBy: [{ createdAt: 'desc' }, { id: 'desc' }] });",
+        "annotation": "orderBy：並べ替え"
+      },
+      {
+        "display": "await prisma.user.findMany({ orderBy: { id: 'asc' }, skip: 20, take: 10 });",
+        "input": "await prisma.user.findMany({ orderBy: { id: 'asc' }, skip: 20, take: 10 });",
+        "annotation": "skip / take：件数とオフセット（大きいskipの負荷に注意）"
+      },
+      {
+        "display": "await prisma.user.findMany({ cursor: { id: 100 }, skip: 1, take: 10, orderBy: { id: 'asc' } });",
+        "input": "await prisma.user.findMany({ cursor: { id: 100 }, skip: 1, take: 10, orderBy: { id: 'asc' } });",
+        "annotation": "cursor：カーソルページング（一意なカーソル等と順序を整合させる）"
+      },
+      {
+        "display": "await prisma.user.findMany({ distinct: ['name'], select: { name: true } });",
+        "input": "await prisma.user.findMany({ distinct: ['name'], select: { name: true } });",
+        "annotation": "distinct：重複を除いた結果（DB側のSELECT DISTINCTと同じ実装とは限らない）"
+      },
+      {
+        "display": "const count = await prisma.user.count({ where: { active: true } });",
+        "input": "const count = await prisma.user.count({ where: { active: true } });",
+        "annotation": "count：件数"
+      },
+      {
+        "display": "await prisma.user.aggregate({ _avg: { age: true }, _max: { age: true } });",
+        "input": "await prisma.user.aggregate({ _avg: { age: true }, _max: { age: true } });",
+        "annotation": "aggregate：集計（対象なし・NULLでは集計値がnullの場合）"
+      },
+      {
+        "display": "await prisma.post.groupBy({ by: ['authorId'], _count: { _all: true } });",
+        "input": "await prisma.post.groupBy({ by: ['authorId'], _count: { _all: true } });",
+        "annotation": "groupBy：グループ集計"
+      },
+      {
+        "display": "await prisma.user.create({ data: { email: 'pomo@example.com', name: 'Pomo', tags: [] } });",
+        "input": "await prisma.user.create({ data: { email: 'pomo@example.com', name: 'Pomo', tags: [] } });",
+        "annotation": "create：1件追加（一意制約競合で失敗し得る）"
+      },
+      {
+        "display": "await prisma.user.createMany({ data: [{ email: 'a@example.com', tags: [] }, { email: 'b@example.com', tags: [] }], skipDuplicates: true });",
+        "input": "await prisma.user.createMany({ data: [{ email: 'a@example.com', tags: [] }, { email: 'b@example.com', tags: [] }], skipDuplicates: true });",
+        "annotation": "createMany：複数件追加（skipDuplicatesは対応DBに依存。例はPostgreSQL）"
+      },
+      {
+        "display": "await prisma.user.createManyAndReturn({ data: [{ email: 'c@example.com', tags: [] }] });",
+        "input": "await prisma.user.createManyAndReturn({ data: [{ email: 'c@example.com', tags: [] }] });",
+        "annotation": "createManyAndReturn：複数追加して行を返す（対応DB・バージョンに依存。このCSVはPrisma 7/PostgreSQL）"
+      },
+      {
+        "display": "await prisma.user.update({ where: { id: 1 }, data: { name: 'New' } });",
+        "input": "await prisma.user.update({ where: { id: 1 }, data: { name: 'New' } });",
+        "annotation": "update：一意条件で更新（対象なしは例外）"
+      },
+      {
+        "display": "await prisma.user.updateMany({ where: { active: false }, data: { name: null } });",
+        "input": "await prisma.user.updateMany({ where: { active: false }, data: { name: null } });",
+        "annotation": "updateMany：一致する複数行を更新（whereを省略すると全件）"
+      },
+      {
+        "display": "await prisma.user.update({ where: { id: 1 }, data: { age: { increment: 1 } } });",
+        "input": "await prisma.user.update({ where: { id: 1 }, data: { age: { increment: 1 } } });",
+        "annotation": "increment：数値を原子的に加算（NULLのageは加算されない）"
+      },
+      {
+        "display": "await prisma.user.upsert({ where: { email: 'pomo@example.com' }, update: { name: 'New' }, create: { email: 'pomo@example.com', tags: [] } });",
+        "input": "await prisma.user.upsert({ where: { email: 'pomo@example.com' }, update: { name: 'New' }, create: { email: 'pomo@example.com', tags: [] } });",
+        "annotation": "upsert：存在すれば更新・なければ追加（DBネイティブupsertになる条件等を確認）"
+      },
+      {
+        "display": "await prisma.post.delete({ where: { id: 1 } });",
+        "input": "await prisma.post.delete({ where: { id: 1 } });",
+        "annotation": "delete：1件削除（対象なしは例外。実データが削除される）"
+      },
+      {
+        "display": "await prisma.post.deleteMany({ where: { published: false } });",
+        "input": "await prisma.post.deleteMany({ where: { published: false } });",
+        "annotation": "deleteMany：複数件削除（where省略は全件削除）"
+      },
+      {
+        "display": "await prisma.user.create({ data: { email: 'nested@example.com', tags: [], posts: { create: { title: 'Hello' } } } });",
+        "input": "await prisma.user.create({ data: { email: 'nested@example.com', tags: [], posts: { create: { title: 'Hello' } } } });",
+        "annotation": "nested create：関連もまとめて作成（一連のネスト書き込みは原子的）"
+      },
+      {
+        "display": "await prisma.post.create({ data: { title: 'Hello', author: { connect: { id: 1 } } } });",
+        "input": "await prisma.post.create({ data: { title: 'Hello', author: { connect: { id: 1 } } } });",
+        "annotation": "connect：既存行と関連付け（関連先が必要）"
+      },
+      {
+        "display": "await prisma.user.findMany({ where: { tags: { has: 'sql' } } }); await prisma.user.update({ where: { id: 1 }, data: { tags: { push: 'go' } } });",
+        "input": "await prisma.user.findMany({ where: { tags: { has: 'sql' } } }); await prisma.user.update({ where: { id: 1 }, data: { tags: { push: 'go' } } });",
+        "annotation": "has / push：配列の検索・追記（スカラーリスト対応DB向け）"
+      },
+      {
+        "display": "await prisma.$transaction([prisma.user.update({ where: { id: 1 }, data: { active: true } }), prisma.post.updateMany({ where: { authorId: 1 }, data: { published: true } })]);",
+        "input": "await prisma.$transaction([prisma.user.update({ where: { id: 1 }, data: { active: true } }), prisma.post.updateMany({ where: { authorId: 1 }, data: { published: true } })]);",
+        "annotation": "$transaction([])：クエリをまとめて確定（失敗時はDB書き込みをロールバック。既にawaitした結果は渡さない）"
+      },
+      {
+        "display": "await prisma.$transaction(async (tx) => { const user = await tx.user.create({ data: { email: 'tx@example.com', tags: [] } }); await tx.post.create({ data: { title: 'Hello', authorId: user.id } }); });",
+        "input": "await prisma.$transaction(async (tx) => { const user = await tx.user.create({ data: { email: 'tx@example.com', tags: [] } }); await tx.post.create({ data: { title: 'Hello', authorId: user.id } }); });",
+        "annotation": "$transaction(callback)：処理を含むトランザクション（内部はtxを使う。外部通信等で長時間保持しない）"
+      },
+      {
+        "display": "const id = 1; const rows = await prisma.$queryRaw`SELECT id, email FROM \"User\" WHERE id = ${id}`;",
+        "input": "const id = 1; const rows = await prisma.$queryRaw`SELECT id, email FROM \"User\" WHERE id = ${id}`;",
+        "annotation": "$queryRaw：パラメーター付きSQL取得（タグ付きテンプレートを使用。識別子の動的置換には使えない）"
+      },
+      {
+        "display": "const id = 1; await prisma.$executeRaw`UPDATE \"User\" SET active = false WHERE id = ${id}`;",
+        "input": "const id = 1; await prisma.$executeRaw`UPDATE \"User\" SET active = false WHERE id = ${id}`;",
+        "annotation": "$executeRaw：パラメーター付きSQL更新（実データを変更。文字列連結やUnsafe APIへ未検証入力を渡さない）"
+      },
+      {
+        "display": "import { Prisma } from './generated/prisma/client'; try { await prisma.user.create({ data: { email: 'pomo@example.com', tags: [] } }); } catch (e) { if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') { console.log('一意制約違反'); } else { throw e; } }",
+        "input": "import { Prisma } from './generated/prisma/client'; try { await prisma.user.create({ data: { email: 'pomo@example.com', tags: [] } }); } catch (e) { if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') { console.log('一意制約違反'); } else { throw e; } }",
+        "annotation": "PrismaClientKnownRequestError：既知のDB操作エラーを判定（importパスはsrc内の例。再試行・ユーザー表示は用途に合わせる）"
+      },
+      {
+        "display": "npx prisma generate",
+        "input": "npx prisma generate",
+        "annotation": "prisma generate：Clientを生成（ターミナルで実行。DBスキーマ変更は適用しない）"
+      },
+      {
+        "display": "npx prisma format",
+        "input": "npx prisma format",
+        "annotation": "prisma format / validate：スキーマ整形・検証（ターミナルで実行）"
+      },
+      {
+        "display": "npx prisma validate",
+        "input": "npx prisma validate",
+        "annotation": "prisma format / validate：スキーマ整形・検証（ターミナルで実行）"
+      },
+      {
+        "display": "npx prisma migrate dev --name init",
+        "input": "npx prisma migrate dev --name init",
+        "annotation": "prisma migrate dev：開発用マイグレーション（開発用。リセット要求が出る場合がある。本番向けではない）"
+      },
+      {
+        "display": "npx prisma migrate deploy",
+        "input": "npx prisma migrate deploy",
+        "annotation": "prisma migrate deploy：既存のマイグレーションを適用（通常CI・デプロイ時。新規マイグレーションやClientを生成しない）"
+      },
+      {
+        "display": "npx prisma db pull",
+        "input": "npx prisma db pull",
+        "annotation": "prisma db pull：既存DBからスキーマへ反映（schema.prismaが変更されるため差分を確認）"
+      },
+      {
+        "display": "npx prisma db push",
+        "input": "npx prisma db push",
+        "annotation": "prisma db push：履歴を作らずDBへ同期（試作等向け。データ損失を伴う変更に注意）"
+      },
+      {
+        "display": "npx prisma studio",
+        "input": "npx prisma studio",
+        "annotation": "prisma studio：データ閲覧・編集UI（実データを書き換えられる。Prisma 7の対応DB等を確認）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "jest-syntax",
+    "name": "Jest構文",
+    "words": [
+      {
+        "display": "// Jest 30 / JavaScript・TypeScript",
+        "input": "// Jest 30 / JavaScript・TypeScript",
+        "annotation": "対象環境：例の前提（TypeScriptの実行には適切な変換設定が必要。型検査は別途実施。断片中の対象関数・変数は実装または準備する）"
+      },
+      {
+        "display": "import { describe, test, expect, jest, beforeEach, afterEach, beforeAll, afterAll } from '@jest/globals';",
+        "input": "import { describe, test, expect, jest, beforeEach, afterEach, beforeAll, afterAll } from '@jest/globals';",
+        "annotation": "@jest/globals：テストAPIをimport（通常はグローバルでも利用可能。ESMではjestを明示import）"
+      },
+      {
+        "display": "test('足し算', () => { expect(1 + 2).toBe(3); });",
+        "input": "test('足し算', () => { expect(1 + 2).toBe(3); });",
+        "annotation": "test / it：テストを定義（itはtestの別名）"
+      },
+      {
+        "display": "describe('add', () => { test('正の数', () => expect(1 + 2).toBe(3)); });",
+        "input": "describe('add', () => { test('正の数', () => expect(1 + 2).toBe(3)); });",
+        "annotation": "describe：テストを分類（describe自体で非同期処理を待たない）"
+      },
+      {
+        "display": "test.each([[1, 2, 3], [2, 3, 5]])('%i + %i = %i', (a, b, expected) => { expect(a + b).toBe(expected); });",
+        "input": "test.each([[1, 2, 3], [2, 3, 5]])('%i + %i = %i', (a, b, expected) => { expect(a + b).toBe(expected); });",
+        "annotation": "test.each：表形式のパラメーターテスト"
+      },
+      {
+        "display": "test.skip('未対応', () => {});",
+        "input": "test.skip('未対応', () => {});",
+        "annotation": "test.skip：一時的に実行対象外（放置しない）"
+      },
+      {
+        "display": "test.only('調査中', () => {});",
+        "input": "test.only('調査中', () => {});",
+        "annotation": "test.only：このテストに限定（コミット前に解除。CIでは禁止設定等を検討）"
+      },
+      {
+        "display": "test.todo('負数を扱う');",
+        "input": "test.todo('負数を扱う');",
+        "annotation": "test.todo：未実装のテストを記録（テストを実装・検証したことにはならない）"
+      },
+      {
+        "display": "beforeEach(() => { jest.clearAllMocks(); });",
+        "input": "beforeEach(() => { jest.clearAllMocks(); });",
+        "annotation": "beforeEach：各テスト前に初期化（スコープ内の各テストが対象）"
+      },
+      {
+        "display": "afterEach(() => { jest.restoreAllMocks(); });",
+        "input": "afterEach(() => { jest.restoreAllMocks(); });",
+        "annotation": "afterEach：各テスト後に後片付け（spyOn等で差し替えたものを復元）"
+      },
+      {
+        "display": "beforeAll(async () => { await setup(); }); afterAll(async () => { await teardown(); });",
+        "input": "beforeAll(async () => { await setup(); }); afterAll(async () => { await teardown(); });",
+        "annotation": "beforeAll / afterAll：一度だけ準備・終了（setup・teardownを用意。Promiseを返すかawait）"
+      },
+      {
+        "display": "test.concurrent('独立した処理', async () => { expect(await Promise.resolve(1)).toBe(1); });",
+        "input": "test.concurrent('独立した処理', async () => { expect(await Promise.resolve(1)).toBe(1); });",
+        "annotation": "test.concurrent：テストを並行実行（共有変数・DB・モック等の状態競合に注意）"
+      },
+      {
+        "display": "expect(1 + 2).toBe(3);",
+        "input": "expect(1 + 2).toBe(3);",
+        "annotation": "toBe：Object.is相当の比較（オブジェクト内容の比較はtoEqual等）"
+      },
+      {
+        "display": "expect({ name: 'Pomo' }).toEqual({ name: 'Pomo' });",
+        "input": "expect({ name: 'Pomo' }).toEqual({ name: 'Pomo' });",
+        "annotation": "toEqual：内容の深い比較（undefinedプロパティ等の厳密さはtoStrictEqualと異なる）"
+      },
+      {
+        "display": "expect([1, 2]).toStrictEqual([1, 2]);",
+        "input": "expect([1, 2]).toStrictEqual([1, 2]);",
+        "annotation": "toStrictEqual：型等も含めた厳密な深い比較"
+      },
+      {
+        "display": "expect(1).not.toBe(2);",
+        "input": "expect(1).not.toBe(2);",
+        "annotation": "not：否定"
+      },
+      {
+        "display": "expect(null).toBeNull(); expect(undefined).toBeUndefined();",
+        "input": "expect(null).toBeNull(); expect(undefined).toBeUndefined();",
+        "annotation": "toBeNull / toBeUndefined：null・undefinedの判定"
+      },
+      {
+        "display": "expect('value').toBeDefined();",
+        "input": "expect('value').toBeDefined();",
+        "annotation": "toBeDefined：undefinedでないこと（nullは通る）"
+      },
+      {
+        "display": "expect('hello').toBeTruthy(); expect(0).toBeFalsy();",
+        "input": "expect('hello').toBeTruthy(); expect(0).toBeFalsy();",
+        "annotation": "toBeTruthy / toBeFalsy：真偽値変換後の判定（true/false自体を検証するならtoBe）"
+      },
+      {
+        "display": "expect(10).toBeGreaterThan(5); expect(1).toBeLessThan(5);",
+        "input": "expect(10).toBeGreaterThan(5); expect(1).toBeLessThan(5);",
+        "annotation": "toBeGreaterThan / toBeLessThan：大小（以上・以下はOrEqual付き）"
+      },
+      {
+        "display": "expect(0.1 + 0.2).toBeCloseTo(0.3, 5);",
+        "input": "expect(0.1 + 0.2).toBeCloseTo(0.3, 5);",
+        "annotation": "toBeCloseTo：浮動小数点の近似比較（第2引数は小数桁精度）"
+      },
+      {
+        "display": "expect('Hello Pomo').toMatch(/Pomo/);",
+        "input": "expect('Hello Pomo').toMatch(/Pomo/);",
+        "annotation": "toMatch：文字列・正規表現"
+      },
+      {
+        "display": "expect(['A', 'B']).toContain('A');",
+        "input": "expect(['A', 'B']).toContain('A');",
+        "annotation": "toContain：要素を含む（要素の同一性比較）"
+      },
+      {
+        "display": "expect([{ id: 1 }]).toContainEqual({ id: 1 });",
+        "input": "expect([{ id: 1 }]).toContainEqual({ id: 1 });",
+        "annotation": "toContainEqual：内容が等しい要素を含む"
+      },
+      {
+        "display": "expect([1, 2]).toHaveLength(2);",
+        "input": "expect([1, 2]).toHaveLength(2);",
+        "annotation": "toHaveLength：長さ"
+      },
+      {
+        "display": "expect({ user: { name: 'Pomo' } }).toHaveProperty('user.name', 'Pomo');",
+        "input": "expect({ user: { name: 'Pomo' } }).toHaveProperty('user.name', 'Pomo');",
+        "annotation": "toHaveProperty：プロパティと値"
+      },
+      {
+        "display": "expect({ id: 1, name: 'Pomo' }).toMatchObject({ id: 1 });",
+        "input": "expect({ id: 1, name: 'Pomo' }).toMatchObject({ id: 1 });",
+        "annotation": "toMatchObject：オブジェクトの部分一致"
+      },
+      {
+        "display": "expect({ id: 1, name: 'Pomo' }).toEqual(expect.objectContaining({ id: 1 })); expect([1, 2, 3]).toEqual(expect.arrayContaining([2]));",
+        "input": "expect({ id: 1, name: 'Pomo' }).toEqual(expect.objectContaining({ id: 1 })); expect([1, 2, 3]).toEqual(expect.arrayContaining([2]));",
+        "annotation": "objectContaining / arrayContaining：非対称の部分一致（arrayContainingは順序・完全一致を要求しない）"
+      },
+      {
+        "display": "expect({ id: 1 }).toEqual({ id: expect.any(Number) }); expect('x').toEqual(expect.anything());",
+        "input": "expect({ id: 1 }).toEqual({ id: expect.any(Number) }); expect('x').toEqual(expect.anything());",
+        "annotation": "expect.any / anything：型・値の大まかな検証（anythingはnullとundefinedを除く）"
+      },
+      {
+        "display": "expect(() => { throw new Error('失敗'); }).toThrow('失敗');",
+        "input": "expect(() => { throw new Error('失敗'); }).toThrow('失敗');",
+        "annotation": "toThrow：同期例外（実行結果ではなく関数を渡す）"
+      },
+      {
+        "display": "test('取得', async () => { const value = await Promise.resolve(42); expect(value).toBe(42); });",
+        "input": "test('取得', async () => { const value = await Promise.resolve(42); expect(value).toBe(42); });",
+        "annotation": "async / await：非同期処理を待って検証（await・return漏れは検証前にテスト終了し得る）"
+      },
+      {
+        "display": "await expect(Promise.resolve(42)).resolves.toBe(42);",
+        "input": "await expect(Promise.resolve(42)).resolves.toBe(42);",
+        "annotation": "resolves：Promise成功値を検証（必ずawaitまたはreturn）"
+      },
+      {
+        "display": "await expect(Promise.reject(new Error('失敗'))).rejects.toThrow('失敗');",
+        "input": "await expect(Promise.reject(new Error('失敗'))).rejects.toThrow('失敗');",
+        "annotation": "rejects：Promise失敗を検証（必ずawaitまたはreturn）"
+      },
+      {
+        "display": "test('非同期', async () => { expect.assertions(1); await expect(Promise.resolve(42)).resolves.toBe(42); });",
+        "input": "test('非同期', async () => { expect.assertions(1); await expect(Promise.resolve(42)).resolves.toBe(42); });",
+        "annotation": "expect.assertions：アサーション実行数"
+      },
+      {
+        "display": "expect.hasAssertions(); expect(true).toBe(true);",
+        "input": "expect.hasAssertions(); expect(true).toBe(true);",
+        "annotation": "expect.hasAssertions：最低1回の検証を要求"
+      },
+      {
+        "display": "expect({ id: 1, name: 'Pomo' }).toMatchSnapshot();",
+        "input": "expect({ id: 1, name: 'Pomo' }).toMatchSnapshot();",
+        "annotation": "toMatchSnapshot：保存済み結果と比較（生成・更新した差分をレビュー。意図的な期待値の代わりに乱用しない）"
+      },
+      {
+        "display": "expect('hello').toMatchInlineSnapshot('\"hello\"');",
+        "input": "expect('hello').toMatchInlineSnapshot('\"hello\"');",
+        "annotation": "toMatchInlineSnapshot：期待値をソース内に保存（変更時は差分を確認）"
+      },
+      {
+        "display": "const fn = jest.fn();",
+        "input": "const fn = jest.fn();",
+        "annotation": "jest.fn：モック関数を作成"
+      },
+      {
+        "display": "const fn = jest.fn().mockReturnValue(42); expect(fn()).toBe(42);",
+        "input": "const fn = jest.fn().mockReturnValue(42); expect(fn()).toBe(42);",
+        "annotation": "mockReturnValue：固定の戻り値"
+      },
+      {
+        "display": "const fn = jest.fn().mockReturnValueOnce('first').mockReturnValue('later');",
+        "input": "const fn = jest.fn().mockReturnValueOnce('first').mockReturnValue('later');",
+        "annotation": "mockReturnValueOnce：次の1回の戻り値"
+      },
+      {
+        "display": "const fn = jest.fn<() => Promise<number>>().mockResolvedValue(42);",
+        "input": "const fn = jest.fn<() => Promise<number>>().mockResolvedValue(42);",
+        "annotation": "mockResolvedValue：成功するPromise（このジェネリクス例はTypeScript）"
+      },
+      {
+        "display": "const fn = jest.fn<() => Promise<never>>().mockRejectedValue(new Error('失敗'));",
+        "input": "const fn = jest.fn<() => Promise<never>>().mockRejectedValue(new Error('失敗'));",
+        "annotation": "mockRejectedValue：失敗するPromise（TypeScriptの例）"
+      },
+      {
+        "display": "const fn = jest.fn((n: number) => n * 2);",
+        "input": "const fn = jest.fn((n: number) => n * 2);",
+        "annotation": "mockImplementation：実装を置き換える（TypeScriptの例）"
+      },
+      {
+        "display": "const spy = jest.spyOn(console, 'log').mockImplementation(() => {}); console.log('Hello'); expect(spy).toHaveBeenCalledWith('Hello'); spy.mockRestore();",
+        "input": "const spy = jest.spyOn(console, 'log').mockImplementation(() => {}); console.log('Hello'); expect(spy).toHaveBeenCalledWith('Hello'); spy.mockRestore();",
+        "annotation": "jest.spyOn：既存メソッドを監視（spyOn単体では通常元の実装も呼ぶ）"
+      },
+      {
+        "display": "const fn = jest.fn(); fn(); expect(fn).toHaveBeenCalled();",
+        "input": "const fn = jest.fn(); fn(); expect(fn).toHaveBeenCalled();",
+        "annotation": "toHaveBeenCalled：呼ばれたことを検証"
+      },
+      {
+        "display": "const fn = jest.fn(); fn(); expect(fn).toHaveBeenCalledTimes(1);",
+        "input": "const fn = jest.fn(); fn(); expect(fn).toHaveBeenCalledTimes(1);",
+        "annotation": "toHaveBeenCalledTimes：呼出回数"
+      },
+      {
+        "display": "const fn = jest.fn(); fn('Pomo'); expect(fn).toHaveBeenCalledWith('Pomo');",
+        "input": "const fn = jest.fn(); fn('Pomo'); expect(fn).toHaveBeenCalledWith('Pomo');",
+        "annotation": "toHaveBeenCalledWith：呼出引数"
+      },
+      {
+        "display": "const fn = jest.fn(); fn('first'); expect(fn).toHaveBeenNthCalledWith(1, 'first');",
+        "input": "const fn = jest.fn(); fn('first'); expect(fn).toHaveBeenNthCalledWith(1, 'first');",
+        "annotation": "toHaveBeenNthCalledWith：指定回の引数"
+      },
+      {
+        "display": "const fn = jest.fn((n: number) => n * 2); fn(3); expect(fn.mock.calls[0]).toEqual([3]); expect(fn.mock.results[0].value).toBe(6);",
+        "input": "const fn = jest.fn((n: number) => n * 2); fn(3); expect(fn.mock.calls[0]).toEqual([3]); expect(fn.mock.results[0].value).toBe(6);",
+        "annotation": "mock.calls / mock.results：呼出履歴・結果を確認（TypeScriptの例）"
+      },
+      {
+        "display": "jest.clearAllMocks();",
+        "input": "jest.clearAllMocks();",
+        "annotation": "mockClear / clearAllMocks：呼出履歴をクリア（設定したモック実装は残る）"
+      },
+      {
+        "display": "jest.resetAllMocks();",
+        "input": "jest.resetAllMocks();",
+        "annotation": "mockReset / resetAllMocks：履歴と実装をリセット（戻り値等の実装も消える）"
+      },
+      {
+        "display": "jest.restoreAllMocks();",
+        "input": "jest.restoreAllMocks();",
+        "annotation": "mockRestore / restoreAllMocks：元の実装を復元（主にspyOn等。任意のjest.fn代入を自動復元するものではない）"
+      },
+      {
+        "display": "jest.mock('./api', () => ({ fetchUser: jest.fn() }));",
+        "input": "jest.mock('./api', () => ({ fetchUser: jest.fn() }));",
+        "annotation": "jest.mock：モジュールをモック（CommonJSまたは対応する変換環境の例。native ESMでは別手順）"
+      },
+      {
+        "display": "const mockedApi = jest.mocked(api);",
+        "input": "const mockedApi = jest.mocked(api);",
+        "annotation": "jest.mocked：モック型として扱う（型補助。実装自体をモック化する処理ではない。apiを準備する）"
+      },
+      {
+        "display": "jest.unstable_mockModule('./api.js', () => ({ fetchUser: jest.fn() })); const api = await import('./api.js');",
+        "input": "jest.unstable_mockModule('./api.js', () => ({ fetchUser: jest.fn() })); const api = await import('./api.js');",
+        "annotation": "unstable_mockModule：native ESMモック（実験的API。対象・利用側のimport順とESM実行設定が重要）"
+      },
+      {
+        "display": "beforeEach(() => { jest.useFakeTimers(); }); afterEach(() => { jest.useRealTimers(); });",
+        "input": "beforeEach(() => { jest.useFakeTimers(); }); afterEach(() => { jest.useRealTimers(); });",
+        "annotation": "useFakeTimers / useRealTimers：仮想タイマーと復元（実タイマーへ必ず戻す）"
+      },
+      {
+        "display": "jest.useFakeTimers(); const fn = jest.fn(); setTimeout(fn, 1000); jest.advanceTimersByTime(1000); expect(fn).toHaveBeenCalled(); jest.useRealTimers();",
+        "input": "jest.useFakeTimers(); const fn = jest.fn(); setTimeout(fn, 1000); jest.advanceTimersByTime(1000); expect(fn).toHaveBeenCalled(); jest.useRealTimers();",
+        "annotation": "advanceTimersByTime：時間を進める"
+      },
+      {
+        "display": "await jest.advanceTimersByTimeAsync(1000);",
+        "input": "await jest.advanceTimersByTimeAsync(1000);",
+        "annotation": "advanceTimersByTimeAsync：Promise処理も考慮して時間を進める（modern fake timers有効時。legacy fake timersでは利用不可）"
+      },
+      {
+        "display": "jest.runOnlyPendingTimers();",
+        "input": "jest.runOnlyPendingTimers();",
+        "annotation": "runOnlyPendingTimers：現在の保留タイマーを実行（fake timers有効時。再帰タイマーのrunAllTimers等には注意）"
+      },
+      {
+        "display": "jest.useFakeTimers(); jest.setSystemTime(new Date('2026-01-01T00:00:00Z')); expect(new Date().getUTCFullYear()).toBe(2026); jest.useRealTimers();",
+        "input": "jest.useFakeTimers(); jest.setSystemTime(new Date('2026-01-01T00:00:00Z')); expect(new Date().getUTCFullYear()).toBe(2026); jest.useRealTimers();",
+        "annotation": "setSystemTime：システム時刻を固定（時刻変更だけではタイマーを自動発火しない）"
+      },
+      {
+        "display": "export default { testEnvironment: 'node', clearMocks: true, restoreMocks: true };",
+        "input": "export default { testEnvironment: 'node', clearMocks: true, restoreMocks: true };",
+        "annotation": "jest.config：設定ファイル（ESM設定例。TypeScript変換等は別途）"
+      },
+      {
+        "display": "export default { testEnvironment: 'jsdom' };",
+        "input": "export default { testEnvironment: 'jsdom' };",
+        "annotation": "jsdom：DOMに近いテスト環境（jest-environment-jsdomを別途導入。実ブラウザーではない）"
+      },
+      {
+        "display": "npx jest",
+        "input": "npx jest",
+        "annotation": "jest CLI：テスト実行（ターミナルで実行）"
+      },
+      {
+        "display": "npx jest --watch",
+        "input": "npx jest --watch",
+        "annotation": "--watch / --coverage：監視実行・カバレッジ（カバレッジ率だけでテストの質は判断しない）"
+      },
+      {
+        "display": "npx jest --coverage",
+        "input": "npx jest --coverage",
+        "annotation": "--watch / --coverage：監視実行・カバレッジ（カバレッジ率だけでテストの質は判断しない）"
+      },
+      {
+        "display": "npx jest --runInBand",
+        "input": "npx jest --runInBand",
+        "annotation": "--runInBand / -t：直列実行・名前で絞る"
+      },
+      {
+        "display": "npx jest -t '足し算'",
+        "input": "npx jest -t '足し算'",
+        "annotation": "--runInBand / -t：直列実行・名前で絞る"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "playwright-syntax",
+    "name": "Playwright構文",
+    "words": [
+      {
+        "display": "// Playwright Test / TypeScript",
+        "input": "// Playwright Test / TypeScript",
+        "annotation": "対象環境：例の前提（@playwright/testを使用。Webアプリ・画面文言・APIパス等はサンプル。相対URLはbaseURL設定が必要）"
+      },
+      {
+        "display": "import { test, expect } from '@playwright/test';",
+        "input": "import { test, expect } from '@playwright/test';",
+        "annotation": "import：テストAPIをimport（Jestのexpectとは別）"
+      },
+      {
+        "display": "test('トップページ', async ({ page }) => { await page.goto('/'); await expect(page.getByRole('heading', { name: 'ホーム' })).toBeVisible(); });",
+        "input": "test('トップページ', async ({ page }) => { await page.goto('/'); await expect(page.getByRole('heading', { name: 'ホーム' })).toBeVisible(); });",
+        "annotation": "test：ブラウザーテストを定義（pageはテストごとに準備されるfixture）"
+      },
+      {
+        "display": "test.describe('ログイン', () => { test('フォーム表示', async ({ page }) => { await page.goto('/login'); await expect(page.getByLabel('メール')).toBeVisible(); }); });",
+        "input": "test.describe('ログイン', () => { test('フォーム表示', async ({ page }) => { await page.goto('/login'); await expect(page.getByLabel('メール')).toBeVisible(); }); });",
+        "annotation": "test.describe：グループ化"
+      },
+      {
+        "display": "test.beforeEach(async ({ page }) => { await page.goto('/'); });",
+        "input": "test.beforeEach(async ({ page }) => { await page.goto('/'); });",
+        "annotation": "test.beforeEach：各テスト前に実行"
+      },
+      {
+        "display": "test.afterEach(async ({ page }, testInfo) => { if (testInfo.status !== testInfo.expectedStatus) { await testInfo.attach('failure', { body: await page.screenshot(), contentType: 'image/png' }); } });",
+        "input": "test.afterEach(async ({ page }, testInfo) => { if (testInfo.status !== testInfo.expectedStatus) { await testInfo.attach('failure', { body: await page.screenshot(), contentType: 'image/png' }); } });",
+        "annotation": "test.afterEach：各テスト後に実行（成果物に認証情報・個人情報が含まれないか確認）"
+      },
+      {
+        "display": "await test.step('フォーム入力', async () => { await page.getByLabel('メール').fill('pomo@example.com'); });",
+        "input": "await test.step('フォーム入力', async () => { await page.getByLabel('メール').fill('pomo@example.com'); });",
+        "annotation": "test.step：処理をレポート上で区切る（test内の例）"
+      },
+      {
+        "display": "test.skip('未対応', async ({ page }) => {}); test.fixme('修正待ち', async ({ page }) => {});",
+        "input": "test.skip('未対応', async ({ page }) => {}); test.fixme('修正待ち', async ({ page }) => {});",
+        "annotation": "test.skip / test.fixme：スキップ・修正待ち（放置しない）"
+      },
+      {
+        "display": "test.only('調査中', async ({ page }) => {});",
+        "input": "test.only('調査中', async ({ page }) => {});",
+        "annotation": "test.only：実行対象を限定（コミット前に解除。CIではforbidOnlyを推奨）"
+      },
+      {
+        "display": "test.use({ viewport: { width: 1280, height: 720 } });",
+        "input": "test.use({ viewport: { width: 1280, height: 720 } });",
+        "annotation": "test.use：グループ等のfixture設定（テスト本体の外で設定）"
+      },
+      {
+        "display": "await page.goto('/login');",
+        "input": "await page.goto('/login');",
+        "annotation": "page.goto：ページへ移動（相対URLはbaseURLが必要）"
+      },
+      {
+        "display": "const save = page.getByRole('button', { name: '保存', exact: true });",
+        "input": "const save = page.getByRole('button', { name: '保存', exact: true });",
+        "annotation": "getByRole：役割とアクセシブル名で探す（利用者から見える契約を優先）"
+      },
+      {
+        "display": "const email = page.getByLabel('メール', { exact: true });",
+        "input": "const email = page.getByLabel('メール', { exact: true });",
+        "annotation": "getByLabel：ラベルで入力欄を探す"
+      },
+      {
+        "display": "const search = page.getByPlaceholder('検索');",
+        "input": "const search = page.getByPlaceholder('検索');",
+        "annotation": "getByPlaceholder：プレースホルダーで探す"
+      },
+      {
+        "display": "const message = page.getByText('保存しました', { exact: true });",
+        "input": "const message = page.getByText('保存しました', { exact: true });",
+        "annotation": "getByText：テキストで探す（複数一致に注意）"
+      },
+      {
+        "display": "const card = page.getByTestId('user-card');",
+        "input": "const card = page.getByTestId('user-card');",
+        "annotation": "getByTestId：テストIDで探す（既定はdata-testid）"
+      },
+      {
+        "display": "const logo = page.getByAltText('ロゴ');",
+        "input": "const logo = page.getByAltText('ロゴ');",
+        "annotation": "getByAltText：画像等の代替テキスト"
+      },
+      {
+        "display": "const form = page.locator('form#login');",
+        "input": "const form = page.locator('form#login');",
+        "annotation": "locator：CSS等で探す（壊れやすいDOM構造依存を避ける）"
+      },
+      {
+        "display": "const row = page.getByRole('row').filter({ hasText: 'Pomo' }); await row.getByRole('button', { name: '編集' }).click();",
+        "input": "const row = page.getByRole('row').filter({ hasText: 'Pomo' }); await row.getByRole('button', { name: '編集' }).click();",
+        "annotation": "Locator連結 / filter：候補を絞る（filterで一意になるようにする）"
+      },
+      {
+        "display": "const card = page.getByTestId('card').filter({ has: page.getByRole('heading', { name: 'Pomo', exact: true }) });",
+        "input": "const card = page.getByTestId('card').filter({ has: page.getByRole('heading', { name: 'Pomo', exact: true }) });",
+        "annotation": "filter({ has })：子要素で絞る（hasのLocatorは外側を基準に評価）"
+      },
+      {
+        "display": "const second = page.getByRole('listitem').nth(1);",
+        "input": "const second = page.getByRole('listitem').nth(1);",
+        "annotation": "nth / first / last：位置で選ぶ（0始まり。曖昧さを位置で隠さず意味で絞る）"
+      },
+      {
+        "display": "await page.frameLocator('#payment').getByLabel('カード番号').fill('test-value');",
+        "input": "await page.frameLocator('#payment').getByLabel('カード番号').fill('test-value');",
+        "annotation": "frameLocator：iframe内を操作（対象iframeを準備。実決済用の例ではない）"
+      },
+      {
+        "display": "await page.getByRole('button', { name: '保存' }).click();",
+        "input": "await page.getByRole('button', { name: '保存' }).click();",
+        "annotation": "click：クリック（Locatorは操作可能性を自動待機）"
+      },
+      {
+        "display": "await page.getByLabel('メール').fill('pomo@example.com');",
+        "input": "await page.getByLabel('メール').fill('pomo@example.com');",
+        "annotation": "fill：入力値を置き換える"
+      },
+      {
+        "display": "await page.getByRole('textbox', { name: '検索' }).press('Enter');",
+        "input": "await page.getByRole('textbox', { name: '検索' }).press('Enter');",
+        "annotation": "press：キー入力"
+      },
+      {
+        "display": "await page.getByRole('textbox', { name: '検索' }).pressSequentially('hello');",
+        "input": "await page.getByRole('textbox', { name: '検索' }).pressSequentially('hello');",
+        "annotation": "pressSequentially：キーを順に入力（キーイベントが必要な場合。通常はfillを優先）"
+      },
+      {
+        "display": "await page.getByRole('checkbox', { name: '同意する' }).check();",
+        "input": "await page.getByRole('checkbox', { name: '同意する' }).check();",
+        "annotation": "check / uncheck：チェック状態を設定"
+      },
+      {
+        "display": "await page.getByLabel('言語').selectOption('ja');",
+        "input": "await page.getByLabel('言語').selectOption('ja');",
+        "annotation": "selectOption：selectの選択肢を選ぶ（HTML select向け。独自ドロップダウンとは別）"
+      },
+      {
+        "display": "await page.getByLabel('添付').setInputFiles('tests/fixtures/sample.txt');",
+        "input": "await page.getByLabel('添付').setInputFiles('tests/fixtures/sample.txt');",
+        "annotation": "setInputFiles：ファイルを選択（ファイルが必要。相対パスは実行ディレクトリ基準）"
+      },
+      {
+        "display": "await page.getByRole('button', { name: 'メニュー' }).hover();",
+        "input": "await page.getByRole('button', { name: 'メニュー' }).hover();",
+        "annotation": "hover：マウスを乗せる"
+      },
+      {
+        "display": "await page.getByTestId('item').dragTo(page.getByTestId('drop-zone'));",
+        "input": "await page.getByTestId('item').dragTo(page.getByTestId('drop-zone'));",
+        "annotation": "dragTo：ドラッグ（アプリのドラッグ実装に依存）"
+      },
+      {
+        "display": "page.once('dialog', dialog => dialog.accept()); await page.getByRole('button', { name: '削除' }).click();",
+        "input": "page.once('dialog', dialog => dialog.accept()); await page.getByRole('button', { name: '削除' }).click();",
+        "annotation": "dialog：ダイアログへ応答（リスナーは操作前に登録。実際に削除する画面ではテストデータを使用）"
+      },
+      {
+        "display": "const popupPromise = page.waitForEvent('popup'); await page.getByRole('link', { name: '詳細' }).click(); const popup = await popupPromise; await expect(popup).toHaveURL(/detail/);",
+        "input": "const popupPromise = page.waitForEvent('popup'); await page.getByRole('link', { name: '詳細' }).click(); const popup = await popupPromise; await expect(popup).toHaveURL(/detail/);",
+        "annotation": "popup：新規ページを取得（待機を操作前に登録）"
+      },
+      {
+        "display": "const downloadPromise = page.waitForEvent('download'); await page.getByRole('button', { name: 'CSV出力' }).click(); const download = await downloadPromise; await download.saveAs(testInfo.outputPath(download.suggestedFilename()));",
+        "input": "const downloadPromise = page.waitForEvent('download'); await page.getByRole('button', { name: 'CSV出力' }).click(); const download = await downloadPromise; await download.saveAs(testInfo.outputPath(download.suggestedFilename()));",
+        "annotation": "download：ダウンロードを取得（testコールバックの第2引数等でtestInfoを受け取る）"
+      },
+      {
+        "display": "await expect(page.getByText('完了', { exact: true })).toBeVisible();",
+        "input": "await expect(page.getByText('完了', { exact: true })).toBeVisible();",
+        "annotation": "toBeVisible：表示されるまで検証（自動リトライするのでawait）"
+      },
+      {
+        "display": "await expect(page.getByTestId('loading')).toBeHidden();",
+        "input": "await expect(page.getByTestId('loading')).toBeHidden();",
+        "annotation": "toBeHidden：非表示または未接続を検証"
+      },
+      {
+        "display": "await expect(page.getByTestId('status')).toHaveText('保存済み');",
+        "input": "await expect(page.getByTestId('status')).toHaveText('保存済み');",
+        "annotation": "toHaveText：テキスト一致"
+      },
+      {
+        "display": "await expect(page.getByTestId('message')).toContainText('完了');",
+        "input": "await expect(page.getByTestId('message')).toContainText('完了');",
+        "annotation": "toContainText：テキストを含む"
+      },
+      {
+        "display": "await expect(page.getByLabel('メール')).toHaveValue('pomo@example.com');",
+        "input": "await expect(page.getByLabel('メール')).toHaveValue('pomo@example.com');",
+        "annotation": "toHaveValue：入力値"
+      },
+      {
+        "display": "await expect(page.getByRole('listitem')).toHaveCount(3);",
+        "input": "await expect(page.getByRole('listitem')).toHaveCount(3);",
+        "annotation": "toHaveCount：一致する要素数（即時取得したcountへの汎用expectより安定）"
+      },
+      {
+        "display": "await expect(page.getByRole('button', { name: '送信' })).toBeEnabled();",
+        "input": "await expect(page.getByRole('button', { name: '送信' })).toBeEnabled();",
+        "annotation": "toBeEnabled / toBeDisabled：有効・無効"
+      },
+      {
+        "display": "await expect(page.getByRole('checkbox', { name: '同意する' })).toBeChecked();",
+        "input": "await expect(page.getByRole('checkbox', { name: '同意する' })).toBeChecked();",
+        "annotation": "toBeChecked：チェック状態"
+      },
+      {
+        "display": "await expect(page.getByRole('link', { name: 'ヘルプ' })).toHaveAttribute('href', '/help');",
+        "input": "await expect(page.getByRole('link', { name: 'ヘルプ' })).toHaveAttribute('href', '/help');",
+        "annotation": "toHaveAttribute：属性値"
+      },
+      {
+        "display": "await expect(page).toHaveURL(/dashboard/); await expect(page).toHaveTitle(/マイページ/);",
+        "input": "await expect(page).toHaveURL(/dashboard/); await expect(page).toHaveTitle(/マイページ/);",
+        "annotation": "toHaveURL / toHaveTitle：URL・ページタイトル"
+      },
+      {
+        "display": "await expect(page.getByTestId('error')).not.toBeVisible();",
+        "input": "await expect(page.getByTestId('error')).not.toBeVisible();",
+        "annotation": "not：否定"
+      },
+      {
+        "display": "await expect.soft(page.getByTestId('status')).toHaveText('完了');",
+        "input": "await expect.soft(page.getByTestId('status')).toHaveText('完了');",
+        "annotation": "expect.soft：失敗後も続ける検証（テスト自体は失敗扱いになる）"
+      },
+      {
+        "display": "await expect.poll(async () => { const response = await request.get('/api/status'); const body = await response.json(); return body.state; }).toBe('ready');",
+        "input": "await expect.poll(async () => { const response = await request.get('/api/status'); const body = await response.json(); return body.state; }).toBe('ready');",
+        "annotation": "expect.poll：値を再取得して検証（request fixtureとAPIが必要）"
+      },
+      {
+        "display": "await expect(page).toHaveScreenshot('home.png');",
+        "input": "await expect(page).toHaveScreenshot('home.png');",
+        "annotation": "toHaveScreenshot：画像比較（初回基準画像と更新差分をレビュー。OS・フォント等の環境をそろえる）"
+      },
+      {
+        "display": "await expect(page.getByTestId('loaded')).toBeVisible();",
+        "input": "await expect(page.getByTestId('loaded')).toBeVisible();",
+        "annotation": "待機の基本：状態を待つ（固定のwaitForTimeoutやnetworkidleを万能な完了条件にしない）"
+      },
+      {
+        "display": "await page.route('**/api/users', route => route.fulfill({ json: [{ id: 1, name: 'Pomo' }] })); await page.goto('/users');",
+        "input": "await page.route('**/api/users', route => route.fulfill({ json: [{ id: 1, name: 'Pomo' }] })); await page.goto('/users');",
+        "annotation": "page.route / fulfill：通信をモック（対象リクエストより前に登録）"
+      },
+      {
+        "display": "await page.route('**/api/users', route => route.abort());",
+        "input": "await page.route('**/api/users', route => route.abort());",
+        "annotation": "route.abort：通信を失敗させる（異常系の検証）"
+      },
+      {
+        "display": "await page.route('**/api/users', route => route.continue());",
+        "input": "await page.route('**/api/users', route => route.continue());",
+        "annotation": "route.continue：通信を続行（登録したroute内）"
+      },
+      {
+        "display": "const responsePromise = page.waitForResponse(r => r.url().endsWith('/api/users') && r.request().method() === 'POST'); await page.getByRole('button', { name: '保存' }).click(); const response = await responsePromise; expect(response.ok()).toBeTruthy();",
+        "input": "const responsePromise = page.waitForResponse(r => r.url().endsWith('/api/users') && r.request().method() === 'POST'); await page.getByRole('button', { name: '保存' }).click(); const response = await responsePromise; expect(response.ok()).toBeTruthy();",
+        "annotation": "waitForResponse：特定レスポンスを待つ（待機を操作前に登録。画面結果も別途検証）"
+      },
+      {
+        "display": "const response = await request.post('/api/users', { data: { name: 'Pomo' } }); await expect(response).toBeOK();",
+        "input": "const response = await request.post('/api/users', { data: { name: 'Pomo' } }); await expect(response).toBeOK();",
+        "annotation": "request.get / post：APIを直接呼ぶ（request fixtureを受け取る。テストデータを後片付け）"
+      },
+      {
+        "display": "const response = await request.delete('/api/users/1'); await expect(response).toBeOK();",
+        "input": "const response = await request.delete('/api/users/1'); await expect(response).toBeOK();",
+        "annotation": "request.delete：APIでテストデータを削除（専用テスト環境と対象IDを使用）"
+      },
+      {
+        "display": "await page.context().storageState({ path: 'playwright/.auth/user.json' });",
+        "input": "await page.context().storageState({ path: 'playwright/.auth/user.json' });",
+        "annotation": "storageState：認証状態を保存（機密情報を含む。gitへコミットしない）"
+      },
+      {
+        "display": "test.use({ storageState: 'playwright/.auth/user.json' });",
+        "input": "test.use({ storageState: 'playwright/.auth/user.json' });",
+        "annotation": "test.use({ storageState })：認証状態を再利用（事前に生成。セッション期限・サーバー側状態に依存）"
+      },
+      {
+        "display": "import { test as base } from '@playwright/test'; const test = base.extend<{ appName: string }>({ appName: async ({}, use) => { await use('Sample'); } });",
+        "input": "import { test as base } from '@playwright/test'; const test = base.extend<{ appName: string }>({ appName: async ({}, use) => { await use('Sample'); } });",
+        "annotation": "test.extend：独自fixtureを作る（TypeScript例。準備・後片付けをuseの前後に配置）"
+      },
+      {
+        "display": "import { defineConfig } from '@playwright/test'; export default defineConfig({ testDir: './tests', forbidOnly: !!process.env.CI, retries: process.env.CI ? 2 : 0, use: { baseURL: 'http://localhost:3000', trace: 'retain-on-failure', screenshot: 'only-on-failure' } });",
+        "input": "import { defineConfig } from '@playwright/test'; export default defineConfig({ testDir: './tests', forbidOnly: !!process.env.CI, retries: process.env.CI ? 2 : 0, use: { baseURL: 'http://localhost:3000', trace: 'retain-on-failure', screenshot: 'only-on-failure' } });",
+        "annotation": "defineConfig：テスト実行設定（playwright.config.ts。再試行で不安定なテストを放置しない）"
+      },
+      {
+        "display": "webServer: { command: 'npm run dev', url: 'http://localhost:3000', reuseExistingServer: !process.env.CI }",
+        "input": "webServer: { command: 'npm run dev', url: 'http://localhost:3000', reuseExistingServer: !process.env.CI }",
+        "annotation": "webServer：アプリ起動を管理（defineConfig内の断片）"
+      },
+      {
+        "display": "import { devices } from '@playwright/test'; /* defineConfig内: */ /* projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }] */",
+        "input": "import { devices } from '@playwright/test'; /* defineConfig内: */ /* projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }] */",
+        "annotation": "projects / devices：複数ブラウザー等で実行（ブラウザーのインストールが必要）"
+      },
+      {
+        "display": "npx playwright install",
+        "input": "npx playwright install",
+        "annotation": "playwright install：ブラウザーを導入（ターミナル。CI等では--with-depsを検討）"
+      },
+      {
+        "display": "npx playwright test",
+        "input": "npx playwright test",
+        "annotation": "playwright test：テスト実行（ターミナル）"
+      },
+      {
+        "display": "npx playwright test --ui",
+        "input": "npx playwright test --ui",
+        "annotation": "--ui / --headed / --debug：UI・画面表示・デバッグ（ターミナル）"
+      },
+      {
+        "display": "npx playwright test --headed",
+        "input": "npx playwright test --headed",
+        "annotation": "--ui / --headed / --debug：UI・画面表示・デバッグ（ターミナル）"
+      },
+      {
+        "display": "npx playwright test --debug",
+        "input": "npx playwright test --debug",
+        "annotation": "--ui / --headed / --debug：UI・画面表示・デバッグ（ターミナル）"
+      },
+      {
+        "display": "npx playwright test --project=chromium",
+        "input": "npx playwright test --project=chromium",
+        "annotation": "--project / -g：プロジェクト・テスト名で絞る（プロジェクト名は設定と一致）"
+      },
+      {
+        "display": "npx playwright test -g 'ログイン'",
+        "input": "npx playwright test -g 'ログイン'",
+        "annotation": "--project / -g：プロジェクト・テスト名で絞る（プロジェクト名は設定と一致）"
+      },
+      {
+        "display": "npx playwright show-report",
+        "input": "npx playwright show-report",
+        "annotation": "show-report / codegen：レポート・操作からコード生成（生成コードもLocator・アサーション・機密情報をレビュー）"
+      },
+      {
+        "display": "npx playwright codegen http://localhost:3000",
+        "input": "npx playwright codegen http://localhost:3000",
+        "annotation": "show-report / codegen：レポート・操作からコード生成（生成コードもLocator・アサーション・機密情報をレビュー）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
   }
 ]
