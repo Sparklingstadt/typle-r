@@ -10,7 +10,7 @@ test('the command lists decode in Typle with their own ids and names', () => {
   const lists = decodeLists(JSON.stringify({ version: 1, lists: commands }))
   assert.deepEqual(lists.map(list => [list.id, list.words.length]), [
     ['linux-commands-basic', 118], ['linux-commands-options', 146], ['linux-commands-advanced', 131],
-    ['linux-shell-bash', 76], ['linux-system', 140], ['vercel-cli', 34], ['gcloud-cli', 35], ['aws-cli', 46], ['macos-zsh', 90], ['arch-linux', 96], ['vim', 112], ['go-syntax', 109], ['java-syntax', 130], ['kotlin-syntax', 163],
+    ['linux-shell-bash', 76], ['linux-system', 140], ['vercel-cli', 34], ['gcloud-cli', 35], ['aws-cli', 46], ['macos-zsh', 90], ['arch-linux', 96], ['vim', 112], ['go-syntax', 109], ['java-syntax', 130], ['kotlin-syntax', 163], ['un-member-states-chinese-193-lowercase', 193],
   ])
   const { initialLists } = require('../src/plugins/packs/index.ts')
   for (const list of lists) validateList(list, initialLists.filter(other => other.id !== list.id))
@@ -23,7 +23,8 @@ test('each command is typed as shown, in ASCII, once per list, with an explanati
   const japanese = ['say "こんにちは"', 'echo "追加" >> memo.txt', 'command -v node || echo "見つかりません"', 'echo "現在地: $(pwd)"',
     'git clone https://aur.archlinux.org/パッケージ名.git', 'systemctl --user status 名前',
     ':w 名前', ':saveas パス', '/文字列', '?文字列', '/\\V文字列', ':sp ファイル', ':vsp ファイル']
-  for (const list of commands) {
+  // The lowercase country list shows the Chinese name; its own test below checks it.
+  for (const list of commands.filter(list => list.id !== 'un-member-states-chinese-193-lowercase')) {
     assert.equal(new Set(list.words.map(word => word.input)).size, list.words.length, list.name)
     for (const word of list.words) {
       assert.equal(word.display, word.input)
@@ -52,9 +53,9 @@ test('the zsh list leaves out key presses and keeps one word per example', () =>
     'STS：操作中のアカウント・権限を確認（Account・Arn・UserIdを確認）')
 })
 
-test('migrations 0009 to 0014 add the command lists to saved workspaces', () => {
+test('migrations 0009 to 0015 add the command lists to saved workspaces', () => {
   const fs = require('node:fs')
-  const added = ['0009_seed_command_lists', '0010_seed_arch_linux_list', '0011_seed_vim_list', '0012_seed_go_syntax_list', '0013_seed_java_syntax_list', '0014_seed_kotlin_syntax_list'].flatMap(name => {
+  const added = ['0009_seed_command_lists', '0010_seed_arch_linux_list', '0011_seed_vim_list', '0012_seed_go_syntax_list', '0013_seed_java_syntax_list', '0014_seed_kotlin_syntax_list', '0015_seed_lowercase_country_list'].flatMap(name => {
     const sql = fs.readFileSync(require.resolve(`../prisma/migrations/${name}/migration.sql`), 'utf8')
     const literal = sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'")
     return decodeLists(JSON.stringify({ version: 1, lists: JSON.parse(literal) }))
@@ -107,4 +108,13 @@ test('the Kotlin list types each code example on one line, ending statements whe
   assert.ok(kotlin.some(word => word.input === 'val result = names.filter { it.length >= 3 }.map { it.uppercase() }'))
   assert.ok(kotlin.some(word => word.input === 'val text = """1行目 2行目"""'))
   assert.equal(kotlin.find(word => word.input === 'val sameReference = a === b').annotation, '===：参照の同一性（プリミティブ相当値等の同一性に依存しない）')
+})
+
+test('the lowercase country list types the pinyin of the country list in lowercase, spaces kept', () => {
+  const countries = require('../src/plugins/packs/countries.json')
+  const lower = words('un-member-states-chinese-193-lowercase')
+  assert.deepEqual(lower, countries.words.map(word => ({ ...word, input: word.input.toLowerCase() })))
+  assert.ok(lower.every(word => /^[a-z]+( [a-z]+)*$/.test(word.input)))
+  assert.equal(lower.find(word => word.display === '安提瓜和巴布达').input, 'antigua he babuda')
+  assert.equal(lower.find(word => word.display === '菲律宾').input, 'feilvbin')
 })

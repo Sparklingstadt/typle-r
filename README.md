@@ -358,6 +358,8 @@ UIはshadcn/ui（Radix / Nova）とTailwind CSS 4で構成しています。設�
 
 [提供されたZIP](https://chatgpt.com/library/share/libfile_e75c8143a78c8191804af85bfd9d46a9?account_id=personal)と同じファイルの生成データ193行を利用しています。中国語名・拼音・日本語名は元資料の表記を維持しています。入力する文字は拼音から声調記号・隔音記号（'）・括弧を除いたアルファベットで、üはピンイン入力と同じvで入力します（例: 菲律宾 → Feilvbin）。`tests/countries.test.cjs` で元データ（入力を中国語名に戻した状態）とのSHA-256一致、193件の重複なし、入力が拼音から作られていることを検証します。
 
+入力を小文字にした「国名：中国語・国連加盟193か国（小文字）」（v0.69.0 から）も初期リストにあります。表示・補足は同じで、入力は上のリストの拼音を小文字にしたものです。空白は残します（例: 安提瓜和巴布达 → `antigua he babuda`）。`src/plugins/packs/commands.json` の最後のリストで、保存済みのアカウントにはマイグレーション `0015_seed_lowercase_country_list` が追加します（コマンドのリストと同じ規則）。
+
 ### コマンドの単語リスト（Linux・Vercel CLI・gcloud・AWS CLI・macOS・Arch Linux・Vim・Go・Java・Kotlin）
 
 `src/plugins/packs/commands.json` の14リスト（1,426語）のうち、Linuxの5リスト（611語）は、提供されたLinuxコマンド表のCSV（学習用フラット一覧、64表・659行。SHA-256 `17ce06e70c8113a84b850034cd86100633a660b3ce2638c72fa2d0429273864f`）から作っています。
@@ -401,7 +403,7 @@ Kotlin構文も、Goと同じく改行が文の区切りになるため、文が
 
 `tests/commands.test.cjs` で、14リストの読み込み、語数、入力が前後に空白のないASCII（Go・Java・Kotlin構文と、日本語を含む13語を除く）で表示と一致すること、リスト内で入力が重複しないことを確かめます。
 
-初期リストなので、まだ一度も保存していないアカウントとブラウザーには最初から表示されます。v0.63.0 から、すでに保存しているアカウントにも、マイグレーション `0009_seed_command_lists`（`npm run db:migrate`。本番ではデプロイ時に実行）が9リストを、v0.64.0 から `0010_seed_arch_linux_list` がArch Linuxのリストを、v0.65.0 から `0011_seed_vim_list` がVimのリストを、v0.66.0 から `0012_seed_go_syntax_list` がGo構文のリストを、v0.67.0 から `0013_seed_java_syntax_list` がJava構文のリストを、v0.68.0 から `0014_seed_kotlin_syntax_list` がKotlin構文のリストを追加します。`scripts/seed.cjs` と同じく、同じIDまたは同じ名前のリストがある場合はそのリストを追加せず、ほかのリストと練習記録はそのまま残します。追加すると100リストか保存できる大きさ（`MaxListsBytes`）を超えるアカウントには追加しません。マイグレーションは1回だけ実行されるため、その後に削除したリストは戻りません。改めて追加するときは `npm run db:seed -- --owner github:<ID>` を使います。このブラウザーに保存している場合（ログインしていない場合）はマイグレーションの対象外です。
+初期リストなので、まだ一度も保存していないアカウントとブラウザーには最初から表示されます。v0.63.0 から、すでに保存しているアカウントにも、マイグレーション `0009_seed_command_lists`（`npm run db:migrate`。本番ではデプロイ時に実行）が9リストを、v0.64.0 から `0010_seed_arch_linux_list` がArch Linuxのリストを、v0.65.0 から `0011_seed_vim_list` がVimのリストを、v0.66.0 から `0012_seed_go_syntax_list` がGo構文のリストを、v0.67.0 から `0013_seed_java_syntax_list` がJava構文のリストを、v0.68.0 から `0014_seed_kotlin_syntax_list` がKotlin構文のリストを追加します。小文字の国名リストも、同じ規則で `0015_seed_lowercase_country_list` が追加します。`scripts/seed.cjs` と同じく、同じIDまたは同じ名前のリストがある場合はそのリストを追加せず、ほかのリストと練習記録はそのまま残します。追加すると100リストか保存できる大きさ（`MaxListsBytes`）を超えるアカウントには追加しません。マイグレーションは1回だけ実行されるため、その後に削除したリストは戻りません。改めて追加するときは `npm run db:seed -- --owner github:<ID>` を使います。このブラウザーに保存している場合（ログインしていない場合）はマイグレーションの対象外です。
 
 ### 共通レイアウト（トップバー・サイドバー）
 
