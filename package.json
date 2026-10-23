@@ -1,6 +1,6 @@
 {
   "name": "typle-r",
-  "version": "0.72.0",
+  "version": "0.72.1",
   "private": true,
   "scripts": {
     "dev": "node scripts/dev.cjs --hostname 127.0.0.1",

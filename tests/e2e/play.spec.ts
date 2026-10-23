@@ -111,6 +111,25 @@ test('long text keeps its spaces and wraps inside the practice card at 390px', a
   await expect(page.getByRole('list', { name: 'すべての単語' }).locator('[aria-current="step"]')).toContainText(sentence)
 })
 
+test('with many lists the word to type stays on screen next to the input', async ({ page }) => {
+  // The list of lists beside the practice card is taller than the screen; the card must not stretch to its height,
+  // which put the word far above the input and out of view once the focused input scrolled into place.
+  const word = (text: string) => ({ display: text, input: text, annotation: '' })
+  const lists = Array.from({ length: 22 }, (_, index) => ({ id: `list-${index}`, name: `List ${index + 1}`, createdAt: '2026-09-01', words: [word(`word${index}`), word('end')], records: [] }))
+  await page.addInitScript(([key, value]) => { if (!localStorage.getItem(key)) localStorage.setItem(key, value) },
+    [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists, devices: [] })])
+  for (const size of [{ width: 1440, height: 900 }, { width: 1280, height: 720 }]) {
+    await page.setViewportSize(size)
+    await page.goto('/play')
+    const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
+    await expect(input).toBeFocused()
+    await expect(page.locator('#wordDisplay')).toBeInViewport({ ratio: 1 })
+    await expect(input).toBeInViewport({ ratio: 1 })
+    const gap = (await input.boundingBox())!.y - (await page.locator('#wordDisplay').boundingBox())!.y
+    expect(gap).toBeLessThan(300)
+  }
+})
+
 test('the live stats can be hidden, the choice is remembered and the result still shows the numbers', async ({ page }) => {
   await seedGuest(page)
   await page.goto('/play')
