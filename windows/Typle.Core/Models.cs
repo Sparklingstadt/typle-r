@@ -70,6 +70,14 @@ public sealed record WordList
     /// <summary>What the list is about, such as Kotlin (v0.78.0). Left out when there are none.</summary>
     public IReadOnlyList<string>? Tags { get; init; }
 
+    /// <summary>
+    /// Lists with the same group, such as Linuxコマンド, are one choice in the web app, which then asks for their
+    /// levels, such as 基本 then 初級 (v0.79.0). Kept as saved; a copy leaves them out.
+    /// </summary>
+    public string? Group { get; init; }
+
+    public IReadOnlyList<string>? Levels { get; init; }
+
     public required IReadOnlyList<Word> Words { get; init; }
 
     public IReadOnlyList<StoredRecord> Records { get; init; } = [];
@@ -79,7 +87,8 @@ public sealed record WordList
     // Lists compare by their tags, words and records, as Kotlin's data classes and Swift's structs do.
     public bool Equals(WordList? other) =>
         other is not null && Id == other.Id && Name == other.Name && CreatedAt == other.CreatedAt && Category == other.Category &&
-        (Tags ?? []).SequenceEqual(other.Tags ?? []) && (Tags is null) == (other.Tags is null) &&
+        (Tags ?? []).SequenceEqual(other.Tags ?? []) && (Tags is null) == (other.Tags is null) && Group == other.Group &&
+        (Levels ?? []).SequenceEqual(other.Levels ?? []) && (Levels is null) == (other.Levels is null) &&
         Words.SequenceEqual(other.Words) && Records.SequenceEqual(other.Records);
 
     public override int GetHashCode() => HashCode.Combine(Id, Name, Words.Count, Records.Count);

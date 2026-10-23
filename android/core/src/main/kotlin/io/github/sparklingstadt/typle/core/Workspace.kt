@@ -12,6 +12,8 @@ private data class PackList(
   val name: String,
   val category: String? = null,
   val tags: List<String>? = null,
+  val group: String? = null,
+  val levels: List<String>? = null,
   val words: List<Word>,
   val records: List<StoredRecord>? = null,
   val createdAt: String,
@@ -27,12 +29,12 @@ fun initialLists(): List<WordList> {
   val commands = TypleJson.decodeFromString(ListSerializer(PackList.serializer()), pack("commands"))
   return samples.mapIndexed { index, list ->
     WordList(id = "sample-${index + 1}", name = list.name, words = list.words, createdAt = list.createdAt,
-      category = list.category, tags = list.tags)
+      category = list.category, tags = list.tags, group = list.group, levels = list.levels)
   } +
     // Each list of countries.json and commands.json names its own id (tests/commands.test.cjs).
     (countries + commands).map { list ->
       WordList(id = list.id ?: list.name, name = list.name, words = list.words, records = list.records ?: emptyList(),
-        createdAt = list.createdAt, category = list.category, tags = list.tags)
+        createdAt = list.createdAt, category = list.category, tags = list.tags, group = list.group, levels = list.levels)
     }
 }
 

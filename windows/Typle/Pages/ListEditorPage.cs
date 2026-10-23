@@ -388,7 +388,7 @@ public sealed class ListEditorPage : PageView
             Words = kept.Select(row => new Word(row.Display.Text, row.Input.Text.Length == 0 ? row.Display.Text : row.Input.Text, row.Annotation.Text)).ToList(),
             Records = original?.Records ?? [], CreatedAt = original?.CreatedAt ?? Dates.IsoString(DateTimeOffset.UtcNow),
             // The Windows editor does not edit these yet, so they stay as saved.
-            Category = original?.Category, Tags = original?.Tags,
+            Category = original?.Category, Tags = original?.Tags, Group = original?.Group, Levels = original?.Levels,
         };
         saving = true;
         UpdateFooter();

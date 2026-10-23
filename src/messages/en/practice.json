@@ -108,6 +108,11 @@
     "selected": "{name}, selected",
     "select": "Select {name}",
     "withBest": "{count, plural, one {# word} other {# words}} · best {time} s",
-    "noRecord": "{count, plural, one {# word} other {# words}} · no records"
+    "noRecord": "{count, plural, one {# word} other {# words}} · no records",
+    "groupSelected": "{level} · {summary}",
+    "groupLists": "{count, plural, one {# list} other {# lists}} · choose a level",
+    "levels": "Levels of {name}",
+    "step": "Level step {n}",
+    "chooseLevel": "Now choose the next level."
   }
 }

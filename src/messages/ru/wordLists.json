@@ -89,6 +89,13 @@
     "copy": "Дублировать",
     "delete": "Удалить"
   },
+  "group": {
+    "levels": "{levels, plural, one {# уровень} few {# уровня} many {# уровней} other {# уровня}}",
+    "wordCount": "{count, plural, one {# слово} few {# слова} many {# слов} other {# слова}}",
+    "practice": "Тренировка",
+    "practiceGroup": "Тренировать {name}",
+    "lists": "Списки: {name}"
+  },
   "wordRow": {
     "label": "Слово {n}",
     "drag": "Перетащите, чтобы переместить слово {n}",

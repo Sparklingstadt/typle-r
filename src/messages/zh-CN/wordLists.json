@@ -89,6 +89,13 @@
     "copy": "复制",
     "delete": "删除"
   },
+  "group": {
+    "levels": "{levels, plural, other {#个难度}}",
+    "wordCount": "{count, plural, other {#个单词}}",
+    "practice": "练习",
+    "practiceGroup": "练习 {name}",
+    "lists": "{name} 的列表"
+  },
   "wordRow": {
     "label": "单词 {n}",
     "drag": "拖动以调整单词 {n} 的顺序",

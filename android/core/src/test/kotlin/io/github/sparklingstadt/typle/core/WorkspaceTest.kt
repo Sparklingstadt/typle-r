@@ -52,6 +52,19 @@ class WorkspaceTest {
     validateLists(lists)
   }
 
+  // The group and levels (v0.79.0) are kept through a read and a save; a copy leaves them out.
+  @Test fun keepsGroupAndLevels() {
+    val web = """{"version":1,"accountId":"android:local","revision":0,"devices":[],"lists":[{"id":"x","name":"X","group":"Linuxコマンド","levels":["基本","初級"],"createdAt":"2026-01-01","words":[{"display":"a","input":"a","annotation":""}],"records":[]}]}"""
+    val lists = decodeWorkspaceFile(web.toByteArray(), "android:local").lists
+    assertEquals("Linuxコマンド", lists[0].group)
+    assertEquals(listOf("基本", "初級"), lists[0].levels)
+    val text = encodeWorkspaceFile(WorkspaceFile(accountId = "android:local", revision = 0,
+      document = WorkspaceDocument(lists = lists, devices = emptyList()))).decodeToString()
+    assertEquals(true, text.contains("\"levels\":[\"基本\",\"初級\"]"))
+    assertEquals(null, duplicateList(lists, "x", "z", { "（コピー）" }).copy.group)
+    assertEquals(11, initialLists().count { it.group == "Linuxコマンド" })
+  }
+
   // The category and tags (v0.78.0) are kept through a read, a save, an edit and a copy, and left out when there are none.
   @Test fun keepsCategoryAndTags() {
     val web = """{"version":1,"accountId":"android:local","revision":0,"devices":[],"lists":[{"id":"x","name":"X","category":"プログラミング","tags":["Go","CLI"],"createdAt":"2026-01-01","words":[{"display":"a","input":"a","annotation":""}],"records":[]},{"id":"y","name":"Y","createdAt":"2026-01-01","words":[{"display":"a","input":"a","annotation":""}],"records":[]}]}"""

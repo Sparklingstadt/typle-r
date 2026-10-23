@@ -235,7 +235,7 @@ fun ListEditorView(listId: String?) {
       words = kept.map { Word(it.word.display, it.word.input.ifEmpty { it.word.display }, it.word.annotation) },
       records = original?.records ?: emptyList(), createdAt = original?.createdAt ?: isoString(Instant.now()),
       // The Android editor does not edit these yet, so they stay as saved.
-      category = original?.category, tags = original?.tags,
+      category = original?.category, tags = original?.tags, group = original?.group, levels = original?.levels,
     )
     saving = true
     scope.launch {

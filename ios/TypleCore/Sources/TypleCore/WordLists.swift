@@ -11,6 +11,9 @@ public let maxRecords = 10000
 public let maxCategory = 50
 public let maxTag = 50
 public let maxTags = 20
+public let maxGroup = 200
+public let maxLevel = 50
+public let maxLevels = 5
 
 /// normalizeLabels: the category and tags trimmed, without empty ones or a tag repeated in another case, and nil when
 /// there are none.
@@ -53,6 +56,7 @@ public func validateLists(_ lists: [WordList]) throws {
   if lists.contains(where: { list in
     list.words.count > maxWords || list.records.count > maxRecords || list.name.jsLength > maxListName ||
       (list.category?.jsLength ?? 0) > maxCategory || (list.tags?.count ?? 0) > maxTags || (list.tags ?? []).contains { $0.jsLength > maxTag } ||
+      (list.group?.jsLength ?? 0) > maxGroup || (list.levels?.count ?? 0) > maxLevels || (list.levels ?? []).contains { $0.jsLength > maxLevel } ||
       list.words.contains { $0.input.jsLength > maxWordField || $0.display.jsLength > maxWordField || $0.annotation.jsLength > maxAnnotation }
   }) { throw TypleError("invalidWorkspace") }
 }

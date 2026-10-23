@@ -351,6 +351,20 @@ public class WorkspaceTests
         Assert.Equal(5, Workspace.DecodeFile(Encoding.UTF8.GetBytes(web), "windows:local").Lists[0].Records[0].Time);
     }
 
+    // The group and levels (v0.79.0) are kept through a read and a save; a copy leaves them out.
+    [Fact]
+    public void KeepsGroupAndLevels()
+    {
+        const string web = """{"version":1,"accountId":"windows:local","revision":0,"devices":[],"lists":[{"id":"x","name":"X","group":"Linuxコマンド","levels":["基本","初級"],"createdAt":"2026-01-01","words":[{"display":"a","input":"a","annotation":""}],"records":[]}]}""";
+        var lists = Workspace.DecodeFile(Encoding.UTF8.GetBytes(web), "windows:local").Lists;
+        Assert.Equal("Linuxコマンド", lists[0].Group);
+        Assert.Equal(["基本", "初級"], lists[0].Levels!);
+        var text = Encoding.UTF8.GetString(Workspace.EncodeFile(WorkspaceFile.Of("windows:local", 0, new WorkspaceDocument(lists, []))));
+        Assert.Contains("\"levels\":[\"基本\",\"初級\"]", text);
+        Assert.Null(WordLists.Duplicate(lists, "x", "z", _ => "（コピー）").Copy.Group);
+        Assert.Equal(11, Workspace.InitialLists().Count(list => list.Group == "Linuxコマンド"));
+    }
+
     // The category and tags (v0.78.0) are kept through a read, a save, an edit and a copy, and left out when there are none.
     [Fact]
     public void KeepsCategoryAndTags()

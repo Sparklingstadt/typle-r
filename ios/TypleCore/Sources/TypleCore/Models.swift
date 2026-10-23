@@ -65,16 +65,22 @@ public struct WordList: Codable, Hashable, Identifiable, Sendable {
   /// of the stored list when it has none, as the web app saves them.
   public var category: String?
   public var tags: [String]?
+  /// Lists with the same group, such as Linuxコマンド, are one choice in the web app, which then asks for their levels,
+  /// such as 基本 then 初級 (v0.79.0). Kept as saved; a copy leaves them out.
+  public var group: String?
+  public var levels: [String]?
   public var words: [Word]
   public var records: [StoredRecord]
   public var createdAt: String
 
   public init(id: String, name: String, words: [Word], records: [StoredRecord] = [], createdAt: String,
-              category: String? = nil, tags: [String]? = nil) {
+              category: String? = nil, tags: [String]? = nil, group: String? = nil, levels: [String]? = nil) {
     self.id = id
     self.name = name
     self.category = category
     self.tags = tags
+    self.group = group
+    self.levels = levels
     self.words = words
     self.records = records
     self.createdAt = createdAt

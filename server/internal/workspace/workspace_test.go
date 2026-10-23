@@ -76,7 +76,9 @@ func TestInitial(t *testing.T) {
 		if len(list.Words) > 40 {
 			t.Fatalf("%s has %d words", list.ID, len(list.Words))
 		}
-		if (list.Category != "プログラミング" && list.Category != "語学") || len(list.Tags) == 0 || list.Extra != "" {
+		// The group and levels (v0.79.0) are fields Go keeps without reading them.
+		if (list.Category != "プログラミング" && list.Category != "語学") || len(list.Tags) == 0 ||
+			(list.Extra != "" && !strings.HasPrefix(list.Extra, `{"group":`)) {
 			t.Fatalf("%s: category %q, tags %v, extra %s", list.ID, list.Category, list.Tags, list.Extra)
 		}
 	}

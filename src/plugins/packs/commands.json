@@ -7,6 +7,11 @@
       "Linux",
       "シェル"
     ],
+    "group": "Linuxコマンド",
+    "levels": [
+      "基本",
+      "初級"
+    ],
     "words": [
       {
         "display": "pwd",
@@ -220,6 +225,11 @@
       "Linux",
       "シェル"
     ],
+    "group": "Linuxコマンド",
+    "levels": [
+      "基本",
+      "中級"
+    ],
     "words": [
       {
         "display": "mkdir -p app/src",
@@ -427,6 +437,11 @@
     "tags": [
       "Linux",
       "シェル"
+    ],
+    "group": "Linuxコマンド",
+    "levels": [
+      "基本",
+      "上級"
     ],
     "words": [
       {
@@ -636,6 +651,11 @@
       "Linux",
       "シェル"
     ],
+    "group": "Linuxコマンド",
+    "levels": [
+      "オプション",
+      "初級"
+    ],
     "words": [
       {
         "display": "ls -l",
@@ -833,6 +853,11 @@
     "tags": [
       "Linux",
       "シェル"
+    ],
+    "group": "Linuxコマンド",
+    "levels": [
+      "オプション",
+      "中級1"
     ],
     "words": [
       {
@@ -1032,6 +1057,11 @@
       "Linux",
       "シェル"
     ],
+    "group": "Linuxコマンド",
+    "levels": [
+      "オプション",
+      "中級2"
+    ],
     "words": [
       {
         "display": "mkdir -p",
@@ -1224,6 +1254,11 @@
     "tags": [
       "Linux",
       "シェル"
+    ],
+    "group": "Linuxコマンド",
+    "levels": [
+      "オプション",
+      "上級"
     ],
     "words": [
       {
@@ -1418,6 +1453,11 @@
       "Linux",
       "シェル"
     ],
+    "group": "Linuxコマンド",
+    "levels": [
+      "応用",
+      "初級"
+    ],
     "words": [
       {
         "display": "lsblk -f",
@@ -1595,6 +1635,11 @@
     "tags": [
       "Linux",
       "シェル"
+    ],
+    "group": "Linuxコマンド",
+    "levels": [
+      "応用",
+      "中級1"
     ],
     "words": [
       {
@@ -1774,6 +1819,11 @@
       "Linux",
       "シェル"
     ],
+    "group": "Linuxコマンド",
+    "levels": [
+      "応用",
+      "中級2"
+    ],
     "words": [
       {
         "display": "mount /dev/sdb1 /mnt",
@@ -1952,6 +2002,11 @@
       "Linux",
       "シェル"
     ],
+    "group": "Linuxコマンド",
+    "levels": [
+      "応用",
+      "上級"
+    ],
     "words": [
       {
         "display": "ipcalc 192.168.1.0/24",
@@ -2125,6 +2180,10 @@
       "Linux",
       "シェル",
       "Bash"
+    ],
+    "group": "Linux：シェルとBash",
+    "levels": [
+      "初級"
     ],
     "words": [
       {
@@ -2330,6 +2389,10 @@
       "シェル",
       "Bash"
     ],
+    "group": "Linux：シェルとBash",
+    "levels": [
+      "上級"
+    ],
     "words": [
       {
         "display": "kill -TERM 1234",
@@ -2532,6 +2595,10 @@
     "tags": [
       "Linux"
     ],
+    "group": "Linux：システムの仕組み",
+    "levels": [
+      "初級"
+    ],
     "words": [
       {
         "display": "/",
@@ -2718,6 +2785,10 @@
     "category": "プログラミング",
     "tags": [
       "Linux"
+    ],
+    "group": "Linux：システムの仕組み",
+    "levels": [
+      "中級1"
     ],
     "words": [
       {
@@ -2906,6 +2977,10 @@
     "tags": [
       "Linux"
     ],
+    "group": "Linux：システムの仕組み",
+    "levels": [
+      "中級2"
+    ],
     "words": [
       {
         "display": "tree -L 2 /etc",
@@ -3092,6 +3167,10 @@
     "category": "プログラミング",
     "tags": [
       "Linux"
+    ],
+    "group": "Linux：システムの仕組み",
+    "levels": [
+      "上級"
     ],
     "words": [
       {
@@ -3652,6 +3731,10 @@
       "AWS",
       "CLI"
     ],
+    "group": "AWS CLIコマンド",
+    "levels": [
+      "初級"
+    ],
     "words": [
       {
         "display": "aws --version",
@@ -3779,6 +3862,10 @@
     "tags": [
       "AWS",
       "CLI"
+    ],
+    "group": "AWS CLIコマンド",
+    "levels": [
+      "上級"
     ],
     "words": [
       {
@@ -3908,6 +3995,10 @@
       "macOS",
       "シェル",
       "zsh"
+    ],
+    "group": "macOSターミナル（zsh）コマンド",
+    "levels": [
+      "初級"
     ],
     "words": [
       {
@@ -4073,6 +4164,10 @@
       "シェル",
       "zsh"
     ],
+    "group": "macOSターミナル（zsh）コマンド",
+    "levels": [
+      "中級"
+    ],
     "words": [
       {
         "display": "cd ~/Downloads",
@@ -4237,6 +4332,10 @@
       "シェル",
       "zsh"
     ],
+    "group": "macOSターミナル（zsh）コマンド",
+    "levels": [
+      "上級"
+    ],
     "words": [
       {
         "display": "mkdir -p project/src/components",
@@ -4400,6 +4499,10 @@
       "Arch Linux",
       "Linux",
       "シェル"
+    ],
+    "group": "Arch Linuxコマンド",
+    "levels": [
+      "初級"
     ],
     "words": [
       {
@@ -4575,6 +4678,10 @@
       "Linux",
       "シェル"
     ],
+    "group": "Arch Linuxコマンド",
+    "levels": [
+      "中級"
+    ],
     "words": [
       {
         "display": "cd ~/Downloads",
@@ -4749,6 +4856,10 @@
       "Linux",
       "シェル"
     ],
+    "group": "Arch Linuxコマンド",
+    "levels": [
+      "上級"
+    ],
     "words": [
       {
         "display": "cp memo.txt backup.txt",
@@ -4920,6 +5031,10 @@
     "category": "プログラミング",
     "tags": [
       "Vim"
+    ],
+    "group": "Vimコマンド",
+    "levels": [
+      "初級"
     ],
     "words": [
       {
@@ -5123,6 +5238,10 @@
     "tags": [
       "Vim"
     ],
+    "group": "Vimコマンド",
+    "levels": [
+      "中級"
+    ],
     "words": [
       {
         "display": ":w",
@@ -5319,6 +5438,10 @@
     "category": "プログラミング",
     "tags": [
       "Vim"
+    ],
+    "group": "Vimコマンド",
+    "levels": [
+      "上級"
     ],
     "words": [
       {
@@ -5517,6 +5640,10 @@
     "tags": [
       "Go"
     ],
+    "group": "Go構文",
+    "levels": [
+      "初級"
+    ],
     "words": [
       {
         "display": "package main",
@@ -5714,6 +5841,10 @@
     "tags": [
       "Go"
     ],
+    "group": "Go構文",
+    "levels": [
+      "中級"
+    ],
     "words": [
       {
         "display": "import ( \"fmt\"; \"errors\" )",
@@ -5905,6 +6036,10 @@
     "category": "プログラミング",
     "tags": [
       "Go"
+    ],
+    "group": "Go構文",
+    "levels": [
+      "上級"
     ],
     "words": [
       {
@@ -6098,6 +6233,10 @@
     "tags": [
       "Java"
     ],
+    "group": "Java構文",
+    "levels": [
+      "初級"
+    ],
     "words": [
       {
         "display": "public class Main { public static void main(String[] args) { System.out.println(\"Hello, Java!\"); } }",
@@ -6274,6 +6413,10 @@
     "category": "プログラミング",
     "tags": [
       "Java"
+    ],
+    "group": "Java構文",
+    "levels": [
+      "中級1"
     ],
     "words": [
       {
@@ -6452,6 +6595,10 @@
     "tags": [
       "Java"
     ],
+    "group": "Java構文",
+    "levels": [
+      "中級2"
+    ],
     "words": [
       {
         "display": "public static void main(String[] args) {}",
@@ -6624,6 +6771,10 @@
     "tags": [
       "Java"
     ],
+    "group": "Java構文",
+    "levels": [
+      "上級"
+    ],
     "words": [
       {
         "display": "String label = age >= 20 ? \"成人\" : \"未成年\";",
@@ -6795,6 +6946,10 @@
     "category": "プログラミング",
     "tags": [
       "Kotlin"
+    ],
+    "group": "Kotlin構文",
+    "levels": [
+      "初級1"
     ],
     "words": [
       {
@@ -6973,6 +7128,10 @@
     "tags": [
       "Kotlin"
     ],
+    "group": "Kotlin構文",
+    "levels": [
+      "初級2"
+    ],
     "words": [
       {
         "display": "import kotlin.math.sqrt",
@@ -7149,6 +7308,10 @@
     "category": "プログラミング",
     "tags": [
       "Kotlin"
+    ],
+    "group": "Kotlin構文",
+    "levels": [
+      "中級"
     ],
     "words": [
       {
@@ -7327,6 +7490,10 @@
     "tags": [
       "Kotlin"
     ],
+    "group": "Kotlin構文",
+    "levels": [
+      "上級1"
+    ],
     "words": [
       {
         "display": "fun greet(): Unit { println(\"Hello\") }",
@@ -7498,6 +7665,10 @@
     "category": "プログラミング",
     "tags": [
       "Kotlin"
+    ],
+    "group": "Kotlin構文",
+    "levels": [
+      "上級2"
     ],
     "words": [
       {
@@ -7671,6 +7842,10 @@
     "tags": [
       "中国語",
       "国名"
+    ],
+    "group": "国名：中国語・国連加盟国（小文字）",
+    "levels": [
+      "初級1"
     ],
     "words": [
       {
@@ -7880,6 +8055,10 @@
       "中国語",
       "国名"
     ],
+    "group": "国名：中国語・国連加盟国（小文字）",
+    "levels": [
+      "初級2"
+    ],
     "words": [
       {
         "display": "安道尔",
@@ -8087,6 +8266,10 @@
     "tags": [
       "中国語",
       "国名"
+    ],
+    "group": "国名：中国語・国連加盟国（小文字）",
+    "levels": [
+      "中級"
     ],
     "words": [
       {
@@ -8296,6 +8479,10 @@
       "中国語",
       "国名"
     ],
+    "group": "国名：中国語・国連加盟国（小文字）",
+    "levels": [
+      "上級1"
+    ],
     "words": [
       {
         "display": "阿塞拜疆",
@@ -8498,6 +8685,10 @@
     "tags": [
       "中国語",
       "国名"
+    ],
+    "group": "国名：中国語・国連加盟国（小文字）",
+    "levels": [
+      "上級2"
     ],
     "words": [
       {
@@ -8702,6 +8893,10 @@
       "PostgreSQL",
       "SQL"
     ],
+    "group": "PostgreSQL構文",
+    "levels": [
+      "初級"
+    ],
     "words": [
       {
         "display": "SHOW server_version;",
@@ -8904,6 +9099,10 @@
     "tags": [
       "PostgreSQL",
       "SQL"
+    ],
+    "group": "PostgreSQL構文",
+    "levels": [
+      "中級1"
     ],
     "words": [
       {
@@ -9108,6 +9307,10 @@
       "PostgreSQL",
       "SQL"
     ],
+    "group": "PostgreSQL構文",
+    "levels": [
+      "中級2"
+    ],
     "words": [
       {
         "display": "/* 1行コメント */ SELECT /* ブロックコメント */ 1;",
@@ -9310,6 +9513,10 @@
     "tags": [
       "PostgreSQL",
       "SQL"
+    ],
+    "group": "PostgreSQL構文",
+    "levels": [
+      "上級"
     ],
     "words": [
       {
@@ -9514,6 +9721,10 @@
       "Prisma",
       "TypeScript"
     ],
+    "group": "Prisma構文",
+    "levels": [
+      "初級"
+    ],
     "words": [
       {
         "display": "// Prisma ORM 7 / TypeScript / PostgreSQL",
@@ -9687,6 +9898,10 @@
       "Prisma",
       "TypeScript"
     ],
+    "group": "Prisma構文",
+    "levels": [
+      "上級"
+    ],
     "words": [
       {
         "display": "generator client { provider = \"prisma-client\" output = \"../src/generated/prisma\" } datasource db { provider = \"postgresql\" } model User { id Int @id @default(autoincrement()) email String @unique name String? age Int? active Boolean @default(true) createdAt DateTime @default(now()) tags String[] profile Json? posts Post[] } model Post { id Int @id @default(autoincrement()) title String published Boolean @default(false) authorId Int author User @relation(fields: [authorId], references: [id]) }",
@@ -9859,6 +10074,10 @@
     "tags": [
       "Jest",
       "テスト"
+    ],
+    "group": "Jest構文",
+    "levels": [
+      "初級"
     ],
     "words": [
       {
@@ -10043,6 +10262,10 @@
       "Jest",
       "テスト"
     ],
+    "group": "Jest構文",
+    "levels": [
+      "上級"
+    ],
     "words": [
       {
         "display": "import { describe, test, expect, jest, beforeEach, afterEach, beforeAll, afterAll } from '@jest/globals';",
@@ -10220,6 +10443,10 @@
     "tags": [
       "Playwright",
       "テスト"
+    ],
+    "group": "Playwright構文",
+    "levels": [
+      "初級"
     ],
     "words": [
       {
@@ -10409,6 +10636,10 @@
       "Playwright",
       "テスト"
     ],
+    "group": "Playwright構文",
+    "levels": [
+      "上級"
+    ],
     "words": [
       {
         "display": "test('トップページ', async ({ page }) => { await page.goto('/'); await expect(page.getByRole('heading', { name: 'ホーム' })).toBeVisible(); });",
@@ -10596,6 +10827,10 @@
     "tags": [
       "TypeScript"
     ],
+    "group": "TypeScript構文",
+    "levels": [
+      "初級"
+    ],
     "words": [
       {
         "display": "// TypeScript 7.0 / strictを想定",
@@ -10698,6 +10933,10 @@
     "tags": [
       "TypeScript"
     ],
+    "group": "TypeScript構文",
+    "levels": [
+      "中級"
+    ],
     "words": [
       {
         "display": "let name:string|null=null; const missing:undefined=undefined; const n:bigint=1n;",
@@ -10799,6 +11038,10 @@
     "category": "プログラミング",
     "tags": [
       "TypeScript"
+    ],
+    "group": "TypeScript構文",
+    "levels": [
+      "上級"
     ],
     "words": [
       {
@@ -10903,6 +11146,10 @@
       "Hono",
       "TypeScript"
     ],
+    "group": "Honoメソッド",
+    "levels": [
+      "初級"
+    ],
     "words": [
       {
         "display": "import {Hono} from 'hono'; const app=new Hono();",
@@ -10975,6 +11222,10 @@
     "tags": [
       "Hono",
       "TypeScript"
+    ],
+    "group": "Honoメソッド",
+    "levels": [
+      "中級"
     ],
     "words": [
       {
@@ -11049,6 +11300,10 @@
       "Hono",
       "TypeScript"
     ],
+    "group": "Honoメソッド",
+    "levels": [
+      "上級"
+    ],
     "words": [
       {
         "display": "app.post('/form',async c=>{ const body=await c.req.parseBody(); return c.json({name:typeof body.name==='string'?body.name:''}); });",
@@ -11120,6 +11375,10 @@
     "category": "プログラミング",
     "tags": [
       "PHP"
+    ],
+    "group": "PHP構文",
+    "levels": [
+      "初級"
     ],
     "words": [
       {
@@ -11203,6 +11462,10 @@
     "tags": [
       "PHP"
     ],
+    "group": "PHP構文",
+    "levels": [
+      "中級"
+    ],
     "words": [
       {
         "display": "switch ($role) { case 'admin': echo '管理者'; break; default: echo '一般'; }",
@@ -11285,6 +11548,10 @@
     "tags": [
       "PHP"
     ],
+    "group": "PHP構文",
+    "levels": [
+      "上級"
+    ],
     "words": [
       {
         "display": "if ($age>=20) { echo '成人'; } elseif ($age>=18) { echo '18歳以上'; } else { echo 'その他'; }",
@@ -11362,6 +11629,10 @@
     "tags": [
       "Ruby on Rails",
       "Ruby"
+    ],
+    "group": "Railsメソッド",
+    "levels": [
+      "初級"
     ],
     "words": [
       {
@@ -11451,6 +11722,10 @@
       "Ruby on Rails",
       "Ruby"
     ],
+    "group": "Railsメソッド",
+    "levels": [
+      "中級"
+    ],
     "words": [
       {
         "display": "Rails.application.routes.draw do; resources :users; end",
@@ -11539,6 +11814,10 @@
       "Ruby on Rails",
       "Ruby"
     ],
+    "group": "Railsメソッド",
+    "levels": [
+      "上級"
+    ],
     "words": [
       {
         "display": "resources :users, only: [:index,:show] do; resources :posts, only: [:index,:create]; end",
@@ -11622,6 +11901,10 @@
       "Express",
       "Node.js"
     ],
+    "group": "Expressメソッド",
+    "levels": [
+      "初級"
+    ],
     "words": [
       {
         "display": "import express from 'express'; const app=express();",
@@ -11694,6 +11977,10 @@
     "tags": [
       "Express",
       "Node.js"
+    ],
+    "group": "Expressメソッド",
+    "levels": [
+      "中級"
     ],
     "words": [
       {
@@ -11768,6 +12055,10 @@
       "Express",
       "Node.js"
     ],
+    "group": "Expressメソッド",
+    "levels": [
+      "上級"
+    ],
     "words": [
       {
         "display": "app.get('/search',(req,res)=>{ const q=req.query.q; if(typeof q!=='string'){res.status(400).json({error:'q required'});return;} res.json({q}); });",
@@ -11836,6 +12127,10 @@
       "Oracle",
       "PL/SQL",
       "SQL"
+    ],
+    "group": "Oracle PL/SQL構文",
+    "levels": [
+      "初級"
     ],
     "words": [
       {
@@ -11916,6 +12211,10 @@
       "PL/SQL",
       "SQL"
     ],
+    "group": "Oracle PL/SQL構文",
+    "levels": [
+      "中級"
+    ],
     "words": [
       {
         "display": "DECLARE v_name VARCHAR2(100):='Pomo'; BEGIN DBMS_OUTPUT.PUT_LINE(v_name); END;",
@@ -11990,6 +12289,10 @@
       "PL/SQL",
       "SQL"
     ],
+    "group": "Oracle PL/SQL構文",
+    "levels": [
+      "上級"
+    ],
     "words": [
       {
         "display": "DECLARE v_age PLS_INTEGER:=20; c_limit CONSTANT PLS_INTEGER:=100; BEGIN v_age:=21; DBMS_OUTPUT.PUT_LINE(v_age); END;",
@@ -12063,6 +12366,10 @@
       "SQL Server",
       "T-SQL",
       "SQL"
+    ],
+    "group": "SQL Server T-SQL構文",
+    "levels": [
+      "初級"
     ],
     "words": [
       {
@@ -12153,6 +12460,10 @@
       "T-SQL",
       "SQL"
     ],
+    "group": "SQL Server T-SQL構文",
+    "levels": [
+      "中級"
+    ],
     "words": [
       {
         "display": "SELECT * FROM dbo.Users ORDER BY Id OFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY;",
@@ -12241,6 +12552,10 @@
       "SQL Server",
       "T-SQL",
       "SQL"
+    ],
+    "group": "SQL Server T-SQL構文",
+    "levels": [
+      "上級"
     ],
     "words": [
       {

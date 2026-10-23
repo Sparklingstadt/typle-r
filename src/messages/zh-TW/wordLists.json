@@ -89,6 +89,13 @@
     "copy": "複製",
     "delete": "刪除"
   },
+  "group": {
+    "levels": "{levels, plural, other {#個難度}}",
+    "wordCount": "{count, plural, other {#個單字}}",
+    "practice": "練習",
+    "practiceGroup": "練習 {name}",
+    "lists": "{name} 的清單"
+  },
   "wordRow": {
     "label": "單字 {n}",
     "drag": "拖曳以調整單字 {n} 的順序",

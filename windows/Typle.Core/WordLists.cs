@@ -31,6 +31,9 @@ public static partial class WordLists
     public const int MaxCategory = 50;
     public const int MaxTag = 50;
     public const int MaxTags = 20;
+    public const int MaxGroup = 200;
+    public const int MaxLevel = 50;
+    public const int MaxLevels = 5;
 
     /// <summary>
     /// normalizeLabels: the category and tags trimmed, without empty ones or a tag repeated in another case, and null
@@ -74,6 +77,7 @@ public static partial class WordLists
         if (lists.Any(list =>
                 list.Words.Count > MaxWords || list.Records.Count > MaxRecords || list.Name.Length > MaxListName ||
                 (list.Category?.Length ?? 0) > MaxCategory || (list.Tags?.Count ?? 0) > MaxTags || (list.Tags ?? []).Any(tag => tag.Length > MaxTag) ||
+                (list.Group?.Length ?? 0) > MaxGroup || (list.Levels?.Count ?? 0) > MaxLevels || (list.Levels ?? []).Any(level => level.Length > MaxLevel) ||
                 list.Words.Any(word => word.Input.Length > MaxWordField || word.Display.Length > MaxWordField ||
                                        word.Annotation.Length > MaxAnnotation)))
         {

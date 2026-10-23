@@ -183,6 +183,18 @@ final class WordListTests: XCTestCase {
     XCTAssertThrowsError(try validateLists([WordList(id: "a", name: "A", words: words, createdAt: "x", tags: [String(repeating: "t", count: 51)])]))
   }
 
+  // The group and levels (v0.79.0) are kept through a read and a save; a copy leaves them out.
+  func testGroupAndLevels() throws {
+    let answer = #"{"lists":[{"id":"x","name":"X","group":"Linuxコマンド","levels":["基本","初級"],"createdAt":"2026-01-01","words":[{"display":"a","input":"a","annotation":""}],"records":[]}],"devices":[],"revision":1,"accountId":"github:1"}"#
+    let decoded = try decodeAccountWorkspace(Data(answer.utf8))
+    XCTAssertEqual(decoded.document.lists[0].group, "Linuxコマンド")
+    XCTAssertEqual(decoded.document.lists[0].levels, ["基本", "初級"])
+    let body = String(decoding: try encodeAccountWorkspace(decoded), as: UTF8.self)
+    XCTAssertTrue(body.contains(#""levels":["基本","初級"]"#), body)
+    XCTAssertNil(try duplicateList(decoded.document.lists, id: "x", copyId: "z", suffix: { _ in "（コピー）" }).copy.group)
+    XCTAssertEqual(initialLists().filter { $0.group == "Linuxコマンド" }.count, 11)
+  }
+
   func testWorkspaceFileRoundTrip() throws {
     let list = WordList(id: "1", name: "A", words: words, records: [StoredRecord(id: "r", time: 1.5, date: "2026-01-01T00:00:00.000Z", mistakes: 0, accuracy: 100, wordCount: 1)], createdAt: "2026-01-01")
     let file = WorkspaceFile(accountId: "ipad:local", revision: 3, document: WorkspaceDocument(lists: [list], devices: [PracticeDevice(id: "d", name: " iPad ")]))
