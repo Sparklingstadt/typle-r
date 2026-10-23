@@ -209,7 +209,7 @@ final class WordListTests: XCTestCase {
     let lists = initialLists()
     XCTAssertEqual(lists.map(\.id).prefix(2), ["sample-1", "sample-2"])
     XCTAssertEqual(lists[2].words.count, 193)
-    XCTAssertEqual([lists[3].id, lists.last?.id], ["linux-commands-basic", "go-syntax"])
+    XCTAssertEqual([lists[3].id, lists.last?.id], ["linux-commands-basic", "java-syntax"])
     XCTAssertNoThrow(try validateLists(lists))
   }
 }
