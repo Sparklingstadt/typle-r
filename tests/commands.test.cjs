@@ -47,3 +47,12 @@ test('the zsh list leaves out key presses and keeps one word per example', () =>
   assert.equal(words('aws-cli').find(word => word.input === 'aws sts get-caller-identity').annotation,
     'STS：操作中のアカウント・権限を確認（Account・Arn・UserIdを確認）')
 })
+
+test('migration 0009 adds the command lists to saved workspaces', () => {
+  const fs = require('node:fs')
+  const sql = fs.readFileSync(require.resolve('../prisma/migrations/0009_seed_command_lists/migration.sql'), 'utf8')
+  const literal = sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'")
+  const lists = decodeLists(JSON.stringify({ version: 1, lists: JSON.parse(literal) }))
+  assert.deepEqual(lists.map(list => list.id), commands.map(list => list.id))
+  assert.ok(lists.every(list => list.records.length === 0))
+})
