@@ -3,7 +3,7 @@ const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
 
-// The iPad app (ios/) is built on macOS only (.github/workflows/ios.yml); these checks of its data run everywhere.
+// The iPad app (ios/) is built on macOS only (no CI workflow since v0.70.0); these checks of its data run everywhere.
 const root = path.join(__dirname, '..')
 const ios = path.join(root, 'ios')
 

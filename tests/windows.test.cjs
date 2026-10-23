@@ -3,8 +3,8 @@ const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
 
-// The Windows app (windows/) is built and run on GitHub Actions only (.github/workflows/windows.yml); these checks of
-// its text run everywhere.
+// The Windows app (windows/) is built and run on Windows only (the CI workflow for it was removed in v0.70.0); these
+// checks of its text run everywhere.
 const root = path.join(__dirname, '..')
 const windows = path.join(root, 'windows')
 

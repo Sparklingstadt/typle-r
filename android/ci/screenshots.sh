@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Shows every page of the debug app with its sample data (DemoEntry.kt) on the running emulator and saves a
-# screenshot of each into android/screenshots, to compare with the web app. Run by .github/workflows/android.yml.
+# screenshot of each into android/screenshots, to compare with the web app. Run it by hand.
 set -euo pipefail
 apk=android/app/build/outputs/apk/debug/app-debug.apk
 package=io.github.sparklingstadt.typle

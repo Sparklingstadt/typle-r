@@ -17,7 +17,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 
 /**
- * Sample data for screenshots (.github/workflows/android.yml, android/ci/screenshots.sh): `--ez typleDemo true`
+ * Sample data for screenshots (android/ci/screenshots.sh): `--ez typleDemo true`
  * starts with the starting lists, a device and two weeks of records in the cache, so CI can show every page with
  * content without touching real data. `typleRoute`, `typleLanguage`, `typleTyping` and `typleRankingsList` choose
  * what is shown, like the iPad app's launch arguments.

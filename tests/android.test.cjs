@@ -3,7 +3,7 @@ const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
 
-// The Android app (android/) is built on GitHub Actions only (.github/workflows/android.yml); these checks of its
+// The Android app (android/) is built with the Android SDK only (no CI workflow since v0.70.0); these checks of its
 // data run everywhere.
 const root = path.join(__dirname, '..')
 const android = path.join(root, 'android')

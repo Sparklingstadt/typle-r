@@ -3,6 +3,12 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
+## v0.70.0 — Android・iPad・Mac・Windows・Kotlin のワークフローを削除しました
+
+GitHub Actions の利用時間を減らすため、`Android app`・`iPad app`・`Mac app`・`Windows app`・`Kotlin backend` の5つのワークフロー（`.github/workflows/android.yml`・`ios.yml`・`macos.yml`・`windows.yml`・`kotlin-server.yml`）を削除しました。macOS と Windows のランナーは利用時間が多く数えられ、`src/plugins/packs/` を変える PR でも4つが動いていました。残るのは Web 版の検証・リリース・デプロイ（`ci.yml`）だけで、その内容は変わりません。
+
+各アプリのビルド・テスト・スクリーンショットは手元で行います（手順は各 README）。アプリが持つ単語リストの写しと文言は、これまでどおり `npm test`（`tests/android.test.cjs`・`ios.test.cjs`・`macos.test.cjs`・`windows.test.cjs`）が確かめます。
+
 ## v0.61.1 — CSV・TSV の取り込みダイアログの説明を直しました
 
 取り込みダイアログは「display は必須、input・annotation は省略できます」と案内していましたが、取り込みは `input` と `display` の列を両方必須にしています。6言語の説明を実際の動作（`input` と `display` は必須、`annotation` は省略できる）に合わせました。取り込みの動作は変わりません。

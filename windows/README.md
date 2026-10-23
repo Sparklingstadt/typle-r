@@ -11,7 +11,7 @@ Windows App SDK と .NET を同梱した（self-contained）アプリなので�
 
 ## 入れ方
 
-GitHub Actions の `Windows app` ワークフローが、`windows/` を変えた PR と手動の実行（Actions の「Run workflow」）のたびにアプリを作り、成果物 `typle-windows-x64` に残します。main のアプリが欲しいときは、main で手動実行します。ダウンロードした zip を好きなフォルダーに展開し、`Typle.exe` を開きます。Microsoft Store には出しておらず、署名もしていないため、初回に SmartScreen の確認が出たら「詳細情報」→「実行」で開きます。
+v0.70.0 で GitHub Actions のワークフローを削除したため、アプリは Windows の手元で作ります（`dotnet publish windows/Typle/Typle.csproj -c Release -r win-x64 -p:Platform=x64 -o windows/publish` の後、`windows/publish/Typle.exe` を開きます）。Microsoft Store には出しておらず、署名もしていないため、初回に SmartScreen の確認が出たら「詳細情報」→「実行」で開きます。
 
 自分でビルドするときは次のとおりです。
 
@@ -26,7 +26,7 @@ Web 版と同じ画面構成・色・部品です。上部バー（ブランド�
 
 画面は XAML ファイルを使わず、C# で WinUI のコントロールを組み立てています（`Typle/Support/Ui.cs` が Web 版の Card・Button・Badge などにあたります）。そのため、アプリ全体を Linux や macOS でもコンパイルして確かめられます（実行は Windows だけです）。
 
-`.github/workflows/windows.yml` は、サンプルデータ（起動引数 `--demo`、`Typle/Demo.cs`）で各ページを表示してスクリーンショットを撮り、ログと成果物 `windows-screenshots` に残します（`ci/screenshots.ps1`）。`--demo` は一時フォルダーのデータだけを使い、このパソコンの保存データには触れません。
+`ci/screenshots.ps1` は、サンプルデータ（起動引数 `--demo`、`Typle/Demo.cs`）で各ページを表示してスクリーンショットを撮り、`windows/screenshots` に保存します。手で実行します。`--demo` は一時フォルダーのデータだけを使い、このパソコンの保存データには触れません。
 
 ## 外部キーボードで練習する
 
@@ -81,7 +81,7 @@ dotnet test windows/Typle.Core.Tests
 dotnet build windows/Typle/Typle.csproj -p:Platform=x64 -r win-x64 -p:AppxGeneratePriEnabled=false -p:WindowsAppSDKSelfContained=false
 ```
 
-- `.github/workflows/windows.yml` が、`windows/` を変えた PR と手動の実行で、core のテストと型チェック（Ubuntu）、アプリのビルドとスクリーンショット（Windows）を行います。マージ後の main への push では動きません（Actions の利用時間を節約するため）。Web 版のリリース・デプロイ（`ci.yml`）とは別です。
+- CI のワークフローはありません（v0.70.0 で削除）。core のテスト（`dotnet test windows/Typle.Core.Tests`）とアプリのビルドは手元で行います。文言は `npm test`（`tests/windows.test.cjs`）が確かめます。
 - `npm test` の `tests/windows.test.cjs` が、使っている文言が日本語・英語の両方にあり、プレースホルダーがそろっているか、「タブレット」「iPad」「Android」などが残っていないか、ログインが `client=windows` か（サーバーも受け付けるか）を確かめます。
 
 ## 範囲外

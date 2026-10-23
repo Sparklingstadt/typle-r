@@ -9,7 +9,7 @@ Typle の Android タブレット版です。Web 版（`src/`）・iPad 版（`i
 
 ## 入れ方
 
-GitHub Actions の `Android app` ワークフローが、`android/` を変えた PR と手動の実行（Actions の「Run workflow」）のたびに debug APK を作り、成果物 `typle-debug-apk` に残します。main の APK が欲しいときは、main で手動実行します。ダウンロードした `app-debug.apk` をタブレットに送り、「提供元不明のアプリ」を許可して開くと入ります。Play ストアには出していません。
+v0.70.0 で GitHub Actions のワークフローを削除したため、debug APK は手元で作ります（`cd android && ./gradlew :app:assembleDebug`。`app/build/outputs/apk/debug/app-debug.apk`）。ダウンロードした `app-debug.apk` をタブレットに送り、「提供元不明のアプリ」を許可して開くと入ります。Play ストアには出していません。
 
 自分でビルドするときは次のとおりです。
 
@@ -30,7 +30,7 @@ cd android
 
 Web 版と同じ画面構成・色・部品です。上部バー（ブランド・保存先・ライト／ダーク・アカウント）、幅に応じたサイドバーかドロワー、カード。色と角丸は `src/app/globals.css` の値を `app/src/main/kotlin/…/design/Theme.kt` に写しています。表示言語（日本語・English）は「一般」でその場で切り替えられます。
 
-`.github/workflows/android.yml` は、サンプルデータ（Debug ビルドだけの起動引数 `typleDemo`、`app/src/debug/…/DemoEntry.kt`）で各ページをタブレットのエミュレーターに表示してスクリーンショットを撮り、ログと成果物 `android-screenshots` に残します（`ci/screenshots.sh`）。
+`ci/screenshots.sh` は、起動中のエミュレーターで、サンプルデータ（Debug ビルドだけの起動引数 `typleDemo`、`app/src/debug/…/DemoEntry.kt`）で各ページをタブレットのエミュレーターに表示してスクリーンショットを撮り、`android/screenshots` に保存します。手で実行します。
 
 ## できること
 
@@ -74,7 +74,7 @@ Web 版と同じ画面構成・色・部品です。上部バー（ブランド�
 cd android/core && ../gradlew test
 ```
 
-- `.github/workflows/android.yml` が、`android/` を変えた PR と手動の実行で、core のテスト、debug APK のビルド、エミュレーターでの撮影を行います。マージ後の main への push では動きません（Actions の利用時間を節約するため）。Web 版のリリース・デプロイ（`ci.yml`）とは別です。
+- CI のワークフローはありません（v0.70.0 で削除）。core のテスト（`cd android/core && ../gradlew test`）と debug APK のビルドは手元で行います。データの写しと文言は `npm test`（`tests/android.test.cjs`）が確かめます。
 - `npm test` の `tests/android.test.cjs` が、最初の単語リストのコピーが元と同じか、使っている文言が日本語・英語の両方にあり、プレースホルダーがそろっているか、「iPad」「ブラウザー」が残っていないかを確かめます。`src/plugins/packs` を変えたら `core/src/main/resources` にコピーしてください。
 
 ## 範囲外
