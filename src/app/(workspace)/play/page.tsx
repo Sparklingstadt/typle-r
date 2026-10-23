@@ -16,7 +16,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useWordLists, type WorkspaceUpdate } from "@/lib/useWordLists"
 import type { SavedWordList } from "@/core/wordLists"
 import { usePractice } from "@/lib/usePractice"
-import { compareInput, typingSpeed, type TypingSession } from "@/core/typing"
+import { compareInput, elapsedTime, typingSpeed, type TypingSession } from "@/core/typing"
 import { byRecentPractice, comparableRecords } from "@/core/records"
 import { listLabels, matchesFilter } from "@/core/listOverview"
 import { cn } from "@/lib/utils"
@@ -66,8 +66,9 @@ function formatClock(milliseconds: number) {
 // Owns the ticking clock, so only these four values re-render every 200ms instead of the whole page.
 function LiveStats({ session, accuracy }: { session: TypingSession; accuracy: number }) {
   const running = session.startedAt !== null && session.finishedAt === null
-  const now = useNow(running)
-  const elapsed = running && now > (session.startedAt ?? 0) ? now - (session.startedAt ?? 0) : 0
+  // While paused the values stand still, so the clock stops ticking too.
+  const now = useNow(running && session.pausedAt == null)
+  const elapsed = running ? elapsedTime(session, now) : 0
   const speed = running ? typingSpeed(session, now) : null
   const t = useTranslations('practice.stats')
   const stats = [
@@ -123,7 +124,7 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
   const t = useTranslations('practice')
   const [device, chooseDevice] = useChosenDevice(accountId, devices)
   const [statsVisible, setStatsVisible] = useLiveStatsVisible()
-  const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave } = usePractice(wordLists, update, device, listId)
+  const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave, pause, resume } = usePractice(wordLists, update, device, listId)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [asideQuery, setAsideQuery] = useState('')
@@ -281,7 +282,7 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
               aria-label={t('word.inputLabel')} aria-invalid={hasError} aria-describedby="practice-feedback"
               className={cn('h-13 w-full max-w-[440px] rounded-[10px] border-2 text-center text-[22px] md:text-2xl focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring/35 aria-invalid:ring-4 aria-invalid:focus-visible:border-destructive aria-invalid:focus-visible:ring-destructive/20 sm:h-14', composition !== null && 'underline decoration-dotted underline-offset-6')}
               onPaste={event => event.preventDefault()} onDrop={event => event.preventDefault()}
-              onFocus={() => { setInputFocused(true); setFocusedOnce(true) }} onBlur={() => setInputFocused(false)}
+              onFocus={() => { setInputFocused(true); setFocusedOnce(true); resume() }} onBlur={() => { setInputFocused(false); pause() }}
               onKeyDown={event => { if (event.key === 'Escape' && composition === null && !event.nativeEvent.isComposing) { event.preventDefault(); restart() } }}
               onCompositionStart={startComposition}
               onCompositionEnd={event => endComposition(event.currentTarget.value)}

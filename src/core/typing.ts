@@ -5,14 +5,36 @@ export type TypingSession = {
   finishedAt: number | null
   attempts: number
   mistakes: number
+  // When the input lost focus mid-practice; the clock stands still until it is resumed.
+  pausedAt?: number | null
 }
 
 export function newSession(): TypingSession {
-  return { index: 0, input: "", startedAt: null, finishedAt: null, attempts: 0, mistakes: 0 }
+  return { index: 0, input: "", startedAt: null, finishedAt: null, attempts: 0, mistakes: 0, pausedAt: null }
 }
 
-export function typeInput(session: TypingSession, words: { input: string }[], value: string, now: number): TypingSession {
-  if (session.finishedAt !== null || !words[session.index]) return session
+// Stops the clock of a running session. Before the first character or after the last there is nothing to stop.
+export function pauseSession(session: TypingSession, now: number): TypingSession {
+  if (session.startedAt === null || session.finishedAt !== null || session.pausedAt != null) return session
+  return { ...session, pausedAt: now }
+}
+
+// Moves startedAt on by the length of the pause, so elapsed time, speed and the recorded time all leave it out.
+export function resumeSession(session: TypingSession, now: number): TypingSession {
+  if (session.pausedAt == null || session.startedAt === null) return session
+  return { ...session, startedAt: session.startedAt + Math.max(0, now - session.pausedAt), pausedAt: null }
+}
+
+// Milliseconds of typing so far: up to the finish, or to the pause while paused.
+export function elapsedTime(session: TypingSession, now: number) {
+  if (session.startedAt === null) return 0
+  return Math.max(0, (session.finishedAt ?? session.pausedAt ?? now) - session.startedAt)
+}
+
+export function typeInput(current: TypingSession, words: { input: string }[], value: string, now: number): TypingSession {
+  if (current.finishedAt !== null || !words[current.index]) return current
+  // Typing always runs the clock, even if the input was not focused through the usual event.
+  const session = resumeSession(current, now)
   const target = Array.from(words[session.index].input)
   const previous = Array.from(session.input)
   const next = Array.from(value)
@@ -58,6 +80,6 @@ export function compareInput(target: string, typed: string) {
 // Correctly typed characters per minute (committed characters for IME input); null until a second has passed.
 export function typingSpeed(session: TypingSession, now: number) {
   if (session.startedAt === null) return null
-  const elapsed = (session.finishedAt ?? now) - session.startedAt
+  const elapsed = elapsedTime(session, now)
   return elapsed < 1000 ? null : Math.round((session.attempts - session.mistakes) / (elapsed / 60000))
 }

@@ -89,6 +89,30 @@ test('the list picker filters lists and the result screen offers the next step',
   await expect(result.getByRole('link', { name: '記録を見る' })).toHaveAttribute('href', '/records')
 })
 
+test('the clock stops while the input has lost focus and runs again once it is back', async ({ page }) => {
+  await seedGuest(page)
+  await page.goto('/play')
+  const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
+  const elapsed = page.getByRole('definition').first()
+  await expect(input).toBeFocused()
+  await input.pressSequentially('a')
+  await expect(elapsed).not.toHaveText('0:00.0')
+  await input.blur()
+  await expect(page.getByRole('button', { name: 'クリックまたは任意のキーで再開' })).toBeVisible()
+  const paused = await elapsed.textContent()
+  await page.waitForTimeout(2500)
+  await expect(elapsed).toHaveText(paused!)
+  await page.getByRole('button', { name: 'クリックまたは任意のキーで再開' }).click()
+  await expect(input).toBeFocused()
+  // Running again from where it stopped.
+  await expect(elapsed).not.toHaveText(paused!)
+  await input.pressSequentially('b')
+  await input.pressSequentially('cd')
+  await expect(page.getByLabel('練習結果', { exact: true })).toContainText('練習記録を保存しました。')
+  const time = await page.evaluate(key => JSON.parse(localStorage.getItem(key)!).lists.find((list: { id: string }) => list.id === 'first').records[0].time, key)
+  expect(time).toBeLessThan(2.5)
+})
+
 test('long text keeps its spaces and wraps inside the practice card at 390px', async ({ page }) => {
   await seedGuest(page)
   await page.setViewportSize({ width: 390, height: 844 })
