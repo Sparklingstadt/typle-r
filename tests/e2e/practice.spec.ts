@@ -351,7 +351,7 @@ test('best five records sort by accuracy then time and refresh after practice', 
   const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
   await input.pressSequentially('a')
   await expect(page.getByRole('progressbar', { name: '単語の進捗' })).toHaveAttribute('aria-valuenow', '1')
-  await page.getByRole('button', { name: 'すべての単語を表示' }).click()
+  await expect(page.getByRole('button', { name: 'すべての単語を表示' })).toHaveAttribute('aria-expanded', 'true')
   await expect(page.getByRole('list', { name: 'すべての単語' }).getByRole('listitem').first()).toContainText('（完了）')
   await input.pressSequentially('b')
   const result = page.getByLabel('練習結果', { exact: true })
