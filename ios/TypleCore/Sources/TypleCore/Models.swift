@@ -61,13 +61,20 @@ public struct StoredRecord: Codable, Hashable, Sendable {
 public struct WordList: Codable, Hashable, Identifiable, Sendable {
   public var id: String
   public var name: String
+  /// A broad grouping, such as プログラミング, and what the list is about, such as Kotlin (v0.78.0). Both are left out
+  /// of the stored list when it has none, as the web app saves them.
+  public var category: String?
+  public var tags: [String]?
   public var words: [Word]
   public var records: [StoredRecord]
   public var createdAt: String
 
-  public init(id: String, name: String, words: [Word], records: [StoredRecord] = [], createdAt: String) {
+  public init(id: String, name: String, words: [Word], records: [StoredRecord] = [], createdAt: String,
+              category: String? = nil, tags: [String]? = nil) {
     self.id = id
     self.name = name
+    self.category = category
+    self.tags = tags
     self.words = words
     self.records = records
     self.createdAt = createdAt

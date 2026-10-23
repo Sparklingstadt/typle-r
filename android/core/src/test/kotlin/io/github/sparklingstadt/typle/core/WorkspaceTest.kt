@@ -48,6 +48,25 @@ class WorkspaceTest {
     assertEquals(listOf("un-member-states-chinese-193-beginner-1", "linux-commands-basic-beginner", "sql-server-tsql-syntax-advanced"),
       listOf(lists[2].id, lists[7].id, lists.last().id))
     assertEquals(true, lists.all { it.words.size <= 40 })
+    assertEquals(true, lists.all { it.category != null && !it.tags.isNullOrEmpty() })
     validateLists(lists)
+  }
+
+  // The category and tags (v0.78.0) are kept through a read, a save, an edit and a copy, and left out when there are none.
+  @Test fun keepsCategoryAndTags() {
+    val web = """{"version":1,"accountId":"android:local","revision":0,"devices":[],"lists":[{"id":"x","name":"X","category":"プログラミング","tags":["Go","CLI"],"createdAt":"2026-01-01","words":[{"display":"a","input":"a","annotation":""}],"records":[]},{"id":"y","name":"Y","createdAt":"2026-01-01","words":[{"display":"a","input":"a","annotation":""}],"records":[]}]}"""
+    val lists = decodeWorkspaceFile(web.toByteArray(), "android:local").lists
+    assertEquals("プログラミング", lists[0].category)
+    assertEquals(listOf("Go", "CLI"), lists[0].tags)
+    val text = encodeWorkspaceFile(WorkspaceFile(accountId = "android:local", revision = 0,
+      document = WorkspaceDocument(lists = lists, devices = emptyList()))).decodeToString()
+    assertEquals(true, text.contains("\"tags\":[\"Go\",\"CLI\"]"))
+    assertEquals(2, text.split("category").size)
+    val saved = saveList(lists, lists[0].copy(category = " 語学 ", tags = listOf(" Go", "go", "")), editing = true)
+    assertEquals("語学", saved[0].category)
+    assertEquals(listOf("Go"), saved[0].tags)
+    assertEquals(listOf("Go"), duplicateList(saved, "x", "z", { "（コピー）" }).copy.tags)
+    assertEquals(true, matchesQuery(saved[0], "語学"))
+    assertThrows(TypleException::class.java) { validateLists(listOf(lists[1].copy(tags = listOf("t".repeat(51))))) }
   }
 }

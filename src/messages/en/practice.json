@@ -50,12 +50,12 @@
     "bestOrder": "Highest accuracy first, then fastest",
     "bestOrderAtCount": "Highest accuracy first, then fastest · runs at the current {count, plural, one {# word} other {# words}}",
     "allBest": "All best records",
-    "filter": "Filter word lists by name"
+    "filter": "Filter word lists by name, category or tag"
   },
   "picker": {
     "title": "Choose a word list",
     "description": "If you choose another list in the middle of a run, you’ll be asked to confirm before it stops.",
-    "filter": "Filter by list name",
+    "filter": "Filter by list name, category or tag",
     "candidates": "Matching word lists",
     "noMatch": "No lists match."
   },

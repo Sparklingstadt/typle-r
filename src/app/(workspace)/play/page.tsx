@@ -2,7 +2,7 @@
 import { Suspense, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { ArrowRight, ChevronDown, ChevronsUpDown, ChevronUp, CircleAlert, Eye, EyeOff, Gauge, List, MousePointerClick, Plus, RotateCcw, Search, Target, Timer, X } from "lucide-react"
 import type { PracticeDevice } from "@/core/devices"
 import { useChosenDevice } from "@/lib/deviceSelection"
@@ -18,6 +18,7 @@ import type { SavedWordList } from "@/core/wordLists"
 import { usePractice } from "@/lib/usePractice"
 import { compareInput, typingSpeed, type TypingSession } from "@/core/typing"
 import { byRecentPractice, comparableRecords } from "@/core/records"
+import { listLabels, matchesFilter } from "@/core/listOverview"
 import { cn } from "@/lib/utils"
 import Page from "@/components/Page/Page"
 import PageContainer from "@/components/PageContainer/PageContainer"
@@ -25,6 +26,7 @@ import TargetText from "@/components/Practice/TargetText"
 import Kbd from "@/components/Practice/Kbd"
 import DeviceMenu from "@/components/Practice/DeviceMenu"
 import WordListOptions from "@/components/Practice/WordListOptions"
+import CategorySelect from "@/components/Practice/CategorySelect"
 import PracticeBestRecords from "@/components/Practice/PracticeBestRecords"
 import PracticeResult from "@/components/Practice/PracticeResult"
 
@@ -104,6 +106,9 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
   const [pickerOpen, setPickerOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [asideQuery, setAsideQuery] = useState('')
+  // One category for both list choosers: the lists of a subject stay in view while switching between them.
+  const [category, setCategory] = useState<string | null>(null)
+  const locale = useLocale()
   const asideLists = useRef<HTMLDivElement>(null)
   const [pendingSwitch, setPendingSwitch] = useState<number | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -181,9 +186,14 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
     if (!running) switchTo(index)
     else if (index !== selected) setPendingSwitch(index)
   }
-  // Recently practised lists come first, and both list choosers can be narrowed down by name.
+  // Recently practised lists come first, and both list choosers can be narrowed down by name, category and tag.
   const ordered = byRecentPractice(wordLists)
-  const matching = (text: string) => ordered.filter(item => item.name.toLowerCase().includes(text.trim().toLowerCase()))
+  const labels = listLabels(wordLists, locale)
+  const matching = (text: string) => {
+    const needle = text.trim().toLowerCase()
+    return ordered.filter(item => matchesFilter(item, { category, tags: [] }) && (item.name.toLowerCase().includes(needle) ||
+      !!item.category?.toLowerCase().includes(needle) || !!item.tags?.some(tag => tag.toLowerCase().includes(needle))))
+  }
   const filteredLists = matching(query)
   const asideFiltered = matching(asideQuery)
   const next = words.slice(session.index + 1, session.index + 4)
@@ -292,6 +302,7 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
             <input type="search" value={asideQuery} onChange={event => setAsideQuery(event.target.value)} placeholder={t('picker.filter')} aria-label={t('aside.filter')} autoComplete="off"
               className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" />
           </label>
+          <div className="mx-1 mb-1"><CategorySelect labels={labels} value={category} onChange={setCategory} /></div>
           {/* Its own scroll area, so a long collection never pushes the page far below the practice card. */}
           <div ref={asideLists} className="max-h-96 overflow-y-auto overscroll-contain lg:max-h-[min(36rem,calc(100dvh-14rem))]">
             {asideFiltered.length ? <WordListOptions label={t('aside.lists')} lists={asideFiltered} selectedId={list.id} onSelect={id => { setAsideQuery(''); requestSwitch(id) }} />
@@ -320,6 +331,7 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
           <input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={t('picker.filter')} aria-label={t('picker.filter')} autoComplete="off"
             className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" />
         </label>
+        <CategorySelect labels={labels} value={category} onChange={setCategory} className="h-10 w-full min-w-0 rounded-lg border bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30" />
         {filteredLists.length ? <WordListOptions label={t('picker.candidates')} lists={filteredLists} selectedId={list?.id} onSelect={requestSwitch} />
           : <p className="px-1 py-2 text-sm text-muted-foreground">{t('picker.noMatch')}</p>}
       </DialogContent>

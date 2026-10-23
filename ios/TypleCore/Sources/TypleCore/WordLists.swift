@@ -8,6 +8,24 @@ public let maxWords = 1000
 public let maxWordField = 1000
 public let maxAnnotation = 2000
 public let maxRecords = 10000
+public let maxCategory = 50
+public let maxTag = 50
+public let maxTags = 20
+
+/// normalizeLabels: the category and tags trimmed, without empty ones or a tag repeated in another case, and nil when
+/// there are none.
+public func normalizeLabels(category: String?, tags: [String]?) -> (category: String?, tags: [String]?) {
+  let name = (category ?? "").trimmed
+  var seen = Set<String>()
+  var kept: [String] = []
+  for tag in tags ?? [] {
+    let value = tag.trimmed
+    if value.isEmpty || seen.contains(value.lowercased()) { continue }
+    seen.insert(value.lowercased())
+    kept.append(value)
+  }
+  return (name.isEmpty ? nil : name, kept.isEmpty ? nil : kept)
+}
 
 public func validateList(_ list: WordList, others: [WordList] = []) throws {
   let name = list.name.trimmed
@@ -34,6 +52,7 @@ public func validateLists(_ lists: [WordList]) throws {
   }
   if lists.contains(where: { list in
     list.words.count > maxWords || list.records.count > maxRecords || list.name.jsLength > maxListName ||
+      (list.category?.jsLength ?? 0) > maxCategory || (list.tags?.count ?? 0) > maxTags || (list.tags ?? []).contains { $0.jsLength > maxTag } ||
       list.words.contains { $0.input.jsLength > maxWordField || $0.display.jsLength > maxWordField || $0.annotation.jsLength > maxAnnotation }
   }) { throw TypleError("invalidWorkspace") }
 }
@@ -45,6 +64,7 @@ public func saveList(_ lists: [WordList], _ list: WordList, editing: Bool) throw
   try validateList(list, others: lists.filter { $0.id != list.id })
   var normalized = list
   normalized.name = list.name.trimmed
+  (normalized.category, normalized.tags) = normalizeLabels(category: list.category, tags: list.tags)
   if lists.contains(where: { $0.id == list.id }) {
     return lists.map { item in
       guard item.id == list.id else { return item }
@@ -96,11 +116,12 @@ public func sortOverviews(_ items: [ListOverview], order: ListOrder, locale: Loc
   }
 }
 
-/// Matches the list name and the words, so a list can be found by one of its words.
+/// Matches the list name, its category and tags, and the words, so a list can be found by one of its words.
 public func matchesQuery(_ list: WordList, _ query: String) -> Bool {
   let needle = query.trimmed.lowercased()
   if needle.isEmpty { return true }
-  return list.name.lowercased().contains(needle) ||
+  return list.name.lowercased().contains(needle) || (list.category?.lowercased().contains(needle) ?? false) ||
+    (list.tags ?? []).contains { $0.lowercased().contains(needle) } ||
     list.words.contains { $0.display.lowercased().contains(needle) || $0.input.lowercased().contains(needle) }
 }
 
@@ -122,10 +143,11 @@ public func copyName(_ lists: [WordList], _ name: String, suffix: (Int) -> Strin
   }
 }
 
-/// A copy keeps the words but starts without records, so its best is its own.
+/// A copy keeps the words, category and tags but starts without records, so its best is its own.
 public func duplicateList(_ lists: [WordList], id: String, copyId: String, suffix: (Int) -> String, now: Date = Date()) throws -> (lists: [WordList], copy: WordList) {
   guard let source = lists.first(where: { $0.id == id }) else { throw TypleError("listDeleted") }
   if lists.count >= maxLists { throw TypleError("listLimit", ["max": String(maxLists)]) }
-  let copy = WordList(id: copyId, name: copyName(lists, source.name, suffix: suffix), words: source.words, createdAt: isoString(now))
+  let copy = WordList(id: copyId, name: copyName(lists, source.name, suffix: suffix), words: source.words, createdAt: isoString(now),
+                      category: source.category, tags: source.tags)
   return (lists + [copy], copy)
 }

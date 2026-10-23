@@ -33,12 +33,51 @@ export function sortOverviews(items: ListOverview[], order: ListOrder, locale = 
   })
 }
 
-// Matches the list name and the words, so a list can be found by one of its words.
+// Matches the list name, its category and tags, and the words, so a list can be found by one of its words.
 export function matchesQuery(list: SavedWordList, query: string) {
   const needle = query.trim().toLocaleLowerCase()
   if (!needle) return true
-  return list.name.toLocaleLowerCase().includes(needle) ||
+  return list.name.toLocaleLowerCase().includes(needle) || !!list.category?.toLocaleLowerCase().includes(needle) ||
+    !!list.tags?.some(tag => tag.toLocaleLowerCase().includes(needle)) ||
     list.words.some(word => word.display.toLocaleLowerCase().includes(needle) || word.input.toLocaleLowerCase().includes(needle))
+}
+
+/** Narrows lists down by category and tags. `category` null is every list and '' the lists without one; a list must
+ * have every tag in `tags`. Both compare without case, as tags are kept unique without case. */
+export type ListFilter = { category: string | null; tags: string[] }
+export const NO_FILTER: ListFilter = { category: null, tags: [] }
+
+export function isFiltered(filter: ListFilter) {
+  return filter.category !== null || filter.tags.length > 0
+}
+
+export function matchesFilter(list: Pick<SavedWordList, 'category' | 'tags'>, filter: ListFilter) {
+  const key = (value: string) => value.trim().toLocaleLowerCase()
+  if (filter.category !== null && key(list.category ?? '') !== key(filter.category)) return false
+  const tags = new Set((list.tags ?? []).map(key))
+  return filter.tags.every(tag => tags.has(key(tag)))
+}
+
+/** The categories and tags in use, each once (in the spelling first seen) in name order, with how many lists have it.
+ * `uncategorized` counts the lists without a category. */
+export function listLabels(lists: Pick<SavedWordList, 'category' | 'tags'>[], locale = 'ja') {
+  const count = (values: string[]) => {
+    const found = new Map<string, { name: string; count: number }>()
+    for (const value of values) {
+      const name = value.trim()
+      if (!name) continue
+      const item = found.get(name.toLocaleLowerCase())
+      if (item) item.count++
+      else found.set(name.toLocaleLowerCase(), { name, count: 1 })
+    }
+    const collator = new Intl.Collator(locale, { numeric: true })
+    return [...found.values()].sort((a, b) => collator.compare(a.name, b.name))
+  }
+  return {
+    categories: count(lists.map(list => list.category ?? '')),
+    tags: count(lists.flatMap(list => list.tags ?? [])),
+    uncategorized: lists.filter(list => !list.category?.trim()).length,
+  }
 }
 
 // The first words of a list and how many more there are; the screen joins them in the reader's language.
@@ -61,12 +100,13 @@ export function copyName(lists: SavedWordList[], name: string, suffix: (n: numbe
   }
 }
 
-// A copy keeps the words but starts without records, so its best is its own.
+// A copy keeps the words, category and tags but starts without records, so its best is its own.
 export function duplicateList(lists: SavedWordList[], id: string, copyId: string, suffix: (n: number) => string, now = new Date()) {
   const source = lists.find(list => list.id === id)
   if (!source) throw new AppError('listDeleted')
   if (lists.length >= MAX_LISTS) throw new AppError('listLimit', { max: MAX_LISTS })
   const copy: SavedWordList = { id: copyId, name: copyName(lists, source.name, suffix), createdAt: now.toISOString(),
+    ...(source.category === undefined ? {} : { category: source.category }), ...(source.tags ? { tags: [...source.tags] } : {}),
     words: source.words.map(word => ({ ...word })), records: [] }
   return { lists: [...lists, copy], copy }
 }

@@ -351,6 +351,26 @@ public class WorkspaceTests
         Assert.Equal(5, Workspace.DecodeFile(Encoding.UTF8.GetBytes(web), "windows:local").Lists[0].Records[0].Time);
     }
 
+    // The category and tags (v0.78.0) are kept through a read, a save, an edit and a copy, and left out when there are none.
+    [Fact]
+    public void KeepsCategoryAndTags()
+    {
+        const string web = """{"version":1,"accountId":"windows:local","revision":0,"devices":[],"lists":[{"id":"x","name":"X","category":"プログラミング","tags":["Go","CLI"],"createdAt":"2026-01-01","words":[{"display":"a","input":"a","annotation":""}],"records":[]},{"id":"y","name":"Y","createdAt":"2026-01-01","words":[{"display":"a","input":"a","annotation":""}],"records":[]}]}""";
+        var lists = Workspace.DecodeFile(Encoding.UTF8.GetBytes(web), "windows:local").Lists;
+        Assert.Equal("プログラミング", lists[0].Category);
+        Assert.Equal(["Go", "CLI"], lists[0].Tags!);
+        var text = Encoding.UTF8.GetString(Workspace.EncodeFile(WorkspaceFile.Of("windows:local", 0, new WorkspaceDocument(lists, []))));
+        Assert.Contains("\"tags\":[\"Go\",\"CLI\"]", text);
+        Assert.Contains("""{"id":"y","name":"Y","words":""", text);
+        var saved = WordLists.Save(lists, lists[0] with { Category = " 語学 ", Tags = [" Go", "go", ""] }, true);
+        Assert.Equal("語学", saved[0].Category);
+        Assert.Equal(["Go"], saved[0].Tags!);
+        Assert.Equal(["Go"], WordLists.Duplicate(saved, "x", "z", _ => "（コピー）").Copy.Tags!);
+        Assert.True(WordLists.MatchesQuery(saved[0], "語学"));
+        Assert.All(Workspace.InitialLists(), list => Assert.True(list.Category is not null && list.Tags is { Count: > 0 }));
+        Assert.Throws<TypleException>(() => WordLists.ValidateAll([lists[1] with { Tags = [new string('t', 51)] }]));
+    }
+
     [Fact]
     public void UnreadableFileIsAnError()
     {

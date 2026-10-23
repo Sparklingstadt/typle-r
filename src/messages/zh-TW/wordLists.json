@@ -18,11 +18,11 @@
     "limitTitle": "最多可儲存 {max} 個",
     "create": "建立新清單",
     "full": "最多可儲存 {max} 個單字清單。刪除不再使用的清單後即可建立新清單。",
-    "search": "以清單名稱或單字搜尋",
+    "search": "以清單名稱、分類、標籤或單字搜尋",
     "clearSearch": "清除搜尋",
     "countFiltered": "{shown} 個 / 共 {total} 個",
     "count": "{total} 個",
-    "noMatch": "沒有符合「{query}」的清單。會從清單名稱和單字中搜尋。",
+    "noMatch": "沒有符合「{query}」的清單。會從清單名稱、分類、標籤和單字中搜尋。",
     "csvNote": "CSV 匯出會儲存顯示的單字、輸入的文字和補充說明（不含練習紀錄）。可在建立、編輯畫面的「匯入 CSV/TSV」中使用。"
   },
   "delete": {
@@ -44,6 +44,25 @@
     "practiced": "最近練習",
     "name": "名稱",
     "words": "單字數由多到少"
+  },
+  "labels": {
+    "category": "分類",
+    "tag": "標籤"
+  },
+  "filter": {
+    "category": "依分類篩選",
+    "allCategories": "所有分類",
+    "noCategory": "無分類",
+    "categoryCurrent": "分類：{category}",
+    "allTags": "所有標籤",
+    "tagsCurrent": "標籤：{tags}",
+    "separator": "、",
+    "tagsHint": "包含所有所選標籤的清單",
+    "clearTags": "取消選擇標籤",
+    "clear": "清除篩選",
+    "clearAll": "清除搜尋和篩選",
+    "noMatch": "沒有符合條件的清單。",
+    "option": "{name}（{count}）"
   },
   "empty": {
     "title": "還沒有單字清單",
@@ -121,7 +140,16 @@
     "discardTitle": "有尚未儲存的變更",
     "discardDescription": "如果現在離開，輸入的內容將會遺失。",
     "keepEditing": "繼續編輯",
-    "discard": "捨棄並離開"
+    "discard": "捨棄並離開",
+    "category": "分類（選填）",
+    "categoryPlaceholder": "程式設計、語言等",
+    "categoryHelp": "設定一個大致的分類，可在清單和練習畫面中篩選。",
+    "tags": "標籤（選填）",
+    "tagList": "已加上的標籤",
+    "removeTag": "移除標籤「{tag}」",
+    "tagsFull": "最多{max}個標籤",
+    "tagPlaceholder": "Kotlin、PostgreSQL等",
+    "tagsHelp": "按 Enter 或輸入逗號加入（最多{max}個）。搜尋時也會查找標籤。"
   },
   "import": {
     "open": "匯入 CSV/TSV",

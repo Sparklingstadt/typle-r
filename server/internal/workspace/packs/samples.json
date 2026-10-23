@@ -1,6 +1,10 @@
 [
   {
     "name": "サンプル：英単語（果物）",
+    "category": "語学",
+    "tags": [
+      "英語"
+    ],
     "words": [
       {
         "display": "apple",
@@ -38,6 +42,10 @@
   },
   {
     "name": "サンプル：英単語（動物）",
+    "category": "語学",
+    "tags": [
+      "英語"
+    ],
     "words": [
       {
         "display": "cat",

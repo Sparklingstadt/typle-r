@@ -79,18 +79,31 @@ func SortOverviews(items []Overview, order string) ([]Overview, bool) {
 	return sorted, true
 }
 
-// MatchesQuery finds a list by its name or one of its words, ignoring case, as matchesQuery does. A blank query
-// matches every list.
+// MatchesQuery finds a list by its name, category, one of its tags or one of its words, ignoring case, as matchesQuery
+// does. A blank query matches every list.
 func MatchesQuery(list *List, query string) bool {
 	needle := lowerCase(trimJS(query))
 	if needle == "" {
 		return true
 	}
-	if strings.Contains(lowerCase(list.Name), needle) {
+	if strings.Contains(lowerCase(list.Name), needle) || strings.Contains(lowerCase(list.Category), needle) ||
+		slices.ContainsFunc(list.Tags, func(tag string) bool { return strings.Contains(lowerCase(tag), needle) }) {
 		return true
 	}
 	return slices.ContainsFunc(list.Words, func(word Word) bool {
 		return strings.Contains(lowerCase(word.Display), needle) || strings.Contains(lowerCase(word.Input), needle)
+	})
+}
+
+// MatchesFilter follows matchesFilter (src/core/listOverview.ts): the list has the category (when category is not nil;
+// "" is no category) and every one of tags, ignoring case.
+func MatchesFilter(list *List, category *string, tags []string) bool {
+	key := func(value string) string { return lowerCase(trimJS(value)) }
+	if category != nil && key(list.Category) != key(*category) {
+		return false
+	}
+	return !slices.ContainsFunc(tags, func(tag string) bool {
+		return !slices.ContainsFunc(list.Tags, func(own string) bool { return key(own) == key(tag) })
 	})
 }
 

@@ -1,8 +1,8 @@
 "use client"
 import { randomId } from "../core/randomId"
-import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react"
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react"
 import { flushSync } from "react-dom"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { ArrowDown, ArrowDownToLine, ArrowUp, ArrowUpToLine, ChevronLeft, CircleAlert, GripVertical, Info, MoreHorizontal, Plus, Trash2 } from "lucide-react"
 import { DropdownMenu } from "radix-ui"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
@@ -18,16 +18,17 @@ import SortableWordRow, { WORD_ROW_COLUMNS } from "./SortableWordRow"
 import type { SavedWordList } from "@/core/wordLists"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
 import { AppError, type ErrorKey } from "@/core/appError"
-import { currentRecordCount } from "@/core/listOverview"
+import { currentRecordCount, listLabels } from "@/core/listOverview"
 import PageStorageBadge from "@/components/PageStorageBadge"
+import LabelFields, { addTags } from "@/components/WordLists/LabelFields"
 
 type Word = SavedWordList["words"][number]
 const MAX_WORDS = 1000
 const emptyWord = (): Word => ({ display: "", input: "", annotation: "" })
 // An input equal to the display is shown as empty; saving uses the display for empty inputs.
 const normalize = (word: Word): Word => ({ ...word, input: word.input === word.display ? "" : word.input })
-const snapshot = (name: string, words: Word[]) =>
-  JSON.stringify([name, words.map(word => [word.display, word.input, word.annotation])])
+const snapshot = (name: string, category: string, tags: string[], words: Word[]) =>
+  JSON.stringify([name, category.trim(), tags, words.map(word => [word.display, word.input, word.annotation])])
 const isFilled = (word: Word) => !!(word.display || word.input || word.annotation)
 const menuItem = "flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:size-4"
 
@@ -41,11 +42,13 @@ function FieldError({ id, message, alert }: { id: string; message: string; alert
   </p>
 }
 
-export default function WordListEditor({ title, description, storage, initial, error, errorKey, onSave, onCancel, onDirtyChange, cancelRequest = 0 }: {
+export default function WordListEditor({ title, description, storage, initial, lists = [], error, errorKey, onSave, onCancel, onDirtyChange, cancelRequest = 0 }: {
   title: string
   description?: ReactNode
   storage?: WorkspaceLocation
   initial?: SavedWordList
+  /** The saved lists, whose categories and tags are offered while typing. */
+  lists?: SavedWordList[]
   error?: string
   /** Which error `error` is, so a duplicate name can be shown on the name field. */
   errorKey?: ErrorKey | null
@@ -67,10 +70,16 @@ export default function WordListEditor({ title, description, storage, initial, e
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
+  const locale = useLocale()
   const [name, setName] = useState(initial?.name ?? "")
+  const [category, setCategory] = useState(initial?.category ?? "")
+  const [tags, setTags] = useState(initial?.tags ?? [])
+  const [tagDraft, setTagDraft] = useState("")
+  const suggestions = useMemo(() => listLabels(lists, locale), [lists, locale])
   const [words, setWords] = useState(() => (initial?.words ?? [emptyWord()]).map((word, index) => ({ ...normalize(word), key: `initial-${index}` })))
-  const [initialSnapshot] = useState(() => snapshot(initial?.name ?? "", (initial?.words ?? [emptyWord()]).map(normalize)))
-  const dirty = snapshot(name, words) !== initialSnapshot
+  const [initialSnapshot] = useState(() => snapshot(initial?.name ?? "", initial?.category ?? "", initial?.tags ?? [], (initial?.words ?? [emptyWord()]).map(normalize)))
+  // A tag still being typed counts, as saving keeps it.
+  const dirty = snapshot(name, category, addTags(tags, tagDraft), words) !== initialSnapshot
 
   const draftId = useRef<string | undefined>(undefined)
   const [saving, setSaving] = useState(false)
@@ -195,7 +204,8 @@ export default function WordListEditor({ title, description, storage, initial, e
     draftId.current ??= initial?.id ?? randomId()
     setSaving(true)
     try {
-      const saved = await onSave({ id: draftId.current, name, words: words.map(({ key, ...word }) => ({ ...word, input: word.input || word.display })),
+      const saved = await onSave({ id: draftId.current, name, category, tags: addTags(tags, tagDraft),
+        words: words.map(({ key, ...word }) => ({ ...word, input: word.input || word.display })),
         records: initial?.records ?? [], createdAt: initial?.createdAt ?? new Date().toISOString() })
       if (!saved) setFailure(current => ({ count: current.count + 1, name }))
     } finally { setSaving(false) }
@@ -217,6 +227,8 @@ export default function WordListEditor({ title, description, storage, initial, e
         {nameError ? <FieldError id={`${nameId}-error`} message={nameError} alert={duplicate && !errorFor(nameId)} />
           : null}
         <p id={`${nameId}-help`} className="text-xs text-muted-foreground">{t("nameHelp")}</p>
+        <LabelFields category={category} tags={tags} draft={tagDraft} suggestions={suggestions}
+          onCategoryChange={setCategory} onTagsChange={setTags} onDraftChange={setTagDraft} />
       </section>
 
       <section aria-labelledby={`${baseId}-words`} className="md:overflow-hidden md:rounded-xl md:border md:bg-card">

@@ -2,6 +2,11 @@
   {
     "id": "un-member-states-chinese-193-beginner-1",
     "name": "国名：中国語・国連加盟国（初級1）",
+    "category": "語学",
+    "tags": [
+      "中国語",
+      "国名"
+    ],
     "words": [
       {
         "display": "阿富汗",
@@ -205,6 +210,11 @@
   {
     "id": "un-member-states-chinese-193-beginner-2",
     "name": "国名：中国語・国連加盟国（初級2）",
+    "category": "語学",
+    "tags": [
+      "中国語",
+      "国名"
+    ],
     "words": [
       {
         "display": "安道尔",
@@ -408,6 +418,11 @@
   {
     "id": "un-member-states-chinese-193-intermediate",
     "name": "国名：中国語・国連加盟国（中級）",
+    "category": "語学",
+    "tags": [
+      "中国語",
+      "国名"
+    ],
     "words": [
       {
         "display": "阿尔巴尼亚",
@@ -611,6 +626,11 @@
   {
     "id": "un-member-states-chinese-193-advanced-1",
     "name": "国名：中国語・国連加盟国（上級1）",
+    "category": "語学",
+    "tags": [
+      "中国語",
+      "国名"
+    ],
     "words": [
       {
         "display": "阿塞拜疆",
@@ -809,6 +829,11 @@
   {
     "id": "un-member-states-chinese-193-advanced-2",
     "name": "国名：中国語・国連加盟国（上級2）",
+    "category": "語学",
+    "tags": [
+      "中国語",
+      "国名"
+    ],
     "words": [
       {
         "display": "安提瓜和巴布达",

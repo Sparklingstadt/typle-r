@@ -14,10 +14,11 @@ import { useSaveNotification } from "@/components/SaveNotification"
 import WordListEditor from "@/components/WordListEditor"
 import { downloadWordCsv } from "@/components/WordListExport"
 import ListRow, { usePracticeText } from "@/components/WordLists/ListRow"
+import LabelFilter from "@/components/WordLists/LabelFilter"
 import { useWordLists } from "@/lib/useWordLists"
 import { useFormat } from "@/i18n/useFormat"
 import { randomId } from "@/core/randomId"
-import { duplicateList, LIST_ORDERS, listOverviews, matchesQuery, MAX_LISTS, sortOverviews, type ListOrder, type ListOverview } from "@/core/listOverview"
+import { duplicateList, isFiltered, LIST_ORDERS, listLabels, listOverviews, matchesFilter, matchesQuery, MAX_LISTS, NO_FILTER, sortOverviews, type ListFilter, type ListOrder, type ListOverview } from "@/core/listOverview"
 import { saveList, type SavedWordList } from "@/core/wordLists"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
@@ -132,7 +133,7 @@ function WordLists({ workspace }: { workspace: Workspace }) {
 
   const trackDirty = useCallback((value: boolean) => setDirty(value), [])
 
-  if (openId && editing) return <WordListEditor key={editing.id} title={t('editTitle')} initial={editing} error={error} errorKey={errorKey}
+  if (openId && editing) return <WordListEditor key={editing.id} title={t('editTitle')} initial={editing} lists={lists} error={error} errorKey={errorKey}
     description={t('editDescription', { count: editing.words.length, practice: practiceText(listOverviews([editing])[0], new Date()) })}
     storage={storage} onDirtyChange={trackDirty} cancelRequest={cancelRequest}
     onCancel={() => close()} onSave={async list => {
@@ -174,11 +175,15 @@ function ListManager({ lists, saving, highlight, update, notify, onEdit, onHighl
   const [now] = useState(() => new Date())
   const [query, setQuery] = useState('')
   const [order, setOrder] = useState<ListOrder>('added')
+  const [filter, setFilter] = useState<ListFilter>(NO_FILTER)
   const [exportError, setExportError] = useState('')
   const [deleting, setDeleting] = useState<{ open: boolean; item: ListOverview | null; position: number }>({ open: false, item: null, position: 0 })
   const deleted = useRef(false)
   const all = useMemo(() => listOverviews(lists), [lists])
-  const shown = useMemo(() => sortOverviews(all.filter(item => matchesQuery(item.list, query)), order, locale), [all, query, order, locale])
+  const labels = useMemo(() => listLabels(lists, locale), [lists, locale])
+  const shown = useMemo(() => sortOverviews(all.filter(item => matchesQuery(item.list, query) && matchesFilter(item.list, filter)), order, locale),
+    [all, query, filter, order, locale])
+  const narrowed = !!query.trim() || isFiltered(filter)
   const full = lists.length >= MAX_LISTS
 
   function exportCsv(list: SavedWordList) {
@@ -233,8 +238,10 @@ function ListManager({ lists, saving, highlight, update, notify, onEdit, onHighl
           <X className="size-3.5" aria-hidden="true" />
         </button>}
       </label>
+      <LabelFilter labels={labels} value={filter} onChange={setFilter} />
       <OrderMenu value={order} onChange={setOrder} />
-      <p aria-live="polite" className="ml-auto text-sm text-muted-foreground tabular-nums">{query.trim() ? t('manager.countFiltered', { shown: shown.length, total: lists.length }) : t('manager.count', { total: lists.length })}</p>
+      {isFiltered(filter) && <Button variant="ghost" size="lg" className="text-muted-foreground" onClick={() => setFilter(NO_FILTER)}>{t('filter.clear')}</Button>}
+      <p aria-live="polite" className="ml-auto text-sm text-muted-foreground tabular-nums">{narrowed ? t('manager.countFiltered', { shown: shown.length, total: lists.length }) : t('manager.count', { total: lists.length })}</p>
     </div>
 
     {shown.length ? <ul className="divide-y overflow-hidden rounded-xl border bg-card">
@@ -242,8 +249,8 @@ function ListManager({ lists, saving, highlight, update, notify, onEdit, onHighl
         onEdit={() => onEdit(item.list)} onExport={() => exportCsv(item.list)} onCopy={() => copy(item.list)}
         onDelete={() => { deleted.current = false; setDeleting({ open: true, item, position }) }} />)}
     </ul> : <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed bg-card px-6 py-10 text-center">
-      <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">{t('manager.noMatch', { query: query.trim() })}</p>
-      <Button variant="outline" onClick={() => setQuery('')}>{t('manager.clearSearch')}</Button>
+      <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">{query.trim() ? t('manager.noMatch', { query: query.trim() }) : t('filter.noMatch')}</p>
+      <Button variant="outline" onClick={() => { setQuery(''); setFilter(NO_FILTER) }}>{isFiltered(filter) ? t('filter.clearAll') : t('manager.clearSearch')}</Button>
     </div>}
     <p className="text-xs text-muted-foreground">{t('manager.csvNote')}</p>
 

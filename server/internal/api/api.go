@@ -21,11 +21,14 @@ import (
 )
 
 type listSummary struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	WordCount   int    `json:"wordCount"`
-	RecordCount int    `json:"recordCount"`
-	CreatedAt   string `json:"createdAt"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	// Category is null and Tags empty when the list has none.
+	Category    *string  `json:"category"`
+	Tags        []string `json:"tags"`
+	WordCount   int      `json:"wordCount"`
+	RecordCount int      `json:"recordCount"`
+	CreatedAt   string   `json:"createdAt"`
 	// What the app's list of word lists shows: practiceCount is recordCount by the app's name for it.
 	PracticeCount      int     `json:"practiceCount"`
 	LastPracticed      *string `json:"lastPracticed"`
@@ -44,8 +47,17 @@ func summary(list *workspace.List) listSummary {
 		formatted := workspace.FormatTime(*overview.LastPracticed)
 		last = &formatted
 	}
-	return listSummary{ID: list.ID, Name: list.Name, WordCount: len(list.Words), RecordCount: len(list.Records), CreatedAt: list.CreatedAt,
-		PracticeCount: overview.PracticeCount, LastPracticed: last, CurrentRecordCount: workspace.CurrentRecordCount(list)}
+	var category *string
+	if list.Category != "" {
+		category = &list.Category
+	}
+	tags := list.Tags
+	if tags == nil {
+		tags = []string{}
+	}
+	return listSummary{ID: list.ID, Name: list.Name, Category: category, Tags: tags, WordCount: len(list.Words),
+		RecordCount: len(list.Records), CreatedAt: list.CreatedAt, PracticeCount: overview.PracticeCount, LastPracticed: last,
+		CurrentRecordCount: workspace.CurrentRecordCount(list)}
 }
 
 // Source reads an account's current workspace. It is read again for every request, so changes saved in the app show
@@ -262,7 +274,7 @@ func device(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
 }
 
 // lists answers the lists in their saved order, or ordered by the sort query as the app's list of word lists does,
-// keeping those that match the q query.
+// keeping those that match the q query, the category query (empty for the lists without one) and every tag query.
 func lists(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
 	query := r.URL.Query()
 	items := workspace.Overviews(ws.Lists)
@@ -274,9 +286,14 @@ func lists(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
 		}
 		items = sorted
 	}
+	var category *string
+	if query.Has("category") {
+		value := query.Get("category")
+		category = &value
+	}
 	lists := make([]listSummary, 0, len(items))
 	for _, item := range items {
-		if workspace.MatchesQuery(item.List, query.Get("q")) {
+		if workspace.MatchesQuery(item.List, query.Get("q")) && workspace.MatchesFilter(item.List, category, query["tag"]) {
 			lists = append(lists, summary(item.List))
 		}
 	}

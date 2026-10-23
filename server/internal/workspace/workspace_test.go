@@ -5,6 +5,8 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"reflect"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -73,6 +75,31 @@ func TestInitial(t *testing.T) {
 	for _, list := range w.Lists {
 		if len(list.Words) > 40 {
 			t.Fatalf("%s has %d words", list.ID, len(list.Words))
+		}
+		if (list.Category != "プログラミング" && list.Category != "語学") || len(list.Tags) == 0 || list.Extra != "" {
+			t.Fatalf("%s: category %q, tags %v, extra %s", list.ID, list.Category, list.Tags, list.Extra)
+		}
+	}
+}
+
+// The category and tags are optional: lists without them are written as before, and lists with them keep them.
+func TestDecodeLabels(t *testing.T) {
+	w, err := Decode([]byte(`[{"id":"a","name":"A","category":"語学","tags":["英語","<b>"],"createdAt":"x","words":[{"display":"a","input":"a","annotation":""}],"records":[]},
+		{"id":"b","name":"B","category":null,"tags":null,"createdAt":"x","words":[{"display":"a","input":"a","annotation":""}],"records":[]}]`), []byte(`[]`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if a := w.Lists[0]; a.Category != "語学" || !reflect.DeepEqual(a.Tags, []string{"英語", "<b>"}) || a.Extra != "" {
+		t.Fatalf("list = %+v", a)
+	}
+	encoded, err := Encode(w.Lists)
+	if err != nil || !strings.Contains(string(encoded), `"name":"A","category":"語学","tags":["英語","<b>"],"createdAt"`) ||
+		!strings.Contains(string(encoded), `{"id":"b","name":"B","createdAt"`) {
+		t.Fatalf("encoded = %s, %v", encoded, err)
+	}
+	for _, labels := range []string{`"category":1`, `"tags":"a"`, `"tags":[1]`, `"tags":[null]`} {
+		if _, err := Decode([]byte(`[{"id":"a","name":"A",`+labels+`,"createdAt":"x","words":[{"display":"a","input":"a","annotation":""}],"records":[]}]`), []byte(`[]`)); err == nil {
+			t.Errorf("%s was read", labels)
 		}
 	}
 }
@@ -159,6 +186,7 @@ func TestCheckLimits(t *testing.T) {
 	ok := []List{
 		{Name: text(MaxListName, "a"), Words: words(MaxWords), Records: make([]Record, MaxRecords)},
 		{Name: text(MaxListName/2, "𠮷"), Words: []Word{{Input: text(MaxWordText, "a"), Display: text(MaxWordText, "a"), Annotation: text(MaxAnnotation, "a")}}},
+		{Category: text(MaxCategory, "a"), Tags: slices.Repeat([]string{text(MaxTag, "a")}, MaxTags)},
 	}
 	if err := CheckLimits(ok); err != nil {
 		t.Fatalf("limits themselves refused: %v", err)
@@ -174,6 +202,9 @@ func TestCheckLimits(t *testing.T) {
 		{"input", List{Words: []Word{{Input: text(MaxWordText+1, "a")}}}},
 		{"display", List{Words: []Word{{Display: text(MaxWordText+1, "a")}}}},
 		{"annotation", List{Words: []Word{{Annotation: text(MaxAnnotation+1, "a")}}}},
+		{"category", List{Category: text(MaxCategory+1, "a")}},
+		{"tags", List{Tags: make([]string, MaxTags+1)}},
+		{"tag", List{Tags: []string{text(MaxTag+1, "a")}}},
 	}
 	for _, c := range tooMany {
 		var e *Error

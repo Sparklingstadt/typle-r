@@ -3,6 +3,7 @@ package workspace
 import (
 	"crypto/rand"
 	"fmt"
+	"slices"
 	"time"
 )
 
@@ -15,6 +16,10 @@ const (
 	MaxWordText   = 1000
 	MaxAnnotation = 2000
 	MaxRecords    = 10000
+	// The limits of a list's category and tags (MAX_CATEGORY, MAX_TAG and MAX_TAGS in src/core/wordLists.ts).
+	MaxCategory = 50
+	MaxTag      = 50
+	MaxTags     = 20
 	// The app saves the lists with its devices, revision and account in one request of at most 1 MiB
 	// (MAX_WORKSPACE_BYTES), so the lists written here leave 128 KiB for the rest.
 	MaxListsBytes = 896 << 10
@@ -33,6 +38,8 @@ func (e *Error) Error() string { return e.Key }
 type storedList struct {
 	ID        string   `json:"id"`
 	Name      string   `json:"name"`
+	Category  string   `json:"category,omitempty"`
+	Tags      []string `json:"tags,omitempty"`
 	CreatedAt string   `json:"createdAt"`
 	Words     []Word   `json:"words"`
 	Records   []Record `json:"records"`
@@ -56,8 +63,8 @@ func Encode(lists []List) ([]byte, error) {
 		if records == nil {
 			records = []Record{}
 		}
-		stored = append(stored, storedList{ID: list.ID, Name: list.Name, CreatedAt: list.CreatedAt, Words: words, Records: records,
-			extra: list.Extra})
+		stored = append(stored, storedList{ID: list.ID, Name: list.Name, Category: list.Category, Tags: list.Tags,
+			CreatedAt: list.CreatedAt, Words: words, Records: records, extra: list.Extra})
 	}
 	return marshal(stored)
 }
@@ -83,7 +90,9 @@ func CheckSize(before, after int) error {
 // every save. The number of lists is not checked here: it is compared with the saved ones when the change is applied.
 func CheckLimits(lists []List) error {
 	for _, list := range lists {
-		if len(list.Words) > MaxWords || len(list.Records) > MaxRecords || length(list.Name) > MaxListName {
+		if len(list.Words) > MaxWords || len(list.Records) > MaxRecords || length(list.Name) > MaxListName ||
+			length(list.Category) > MaxCategory || len(list.Tags) > MaxTags ||
+			slices.ContainsFunc(list.Tags, func(tag string) bool { return length(tag) > MaxTag }) {
 			return &Error{Key: "invalidWorkspace"}
 		}
 		for _, word := range list.Words {

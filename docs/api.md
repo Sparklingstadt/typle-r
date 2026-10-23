@@ -105,7 +105,9 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 | クエリ | 内容 |
 |---|---|
 | `sort` | 省略すると保存順（古い順）。`added`（新しく追加した順）、`practiced`（最後に練習した順。練習していないリストは後ろ）、`name`（名前順。日本語の照合で、数字は数として比べる）、`words`（単語の多い順）。同じ順位は新しく追加した順。ほかの値は `400 invalidQuery`（v0.50.0 から） |
-| `q` | 名前か、いずれかの単語の `display`・`input` に含まれるリストだけ（大文字小文字を区別しない）。空なら全部（v0.50.0 から） |
+| `q` | 名前か、いずれかの単語の `display`・`input` に含まれるリストだけ（大文字小文字を区別しない）。空なら全部（v0.50.0 から）。v0.78.0 からカテゴリとタグも探す |
+| `category` | そのカテゴリのリストだけ（大文字小文字を区別しない）。`category=`（空）ならカテゴリのないリストだけ（v0.78.0 から） |
+| `tag` | そのタグを持つリストだけ。`tag=Go&tag=CLI` のように複数並べると、すべてを持つリストだけ（大文字小文字を区別しない。v0.78.0 から） |
 
 並べ方と検索はアプリの「単語リスト」画面と同じです。名前順は Go の照合表（CLDR 23）を使うため、半角カナ・ギリシャ文字・記号で始まる名前は、ブラウザーと順序が違うことがあります。
 
@@ -116,6 +118,8 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
   "lists": [{
     "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
     "name": "英単語",
+    "category": "語学",
+    "tags": ["英語"],
     "wordCount": 120,
     "recordCount": 8,
     "createdAt": "2026-10-10T01:23:45.000Z"
@@ -132,6 +136,8 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
   "list": {
     "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
     "name": "英単語",
+    "category": "語学",
+    "tags": ["英語"],
     "wordCount": 1,
     "recordCount": 8,
     "createdAt": "2026-10-10T01:23:45.000Z",
@@ -264,10 +270,10 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 
 | メソッドとパス | 本文 | 応答 |
 |---|---|---|
-| `POST /api/v1/lists` | `{ "name", "words": [{ "display", "input", "annotation"? }] }` | `201 { "list" }`。IDはサーバーが UUID で決め、`createdAt` は今の時刻。最後に追加する |
-| `PATCH /api/v1/lists/{l}` | `{ "name"?, "words"? }`（少なくとも一方） | `200 { "list" }`。`words` は全体を置き換える。記録・`createdAt`・並び順は残る |
+| `POST /api/v1/lists` | `{ "name", "category"?, "tags"?, "words": [{ "display", "input", "annotation"? }] }` | `201 { "list" }`。IDはサーバーが UUID で決め、`createdAt` は今の時刻。最後に追加する |
+| `PATCH /api/v1/lists/{l}` | `{ "name"?, "category"?, "tags"?, "words"? }`（少なくとも1つ） | `200 { "list" }`。`words`・`tags` は全体を置き換える。`""` のカテゴリ・空の `tags` で外す。記録・`createdAt`・並び順は残る |
 | `DELETE /api/v1/lists/{l}` | なし | `204`（本文なし）。記録も一緒に消える |
-| `POST /api/v1/lists/{l}/copy` | なし、または `{ "name"? }` | `201 { "list" }`。単語をコピーし、記録はコピーしない。名前を省略すると「元の名前（コピー）」、使われていれば「（コピー2）」…（200文字に収まるよう元の名前を切る）。最後に追加する（v0.47.0 から） |
+| `POST /api/v1/lists/{l}/copy` | なし、または `{ "name"? }` | `201 { "list" }`。単語とカテゴリ・タグをコピーし、記録はコピーしない。名前を省略すると「元の名前（コピー）」、使われていれば「（コピー2）」…（200文字に収まるよう元の名前を切る）。最後に追加する（v0.47.0 から） |
 | `POST /api/v1/lists/import?name=…&format=csv\|tsv` | CSV・TSV のファイルそのもの（`Content-Type` は `text/csv`・`text/tab-separated-values`・`text/plain`。1MiB まで） | `201 { "list" }`。アプリの「CSV・TSVファイルから追加」と同じ読み方で単語を読み、`name` の名前のリストを作る（v0.48.0 から） |
 | `POST /api/v1/lists/{l}/records` | `{ "id"?, "time", "date", "mistakes", "accuracy", "wordCount"?, "deviceId"? }` | 追加したら `201 { "record" }`。同じリストに同じ `id` の記録があれば追加せず、保存済みの記録を `200 { "record" }` で返す |
 | `POST /api/v1/devices` | `{ "name", "layout"? }` | `201 { "device" }`。IDはサーバーが UUID で決める。最後に追加する |
@@ -284,7 +290,8 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 
 - `name`: 前後の空白を除いて1文字以上（`listNameRequired`）、ほかのリストと同じ名前は不可（前後の空白を除き、大文字小文字を区別しない。比べ方はアプリと同じJavaScriptの `toLowerCase` で、語末の `Σ` は `ς`、`İ` は `i̇` になる。`listNameDuplicate`）。前後の空白を除いて保存する。
 - `words`: 1件以上（`wordsRequired`）。`display`・`input` は空白だけでない文字列（`wordFieldsRequired`）。`annotation` は省略すると `""`。単語の前後の空白はそのまま保存する。
-- 長さ（UTF-16の文字数）: 名前200、単語1000件、`display`・`input` 1000、`annotation` 2000。超えると `invalidList`。NUL文字（`\u0000`）はDBに保存できないため、名前・単語のどこにあっても `invalidList`。
+- `category`・`tags`（v0.78.0 から。省略できる）: 前後の空白を除いて保存し、空のタグと、大文字小文字だけ違う同じタグは除く。空になれば保存しない。
+- 長さ（UTF-16の文字数）: 名前200、単語1000件、`display`・`input` 1000、`annotation` 2000、カテゴリ50、タグ1つ50・20個まで。超えると `invalidList`。NUL文字（`\u0000`）はDBに保存できないため、名前・単語のどこにあっても `invalidList`。
 - リストが100件あるときの作成は `listLimit`。
 
 ### CSV・TSV の取り込み

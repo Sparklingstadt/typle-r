@@ -28,6 +28,21 @@ public static partial class WordLists
     public const int MaxWordField = 1000;
     public const int MaxAnnotation = 2000;
     public const int MaxRecords = 10000;
+    public const int MaxCategory = 50;
+    public const int MaxTag = 50;
+    public const int MaxTags = 20;
+
+    /// <summary>
+    /// normalizeLabels: the category and tags trimmed, without empty ones or a tag repeated in another case, and null
+    /// when there are none.
+    /// </summary>
+    public static (string? Category, IReadOnlyList<string>? Tags) NormalizeLabels(string? category, IReadOnlyList<string>? tags)
+    {
+        var name = (category ?? "").Trim();
+        var seen = new HashSet<string>();
+        var kept = (tags ?? []).Select(tag => tag.Trim()).Where(tag => tag.Length > 0 && seen.Add(tag.ToLowerInvariant())).ToList();
+        return (name.Length == 0 ? null : name, kept.Count == 0 ? null : kept);
+    }
 
     public static void Validate(WordList list, IReadOnlyList<WordList>? others = null)
     {
@@ -58,6 +73,7 @@ public static partial class WordLists
         }
         if (lists.Any(list =>
                 list.Words.Count > MaxWords || list.Records.Count > MaxRecords || list.Name.Length > MaxListName ||
+                (list.Category?.Length ?? 0) > MaxCategory || (list.Tags?.Count ?? 0) > MaxTags || (list.Tags ?? []).Any(tag => tag.Length > MaxTag) ||
                 list.Words.Any(word => word.Input.Length > MaxWordField || word.Display.Length > MaxWordField ||
                                        word.Annotation.Length > MaxAnnotation)))
         {
@@ -73,7 +89,8 @@ public static partial class WordLists
     {
         if (editing && lists.All(item => item.Id != list.Id)) throw new TypleException("listDeleted");
         Validate(list, lists.Where(item => item.Id != list.Id).ToList());
-        var normalized = list with { Name = list.Name.Trim() };
+        var (category, tags) = NormalizeLabels(list.Category, list.Tags);
+        var normalized = list with { Name = list.Name.Trim(), Category = category, Tags = tags };
         if (lists.Any(item => item.Id == list.Id))
         {
             return lists.Select(item => item.Id != list.Id ? item : normalized with { Records = item.Records }).ToList();
@@ -127,12 +144,13 @@ public static partial class WordLists
         return x.Count.CompareTo(y.Count);
     }
 
-    /// <summary>Matches the list name and the words, so a list can be found by one of its words.</summary>
+    /// <summary>Matches the list name, its category and tags, and the words, so a list can be found by one of its words.</summary>
     public static bool MatchesQuery(WordList list, string query)
     {
         var needle = query.Trim().ToLowerInvariant();
         if (needle.Length == 0) return true;
-        return list.Name.ToLowerInvariant().Contains(needle) || list.Words.Any(word =>
+        return list.Name.ToLowerInvariant().Contains(needle) || (list.Category?.ToLowerInvariant().Contains(needle) ?? false) ||
+            (list.Tags ?? []).Any(tag => tag.ToLowerInvariant().Contains(needle)) || list.Words.Any(word =>
             word.Display.ToLowerInvariant().Contains(needle) || word.Input.ToLowerInvariant().Contains(needle));
     }
 
@@ -156,7 +174,7 @@ public static partial class WordLists
         }
     }
 
-    /// <summary>A copy keeps the words but starts without records, so its best is its own.</summary>
+    /// <summary>A copy keeps the words, category and tags but starts without records, so its best is its own.</summary>
     public static DuplicateResult Duplicate(
         IReadOnlyList<WordList> lists, string id, string copyId, Func<int, string> suffix, DateTimeOffset? now = null)
     {
@@ -164,7 +182,7 @@ public static partial class WordLists
         if (lists.Count >= MaxLists) throw TypleException.With("listLimit", "max", MaxLists.ToString(CultureInfo.InvariantCulture));
         var copy = new WordList
         {
-            Id = copyId, Name = CopyName(lists, source.Name, suffix), Words = source.Words,
+            Id = copyId, Name = CopyName(lists, source.Name, suffix), Category = source.Category, Tags = source.Tags, Words = source.Words,
             CreatedAt = Dates.IsoString(now ?? DateTimeOffset.UtcNow),
         };
         return new DuplicateResult([.. lists, copy], copy);

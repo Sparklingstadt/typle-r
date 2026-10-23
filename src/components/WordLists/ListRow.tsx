@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { useFormat } from '@/i18n/useFormat'
 import { wordPreview, type ListOverview } from '@/core/listOverview'
 import { cn } from '@/lib/utils'
+import ListLabels from './ListLabels'
 
 const menuItem = 'flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground'
 
@@ -42,6 +43,7 @@ export default function ListRow({ item, now, highlight, disabled, canCopy, onEdi
     <div className="min-w-0 space-y-0.5">
       <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
         <h3 className="font-medium [overflow-wrap:anywhere]">{list.name}</h3>
+        <ListLabels list={list} />
       </div>
       <p className="truncate text-sm text-muted-foreground" title={list.words.map(word => word.display).join(t('separator'))}>
         <span className="sr-only">{t('examples')} </span>{preview.rest ? t('more', { words, rest: preview.rest }) : words}

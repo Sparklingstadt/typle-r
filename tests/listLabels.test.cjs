@@ -1,0 +1,89 @@
+require('./register.cjs')
+const { test } = require('node:test')
+const assert = require('node:assert/strict')
+const { saveList, encodeLists, decodeLists, normalizeLabels, MAX_TAGS } = require('../src/core/wordLists.ts')
+const { duplicateList, isFiltered, listLabels, matchesFilter, matchesQuery, NO_FILTER } = require('../src/core/listOverview.ts')
+const { validateLists } = require('../src/core/workspaceRequest.ts')
+const { initialLists } = require('../src/plugins/packs/index.ts')
+
+const words = [{ display: 'val', input: 'val', annotation: '' }]
+const list = (id, name, labels = {}) => ({ id, name, ...labels, words, records: [], createdAt: '2026-10-24T00:00:00.000Z' })
+
+test('the category and tags are saved trimmed, without empty or repeated tags, and left out when there are none', () => {
+  assert.deepEqual(normalizeLabels({ category: ' プログラミング ', tags: [' Kotlin', 'kotlin', '', ' ', 'JVM '] }),
+    { category: 'プログラミング', tags: ['Kotlin', 'JVM'] })
+  assert.deepEqual(normalizeLabels({ category: ' ', tags: [' '] }), {})
+  const [saved] = saveList([], list('a', 'Kotlin', { category: ' 語学', tags: ['英語', ' 英語 '] }), false)
+  assert.deepEqual([saved.category, saved.tags], ['語学', ['英語']])
+  const [cleared] = saveList([saved], { ...saved, category: '', tags: [] }, true)
+  assert.equal('category' in cleared, false)
+  assert.equal('tags' in cleared, false)
+})
+
+test('lists keep their category and tags when saved and read back, and lists without them still read', () => {
+  const lists = [list('a', 'A', { category: 'プログラミング', tags: ['Go'] }), list('b', 'B')]
+  assert.deepEqual(decodeLists(encodeLists(lists)), lists)
+  for (const bad of [{ category: 1 }, { category: null }, { tags: 'Go' }, { tags: ['Go', 2] }, { tags: [null] }]) {
+    assert.throws(() => decodeLists(JSON.stringify({ version: 1, lists: [list('a', 'A', bad)] })), { key: 'savedDataCorrupted' })
+  }
+})
+
+test('a save refuses a category or tags past their limits', () => {
+  validateLists([list('a', 'A', { category: 'c'.repeat(50), tags: Array.from({ length: MAX_TAGS }, (_, n) => `${n}`.padEnd(50, 't')) })])
+  assert.throws(() => validateLists([list('a', 'A', { category: 'c'.repeat(51) })]))
+  assert.throws(() => validateLists([list('a', 'A', { tags: ['t'.repeat(51)] })]))
+  assert.throws(() => validateLists([list('a', 'A', { tags: Array.from({ length: MAX_TAGS + 1 }, (_, n) => `${n}`) })]))
+})
+
+test('a copy keeps the category and tags', () => {
+  const source = list('a', 'A', { category: 'プログラミング', tags: ['Go'] })
+  const { copy } = duplicateList([source], 'a', 'b', n => `（${n}）`)
+  assert.deepEqual([copy.category, copy.tags], ['プログラミング', ['Go']])
+  assert.notEqual(copy.tags, source.tags)
+  assert.equal('category' in duplicateList([list('a', 'A')], 'a', 'b', n => `（${n}）`).copy, false)
+})
+
+test('lists are narrowed down by category and every chosen tag, without case, and found by them in a search', () => {
+  const go = list('a', 'A', { category: 'プログラミング', tags: ['Go', 'CLI'] })
+  const sql = list('b', 'B', { category: 'programming', tags: ['PostgreSQL'] })
+  const english = list('c', 'C', { category: '語学' })
+  const plain = list('d', 'D')
+  const shown = filter => [go, sql, english, plain].filter(item => matchesFilter(item, filter)).map(item => item.id)
+  assert.deepEqual(shown(NO_FILTER), ['a', 'b', 'c', 'd'])
+  assert.equal(isFiltered(NO_FILTER), false)
+  assert.deepEqual(shown({ category: 'Programming', tags: [] }), ['b'])
+  assert.deepEqual(shown({ category: '', tags: [] }), ['d'])
+  assert.deepEqual(shown({ category: null, tags: ['go', 'cli'] }), ['a'])
+  assert.deepEqual(shown({ category: 'プログラミング', tags: ['PostgreSQL'] }), [])
+  assert.equal(matchesQuery(go, 'cli'), true)
+  assert.equal(matchesQuery(english, '語学'), true)
+  assert.equal(matchesQuery(plain, '語学'), false)
+})
+
+test('the categories and tags in use are counted once each, in name order', () => {
+  const labels = listLabels([list('a', 'A', { category: 'プログラミング', tags: ['Go', 'CLI'] }), list('b', 'B', { category: 'プログラミング ', tags: ['go'] }),
+    list('c', 'C', { category: '語学' }), list('d', 'D')])
+  assert.deepEqual(labels, {
+    categories: [{ name: 'プログラミング', count: 2 }, { name: '語学', count: 1 }],
+    tags: [{ name: 'CLI', count: 1 }, { name: 'Go', count: 2 }],
+    uncategorized: 1,
+  })
+})
+
+test('every initial list has a category and tags', () => {
+  for (const item of initialLists) {
+    assert.ok(['プログラミング', '語学'].includes(item.category), `${item.id}: ${item.category}`)
+    assert.ok(item.tags?.length, item.id)
+    assert.deepEqual(normalizeLabels(item), { category: item.category, tags: item.tags }, item.id)
+  }
+  validateLists(initialLists)
+})
+
+test('migration 0021 gives the initial lists in saved workspaces their category and tags, unless they have some', () => {
+  const fs = require('node:fs')
+  const sql = fs.readFileSync(require.resolve('../prisma/migrations/0021_label_initial_lists/migration.sql'), 'utf8')
+  const pack = JSON.parse(sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'"))
+  assert.deepEqual(pack, initialLists.map(({ id, category, tags }) => ({ id, category, tags })))
+  assert.match(sql, /saved\.list->'category' IS NULL AND saved\.list->'tags' IS NULL/)
+  assert.match(sql, /octet_length\(rebuilt\.lists::text\) <= 896 \* 1024;/)
+})

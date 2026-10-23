@@ -7,10 +7,12 @@ import (
 )
 
 // ListInput is a list as a request gives it. A field left out (nil) is not changed; an empty words array is given and
-// refused.
+// refused. An empty category or tags array removes them.
 type ListInput struct {
-	Name  *string `json:"name"`
-	Words []Word  `json:"words"`
+	Name     *string   `json:"name"`
+	Category *string   `json:"category"`
+	Tags     *[]string `json:"tags"`
+	Words    []Word    `json:"words"`
 }
 
 func missing() error { return &Error{Key: "listNotFound"} }
@@ -61,6 +63,27 @@ func checkWords(words []Word) error {
 	return nil
 }
 
+// checkLabels follows normalizeLabels (src/core/wordLists.ts): the category and tags trimmed, without empty tags or a
+// tag repeated in another case, within MaxCategory, MaxTag and MaxTags.
+func checkLabels(category string, tags []string) (string, []string, error) {
+	category = trimJS(category)
+	var kept []string
+	seen := map[string]bool{}
+	for _, tag := range tags {
+		tag = trimJS(tag)
+		if tag == "" || seen[lowerCase(tag)] {
+			continue
+		}
+		seen[lowerCase(tag)] = true
+		kept = append(kept, tag)
+	}
+	if length(category) > MaxCategory || len(kept) > MaxTags || strings.ContainsRune(category, 0) ||
+		slices.ContainsFunc(kept, func(tag string) bool { return length(tag) > MaxTag || strings.ContainsRune(tag, 0) }) {
+		return "", nil, &Error{Key: "invalidList"}
+	}
+	return category, kept, nil
+}
+
 // CreateList adds a list with no records after the others.
 func CreateList(w *Workspace, input ListInput, id string, now time.Time) (*List, error) {
 	if len(w.Lists) >= MaxLists {
@@ -73,11 +96,25 @@ func CreateList(w *Workspace, input ListInput, id string, now time.Time) (*List,
 	if err := checkWords(input.Words); err != nil {
 		return nil, err
 	}
-	w.Lists = append(w.Lists, List{ID: id, Name: name, Words: input.Words, Records: []Record{}, CreatedAt: FormatTime(now)})
+	var category string
+	var tags []string
+	if input.Category != nil {
+		category = *input.Category
+	}
+	if input.Tags != nil {
+		tags = *input.Tags
+	}
+	category, tags, err = checkLabels(category, tags)
+	if err != nil {
+		return nil, err
+	}
+	w.Lists = append(w.Lists, List{ID: id, Name: name, Category: category, Tags: tags, Words: input.Words, Records: []Record{},
+		CreatedAt: FormatTime(now)})
 	return &w.Lists[len(w.Lists)-1], nil
 }
 
-// UpdateList renames a list or replaces its words. Its records, creation time and place stay.
+// UpdateList renames a list, changes its category or tags, or replaces its words. Its records, creation time and place
+// stay.
 func UpdateList(w *Workspace, id string, input ListInput) (*List, error) {
 	at := index(w, id)
 	if at < 0 {
@@ -92,13 +129,24 @@ func UpdateList(w *Workspace, id string, input ListInput) (*List, error) {
 		}
 		name = checked
 	}
+	category, tags := list.Category, list.Tags
+	if input.Category != nil {
+		category = *input.Category
+	}
+	if input.Tags != nil {
+		tags = *input.Tags
+	}
+	category, tags, err := checkLabels(category, tags)
+	if err != nil {
+		return nil, err
+	}
 	if input.Words != nil {
 		if err := checkWords(input.Words); err != nil {
 			return nil, err
 		}
 		list.Words = input.Words
 	}
-	list.Name = name
+	list.Name, list.Category, list.Tags = name, category, tags
 	return list, nil
 }
 

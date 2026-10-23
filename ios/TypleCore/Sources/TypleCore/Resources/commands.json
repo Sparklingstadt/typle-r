@@ -2,6 +2,11 @@
   {
     "id": "linux-commands-basic-beginner",
     "name": "Linuxコマンド：基本（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "Linux",
+      "シェル"
+    ],
     "words": [
       {
         "display": "pwd",
@@ -210,6 +215,11 @@
   {
     "id": "linux-commands-basic-intermediate",
     "name": "Linuxコマンド：基本（中級）",
+    "category": "プログラミング",
+    "tags": [
+      "Linux",
+      "シェル"
+    ],
     "words": [
       {
         "display": "mkdir -p app/src",
@@ -413,6 +423,11 @@
   {
     "id": "linux-commands-basic-advanced",
     "name": "Linuxコマンド：基本（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "Linux",
+      "シェル"
+    ],
     "words": [
       {
         "display": "find . -name \"*.js\"",
@@ -616,6 +631,11 @@
   {
     "id": "linux-commands-options-beginner",
     "name": "Linuxコマンド：オプション（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "Linux",
+      "シェル"
+    ],
     "words": [
       {
         "display": "ls -l",
@@ -809,6 +829,11 @@
   {
     "id": "linux-commands-options-intermediate-1",
     "name": "Linuxコマンド：オプション（中級1）",
+    "category": "プログラミング",
+    "tags": [
+      "Linux",
+      "シェル"
+    ],
     "words": [
       {
         "display": "tail -f",
@@ -1002,6 +1027,11 @@
   {
     "id": "linux-commands-options-intermediate-2",
     "name": "Linuxコマンド：オプション（中級2）",
+    "category": "プログラミング",
+    "tags": [
+      "Linux",
+      "シェル"
+    ],
     "words": [
       {
         "display": "mkdir -p",
@@ -1190,6 +1220,11 @@
   {
     "id": "linux-commands-options-advanced",
     "name": "Linuxコマンド：オプション（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "Linux",
+      "シェル"
+    ],
     "words": [
       {
         "display": "find -name",
@@ -1378,6 +1413,11 @@
   {
     "id": "linux-commands-advanced-beginner",
     "name": "Linuxコマンド：応用（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "Linux",
+      "シェル"
+    ],
     "words": [
       {
         "display": "lsblk -f",
@@ -1551,6 +1591,11 @@
   {
     "id": "linux-commands-advanced-intermediate-1",
     "name": "Linuxコマンド：応用（中級1）",
+    "category": "プログラミング",
+    "tags": [
+      "Linux",
+      "シェル"
+    ],
     "words": [
       {
         "display": "umount /mnt",
@@ -1724,6 +1769,11 @@
   {
     "id": "linux-commands-advanced-intermediate-2",
     "name": "Linuxコマンド：応用（中級2）",
+    "category": "プログラミング",
+    "tags": [
+      "Linux",
+      "シェル"
+    ],
     "words": [
       {
         "display": "mount /dev/sdb1 /mnt",
@@ -1897,6 +1947,11 @@
   {
     "id": "linux-commands-advanced-advanced",
     "name": "Linuxコマンド：応用（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "Linux",
+      "シェル"
+    ],
     "words": [
       {
         "display": "ipcalc 192.168.1.0/24",
@@ -2065,6 +2120,12 @@
   {
     "id": "linux-shell-bash-beginner",
     "name": "Linux：シェルとBash（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "Linux",
+      "シェル",
+      "Bash"
+    ],
     "words": [
       {
         "display": "$$",
@@ -2263,6 +2324,12 @@
   {
     "id": "linux-shell-bash-advanced",
     "name": "Linux：シェルとBash（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "Linux",
+      "シェル",
+      "Bash"
+    ],
     "words": [
       {
         "display": "kill -TERM 1234",
@@ -2461,6 +2528,10 @@
   {
     "id": "linux-system-beginner",
     "name": "Linux：システムの仕組み（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "Linux"
+    ],
     "words": [
       {
         "display": "/",
@@ -2644,6 +2715,10 @@
   {
     "id": "linux-system-intermediate-1",
     "name": "Linux：システムの仕組み（中級1）",
+    "category": "プログラミング",
+    "tags": [
+      "Linux"
+    ],
     "words": [
       {
         "display": "/usr/bin",
@@ -2827,6 +2902,10 @@
   {
     "id": "linux-system-intermediate-2",
     "name": "Linux：システムの仕組み（中級2）",
+    "category": "プログラミング",
+    "tags": [
+      "Linux"
+    ],
     "words": [
       {
         "display": "tree -L 2 /etc",
@@ -3010,6 +3089,10 @@
   {
     "id": "linux-system-advanced",
     "name": "Linux：システムの仕組み（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "Linux"
+    ],
     "words": [
       {
         "display": "cat /proc/version",
@@ -3193,6 +3276,11 @@
   {
     "id": "vercel-cli",
     "name": "Vercel CLIコマンド",
+    "category": "プログラミング",
+    "tags": [
+      "Vercel",
+      "CLI"
+    ],
     "words": [
       {
         "display": "vercel login",
@@ -3371,6 +3459,11 @@
   {
     "id": "gcloud-cli",
     "name": "Google Cloud CLI（gcloud）コマンド",
+    "category": "プログラミング",
+    "tags": [
+      "Google Cloud",
+      "CLI"
+    ],
     "words": [
       {
         "display": "gcloud init",
@@ -3554,6 +3647,11 @@
   {
     "id": "aws-cli-beginner",
     "name": "AWS CLIコマンド（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "AWS",
+      "CLI"
+    ],
     "words": [
       {
         "display": "aws --version",
@@ -3677,6 +3775,11 @@
   {
     "id": "aws-cli-advanced",
     "name": "AWS CLIコマンド（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "AWS",
+      "CLI"
+    ],
     "words": [
       {
         "display": "aws configure sso --profile development",
@@ -3800,6 +3903,12 @@
   {
     "id": "macos-zsh-beginner",
     "name": "macOSターミナル（zsh）コマンド（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "macOS",
+      "シェル",
+      "zsh"
+    ],
     "words": [
       {
         "display": "pwd",
@@ -3958,6 +4067,12 @@
   {
     "id": "macos-zsh-intermediate",
     "name": "macOSターミナル（zsh）コマンド（中級）",
+    "category": "プログラミング",
+    "tags": [
+      "macOS",
+      "シェル",
+      "zsh"
+    ],
     "words": [
       {
         "display": "cd ~/Downloads",
@@ -4116,6 +4231,12 @@
   {
     "id": "macos-zsh-advanced",
     "name": "macOSターミナル（zsh）コマンド（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "macOS",
+      "シェル",
+      "zsh"
+    ],
     "words": [
       {
         "display": "mkdir -p project/src/components",
@@ -4274,6 +4395,12 @@
   {
     "id": "arch-linux-beginner",
     "name": "Arch Linuxコマンド（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "Arch Linux",
+      "Linux",
+      "シェル"
+    ],
     "words": [
       {
         "display": "pwd",
@@ -4442,6 +4569,12 @@
   {
     "id": "arch-linux-intermediate",
     "name": "Arch Linuxコマンド（中級）",
+    "category": "プログラミング",
+    "tags": [
+      "Arch Linux",
+      "Linux",
+      "シェル"
+    ],
     "words": [
       {
         "display": "cd ~/Downloads",
@@ -4610,6 +4743,12 @@
   {
     "id": "arch-linux-advanced",
     "name": "Arch Linuxコマンド（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "Arch Linux",
+      "Linux",
+      "シェル"
+    ],
     "words": [
       {
         "display": "cp memo.txt backup.txt",
@@ -4778,6 +4917,10 @@
   {
     "id": "vim-beginner",
     "name": "Vimコマンド（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "Vim"
+    ],
     "words": [
       {
         "display": "i",
@@ -4976,6 +5119,10 @@
   {
     "id": "vim-intermediate",
     "name": "Vimコマンド（中級）",
+    "category": "プログラミング",
+    "tags": [
+      "Vim"
+    ],
     "words": [
       {
         "display": ":w",
@@ -5169,6 +5316,10 @@
   {
     "id": "vim-advanced",
     "name": "Vimコマンド（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "Vim"
+    ],
     "words": [
       {
         "display": ":w 名前",
@@ -5362,6 +5513,10 @@
   {
     "id": "go-syntax-beginner",
     "name": "Go構文（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "Go"
+    ],
     "words": [
       {
         "display": "package main",
@@ -5555,6 +5710,10 @@
   {
     "id": "go-syntax-intermediate",
     "name": "Go構文（中級）",
+    "category": "プログラミング",
+    "tags": [
+      "Go"
+    ],
     "words": [
       {
         "display": "import ( \"fmt\"; \"errors\" )",
@@ -5743,6 +5902,10 @@
   {
     "id": "go-syntax-advanced",
     "name": "Go構文（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "Go"
+    ],
     "words": [
       {
         "display": "func main() { fmt.Println(\"Hello, Go!\") }",
@@ -5931,6 +6094,10 @@
   {
     "id": "java-syntax-beginner",
     "name": "Java構文（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "Java"
+    ],
     "words": [
       {
         "display": "public class Main { public static void main(String[] args) { System.out.println(\"Hello, Java!\"); } }",
@@ -6104,6 +6271,10 @@
   {
     "id": "java-syntax-intermediate-1",
     "name": "Java構文（中級1）",
+    "category": "プログラミング",
+    "tags": [
+      "Java"
+    ],
     "words": [
       {
         "display": "System.out.println(\"Hello\");",
@@ -6277,6 +6448,10 @@
   {
     "id": "java-syntax-intermediate-2",
     "name": "Java構文（中級2）",
+    "category": "プログラミング",
+    "tags": [
+      "Java"
+    ],
     "words": [
       {
         "display": "public static void main(String[] args) {}",
@@ -6445,6 +6620,10 @@
   {
     "id": "java-syntax-advanced",
     "name": "Java構文（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "Java"
+    ],
     "words": [
       {
         "display": "String label = age >= 20 ? \"成人\" : \"未成年\";",
@@ -6613,6 +6792,10 @@
   {
     "id": "kotlin-syntax-beginner-1",
     "name": "Kotlin構文（初級1）",
+    "category": "プログラミング",
+    "tags": [
+      "Kotlin"
+    ],
     "words": [
       {
         "display": "fun main() { println(\"Hello, Kotlin!\") }",
@@ -6786,6 +6969,10 @@
   {
     "id": "kotlin-syntax-beginner-2",
     "name": "Kotlin構文（初級2）",
+    "category": "プログラミング",
+    "tags": [
+      "Kotlin"
+    ],
     "words": [
       {
         "display": "import kotlin.math.sqrt",
@@ -6959,6 +7146,10 @@
   {
     "id": "kotlin-syntax-intermediate",
     "name": "Kotlin構文（中級）",
+    "category": "プログラミング",
+    "tags": [
+      "Kotlin"
+    ],
     "words": [
       {
         "display": "val n = \"abc\".toIntOrNull()",
@@ -7132,6 +7323,10 @@
   {
     "id": "kotlin-syntax-advanced-1",
     "name": "Kotlin構文（上級1）",
+    "category": "プログラミング",
+    "tags": [
+      "Kotlin"
+    ],
     "words": [
       {
         "display": "fun greet(): Unit { println(\"Hello\") }",
@@ -7300,6 +7495,10 @@
   {
     "id": "kotlin-syntax-advanced-2",
     "name": "Kotlin構文（上級2）",
+    "category": "プログラミング",
+    "tags": [
+      "Kotlin"
+    ],
     "words": [
       {
         "display": "fun fail(): Nothing = throw IllegalStateException(\"失敗\")",
@@ -7468,6 +7667,11 @@
   {
     "id": "un-member-states-chinese-193-lowercase-beginner-1",
     "name": "国名：中国語・国連加盟国（小文字・初級1）",
+    "category": "語学",
+    "tags": [
+      "中国語",
+      "国名"
+    ],
     "words": [
       {
         "display": "阿富汗",
@@ -7671,6 +7875,11 @@
   {
     "id": "un-member-states-chinese-193-lowercase-beginner-2",
     "name": "国名：中国語・国連加盟国（小文字・初級2）",
+    "category": "語学",
+    "tags": [
+      "中国語",
+      "国名"
+    ],
     "words": [
       {
         "display": "安道尔",
@@ -7874,6 +8083,11 @@
   {
     "id": "un-member-states-chinese-193-lowercase-intermediate",
     "name": "国名：中国語・国連加盟国（小文字・中級）",
+    "category": "語学",
+    "tags": [
+      "中国語",
+      "国名"
+    ],
     "words": [
       {
         "display": "阿尔巴尼亚",
@@ -8077,6 +8291,11 @@
   {
     "id": "un-member-states-chinese-193-lowercase-advanced-1",
     "name": "国名：中国語・国連加盟国（小文字・上級1）",
+    "category": "語学",
+    "tags": [
+      "中国語",
+      "国名"
+    ],
     "words": [
       {
         "display": "阿塞拜疆",
@@ -8275,6 +8494,11 @@
   {
     "id": "un-member-states-chinese-193-lowercase-advanced-2",
     "name": "国名：中国語・国連加盟国（小文字・上級2）",
+    "category": "語学",
+    "tags": [
+      "中国語",
+      "国名"
+    ],
     "words": [
       {
         "display": "安提瓜和巴布达",
@@ -8473,6 +8697,11 @@
   {
     "id": "postgresql-syntax-beginner",
     "name": "PostgreSQL構文（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "PostgreSQL",
+      "SQL"
+    ],
     "words": [
       {
         "display": "SHOW server_version;",
@@ -8671,6 +8900,11 @@
   {
     "id": "postgresql-syntax-intermediate-1",
     "name": "PostgreSQL構文（中級1）",
+    "category": "プログラミング",
+    "tags": [
+      "PostgreSQL",
+      "SQL"
+    ],
     "words": [
       {
         "display": "SELECT name AS display_name FROM users AS u;",
@@ -8869,6 +9103,11 @@
   {
     "id": "postgresql-syntax-intermediate-2",
     "name": "PostgreSQL構文（中級2）",
+    "category": "プログラミング",
+    "tags": [
+      "PostgreSQL",
+      "SQL"
+    ],
     "words": [
       {
         "display": "/* 1行コメント */ SELECT /* ブロックコメント */ 1;",
@@ -9067,6 +9306,11 @@
   {
     "id": "postgresql-syntax-advanced",
     "name": "PostgreSQL構文（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "PostgreSQL",
+      "SQL"
+    ],
     "words": [
       {
         "display": "CREATE TABLE users (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, name text NOT NULL, email text UNIQUE, age integer CHECK (age >= 0), active boolean NOT NULL DEFAULT true, department_id bigint, created_at timestamptz NOT NULL DEFAULT now(), profile jsonb NOT NULL DEFAULT '{}'::jsonb, tags text[] NOT NULL DEFAULT '{}'); CREATE TABLE orders (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, user_id bigint REFERENCES users(id), amount numeric(12,2) NOT NULL, status text NOT NULL DEFAULT 'pending', created_at timestamptz NOT NULL DEFAULT now());",
@@ -9265,6 +9509,11 @@
   {
     "id": "prisma-syntax-beginner",
     "name": "Prisma構文（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "Prisma",
+      "TypeScript"
+    ],
     "words": [
       {
         "display": "// Prisma ORM 7 / TypeScript / PostgreSQL",
@@ -9433,6 +9682,11 @@
   {
     "id": "prisma-syntax-advanced",
     "name": "Prisma構文（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "Prisma",
+      "TypeScript"
+    ],
     "words": [
       {
         "display": "generator client { provider = \"prisma-client\" output = \"../src/generated/prisma\" } datasource db { provider = \"postgresql\" } model User { id Int @id @default(autoincrement()) email String @unique name String? age Int? active Boolean @default(true) createdAt DateTime @default(now()) tags String[] profile Json? posts Post[] } model Post { id Int @id @default(autoincrement()) title String published Boolean @default(false) authorId Int author User @relation(fields: [authorId], references: [id]) }",
@@ -9601,6 +9855,11 @@
   {
     "id": "jest-syntax-beginner",
     "name": "Jest構文（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "Jest",
+      "テスト"
+    ],
     "words": [
       {
         "display": "// Jest 30 / JavaScript・TypeScript",
@@ -9779,6 +10038,11 @@
   {
     "id": "jest-syntax-advanced",
     "name": "Jest構文（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "Jest",
+      "テスト"
+    ],
     "words": [
       {
         "display": "import { describe, test, expect, jest, beforeEach, afterEach, beforeAll, afterAll } from '@jest/globals';",
@@ -9952,6 +10216,11 @@
   {
     "id": "playwright-syntax-beginner",
     "name": "Playwright構文（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "Playwright",
+      "テスト"
+    ],
     "words": [
       {
         "display": "// Playwright Test / TypeScript",
@@ -10135,6 +10404,11 @@
   {
     "id": "playwright-syntax-advanced",
     "name": "Playwright構文（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "Playwright",
+      "テスト"
+    ],
     "words": [
       {
         "display": "test('トップページ', async ({ page }) => { await page.goto('/'); await expect(page.getByRole('heading', { name: 'ホーム' })).toBeVisible(); });",
@@ -10318,6 +10592,10 @@
   {
     "id": "typescript-syntax-beginner",
     "name": "TypeScript構文（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "TypeScript"
+    ],
     "words": [
       {
         "display": "// TypeScript 7.0 / strictを想定",
@@ -10416,6 +10694,10 @@
   {
     "id": "typescript-syntax-intermediate",
     "name": "TypeScript構文（中級）",
+    "category": "プログラミング",
+    "tags": [
+      "TypeScript"
+    ],
     "words": [
       {
         "display": "let name:string|null=null; const missing:undefined=undefined; const n:bigint=1n;",
@@ -10514,6 +10796,10 @@
   {
     "id": "typescript-syntax-advanced",
     "name": "TypeScript構文（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "TypeScript"
+    ],
     "words": [
       {
         "display": "const value:unknown=JSON.parse('{\"id\":1}'); if(typeof value==='object'&&value!==null){console.log(value)}",
@@ -10612,6 +10898,11 @@
   {
     "id": "hono-methods-beginner",
     "name": "Honoメソッド（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "Hono",
+      "TypeScript"
+    ],
     "words": [
       {
         "display": "import {Hono} from 'hono'; const app=new Hono();",
@@ -10680,6 +10971,11 @@
   {
     "id": "hono-methods-intermediate",
     "name": "Honoメソッド（中級）",
+    "category": "プログラミング",
+    "tags": [
+      "Hono",
+      "TypeScript"
+    ],
     "words": [
       {
         "display": "app.get('/search',c=>c.json({q:c.req.query('q'),tags:c.req.queries('tag')}));",
@@ -10748,6 +11044,11 @@
   {
     "id": "hono-methods-advanced",
     "name": "Honoメソッド（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "Hono",
+      "TypeScript"
+    ],
     "words": [
       {
         "display": "app.post('/form',async c=>{ const body=await c.req.parseBody(); return c.json({name:typeof body.name==='string'?body.name:''}); });",
@@ -10816,6 +11117,10 @@
   {
     "id": "php-syntax-beginner",
     "name": "PHP構文（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "PHP"
+    ],
     "words": [
       {
         "display": "<?php declare(strict_types=1); echo \"Hello\\n\";",
@@ -10894,6 +11199,10 @@
   {
     "id": "php-syntax-intermediate",
     "name": "PHP構文（中級）",
+    "category": "プログラミング",
+    "tags": [
+      "PHP"
+    ],
     "words": [
       {
         "display": "switch ($role) { case 'admin': echo '管理者'; break; default: echo '一般'; }",
@@ -10972,6 +11281,10 @@
   {
     "id": "php-syntax-advanced",
     "name": "PHP構文（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "PHP"
+    ],
     "words": [
       {
         "display": "if ($age>=20) { echo '成人'; } elseif ($age>=18) { echo '18歳以上'; } else { echo 'その他'; }",
@@ -11045,6 +11358,11 @@
   {
     "id": "rails-methods-beginner",
     "name": "Railsメソッド（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "Ruby on Rails",
+      "Ruby"
+    ],
     "words": [
       {
         "display": "class User < ApplicationRecord; end",
@@ -11128,6 +11446,11 @@
   {
     "id": "rails-methods-intermediate",
     "name": "Railsメソッド（中級）",
+    "category": "プログラミング",
+    "tags": [
+      "Ruby on Rails",
+      "Ruby"
+    ],
     "words": [
       {
         "display": "Rails.application.routes.draw do; resources :users; end",
@@ -11211,6 +11534,11 @@
   {
     "id": "rails-methods-advanced",
     "name": "Railsメソッド（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "Ruby on Rails",
+      "Ruby"
+    ],
     "words": [
       {
         "display": "resources :users, only: [:index,:show] do; resources :posts, only: [:index,:create]; end",
@@ -11289,6 +11617,11 @@
   {
     "id": "express-methods-beginner",
     "name": "Expressメソッド（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "Express",
+      "Node.js"
+    ],
     "words": [
       {
         "display": "import express from 'express'; const app=express();",
@@ -11357,6 +11690,11 @@
   {
     "id": "express-methods-intermediate",
     "name": "Expressメソッド（中級）",
+    "category": "プログラミング",
+    "tags": [
+      "Express",
+      "Node.js"
+    ],
     "words": [
       {
         "display": "const server=app.listen(3000,()=>console.log('http://localhost:3000'));",
@@ -11425,6 +11763,11 @@
   {
     "id": "express-methods-advanced",
     "name": "Expressメソッド（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "Express",
+      "Node.js"
+    ],
     "words": [
       {
         "display": "app.get('/search',(req,res)=>{ const q=req.query.q; if(typeof q!=='string'){res.status(400).json({error:'q required'});return;} res.json({q}); });",
@@ -11488,6 +11831,12 @@
   {
     "id": "oracle-plsql-syntax-beginner",
     "name": "Oracle PL/SQL構文（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "Oracle",
+      "PL/SQL",
+      "SQL"
+    ],
     "words": [
       {
         "display": "-- SQL/PLはOracleのPL/SQLとして整理",
@@ -11561,6 +11910,12 @@
   {
     "id": "oracle-plsql-syntax-intermediate",
     "name": "Oracle PL/SQL構文（中級）",
+    "category": "プログラミング",
+    "tags": [
+      "Oracle",
+      "PL/SQL",
+      "SQL"
+    ],
     "words": [
       {
         "display": "DECLARE v_name VARCHAR2(100):='Pomo'; BEGIN DBMS_OUTPUT.PUT_LINE(v_name); END;",
@@ -11629,6 +11984,12 @@
   {
     "id": "oracle-plsql-syntax-advanced",
     "name": "Oracle PL/SQL構文（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "Oracle",
+      "PL/SQL",
+      "SQL"
+    ],
     "words": [
       {
         "display": "DECLARE v_age PLS_INTEGER:=20; c_limit CONSTANT PLS_INTEGER:=100; BEGIN v_age:=21; DBMS_OUTPUT.PUT_LINE(v_age); END;",
@@ -11697,6 +12058,12 @@
   {
     "id": "sql-server-tsql-syntax-beginner",
     "name": "SQL Server T-SQL構文（初級）",
+    "category": "プログラミング",
+    "tags": [
+      "SQL Server",
+      "T-SQL",
+      "SQL"
+    ],
     "words": [
       {
         "display": "SELECT @@VERSION;",
@@ -11780,6 +12147,12 @@
   {
     "id": "sql-server-tsql-syntax-intermediate",
     "name": "SQL Server T-SQL構文（中級）",
+    "category": "プログラミング",
+    "tags": [
+      "SQL Server",
+      "T-SQL",
+      "SQL"
+    ],
     "words": [
       {
         "display": "SELECT * FROM dbo.Users ORDER BY Id OFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY;",
@@ -11863,6 +12236,12 @@
   {
     "id": "sql-server-tsql-syntax-advanced",
     "name": "SQL Server T-SQL構文（上級）",
+    "category": "プログラミング",
+    "tags": [
+      "SQL Server",
+      "T-SQL",
+      "SQL"
+    ],
     "words": [
       {
         "display": "CREATE TABLE dbo.Users (Id int IDENTITY(1,1) PRIMARY KEY, Name nvarchar(100) NOT NULL, Email nvarchar(255) UNIQUE, Age int NULL, Active bit NOT NULL DEFAULT 1, CreatedAt datetime2 NOT NULL DEFAULT SYSUTCDATETIME()); CREATE TABLE dbo.Orders (Id int IDENTITY(1,1) PRIMARY KEY, UserId int REFERENCES dbo.Users(Id), Amount decimal(12,2) NOT NULL);",

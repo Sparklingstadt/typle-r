@@ -18,11 +18,11 @@
     "limitTitle": "最多可保存 {max} 个",
     "create": "创建新列表",
     "full": "最多可保存 {max} 个单词列表。删除不再使用的列表后即可创建新列表。",
-    "search": "按列表名称或单词搜索",
+    "search": "按列表名称、分类、标签或单词搜索",
     "clearSearch": "清除搜索",
     "countFiltered": "{shown} 个 / 共 {total} 个",
     "count": "{total} 个",
-    "noMatch": "没有与“{query}”匹配的列表。将从列表名称和单词中查找。",
+    "noMatch": "没有与“{query}”匹配的列表。将从列表名称、分类、标签和单词中查找。",
     "csvNote": "CSV 导出会保存显示的单词、输入的文字和备注（不含练习记录）。可在创建、编辑界面的“导入 CSV/TSV”中使用。"
   },
   "delete": {
@@ -44,6 +44,25 @@
     "practiced": "最近练习",
     "name": "名称",
     "words": "单词数从多到少"
+  },
+  "labels": {
+    "category": "分类",
+    "tag": "标签"
+  },
+  "filter": {
+    "category": "按分类筛选",
+    "allCategories": "所有分类",
+    "noCategory": "无分类",
+    "categoryCurrent": "分类：{category}",
+    "allTags": "所有标签",
+    "tagsCurrent": "标签：{tags}",
+    "separator": "、",
+    "tagsHint": "包含所有所选标签的列表",
+    "clearTags": "取消选择标签",
+    "clear": "清除筛选",
+    "clearAll": "清除搜索和筛选",
+    "noMatch": "没有符合条件的列表。",
+    "option": "{name}（{count}）"
   },
   "empty": {
     "title": "还没有单词列表",
@@ -121,7 +140,16 @@
     "discardTitle": "有未保存的更改",
     "discardDescription": "如果现在离开，输入的内容将会丢失。",
     "keepEditing": "继续编辑",
-    "discard": "放弃并离开"
+    "discard": "放弃并离开",
+    "category": "分类（可选）",
+    "categoryPlaceholder": "编程、语言等",
+    "categoryHelp": "设置一个大致的分类，可在列表和练习界面中筛选。",
+    "tags": "标签（可选）",
+    "tagList": "已添加的标签",
+    "removeTag": "移除标签“{tag}”",
+    "tagsFull": "最多{max}个标签",
+    "tagPlaceholder": "Kotlin、PostgreSQL等",
+    "tagsHelp": "按 Enter 或输入逗号添加（最多{max}个）。搜索时也会查找标签。"
   },
   "import": {
     "open": "导入 CSV/TSV",
