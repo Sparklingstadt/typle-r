@@ -102,8 +102,12 @@ func TestReadWithoutRowGivesInitialLists(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer s.Close()
+	initial, err := workspace.Initial()
+	if err != nil {
+		t.Fatal(err)
+	}
 	w, err := s.Read(ctx, owner(t, conn))
-	if err != nil || len(w.Lists) != 3 || w.Lists[0].ID != "sample-1" {
+	if err != nil || len(w.Lists) != len(initial.Lists) || w.Lists[0].ID != "sample-1" {
 		t.Fatalf("workspace = %+v, %v", w, err)
 	}
 }
@@ -191,6 +195,10 @@ func TestModifyCreatesRow(t *testing.T) {
 	connection, conn := database(t)
 	id := owner(t, conn)
 	s := open(t, connection, true)
+	initial, err := workspace.Initial()
+	if err != nil {
+		t.Fatal(err)
+	}
 	w, err := s.Modify(ctx, id, deleteList("sample-1"))
 	if err != nil {
 		t.Fatal(err)
@@ -200,7 +208,7 @@ func TestModifyCreatesRow(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, got := range []*workspace.Workspace{w, read} {
-		if len(got.Lists) != 2 || got.Lists[0].ID != "sample-2" || got.Find("sample-1") != nil {
+		if len(got.Lists) != len(initial.Lists)-1 || got.Lists[0].ID != "sample-2" || got.Find("sample-1") != nil {
 			t.Fatalf("lists = %+v", got.Lists)
 		}
 	}
@@ -318,8 +326,12 @@ func TestModifyConcurrent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// The three initial lists and all ten.
-	if len(w.Lists) != 13 {
+	initial, err := workspace.Initial()
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The initial lists and all ten.
+	if len(w.Lists) != len(initial.Lists)+10 {
 		t.Fatalf("lists = %d", len(w.Lists))
 	}
 }
