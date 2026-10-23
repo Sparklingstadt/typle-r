@@ -124,7 +124,7 @@ Next.js のアプリは1つで、`src` を層に分けています。依存は�
 | 層 | 場所 | 内容 |
 |---|---|---|
 | 画面 | `src/app`・`src/components`・`src/i18n`・`src/lib` | ページ、UI、多言語化、React のフック。`useWordLists` は React の状態とブラウザーのイベント（フォーカス・他タブの変更）だけを受け持ち、読み込み・保存は core の `createWorkspaceSession` に任せます |
-| プラグイン | `src/plugins` | core のポートの実装と初期データ。`storage`：`cloud`（Goのバックエンドが提供する `/api/workspace`）と `guest`（LocalStorage）を `workspaceStore(accountId)` がアカウントに応じて選びます。`formats`：CSV・TSV（`delimited.ts`）と旧バージョンのブラウザー保存からの移行（`legacy.ts`）。`packs`：最初に表示する単語リスト（サンプル、国名193か国、Linux・Vercel CLI・gcloud・AWS CLI・macOS（zsh）のコマンド9リスト） |
+| プラグイン | `src/plugins` | core のポートの実装と初期データ。`storage`：`cloud`（Goのバックエンドが提供する `/api/workspace`）と `guest`（LocalStorage）を `workspaceStore(accountId)` がアカウントに応じて選びます。`formats`：CSV・TSV（`delimited.ts`）と旧バージョンのブラウザー保存からの移行（`legacy.ts`）。`packs`：最初に表示する単語リスト（サンプル、国名193か国、Linux・Vercel CLI・gcloud・AWS CLI・macOS（zsh）・Arch Linuxのコマンド10リスト） |
 | core | `src/core` | React・Next.js・ブラウザーAPIに依存しない TypeScript。単語リスト・入力判定・記録・集計・ワークスペースのモデルと検証、保存先のポート `WorkspaceStore`（`workspaceStore.ts`、保存場所 `location` を含む）、ワークスペースの読み込み・保存 `createWorkspaceSession`（`workspaceSession.ts`。アカウントの切り替え後に届いた結果の破棄、保存の直列化、409での再読み込み、古いクラウド読み込みの無視）とファイル形式のポート `WordFormat`（`wordFormat.ts`） |
 
 保存先を増やすときは `WorkspaceStore` を実装したプラグインを `src/plugins/storage` に追加し、`workspaceStore` で選びます。ファイル形式を増やすときは `WordFormat` を実装して `src/plugins/formats/index.ts` の一覧に加えると、取り込みの拡張子判定と `accept` に反映されます。どちらも画面のコードは変わりません。
@@ -358,9 +358,9 @@ UIはshadcn/ui（Radix / Nova）とTailwind CSS 4で構成しています。設�
 
 [提供されたZIP](https://chatgpt.com/library/share/libfile_e75c8143a78c8191804af85bfd9d46a9?account_id=personal)と同じファイルの生成データ193行を利用しています。中国語名・拼音・日本語名は元資料の表記を維持しています。入力する文字は拼音から声調記号・隔音記号（'）・括弧を除いたアルファベットで、üはピンイン入力と同じvで入力します（例: 菲律宾 → Feilvbin）。`tests/countries.test.cjs` で元データ（入力を中国語名に戻した状態）とのSHA-256一致、193件の重複なし、入力が拼音から作られていることを検証します。
 
-### コマンドの単語リスト（Linux・Vercel CLI・gcloud・AWS CLI・macOS）
+### コマンドの単語リスト（Linux・Vercel CLI・gcloud・AWS CLI・macOS・Arch Linux）
 
-`src/plugins/packs/commands.json` の9リスト（816語）のうち、Linuxの5リスト（611語）は、提供されたLinuxコマンド表のCSV（学習用フラット一覧、64表・659行。SHA-256 `17ce06e70c8113a84b850034cd86100633a660b3ce2638c72fa2d0429273864f`）から作っています。
+`src/plugins/packs/commands.json` の10リスト（912語）のうち、Linuxの5リスト（611語）は、提供されたLinuxコマンド表のCSV（学習用フラット一覧、64表・659行。SHA-256 `17ce06e70c8113a84b850034cd86100633a660b3ce2638c72fa2d0429273864f`）から作っています。
 
 | リスト | 元の表 | 語数 |
 |---|---|---|
@@ -371,7 +371,7 @@ UIはshadcn/ui（Radix / Nova）とTailwind CSS 4で構成しています。設�
 | Linux：システムの仕組み | ディレクトリ構造・/proc・/sys・/dev・FD・シグナル・IPC・inode・リソース制限・Namespace・障害調査（表38〜40・42〜44・46・52・53・55・57・60〜63） | 140 |
 
 表示と入力は同じ文字列（使用例があれば使用例、なければ項目そのもの。オプションは「コマンド オプション」）、補足は名前の由来と用途です（例: `ls -la` → 「ls（List）：ファイル・フォルダの一覧表示」）。同じリストで入力が重なる行は最初の1つだけを残します。比較表・練習チェックリスト・chmodの計算表（表07・08・36・37・56・64）は入力する語がないため含めません。
-残りの4リストは、提供されたコマンド一覧のCSVから作っています。
+残りの5リストは、提供されたコマンド一覧のCSVから作っています。
 
 | リスト | 元のCSV | 語数 |
 |---|---|---|
@@ -379,14 +379,17 @@ UIはshadcn/ui（Radix / Nova）とTailwind CSS 4で構成しています。設�
 | Google Cloud CLI（gcloud）コマンド | `gcloud_commands.csv`（36行。SHA-256 `5889d3e150e73c15fd107f747ea9c73e34e6e07412631f36672cbcd9086dc399`） | 35 |
 | AWS CLIコマンド | `aws_cli_commands.csv`（46行。SHA-256 `4b70f0a0b89397c3bbbb87fc43cd2f602f60797005756314608bbd77f1571c12`） | 46 |
 | macOSターミナル（zsh）コマンド | `macos_zsh_commands.csv`（98行。SHA-256 `8e9ac51cac67e454bf07805e75019aeb72ba666f819f4a09cd1c45a877f42b43`） | 90 |
+| Arch Linuxコマンド | `arch_linux_commands.csv`（97行。SHA-256 `437028d4a3fb392819a40dfbbebbe263d3e139f99a4cf2cc66410897cb8cc671`） | 96 |
 
 入力はコマンド例（`<URL>`・`PROJECT_ID` などの置き換える部分もそのまま）、補足は「用途：できること」に備考を括弧で添えたものです（例: `vercel deploy --prod` → 「本番公開：本番環境にデプロイする」）。1行に2つあるコマンド（`vercel project pause` / `vercel project resume`）は2語に分け、2行にある同じコマンド（`gcloud compute`）は補足を「 / 」でつないで1語にします。AWS CLIの補足は「サービス・機能：できること」に主なオプション・補足を添えます。
 
 macOS（zsh）は実行例を入力し、補足は「コマンド・記号：用途」に注意点を添えます（実行例と同じときは用途だけ）。キー操作の8行（Tab・↑ / ↓・Control + C など）は押すキーで入力する文字ではないため含めません。`open .` は「.」と「open .」の2行の補足をつなぎ、`名前=値` の行の注意点（表計算ソフトのエラー表示 `#NAME?`）は除きます。`say "こんにちは"` など4語は日本語を含むため、IMEで入力します。
 
-`tests/commands.test.cjs` で、9リストの読み込み、語数、入力が前後に空白のないASCII（zshの日本語を含む4語を除く）で表示と一致すること、リスト内で入力が重複しないことを確かめます。
+Arch Linuxも同じ規則で作ります。`sudo pacman -Syu` は「パッケージ管理」と「sudo」の2行の補足をつないで1語にします。`git clone https://aur.archlinux.org/パッケージ名.git` と `systemctl --user status 名前` は実行例に日本語の置き換え部分を含むため、IMEで入力します。
 
-初期リストなので、まだ一度も保存していないアカウントとブラウザーには最初から表示されます。v0.63.0 から、すでに保存しているアカウントにも、マイグレーション `0009_seed_command_lists`（`npm run db:migrate`。本番ではデプロイ時に実行）が9リストを追加します。`scripts/seed.cjs` と同じく、同じIDまたは同じ名前のリストがある場合はそのリストを追加せず、ほかのリストと練習記録はそのまま残します。追加すると100リストか保存できる大きさ（`MaxListsBytes`）を超えるアカウントには追加しません。マイグレーションは1回だけ実行されるため、その後に削除したリストは戻りません。改めて追加するときは `npm run db:seed -- --owner github:<ID>` を使います。このブラウザーに保存している場合（ログインしていない場合）はマイグレーションの対象外です。
+`tests/commands.test.cjs` で、10リストの読み込み、語数、入力が前後に空白のないASCII（日本語を含む6語を除く）で表示と一致すること、リスト内で入力が重複しないことを確かめます。
+
+初期リストなので、まだ一度も保存していないアカウントとブラウザーには最初から表示されます。v0.63.0 から、すでに保存しているアカウントにも、マイグレーション `0009_seed_command_lists`（`npm run db:migrate`。本番ではデプロイ時に実行）が9リストを、v0.64.0 から `0010_seed_arch_linux_list` がArch Linuxのリストを追加します。`scripts/seed.cjs` と同じく、同じIDまたは同じ名前のリストがある場合はそのリストを追加せず、ほかのリストと練習記録はそのまま残します。追加すると100リストか保存できる大きさ（`MaxListsBytes`）を超えるアカウントには追加しません。マイグレーションは1回だけ実行されるため、その後に削除したリストは戻りません。改めて追加するときは `npm run db:seed -- --owner github:<ID>` を使います。このブラウザーに保存している場合（ログインしていない場合）はマイグレーションの対象外です。
 
 ### 共通レイアウト（トップバー・サイドバー）
 

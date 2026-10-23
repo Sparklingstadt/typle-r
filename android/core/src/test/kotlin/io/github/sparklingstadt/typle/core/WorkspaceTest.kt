@@ -45,7 +45,7 @@ class WorkspaceTest {
     val lists = initialLists()
     assertEquals(listOf("sample-1", "sample-2"), lists.map { it.id }.take(2))
     assertEquals(193, lists[2].words.size)
-    assertEquals(listOf("linux-commands-basic", "macos-zsh"), listOf(lists[3].id, lists.last().id))
+    assertEquals(listOf("linux-commands-basic", "arch-linux"), listOf(lists[3].id, lists.last().id))
     validateLists(lists)
   }
 }
