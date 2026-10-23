@@ -209,7 +209,7 @@ final class WordListTests: XCTestCase {
     let lists = initialLists()
     XCTAssertEqual(lists.map(\.id).prefix(2), ["sample-1", "sample-2"])
     XCTAssertEqual(lists[2].words.count, 193)
-    XCTAssertEqual([lists[3].id, lists.last?.id], ["linux-commands-basic", "macos-zsh"])
+    XCTAssertEqual([lists[3].id, lists.last?.id], ["linux-commands-basic", "arch-linux"])
     XCTAssertNoThrow(try validateLists(lists))
   }
 }
