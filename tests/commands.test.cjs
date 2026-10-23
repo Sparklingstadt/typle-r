@@ -10,7 +10,7 @@ test('the command lists decode in Typle with their own ids and names', () => {
   const lists = decodeLists(JSON.stringify({ version: 1, lists: commands }))
   assert.deepEqual(lists.map(list => [list.id, list.words.length]), [
     ['linux-commands-basic', 118], ['linux-commands-options', 146], ['linux-commands-advanced', 131],
-    ['linux-shell-bash', 76], ['linux-system', 140], ['vercel-cli', 34], ['gcloud-cli', 35], ['aws-cli', 46], ['macos-zsh', 90], ['arch-linux', 96], ['vim', 112], ['go-syntax', 109], ['java-syntax', 130],
+    ['linux-shell-bash', 76], ['linux-system', 140], ['vercel-cli', 34], ['gcloud-cli', 35], ['aws-cli', 46], ['macos-zsh', 90], ['arch-linux', 96], ['vim', 112], ['go-syntax', 109], ['java-syntax', 130], ['kotlin-syntax', 163],
   ])
   const { initialLists } = require('../src/plugins/packs/index.ts')
   for (const list of lists) validateList(list, initialLists.filter(other => other.id !== list.id))
@@ -27,8 +27,8 @@ test('each command is typed as shown, in ASCII, once per list, with an explanati
     assert.equal(new Set(list.words.map(word => word.input)).size, list.words.length, list.name)
     for (const word of list.words) {
       assert.equal(word.display, word.input)
-      // Go and Java code examples hold Japanese strings and comments.
-      assert.match(['go-syntax', 'java-syntax'].includes(list.id) || japanese.includes(word.input) ? word.input.replace(/[^\x20-\x7e]/g, 'x') : word.input,
+      // Go, Java and Kotlin code examples hold Japanese strings and comments.
+      assert.match(['go-syntax', 'java-syntax', 'kotlin-syntax'].includes(list.id) || japanese.includes(word.input) ? word.input.replace(/[^\x20-\x7e]/g, 'x') : word.input,
         /^[\x21-\x7e]([\x20-\x7e]*[\x21-\x7e])?$/, word.input)
       assert.ok(word.annotation.trim(), word.input)
     }
@@ -52,9 +52,9 @@ test('the zsh list leaves out key presses and keeps one word per example', () =>
     'STS：操作中のアカウント・権限を確認（Account・Arn・UserIdを確認）')
 })
 
-test('migrations 0009 to 0013 add the command lists to saved workspaces', () => {
+test('migrations 0009 to 0014 add the command lists to saved workspaces', () => {
   const fs = require('node:fs')
-  const added = ['0009_seed_command_lists', '0010_seed_arch_linux_list', '0011_seed_vim_list', '0012_seed_go_syntax_list', '0013_seed_java_syntax_list'].flatMap(name => {
+  const added = ['0009_seed_command_lists', '0010_seed_arch_linux_list', '0011_seed_vim_list', '0012_seed_go_syntax_list', '0013_seed_java_syntax_list', '0014_seed_kotlin_syntax_list'].flatMap(name => {
     const sql = fs.readFileSync(require.resolve(`../prisma/migrations/${name}/migration.sql`), 'utf8')
     const literal = sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'")
     return decodeLists(JSON.stringify({ version: 1, lists: JSON.parse(literal) }))
@@ -97,4 +97,14 @@ test('the Java list types each code example on one line, with no line comment cu
   assert.ok(java.some(word => word.input === 'void load() throws IOException { /* 読み込み処理 */ }'))
   assert.equal(java.find(word => word.input === 'age = 21;').annotation, '=：代入（宣言済み変数へ代入）')
   assert.equal(java.find(word => word.input === 'boolean same = a == b;').annotation, '== / !=：等値・不等値比較（参照型の==は参照の同一性を比較）')
+})
+
+test('the Kotlin list types each code example on one line, ending statements where Kotlin does', () => {
+  const kotlin = words('kotlin-syntax')
+  assert.ok(kotlin.every(word => !/[\n\t]/.test(word.input)))
+  assert.ok(kotlin.some(word => word.input === 'val label = when (role) { "admin" -> "管理者"; "member", "guest" -> "一般利用者"; else -> "不明" }'))
+  assert.ok(kotlin.some(word => word.input === 'val isAdult: Boolean get() = age >= 20'))
+  assert.ok(kotlin.some(word => word.input === 'val result = names.filter { it.length >= 3 }.map { it.uppercase() }'))
+  assert.ok(kotlin.some(word => word.input === 'val text = """1行目 2行目"""'))
+  assert.equal(kotlin.find(word => word.input === 'val sameReference = a === b').annotation, '===：参照の同一性（プリミティブ相当値等の同一性に依存しない）')
 })
