@@ -130,6 +130,34 @@ test('with many lists the word to type stays on screen next to the input', async
   }
 })
 
+test('the lists beside the practice card put recent ones first, scroll on their own and can be filtered', async ({ page }) => {
+  const word = (text: string) => ({ display: text, input: text, annotation: '' })
+  const lists = Array.from({ length: 22 }, (_, index) => ({ id: `list-${index}`, name: `List ${index + 1}`, createdAt: '2026-09-01', words: [word('ab')],
+    records: index === 15 ? [{ id: 'r', time: 3, date: '2026-10-01T00:00:00Z', mistakes: 0, accuracy: 100, wordCount: 1 }] : [] }))
+  await page.addInitScript(([key, value]) => { if (!localStorage.getItem(key)) localStorage.setItem(key, value) },
+    [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists, devices: [] })])
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/play')
+  const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
+  const options = aside.getByRole('list', { name: '単語リスト', exact: true }).getByRole('button')
+  await expect(options).toHaveCount(22)
+  await expect(options.first()).toHaveAccessibleName('List 16 を選択')
+  // The list of lists scrolls inside its card instead of making the page long.
+  const box = options.first().locator('xpath=ancestor::div[contains(@class, "overflow-y-auto")]')
+  expect(await box.evaluate(element => element.scrollHeight > element.clientHeight)).toBe(true)
+  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThan(1200)
+  const filter = aside.getByRole('searchbox', { name: '単語リストをリスト名で絞り込む' })
+  await filter.fill('list 2')
+  await expect(options).toHaveCount(4)
+  await filter.fill('nothing')
+  await expect(aside).toContainText('一致するリストがありません')
+  await filter.fill('List 22')
+  await options.first().click()
+  await expect(page.getByRole('button', { name: /List 22/ }).first()).toBeVisible()
+  await expect(filter).toHaveValue('')
+  await expect(aside.getByRole('button', { name: 'List 22 を選択中' })).toBeInViewport()
+})
+
 test('the live stats can be hidden, the choice is remembered and the result still shows the numbers', async ({ page }) => {
   await seedGuest(page)
   await page.goto('/play')

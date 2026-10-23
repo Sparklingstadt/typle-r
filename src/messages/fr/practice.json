@@ -49,7 +49,8 @@
     "best": "Meilleurs résultats",
     "bestOrder": "Par précision décroissante, puis par vitesse",
     "bestOrderAtCount": "Par précision décroissante, puis par vitesse · résultats à {count, plural, one {# mot} other {# mots}} uniquement",
-    "allBest": "Tous les meilleurs résultats"
+    "allBest": "Tous les meilleurs résultats",
+    "filter": "Filtrer les listes de mots par nom"
   },
   "picker": {
     "title": "Choisir une liste de mots",

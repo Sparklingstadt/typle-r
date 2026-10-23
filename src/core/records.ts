@@ -33,6 +33,14 @@ export function recentRecords(lists: SavedWordList[]) {
     .sort((a, b) => Date.parse(b.record.date) - Date.parse(a.record.date))
 }
 
+// For choosing a list to practise: lists practised most recently first, then the rest in their saved order.
+export function byRecentPractice<T extends Pick<SavedWordList, 'records'>>(lists: T[]) {
+  const last = (list: T) => Math.max(-Infinity, ...list.records.map(record => Date.parse(record.date)).filter(Number.isFinite))
+  return lists.map((list, index) => ({ list, index, last: last(list) }))
+    .sort((a, b) => (b.last === a.last ? 0 : b.last > a.last ? 1 : -1) || a.index - b.index)
+    .map(item => item.list)
+}
+
 // accuracy: the higher accuracy wins and time breaks ties (records without accuracy come last). speed: the reverse.
 export type RankOrder = 'accuracy' | 'speed'
 

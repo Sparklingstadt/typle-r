@@ -27,7 +27,7 @@ export default function Home() {
         <Button asChild variant="outline"><Link href="/records">{t("welcome.records")}</Link></Button>
       </nav>
     </>}
-    <p className="mt-8">{t("storage")}</p>
+    <p className="mt-8">{t(storage === "account" ? "storageAccount" : "storage")}</p>
     <LegacyImport update={update} disabled={!ready || saving} />
     <p className="mt-4">{t.rich("links", {
       guide: chunks => <Link className="underline" href="/guide">{chunks}</Link>,

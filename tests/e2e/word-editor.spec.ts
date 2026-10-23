@@ -42,7 +42,7 @@ test('Enter moves between words and adds rows instead of saving', async ({ page 
 test('a duplicate name is shown on the name field while the save bar stays visible', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 })
   await page.goto('/create')
-  await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('Test 1')
+  await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('サンプル：英単語（果物）')
   for (let n = 1; n <= 10; n++) {
     await display(page, n).fill(`word ${n}`)
     await display(page, n).press('Enter')
@@ -90,16 +90,16 @@ test('cancel asks before discarding unsaved changes', async ({ page }) => {
   await expect(page).toHaveURL(/\/edit$/)
   await expect(page.getByRole('button', { name: 'Draft を編集', exact: true })).toHaveCount(0)
 
-  await page.getByRole('button', { name: 'Test 1 を編集', exact: true }).click()
+  await page.getByRole('button', { name: 'サンプル：英単語（果物） を編集', exact: true }).click()
   await page.getByRole('button', { name: 'キャンセル', exact: true }).click()
   await expect(page.getByRole('alertdialog')).toHaveCount(0)
-  await expect(page.getByRole('button', { name: 'Test 1 を編集', exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Test 1 を編集', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'サンプル：英単語（果物） を編集', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'サンプル：英単語（果物） を編集', exact: true }).click()
   await display(page, 1).fill('changed')
   await page.getByRole('button', { name: 'キャンセル', exact: true }).click()
   await expect(page.getByRole('alertdialog')).toBeVisible()
   await page.getByRole('alertdialog').getByRole('button', { name: '破棄して移動', exact: true }).click()
-  await page.getByRole('button', { name: 'Test 1 を編集', exact: true }).click()
+  await page.getByRole('button', { name: 'サンプル：英単語（果物） を編集', exact: true }).click()
   await expect(display(page, 1)).not.toHaveValue('changed')
 })
 

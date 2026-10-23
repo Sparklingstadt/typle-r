@@ -33,7 +33,7 @@
     "title": "次に練習するリスト",
     "description": "まだ練習していないリスト、{days}日以上練習していないリスト、直近の正確率が{accuracy}%未満のリストを最大3件表示します。",
     "allPractised": "どのリストも最近練習できています。",
-    "words": "{count} 単語",
+    "words": "{count}語",
     "lastPracticed": "最終練習 {day}",
     "noRecords": "記録なし",
     "new": "まだ練習していません",

@@ -471,7 +471,9 @@ test('devices persist, are locked during practice, and survive rename and deleti
   await seed(page, [{ id: 'devices', name: 'Devices practice', createdAt: '2026-09-27', records: [{ time: 5, date: '2026-09-01' }], words: [{ display: 'ab', input: 'ab', annotation: '' }] }])
   await page.goto('/devices')
   await expect(page.getByRole('navigation', { name: 'メインナビゲーション' }).getByRole('link', { name: '端末', exact: true })).toHaveAttribute('aria-current', 'page')
-  await expect(page.getByText('このブラウザーに保存', { exact: true })).toBeVisible()
+  // Where the data is saved shows once, in the top bar; the page's own badge is only for narrow screens.
+  await expect(page.getByRole('banner', { name: 'トップバー' })).toContainText('このブラウザーに保存')
+  await expect(page.getByRole('main').getByText('このブラウザーに保存', { exact: true })).toBeHidden()
   await page.getByRole('button', { name: '端末を追加', exact: true }).click()
   const addDialog = page.getByRole('dialog', { name: '端末を追加' })
   await addDialog.getByRole('textbox', { name: '端末名', exact: true }).fill('MacBook')

@@ -49,7 +49,8 @@
     "best": "Best records",
     "bestOrder": "Highest accuracy first, then fastest",
     "bestOrderAtCount": "Highest accuracy first, then fastest · runs at the current {count, plural, one {# word} other {# words}}",
-    "allBest": "All best records"
+    "allBest": "All best records",
+    "filter": "Filter word lists by name"
   },
   "picker": {
     "title": "Choose a word list",

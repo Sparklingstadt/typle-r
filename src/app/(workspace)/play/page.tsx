@@ -17,7 +17,7 @@ import { useWordLists, type WorkspaceUpdate } from "@/lib/useWordLists"
 import type { SavedWordList } from "@/core/wordLists"
 import { usePractice } from "@/lib/usePractice"
 import { compareInput, typingSpeed, type TypingSession } from "@/core/typing"
-import { comparableRecords } from "@/core/records"
+import { byRecentPractice, comparableRecords } from "@/core/records"
 import { cn } from "@/lib/utils"
 import Page from "@/components/Page/Page"
 import PageContainer from "@/components/PageContainer/PageContainer"
@@ -103,6 +103,8 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
   const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave } = usePractice(wordLists, update, device, listId)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [query, setQuery] = useState('')
+  const [asideQuery, setAsideQuery] = useState('')
+  const asideLists = useRef<HTMLDivElement>(null)
   const [pendingSwitch, setPendingSwitch] = useState<number | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [showAll, setShowAll] = useState(false)
@@ -127,6 +129,15 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
     const current = box?.querySelector<HTMLElement>('[aria-current="step"]')
     if (box && current) box.scrollTop = current.offsetTop - 48
   }, [showAll, session.index])
+
+  // Keeps the chosen list in view inside the scrolling list of lists, without scrolling the page.
+  useEffect(() => {
+    const box = asideLists.current
+    const chosen = box?.querySelector<HTMLElement>('[aria-pressed="true"]')
+    if (!box || !chosen) return
+    const top = chosen.offsetTop - box.offsetTop
+    if (top < box.scrollTop || top + chosen.offsetHeight > box.scrollTop + box.clientHeight) box.scrollTop = top - 8
+  }, [list?.id])
 
   // While the input has lost focus, any printable key or Enter outside another control brings it back.
   useEffect(() => {
@@ -170,7 +181,11 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
     if (!running) switchTo(index)
     else if (index !== selected) setPendingSwitch(index)
   }
-  const filteredLists = wordLists.filter(item => item.name.toLowerCase().includes(query.trim().toLowerCase()))
+  // Recently practised lists come first, and both list choosers can be narrowed down by name.
+  const ordered = byRecentPractice(wordLists)
+  const matching = (text: string) => ordered.filter(item => item.name.toLowerCase().includes(text.trim().toLowerCase()))
+  const filteredLists = matching(query)
+  const asideFiltered = matching(asideQuery)
   const next = words.slice(session.index + 1, session.index + 4)
   const remaining = words.length - session.index - 1 - next.length
   const progressText = t('progress.value', { current: finished ? words.length : session.index + 1, total: words.length })
@@ -242,7 +257,7 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
           {statsVisible && <LiveStats session={session} accuracy={result.accuracy} />}
           <div className="flex min-h-14 flex-wrap items-center gap-2 border-t px-4 py-2.5 sm:pr-3 sm:pl-6">
             <span className="text-xs text-muted-foreground">{t('upcoming.next')}</span>
-            {next.map((item, index) => <span key={index} className="inline-flex h-7 max-w-full items-center truncate rounded-full border px-3 text-[13px] text-muted-foreground">{item.display}</span>)}
+            {next.map((item, index) => <span key={index} className="inline-flex h-7 max-w-full items-center rounded-full border px-3 text-[13px] text-muted-foreground" title={item.display}><span className="truncate">{item.display}</span></span>)}
             {!next.length && <span className="text-xs text-muted-foreground">{t('upcoming.last')}</span>}
             {remaining > 0 && <span className="text-xs text-neutral-400 dark:text-neutral-500">{t('upcoming.more', { count: remaining })}</span>}
             <span className="flex-1" />
@@ -272,7 +287,16 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
             <span className="flex-1" />
             <Button variant="ghost" size="lg" asChild><Link href="/create"><Plus aria-hidden="true" />{t('aside.create')}</Link></Button>
           </div>
-          <WordListOptions label={t('aside.lists')} lists={wordLists} selectedId={list.id} onSelect={requestSwitch} />
+          <label className="mx-1 mt-1 mb-1 flex h-9 items-center gap-2 rounded-lg border px-3 text-muted-foreground focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+            <Search className="size-4 shrink-0" aria-hidden="true" />
+            <input type="search" value={asideQuery} onChange={event => setAsideQuery(event.target.value)} placeholder={t('picker.filter')} aria-label={t('aside.filter')} autoComplete="off"
+              className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" />
+          </label>
+          {/* Its own scroll area, so a long collection never pushes the page far below the practice card. */}
+          <div ref={asideLists} className="max-h-96 overflow-y-auto overscroll-contain lg:max-h-[min(36rem,calc(100dvh-14rem))]">
+            {asideFiltered.length ? <WordListOptions label={t('aside.lists')} lists={asideFiltered} selectedId={list.id} onSelect={id => { setAsideQuery(''); requestSwitch(id) }} />
+              : <p className="px-2 py-2 text-sm text-muted-foreground">{t('picker.noMatch')}</p>}
+          </div>
         </Card>
         <Card className="gap-2 px-4 pt-4 pb-3">
           <div className="flex min-w-0 items-baseline gap-2">

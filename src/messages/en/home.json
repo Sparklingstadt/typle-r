@@ -10,5 +10,6 @@
     "records": "View records"
   },
   "storage": "You can use every practice and editing feature without signing in. Word lists, practice history, and devices are saved in this browser. Signing in with GitHub switches to a separate storage location, your account, which syncs across devices. Data in the browser is not moved automatically.",
+  "storageAccount": "You are signed in, so your word lists, practice history, and devices are saved to your account and synced with other devices and browsers signed in with the same GitHub account. They are kept separately from data saved in this browser without signing in.",
   "links": "<guide>How to use</guide> / <about>About Typle</about>"
 }

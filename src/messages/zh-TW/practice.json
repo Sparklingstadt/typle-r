@@ -49,7 +49,8 @@
     "best": "最佳紀錄",
     "bestOrder": "依正確率由高到低，相同時依速度由快到慢",
     "bestOrderAtCount": "依正確率由高到低，相同時依速度由快到慢 · 僅目前 {count} 個單字的紀錄",
-    "allBest": "所有最佳紀錄"
+    "allBest": "所有最佳紀錄",
+    "filter": "依名稱篩選單字清單"
   },
   "picker": {
     "title": "選擇單字清單",

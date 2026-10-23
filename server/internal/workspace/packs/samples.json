@@ -1,25 +1,35 @@
 [
   {
-    "name": "Test 1",
+    "name": "サンプル：英単語（果物）",
     "words": [
       {
-        "display": "hoge",
-        "input": "hoge",
-        "annotation": ""
+        "display": "apple",
+        "input": "apple",
+        "annotation": "りんご"
       },
       {
-        "display": "foo",
-        "input": "foo",
-        "annotation": ""
+        "display": "banana",
+        "input": "banana",
+        "annotation": "バナナ"
       },
       {
-        "display": "bar",
-        "input": "bar",
-        "annotation": ""
+        "display": "cherry",
+        "input": "cherry",
+        "annotation": "さくらんぼ"
+      },
+      {
+        "display": "grape",
+        "input": "grape",
+        "annotation": "ぶどう"
+      },
+      {
+        "display": "lemon",
+        "input": "lemon",
+        "annotation": "レモン"
       }
     ],
     "records": [
-      { 
+      {
         "time": 5,
         "date": "2024/09/22 10:05"
       }
@@ -27,22 +37,32 @@
     "createdAt": "2024/09/22 10:00"
   },
   {
-    "name": "Test 2",
+    "name": "サンプル：英単語（動物）",
     "words": [
       {
-        "display": "one",
-        "input": "one",
-        "annotation": ""
+        "display": "cat",
+        "input": "cat",
+        "annotation": "ねこ"
       },
       {
-        "display": "two",
-        "input": "two",
-        "annotation": ""
+        "display": "dog",
+        "input": "dog",
+        "annotation": "いぬ"
       },
       {
-        "display": "three",
-        "input": "three",
-        "annotation": ""
+        "display": "bird",
+        "input": "bird",
+        "annotation": "とり"
+      },
+      {
+        "display": "horse",
+        "input": "horse",
+        "annotation": "うま"
+      },
+      {
+        "display": "rabbit",
+        "input": "rabbit",
+        "annotation": "うさぎ"
       }
     ],
     "records": [

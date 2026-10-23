@@ -23,7 +23,9 @@ test('adding devices explains mistakes in place and remembers the device for thi
   page.on('pageerror', error => errors.push(error.message))
   await page.goto('/devices')
   await expect(page.getByRole('heading', { name: '端末はまだ登録されていません', exact: true })).toBeVisible()
-  await expect(page.getByText('このブラウザーに保存', { exact: true })).toBeVisible()
+  // Where the data is saved shows once, in the top bar; the page's own badge is only for narrow screens.
+  await expect(page.getByRole('banner', { name: 'トップバー' })).toContainText('このブラウザーに保存')
+  await expect(page.getByRole('main').getByText('このブラウザーに保存', { exact: true })).toBeHidden()
   // Before any device is registered, the built-in default is listed and in use, and cannot be edited or deleted.
   const defaultRow = page.getByRole('listitem').filter({ has: page.getByRole('heading', { name: 'デフォルト', exact: true }) })
   await expect(defaultRow).toContainText('使用中')

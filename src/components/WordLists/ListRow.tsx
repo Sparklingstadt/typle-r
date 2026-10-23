@@ -53,8 +53,8 @@ export default function ListRow({ item, now, highlight, disabled, canCopy, onEdi
       <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><History className="size-3.5 shrink-0" aria-hidden="true" />{practiceText(item, now)}</p>
     </div>
     <div className="-mr-2 flex items-center gap-1 sm:mr-0">
-      <Button asChild variant="ghost" size="icon-lg" className="hidden size-10 text-muted-foreground sm:inline-flex" title={t('practice')}>
-        <Link href={`/play?list=${id}`} aria-label={t('practiceList', { name: list.name })}><Keyboard aria-hidden="true" /></Link>
+      <Button asChild variant="ghost" size="lg" className="hidden h-10 px-3 text-muted-foreground sm:inline-flex" title={t('practice')}>
+        <Link href={`/play?list=${id}`} aria-label={t('practiceList', { name: list.name })}><Keyboard aria-hidden="true" />{t('practice')}</Link>
       </Button>
       <Button data-edit variant="outline" size="lg" className="size-10 px-0 sm:w-auto sm:px-3" disabled={disabled} onClick={onEdit} aria-label={t('editList', { name: list.name })} title={t('edit')}>
         <Pencil aria-hidden="true" /><span className="hidden sm:inline">{t('edit')}</span>
