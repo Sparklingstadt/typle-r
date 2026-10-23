@@ -89,6 +89,13 @@
     "copy": "複製",
     "delete": "削除"
   },
+  "group": {
+    "levels": "難易度別に{levels, plural, other {#リスト}}",
+    "wordCount": "{count, plural, other {#語}}",
+    "practice": "練習",
+    "practiceGroup": "{name} を練習",
+    "lists": "{name} のリスト"
+  },
   "wordRow": {
     "label": "単語 {n}",
     "drag": "単語 {n} をドラッグして並べ替え",

@@ -7,6 +7,8 @@ private struct PackList: Decodable {
   var name: String
   var category: String?
   var tags: [String]?
+  var group: String?
+  var levels: [String]?
   var words: [Word]
   var records: [StoredRecord]?
   var createdAt: String
@@ -25,12 +27,12 @@ public func initialLists() -> [WordList] {
     let commands = try JSONDecoder().decode([PackList].self, from: load("commands"))
     let lists: [WordList] = samples.enumerated().map { index, list in
       WordList(id: "sample-\(index + 1)", name: list.name, words: list.words, records: [], createdAt: list.createdAt,
-               category: list.category, tags: list.tags)
+               category: list.category, tags: list.tags, group: list.group, levels: list.levels)
     }
     // Each list of countries.json and commands.json names its own id (tests/commands.test.cjs).
     return lists + (countries + commands).map { list in
       WordList(id: list.id ?? list.name, name: list.name, words: list.words, records: list.records ?? [], createdAt: list.createdAt,
-               category: list.category, tags: list.tags)
+               category: list.category, tags: list.tags, group: list.group, levels: list.levels)
     }
   } catch {
     fatalError("Unreadable bundled pack: \(error)")

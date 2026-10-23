@@ -33,11 +33,12 @@ export function sortOverviews(items: ListOverview[], order: ListOrder, locale = 
   })
 }
 
-// Matches the list name, its category and tags, and the words, so a list can be found by one of its words.
+// Matches the list name, its group, category and tags, and the words, so a list can be found by one of its words.
 export function matchesQuery(list: SavedWordList, query: string) {
   const needle = query.trim().toLocaleLowerCase()
   if (!needle) return true
-  return list.name.toLocaleLowerCase().includes(needle) || !!list.category?.toLocaleLowerCase().includes(needle) ||
+  return list.name.toLocaleLowerCase().includes(needle) || !!list.group?.toLocaleLowerCase().includes(needle) ||
+    !!list.category?.toLocaleLowerCase().includes(needle) ||
     !!list.tags?.some(tag => tag.toLocaleLowerCase().includes(needle)) ||
     list.words.some(word => word.display.toLocaleLowerCase().includes(needle) || word.input.toLocaleLowerCase().includes(needle))
 }
@@ -80,6 +81,62 @@ export function listLabels(lists: Pick<SavedWordList, 'category' | 'tags'>[], lo
   }
 }
 
+/** A list shown on its own, or the lists of one group shown as one entry. */
+export type ListEntry<T> = { group: null; items: [T] } | { group: string; items: T[] }
+
+/** Puts the lists of a group together at the place of the first of them, keeping the order of `items` otherwise. A
+ * group that has one list in `all` (every list, when `items` are those a search found) is shown as that list. */
+export function groupEntries<T>(items: T[], listOf: (item: T) => Pick<SavedWordList, 'group'>,
+  all: Pick<SavedWordList, 'group'>[] = items.map(listOf)): ListEntry<T>[] {
+  const sizes = new Map<string, number>()
+  for (const list of all) {
+    const group = list.group?.trim()
+    if (group) sizes.set(group, (sizes.get(group) ?? 0) + 1)
+  }
+  const groups = new Map<string, T[]>()
+  for (const item of items) {
+    const group = listOf(item).group?.trim()
+    if (group) groups.set(group, [...groups.get(group) ?? [], item])
+  }
+  const entries: ListEntry<T>[] = []
+  for (const item of items) {
+    const group = listOf(item).group?.trim()
+    const members = group ? groups.get(group) : undefined
+    if (!group || !members || (sizes.get(group) ?? 0) < 2) entries.push({ group: null, items: [item] })
+    else if (members[0] === item) entries.push({ group, items: members })
+  }
+  return entries
+}
+
+/** A list's name in its group: its levels, such as 基本・初級, or its name when it has none. */
+export function levelName(list: Pick<SavedWordList, 'name' | 'levels'>, separator = '・') {
+  return list.levels?.length ? list.levels.join(separator) : list.name
+}
+
+/** The choices of each step of a group, in the order of its lists: step n offers the nth levels of the lists that match
+ * the levels chosen before it. A list without levels is its own choice in the first step. `chosen` is the levels
+ * picked so far. */
+export function levelSteps(lists: Pick<SavedWordList, 'name' | 'levels'>[], chosen: string[]) {
+  const levelsOf = (list: Pick<SavedWordList, 'name' | 'levels'>) => list.levels?.length ? list.levels : [list.name]
+  const steps: { options: string[]; chosen: string | null }[] = []
+  for (let step = 0; ; step++) {
+    const options = [...new Set(lists.map(levelsOf).filter(levels => levels.length > step && chosen.slice(0, step).every((level, n) => levels[n] === level))
+      .map(levels => levels[step]))]
+    if (!options.length) return steps
+    const pick = options.includes(chosen[step]) ? chosen[step] : null
+    steps.push({ options, chosen: pick })
+    if (pick === null) return steps
+  }
+}
+
+/** The list of a group whose levels are exactly `chosen`, if there is one. */
+export function listAtLevels<T extends Pick<SavedWordList, 'name' | 'levels'>>(lists: T[], chosen: string[]) {
+  return lists.find(list => {
+    const levels = list.levels?.length ? list.levels : [list.name]
+    return levels.length === chosen.length && levels.every((level, n) => level === chosen[n])
+  })
+}
+
 // The first words of a list and how many more there are; the screen joins them in the reader's language.
 export function wordPreview(list: SavedWordList, limit = 6) {
   return { words: list.words.slice(0, limit).map(word => word.display.trim()), rest: Math.max(0, list.words.length - limit) }
@@ -100,7 +157,8 @@ export function copyName(lists: SavedWordList[], name: string, suffix: (n: numbe
   }
 }
 
-// A copy keeps the words, category and tags but starts without records, so its best is its own.
+// A copy keeps the words, category and tags but starts without records, so its best is its own. It is left out of the
+// source's group, where each list has levels of its own.
 export function duplicateList(lists: SavedWordList[], id: string, copyId: string, suffix: (n: number) => string, now = new Date()) {
   const source = lists.find(list => list.id === id)
   if (!source) throw new AppError('listDeleted')

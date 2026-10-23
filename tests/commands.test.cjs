@@ -13,8 +13,8 @@ const words = id => parts(id).flatMap(list => list.words)
 const sources = [...new Set(commands.map(list => source(list.id)))]
 // The lists of v0.75.0 come in three levels whatever their length, and migration 0019 adds them.
 const leveled = ['typescript-syntax', 'hono-methods', 'php-syntax', 'rails-methods', 'express-methods', 'oracle-plsql-syntax', 'sql-server-tsql-syntax']
-// The lists as migrations before 0021 added them: without the category and tags, which 0021 adds.
-const unlabeled = lists => lists.map(({ category: _category, tags: _tags, ...list }) => list)
+// The lists as migrations before 0021 added them: without the category and tags (0021) or the group and levels (0022).
+const unlabeled = lists => lists.map(({ category: _category, tags: _tags, group: _group, levels: _levels, ...list }) => list)
 
 test('the command lists decode in Typle with their own ids and names', () => {
   const lists = decodeLists(JSON.stringify({ version: 1, lists: commands }))

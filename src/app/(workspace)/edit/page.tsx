@@ -15,10 +15,11 @@ import WordListEditor from "@/components/WordListEditor"
 import { downloadWordCsv } from "@/components/WordListExport"
 import ListRow, { usePracticeText } from "@/components/WordLists/ListRow"
 import LabelFilter from "@/components/WordLists/LabelFilter"
+import GroupRow from "@/components/WordLists/GroupRow"
 import { useWordLists } from "@/lib/useWordLists"
 import { useFormat } from "@/i18n/useFormat"
 import { randomId } from "@/core/randomId"
-import { duplicateList, isFiltered, LIST_ORDERS, listLabels, listOverviews, matchesFilter, matchesQuery, MAX_LISTS, NO_FILTER, sortOverviews, type ListFilter, type ListOrder, type ListOverview } from "@/core/listOverview"
+import { duplicateList, groupEntries, isFiltered, LIST_ORDERS, listLabels, listOverviews, matchesFilter, matchesQuery, MAX_LISTS, NO_FILTER, sortOverviews, type ListFilter, type ListOrder, type ListOverview } from "@/core/listOverview"
 import { saveList, type SavedWordList } from "@/core/wordLists"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
@@ -73,6 +74,8 @@ function WordLists({ workspace }: { workspace: Workspace }) {
   const [dirty, setDirty] = useState(false)
   const [cancelRequest, setCancelRequest] = useState(0)
   const [highlight, setHighlight] = useState<string | null>(null)
+  // The open groups stay open while a list of one is edited, so the row is there to return to.
+  const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set())
   const pushed = useRef(false)
   const returnTo = useRef<{ id: string; scroll: number } | null>(null)
   const editing = lists.find(list => list.id === openId)
@@ -157,14 +160,16 @@ function WordLists({ workspace }: { workspace: Workspace }) {
     </Alert>}
     {/* After a failed load the lists are unknown; "no lists yet" would be wrong. */}
     {!(error && !lists.length) && <ListManager lists={lists} saving={saving} highlight={highlight} update={update} notify={notify}
-      onEdit={open} onHighlight={setHighlight} />}
+      openGroups={openGroups} onOpenGroupsChange={setOpenGroups} onEdit={open} onHighlight={setHighlight} />}
   </>
 }
 
-function ListManager({ lists, saving, highlight, update, notify, onEdit, onHighlight }: {
+function ListManager({ lists, saving, highlight, update, notify, openGroups, onOpenGroupsChange, onEdit, onHighlight }: {
   lists: SavedWordList[]
   saving: boolean
   highlight: string | null
+  openGroups: Set<string>
+  onOpenGroupsChange: (value: Set<string>) => void
   update: Workspace['update']
   notify: (message: string) => void
   onEdit: (list: SavedWordList) => void
@@ -206,6 +211,17 @@ function ListManager({ lists, saving, highlight, update, notify, onEdit, onHighl
     }
   }
 
+  // A list just changed is shown in its group, which stays open.
+  const highlightGroup = lists.find(list => list.id === highlight)?.group?.trim()
+  useEffect(() => {
+    if (highlightGroup && !openGroups.has(highlightGroup)) onOpenGroupsChange(new Set([...openGroups, highlightGroup]))
+  }, [highlightGroup, openGroups, onOpenGroupsChange])
+
+  // A row's place among the rows shown, which the focus goes back to after it is deleted.
+  function rowPosition(id: string) {
+    return [...document.querySelectorAll<HTMLElement>('[data-list-id]')].findIndex(row => row.dataset.listId === id)
+  }
+
   // After a deletion, focus the row that took the removed row's place so the next list can be handled too.
   function focusAfterDelete(event: Event) {
     event.preventDefault()
@@ -245,9 +261,24 @@ function ListManager({ lists, saving, highlight, update, notify, onEdit, onHighl
     </div>
 
     {shown.length ? <ul className="divide-y overflow-hidden rounded-xl border bg-card">
-      {shown.map((item, position) => <ListRow key={item.list.id} item={item} now={now} highlight={highlight === item.list.id} disabled={saving} canCopy={!full}
-        onEdit={() => onEdit(item.list)} onExport={() => exportCsv(item.list)} onCopy={() => copy(item.list)}
-        onDelete={() => { deleted.current = false; setDeleting({ open: true, item, position }) }} />)}
+      {groupEntries(shown, item => item.list, lists).map(entry => {
+        const row = (item: ListOverview) => <ListRow key={item.list.id} item={item} now={now} highlight={highlight === item.list.id} disabled={saving} canCopy={!full}
+          onEdit={() => onEdit(item.list)} onExport={() => exportCsv(item.list)} onCopy={() => copy(item.list)}
+          onDelete={() => { deleted.current = false; setDeleting({ open: true, item, position: rowPosition(item.list.id) }) }} />
+        if (entry.group === null) return row(entry.items[0])
+        const group = entry.group
+        // A search or filter shows the matching lists of every group.
+        const open = narrowed || openGroups.has(group)
+        // Inside a group the lists keep their saved order, which goes from the first level to the last.
+        const items = [...entry.items].sort((a, b) => a.position - b.position)
+        return <GroupRow key={`group:${group}`} group={group} items={items} now={now} open={open}
+          onToggle={() => {
+            const next = new Set(openGroups)
+            if (open) next.delete(group)
+            else next.add(group)
+            onOpenGroupsChange(next)
+          }}>{items.map(row)}</GroupRow>
+      })}
     </ul> : <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed bg-card px-6 py-10 text-center">
       <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">{query.trim() ? t('manager.noMatch', { query: query.trim() }) : t('filter.noMatch')}</p>
       <Button variant="outline" onClick={() => { setQuery(''); setFilter(NO_FILTER) }}>{isFiltered(filter) ? t('filter.clearAll') : t('manager.clearSearch')}</Button>

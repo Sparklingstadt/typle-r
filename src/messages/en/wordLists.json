@@ -89,6 +89,13 @@
     "copy": "Duplicate",
     "delete": "Delete"
   },
+  "group": {
+    "levels": "{levels, plural, one {# level} other {# levels}}",
+    "wordCount": "{count, plural, one {# word} other {# words}}",
+    "practice": "Practice",
+    "practiceGroup": "Practice {name}",
+    "lists": "Lists of {name}"
+  },
   "wordRow": {
     "label": "Word {n}",
     "drag": "Drag to reorder word {n}",

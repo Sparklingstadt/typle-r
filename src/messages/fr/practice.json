@@ -108,6 +108,11 @@
     "selected": "{name}, sélectionnée",
     "select": "Sélectionner {name}",
     "withBest": "{count, plural, one {# mot} other {# mots}} · meilleur {time} s",
-    "noRecord": "{count, plural, one {# mot} other {# mots}} · aucun résultat"
+    "noRecord": "{count, plural, one {# mot} other {# mots}} · aucun résultat",
+    "groupSelected": "{level} · {summary}",
+    "groupLists": "{count, plural, one {# liste} other {# listes}} · choisir un niveau",
+    "levels": "Niveaux de {name}",
+    "step": "Niveau, étape {n}",
+    "chooseLevel": "Choisissez maintenant le niveau suivant."
   }
 }

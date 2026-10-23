@@ -108,6 +108,11 @@
     "selected": "{name} を選択中",
     "select": "{name} を選択",
     "withBest": "{count}語 · ベスト {time} 秒",
-    "noRecord": "{count}語 · 記録なし"
+    "noRecord": "{count}語 · 記録なし",
+    "groupSelected": "{level} · {summary}",
+    "groupLists": "{count, plural, other {#リスト}} · 難易度を選ぶ",
+    "levels": "{name} の難易度",
+    "step": "難易度の{n}段目",
+    "chooseLevel": "続けて難易度を選んでください。"
   }
 }

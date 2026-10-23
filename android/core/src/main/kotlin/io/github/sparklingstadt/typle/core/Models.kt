@@ -44,6 +44,12 @@ data class WordList(
    */
   val category: String? = null,
   val tags: List<String>? = null,
+  /**
+   * Lists with the same group, such as Linuxコマンド, are one choice in the web app, which then asks for their levels,
+   * such as 基本 then 初級 (v0.79.0). Kept as saved; a copy leaves them out.
+   */
+  val group: String? = null,
+  val levels: List<String>? = null,
 )
 
 data class WorkspaceDocument(val lists: List<WordList>, val devices: List<PracticeDevice>)

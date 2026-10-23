@@ -89,6 +89,13 @@
     "copy": "Dupliquer",
     "delete": "Supprimer"
   },
+  "group": {
+    "levels": "{levels, plural, one {# niveau} other {# niveaux}}",
+    "wordCount": "{count, plural, one {# mot} other {# mots}}",
+    "practice": "S’entraîner",
+    "practiceGroup": "S’entraîner sur {name}",
+    "lists": "Listes de {name}"
+  },
   "wordRow": {
     "label": "Mot {n}",
     "drag": "Faire glisser pour déplacer le mot {n}",

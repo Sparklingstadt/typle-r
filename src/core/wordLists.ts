@@ -8,6 +8,11 @@ export type WordList = {
   category?: string,
   /** What the list is about, such as Kotlin or PostgreSQL. Left out when it has none. */
   tags?: string[],
+  /** Lists with the same group, such as Linuxコマンド, are shown as one and chosen by their levels. Left out when
+   * the list is on its own. */
+  group?: string,
+  /** The list's place in its group, from the broadest choice to the finest, such as 基本 then 初級. */
+  levels?: string[],
   words: {
     display: string,
     input: string,
@@ -31,6 +36,10 @@ export type SavedWordList = WordList & { id: string }
 export const MAX_CATEGORY = 50
 export const MAX_TAG = 50
 export const MAX_TAGS = 20
+// The limits of a list's group and levels (see validateLists).
+export const MAX_GROUP = 200
+export const MAX_LEVEL = 50
+export const MAX_LEVELS = 5
 
 /** The category and tags as they are saved: trimmed, without empty ones or a tag repeated in another case, and left out
  * when there are none, so a list without them is stored as before they existed. */
@@ -58,6 +67,14 @@ export function validateList(list: WordList, others: WordList[] = []) {
   }
 }
 
+/** The group and levels as they are saved: trimmed, and left out when there is no group. */
+export function normalizeGroup({ group, levels }: Pick<WordList, 'group' | 'levels'>): Pick<WordList, 'group' | 'levels'> {
+  const name = group?.trim()
+  if (!name) return {}
+  const kept = (levels ?? []).map(level => level.trim()).filter(Boolean)
+  return { group: name, ...(kept.length ? { levels: kept } : {}) }
+}
+
 export function decodeLists(raw: string): SavedWordList[] {
   const data = JSON.parse(raw)
   if (data?.version !== 1 || !Array.isArray(data.lists)) throw new AppError('savedDataUnreadable')
@@ -67,6 +84,8 @@ export function decodeLists(raw: string): SavedWordList[] {
         typeof list.createdAt !== "string" || !Array.isArray(list.words) || !Array.isArray(list.records) ||
         (list.category !== undefined && typeof list.category !== "string") ||
         (list.tags !== undefined && (!Array.isArray(list.tags) || list.tags.some((tag: unknown) => typeof tag !== "string"))) ||
+        (list.group !== undefined && typeof list.group !== "string") ||
+        (list.levels !== undefined && (!Array.isArray(list.levels) || list.levels.some((level: unknown) => typeof level !== "string"))) ||
         list.words.some((word: WordList['words'][number]) => !word || typeof word.display !== "string" || typeof word.input !== "string" || typeof word.annotation !== "string") ||
         list.records.some((record: WordList['records'][number]) => !record || !Number.isFinite(record.time) || record.time < 0 || typeof record.date !== "string" ||
           !Number.isFinite(Date.parse(record.date)) ||
@@ -94,8 +113,8 @@ export function saveList(lists: SavedWordList[], list: SavedWordList, editing: b
   if (editing && !lists.some(item => item.id === list.id)) throw new AppError('listDeleted')
   validateList(list, lists.filter(item => item.id !== list.id))
   // Whitespace can be meaningful in imported typing strings and annotations.
-  const { category, tags, ...rest } = list
-  const normalized = { ...rest, name: list.name.trim(), ...normalizeLabels({ category, tags }) }
+  const { category, tags, group, levels, ...rest } = list
+  const normalized = { ...rest, name: list.name.trim(), ...normalizeLabels({ category, tags }), ...normalizeGroup({ group, levels }) }
   // The editor's copy of a list knows nothing of its records, so those stay as saved.
   const keep = (item: SavedWordList): SavedWordList => ({ ...normalized, records: item.records })
   if (!editing && lists.some(item => item.id === list.id)) return lists.map(item => item.id === list.id ? keep(item) : item)

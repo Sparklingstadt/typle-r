@@ -15,6 +15,9 @@ const val MAX_RECORDS = 10000
 const val MAX_CATEGORY = 50
 const val MAX_TAG = 50
 const val MAX_TAGS = 20
+const val MAX_GROUP = 200
+const val MAX_LEVEL = 50
+const val MAX_LEVELS = 5
 
 /**
  * normalizeLabels: the category and tags trimmed, without empty ones or a tag repeated in another case, and null when
@@ -53,6 +56,7 @@ fun validateLists(lists: List<WordList>) {
   if (lists.any { list ->
       list.words.size > MAX_WORDS || list.records.size > MAX_RECORDS || list.name.length > MAX_LIST_NAME ||
         (list.category?.length ?: 0) > MAX_CATEGORY || (list.tags?.size ?: 0) > MAX_TAGS || (list.tags ?: emptyList()).any { it.length > MAX_TAG } ||
+        (list.group?.length ?: 0) > MAX_GROUP || (list.levels?.size ?: 0) > MAX_LEVELS || (list.levels ?: emptyList()).any { it.length > MAX_LEVEL } ||
         list.words.any { it.input.length > MAX_WORD_FIELD || it.display.length > MAX_WORD_FIELD || it.annotation.length > MAX_ANNOTATION }
     }) throw TypleException("invalidWorkspace")
 }

@@ -108,6 +108,11 @@
     "selected": "{name}, выбран",
     "select": "Выбрать {name}",
     "withBest": "{count, plural, one {# слово} few {# слова} many {# слов} other {# слова}} · лучший {time} с",
-    "noRecord": "{count, plural, one {# слово} few {# слова} many {# слов} other {# слова}} · нет результатов"
+    "noRecord": "{count, plural, one {# слово} few {# слова} many {# слов} other {# слова}} · нет результатов",
+    "groupSelected": "{level} · {summary}",
+    "groupLists": "{count, plural, one {# список} few {# списка} many {# списков} other {# списка}} · выберите уровень",
+    "levels": "Уровни: {name}",
+    "step": "Уровень, шаг {n}",
+    "chooseLevel": "Теперь выберите следующий уровень."
   }
 }

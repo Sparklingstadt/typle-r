@@ -39,6 +39,10 @@ public static class Workspace
 
         public IReadOnlyList<string>? Tags { get; init; }
 
+        public string? Group { get; init; }
+
+        public IReadOnlyList<string>? Levels { get; init; }
+
         public required IReadOnlyList<Word> Words { get; init; }
 
         public IReadOnlyList<StoredRecord>? Records { get; init; }
@@ -64,13 +68,15 @@ public static class Workspace
         [
             .. samples.Select((list, index) => new WordList
             {
-                Id = $"sample-{index + 1}", Name = list.Name, Category = list.Category, Tags = list.Tags, Words = list.Words,
+                Id = $"sample-{index + 1}", Name = list.Name, Category = list.Category, Tags = list.Tags, Group = list.Group,
+                Levels = list.Levels, Words = list.Words,
                 CreatedAt = list.CreatedAt,
             }),
             // Each list of countries.json and commands.json names its own id (tests/commands.test.cjs).
             .. countries.Concat(commands).Select(list => new WordList
             {
-                Id = list.Id ?? list.Name, Name = list.Name, Category = list.Category, Tags = list.Tags, Words = list.Words,
+                Id = list.Id ?? list.Name, Name = list.Name, Category = list.Category, Tags = list.Tags, Group = list.Group,
+                Levels = list.Levels, Words = list.Words,
                 Records = list.Records ?? [], CreatedAt = list.CreatedAt,
             }),
         ];

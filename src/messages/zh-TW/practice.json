@@ -108,6 +108,11 @@
     "selected": "已選擇 {name}",
     "select": "選擇 {name}",
     "withBest": "{count} 個單字 · 最佳 {time} 秒",
-    "noRecord": "{count} 個單字 · 無紀錄"
+    "noRecord": "{count} 個單字 · 無紀錄",
+    "groupSelected": "{level} · {summary}",
+    "groupLists": "{count, plural, other {#個清單}} · 選擇難度",
+    "levels": "{name} 的難度",
+    "step": "難度第{n}步",
+    "chooseLevel": "請繼續選擇難度。"
   }
 }
