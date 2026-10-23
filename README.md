@@ -3,6 +3,31 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
+## v0.75.0 — TypeScript・Hono・PHP・Rails・Express・Oracle PL/SQL・SQL Server T-SQL の単語リストを追加しました
+
+提供された7つのCSVから単語リストを作り、それぞれ初級・中級・上級の3つに分けて初期リストに加えました（21リスト、各11〜18語）。初期リストは64件から85件になります。
+
+| リスト | 元のCSV | 語数 | 分けた後 |
+|---|---|---|---|
+| TypeScript構文 | `typescript7_syntax.csv`（53行。SHA-256 `20a87a01b79427fc49674fc58cec57fe22bea0f0a2cacb5ad2d6b07052a38c86`） | 54 | 18・18・18 |
+| Honoメソッド | `hono_methods.csv`（34行。SHA-256 `71e6433f2d6f0a277c033f6c6bf96d333965043b58a76880bd4e37f08d468462`） | 36 | 12・12・12 |
+| PHP構文 | `php_syntax.csv`（39行。SHA-256 `728784d6b39eb9b91c9fa770877a5248579d2263a6160fe9db6ec9e1765d7a71`） | 41 | 14・14・13 |
+| Railsメソッド | `rails_methods.csv`（39行。SHA-256 `758e2538aec1413f0ac26afe93d135047c1672113712418bdc69491174048c7e`） | 44 | 15・15・14 |
+| Expressメソッド | `express_methods.csv`（33行。SHA-256 `cc60342c358ef0017b1183b13008ce34cf11d501fe6c998e31bcc82a64918308`） | 35 | 12・12・11 |
+| Oracle PL/SQL構文 | `oracle_plsql_syntax.csv`（36行。SHA-256 `6d5c3da966dbfdfea3593ddb7000c4422a9b3a32a82c0ae9e257cae96b69f20b`） | 37 | 13・12・12 |
+| SQL Server T-SQL構文 | `sql_server_tsql_syntax.csv`（43行。SHA-256 `5167a4332cda94395ad0933d9a37c07df7c8afa3f808c3206e345f2e37c01818`） | 45 | 15・15・15 |
+
+- 分け方：v0.74.0 と同じく、入力の文字数（記号と日本語は2文字）で打ちやすい順に並べ、語数をそろえて分けます。リストの最初の語（前提の説明）は初級の最初に残し、各リストの中は元の順のままです。どのリストも40語以下ですが、練習しやすいよう3つに分けます。
+- 補足は「構文・メソッド：用途」に注意点を括弧で添えます。コード例は1行にして入力します。
+  - TypeScript・Hono・Express：Prisma・Jest・Playwright と同じつなぎ方です（`(`・`[` の後ろと `)`・`]` の前は空白なし、複数行の中の `//` コメントは `/* */`）。TypeScript の構文解析で、`npm` のコマンドと tsconfig（JSONとして確認）以外のすべてが正しいことを確かめています。
+  - PHP：行を空白でつなぎます。`php -l`（PHP 8.3）で、コマンド以外の38語が正しいことを確かめています。
+  - Rails：Ruby は改行が文の区切りなので `; ` でつなぎます（`User.transaction do; user = ...; end`）。ERB のテンプレートは空白でつなぎます。「# 別の…例:」の後のコメントの例は、コメントを外して別の語にします（`head :no_content`、`Post.where(published: false).delete_all`）。`ruby -c`（Ruby 3.3）で、コマンドと Rails の ERB にだけある `<%= form_with ... do |f| %>` 以外の39語が正しいことを確かめています。
+  - Oracle PL/SQL：行を空白でつなぎます。SQL*Plus の実行区切りの `/` は入力せず、そこで別の語に分けます（パッケージの宣言と本体）。構文解析器で確かめられるものがないため、PL/SQL の構文は確かめていません。
+  - SQL Server T-SQL：行を空白でつなぎ、`(` の後ろと `)` の前の空白は詰めます。`GO` の行はクライアントの区切りなので1語にし、前後を別の語にします。複数行の中の `--` コメントは `/* */` にします。sqlglot（tsql）で40語の構文を確かめています（`GO`・`OUTPUT` 付きの `DELETE`・`WHILE`・`TRY CATCH`・`SET STATISTICS` の5語は sqlglot が読めないため対象外）。
+  - 1行に1つずつのコマンド（`npm`・`npx`・`php`・`bin/rails`）は、1つずつ別の語にします。
+- 保存済みのアカウント：マイグレーション `0019_seed_framework_and_sql_lists` が、0017 と同じ規則で21リストを追加します（同じIDか同じ名前のリストがあればそのリストは追加せず、100リストか保存できる大きさを超えるアカウントには追加しません）。
+- 初期リストが85件になったため、新しいアカウントで作れるリストは残り15件です（上限は100件）。
+
 ## v0.74.0 — 40語を超える初期リストを初級・中級・上級に分けました
 
 1つのリストが最大193語あり、1回の練習が長すぎたため、40語を超える18リストを40語以下に分けました。初期リストは22件から64件になります（分けたリストは23〜40語）。
@@ -165,7 +190,7 @@ Next.js のアプリは1つで、`src` を層に分けています。依存は�
 | 層 | 場所 | 内容 |
 |---|---|---|
 | 画面 | `src/app`・`src/components`・`src/i18n`・`src/lib` | ページ、UI、多言語化、React のフック。`useWordLists` は React の状態とブラウザーのイベント（フォーカス・他タブの変更）だけを受け持ち、読み込み・保存は core の `createWorkspaceSession` に任せます |
-| プラグイン | `src/plugins` | core のポートの実装と初期データ。`storage`：`cloud`（Goのバックエンドが提供する `/api/workspace`）と `guest`（LocalStorage）を `workspaceStore(accountId)` がアカウントに応じて選びます。`formats`：CSV・TSV（`delimited.ts`）と旧バージョンのブラウザー保存からの移行（`legacy.ts`）。`packs`：最初に表示する単語リスト（サンプル、国名193か国、Linux・Vercel CLI・gcloud・AWS CLI・macOS（zsh）・Arch Linux・Vim・Go構文・Java構文・Kotlin構文・PostgreSQL構文・Prisma構文・Jest構文・Playwright構文の18種類。40語を超えるものは初級・中級・上級に分け、全部で64リスト） |
+| プラグイン | `src/plugins` | core のポートの実装と初期データ。`storage`：`cloud`（Goのバックエンドが提供する `/api/workspace`）と `guest`（LocalStorage）を `workspaceStore(accountId)` がアカウントに応じて選びます。`formats`：CSV・TSV（`delimited.ts`）と旧バージョンのブラウザー保存からの移行（`legacy.ts`）。`packs`：最初に表示する単語リスト（サンプル、国名193か国、Linux・Vercel CLI・gcloud・AWS CLI・macOS（zsh）・Arch Linux・Vim・Go構文・Java構文・Kotlin構文・PostgreSQL構文・Prisma構文・Jest構文・Playwright構文の18種類。40語を超えるものは初級・中級・上級に分け、全部で64リスト。v0.75.0 から TypeScript・Hono・PHP・Rails・Express・Oracle PL/SQL・SQL Server T-SQL の7種類を3つずつ加えて85リスト） |
 | core | `src/core` | React・Next.js・ブラウザーAPIに依存しない TypeScript。単語リスト・入力判定・記録・集計・ワークスペースのモデルと検証、保存先のポート `WorkspaceStore`（`workspaceStore.ts`、保存場所 `location` を含む）、ワークスペースの読み込み・保存 `createWorkspaceSession`（`workspaceSession.ts`。アカウントの切り替え後に届いた結果の破棄、保存の直列化、409での再読み込み、古いクラウド読み込みの無視）とファイル形式のポート `WordFormat`（`wordFormat.ts`） |
 
 保存先を増やすときは `WorkspaceStore` を実装したプラグインを `src/plugins/storage` に追加し、`workspaceStore` で選びます。ファイル形式を増やすときは `WordFormat` を実装して `src/plugins/formats/index.ts` の一覧に加えると、取り込みの拡張子判定と `accept` に反映されます。どちらも画面のコードは変わりません。
@@ -452,7 +477,7 @@ Prisma構文・Jest構文・Playwright構文もコード例を入力し、補足
 
 `tests/commands.test.cjs` で、18リストの読み込み、語数、入力が前後に空白のないASCII（Go・Java・Kotlin・PostgreSQL・Prisma・Jest・Playwright構文と、日本語を含む13語を除く）で表示と一致すること、リスト内で入力が重複しないことを確かめます。
 
-初期リストなので、まだ一度も保存していないアカウントとブラウザーには最初から表示されます。v0.63.0 から、すでに保存しているアカウントにも、マイグレーション `0009_seed_command_lists`（`npm run db:migrate`。本番ではデプロイ時に実行）が9リストを、v0.64.0 から `0010_seed_arch_linux_list` がArch Linuxのリストを、v0.65.0 から `0011_seed_vim_list` がVimのリストを、v0.66.0 から `0012_seed_go_syntax_list` がGo構文のリストを、v0.67.0 から `0013_seed_java_syntax_list` がJava構文のリストを、v0.68.0 から `0014_seed_kotlin_syntax_list` がKotlin構文のリストを、v0.71.0 から `0016_seed_postgresql_syntax_list` がPostgreSQL構文のリストを、v0.72.0 から `0017_seed_test_framework_lists` がPrisma・Jest・Playwright構文の3リストを追加します。小文字の国名リストも、同じ規則で `0015_seed_lowercase_country_list` が追加します。`scripts/seed.cjs` と同じく、同じIDまたは同じ名前のリストがある場合はそのリストを追加せず、ほかのリストと練習記録はそのまま残します。追加すると100リストか保存できる大きさ（`MaxListsBytes`）を超えるアカウントには追加しません。マイグレーションは1回だけ実行されるため、その後に削除したリストは戻りません。改めて追加するときは `npm run db:seed -- --owner github:<ID>` を使います。このブラウザーに保存している場合（ログインしていない場合）はマイグレーションの対象外です。
+初期リストなので、まだ一度も保存していないアカウントとブラウザーには最初から表示されます。v0.63.0 から、すでに保存しているアカウントにも、マイグレーション `0009_seed_command_lists`（`npm run db:migrate`。本番ではデプロイ時に実行）が9リストを、v0.64.0 から `0010_seed_arch_linux_list` がArch Linuxのリストを、v0.65.0 から `0011_seed_vim_list` がVimのリストを、v0.66.0 から `0012_seed_go_syntax_list` がGo構文のリストを、v0.67.0 から `0013_seed_java_syntax_list` がJava構文のリストを、v0.68.0 から `0014_seed_kotlin_syntax_list` がKotlin構文のリストを、v0.71.0 から `0016_seed_postgresql_syntax_list` がPostgreSQL構文のリストを、v0.72.0 から `0017_seed_test_framework_lists` がPrisma・Jest・Playwright構文の3リストを、v0.75.0 から `0019_seed_framework_and_sql_lists` がTypeScript・Hono・PHP・Rails・Express・Oracle PL/SQL・SQL Server T-SQLの21リストを追加します。小文字の国名リストも、同じ規則で `0015_seed_lowercase_country_list` が追加します。`scripts/seed.cjs` と同じく、同じIDまたは同じ名前のリストがある場合はそのリストを追加せず、ほかのリストと練習記録はそのまま残します。追加すると100リストか保存できる大きさ（`MaxListsBytes`）を超えるアカウントには追加しません。マイグレーションは1回だけ実行されるため、その後に削除したリストは戻りません。改めて追加するときは `npm run db:seed -- --owner github:<ID>` を使います。このブラウザーに保存している場合（ログインしていない場合）はマイグレーションの対象外です。
 
 上の表の語数は元のリストのものです。v0.74.0 から、40語を超えるリストは初級・中級・上級などに分けて `commands.json`・`countries.json` に入れています（分け方は v0.74.0 の説明、確かめ方は `tests/commands.test.cjs`）。保存済みのアカウントでは `0018_split_long_initial_lists` が分けたリストに置き換えます。
 

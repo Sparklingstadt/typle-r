@@ -381,8 +381,8 @@ public class WorkspaceTests
     {
         var lists = Workspace.InitialLists();
         Assert.Equal(["sample-1", "sample-2"], lists.Select(list => list.Id).Take(2));
-        Assert.Equal(64, lists.Count);
-        Assert.Equal(["un-member-states-chinese-193-beginner-1", "linux-commands-basic-beginner", "playwright-syntax-advanced"],
+        Assert.Equal(85, lists.Count);
+        Assert.Equal(["un-member-states-chinese-193-beginner-1", "linux-commands-basic-beginner", "sql-server-tsql-syntax-advanced"],
             new[] { lists[2], lists[7], lists[^1] }.Select(list => list.Id));
         Assert.All(lists, list => Assert.True(list.Words.Count <= 40));
         WordLists.ValidateAll(lists);

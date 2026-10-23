@@ -66,8 +66,8 @@ func TestInitial(t *testing.T) {
 			t.Fatalf("%s has records", list.ID)
 		}
 	}
-	if len(ids) != 64 || strings.Join(ids[:3], ",") != "sample-1,sample-2,un-member-states-chinese-193-beginner-1" ||
-		ids[7] != "linux-commands-basic-beginner" || ids[len(ids)-1] != "playwright-syntax-advanced" {
+	if len(ids) != 85 || strings.Join(ids[:3], ",") != "sample-1,sample-2,un-member-states-chinese-193-beginner-1" ||
+		ids[7] != "linux-commands-basic-beginner" || ids[len(ids)-1] != "sql-server-tsql-syntax-advanced" {
 		t.Fatalf("ids = %v", ids)
 	}
 	for _, list := range w.Lists {
