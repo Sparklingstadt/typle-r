@@ -15,7 +15,7 @@ struct TypleApp: App {
         .frame(minWidth: 800, minHeight: 560)
         #endif
         #if os(macOS) && DEBUG
-        // Screenshots in .github/workflows/macos.yml: `-TypleSnapshot <file>` saves the window and quits.
+        // Screenshots: `-TypleSnapshot <file>` saves the window and quits.
         .task { await MacSnapshot.takeIfAsked() }
         #endif
     }

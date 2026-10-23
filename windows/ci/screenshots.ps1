@@ -1,5 +1,5 @@
 # Shows every page of the app with its sample data (Demo.cs, --demo) and saves a screenshot of each window into
-# windows/screenshots, to compare with the web app. Run by .github/workflows/windows.yml on a Windows runner.
+# windows/screenshots, to compare with the web app. Run it by hand on Windows.
 param(
   [string]$App = 'windows/publish/Typle.exe',
   [string]$Out = 'windows/screenshots'

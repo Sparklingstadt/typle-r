@@ -3,7 +3,7 @@ const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
 
-// The Mac app (macos/) is built from the iPad app's sources on macOS only (.github/workflows/macos.yml); these checks
+// The Mac app (macos/) is built from the iPad app's sources on macOS only (no CI workflow since v0.70.0); these checks
 // of its text run everywhere. Its Mac.strings replaces the iPad's text where that names the iPad.
 const root = path.join(__dirname, '..')
 const ios = path.join(root, 'ios')

@@ -11,7 +11,7 @@ iPad 版（`ios/`）の SwiftUI のコードと共通の規則（`ios/TypleCore`
 
 ## 入れ方
 
-GitHub Actions の `Mac app` ワークフローが、`macos/`・`ios/` を変えた PR と手動の実行（Actions の「Run workflow」）のたびにアプリを作り、成果物 `typle-macos-app`（`Typle-macOS.zip`）に残します。Apple silicon と Intel の両方で動きます。main のアプリが欲しいときは、main で手動実行します。
+v0.70.0 で GitHub Actions のワークフローを削除したため、アプリは Xcode で `macos/` を開いて作ります。
 
 1. `Typle-macOS.zip` を開いて、`Typle.app` を「アプリケーション」に移します。
 2. Apple の公証（notarization）を受けていないため、初回は Finder で `Typle.app` を Control キーを押しながらクリックして「開く」を選びます（macOS 15 以降は、一度開こうとした後で「システム設定」→「プライバシーとセキュリティ」の「このまま開く」）。
@@ -78,9 +78,9 @@ Web 版と同じ画面構成・色・部品です。上部バー（ブランド�
 
 ## 確認
 
-- `.github/workflows/macos.yml` が、`macos/`・`ios/Typle`・`ios/TypleCore` を変えた PR と手動の実行で、Mac 向けのビルドと、サンプルデータ（`-TypleDemo YES`）での各ページのスクリーンショット（ログと成果物 `mac-screenshots`）、配布用のアプリ（`typle-macos-app`）を作ります。マージ後の main への push では動きません（macOS の利用時間は 10 倍で数えられるため）。Web 版のリリース・デプロイ（`ci.yml`）とは別です。
+- CI のワークフローはありません（v0.70.0 で削除）。Mac 向けのビルドとサンプルデータ（`-TypleDemo YES`）での確認は手元で行います。文言は `npm test`（`tests/macos.test.cjs`）が確かめます。
 - `npm test` の `tests/macos.test.cjs` が、「iPad」「タップ」を含む文言すべてに Mac 版があり、プレースホルダーがそろっているか、Mac のコードが使う文言が日本語・英語の両方にあるか、Mac の練習欄の引数が iPad のものと同じかを確かめます。
-- 共通の規則は `cd ios/TypleCore && swift test` で確かめます（`.github/workflows/ios.yml`）。
+- 共通の規則は `cd ios/TypleCore && swift test` で確かめます。
 
 ## 範囲外
 

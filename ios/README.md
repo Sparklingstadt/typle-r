@@ -22,7 +22,7 @@ Xcode で「Signing & Capabilities」の Team を自分のものにして、iPad
 
 Web 版と同じ画面構成・色・部品です。上部バー（ブランド・保存先・ライト／ダーク・アカウント）、幅が 1280pt 以上ならサイドバー、それより狭ければメニューボタンで開くドロワー。色と角丸は `src/app/globals.css` の値を `Typle/Design/Theme.swift` に写しています。表示言語（日本語・English）は「一般」でその場で切り替えられます。
 
-`.github/workflows/ios.yml` は、サンプルデータ（`-TypleDemo YES`、`Typle/Support/DemoData.swift`）で各ページをシミュレーターに表示してスクリーンショットを撮り、成果物 `ipad-screenshots` に残します。Web 版と見比べるときに使います。
+サンプルデータ（`-TypleDemo YES`、`Typle/Support/DemoData.swift`）で起動すると、各ページを実データに触れずに表示できます。Web 版と見比べるときに使います（v0.70.0 で GitHub Actions のワークフローを削除したため、撮影は手元で行います）。
 
 ## できること
 
@@ -61,7 +61,7 @@ Web 版と同じ画面構成・色・部品です。上部バー（ブランド�
 | `Typle/` | SwiftUI のアプリ。`Storage/`（この iPad とアカウント、ログイン）、`Practice/`、`Lists/`、`Records/`、`Devices/`、`Resources/`（文言とアイコン） |
 | `project.yml` | XcodeGen の設定 |
 
-Mac 版（`macos/`）は `Typle/` と `TypleCore/` をそのまま使います（v0.60.0 から）。Mac で違うところは `#if os(macOS)` と `Typle/Support/Platform.swift` にあり、iPad のビルドには入りません。`Typle/` を変えたら、PR の `Mac app` ワークフロー（`.github/workflows/macos.yml`）でも Mac のビルドを確かめます。`Practice/PracticeTextField.swift` の引数を変えたら、Mac の `macos/Typle/Practice/PracticeTextField.swift` もそろえてください（`tests/macos.test.cjs` が確かめます）。Xcode は同じ `TypleCore` を2つのプロジェクトで同時に開けないため、iPad 版と Mac 版のプロジェクトは片方ずつ開きます。
+Mac 版（`macos/`）は `Typle/` と `TypleCore/` をそのまま使います（v0.60.0 から）。Mac で違うところは `#if os(macOS)` と `Typle/Support/Platform.swift` にあり、iPad のビルドには入りません。`Typle/` を変えたら、手元で Mac のビルドも確かめます。`Practice/PracticeTextField.swift` の引数を変えたら、Mac の `macos/Typle/Practice/PracticeTextField.swift` もそろえてください（`tests/macos.test.cjs` が確かめます）。Xcode は同じ `TypleCore` を2つのプロジェクトで同時に開けないため、iPad 版と Mac 版のプロジェクトは片方ずつ開きます。
 
 文字は JavaScript の `Array.from` と同じくコードポイントで数えるため、Web 版と同じ入力が同じミス数・正確率になります。
 
@@ -71,7 +71,7 @@ Mac 版（`macos/`）は `Typle/` と `TypleCore/` をそのまま使います�
 cd ios/TypleCore && swift test
 ```
 
-- `.github/workflows/ios.yml` が、`ios/` を変えた PR と手動の実行で、macOS 上の `swift test` と iPad シミュレーター向けのビルドを行います。マージ後の main への push では動きません（macOS の利用時間は 10 倍で数えられるため）。Web 版のリリース・デプロイ（`ci.yml`）とは別です。
+- CI のワークフローはありません（v0.70.0 で削除）。`cd ios/TypleCore && swift test` と iPad シミュレーター向けのビルドは Mac の手元で行います。データの写しと文言は `npm test`（`tests/ios.test.cjs`）が確かめます。
 - `npm test` の `tests/ios.test.cjs` が、最初の単語リストのコピーが元と同じか、使っている文言が日本語・英語の両方にあり、プレースホルダーがそろっているかを確かめます。`src/plugins/packs` を変えたら `TypleCore/Sources/TypleCore/Resources` にコピーしてください。
 
 ## 範囲外

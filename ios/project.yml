@@ -49,7 +49,7 @@ targets:
         CFBundleAllowMixedLocalizations: true
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
-  # Only turns the simulator for the screenshots in .github/workflows/ios.yml (see OrientationTests.swift).
+  # Only turns the simulator for screenshots (see OrientationTests.swift).
   TypleUITests:
     type: bundle.ui-testing
     platform: iOS

@@ -56,7 +56,7 @@ extension CsvExport {
 }
 
 #if DEBUG
-/// Screenshots for .github/workflows/macos.yml: with `-TypleSnapshot <file>` the app saves its window as a PNG once the
+/// Screenshots: with `-TypleSnapshot <file>` the app saves its window as a PNG once the
 /// page has settled, and quits. It draws the window itself, so the runner needs no permission to record the screen.
 @MainActor
 enum MacSnapshot {
