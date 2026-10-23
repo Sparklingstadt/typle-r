@@ -10,7 +10,7 @@ test('the command lists decode in Typle with their own ids and names', () => {
   const lists = decodeLists(JSON.stringify({ version: 1, lists: commands }))
   assert.deepEqual(lists.map(list => [list.id, list.words.length]), [
     ['linux-commands-basic', 118], ['linux-commands-options', 146], ['linux-commands-advanced', 131],
-    ['linux-shell-bash', 76], ['linux-system', 140], ['vercel-cli', 34], ['gcloud-cli', 35], ['aws-cli', 46], ['macos-zsh', 90], ['arch-linux', 96], ['vim', 112],
+    ['linux-shell-bash', 76], ['linux-system', 140], ['vercel-cli', 34], ['gcloud-cli', 35], ['aws-cli', 46], ['macos-zsh', 90], ['arch-linux', 96], ['vim', 112], ['go-syntax', 109],
   ])
   const { initialLists } = require('../src/plugins/packs/index.ts')
   for (const list of lists) validateList(list, initialLists.filter(other => other.id !== list.id))
@@ -27,7 +27,8 @@ test('each command is typed as shown, in ASCII, once per list, with an explanati
     assert.equal(new Set(list.words.map(word => word.input)).size, list.words.length, list.name)
     for (const word of list.words) {
       assert.equal(word.display, word.input)
-      assert.match(japanese.includes(word.input) ? word.input.replace(/[^\x20-\x7e]/g, 'x') : word.input,
+      // Go code examples hold Japanese strings and comments.
+      assert.match(list.id === 'go-syntax' || japanese.includes(word.input) ? word.input.replace(/[^\x20-\x7e]/g, 'x') : word.input,
         /^[\x21-\x7e]([\x20-\x7e]*[\x21-\x7e])?$/, word.input)
       assert.ok(word.annotation.trim(), word.input)
     }
@@ -51,9 +52,9 @@ test('the zsh list leaves out key presses and keeps one word per example', () =>
     'STS：操作中のアカウント・権限を確認（Account・Arn・UserIdを確認）')
 })
 
-test('migrations 0009 to 0011 add the command lists to saved workspaces', () => {
+test('migrations 0009 to 0012 add the command lists to saved workspaces', () => {
   const fs = require('node:fs')
-  const added = ['0009_seed_command_lists', '0010_seed_arch_linux_list', '0011_seed_vim_list'].flatMap(name => {
+  const added = ['0009_seed_command_lists', '0010_seed_arch_linux_list', '0011_seed_vim_list', '0012_seed_go_syntax_list'].flatMap(name => {
     const sql = fs.readFileSync(require.resolve(`../prisma/migrations/${name}/migration.sql`), 'utf8')
     const literal = sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'")
     return decodeLists(JSON.stringify({ version: 1, lists: JSON.parse(literal) }))
@@ -76,4 +77,15 @@ test('the Vim list leaves out key presses and types the examples the source give
   assert.equal(vim.find(word => word.input === ':e ./memo.txt').annotation, ':e パス：別のファイルを開く（例：:e ./memo.txt）')
   assert.equal(vim.find(word => word.input === 'y').annotation, 'ビジュアルモードで選択中：選択範囲をコピー')
   assert.equal(vim.find(word => word.input === 'di"').annotation, '二重引用符の内側を削除（対象範囲を認識できる位置で実行）')
+})
+
+test('the Go list types each code example on one line, as Go reads it', () => {
+  const go = words('go-syntax')
+  assert.ok(go.every(word => !/[\n\t]/.test(word.input)))
+  assert.equal(go.find(word => word.input.startsWith('switch role')).input,
+    'switch role { case "admin": fmt.Println("管理者"); case "member", "guest": fmt.Println("一般利用者"); default: fmt.Println("不明") }')
+  assert.ok(go.some(word => word.input === 'import ( "fmt"; "errors" )'))
+  assert.ok(go.some(word => word.input === '/* 複数行の コメント */'))
+  assert.equal(go.find(word => word.input === 'same := a == b').annotation, '== / !=：等値・不等値比較（比較できない型もある）')
+  assert.equal(go.find(word => word.input.startsWith('func Equal')).annotation, '[T comparable]：比較可能な型に制限')
 })
