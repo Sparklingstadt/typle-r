@@ -111,6 +111,40 @@ test('long text keeps its spaces and wraps inside the practice card at 390px', a
   await expect(page.getByRole('list', { name: 'すべての単語' }).locator('[aria-current="step"]')).toContainText(sentence)
 })
 
+test('text gets a step smaller for each line over two it would wrap to, and short text keeps its size', async ({ page }) => {
+  const word = (text: string) => ({ display: text, input: text, annotation: '' })
+  // About 3, 5 and 8 lines at 390px with the usual 20px; the first fits in two lines on a wide screen.
+  const texts = [sentence, `${sentence} ${sentence}`, `${sentence} ${sentence} ${sentence}`]
+  const lists = [{ id: 'short', name: 'Short', createdAt: '2026-09-01', words: [word('ab')], records: [] },
+    ...texts.map((text, index) => ({ id: `text-${index}`, name: `Text ${index + 1}`, createdAt: '2026-09-01', words: [word(text)], records: [] }))]
+  await page.addInitScript(([key, value]) => { if (!localStorage.getItem(key)) localStorage.setItem(key, value) },
+    [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists, devices: [] })])
+  const display = page.locator('#wordDisplay')
+  const fontSize = async () => parseFloat(await display.evaluate(element => getComputedStyle(element).fontSize))
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/play')
+  const sizes: number[] = []
+  for (const [index, text] of texts.entries()) {
+    await page.getByRole('button', { name: `Text ${index + 1} を選択`, exact: true }).click()
+    await expect(display).toHaveText(text)
+    await expect.poll(fontSize).toBeLessThan(20)
+    sizes.push(await fontSize())
+  }
+  expect(sizes[1]).toBeLessThan(sizes[0])
+  expect(sizes[2]).toBeLessThan(sizes[1])
+  expect(sizes[2]).toBeGreaterThanOrEqual(15)
+  // On a wide screen the first one fits in two lines and keeps the usual 26px, and goes back down on a narrow one.
+  await page.getByRole('button', { name: 'Text 1 を選択', exact: true }).click()
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await expect(display).toHaveCSS('font-size', '26px')
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(display).toHaveCSS('font-size', `${sizes[0]}px`)
+  // Short words keep the large size.
+  await page.getByRole('button', { name: 'Short を選択', exact: true }).click()
+  await expect(display).toHaveText('ab')
+  await expect(display).toHaveCSS('font-size', '44px')
+})
+
 test('with many lists the word to type stays on screen next to the input', async ({ page }) => {
   // The list of lists beside the practice card is taller than the screen; the card must not stretch to its height,
   // which put the word far above the input and out of view once the focused input scrolled into place.
