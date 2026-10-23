@@ -86,7 +86,7 @@
     "cannotSave": {
       "title": "Si la liste ne peut pas être enregistrée",
       "p1": "Une liste avec des lignes vides, une liste sans mots ou une liste portant le même nom qu’une autre ne peut pas être enregistrée.",
-      "p2": "Une liste peut contenir jusqu’à 1 000 mots, et vous pouvez enregistrer jusqu’à 100 listes.",
+      "p2": "Une liste peut contenir jusqu’à 1 000 mots, et vous pouvez enregistrer jusqu’à 150 listes.",
       "p3": "Si des modifications ne sont pas enregistrées, une confirmation vous est demandée avant d’annuler ou de revenir en arrière dans le navigateur.",
       "p4": "Si vous modifiez le nombre de mots, les résultats précédents ne comptent plus dans le classement des meilleurs résultats (ils sont conservés ; voir <wordCount>Si le nombre de mots change</wordCount>)."
     },

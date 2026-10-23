@@ -50,12 +50,12 @@ test('data without removed profiles reads as it is', () => {
 
 test('a change may keep merged lists above the limit or lower them, but not add more', () => {
   const many = count => Array.from({ length: count }, (_, index) => named('l' + index, 'L' + index))
-  const document = { lists: many(105), devices: [] }
-  assert.equal(applyChange(document, { lists: many(105) }).lists.length, 105)
-  assert.equal(applyChange(document, { lists: many(101) }).lists.length, 101)
-  assert.throws(() => applyChange(document, { lists: many(106) }), { key: 'listLimit', values: { max: 100 } })
-  assert.throws(() => applyChange({ lists: many(100), devices: [] }, { lists: many(101) }), { key: 'listLimit' })
-  assert.equal(applyChange({ lists: [], devices: [] }, { lists: many(100) }).lists.length, 100)
+  const document = { lists: many(155), devices: [] }
+  assert.equal(applyChange(document, { lists: many(155) }).lists.length, 155)
+  assert.equal(applyChange(document, { lists: many(151) }).lists.length, 151)
+  assert.throws(() => applyChange(document, { lists: many(156) }), { key: 'listLimit', values: { max: 150 } })
+  assert.throws(() => applyChange({ lists: many(150), devices: [] }, { lists: many(151) }), { key: 'listLimit' })
+  assert.equal(applyChange({ lists: [], devices: [] }, { lists: many(150) }).lists.length, 150)
 })
 
 test('guest data with profiles is merged once with a new revision, and saves read before it conflict', () => {

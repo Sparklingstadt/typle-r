@@ -2,7 +2,7 @@ import Foundation
 
 // src/core/wordLists.ts, src/core/listOverview.ts and the limits of src/core/workspaceRequest.ts
 
-public let maxLists = 100
+public let maxLists = 150
 public let maxListName = 200
 public let maxWords = 1000
 public let maxWordField = 1000

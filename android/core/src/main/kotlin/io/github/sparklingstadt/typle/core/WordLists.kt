@@ -6,7 +6,7 @@ import java.util.Locale
 
 // src/core/wordLists.ts, src/core/listOverview.ts and the limits of src/core/workspaceRequest.ts
 
-const val MAX_LISTS = 100
+const val MAX_LISTS = 150
 const val MAX_LIST_NAME = 200
 const val MAX_WORDS = 1000
 const val MAX_WORD_FIELD = 1000

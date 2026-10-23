@@ -86,7 +86,7 @@
     "cannotSave": {
       "title": "When a list cannot be saved",
       "p1": "Lists with empty rows, lists without words, and lists with the same name as another list cannot be saved.",
-      "p2": "A list can hold up to 1,000 words, and you can save up to 100 lists.",
+      "p2": "A list can hold up to 1,000 words, and you can save up to 150 lists.",
       "p3": "If you have unsaved changes, you are asked to confirm before canceling or going back in the browser.",
       "p4": "If you change the number of words, earlier records drop out of the best-record rankings (the records themselves are kept; see <wordCount>When the word count changes</wordCount>)."
     },

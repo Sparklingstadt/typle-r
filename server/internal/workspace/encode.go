@@ -9,7 +9,7 @@ import (
 // The limits of validateLists (src/core/workspaceRequest.ts) and MAX_LISTS (src/core/listOverview.ts). Lengths are in
 // UTF-16 code units, as JavaScript measures them.
 const (
-	MaxLists      = 100
+	MaxLists      = 150
 	MaxListName   = 200
 	MaxWords      = 1000
 	MaxWordText   = 1000

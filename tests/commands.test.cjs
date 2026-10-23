@@ -109,6 +109,17 @@ test('migration 0019 adds the lists of v0.75.0 to saved workspaces', () => {
   assert.deepEqual(decodeLists(JSON.stringify({ version: 1, lists: JSON.parse(literal) })), commands.filter(list => leveled.includes(source(list.id))))
 })
 
+test('migration 0020 adds the lists of 0019 again, up to 150 lists, where 0019 added none of them', () => {
+  const fs = require('node:fs')
+  const read = name => fs.readFileSync(require.resolve(`../prisma/migrations/${name}/migration.sql`), 'utf8')
+  const pack = sql => sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1]
+  const sql = read('0020_seed_framework_and_sql_lists_again')
+  assert.equal(pack(sql), pack(read('0019_seed_framework_and_sql_lists')))
+  assert.match(sql, /saved->>'id' = added\.list->>'id'/)
+  assert.match(sql, /jsonb_array_length\(missing\.lists\) <= 150\n/)
+  assert.equal(require('../src/core/listOverview.ts').MAX_LISTS, 150)
+})
+
 test('migration 0018 puts the parts of each split list in its place in saved workspaces', () => {
   const fs = require('node:fs')
   const sql = fs.readFileSync(require.resolve('../prisma/migrations/0018_split_long_initial_lists/migration.sql'), 'utf8')
