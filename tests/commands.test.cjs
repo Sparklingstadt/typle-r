@@ -10,7 +10,7 @@ test('the command lists decode in Typle with their own ids and names', () => {
   const lists = decodeLists(JSON.stringify({ version: 1, lists: commands }))
   assert.deepEqual(lists.map(list => [list.id, list.words.length]), [
     ['linux-commands-basic', 118], ['linux-commands-options', 146], ['linux-commands-advanced', 131],
-    ['linux-shell-bash', 76], ['linux-system', 140], ['vercel-cli', 34], ['gcloud-cli', 35], ['aws-cli', 46], ['macos-zsh', 90], ['arch-linux', 96], ['vim', 112], ['go-syntax', 109], ['java-syntax', 130], ['kotlin-syntax', 163], ['un-member-states-chinese-193-lowercase', 193],
+    ['linux-shell-bash', 76], ['linux-system', 140], ['vercel-cli', 34], ['gcloud-cli', 35], ['aws-cli', 46], ['macos-zsh', 90], ['arch-linux', 96], ['vim', 112], ['go-syntax', 109], ['java-syntax', 130], ['kotlin-syntax', 163], ['un-member-states-chinese-193-lowercase', 193], ['postgresql-syntax', 152],
   ])
   const { initialLists } = require('../src/plugins/packs/index.ts')
   for (const list of lists) validateList(list, initialLists.filter(other => other.id !== list.id))
@@ -28,8 +28,8 @@ test('each command is typed as shown, in ASCII, once per list, with an explanati
     assert.equal(new Set(list.words.map(word => word.input)).size, list.words.length, list.name)
     for (const word of list.words) {
       assert.equal(word.display, word.input)
-      // Go, Java and Kotlin code examples hold Japanese strings and comments.
-      assert.match(['go-syntax', 'java-syntax', 'kotlin-syntax'].includes(list.id) || japanese.includes(word.input) ? word.input.replace(/[^\x20-\x7e]/g, 'x') : word.input,
+      // Go, Java, Kotlin and PostgreSQL examples hold Japanese strings and comments.
+      assert.match(['go-syntax', 'java-syntax', 'kotlin-syntax', 'postgresql-syntax'].includes(list.id) || japanese.includes(word.input) ? word.input.replace(/[^\x20-\x7e]/g, 'x') : word.input,
         /^[\x21-\x7e]([\x20-\x7e]*[\x21-\x7e])?$/, word.input)
       assert.ok(word.annotation.trim(), word.input)
     }
@@ -53,9 +53,9 @@ test('the zsh list leaves out key presses and keeps one word per example', () =>
     'STS：操作中のアカウント・権限を確認（Account・Arn・UserIdを確認）')
 })
 
-test('migrations 0009 to 0015 add the command lists to saved workspaces', () => {
+test('migrations 0009 to 0016 add the command lists to saved workspaces', () => {
   const fs = require('node:fs')
-  const added = ['0009_seed_command_lists', '0010_seed_arch_linux_list', '0011_seed_vim_list', '0012_seed_go_syntax_list', '0013_seed_java_syntax_list', '0014_seed_kotlin_syntax_list', '0015_seed_lowercase_country_list'].flatMap(name => {
+  const added = ['0009_seed_command_lists', '0010_seed_arch_linux_list', '0011_seed_vim_list', '0012_seed_go_syntax_list', '0013_seed_java_syntax_list', '0014_seed_kotlin_syntax_list', '0015_seed_lowercase_country_list', '0016_seed_postgresql_syntax_list'].flatMap(name => {
     const sql = fs.readFileSync(require.resolve(`../prisma/migrations/${name}/migration.sql`), 'utf8')
     const literal = sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'")
     return decodeLists(JSON.stringify({ version: 1, lists: JSON.parse(literal) }))
@@ -117,4 +117,13 @@ test('the lowercase country list types the pinyin of the country list in lowerca
   assert.ok(lower.every(word => /^[a-z]+( [a-z]+)*$/.test(word.input)))
   assert.equal(lower.find(word => word.display === '安提瓜和巴布达').input, 'antigua he babuda')
   assert.equal(lower.find(word => word.display === '菲律宾').input, 'feilvbin')
+})
+
+test('the PostgreSQL list types each SQL example on one line, with no line comment cutting it short', () => {
+  const sql = words('postgresql-syntax')
+  assert.ok(sql.every(word => !/[\n\t]/.test(word.input) && !word.input.includes('--')))
+  assert.ok(sql.some(word => word.input === '/* 1行コメント */ SELECT /* ブロックコメント */ 1;'))
+  assert.ok(sql.some(word => word.input === 'WITH totals AS (SELECT user_id, SUM(amount) AS total FROM orders GROUP BY user_id) SELECT * FROM totals WHERE total >= 1000;'))
+  assert.equal(sql.find(word => word.input === 'SELECT * FROM users WHERE age <> 20;').annotation, '比較演算子：比較（NULLとの通常比較は真偽がunknownになる）')
+  assert.equal(sql.find(word => word.input === 'SELECT * FROM users WHERE email IS NULL;').annotation, 'IS NULL / IS NOT NULL：NULLの判定')
 })
