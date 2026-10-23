@@ -11,6 +11,8 @@ const source = id => id.replace(level, '')
 const parts = id => commands.filter(list => source(list.id) === id)
 const words = id => parts(id).flatMap(list => list.words)
 const sources = [...new Set(commands.map(list => source(list.id)))]
+// The lists of v0.75.0 come in three levels whatever their length, and migration 0019 adds them.
+const leveled = ['typescript-syntax', 'hono-methods', 'php-syntax', 'rails-methods', 'express-methods', 'oracle-plsql-syntax', 'sql-server-tsql-syntax']
 
 test('the command lists decode in Typle with their own ids and names', () => {
   const lists = decodeLists(JSON.stringify({ version: 1, lists: commands }))
@@ -20,6 +22,8 @@ test('the command lists decode in Typle with their own ids and names', () => {
     ['macos-zsh', [30, 30, 30]], ['arch-linux', [32, 32, 32]], ['vim', [38, 37, 37]], ['go-syntax', [37, 36, 36]],
     ['java-syntax', [33, 33, 32, 32]], ['kotlin-syntax', [33, 33, 33, 32, 32]], ['un-member-states-chinese-193-lowercase', [39, 39, 39, 38, 38]],
     ['postgresql-syntax', [38, 38, 38, 38]], ['prisma-syntax', [32, 32]], ['jest-syntax', [34, 33]], ['playwright-syntax', [35, 35]],
+    ['typescript-syntax', [18, 18, 18]], ['hono-methods', [12, 12, 12]], ['php-syntax', [14, 14, 13]], ['rails-methods', [15, 15, 14]],
+    ['express-methods', [12, 12, 11]], ['oracle-plsql-syntax', [13, 12, 12]], ['sql-server-tsql-syntax', [15, 15, 15]],
   ])
   assert.equal(lists.length, commands.length)
   const { initialLists } = require('../src/plugins/packs/index.ts')
@@ -28,6 +32,7 @@ test('the command lists decode in Typle with their own ids and names', () => {
 })
 
 test('a list over 40 words is split into the fewest parts of at most 40, from the easiest words to type to the hardest', () => {
+  // The lists of v0.75.0 are split into at least three levels.
   const { initialLists } = require('../src/plugins/packs/index.ts')
   assert.ok(initialLists.every(list => list.words.length <= 40), initialLists.find(list => list.words.length > 40)?.name)
   // A symbol or a Japanese character counts as two letters. The first word introduces the list, so it opens 初級.
@@ -36,10 +41,10 @@ test('a list over 40 words is split into the fewest parts of at most 40, from th
   const countries = require('../src/plugins/packs/countries.json')
   const grouped = [...new Set(initialLists.map(list => source(list.id)))]
     .map(id => initialLists.filter(list => source(list.id) === id)).filter(group => group.length > 1)
-  assert.equal(grouped.length, 18)
+  assert.equal(grouped.length, 25)
   for (const group of grouped) {
     const total = group.reduce((sum, list) => sum + list.words.length, 0)
-    assert.equal(group.length, Math.ceil(total / 40), group[0].id)
+    assert.equal(group.length, Math.max(Math.ceil(total / 40), leveled.includes(source(group[0].id)) ? 3 : 1), group[0].id)
     assert.ok(group.every(list => Math.abs(list.words.length - total / group.length) < 1), group[0].id)
     assert.deepEqual(group.map(list => list.name.match(/（(?:小文字・)?([^（）]+)）$/)[1]), labels[group.length], group[0].id)
     const scores = group.map((list, index) => (index ? list.words : list.words.slice(1)).map(score))
@@ -62,7 +67,7 @@ test('each command is typed as shown, in ASCII, once per list, with an explanati
     for (const word of list.words) {
       assert.equal(word.display, word.input)
       // Go, Java, Kotlin, PostgreSQL, Prisma, Jest and Playwright examples hold Japanese strings and comments.
-      assert.match(['go-syntax', 'java-syntax', 'kotlin-syntax', 'postgresql-syntax', 'prisma-syntax', 'jest-syntax', 'playwright-syntax'].includes(source(list.id)) || japanese.includes(word.input) ? word.input.replace(/[^\x20-\x7e]/g, 'x') : word.input,
+      assert.match(['go-syntax', 'java-syntax', 'kotlin-syntax', 'postgresql-syntax', 'prisma-syntax', 'jest-syntax', 'playwright-syntax', ...leveled].includes(source(list.id)) || japanese.includes(word.input) ? word.input.replace(/[^\x20-\x7e]/g, 'x') : word.input,
         /^[\x21-\x7e]([\x20-\x7e]*[\x21-\x7e])?$/, word.input)
       assert.ok(word.annotation.trim(), word.input)
     }
@@ -93,8 +98,15 @@ test('migrations 0009 to 0017 add the command lists to saved workspaces', () => 
     const literal = sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'")
     return decodeLists(JSON.stringify({ version: 1, lists: JSON.parse(literal) }))
   })
-  assert.deepEqual(added.map(list => list.id), sources)
+  assert.deepEqual(added.map(list => list.id), sources.filter(id => !leveled.includes(id)))
   assert.ok(added.every(list => list.records.length === 0))
+})
+
+test('migration 0019 adds the lists of v0.75.0 to saved workspaces', () => {
+  const fs = require('node:fs')
+  const sql = fs.readFileSync(require.resolve('../prisma/migrations/0019_seed_framework_and_sql_lists/migration.sql'), 'utf8')
+  const literal = sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'")
+  assert.deepEqual(decodeLists(JSON.stringify({ version: 1, lists: JSON.parse(literal) })), commands.filter(list => leveled.includes(source(list.id))))
 })
 
 test('migration 0018 puts the parts of each split list in its place in saved workspaces', () => {
@@ -102,7 +114,7 @@ test('migration 0018 puts the parts of each split list in its place in saved wor
   const sql = fs.readFileSync(require.resolve('../prisma/migrations/0018_split_long_initial_lists/migration.sql'), 'utf8')
   const pack = JSON.parse(sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'"))
   const lists = [...require('../src/plugins/packs/countries.json'), ...commands]
-  const split = [...new Set(lists.map(list => source(list.id)))].filter(id => lists.filter(list => source(list.id) === id).length > 1)
+  const split = [...new Set(lists.map(list => source(list.id)))].filter(id => !leveled.includes(id) && lists.filter(list => source(list.id) === id).length > 1)
   assert.deepEqual(pack.map(item => item.id), split)
   for (const item of pack) {
     assert.match(item.words, /^[0-9a-f]{32}$/)
@@ -186,4 +198,25 @@ test('the Prisma, Jest and Playwright lists type each code example on one line a
   assert.equal(words('jest-syntax').find(word => word.input === 'expect(1 + 2).toBe(3);').annotation, 'toBe：Object.is相当の比較（オブジェクト内容の比較はtoEqual等）')
   assert.ok(words('playwright-syntax').some(word => word.input === "import { devices } from '@playwright/test'; /* defineConfig内: */ /* projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }] */"))
   assert.ok(words('playwright-syntax').some(word => word.input === 'npx playwright test --headed'))
+})
+
+test('the TypeScript, Hono, PHP, Rails, Express, PL/SQL and T-SQL lists type each example on one line', () => {
+  const all = leveled.flatMap(words)
+  assert.ok(all.every(word => !/[\n\t]/.test(word.input)))
+  // TypeScript, Hono and Express join lines as the Prisma, Jest and Playwright lists do.
+  const js = ['typescript-syntax', 'hono-methods', 'express-methods'].flatMap(words)
+  assert.ok(js.every(word => !/\S \/\/ /.test(word.input) && !/[([] |,? [)\]]|, }/.test(word.input)), js.find(word => /[([] |,? [)\]]|, }/.test(word.input))?.input)
+  assert.ok(['npm install hono @hono/node-server', 'npx tsx src/index.ts'].every(input => words('hono-methods').some(word => word.input === input)))
+  // Ruby ends a statement at a newline, so the Rails examples join with "; ".
+  const rails = words('rails-methods')
+  assert.ok(rails.some(word => word.input === 'User.transaction do; user = User.create!(name: \'Pomo\',email: \'tx@example.com\'); user.posts.create!(title: \'Hello\'); end'))
+  assert.ok(['redirect_to users_path, status: :see_other', 'head :no_content', 'bin/rails db:migrate'].every(input => rails.some(word => word.input === input)))
+  assert.ok(words('php-syntax').some(word => word.input === '<?php declare(strict_types=1); echo "Hello\\n";'))
+  // The SQL*Plus "/" is not typed; the T-SQL "GO" is a word of its own.
+  const plsql = words('oracle-plsql-syntax')
+  assert.ok(plsql.every(word => !/(^|\s)\/($|\s)/.test(word.input)))
+  assert.ok(plsql.some(word => word.input === 'CREATE OR REPLACE PACKAGE math_api AS FUNCTION twice(n NUMBER) RETURN NUMBER; END;'))
+  const tsql = words('sql-server-tsql-syntax')
+  assert.ok(['SELECT 1;', 'GO', '/* コメント */ SELECT 2;'].every(input => tsql.some(word => word.input === input)))
+  assert.ok(tsql.some(word => word.input.startsWith('CREATE TABLE dbo.Users (Id int IDENTITY(1,1) PRIMARY KEY, ')))
 })

@@ -10314,5 +10314,1633 @@
     ],
     "records": [],
     "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "typescript-syntax-beginner",
+    "name": "TypeScript構文（初級）",
+    "words": [
+      {
+        "display": "// TypeScript 7.0 / strictを想定",
+        "input": "// TypeScript 7.0 / strictを想定",
+        "annotation": "TypeScript 7.0：対象・構文と実装の区別（7.0は正式提供済み。大きな変更はネイティブ実装。下記は7で使う主要構文であり7で初登場の一覧ではない）"
+      },
+      {
+        "display": "const name='Pomo'; let count=0; count+=1;",
+        "input": "const name='Pomo'; let count=0; count+=1;",
+        "annotation": "const / let：再代入不可・可（constも参照先内部の変更は禁止しない）"
+      },
+      {
+        "display": "const age:number=20; const enabled=true; const text:string='Hello';",
+        "input": "const age:number=20; const enabled=true; const text:string='Hello';",
+        "annotation": "型注釈・推論：値の型（型は通常実行時に消える）"
+      },
+      {
+        "display": "const name='Pomo'; const message=`Hello, ${name}`;",
+        "input": "const name='Pomo'; const message=`Hello, ${name}`;",
+        "annotation": "テンプレート文字列：値の埋込み（JavaScriptの実行時構文）"
+      },
+      {
+        "display": "interface Named {name:string} interface User extends Named {id:number}",
+        "input": "interface Named {name:string} interface User extends Named {id:number}",
+        "annotation": "interface / extends：オブジェクト契約"
+      },
+      {
+        "display": "type User={readonly id:number;name?:string};",
+        "input": "type User={readonly id:number;name?:string};",
+        "annotation": "optional / readonly：任意・読取専用（readonlyは型検査上の制約。深い不変性ではない）"
+      },
+      {
+        "display": "type Status='todo'|'done'; let id:string|number=1;",
+        "input": "type Status='todo'|'done'; let id:string|number=1;",
+        "annotation": "union / literal：候補の型"
+      },
+      {
+        "display": "const config={mode:'dark',sizes:[1,2]} as const;",
+        "input": "const config={mode:'dark',sizes:[1,2]} as const;",
+        "annotation": "as const：リテラルを保持（型のreadonly化であり実行時Object.freezeではない）"
+      },
+      {
+        "display": "function add(a:number,b:number):number {return a+b}",
+        "input": "function add(a:number,b:number):number {return a+b}",
+        "annotation": "function / 戻り値型：関数定義"
+      },
+      {
+        "display": "const double=(n:number):number=>n*2;",
+        "input": "const double=(n:number):number=>n*2;",
+        "annotation": "arrow function：無名関数"
+      },
+      {
+        "display": "type User={id:number;name:string}; type Name=User['name'];",
+        "input": "type User={id:number;name:string}; type Name=User['name'];",
+        "annotation": "T[K]：プロパティ型"
+      },
+      {
+        "display": "type Optional<T>={[K in keyof T]?:T[K]};",
+        "input": "type Optional<T>={[K in keyof T]?:T[K]};",
+        "annotation": "mapped types：キーを変換"
+      },
+      {
+        "display": "type Method='get'|'post'; type EventName=`${Method}:users`;",
+        "input": "type Method='get'|'post'; type EventName=`${Method}:users`;",
+        "annotation": "template literal types：文字列型を組み立てる（実行時の文字列処理ではない）"
+      },
+      {
+        "display": "class Counter { #count=0; increment(){this.#count++} }",
+        "input": "class Counter { #count=0; increment(){this.#count++} }",
+        "annotation": "#private / private：実行時・型上の非公開（TSのprivate修飾子とJSの#フィールドの保護レベルは異なる）"
+      },
+      {
+        "display": "declare function externalApi(id:number):Promise<string>;",
+        "input": "declare function externalApi(id:number):Promise<string>;",
+        "annotation": "declare / .d.ts：実装が別にある型を宣言（実装は生成されない。実行時に別途必要）"
+      },
+      {
+        "display": "npm install -D typescript@7.0",
+        "input": "npm install -D typescript@7.0",
+        "annotation": "ネイティブコンパイラー：型検査・ビルドの実装（公式7.0発表に基づく。速度改善はコードをGoで書き直すことを要求しない）"
+      },
+      {
+        "display": "npx tsc --noEmit",
+        "input": "npx tsc --noEmit",
+        "annotation": "ネイティブコンパイラー：型検査・ビルドの実装（公式7.0発表に基づく。速度改善はコードをGoで書き直すことを要求しない）"
+      },
+      {
+        "display": "// TypeScriptを内部importするLint・変換・解析ツールの対応版を確認",
+        "input": "// TypeScriptを内部importするLint・変換・解析ツールの対応版を確認",
+        "annotation": "コンパイラーAPI互換性：周辺ツールの対応（7.0には従来のプログラム用コンパイラーAPIがない。必要な周辺ツールは公式の6系互換パッケージ等で併用。7.1のAPIとは区別）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "typescript-syntax-intermediate",
+    "name": "TypeScript構文（中級）",
+    "words": [
+      {
+        "display": "let name:string|null=null; const missing:undefined=undefined; const n:bigint=1n;",
+        "input": "let name:string|null=null; const missing:undefined=undefined; const n:bigint=1n;",
+        "annotation": "null / undefined / bigint：基本型（bigint等はtarget・実行環境を確認）"
+      },
+      {
+        "display": "function fail(message:string):never {throw new Error(message)} function log():void {console.log('Hello')}",
+        "input": "function fail(message:string):never {throw new Error(message)} function log():void {console.log('Hello')}",
+        "annotation": "never / void：戻らない・有用な値なし（voidとundefinedの意味は完全には同じでない）"
+      },
+      {
+        "display": "const user:{name?:string}|null=Math.random()>0.5?{}:null; const name=user?.name??'Guest';",
+        "input": "const user:{name?:string}|null=Math.random()>0.5?{}:null; const name=user?.name??'Guest';",
+        "annotation": "?. / ??：null等への安全なアクセス（??はnull/undefinedだけ。||は0・空文字等にも反応）"
+      },
+      {
+        "display": "type User={id:number;name:string}; const user:User={id:1,name:'Pomo'};",
+        "input": "type User={id:number;name:string}; const user:User={id:1,name:'Pomo'};",
+        "annotation": "type：型エイリアス（実行時に検証・生成するものではない）"
+      },
+      {
+        "display": "type Named={name:string}; type WithId={id:number}; type User=Named&WithId;",
+        "input": "type Named={name:string}; type WithId={id:number}; type User=Named&WithId;",
+        "annotation": "intersection：型の組合せ（同名フィールドの矛盾で利用不能な型になり得る）"
+      },
+      {
+        "display": "const routes={home:'/',users:'/users'} as const satisfies Record<string,string>;",
+        "input": "const routes={home:'/',users:'/users'} as const satisfies Record<string,string>;",
+        "annotation": "satisfies：型に適合することを検査（単純な型注釈より具体的な型情報を保てる）"
+      },
+      {
+        "display": "const value:unknown='hello'; const text=value as string; /* nullableValue! は実行時チェックを追加しない */",
+        "input": "const value:unknown='hello'; const text=value as string; /* nullableValue! は実行時チェックを追加しない */",
+        "annotation": "as / 非null !：型アサーション（外部入力に使っても安全性は保証されない）"
+      },
+      {
+        "display": "type Transform=(value:number)=>number; const twice:Transform=n=>n*2;",
+        "input": "type Transform=(value:number)=>number; const twice:Transform=n=>n*2;",
+        "annotation": "関数型：関数を値にする"
+      },
+      {
+        "display": "const age=20; const label=age>=20?'成人':'未成年'; if(age>=20){console.log(label)}",
+        "input": "const age=20; const label=age>=20?'成人':'未成年'; if(age>=20){console.log(label)}",
+        "annotation": "if / switch / 三項：条件分岐（JavaScriptの構文）"
+      },
+      {
+        "display": "for(const n of [1,2,3]) console.log(n); for(const key in {a:1}) console.log(key);",
+        "input": "for(const n of [1,2,3]) console.log(n); for(const key in {a:1}) console.log(key);",
+        "annotation": "for of / for in：値・キーを反復（for inは継承された列挙可能プロパティも対象。配列要素には通常for of）"
+      },
+      {
+        "display": "function size(value:string|number){ if(typeof value==='string') return value.length; return value; }",
+        "input": "function size(value:string|number){ if(typeof value==='string') return value.length; return value; }",
+        "annotation": "typeof / in / instanceof：型の絞り込み"
+      },
+      {
+        "display": "function identity<T>(value:T):T{return value} const n=identity(1);",
+        "input": "function identity<T>(value:T):T{return value} const n=identity(1);",
+        "annotation": "<T>：型を抽象化"
+      },
+      {
+        "display": "function lengthOf<T extends {length:number}>(value:T){return value.length}",
+        "input": "function lengthOf<T extends {length:number}>(value:T){return value.length}",
+        "annotation": "extends制約：利用可能な操作を限定"
+      },
+      {
+        "display": "const user={id:1,name:'Pomo'}; type User=typeof user; type UserKey=keyof User;",
+        "input": "const user={id:1,name:'Pomo'}; type User=typeof user; type UserKey=keyof User;",
+        "annotation": "keyof / typeof：キー・値から型を作る（型位置のtypeofと実行時typeofを区別）"
+      },
+      {
+        "display": "type ElementOf<T>=T extends readonly (infer U)[]?U:T; type N=ElementOf<number[]>;",
+        "input": "type ElementOf<T>=T extends readonly (infer U)[]?U:T; type N=ElementOf<number[]>;",
+        "annotation": "conditional types / infer：型の条件分岐・抽出（条件付き型のunionへの分配に注意）"
+      },
+      {
+        "display": "type Scores=Record<string,number>; type S='a'|'b'; type A=Exclude<S,'b'>; type B=Extract<S,'b'>;",
+        "input": "type Scores=Record<string,number>; type S='a'|'b'; type A=Exclude<S,'b'>; type B=Extract<S,'b'>;",
+        "annotation": "Record / Exclude / Extract：辞書・unionの操作"
+      },
+      {
+        "display": "const values=await Promise.all([Promise.resolve(1),Promise.resolve(2)]);",
+        "input": "const values=await Promise.all([Promise.resolve(1),Promise.resolve(2)]);",
+        "annotation": "Promise.all / allSettled：複数のPromise（top-level awaitにはESM等の設定が必要。allは最初のrejectで失敗扱い）"
+      },
+      {
+        "display": "/* 正式7.0はtypescriptパッケージ。 */ /* @typescript/native-previewは正式版の導入例として使わない。 */",
+        "input": "/* 正式7.0はtypescriptパッケージ。 */ /* @typescript/native-previewは正式版の導入例として使わない。 */",
+        "annotation": "旧previewとの区別：導入パッケージ（7.1 Betaの新API・提案標準ライブラリ等を7.0の必須構文に混ぜない）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "typescript-syntax-advanced",
+    "name": "TypeScript構文（上級）",
+    "words": [
+      {
+        "display": "const value:unknown=JSON.parse('{\"id\":1}'); if(typeof value==='object'&&value!==null){console.log(value)}",
+        "input": "const value:unknown=JSON.parse('{\"id\":1}'); if(typeof value==='object'&&value!==null){console.log(value)}",
+        "annotation": "unknown / any：未確定の型（unknownは絞り込みが必要。anyは型検査を回避するため乱用しない）"
+      },
+      {
+        "display": "const nums:number[]=[1,2]; const pair:[string,number]=['Pomo',20]; const fixed:readonly number[]=[1,2];",
+        "input": "const nums:number[]=[1,2]; const pair:[string,number]=['Pomo',20]; const fixed:readonly number[]=[1,2];",
+        "annotation": "Array / tuple / ReadonlyArray：配列・固定構造（通常の配列アクセスでundefinedを扱うにはnoUncheckedIndexedAccess等）"
+      },
+      {
+        "display": "function greet(name='Guest',suffix?:string){return name+(suffix??'')} function sum(...nums:number[]){return nums.reduce((a,b)=>a+b,0)}",
+        "input": "function greet(name='Guest',suffix?:string){return name+(suffix??'')} function sum(...nums:number[]){return nums.reduce((a,b)=>a+b,0)}",
+        "annotation": "既定・任意・rest：引数の柔軟な指定（任意引数は通常undefinedを含む）"
+      },
+      {
+        "display": "function label(value:string):string; function label(value:number):string; function label(value:string|number):string {return String(value)}",
+        "input": "function label(value:string):string; function label(value:number):string; function label(value:string|number):string {return String(value)}",
+        "annotation": "オーバーロード：複数の呼出シグネチャ（実装シグネチャがそのまま公開されるわけではない）"
+      },
+      {
+        "display": "type User={id:number}; function isUser(v:unknown):v is User { return typeof v==='object'&&v!==null&&'id' in v&&typeof v.id==='number'; }",
+        "input": "type User={id:number}; function isUser(v:unknown):v is User { return typeof v==='object'&&v!==null&&'id' in v&&typeof v.id==='number'; }",
+        "annotation": "ユーザー定義型ガード：unknownを検証（型述語の正しさは実装者が保証。抜けた検証を型が自動補完しない）"
+      },
+      {
+        "display": "type Result={ok:true;value:string}|{ok:false;error:string}; function show(r:Result){return r.ok?r.value:r.error}",
+        "input": "type Result={ok:true;value:string}|{ok:false;error:string}; function show(r:Result){return r.ok?r.value:r.error}",
+        "annotation": "判別可能union：状態に応じて型を絞る"
+      },
+      {
+        "display": "type State='todo'|'done'; function label(s:State):string { switch(s){case 'todo':return '未完';case 'done':return '完了';default:const neverValue:never=s;return neverValue;} }",
+        "input": "type State='todo'|'done'; function label(s:State):string { switch(s){case 'todo':return '未完';case 'done':return '完了';default:const neverValue:never=s;return neverValue;} }",
+        "annotation": "neverで網羅確認：分岐漏れを検出（新たなState追加時に検出しやすい）"
+      },
+      {
+        "display": "type User={id:number;name?:string}; type Patch=Partial<User>; type Full=Required<User>; type Fixed=Readonly<User>;",
+        "input": "type User={id:number;name?:string}; type Patch=Partial<User>; type Full=Required<User>; type Fixed=Readonly<User>;",
+        "annotation": "Partial / Required / Readonly：プロパティ修飾（基本的に浅い型変換）"
+      },
+      {
+        "display": "type User={id:number;name:string;secret:string}; type PublicUser=Omit<User,'secret'>; type IdOnly=Pick<User,'id'>;",
+        "input": "type User={id:number;name:string;secret:string}; type PublicUser=Omit<User,'secret'>; type IdOnly=Pick<User,'id'>;",
+        "annotation": "Pick / Omit：プロパティを選ぶ・除く（実データから値を除去する処理ではない）"
+      },
+      {
+        "display": "function add(a:number,b:number){return a+b} type R=ReturnType<typeof add>; type P=Parameters<typeof add>; type V=Awaited<Promise<number>>;",
+        "input": "function add(a:number,b:number){return a+b} type R=ReturnType<typeof add>; type P=Parameters<typeof add>; type V=Awaited<Promise<number>>;",
+        "annotation": "ReturnType / Parameters / Awaited：関数・Promiseから型を得る"
+      },
+      {
+        "display": "class User { constructor(public readonly id:number,public name:string){} greet(){return `Hello, ${this.name}`} }",
+        "input": "class User { constructor(public readonly id:number,public name:string){} greet(){return `Hello, ${this.name}`} }",
+        "annotation": "class / constructor：クラスとプロパティ（TypeScriptのパラメータープロパティはJSへ変換が必要）"
+      },
+      {
+        "display": "interface Greet{greet():string} class Base{greet(){return 'Hello'}} class User extends Base implements Greet{override greet(){return super.greet()+'!'}}",
+        "input": "interface Greet{greet():string} class Base{greet(){return 'Hello'}} class User extends Base implements Greet{override greet(){return super.greet()+'!'}}",
+        "annotation": "extends / implements / override：継承・契約（implementsは実装を生成しない）"
+      },
+      {
+        "display": "async function answer():Promise<number>{return 42} async function run(){const n=await answer();console.log(n)}",
+        "input": "async function answer():Promise<number>{return 42} async function run(){const n=await answer();console.log(n)}",
+        "annotation": "async / await / Promise：非同期処理（Promiseの失敗・ライフサイクルを扱う）"
+      },
+      {
+        "display": "try{throw new Error('失敗')}catch(e){ const message=e instanceof Error?e.message:String(e); console.error(message); }",
+        "input": "try{throw new Error('失敗')}catch(e){ const message=e instanceof Error?e.message:String(e); console.error(message); }",
+        "annotation": "try catch / unknown：失敗処理（strict環境ではcatch値をunknownとして扱う）"
+      },
+      {
+        "display": "export type User={id:number}; export const answer=42; /* 別ファイル: import type {User} from './user.js'; */",
+        "input": "export type User={id:number}; export const answer=42; /* 別ファイル: import type {User} from './user.js'; */",
+        "annotation": "export / import type：値と型の分離（拡張子・ESM/CJSはmoduleResolutionと実行環境に合わせる）"
+      },
+      {
+        "display": "const user={id:1,name:'Pomo'}; const {name}=user; const updated={...user,name:'New'}; const doubled=[1,2,3].map(n=>n*2);",
+        "input": "const user={id:1,name:'Pomo'}; const {name}=user; const updated={...user,name:'New'}; const doubled=[1,2,3].map(n=>n*2);",
+        "annotation": "分割代入 / spread / map：JSの基本データ操作（オブジェクトspreadは浅いコピー）"
+      },
+      {
+        "display": "{ \"compilerOptions\":{ \"target\":\"ES2022\", \"module\":\"NodeNext\", \"moduleResolution\":\"NodeNext\", \"strict\":true, \"noUncheckedIndexedAccess\":true, \"noEmit\":true } }",
+        "input": "{ \"compilerOptions\":{ \"target\":\"ES2022\", \"module\":\"NodeNext\", \"moduleResolution\":\"NodeNext\", \"strict\":true, \"noUncheckedIndexedAccess\":true, \"noEmit\":true } }",
+        "annotation": "tsconfig strict / noEmit：型検査設定（Node向け例。フレームワーク・bundlerでは適切な設定へ変更）"
+      },
+      {
+        "display": "const raw:unknown=JSON.parse('{\"id\":1}'); if(!isUser(raw)) throw new Error('invalid user'); console.log(raw.id);",
+        "input": "const raw:unknown=JSON.parse('{\"id\":1}'); if(!isUser(raw)) throw new Error('invalid user'); console.log(raw.id);",
+        "annotation": "satisfiesと実行時検証：外部データを扱う（isUserを定義。as・satisfies・型引数だけでJSONを検証したことにはならない）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "hono-methods-beginner",
+    "name": "Honoメソッド（初級）",
+    "words": [
+      {
+        "display": "import {Hono} from 'hono'; const app=new Hono();",
+        "input": "import {Hono} from 'hono'; const app=new Hono();",
+        "annotation": "Hono / TypeScript：対象環境（現行公式APIで共通的な機能を中心に整理。実行環境・メジャー版・adapterを固定して利用）"
+      },
+      {
+        "display": "app.get('/',c=>c.text('Hello, Hono!'));",
+        "input": "app.get('/',c=>c.text('Hello, Hono!'));",
+        "annotation": "GET / c.text：テキスト応答（必ずResponse等をreturn）"
+      },
+      {
+        "display": "app.post('/users',c=>c.json({id:1},201));",
+        "input": "app.post('/users',c=>c.json({id:1},201));",
+        "annotation": "c.json / status：JSONとステータス（実際の保存・認証認可・入力検証は別途）"
+      },
+      {
+        "display": "app.get('/page',c=>c.html('<h1>Hello</h1>'));",
+        "input": "app.get('/page',c=>c.html('<h1>Hello</h1>'));",
+        "annotation": "c.html / c.body：HTML・本文（c.htmlへ未検証入力を直接連結しない）"
+      },
+      {
+        "display": "app.delete('/items/:id',c=>c.body(null,204));",
+        "input": "app.delete('/items/:id',c=>c.body(null,204));",
+        "annotation": "get/post/put/patch/delete：メソッド別ルート（実削除には認可等が必要）"
+      },
+      {
+        "display": "app.get('/users/:id',c=>c.json({id:c.req.param('id')}));",
+        "input": "app.get('/users/:id',c=>c.json({id:c.req.param('id')}));",
+        "annotation": "c.req.param：パス引数（文字列。型・範囲を検証）"
+      },
+      {
+        "display": "app.get('/old',c=>c.redirect('/new',302));",
+        "input": "app.get('/old',c=>c.redirect('/new',302));",
+        "annotation": "c.redirect：転送（未検証の転送先を使わない）"
+      },
+      {
+        "display": "app.notFound(c=>c.json({error:'not found'},404));",
+        "input": "app.notFound(c=>c.json({error:'not found'},404));",
+        "annotation": "c.notFound / app.notFound：404（特定ハンドラーからreturn c.notFound()も可能）"
+      },
+      {
+        "display": "export default app;",
+        "input": "export default app;",
+        "annotation": "Workers / Bun等：Fetch入口をexport（ランタイム・デプロイ設定に応じた入口。Nodeはadapter等が必要）"
+      },
+      {
+        "display": "npm install hono @hono/node-server",
+        "input": "npm install hono @hono/node-server",
+        "annotation": "導入・実行：開発コマンド（Node.jsの例。型検査はtsc等で別途）"
+      },
+      {
+        "display": "npm install -D typescript tsx @types/node",
+        "input": "npm install -D typescript tsx @types/node",
+        "annotation": "導入・実行：開発コマンド（Node.jsの例。型検査はtsc等で別途）"
+      },
+      {
+        "display": "npx tsx src/index.ts",
+        "input": "npx tsx src/index.ts",
+        "annotation": "導入・実行：開発コマンド（Node.jsの例。型検査はtsc等で別途）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "hono-methods-intermediate",
+    "name": "Honoメソッド（中級）",
+    "words": [
+      {
+        "display": "app.get('/search',c=>c.json({q:c.req.query('q'),tags:c.req.queries('tag')}));",
+        "input": "app.get('/search',c=>c.json({q:c.req.query('q'),tags:c.req.queries('tag')}));",
+        "annotation": "c.req.query / queries：クエリ取得（queryは単一、queriesは複数値）"
+      },
+      {
+        "display": "const users=new Hono(); users.get('/',c=>c.json([])); app.route('/users',users);",
+        "input": "const users=new Hono(); users.get('/',c=>c.json([])); app.route('/users',users);",
+        "annotation": "app.route：サブアプリをマウント（子のルート定義・登録順を確認）"
+      },
+      {
+        "display": "const api=new Hono().basePath('/api'); api.get('/health',c=>c.json({ok:true}));",
+        "input": "const api=new Hono().basePath('/api'); api.get('/health',c=>c.json({ok:true}));",
+        "annotation": "basePath：共通プレフィックス（/api/health）"
+      },
+      {
+        "display": "app.post('/echo',async c=>{ const body:unknown=await c.req.json(); return c.json({received:body}); });",
+        "input": "app.post('/echo',async c=>{ const body:unknown=await c.req.json(); return c.json({received:body}); });",
+        "annotation": "c.req.json：JSON本文（unknownから実行時検証。大きさ制限・不正JSONの処理も用意）"
+      },
+      {
+        "display": "/* validatorまたはzValidatorの後のハンドラー内: */ /* const input=c.req.valid('json'); */",
+        "input": "/* validatorまたはzValidatorの後のハンドラー内: */ /* const input=c.req.valid('json'); */",
+        "annotation": "c.req.valid：検証済み値を取得（TypeScriptの推論には同じルートのmiddleware連結を保つ）"
+      },
+      {
+        "display": "app.get('/header',c=>{c.header('X-App','sample');return c.text('ok')});",
+        "input": "app.get('/header',c=>{c.header('X-App','sample');return c.text('ok')});",
+        "annotation": "c.header：応答ヘッダー"
+      },
+      {
+        "display": "import {logger} from 'hono/logger'; import {timing} from 'hono/timing'; app.use('*',logger(),timing());",
+        "input": "import {logger} from 'hono/logger'; import {timing} from 'hono/timing'; app.use('*',logger(),timing());",
+        "annotation": "logger / timing：ログ・計測（ログに秘密・個人情報を含めない）"
+      },
+      {
+        "display": "import {cors} from 'hono/cors'; app.use('/api/*',cors({origin:'https://app.example.com'}));",
+        "input": "import {cors} from 'hono/cors'; app.use('/api/*',cors({origin:'https://app.example.com'}));",
+        "annotation": "cors：CORS（認証・認可の代わりではない）"
+      },
+      {
+        "display": "import {secureHeaders} from 'hono/secure-headers'; app.use('*',secureHeaders());",
+        "input": "import {secureHeaders} from 'hono/secure-headers'; app.use('*',secureHeaders());",
+        "annotation": "secureHeaders：ヘッダー保護（ポリシーをアプリに合わせる）"
+      },
+      {
+        "display": "import {bodyLimit} from 'hono/body-limit'; app.use('/upload',bodyLimit({maxSize:1024*1024}));",
+        "input": "import {bodyLimit} from 'hono/body-limit'; app.use('/upload',bodyLimit({maxSize:1024*1024}));",
+        "annotation": "bodyLimit：本文サイズ制限（実行環境の上限も別途確認）"
+      },
+      {
+        "display": "const response=await app.request('/'); if(response.status!==200) throw new Error('unexpected status');",
+        "input": "const response=await app.request('/'); if(response.status!==200) throw new Error('unexpected status');",
+        "annotation": "app.request：サーバー起動なしのリクエスト（アプリが定義済み。テストランナーのexpect等とも組合せ可能）"
+      },
+      {
+        "display": "import {serve} from '@hono/node-server'; serve({fetch:app.fetch,port:3000});",
+        "input": "import {serve} from '@hono/node-server'; serve({fetch:app.fetch,port:3000});",
+        "annotation": "Node.js adapter：Nodeで起動（補足: @hono/node-serverを別途導入。実行環境に合う版を使用）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "hono-methods-advanced",
+    "name": "Honoメソッド（上級）",
+    "words": [
+      {
+        "display": "app.post('/form',async c=>{ const body=await c.req.parseBody(); return c.json({name:typeof body.name==='string'?body.name:''}); });",
+        "input": "app.post('/form',async c=>{ const body=await c.req.parseBody(); return c.json({name:typeof body.name==='string'?body.name:''}); });",
+        "annotation": "c.req.parseBody / formData：フォーム本文（Content-Type・File等の型を確認）"
+      },
+      {
+        "display": "import {validator} from 'hono/validator'; app.post('/users',validator('json',(value,c)=>{ if(!value||typeof value.name!=='string') return c.json({error:'invalid name'},400); return {name:value.name}; }),c=>c.json(c.req.valid('json'),201));",
+        "input": "import {validator} from 'hono/validator'; app.post('/users',validator('json',(value,c)=>{ if(!value||typeof value.name!=='string') return c.json({error:'invalid name'},400); return {name:value.name}; }),c=>c.json(c.req.valid('json'),201));",
+        "annotation": "validator：組込みの薄い検証（JSONには適切なContent-Typeが必要）"
+      },
+      {
+        "display": "import {z} from 'zod'; import {zValidator} from '@hono/zod-validator'; app.post('/users',zValidator('json',z.object({name:z.string().min(1)})),c=>c.json(c.req.valid('json'),201));",
+        "input": "import {z} from 'zod'; import {zValidator} from '@hono/zod-validator'; app.post('/users',zValidator('json',z.object({name:z.string().min(1)})),c=>c.json(c.req.valid('json'),201));",
+        "annotation": "zValidator：Zodで検証（zod・@hono/zod-validatorを別途導入。版の互換性を確認）"
+      },
+      {
+        "display": "app.use('*',async(c,next)=>{ console.log(c.req.method,c.req.path); await next(); c.header('X-App','sample'); });",
+        "input": "app.use('*',async(c,next)=>{ console.log(c.req.method,c.req.path); await next(); c.header('X-App','sample'); });",
+        "annotation": "app.use / await next：前後処理（ルートより前に登録。nextをawait）"
+      },
+      {
+        "display": "import {createMiddleware} from 'hono/factory'; const log=createMiddleware(async(c,next)=>{ console.log(c.req.path); await next(); }); app.use('*',log);",
+        "input": "import {createMiddleware} from 'hono/factory'; const log=createMiddleware(async(c,next)=>{ console.log(c.req.path); await next(); }); app.use('*',log);",
+        "annotation": "createMiddleware：型付きの独立middleware"
+      },
+      {
+        "display": "type Env={Variables:{requestId:string}}; const traced=new Hono<Env>(); traced.use('*',async(c,next)=>{c.set('requestId',crypto.randomUUID());await next()}); traced.get('/',c=>c.json({id:c.get('requestId')}));",
+        "input": "type Env={Variables:{requestId:string}}; const traced=new Hono<Env>(); traced.use('*',async(c,next)=>{c.set('requestId',crypto.randomUUID());await next()}); traced.get('/',c=>c.json({id:c.get('requestId')}));",
+        "annotation": "c.set / c.get：リクエスト単位の値（対応middlewareを通ることは型宣言だけでは保証されない）"
+      },
+      {
+        "display": "type Env={Bindings:{APP_NAME:string}}; const worker=new Hono<Env>(); worker.get('/',c=>c.text(c.env.APP_NAME));",
+        "input": "type Env={Bindings:{APP_NAME:string}}; const worker=new Hono<Env>(); worker.get('/',c=>c.text(c.env.APP_NAME));",
+        "annotation": "c.env：環境固有のBindings（Cloudflare Workers等でBindingsを設定。Nodeのprocess.envとは同一でない）"
+      },
+      {
+        "display": "import {HTTPException} from 'hono/http-exception'; app.get('/private',()=>{throw new HTTPException(401,{message:'Unauthorized'})});",
+        "input": "import {HTTPException} from 'hono/http-exception'; app.get('/private',()=>{throw new HTTPException(401,{message:'Unauthorized'})});",
+        "annotation": "HTTPException：HTTPエラーを投げる（例は常に拒否。実際の認証を別途実装）"
+      },
+      {
+        "display": "app.onError((err,c)=>{ if(err instanceof HTTPException) return err.getResponse(); console.error(err); return c.json({error:'internal error'},500); });",
+        "input": "app.onError((err,c)=>{ if(err instanceof HTTPException) return err.getResponse(); console.error(err); return c.json({error:'internal error'},500); });",
+        "annotation": "app.onError：例外を応答へ変換（HTTPExceptionを別途import。機密情報を返さない）"
+      },
+      {
+        "display": "import {getCookie,setCookie,deleteCookie} from 'hono/cookie'; app.post('/theme',c=>{setCookie(c,'theme','dark',{httpOnly:true,sameSite:'Lax',path:'/'});return c.json({ok:true})});",
+        "input": "import {getCookie,setCookie,deleteCookie} from 'hono/cookie'; app.post('/theme',c=>{setCookie(c,'theme','dark',{httpOnly:true,sameSite:'Lax',path:'/'});return c.json({ok:true})});",
+        "annotation": "getCookie / setCookie / deleteCookie：Cookie操作（本番HTTPSでsecure等を設定。認証CookieはCSRF・期限も設計）"
+      },
+      {
+        "display": "const routes=app.get('/health',c=>c.json({ok:true})); export type AppType=typeof routes; /* クライアント別ファイル: */ /* import {hc} from 'hono/client'; */ /* const client=hc<AppType>('http://localhost:3000'); */",
+        "input": "const routes=app.get('/health',c=>c.json({ok:true})); export type AppType=typeof routes; /* クライアント別ファイル: */ /* import {hc} from 'hono/client'; */ /* const client=hc<AppType>('http://localhost:3000'); */",
+        "annotation": "hc / AppType：サーバーとクライアントの型共有（ルートを連結して推論を保持。型共有は認証や実行時検証を代替しない）"
+      },
+      {
+        "display": "import {serveStatic} from '@hono/node-server/serve-static'; app.use('/static/*',serveStatic({root:'./'}));",
+        "input": "import {serveStatic} from '@hono/node-server/serve-static'; app.use('/static/*',serveStatic({root:'./'}));",
+        "annotation": "serveStatic：Nodeで静的配信（対応ファイルが必要。cwd基準。秘密ファイルを公開しない）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "php-syntax-beginner",
+    "name": "PHP構文（初級）",
+    "words": [
+      {
+        "display": "<?php declare(strict_types=1); echo \"Hello\\n\";",
+        "input": "<?php declare(strict_types=1); echo \"Hello\\n\";",
+        "annotation": "PHP 8.2以降：例の基準（コード断片には先頭タグを補う。strict_typesはファイル単位でスカラー引数等の変換に影響）"
+      },
+      {
+        "display": "$age=20; const MAX_COUNT=100;",
+        "input": "$age=20; const MAX_COUNT=100;",
+        "annotation": "$変数 / const：変数・定数（変数名は$から開始）"
+      },
+      {
+        "display": "$name='Pomo'; $enabled=true; $n=(int)'123';",
+        "input": "$name='Pomo'; $enabled=true; $n=(int)'123';",
+        "annotation": "型・型変換：スカラー等（キャストは入力検証の代わりではない）"
+      },
+      {
+        "display": "$name='Pomo'; echo 'Hello, '.$name; echo \"Hello, {$name}\";",
+        "input": "$name='Pomo'; echo 'Hello, '.$name; echo \"Hello, {$name}\";",
+        "annotation": ". / 文字列補間：文字列結合（シングルクォートとダブルクォートの解釈に差）"
+      },
+      {
+        "display": "var_dump(1==='1'); var_dump(1=='1');",
+        "input": "var_dump(1==='1'); var_dump(1=='1');",
+        "annotation": "記法: === / == / !==：比較（通常は意図せぬ型変換を避けて厳密比較を検討）"
+      },
+      {
+        "display": "$name=$_GET['name']??'Guest'; $options['limit']??=20;",
+        "input": "$name=$_GET['name']??'Guest'; $options['limit']??=20;",
+        "annotation": "?? / ??=：NULL等の既定値（未定義またはnullの場合）"
+      },
+      {
+        "display": "$nums=[1,2,3]; $user=['name'=>'Pomo']; $nums[]=4;",
+        "input": "$nums=[1,2,3]; $user=['name'=>'Pomo']; $nums[]=4;",
+        "annotation": "[] / 連想配列：順序付きマップ（PHP配列は順序付きマップ）"
+      },
+      {
+        "display": "var_dump(isset($missing)); var_dump(empty('0'));",
+        "input": "var_dump(isset($missing)); var_dump(empty('0'));",
+        "annotation": "isset / empty：未設定等の判定（issetはnullにもfalse。emptyは文字列'0'にもtrue）"
+      },
+      {
+        "display": "function add(int $a,int $b):int { return $a+$b; }",
+        "input": "function add(int $a,int $b):int { return $a+$b; }",
+        "annotation": "function / return：関数定義"
+      },
+      {
+        "display": "$user=null; $name=$user?->name;",
+        "input": "$user=null; $name=$user?->name;",
+        "annotation": "-> / ?->：メンバーアクセス（nullsafe演算子。代入先には使えない）"
+      },
+      {
+        "display": "namespace App; use DateTimeImmutable; $now=new DateTimeImmutable();",
+        "input": "namespace App; use DateTimeImmutable; $now=new DateTimeImmutable();",
+        "annotation": "namespace / use / require：名前空間・読込（実アプリではComposerのautoload等を設定）"
+      },
+      {
+        "display": "php app.php",
+        "input": "php app.php",
+        "annotation": "実行・lint・開発サーバー：コマンドライン（組込みサーバーは開発向け）"
+      },
+      {
+        "display": "php -l app.php",
+        "input": "php -l app.php",
+        "annotation": "実行・lint・開発サーバー：コマンドライン（組込みサーバーは開発向け）"
+      },
+      {
+        "display": "php -S localhost:8000",
+        "input": "php -S localhost:8000",
+        "annotation": "実行・lint・開発サーバー：コマンドライン（組込みサーバーは開発向け）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "php-syntax-intermediate",
+    "name": "PHP構文（中級）",
+    "words": [
+      {
+        "display": "switch ($role) { case 'admin': echo '管理者'; break; default: echo '一般'; }",
+        "input": "switch ($role) { case 'admin': echo '管理者'; break; default: echo '一般'; }",
+        "annotation": "switch：値で分岐（通常は緩い比較。break漏れに注意）"
+      },
+      {
+        "display": "for($i=0;$i<3;$i++) { echo $i; } while(false) { break; }",
+        "input": "for($i=0;$i<3;$i++) { echo $i; } while(false) { break; }",
+        "annotation": "for / while / do：反復"
+      },
+      {
+        "display": "foreach(['a'=>1,'b'=>2] as $key=>$value) { echo \"$key:$value\\n\"; }",
+        "input": "foreach(['a'=>1,'b'=>2] as $key=>$value) { echo \"$key:$value\\n\"; }",
+        "annotation": "foreach：配列の要素を処理（参照付きforeach後は変数の参照残りに注意）"
+      },
+      {
+        "display": "$nums=[1,2,3]; $result=array_map(fn($n)=>$n*2,$nums); echo count($result);",
+        "input": "$nums=[1,2,3]; $result=array_map(fn($n)=>$n*2,$nums); echo count($result);",
+        "annotation": "count / array_map：数・変換"
+      },
+      {
+        "display": "$nums=[1,2,3]; $result=array_values(array_filter($nums,fn($n)=>$n>1));",
+        "input": "$nums=[1,2,3]; $result=array_values(array_filter($nums,fn($n)=>$n>1));",
+        "annotation": "array_filter / array_values：絞り込み・添字再構成（filterは通常キーを保持）"
+      },
+      {
+        "display": "function greet(string $name='Guest'):string { return \"Hello, $name\"; } echo greet(name:'Pomo');",
+        "input": "function greet(string $name='Guest'):string { return \"Hello, $name\"; } echo greet(name:'Pomo');",
+        "annotation": "既定・名前付き引数：省略と指定"
+      },
+      {
+        "display": "function sum(int ...$nums):int { return array_sum($nums); } echo sum(...[1,2,3]);",
+        "input": "function sum(int ...$nums):int { return array_sum($nums); } echo sum(...[1,2,3]);",
+        "annotation": "...$args / ...配列：可変長と展開"
+      },
+      {
+        "display": "function label(int|string|null $value):string { return (string)$value; }",
+        "input": "function label(int|string|null $value):string { return (string)$value; }",
+        "annotation": "?T / union：NULL許容・共用型"
+      },
+      {
+        "display": "class Counter { private int $count=0; public function get():int { return $this->count; } }",
+        "input": "class Counter { private int $count=0; public function get():int { return $this->count; } }",
+        "annotation": "public / protected / private：アクセス範囲"
+      },
+      {
+        "display": "readonly class Point { public function __construct(public int $x,public int $y) {} }",
+        "input": "readonly class Point { public function __construct(public int $x,public int $y) {} }",
+        "annotation": "readonly：一度だけ初期化（PHP 8.2以降。参照先内部の深い不変性ではない）"
+      },
+      {
+        "display": "trait Named { public function name():string { return 'Pomo'; } } class User { use Named; }",
+        "input": "trait Named { public function name():string { return 'Pomo'; } } class User { use Named; }",
+        "annotation": "trait / use：実装の再利用（namespaceのuseとは別）"
+      },
+      {
+        "display": "enum Status:string { case Todo='todo'; case Done='done'; } echo Status::Todo->value;",
+        "input": "enum Status:string { case Todo='todo'; case Done='done'; } echo Status::Todo->value;",
+        "annotation": "enum：値を限定（PHP 8.1以降）"
+      },
+      {
+        "display": "file_put_contents('memo.txt','Hello'); $text=file_get_contents('memo.txt');",
+        "input": "file_put_contents('memo.txt','Hello'); $text=file_get_contents('memo.txt');",
+        "annotation": "file_get_contents / file_put_contents：ファイル読み書き（書込は通常上書き。失敗はfalse等、警告・権限に注意）"
+      },
+      {
+        "display": "echo htmlspecialchars('<script>',ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');",
+        "input": "echo htmlspecialchars('<script>',ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');",
+        "annotation": "htmlspecialchars：HTML文脈のエスケープ（JS・URL等の文脈には別処理）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "php-syntax-advanced",
+    "name": "PHP構文（上級）",
+    "words": [
+      {
+        "display": "if ($age>=20) { echo '成人'; } elseif ($age>=18) { echo '18歳以上'; } else { echo 'その他'; }",
+        "input": "if ($age>=20) { echo '成人'; } elseif ($age>=18) { echo '18歳以上'; } else { echo 'その他'; }",
+        "annotation": "if / elseif / else：条件分岐"
+      },
+      {
+        "display": "$role='admin'; $label=match($role) { 'admin'=>'管理者', 'member','guest'=>'一般', default=>'不明' };",
+        "input": "$role='admin'; $label=match($role) { 'admin'=>'管理者', 'member','guest'=>'一般', default=>'不明' };",
+        "annotation": "match：厳密比較で値を返す（補足: ===比較。該当なし・defaultなしは例外）"
+      },
+      {
+        "display": "var_dump(in_array('1',[1,2],true)); var_dump(array_key_exists('name',['name'=>null]));",
+        "input": "var_dump(in_array('1',[1,2],true)); var_dump(array_key_exists('name',['name'=>null]));",
+        "annotation": "in_array / array_key_exists：要素・キー存在（in_arrayの第3引数trueで厳密比較）"
+      },
+      {
+        "display": "$factor=2; $double=fn($n)=>$n*$factor; $f=function($n) use($factor) { return $n*$factor; };",
+        "input": "$factor=2; $double=fn($n)=>$n*$factor; $f=function($n) use($factor) { return $n*$factor; };",
+        "annotation": "fn / use：クロージャ（arrow functionは外側変数を値で暗黙捕捉）"
+      },
+      {
+        "display": "class User { public function __construct(public string $name) {} public function greet():string { return 'Hello, '.$this->name; } } $user=new User('Pomo');",
+        "input": "class User { public function __construct(public string $name) {} public function greet():string { return 'Hello, '.$this->name; } } $user=new User('Pomo');",
+        "annotation": "class / __construct：クラス初期化（コンストラクターのプロパティ昇格）"
+      },
+      {
+        "display": "class Base { public function greet():string { return 'Hello'; } } class Child extends Base { public function greet():string { return parent::greet().'!'; } }",
+        "input": "class Base { public function greet():string { return 'Hello'; } } class Child extends Base { public function greet():string { return parent::greet().'!'; } }",
+        "annotation": "extends / parent：継承"
+      },
+      {
+        "display": "interface Greeter { public function greet():string; } class Bot implements Greeter { public function greet():string { return 'Hi'; } }",
+        "input": "interface Greeter { public function greet():string; } class Bot implements Greeter { public function greet():string { return 'Hi'; } }",
+        "annotation": "interface / implements：共通契約"
+      },
+      {
+        "display": "class MathUtil { public static function twice(int $n):int { return $n*2; } } echo MathUtil::twice(2);",
+        "input": "class MathUtil { public static function twice(int $n):int { return $n*2; } } echo MathUtil::twice(2);",
+        "annotation": "static / ::：クラスに属するメンバー"
+      },
+      {
+        "display": "try { throw new RuntimeException('失敗'); } catch(Throwable $e) { echo $e->getMessage(); } finally { echo '終了'; }",
+        "input": "try { throw new RuntimeException('失敗'); } catch(Throwable $e) { echo $e->getMessage(); } finally { echo '終了'; }",
+        "annotation": "try catch finally / throw：例外処理（ThrowableはErrorも含む。握りつぶさない）"
+      },
+      {
+        "display": "$text=json_encode(['name'=>'Pomo'],JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE); $data=json_decode($text,true,512,JSON_THROW_ON_ERROR);",
+        "input": "$text=json_encode(['name'=>'Pomo'],JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE); $data=json_decode($text,true,512,JSON_THROW_ON_ERROR);",
+        "annotation": "json_encode / json_decode：JSON変換（型・内容は別途検証）"
+      },
+      {
+        "display": "$stmt=$pdo->prepare('SELECT id,name FROM users WHERE id=:id'); $stmt->execute(['id'=>1]); $row=$stmt->fetch(PDO::FETCH_ASSOC);",
+        "input": "$stmt=$pdo->prepare('SELECT id,name FROM users WHERE id=:id'); $stmt->execute(['id'=>1]); $row=$stmt->fetch(PDO::FETCH_ASSOC);",
+        "annotation": "PDO / prepare / execute：値をバインドしたSQL（設定済みPDOが必要。識別子は値としてバインド不可）"
+      },
+      {
+        "display": "$hash=password_hash('example-password',PASSWORD_DEFAULT); $ok=password_verify('example-password',$hash);",
+        "input": "$hash=password_hash('example-password',PASSWORD_DEFAULT); $ok=password_verify('example-password',$hash);",
+        "annotation": "password_hash / verify：パスワードハッシュ（平文を保存しない。例の文字列を実資格情報として使わない）"
+      },
+      {
+        "display": "function numbers():Generator { for($i=0;$i<3;$i++) { yield $i; } } foreach(numbers() as $n) { echo $n; }",
+        "input": "function numbers():Generator { for($i=0;$i<3;$i++) { yield $i; } } foreach(numbers() as $n) { echo $n; }",
+        "annotation": "yield：遅延反復"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "rails-methods-beginner",
+    "name": "Railsメソッド（初級）",
+    "words": [
+      {
+        "display": "class User < ApplicationRecord; end",
+        "input": "class User < ApplicationRecord; end",
+        "annotation": "Rails 8系：対象・コード例（生成済みRailsアプリを想定。User(name,email,active,age)とPost(user_id,title,published)等のDBを準備）"
+      },
+      {
+        "display": "params.require(:user).permit(:name,:email)",
+        "input": "params.require(:user).permit(:name,:email)",
+        "annotation": "require / permit：従来のStrong Parameters（許可前の入力をそのままmass assignmentしない）"
+      },
+      {
+        "display": "render json: {id: 1}, status: :created",
+        "input": "render json: {id: 1}, status: :created",
+        "annotation": "render json / status：JSON応答（アクション内。必要な属性に限定）"
+      },
+      {
+        "display": "redirect_to users_path, status: :see_other",
+        "input": "redirect_to users_path, status: :see_other",
+        "annotation": "redirect_to / head：転送・本文なし応答（1アクションで複数応答しない。redirect_toは自動returnではない）"
+      },
+      {
+        "display": "head :no_content",
+        "input": "head :no_content",
+        "annotation": "redirect_to / head：転送・本文なし応答（1アクションで複数応答しない。redirect_toは自動returnではない）"
+      },
+      {
+        "display": "scope :active, -> { where(active: true) }",
+        "input": "scope :active, -> { where(active: true) }",
+        "annotation": "scope：検索条件に名前（Userモデル内）"
+      },
+      {
+        "display": "enum :status, {draft: 0,published: 1}",
+        "input": "enum :status, {draft: 0,published: 1}",
+        "annotation": "enum：状態を定義（Post等に対応integer列が必要。メソッド名競合に注意）"
+      },
+      {
+        "display": "User.where(active: true).where('age >= ?',20)",
+        "input": "User.where(active: true).where('age >= ?',20)",
+        "annotation": "all / where：検索条件（動的値はバインド。SQL文字列連結を避ける）"
+      },
+      {
+        "display": "User.find(1).update!(name: 'New')",
+        "input": "User.find(1).update!(name: 'New')",
+        "annotation": "update / update!：属性更新（認可したレコード・属性だけ変更）"
+      },
+      {
+        "display": "User.find(1).destroy!",
+        "input": "User.find(1).destroy!",
+        "annotation": "destroy / delete_all：削除（destroyはcallback等。delete_allは通常callback・dependent処理を通さない）"
+      },
+      {
+        "display": "Post.where(published: false).delete_all",
+        "input": "Post.where(published: false).delete_all",
+        "annotation": "destroy / delete_all：削除（destroyはcallback等。delete_allは通常callback・dependent処理を通さない）"
+      },
+      {
+        "display": "bin/rails generate model Note title:string",
+        "input": "bin/rails generate model Note title:string",
+        "annotation": "generate / migrate / routes / test：開発コマンド（生成・DB変更を含む。既存プロジェクトで実行）"
+      },
+      {
+        "display": "bin/rails db:migrate",
+        "input": "bin/rails db:migrate",
+        "annotation": "generate / migrate / routes / test：開発コマンド（生成・DB変更を含む。既存プロジェクトで実行）"
+      },
+      {
+        "display": "bin/rails routes",
+        "input": "bin/rails routes",
+        "annotation": "generate / migrate / routes / test：開発コマンド（生成・DB変更を含む。既存プロジェクトで実行）"
+      },
+      {
+        "display": "bin/rails test",
+        "input": "bin/rails test",
+        "annotation": "generate / migrate / routes / test：開発コマンド（生成・DB変更を含む。既存プロジェクトで実行）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "rails-methods-intermediate",
+    "name": "Railsメソッド（中級）",
+    "words": [
+      {
+        "display": "Rails.application.routes.draw do; resources :users; end",
+        "input": "Rails.application.routes.draw do; resources :users; end",
+        "annotation": "resources：RESTルート（config/routes.rb。7標準アクションを生成）"
+      },
+      {
+        "display": "root 'home#index'; get '/health', to: 'health#show'",
+        "input": "root 'home#index'; get '/health', to: 'health#show'",
+        "annotation": "root / get：トップ・個別ルート（routes.draw内。対応コントローラーが必要）"
+      },
+      {
+        "display": "def user_params; params.expect(user: [:name,:email]); end",
+        "input": "def user_params; params.expect(user: [:name,:email]); end",
+        "annotation": "params / expect：許可した入力を取得（Rails 8の例。Strong Parametersは入力の業務検証・認可を代替しない）"
+      },
+      {
+        "display": "validates :name, presence: true; validates :email, uniqueness: true",
+        "input": "validates :name, presence: true; validates :email, uniqueness: true",
+        "annotation": "validates：値を検証（モデル内。一意性の競合防止にはDB一意制約も必要）"
+      },
+      {
+        "display": "User.find(1); User.find_by(email: 'pomo@example.com')",
+        "input": "User.find(1); User.find_by(email: 'pomo@example.com')",
+        "annotation": "find / find_by：1件取得（findは対象なしで例外、find_byはnil）"
+      },
+      {
+        "display": "User.order(created_at: :desc,id: :desc).limit(20).offset(40)",
+        "input": "User.order(created_at: :desc,id: :desc).limit(20).offset(40)",
+        "annotation": "order / limit / offset：並べ替え・ページング（ユーザー入力の生SQLをorderへ渡さない）"
+      },
+      {
+        "display": "User.where(active: true).pluck(:id,:name); User.where(id: 1).pick(:name)",
+        "input": "User.where(active: true).pluck(:id,:name); User.where(id: 1).pick(:name)",
+        "annotation": "pluck / pick / select：必要列だけ取得（pluckは配列。selectは選択列付きモデルのRelation）"
+      },
+      {
+        "display": "User.joins(:posts).distinct; User.left_joins(:posts)",
+        "input": "User.joins(:posts).distinct; User.left_joins(:posts)",
+        "annotation": "joins / left_joins：関連を結合（joins自体は関連を事前ロードしない）"
+      },
+      {
+        "display": "User.preload(:posts).find_each { |u| u.posts.each { |p| puts p.title } }",
+        "input": "User.preload(:posts).find_each { |u| u.posts.each { |p| puts p.title } }",
+        "annotation": "includes / preload：関連のN+1を避ける（includesは条件によってJOINになる等の差）"
+      },
+      {
+        "display": "User.find_each(batch_size: 500) { |u| puts u.id }",
+        "input": "User.find_each(batch_size: 500) { |u| puts u.id }",
+        "annotation": "find_each：分割して処理（通常のorderで並ぶ一覧処理とは異なる）"
+      },
+      {
+        "display": "user = User.new(name: 'Pomo',email: 'pomo@example.com'); user.save!",
+        "input": "user = User.new(name: 'Pomo',email: 'pomo@example.com'); user.save!",
+        "annotation": "new / save / save!：作成・保存（saveは検証失敗でfalse、save!は例外）"
+      },
+      {
+        "display": "User.create!(name: 'Pomo',email: 'pomo@example.com')",
+        "input": "User.create!(name: 'Pomo',email: 'pomo@example.com')",
+        "annotation": "create / create!：生成と保存（検証・callbackが実行される）"
+      },
+      {
+        "display": "User.where(active: false).update_all(name: 'Inactive')",
+        "input": "User.where(active: false).update_all(name: 'Inactive')",
+        "annotation": "update_all：一括更新（検証・callbackを通常通らずupdated_atも自動更新しない）"
+      },
+      {
+        "display": "user = User.find(1); user.with_lock do; user.update!(active: true); end",
+        "input": "user = User.find(1); user.with_lock do; user.update!(active: true); end",
+        "annotation": "with_lock：行ロックして処理（DB取引内で対象行をロックして更新。実データを変更する）"
+      },
+      {
+        "display": "<h1><%= @user.name %></h1> <%= link_to '一覧', users_path %>",
+        "input": "<h1><%= @user.name %></h1> <%= link_to '一覧', users_path %>",
+        "annotation": "ERB / link_to：表示・リンク（通常自動HTMLエスケープ。rawやhtml_safeへ未検証入力を渡さない）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "rails-methods-advanced",
+    "name": "Railsメソッド（上級）",
+    "words": [
+      {
+        "display": "resources :users, only: [:index,:show] do; resources :posts, only: [:index,:create]; end",
+        "input": "resources :users, only: [:index,:show] do; resources :posts, only: [:index,:create]; end",
+        "annotation": "only / member / nested：公開範囲・関連ルート（routes.drawブロック内。深すぎるネストを避ける）"
+      },
+      {
+        "display": "class UsersController < ApplicationController; def show; @user = User.find(params[:id]); render json: @user.as_json(only: [:id,:name]); end; end",
+        "input": "class UsersController < ApplicationController; def show; @user = User.find(params[:id]); render json: @user.as_json(only: [:id,:name]); end; end",
+        "annotation": "アクション：入力から処理・応答（認証・認可は別途。機密属性を返さない）"
+      },
+      {
+        "display": "before_action :set_user, only: [:show,:update]; private; def set_user; @user = User.find(params[:id]); end",
+        "input": "before_action :set_user, only: [:show,:update]; private; def set_user; @user = User.find(params[:id]); end",
+        "annotation": "before_action：事前処理（コントローラー内。ユーザー権限で取得範囲を制限）"
+      },
+      {
+        "display": "rescue_from ActiveRecord::RecordNotFound do; render json: {error: 'not found'}, status: :not_found; end",
+        "input": "rescue_from ActiveRecord::RecordNotFound do; render json: {error: 'not found'}, status: :not_found; end",
+        "annotation": "rescue_from：例外を応答へ変換（コントローラー内。全Exception等を一律に握りつぶさない）"
+      },
+      {
+        "display": "class User < ApplicationRecord; has_many :posts; end; class Post < ApplicationRecord; belongs_to :user; end",
+        "input": "class User < ApplicationRecord; has_many :posts; end; class Post < ApplicationRecord; belongs_to :user; end",
+        "annotation": "belongs_to / has_many：関連を定義（外部キーはマイグレーションで設定）"
+      },
+      {
+        "display": "after_commit :notify_created, on: :create; private; def notify_created; Rails.logger.info('created'); end",
+        "input": "after_commit :notify_created, on: :create; private; def notify_created; Rails.logger.info('created'); end",
+        "annotation": "after_commit：確定後の副作用（モデル内。外部通信の再試行等はJob化を検討）"
+      },
+      {
+        "display": "User.exists?(email: 'pomo@example.com'); User.where(active: true).count; Post.group(:user_id).count",
+        "input": "User.exists?(email: 'pomo@example.com'); User.where(active: true).count; Post.group(:user_id).count",
+        "annotation": "exists? / count / sum：存在・集計"
+      },
+      {
+        "display": "User.upsert_all([{id: 1,name: 'Pomo',email: 'pomo@example.com'}], unique_by: :id)",
+        "input": "User.upsert_all([{id: 1,name: 'Pomo',email: 'pomo@example.com'}], unique_by: :id)",
+        "annotation": "upsert_all：一括追加・競合更新（PostgreSQL等の対応とDB制約が前提。検証・callbackを通さない）"
+      },
+      {
+        "display": "User.transaction do; user = User.create!(name: 'Pomo',email: 'tx@example.com'); user.posts.create!(title: 'Hello'); end",
+        "input": "User.transaction do; user = User.create!(name: 'Pomo',email: 'tx@example.com'); user.posts.create!(title: 'Hello'); end",
+        "annotation": "transaction：まとめて確定（例外でDB取引をロールバック。外部副作用は戻らない）"
+      },
+      {
+        "display": "class CreateNotes < ActiveRecord::Migration[8.0]; def change; create_table :notes do |t|; t.string :title, null: false; t.timestamps; end; end; end",
+        "input": "class CreateNotes < ActiveRecord::Migration[8.0]; def change; create_table :notes do |t|; t.string :title, null: false; t.timestamps; end; end; end",
+        "annotation": "create_table：表作成（検証後にrails db:migrate）"
+      },
+      {
+        "display": "add_index :users, :email, unique: true; add_reference :posts, :user, foreign_key: true",
+        "input": "add_index :users, :email, unique: true; add_reference :posts, :user, foreign_key: true",
+        "annotation": "add_index / references：制約・索引（マイグレーション内。既存の列・索引があると重複に注意）"
+      },
+      {
+        "display": "<%= form_with model: @user do |f| %> <%= f.text_field :name %> <%= f.submit %> <% end %>",
+        "input": "<%= form_with model: @user do |f| %> <%= f.text_field :name %> <%= f.submit %> <% end %>",
+        "annotation": "form_with：フォーム（対応ルート・アクションとCSRF保護を用意）"
+      },
+      {
+        "display": "class NotifyJob < ApplicationJob; def perform(user_id); Rails.logger.info(user_id); end; end; NotifyJob.perform_later(1)",
+        "input": "class NotifyJob < ApplicationJob; def perform(user_id); Rails.logger.info(user_id); end; end; NotifyJob.perform_later(1)",
+        "annotation": "perform_later：バックグラウンド処理（Jobアダプター・ワーカーの設定が必要）"
+      },
+      {
+        "display": "class UserTest < ActiveSupport::TestCase; test 'name is required' do; user = User.new(name: nil); assert_not user.valid?; end; end",
+        "input": "class UserTest < ActiveSupport::TestCase; test 'name is required' do; user = User.new(name: nil); assert_not user.valid?; end; end",
+        "annotation": "モデルテスト：検証する（test/test_helper等の既存テスト環境が必要）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "express-methods-beginner",
+    "name": "Expressメソッド（初級）",
+    "words": [
+      {
+        "display": "import express from 'express'; const app=express();",
+        "input": "import express from 'express'; const app=express();",
+        "annotation": "Express 5 / TypeScript：対象環境（Node.jsとExpress 5、@types/express等の型・TS実行設定が必要。各例は独立した断片）"
+      },
+      {
+        "display": "app.get('/health',(_req,res)=>{res.json({ok:true})});",
+        "input": "app.get('/health',(_req,res)=>{res.json({ok:true})});",
+        "annotation": "app.get：GETルート"
+      },
+      {
+        "display": "app.post('/users',(_req,res)=>{res.status(201).json({id:1})});",
+        "input": "app.post('/users',(_req,res)=>{res.status(201).json({id:1})});",
+        "annotation": "app.post / put / patch / delete：HTTPメソッド別ルート（例はDB保存しない。更新・削除時は入力検証・認証認可）"
+      },
+      {
+        "display": "app.use(express.json({limit:'100kb'}));",
+        "input": "app.use(express.json({limit:'100kb'}));",
+        "annotation": "express.json：JSON解析ミドルウェア（ルートより前に登録。未検証入力）"
+      },
+      {
+        "display": "app.use(express.urlencoded({extended:false,limit:'100kb'}));",
+        "input": "app.use(express.urlencoded({extended:false,limit:'100kb'}));",
+        "annotation": "express.urlencoded：フォーム解析（multipartファイル送信は別ライブラリ等）"
+      },
+      {
+        "display": "app.delete('/sample',(_req,res)=>{res.status(204).end()});",
+        "input": "app.delete('/sample',(_req,res)=>{res.status(204).end()});",
+        "annotation": "res.sendStatus / end：定型・本文なし応答（実削除するなら認可・DB処理を追加）"
+      },
+      {
+        "display": "app.post('/done',(_req,res)=>{res.redirect(303,'/success')});",
+        "input": "app.post('/done',(_req,res)=>{res.redirect(303,'/success')});",
+        "annotation": "res.redirect：転送（外部入力URLをそのまま使わない。自動returnではない）"
+      },
+      {
+        "display": "app.use('/static',express.static('public'));",
+        "input": "app.use('/static',express.static('public'));",
+        "annotation": "express.static：静的配信（公開ディレクトリに秘密ファイルを置かない。相対パスはcwd依存）"
+      },
+      {
+        "display": "import helmet from 'helmet'; app.use(helmet());",
+        "input": "import helmet from 'helmet'; app.use(helmet());",
+        "annotation": "helmet：セキュリティヘッダー（別パッケージ。CSP等はアプリに合わせて調整）"
+      },
+      {
+        "display": "npm install express",
+        "input": "npm install express",
+        "annotation": "実行：パッケージ・起動（ターミナル。型検査はtsc等で別途）"
+      },
+      {
+        "display": "npm install -D typescript tsx @types/express @types/node",
+        "input": "npm install -D typescript tsx @types/express @types/node",
+        "annotation": "実行：パッケージ・起動（ターミナル。型検査はtsc等で別途）"
+      },
+      {
+        "display": "npx tsx src/index.ts",
+        "input": "npx tsx src/index.ts",
+        "annotation": "実行：パッケージ・起動（ターミナル。型検査はtsc等で別途）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "express-methods-intermediate",
+    "name": "Expressメソッド（中級）",
+    "words": [
+      {
+        "display": "const server=app.listen(3000,()=>console.log('http://localhost:3000'));",
+        "input": "const server=app.listen(3000,()=>console.log('http://localhost:3000'));",
+        "annotation": "app.listen：HTTPサーバー起動（環境のPORTや終了処理は用途に合わせる）"
+      },
+      {
+        "display": "app.get('/users/:id',(req,res)=>{res.json({id:req.params.id})});",
+        "input": "app.get('/users/:id',(req,res)=>{res.json({id:req.params.id})});",
+        "annotation": ":id / req.params：パス引数（文字列として取得。数値等は検証・変換）"
+      },
+      {
+        "display": "app.route('/items').get((_req,res)=>{res.json([])}).post((_req,res)=>{res.sendStatus(201)});",
+        "input": "app.route('/items').get((_req,res)=>{res.json([])}).post((_req,res)=>{res.sendStatus(201)});",
+        "annotation": "app.route：同じパスの処理を連結"
+      },
+      {
+        "display": "app.get('/files/*path',(req,res)=>{res.json({path:req.params.path})});",
+        "input": "app.get('/files/*path',(req,res)=>{res.json({path:req.params.path})});",
+        "annotation": "名前付きワイルドカード：Express 5のパス構文（Express 4の無名*とは異なる。ルート自体を含める場合/{*path}等）"
+      },
+      {
+        "display": "app.get('/sample',(_req,res)=>{res.status(200).json({name:'Pomo'})});",
+        "input": "app.get('/sample',(_req,res)=>{res.status(200).json({name:'Pomo'})});",
+        "annotation": "res.status / json：ステータスとJSON"
+      },
+      {
+        "display": "app.get('/text',(_req,res)=>{res.type('text/plain').send('Hello')});",
+        "input": "app.get('/text',(_req,res)=>{res.type('text/plain').send('Hello')});",
+        "annotation": "res.send / type：本文とContent-Type（HTMLへ未エスケープ入力を埋め込まない）"
+      },
+      {
+        "display": "app.use((req,res,next)=>{console.log(req.method,req.path);next()});",
+        "input": "app.use((req,res,next)=>{console.log(req.method,req.path);next()});",
+        "annotation": "next：次の処理へ（応答するかnextする。両方を行わない）"
+      },
+      {
+        "display": "app.get('/async',async(_req,res)=>{ const value=await Promise.resolve(42); res.json({value}); });",
+        "input": "app.get('/async',async(_req,res)=>{ const value=await Promise.resolve(42); res.json({value}); });",
+        "annotation": "asyncハンドラー：非同期処理と例外伝播（Express 5は返されたPromiseのrejectをエラー処理へ渡す。別コールバック等は別途扱う）"
+      },
+      {
+        "display": "app.get('/fail',(_req,_res,next)=>{next(new Error('failure'))});",
+        "input": "app.get('/fail',(_req,_res,next)=>{next(new Error('failure'))});",
+        "annotation": "next(err)：エラーを伝える（エラー処理へ移行）"
+      },
+      {
+        "display": "app.disable('x-powered-by'); /* 構成を確認してから: */ /* app.set('trust proxy',1); */",
+        "input": "app.disable('x-powered-by'); /* 構成を確認してから: */ /* app.set('trust proxy',1); */",
+        "annotation": "app.disable / trust proxy：ヘッダー・Proxy設定（trust proxyの誤設定はIP・HTTPS判定等を偽装可能にする）"
+      },
+      {
+        "display": "import cors from 'cors'; app.use(cors({origin:'https://app.example.com'}));",
+        "input": "import cors from 'cors'; app.use(cors({origin:'https://app.example.com'}));",
+        "annotation": "cors：CORSミドルウェア（corsと型を追加導入。CORSは認証やサーバー間通信の制限ではない）"
+      },
+      {
+        "display": "const server=app.listen(3000); process.on('SIGTERM',()=>{server.close(()=>process.exit(0))});",
+        "input": "const server=app.listen(3000); process.on('SIGTERM',()=>{server.close(()=>process.exit(0))});",
+        "annotation": "終了時のserver.close：接続を閉じる（タイムアウト・DB切断等を追加。例は独立）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "express-methods-advanced",
+    "name": "Expressメソッド（上級）",
+    "words": [
+      {
+        "display": "app.get('/search',(req,res)=>{ const q=req.query.q; if(typeof q!=='string'){res.status(400).json({error:'q required'});return;} res.json({q}); });",
+        "input": "app.get('/search',(req,res)=>{ const q=req.query.q; if(typeof q!=='string'){res.status(400).json({error:'q required'});return;} res.json({q}); });",
+        "annotation": "req.query：クエリ文字列（値の型・長さを検証。文字列とは限らない）"
+      },
+      {
+        "display": "const router=express.Router(); router.get('/',(_req,res)=>{res.json([])}); app.use('/users',router);",
+        "input": "const router=express.Router(); router.get('/',(_req,res)=>{res.json([])}); app.use('/users',router);",
+        "annotation": "Router / app.use：サブルートを分離（登録順が重要）"
+      },
+      {
+        "display": "app.post('/users',(req,res)=>{ const name=req.body?.name; if(typeof name!=='string'||!name.trim()){res.status(400).json({error:'name required'});return;} res.status(201).json({name}); });",
+        "input": "app.post('/users',(req,res)=>{ const name=req.body?.name; if(typeof name!=='string'||!name.trim()){res.status(400).json({error:'name required'});return;} res.status(201).json({name}); });",
+        "annotation": "req.body：本文を検証して利用（先に適切なbody parser。型注釈は実行時検証ではない）"
+      },
+      {
+        "display": "app.get('/header',(req,res)=>{res.set('X-App','sample');res.json({accept:req.get('Accept')})});",
+        "input": "app.get('/header',(req,res)=>{res.set('X-App','sample');res.json({accept:req.get('Accept')})});",
+        "annotation": "res.set / req.get：ヘッダー設定・取得（リクエストヘッダーを無条件で信頼しない）"
+      },
+      {
+        "display": "app.post('/theme',(_req,res)=>{ res.cookie('theme','dark',{httpOnly:true,sameSite:'lax',secure:process.env.NODE_ENV==='production',path:'/'}); res.json({ok:true}); });",
+        "input": "app.post('/theme',(_req,res)=>{ res.cookie('theme','dark',{httpOnly:true,sameSite:'lax',secure:process.env.NODE_ENV==='production',path:'/'}); res.json({ok:true}); });",
+        "annotation": "res.cookie / clearCookie：Cookie設定（認証用Cookieでは期限・CSRF対策等も設計。req.cookiesは追加parser等が必要）"
+      },
+      {
+        "display": "import path from 'node:path'; app.get('/manual',(_req,res)=>{res.sendFile(path.resolve('public/manual.pdf'))});",
+        "input": "import path from 'node:path'; app.get('/manual',(_req,res)=>{res.sendFile(path.resolve('public/manual.pdf'))});",
+        "annotation": "res.sendFile：ファイル送信（ファイルが必要。未検証パス入力を連結しない）"
+      },
+      {
+        "display": "app.use(express.json()); app.get('/health',(_req,res)=>{res.json({ok:true})}); app.use((_req,res)=>{res.status(404).json({error:'not found'})});",
+        "input": "app.use(express.json()); app.get('/health',(_req,res)=>{res.json({ok:true})}); app.use((_req,res)=>{res.status(404).json({error:'not found'})});",
+        "annotation": "処理の順序：共通前処理を先に登録（404ハンドラーはルートの後）"
+      },
+      {
+        "display": "import {randomUUID} from 'node:crypto'; app.use((_req,res,next)=>{res.locals.requestId=randomUUID();next()});",
+        "input": "import {randomUUID} from 'node:crypto'; app.use((_req,res,next)=>{res.locals.requestId=randomUUID();next()});",
+        "annotation": "res.locals：同一リクエスト内の値（ログへ秘密を出さない）"
+      },
+      {
+        "display": "import type {RequestHandler} from 'express'; const validateId:RequestHandler=(req,res,next)=>{ if(!/^\\d+$/.test(req.params.id)){res.status(400).json({error:'invalid id'});return;} next(); }; app.get('/users/:id',validateId,(req,res)=>{res.json({id:req.params.id})});",
+        "input": "import type {RequestHandler} from 'express'; const validateId:RequestHandler=(req,res,next)=>{ if(!/^\\d+$/.test(req.params.id)){res.status(400).json({error:'invalid id'});return;} next(); }; app.get('/users/:id',validateId,(req,res)=>{res.json({id:req.params.id})});",
+        "annotation": "個別ルートの事前処理：ルート単位で検証（認証認可は別のミドルウェアやサービスで実施）"
+      },
+      {
+        "display": "import type {ErrorRequestHandler} from 'express'; const onError:ErrorRequestHandler=(err,req,res,next)=>{ if(res.headersSent){next(err);return;} console.error(err); res.status(500).json({error:'internal error'}); }; app.use(onError);",
+        "input": "import type {ErrorRequestHandler} from 'express'; const onError:ErrorRequestHandler=(err,req,res,next)=>{ if(res.headersSent){next(err);return;} console.error(err); res.status(500).json({error:'internal error'}); }; app.use(onError);",
+        "annotation": "4引数エラーハンドラー：失敗応答（ルート等の後に登録。スタック・機密情報を返さない）"
+      },
+      {
+        "display": "import request from 'supertest'; const response=await request(app).get('/health'); if(response.status!==200) throw new Error('unexpected status');",
+        "input": "import request from 'supertest'; const response=await request(app).get('/health'); if(response.status!==200) throw new Error('unexpected status');",
+        "annotation": "Supertest：HTTPテスト（別パッケージ・テスト環境。appとlistenを分けると検証しやすい）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "oracle-plsql-syntax-beginner",
+    "name": "Oracle PL/SQL構文（初級）",
+    "words": [
+      {
+        "display": "-- SQL/PLはOracleのPL/SQLとして整理",
+        "input": "-- SQL/PLはOracleのPL/SQLとして整理",
+        "annotation": "Oracle PL/SQL：対象・用語（Db2 SQL PL・PostgreSQL PL/pgSQLとは別。Oracle 19c以降の主要構文を中心に記載）"
+      },
+      {
+        "display": "SET SERVEROUTPUT ON",
+        "input": "SET SERVEROUTPUT ON",
+        "annotation": "出力を有効化（SQL*Plus等のクライアントコマンド。PL/SQL構文ではない）"
+      },
+      {
+        "display": "DECLARE v_name users.name%TYPE; BEGIN NULL; END;",
+        "input": "DECLARE v_name users.name%TYPE; BEGIN NULL; END;",
+        "annotation": "%TYPE：列等から型を継承（users表・name列が必要。制約・既定値をすべて継承するわけではない）"
+      },
+      {
+        "display": "DECLARE v_user users%ROWTYPE; BEGIN SELECT * INTO v_user FROM users WHERE id=1; END;",
+        "input": "DECLARE v_user users%ROWTYPE; BEGIN SELECT * INTO v_user FROM users WHERE id=1; END;",
+        "annotation": "%ROWTYPE：行構造を変数化（users表が必要。SELECT INTOは正確に1行が必要）"
+      },
+      {
+        "display": "DECLARE i PLS_INTEGER:=0; BEGIN LOOP i:=i+1; EXIT WHEN i>=3; END LOOP; END;",
+        "input": "DECLARE i PLS_INTEGER:=0; BEGIN LOOP i:=i+1; EXIT WHEN i>=3; END LOOP; END;",
+        "annotation": "LOOP / EXIT WHEN：無限ループから脱出"
+      },
+      {
+        "display": "DECLARE i PLS_INTEGER:=0; BEGIN WHILE i<3 LOOP i:=i+1; END LOOP; END;",
+        "input": "DECLARE i PLS_INTEGER:=0; BEGIN WHILE i<3 LOOP i:=i+1; END LOOP; END;",
+        "annotation": "WHILE LOOP：条件反復"
+      },
+      {
+        "display": "BEGIN FOR i IN REVERSE 1..3 LOOP DBMS_OUTPUT.PUT_LINE(i); END LOOP; END;",
+        "input": "BEGIN FOR i IN REVERSE 1..3 LOOP DBMS_OUTPUT.PUT_LINE(i); END LOOP; END;",
+        "annotation": "FOR / REVERSE：整数範囲の反復（両端を含む。制御変数は暗黙宣言）"
+      },
+      {
+        "display": "BEGIN DELETE FROM users WHERE id=1; END;",
+        "input": "BEGIN DELETE FROM users WHERE id=1; END;",
+        "annotation": "DELETE：削除（実データ削除。COMMITまたはROLLBACKを判断）"
+      },
+      {
+        "display": "BEGIN RAISE NO_DATA_FOUND; EXCEPTION WHEN NO_DATA_FOUND THEN RAISE; END;",
+        "input": "BEGIN RAISE NO_DATA_FOUND; EXCEPTION WHEN NO_DATA_FOUND THEN RAISE; END;",
+        "annotation": "RAISE：例外を再送出（意図的に例外が伝播）"
+      },
+      {
+        "display": "BEGIN RAISE_APPLICATION_ERROR(-20001,'不正な入力'); END;",
+        "input": "BEGIN RAISE_APPLICATION_ERROR(-20001,'不正な入力'); END;",
+        "annotation": "RAISE_APPLICATION_ERROR：アプリ用エラー（通常-20000〜-20999）"
+      },
+      {
+        "display": "DECLARE v_result NUMBER; BEGIN double_value(p_in=>2,p_out=>v_result); END;",
+        "input": "DECLARE v_result NUMBER; BEGIN double_value(p_in=>2,p_out=>v_result); END;",
+        "annotation": "名前付き呼出：引数名で指定（double_valueが定義済み）"
+      },
+      {
+        "display": "CREATE OR REPLACE PACKAGE math_api AS FUNCTION twice(n NUMBER) RETURN NUMBER; END;",
+        "input": "CREATE OR REPLACE PACKAGE math_api AS FUNCTION twice(n NUMBER) RETURN NUMBER; END;",
+        "annotation": "PACKAGE / PACKAGE BODY：宣言と実装を分離（呼出はmath_api.twice(2)等）"
+      },
+      {
+        "display": "SELECT name,type,line,position,text FROM user_errors ORDER BY name,sequence;",
+        "input": "SELECT name,type,line,position,text FROM user_errors ORDER BY name,sequence;",
+        "annotation": "USER_ERRORS：コンパイルエラー確認（SQL。SHOW ERRORSはクライアントコマンド）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "oracle-plsql-syntax-intermediate",
+    "name": "Oracle PL/SQL構文（中級）",
+    "words": [
+      {
+        "display": "DECLARE v_name VARCHAR2(100):='Pomo'; BEGIN DBMS_OUTPUT.PUT_LINE(v_name); END;",
+        "input": "DECLARE v_name VARCHAR2(100):='Pomo'; BEGIN DBMS_OUTPUT.PUT_LINE(v_name); END;",
+        "annotation": "DECLARE BEGIN END：匿名ブロック（/はSQL*Plus・SQLcl等の実行区切り。API送信時は通常付けない）"
+      },
+      {
+        "display": "BEGIN IF 2>1 THEN DBMS_OUTPUT.PUT_LINE('yes'); ELSIF 2=1 THEN NULL; ELSE NULL; END IF; END;",
+        "input": "BEGIN IF 2>1 THEN DBMS_OUTPUT.PUT_LINE('yes'); ELSIF 2=1 THEN NULL; ELSE NULL; END IF; END;",
+        "annotation": "IF ELSIF ELSE：条件分岐"
+      },
+      {
+        "display": "BEGIN FOR i IN 1..3 LOOP CONTINUE WHEN i=2; DBMS_OUTPUT.PUT_LINE(i); END LOOP; END;",
+        "input": "BEGIN FOR i IN 1..3 LOOP CONTINUE WHEN i=2; DBMS_OUTPUT.PUT_LINE(i); END LOOP; END;",
+        "annotation": "CONTINUE：次の反復へ"
+      },
+      {
+        "display": "BEGIN UPDATE users SET name='New' WHERE id=1; DBMS_OUTPUT.PUT_LINE(SQL%ROWCOUNT); END;",
+        "input": "BEGIN UPDATE users SET name='New' WHERE id=1; DBMS_OUTPUT.PUT_LINE(SQL%ROWCOUNT); END;",
+        "annotation": "UPDATE / SQL%ROWCOUNT：更新件数（直前の対応SQLの件数。WHEREなしは全行）"
+      },
+      {
+        "display": "BEGIN FOR r IN (SELECT id,name FROM users ORDER BY id) LOOP DBMS_OUTPUT.PUT_LINE(r.name); END LOOP; END;",
+        "input": "BEGIN FOR r IN (SELECT id,name FROM users ORDER BY id) LOOP DBMS_OUTPUT.PUT_LINE(r.name); END LOOP; END;",
+        "annotation": "カーソルFORループ：行を順に処理（OPEN・FETCH・CLOSEを自動管理）"
+      },
+      {
+        "display": "DECLARE TYPE user_rec IS RECORD(id NUMBER,name VARCHAR2(100)); r user_rec; BEGIN r.id:=1; r.name:='Pomo'; END;",
+        "input": "DECLARE TYPE user_rec IS RECORD(id NUMBER,name VARCHAR2(100)); r user_rec; BEGIN r.id:=1; r.name:='Pomo'; END;",
+        "annotation": "RECORD：複合値"
+      },
+      {
+        "display": "CREATE OR REPLACE PROCEDURE double_value(p_in IN NUMBER,p_out OUT NUMBER) AS BEGIN p_out:=p_in*2; END;",
+        "input": "CREATE OR REPLACE PROCEDURE double_value(p_in IN NUMBER,p_out OUT NUMBER) AS BEGIN p_out:=p_in*2; END;",
+        "annotation": "PROCEDURE / IN OUT：手続きを定義（スキーマへの定義権限が必要）"
+      },
+      {
+        "display": "CREATE OR REPLACE FUNCTION add_one(p_n IN NUMBER) RETURN NUMBER AS BEGIN RETURN p_n+1; END;",
+        "input": "CREATE OR REPLACE FUNCTION add_one(p_n IN NUMBER) RETURN NUMBER AS BEGIN RETURN p_n+1; END;",
+        "annotation": "FUNCTION / RETURN：戻り値を返す"
+      },
+      {
+        "display": "CREATE OR REPLACE PACKAGE BODY math_api AS FUNCTION twice(n NUMBER) RETURN NUMBER IS BEGIN RETURN n*2; END; END;",
+        "input": "CREATE OR REPLACE PACKAGE BODY math_api AS FUNCTION twice(n NUMBER) RETURN NUMBER IS BEGIN RETURN n*2; END; END;",
+        "annotation": "PACKAGE / PACKAGE BODY：宣言と実装を分離（呼出はmath_api.twice(2)等）"
+      },
+      {
+        "display": "DECLARE v_name VARCHAR2(100); BEGIN EXECUTE IMMEDIATE 'SELECT name FROM users WHERE id=:id' INTO v_name USING 1; END;",
+        "input": "DECLARE v_name VARCHAR2(100); BEGIN EXECUTE IMMEDIATE 'SELECT name FROM users WHERE id=:id' INTO v_name USING 1; END;",
+        "annotation": "EXECUTE IMMEDIATE / USING：パラメーター付き動的SQL（値をバインド。識別子の未検証連結を避ける）"
+      },
+      {
+        "display": "BEGIN SAVEPOINT before_change; UPDATE users SET name='New' WHERE id=1; ROLLBACK TO before_change; END;",
+        "input": "BEGIN SAVEPOINT before_change; UPDATE users SET name='New' WHERE id=1; ROLLBACK TO before_change; END;",
+        "annotation": "COMMIT / ROLLBACK / SAVEPOINT：確定・取消・復帰地点（例は更新を戻す。DDLは暗黙COMMITが生じるため別扱い）"
+      },
+      {
+        "display": "DECLARE v_id users.id%TYPE; BEGIN SELECT id INTO v_id FROM users WHERE id=1 FOR UPDATE; END;",
+        "input": "DECLARE v_id users.id%TYPE; BEGIN SELECT id INTO v_id FROM users WHERE id=1 FOR UPDATE; END;",
+        "annotation": "SELECT FOR UPDATE：行をロック（ブロック終了だけでは取引終了しない。COMMIT/ROLLBACKまで保持）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "oracle-plsql-syntax-advanced",
+    "name": "Oracle PL/SQL構文（上級）",
+    "words": [
+      {
+        "display": "DECLARE v_age PLS_INTEGER:=20; c_limit CONSTANT PLS_INTEGER:=100; BEGIN v_age:=21; DBMS_OUTPUT.PUT_LINE(v_age); END;",
+        "input": "DECLARE v_age PLS_INTEGER:=20; c_limit CONSTANT PLS_INTEGER:=100; BEGIN v_age:=21; DBMS_OUTPUT.PUT_LINE(v_age); END;",
+        "annotation": ":= / CONSTANT：変数・定数（ローカル変数の既定値は通常NULL）"
+      },
+      {
+        "display": "DECLARE v_amount NUMBER(12,2):=123.45; v_ok BOOLEAN:=TRUE; BEGIN IF v_ok THEN DBMS_OUTPUT.PUT_LINE(v_amount); END IF; END;",
+        "input": "DECLARE v_amount NUMBER(12,2):=123.45; v_ok BOOLEAN:=TRUE; BEGIN IF v_ok THEN DBMS_OUTPUT.PUT_LINE(v_amount); END IF; END;",
+        "annotation": "NUMBER / VARCHAR2 / DATE / BOOLEAN：主な型（19cのBOOLEANはPL/SQL内。SQL列へのBOOLEAN対応は新しい版と区別）"
+      },
+      {
+        "display": "DECLARE v_role VARCHAR2(20):='admin'; BEGIN CASE v_role WHEN 'admin' THEN DBMS_OUTPUT.PUT_LINE('管理者'); ELSE DBMS_OUTPUT.PUT_LINE('その他'); END CASE; END;",
+        "input": "DECLARE v_role VARCHAR2(20):='admin'; BEGIN CASE v_role WHEN 'admin' THEN DBMS_OUTPUT.PUT_LINE('管理者'); ELSE DBMS_OUTPUT.PUT_LINE('その他'); END CASE; END;",
+        "annotation": "CASE：値による分岐（文と式のCASEを区別）"
+      },
+      {
+        "display": "DECLARE v_name VARCHAR2(100); BEGIN SELECT name INTO v_name FROM users WHERE id=1; DBMS_OUTPUT.PUT_LINE(v_name); END;",
+        "input": "DECLARE v_name VARCHAR2(100); BEGIN SELECT name INTO v_name FROM users WHERE id=1; DBMS_OUTPUT.PUT_LINE(v_name); END;",
+        "annotation": "SELECT INTO：1行を変数へ取得（users表が必要。0行・複数行で例外）"
+      },
+      {
+        "display": "DECLARE v_id NUMBER; BEGIN INSERT INTO users(name) VALUES('Pomo') RETURNING id INTO v_id; DBMS_OUTPUT.PUT_LINE(v_id); END;",
+        "input": "DECLARE v_id NUMBER; BEGIN INSERT INTO users(name) VALUES('Pomo') RETURNING id INTO v_id; DBMS_OUTPUT.PUT_LINE(v_id); END;",
+        "annotation": "INSERT / RETURNING INTO：追加値を受け取る（users.idの採番等を準備。自動COMMITしない）"
+      },
+      {
+        "display": "DECLARE CURSOR c_users IS SELECT name FROM users; BEGIN FOR r IN c_users LOOP DBMS_OUTPUT.PUT_LINE(r.name); END LOOP; END;",
+        "input": "DECLARE CURSOR c_users IS SELECT name FROM users; BEGIN FOR r IN c_users LOOP DBMS_OUTPUT.PUT_LINE(r.name); END LOOP; END;",
+        "annotation": "明示カーソル：カーソルを宣言"
+      },
+      {
+        "display": "DECLARE CURSOR c IS SELECT name FROM users; v_name users.name%TYPE; BEGIN OPEN c; LOOP FETCH c INTO v_name; EXIT WHEN c%NOTFOUND; DBMS_OUTPUT.PUT_LINE(v_name); END LOOP; CLOSE c; END;",
+        "input": "DECLARE CURSOR c IS SELECT name FROM users; v_name users.name%TYPE; BEGIN OPEN c; LOOP FETCH c INTO v_name; EXIT WHEN c%NOTFOUND; DBMS_OUTPUT.PUT_LINE(v_name); END LOOP; CLOSE c; END;",
+        "annotation": "OPEN FETCH CLOSE：明示的に行取得（実運用では例外時の解放も考慮）"
+      },
+      {
+        "display": "DECLARE TYPE names_t IS TABLE OF VARCHAR2(100) INDEX BY PLS_INTEGER; names names_t; BEGIN names(1):='Pomo'; DBMS_OUTPUT.PUT_LINE(names.COUNT); END;",
+        "input": "DECLARE TYPE names_t IS TABLE OF VARCHAR2(100) INDEX BY PLS_INTEGER; names names_t; BEGIN names(1):='Pomo'; DBMS_OUTPUT.PUT_LINE(names.COUNT); END;",
+        "annotation": "連想配列：キー付き配列（添字が密に連続するとは限らない）"
+      },
+      {
+        "display": "DECLARE TYPE ids_t IS TABLE OF users.id%TYPE; ids ids_t; BEGIN SELECT id BULK COLLECT INTO ids FROM users; DBMS_OUTPUT.PUT_LINE(ids.COUNT); END;",
+        "input": "DECLARE TYPE ids_t IS TABLE OF users.id%TYPE; ids ids_t; BEGIN SELECT id BULK COLLECT INTO ids FROM users; DBMS_OUTPUT.PUT_LINE(ids.COUNT); END;",
+        "annotation": "BULK COLLECT：複数行を一括取得（大量取得はメモリ消費。FETCH BULK COLLECT LIMIT等も検討）"
+      },
+      {
+        "display": "DECLARE TYPE ids_t IS TABLE OF NUMBER; ids ids_t:=ids_t(1,2,3); BEGIN FORALL i IN 1..ids.COUNT UPDATE users SET name='New' WHERE id=ids(i); END;",
+        "input": "DECLARE TYPE ids_t IS TABLE OF NUMBER; ids ids_t:=ids_t(1,2,3); BEGIN FORALL i IN 1..ids.COUNT UPDATE users SET name='New' WHERE id=ids(i); END;",
+        "annotation": "FORALL：DMLをまとめて送る（通常のFORループとは別。実データ変更）"
+      },
+      {
+        "display": "DECLARE v_name users.name%TYPE; BEGIN SELECT name INTO v_name FROM users WHERE id=1; EXCEPTION WHEN NO_DATA_FOUND THEN DBMS_OUTPUT.PUT_LINE('なし'); WHEN TOO_MANY_ROWS THEN RAISE; END;",
+        "input": "DECLARE v_name users.name%TYPE; BEGIN SELECT name INTO v_name FROM users WHERE id=1; EXCEPTION WHEN NO_DATA_FOUND THEN DBMS_OUTPUT.PUT_LINE('なし'); WHEN TOO_MANY_ROWS THEN RAISE; END;",
+        "annotation": "EXCEPTION / NO_DATA_FOUND：例外処理"
+      },
+      {
+        "display": "BEGIN RAISE NO_DATA_FOUND; EXCEPTION WHEN OTHERS THEN DBMS_OUTPUT.PUT_LINE(SQLCODE || ':' || SQLERRM); RAISE; END;",
+        "input": "BEGIN RAISE NO_DATA_FOUND; EXCEPTION WHEN OTHERS THEN DBMS_OUTPUT.PUT_LINE(SQLCODE || ':' || SQLERRM); RAISE; END;",
+        "annotation": "SQLCODE / SQLERRM：例外情報（WHEN OTHERSで無条件に握りつぶさない）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "sql-server-tsql-syntax-beginner",
+    "name": "SQL Server T-SQL構文（初級）",
+    "words": [
+      {
+        "display": "SELECT @@VERSION;",
+        "input": "SELECT @@VERSION;",
+        "annotation": "T-SQL / SQL Server：対象環境（SQL Server 2022以降で広く使える主要構文。表・列・権限を準備。Azure各サービスとは一部差がある）"
+      },
+      {
+        "display": "SELECT 1;",
+        "input": "SELECT 1;",
+        "annotation": "; / GO / コメント：文・バッチの区切り（GOはSSMS・sqlcmd等のクライアント区切り。SQL文としてドライバーへ送らない）"
+      },
+      {
+        "display": "GO",
+        "input": "GO",
+        "annotation": "; / GO / コメント：文・バッチの区切り（GOはSSMS・sqlcmd等のクライアント区切り。SQL文としてドライバーへ送らない）"
+      },
+      {
+        "display": "/* コメント */ SELECT 2;",
+        "input": "/* コメント */ SELECT 2;",
+        "annotation": "; / GO / コメント：文・バッチの区切り（GOはSSMS・sqlcmd等のクライアント区切り。SQL文としてドライバーへ送らない）"
+      },
+      {
+        "display": "DECLARE @age int = 20; SET @age = 21; SELECT @age;",
+        "input": "DECLARE @age int = 20; SET @age = 21; SELECT @age;",
+        "annotation": "DECLARE / SET：変数宣言と代入（補足: @変数の有効範囲はバッチ等）"
+      },
+      {
+        "display": "SELECT N'こんにちは' AS [表示名];",
+        "input": "SELECT N'こんにちは' AS [表示名];",
+        "annotation": "N'...' / [識別子]：Unicode文字列・名前の引用（nvarchar向けUnicodeリテラル。識別子と文字列を区別）"
+      },
+      {
+        "display": "SELECT Id, Name FROM dbo.Users WHERE Age >= 20;",
+        "input": "SELECT Id, Name FROM dbo.Users WHERE Age >= 20;",
+        "annotation": "SELECT / WHERE：行取得"
+      },
+      {
+        "display": "SELECT TOP (10) * FROM dbo.Users ORDER BY Id;",
+        "input": "SELECT TOP (10) * FROM dbo.Users ORDER BY Id;",
+        "annotation": "TOP：先頭件数（ORDER BYがなければ順番は保証されない）"
+      },
+      {
+        "display": "SELECT * FROM dbo.Users WHERE Email IS NULL;",
+        "input": "SELECT * FROM dbo.Users WHERE Email IS NULL;",
+        "annotation": "IS NULL / IS NOT NULL：NULL判定（補足: = NULLは使わない。通常比較にNULLがあるとunknown）"
+      },
+      {
+        "display": "SELECT * FROM dbo.Users WHERE Name LIKE N'Po%';",
+        "input": "SELECT * FROM dbo.Users WHERE Name LIKE N'Po%';",
+        "annotation": "LIKE：パターン一致（%は任意長。大文字小文字の扱いは照合順序等に依存）"
+      },
+      {
+        "display": "SELECT DISTINCT Age FROM dbo.Users;",
+        "input": "SELECT DISTINCT Age FROM dbo.Users;",
+        "annotation": "DISTINCT：重複排除"
+      },
+      {
+        "display": "DELETE FROM dbo.Orders OUTPUT DELETED.Id WHERE Id = 1;",
+        "input": "DELETE FROM dbo.Orders OUTPUT DELETED.Id WHERE Id = 1;",
+        "annotation": "DELETE / OUTPUT：行削除（WHEREなしは全行削除）"
+      },
+      {
+        "display": "TRUNCATE TABLE dbo.Orders;",
+        "input": "TRUNCATE TABLE dbo.Orders;",
+        "annotation": "TRUNCATE TABLE：表を空にする（IDENTITYをリセット。外部キー等の制約。全データ削除）"
+      },
+      {
+        "display": "ALTER TABLE dbo.Users ADD Nickname nvarchar(100) NULL;",
+        "input": "ALTER TABLE dbo.Users ADD Nickname nvarchar(100) NULL;",
+        "annotation": "ALTER TABLE：列追加（スキーマ変更のロック等に注意）"
+      },
+      {
+        "display": "SELECT CAST('123' AS int), TRY_CONVERT(int,'abc');",
+        "input": "SELECT CAST('123' AS int), TRY_CONVERT(int,'abc');",
+        "annotation": "CAST / CONVERT / TRY_CONVERT：型変換（TRY_CONVERTは通常変換失敗でNULL。禁止された変換等はエラー）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "sql-server-tsql-syntax-intermediate",
+    "name": "SQL Server T-SQL構文（中級）",
+    "words": [
+      {
+        "display": "SELECT * FROM dbo.Users ORDER BY Id OFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY;",
+        "input": "SELECT * FROM dbo.Users ORDER BY Id OFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY;",
+        "annotation": "ORDER BY / OFFSET FETCH：ページング（一意に並ぶ順序を指定。LIMITは使わない）"
+      },
+      {
+        "display": "SELECT * FROM dbo.Users WHERE Active = 1 AND Age BETWEEN 20 AND 29 AND Id IN (1,2,3);",
+        "input": "SELECT * FROM dbo.Users WHERE Active = 1 AND Age BETWEEN 20 AND 29 AND Id IN (1,2,3);",
+        "annotation": "AND / OR / IN / BETWEEN：条件の組合せ（BETWEENは両端を含む）"
+      },
+      {
+        "display": "SELECT u.Name, o.Amount FROM dbo.Users u LEFT JOIN dbo.Orders o ON o.UserId = u.Id;",
+        "input": "SELECT u.Name, o.Amount FROM dbo.Users u LEFT JOIN dbo.Orders o ON o.UserId = u.Id;",
+        "annotation": "INNER JOIN / LEFT JOIN：表を結合（右側をWHEREで絞ると実質内部結合になる場合）"
+      },
+      {
+        "display": "SELECT * FROM dbo.Users u WHERE EXISTS (SELECT 1 FROM dbo.Orders o WHERE o.UserId = u.Id);",
+        "input": "SELECT * FROM dbo.Users u WHERE EXISTS (SELECT 1 FROM dbo.Orders o WHERE o.UserId = u.Id);",
+        "annotation": "EXISTS / NOT EXISTS：関連行の存在"
+      },
+      {
+        "display": "SELECT Id, ROW_NUMBER() OVER (ORDER BY CreatedAt, Id) AS RowNo FROM dbo.Users;",
+        "input": "SELECT Id, ROW_NUMBER() OVER (ORDER BY CreatedAt, Id) AS RowNo FROM dbo.Users;",
+        "annotation": "ROW_NUMBER / OVER：行番号（一意に順序を決める）"
+      },
+      {
+        "display": "SELECT Id, UserId, Amount, SUM(Amount) OVER (PARTITION BY UserId) AS Total FROM dbo.Orders;",
+        "input": "SELECT Id, UserId, Amount, SUM(Amount) OVER (PARTITION BY UserId) AS Total FROM dbo.Orders;",
+        "annotation": "PARTITION BY / SUM OVER：行を残して集計"
+      },
+      {
+        "display": "SELECT Id, LAG(Amount) OVER (PARTITION BY UserId ORDER BY Id) AS Previous FROM dbo.Orders;",
+        "input": "SELECT Id, LAG(Amount) OVER (PARTITION BY UserId ORDER BY Id) AS Previous FROM dbo.Orders;",
+        "annotation": "LAG / LEAD：前後の行を参照"
+      },
+      {
+        "display": "ALTER TABLE dbo.Users ADD CONSTRAINT CK_Users_Age CHECK (Age >= 0);",
+        "input": "ALTER TABLE dbo.Users ADD CONSTRAINT CK_Users_Age CHECK (Age >= 0);",
+        "annotation": "CHECK / FOREIGN KEY / UNIQUE：データ制約（CHECKでNULLも拒否したい場合はNOT NULLを併用）"
+      },
+      {
+        "display": "CREATE INDEX IX_Orders_UserId ON dbo.Orders(UserId) INCLUDE (Amount);",
+        "input": "CREATE INDEX IX_Orders_UserId ON dbo.Orders(UserId) INCLUDE (Amount);",
+        "annotation": "CREATE INDEX：索引作成（読み取りと更新・容量コストを比較）"
+      },
+      {
+        "display": "CREATE VIEW dbo.ActiveUsers AS SELECT Id, Name FROM dbo.Users WHERE Active = 1;",
+        "input": "CREATE VIEW dbo.ActiveUsers AS SELECT Id, Name FROM dbo.Users WHERE Active = 1;",
+        "annotation": "CREATE VIEW：ビュー定義（CREATE VIEWはバッチ先頭等の制約。通常は結果を保存しない）"
+      },
+      {
+        "display": "SELECT SYSUTCDATETIME(), SYSDATETIMEOFFSET(), NEWID();",
+        "input": "SELECT SYSUTCDATETIME(), SYSDATETIMEOFFSET(), NEWID();",
+        "annotation": "datetime2 / datetimeoffset / uniqueidentifier：日時・UUID（datetime2はタイムゾーンを保持しない）"
+      },
+      {
+        "display": "SELECT CONCAT(Name,N'さん'), LEN(Name), SUBSTRING(Name,1,2) FROM dbo.Users;",
+        "input": "SELECT CONCAT(Name,N'さん'), LEN(Name), SUBSTRING(Name,1,2) FROM dbo.Users;",
+        "annotation": "CONCAT / LEN / SUBSTRING：文字列処理（LENは末尾の空白を数えない）"
+      },
+      {
+        "display": "SELECT DATEADD(day,7,SYSUTCDATETIME()), DATEDIFF(day,'2026-01-01','2026-01-03');",
+        "input": "SELECT DATEADD(day,7,SYSUTCDATETIME()), DATEDIFF(day,'2026-01-01','2026-01-03');",
+        "annotation": "DATEADD / DATEDIFF：日時の加減・境界数（DATEDIFFは単純な経過時間でなく単位境界数）"
+      },
+      {
+        "display": "DECLARE @i int=0; WHILE @i<3 BEGIN IF @i=1 PRINT N'one'; SET @i+=1; END;",
+        "input": "DECLARE @i int=0; WHILE @i<3 BEGIN IF @i=1 PRINT N'one'; SET @i+=1; END;",
+        "annotation": "IF / WHILE / BEGIN END：手続き的制御"
+      },
+      {
+        "display": "EXEC sys.sp_executesql N'SELECT * FROM dbo.Users WHERE Id=@id', N'@id int', @id=1;",
+        "input": "EXEC sys.sp_executesql N'SELECT * FROM dbo.Users WHERE Id=@id', N'@id int', @id=1;",
+        "annotation": "sp_executesql：値をパラメーター化した動的SQL（未検証入力をSQL文字列へ連結しない）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
+  },
+  {
+    "id": "sql-server-tsql-syntax-advanced",
+    "name": "SQL Server T-SQL構文（上級）",
+    "words": [
+      {
+        "display": "CREATE TABLE dbo.Users (Id int IDENTITY(1,1) PRIMARY KEY, Name nvarchar(100) NOT NULL, Email nvarchar(255) UNIQUE, Age int NULL, Active bit NOT NULL DEFAULT 1, CreatedAt datetime2 NOT NULL DEFAULT SYSUTCDATETIME()); CREATE TABLE dbo.Orders (Id int IDENTITY(1,1) PRIMARY KEY, UserId int REFERENCES dbo.Users(Id), Amount decimal(12,2) NOT NULL);",
+        "input": "CREATE TABLE dbo.Users (Id int IDENTITY(1,1) PRIMARY KEY, Name nvarchar(100) NOT NULL, Email nvarchar(255) UNIQUE, Age int NULL, Active bit NOT NULL DEFAULT 1, CreatedAt datetime2 NOT NULL DEFAULT SYSUTCDATETIME()); CREATE TABLE dbo.Orders (Id int IDENTITY(1,1) PRIMARY KEY, UserId int REFERENCES dbo.Users(Id), Amount decimal(12,2) NOT NULL);",
+        "annotation": "サンプル表：以下の例の基本表（検証用DB向け。同名表がある場合は失敗 SQL Serverの通常の単一列UNIQUEはNULLも通常1件まで。）"
+      },
+      {
+        "display": "SELECT u.Id, recent.Amount FROM dbo.Users u OUTER APPLY (SELECT TOP (1) Amount FROM dbo.Orders o WHERE o.UserId=u.Id ORDER BY o.Id DESC) recent;",
+        "input": "SELECT u.Id, recent.Amount FROM dbo.Users u OUTER APPLY (SELECT TOP (1) Amount FROM dbo.Orders o WHERE o.UserId=u.Id ORDER BY o.Id DESC) recent;",
+        "annotation": "OUTER APPLY：左行に依存する結果"
+      },
+      {
+        "display": "SELECT COUNT(*) AS CountAll, SUM(Amount) AS Total, AVG(Amount) AS Average FROM dbo.Orders;",
+        "input": "SELECT COUNT(*) AS CountAll, SUM(Amount) AS Total, AVG(Amount) AS Average FROM dbo.Orders;",
+        "annotation": "COUNT / SUM / AVG：件数・合計・平均（COUNT(列)はNULLを除く）"
+      },
+      {
+        "display": "SELECT UserId, SUM(Amount) AS Total FROM dbo.Orders GROUP BY UserId HAVING SUM(Amount) >= 1000;",
+        "input": "SELECT UserId, SUM(Amount) AS Total FROM dbo.Orders GROUP BY UserId HAVING SUM(Amount) >= 1000;",
+        "annotation": "GROUP BY / HAVING：グループ集計"
+      },
+      {
+        "display": "SELECT STRING_AGG(CAST(Name AS nvarchar(max)), N', ') WITHIN GROUP (ORDER BY Id) FROM dbo.Users;",
+        "input": "SELECT STRING_AGG(CAST(Name AS nvarchar(max)), N', ') WITHIN GROUP (ORDER BY Id) FROM dbo.Users;",
+        "annotation": "STRING_AGG：文字列集約（長い結果は入力型の最大長に注意）"
+      },
+      {
+        "display": ";WITH Totals AS (SELECT UserId, SUM(Amount) AS Total FROM dbo.Orders GROUP BY UserId) SELECT * FROM Totals;",
+        "input": ";WITH Totals AS (SELECT UserId, SUM(Amount) AS Total FROM dbo.Orders GROUP BY UserId) SELECT * FROM Totals;",
+        "annotation": "WITH：クエリに名前（前文を;で終える。CTEの直後の1文で使用）"
+      },
+      {
+        "display": "INSERT INTO dbo.Users (Name, Email) OUTPUT INSERTED.Id VALUES (N'Pomo', N'pomo@example.com');",
+        "input": "INSERT INTO dbo.Users (Name, Email) OUTPUT INSERTED.Id VALUES (N'Pomo', N'pomo@example.com');",
+        "annotation": "INSERT / OUTPUT：追加して結果を返す（INSERTEDは追加後。トリガー等でOUTPUTの制約あり）"
+      },
+      {
+        "display": "UPDATE dbo.Users SET Age = 21 OUTPUT INSERTED.Id, DELETED.Age AS OldAge, INSERTED.Age AS NewAge WHERE Id = 1;",
+        "input": "UPDATE dbo.Users SET Age = 21 OUTPUT INSERTED.Id, DELETED.Age AS OldAge, INSERTED.Age AS NewAge WHERE Id = 1;",
+        "annotation": "UPDATE / OUTPUT：行更新（WHEREなしは全行更新）"
+      },
+      {
+        "display": "UPDATE u SET Active = 1 FROM dbo.Users u JOIN (SELECT DISTINCT UserId FROM dbo.Orders) o ON o.UserId = u.Id;",
+        "input": "UPDATE u SET Active = 1 FROM dbo.Users u JOIN (SELECT DISTINCT UserId FROM dbo.Orders) o ON o.UserId = u.Id;",
+        "annotation": "UPDATE ... FROM：結合して更新（各対象が複数行に一致する場合の不定性に注意）"
+      },
+      {
+        "display": "DECLARE @n decimal(12,2)=123.45, @ok bit=1, @name nvarchar(100)=N'Pomo'; SELECT @n, @ok, @name;",
+        "input": "DECLARE @n decimal(12,2)=123.45, @ok bit=1, @name nvarchar(100)=N'Pomo'; SELECT @n, @ok, @name;",
+        "annotation": "int / decimal / bit / nvarchar：主な型（金額等には正確なdecimalを検討）"
+      },
+      {
+        "display": "SELECT Name, COALESCE(Email,N'未登録'), CASE WHEN Age>=20 THEN N'成人' ELSE N'その他' END FROM dbo.Users;",
+        "input": "SELECT Name, COALESCE(Email,N'未登録'), CASE WHEN Age>=20 THEN N'成人' ELSE N'その他' END FROM dbo.Users;",
+        "annotation": "CASE / COALESCE / NULLIF：条件値・NULL処理"
+      },
+      {
+        "display": "DECLARE @j nvarchar(max)=N'{\"name\":\"Pomo\",\"tags\":[\"sql\"]}'; SELECT JSON_VALUE(@j,'$.name'), JSON_QUERY(@j,'$.tags'); SELECT * FROM OPENJSON(@j,'$.tags');",
+        "input": "DECLARE @j nvarchar(max)=N'{\"name\":\"Pomo\",\"tags\":[\"sql\"]}'; SELECT JSON_VALUE(@j,'$.name'), JSON_QUERY(@j,'$.tags'); SELECT * FROM OPENJSON(@j,'$.tags');",
+        "annotation": "JSON_VALUE / JSON_QUERY / OPENJSON：JSONを読む（OPENJSONはDB互換性レベル130以降）"
+      },
+      {
+        "display": "CREATE OR ALTER PROCEDURE dbo.GetUser @Id int AS BEGIN SET NOCOUNT ON; SELECT * FROM dbo.Users WHERE Id=@Id; END;",
+        "input": "CREATE OR ALTER PROCEDURE dbo.GetUser @Id int AS BEGIN SET NOCOUNT ON; SELECT * FROM dbo.Users WHERE Id=@Id; END;",
+        "annotation": "CREATE OR ALTER PROCEDURE：ストアドプロシージャ（専用バッチで実行。呼出はEXEC dbo.GetUser @Id=1）"
+      },
+      {
+        "display": "SET XACT_ABORT ON; BEGIN TRY BEGIN TRANSACTION; UPDATE dbo.Users SET Active=0 WHERE Id=1; COMMIT TRANSACTION; END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK TRANSACTION; THROW; END CATCH;",
+        "input": "SET XACT_ABORT ON; BEGIN TRY BEGIN TRANSACTION; UPDATE dbo.Users SET Active=0 WHERE Id=1; COMMIT TRANSACTION; END TRY BEGIN CATCH IF XACT_STATE()<>0 ROLLBACK TRANSACTION; THROW; END CATCH;",
+        "annotation": "TRY CATCH / XACT_ABORT / TRANSACTION：取引と失敗処理（実データ変更。例外の種類・入れ子取引等により詳細が異なる）"
+      },
+      {
+        "display": "SET STATISTICS IO ON; SET STATISTICS TIME ON; SELECT * FROM dbo.Users WHERE Id=1; SET STATISTICS IO OFF; SET STATISTICS TIME OFF;",
+        "input": "SET STATISTICS IO ON; SET STATISTICS TIME ON; SELECT * FROM dbo.Users WHERE Id=1; SET STATISTICS IO OFF; SET STATISTICS TIME OFF;",
+        "annotation": "実行計画・統計：I/O・時間を確認（SELECTを実際に実行。SSMSの推定・実際プランも利用）"
+      }
+    ],
+    "records": [],
+    "createdAt": "2026-10-23T00:00:00.000Z"
   }
 ]
