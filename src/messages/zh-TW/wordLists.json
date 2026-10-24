@@ -207,5 +207,25 @@
     "toAccount": "移轉至此帳號",
     "toBrowser": "移轉至此瀏覽器",
     "suffix": "（移轉 {n}）"
+  },
+  "words": {
+    "title": "單字一覽",
+    "description": "選擇單字清單後，以表格顯示該清單中顯示的單字、輸入的文字與補充說明。",
+    "lists": "單字清單",
+    "filter": "依清單名稱、分類或標籤篩選",
+    "noMatch": "沒有符合條件的清單。",
+    "candidates": "可選擇的單字清單",
+    "pickerTitle": "選擇單字清單",
+    "pickerDescription": "以表格顯示所選清單中的單字。",
+    "switch": "選擇清單",
+    "switchList": "選擇單字清單（目前：{name}）",
+    "wordCount": "{count, plural, other {# 個單字}}",
+    "groupSummary": "{group}・{level} · {count, plural, other {# 個單字}}",
+    "practice": "練習",
+    "practiceList": "練習 {name}",
+    "edit": "編輯",
+    "editList": "編輯 {name}",
+    "number": "編號",
+    "noAnnotation": "無"
   }
 }

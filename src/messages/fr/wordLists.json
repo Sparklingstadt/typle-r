@@ -207,5 +207,25 @@
     "toAccount": "Migrer vers ce compte",
     "toBrowser": "Migrer vers ce navigateur",
     "suffix": " (migré {n})"
+  },
+  "words": {
+    "title": "Voir les mots",
+    "description": "Choisissez une liste de mots pour voir tous ses mots : le mot affiché, le texte à saisir et la note.",
+    "lists": "Listes de mots",
+    "filter": "Filtrer par nom de liste, catégorie ou étiquette",
+    "noMatch": "Aucune liste ne correspond.",
+    "candidates": "Listes de mots proposées",
+    "pickerTitle": "Choisir une liste de mots",
+    "pickerDescription": "Les mots de la liste choisie s’affichent dans un tableau.",
+    "switch": "Choisir une liste",
+    "switchList": "Choisir une liste de mots (actuelle : {name})",
+    "wordCount": "{count, plural, one {# mot} other {# mots}}",
+    "groupSummary": "{group} : {level} · {count, plural, one {# mot} other {# mots}}",
+    "practice": "S’entraîner",
+    "practiceList": "S’entraîner sur {name}",
+    "edit": "Modifier",
+    "editList": "Modifier {name}",
+    "number": "Numéro",
+    "noAnnotation": "Aucune"
   }
 }

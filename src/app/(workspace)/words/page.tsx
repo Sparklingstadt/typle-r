@@ -1,0 +1,216 @@
+"use client"
+import { Suspense, useEffect, useRef, useState } from "react"
+import Link from "next/link"
+import { useSearchParams } from "next/navigation"
+import { useLocale, useTranslations } from "next-intl"
+import { ChevronsUpDown, CircleAlert, Keyboard, ListPlus, Pencil, Plus, RotateCw, Search } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import CategorySelect from "@/components/Practice/CategorySelect"
+import WordListOptions from "@/components/Practice/WordListOptions"
+import ListLabels from "@/components/WordLists/ListLabels"
+import PageStorageBadge from "@/components/PageStorageBadge"
+import { useWordLists } from "@/lib/useWordLists"
+import { byRecentPractice } from "@/core/records"
+import { levelName, listLabels, matchesFilter } from "@/core/listOverview"
+import type { SavedWordList } from "@/core/wordLists"
+
+export default function Words() {
+  const t = useTranslations('wordLists.words')
+  const page = useTranslations('wordLists.page')
+  const workspace = useWordLists()
+  return <main className="mx-auto w-full max-w-6xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
+    <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
+        <p className="text-sm text-muted-foreground">{t('description')}</p>
+      </div>
+      {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
+    </header>
+    {workspace.error && <Alert variant="destructive" className="mb-6 border-destructive/40 bg-destructive/5">
+      <CircleAlert aria-hidden="true" />
+      <AlertDescription className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <span className="min-w-0 flex-1 basis-64">{workspace.error}</span>
+        <Button variant="outline" size="lg" onClick={() => window.location.reload()}><RotateCw aria-hidden="true" />{page('reload')}</Button>
+      </AlertDescription>
+    </Alert>}
+    {!workspace.ready ? <LoadingState />
+      : workspace.lists.length ? <Suspense fallback={<LoadingState />}><WordsView key={workspace.accountId} lists={workspace.lists} /></Suspense>
+        // After a failed load the lists are unknown; "no lists yet" would be wrong.
+        : !workspace.error && <EmptyState />}
+  </main>
+}
+
+// `?list=<id>` keeps the chosen list in the URL, so it can be reloaded or opened from elsewhere. Without it the first
+// list is shown, as on the practice screen.
+function WordsView({ lists }: { lists: SavedWordList[] }) {
+  const t = useTranslations('wordLists.words')
+  const page = useTranslations('wordLists.page')
+  const locale = useLocale()
+  const params = useSearchParams()
+  const requestedId = params.get('list')
+  const requested = lists.find(list => list.id === requestedId)
+  const list = requested ?? lists[0]
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const [pickerQuery, setPickerQuery] = useState('')
+  // One category for both list choosers, as on the practice screen.
+  const [category, setCategory] = useState<string | null>(null)
+  const asideLists = useRef<HTMLDivElement>(null)
+
+  // Keeps the chosen list in view inside the scrolling list of lists, without scrolling the page.
+  useEffect(() => {
+    const box = asideLists.current
+    const chosen = box?.querySelector<HTMLElement>('[aria-pressed="true"]')
+    if (!box || !chosen) return
+    const top = chosen.offsetTop - box.offsetTop
+    if (top < box.scrollTop || top + chosen.offsetHeight > box.scrollTop + box.clientHeight) box.scrollTop = top - 8
+  }, [list.id])
+
+  function choose(id: string) {
+    setPickerOpen(false)
+    setPickerQuery('')
+    window.history.replaceState(null, '', `${window.location.pathname}?list=${encodeURIComponent(id)}`)
+  }
+
+  // Recently practised lists come first (a group at its latest list), narrowed down by name, group, category and tag.
+  const ordered = byRecentPractice(lists)
+  const labels = listLabels(lists, locale)
+  const matching = (text: string) => {
+    const needle = text.trim().toLowerCase()
+    return ordered.filter(item => matchesFilter(item, { category, tags: [] }) && (item.name.toLowerCase().includes(needle) ||
+      !!item.group?.toLowerCase().includes(needle) || !!item.category?.toLowerCase().includes(needle) || !!item.tags?.some(tag => tag.toLowerCase().includes(needle))))
+  }
+  const asideFiltered = matching(query)
+  const pickerFiltered = matching(pickerQuery)
+
+  return <div className="space-y-4">
+    {requestedId && !requested && <Alert>
+      <CircleAlert aria-hidden="true" />
+      <AlertDescription>{page('notFound')}</AlertDescription>
+    </Alert>}
+    <div className="grid items-start gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
+      {/* Below lg the lists are chosen in a dialog, so the words come first on a phone. */}
+      <aside aria-label={t('lists')} className="hidden lg:sticky lg:top-20 lg:block">
+        <Card className="gap-1 p-3">
+          <h2 className="pl-2 text-[15px] font-bold">{t('lists')}</h2>
+          <SearchField value={query} onChange={setQuery} className="mx-1 mt-1 mb-1 h-9" />
+          <div className="mx-1 mb-1"><CategorySelect labels={labels} value={category} onChange={setCategory} /></div>
+          <div ref={asideLists} className="max-h-[min(36rem,calc(100dvh-16rem))] overflow-y-auto overscroll-contain">
+            {asideFiltered.length ? <WordListOptions label={t('lists')} lists={asideFiltered} saved={lists} selectedId={list.id} onSelect={id => { setQuery(''); choose(id) }} />
+              : <p className="px-2 py-2 text-sm text-muted-foreground">{t('noMatch')}</p>}
+          </div>
+        </Card>
+      </aside>
+      <Card className="min-w-0 gap-0 py-0 text-base">
+        <div className="flex flex-wrap items-start gap-x-4 gap-y-3 border-b px-4 py-4 sm:px-6">
+          <div className="grid min-w-0 flex-1 basis-60 gap-1">
+            <h2 id="words-title" className="text-lg font-bold [overflow-wrap:anywhere]">{list.name}</h2>
+            <ListLabels list={list} />
+            <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">
+              {list.group ? t('groupSummary', { group: list.group, level: levelName(list), count: list.words.length }) : t('wordCount', { count: list.words.length })}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Dialog open={pickerOpen} onOpenChange={open => { setPickerOpen(open); if (!open) setPickerQuery('') }}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="lg" className="lg:hidden" aria-label={t('switchList', { name: list.name })}>
+                  <ChevronsUpDown aria-hidden="true" />{t('switch')}
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>{t('pickerTitle')}</DialogTitle>
+                  <DialogDescription>{t('pickerDescription')}</DialogDescription>
+                </DialogHeader>
+                <SearchField value={pickerQuery} onChange={setPickerQuery} className="h-10" />
+                <CategorySelect labels={labels} value={category} onChange={setCategory} className="h-10 w-full min-w-0 rounded-lg border bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30" />
+                <div className="-mx-1 max-h-[min(28rem,calc(100dvh-18rem))] overflow-y-auto overscroll-contain px-1">
+                  {pickerFiltered.length ? <WordListOptions label={t('candidates')} lists={pickerFiltered} saved={lists} selectedId={list.id} onSelect={choose} />
+                    : <p className="px-1 py-2 text-sm text-muted-foreground">{t('noMatch')}</p>}
+                </div>
+              </DialogContent>
+            </Dialog>
+            <Button size="lg" asChild><Link href={`/play?list=${encodeURIComponent(list.id)}`} aria-label={t('practiceList', { name: list.name })}><Keyboard aria-hidden="true" />{t('practice')}</Link></Button>
+            <Button variant="outline" size="lg" asChild><Link href={`/edit?list=${encodeURIComponent(list.id)}`} aria-label={t('editList', { name: list.name })}><Pencil aria-hidden="true" />{t('edit')}</Link></Button>
+          </div>
+        </div>
+        <WordTable list={list} />
+      </Card>
+    </div>
+  </div>
+}
+
+function SearchField({ value, onChange, className }: { value: string; onChange: (value: string) => void; className: string }) {
+  const t = useTranslations('wordLists.words')
+  return <label className={`flex items-center gap-2 rounded-lg border px-3 text-muted-foreground focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 ${className}`}>
+    <Search className="size-4 shrink-0" aria-hidden="true" />
+    <input type="search" value={value} onChange={event => onChange(event.target.value)} placeholder={t('filter')} aria-label={t('filter')} autoComplete="off"
+      className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" />
+  </label>
+}
+
+// Long words, such as an SQL statement, wrap inside their cell instead of widening the table. Below sm the text to type
+// and the note move under the word, so a phone shows one readable column.
+function WordTable({ list }: { list: SavedWordList }) {
+  const t = useTranslations('wordLists.words')
+  const editor = useTranslations('wordLists.editor')
+  const text = 'whitespace-pre-wrap [overflow-wrap:anywhere]'
+  const none = <><span aria-hidden="true" className="text-muted-foreground">—</span><span className="sr-only">{t('noAnnotation')}</span></>
+  return <Table aria-labelledby="words-title" className="table-fixed">
+    <TableHeader>
+      <TableRow className="hover:bg-transparent">
+        <TableHead className="w-12 pl-4 text-right sm:w-14 sm:pl-6"><span aria-hidden="true">#</span><span className="sr-only">{t('number')}</span></TableHead>
+        <TableHead className="pr-4 sm:w-[38%] sm:pr-2">{editor('display')}</TableHead>
+        <TableHead className="hidden w-[30%] sm:table-cell">{editor('input')}</TableHead>
+        <TableHead className="hidden pr-6 sm:table-cell">{editor('annotation')}</TableHead>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+      {list.words.map((word, index) => <TableRow key={index} className="align-top">
+        <TableCell className="py-2.5 pl-4 text-right align-top text-muted-foreground tabular-nums sm:pl-6">{index + 1}</TableCell>
+        <TableCell className={`py-2.5 pr-4 align-top sm:pr-2 ${text}`}>
+          <span className="font-medium">{word.display}</span>
+          <dl className="mt-1 grid gap-0.5 text-[13px] sm:hidden">
+            <div className="flex gap-2"><dt className="shrink-0 text-muted-foreground">{editor('input')}</dt><dd className="min-w-0 font-mono">{word.input}</dd></div>
+            <div className="flex gap-2"><dt className="shrink-0 text-muted-foreground">{editor('annotation')}</dt><dd className="min-w-0">{word.annotation || none}</dd></div>
+          </dl>
+        </TableCell>
+        <TableCell className={`hidden py-2.5 align-top font-mono sm:table-cell ${text}`}>{word.input}</TableCell>
+        <TableCell className={`hidden py-2.5 pr-6 align-top sm:table-cell ${text}`}>{word.annotation || none}</TableCell>
+      </TableRow>)}
+    </TableBody>
+  </Table>
+}
+
+function EmptyState() {
+  const t = useTranslations('wordLists')
+  return <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed bg-card px-6 py-10 text-center sm:py-14">
+    <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground"><ListPlus className="size-6" aria-hidden="true" /></span>
+    <div className="space-y-1.5">
+      <h2 className="font-bold">{t('empty.title')}</h2>
+      <p className="max-w-md text-sm text-balance text-muted-foreground">{t('empty.description')}</p>
+    </div>
+    <Button asChild><Link href="/create"><Plus aria-hidden="true" />{t('manager.create')}</Link></Button>
+  </div>
+}
+
+function LoadingState() {
+  const common = useTranslations('common')
+  return <div role="status" className="grid items-start gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
+    <span className="sr-only">{common('loading')}</span>
+    <div className="hidden space-y-3 rounded-xl border bg-card p-3 lg:block">
+      <Skeleton className="h-9 w-full" />
+      {Array.from({ length: 5 }, (_, index) => <div key={index} className="space-y-1.5 px-1 py-1.5"><Skeleton className="h-4 w-3/4" /><Skeleton className="h-3.5 w-1/2" /></div>)}
+    </div>
+    <div className="space-y-3 rounded-xl border bg-card p-4 sm:p-6">
+      <Skeleton className="h-6 w-1/3" />
+      <Skeleton className="h-4 w-24" />
+      {Array.from({ length: 6 }, (_, index) => <Skeleton key={index} className="h-9 w-full" />)}
+    </div>
+  </div>
+}

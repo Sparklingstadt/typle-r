@@ -207,5 +207,25 @@
     "toAccount": "このアカウントへ移行する",
     "toBrowser": "このブラウザーへ移行する",
     "suffix": "（移行 {n}）"
+  },
+  "words": {
+    "title": "単語一覧",
+    "description": "単語リストを選ぶと、そのリストの表示する単語・入力する文字・補足を一覧で表示します。",
+    "lists": "単語リスト",
+    "filter": "リスト名・カテゴリ・タグで絞り込む",
+    "noMatch": "一致するリストがありません。",
+    "candidates": "単語リストの候補",
+    "pickerTitle": "単語リストを選ぶ",
+    "pickerDescription": "選んだリストの単語を一覧で表示します。",
+    "switch": "リストを選ぶ",
+    "switchList": "単語リストを選ぶ（現在: {name}）",
+    "wordCount": "{count, plural, other {#語}}",
+    "groupSummary": "{group}・{level} · {count, plural, other {#語}}",
+    "practice": "練習",
+    "practiceList": "{name} を練習",
+    "edit": "編集",
+    "editList": "{name} を編集",
+    "number": "番号",
+    "noAnnotation": "なし"
   }
 }

@@ -207,5 +207,25 @@
     "toAccount": "Move to this account",
     "toBrowser": "Move to this browser",
     "suffix": " (imported {n})"
+  },
+  "words": {
+    "title": "Browse words",
+    "description": "Choose a word list to see all its words, with the word to display, the text to type, and the note.",
+    "lists": "Word lists",
+    "filter": "Filter by list name, category, or tag",
+    "noMatch": "No lists match.",
+    "candidates": "Word lists to choose from",
+    "pickerTitle": "Choose a word list",
+    "pickerDescription": "The words of the list you choose are shown in a table.",
+    "switch": "Choose list",
+    "switchList": "Choose a word list (current: {name})",
+    "wordCount": "{count, plural, one {# word} other {# words}}",
+    "groupSummary": "{group}: {level} · {count, plural, one {# word} other {# words}}",
+    "practice": "Practice",
+    "practiceList": "Practice {name}",
+    "edit": "Edit",
+    "editList": "Edit {name}",
+    "number": "Number",
+    "noAnnotation": "None"
   }
 }
