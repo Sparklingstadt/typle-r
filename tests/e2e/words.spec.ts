@@ -76,6 +76,21 @@ test('the sidebar opens the words of a list, and another list or a level of a gr
   expect(errors).toEqual([])
 })
 
+test('at the end of a long list the lists beside it stay below the top bar', async ({ page }) => {
+  const many = Array.from({ length: 40 }, (_, index) => ({ id: `list-${index}`, name: `List ${index}`, category: '語学', createdAt: '2026-09-01', records: [],
+    words: words(...Array.from({ length: index ? 3 : 80 }, (_, word) => `word${word}`)) }))
+  await seed(page, many)
+  await page.setViewportSize({ width: 1100, height: 700 })
+  await page.goto('/words?list=list-0')
+  await expect(page.getByRole('table', { name: 'List 0' }).getByRole('row')).toHaveCount(81)
+  const aside = page.getByRole('complementary', { name: '単語リスト' })
+  await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight))
+  // Taller than the window allows, the lists would be pushed up under the top bar by the end of the words.
+  const bar = await page.getByRole('banner').evaluate(element => element.getBoundingClientRect().bottom)
+  await expect.poll(() => aside.evaluate(element => element.getBoundingClientRect().top)).toBeGreaterThan(bar + 16)
+  await expect(aside.getByRole('heading', { name: '単語リスト' })).toBeInViewport()
+})
+
 test('on a phone the drawer opens the words, which fit the width, and the list is chosen in a dialog', async ({ page }) => {
   await seed(page)
   await page.setViewportSize({ width: 390, height: 844 })

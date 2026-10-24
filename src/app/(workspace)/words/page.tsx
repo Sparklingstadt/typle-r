@@ -94,13 +94,15 @@ function WordsView({ lists }: { lists: SavedWordList[] }) {
       <AlertDescription>{page('notFound')}</AlertDescription>
     </Alert>}
     <div className="grid items-start gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
-      {/* Below lg the lists are chosen in a dialog, so the words come first on a phone. */}
-      <aside aria-label={t('lists')} className="hidden lg:sticky lg:top-20 lg:block">
-        <Card className="gap-1 p-3">
+      {/* Below lg the lists are chosen in a dialog, so the words come first on a phone. The lists fit between their
+          sticky top (5rem) and the page's bottom padding (4rem): taller, the end of a long word list would push them up
+          under the top bar. */}
+      <aside aria-label={t('lists')} className="hidden lg:sticky lg:top-20 lg:flex lg:max-h-[calc(100dvh-9rem)] lg:flex-col">
+        <Card className="min-h-0 gap-1 p-3">
           <h2 className="pl-2 text-[15px] font-bold">{t('lists')}</h2>
-          <SearchField value={query} onChange={setQuery} className="mx-1 mt-1 mb-1 h-9" />
+          <SearchField value={query} onChange={setQuery} className="mx-1 mt-1 mb-1 h-9 shrink-0" />
           <div className="mx-1 mb-1"><CategorySelect labels={labels} value={category} onChange={setCategory} /></div>
-          <div ref={asideLists} className="max-h-[min(36rem,calc(100dvh-16rem))] overflow-y-auto overscroll-contain">
+          <div ref={asideLists} className="max-h-[36rem] min-h-0 overflow-y-auto overscroll-contain">
             {asideFiltered.length ? <WordListOptions label={t('lists')} lists={asideFiltered} saved={lists} selectedId={list.id} onSelect={id => { setQuery(''); choose(id) }} />
               : <p className="px-2 py-2 text-sm text-muted-foreground">{t('noMatch')}</p>}
           </div>
