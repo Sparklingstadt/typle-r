@@ -32,4 +32,13 @@
     <EmbeddedResource Include="Messages\*.json" LogicalName="messages.%(Filename).json" />
     <Content Include="Assets\Typle.ico" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <!-- The build writes the app's resource index (Typle.pri, which holds WinUI's own control styles) beside Typle.exe, but
+       dotnet publish only copies the files it knows of. Without it the app stops at its first screen ("Cannot locate
+       resource from 'ms-appx:///Microsoft.UI.Xaml/Themes/themeresources.xaml'"). -->
+  <Target Name="PublishProjectPriFile" AfterTargets="ComputeResolvedFilesToPublishList">
+    <ItemGroup>
+      <ResolvedFileToPublish Include="$(ProjectPriFullPath)" Condition="'$(ProjectPriFullPath)' != '' and Exists('$(ProjectPriFullPath)')"
+                             RelativePath="$(ProjectPriFileName)" CopyToPublishDirectory="PreserveNewest" />
+    </ItemGroup>
+  </Target>
 </Project>

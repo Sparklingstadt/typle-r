@@ -3,6 +3,13 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
+## v0.86.1 — Windows アプリが公開フォルダーから起動できない不具合を修正しました
+
+`dotnet publish` で作った Windows アプリ（`windows/publish/Typle.exe`）が、起動直後に「`Cannot locate resource from 'ms-appx:///Microsoft.UI.Xaml/Themes/themeresources.xaml'`」で止まり、窓が開かないことがありました。ビルドはアプリのリソースの索引（`Typle.pri`。WinUI の部品の見た目を含む）を `bin` の `Typle.exe` の隣に書きますが、`dotnet publish` はそれを公開フォルダーにコピーしていなかったためです。`Typle.csproj` で `Typle.pri` を公開するファイルに加えました。
+
+- 空のフォルダーに公開して起動できること、修正前の公開では同じエラーで止まることを Windows 11 で確かめました。
+- Web 版・iPad/Mac・Android と保存形式・API に変更はありません。
+
 ## v0.86.0 — Windows アプリの機能を Web 版に合わせました
 
 Windows アプリ（`windows/`）に、Web 版の v0.78.0 以降の機能を入れました。
