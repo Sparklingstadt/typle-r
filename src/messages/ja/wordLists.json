@@ -150,13 +150,20 @@
     "discard": "破棄して移動",
     "category": "カテゴリ（任意）",
     "categoryPlaceholder": "プログラミング、語学など",
-    "categoryHelp": "大まかな分類を1つ付けます。一覧や練習画面で絞り込めます。",
+    "categoryHelp": "使っているカテゴリから1つ選ぶか、入力して新しく作成します。一覧や練習画面で絞り込めます。",
     "tags": "タグ（任意）",
     "tagList": "付けたタグ",
     "removeTag": "タグ「{tag}」を外す",
     "tagsFull": "タグは{max}個までです",
     "tagPlaceholder": "Kotlin、PostgreSQLなど",
-    "tagsHelp": "Enterかカンマで追加します（{max}個まで）。リスト名やタグでの検索に使えます。"
+    "tagsHelp": "使っているタグから選ぶか、入力して新しく作成します（{max}個まで）。リスト名やタグでの検索に使えます。",
+    "chooseCategory": "カテゴリを選ぶ",
+    "searchCategory": "カテゴリを検索・作成",
+    "clearCategory": "カテゴリを外す",
+    "addTag": "タグを選ぶ・作成する",
+    "searchTag": "タグを検索・作成",
+    "create": "「{name}」を作成",
+    "noLabels": "まだありません。入力すると新しく作成できます。"
   },
   "import": {
     "open": "CSV・TSVを読み込む",
