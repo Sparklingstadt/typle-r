@@ -134,7 +134,8 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
   const asideLists = useRef<HTMLDivElement>(null)
   const [pendingSwitch, setPendingSwitch] = useState<number | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [showAll, setShowAll] = useState(false)
+  // All the words of the list start shown, so a list can be previewed right after choosing it.
+  const [showAll, setShowAll] = useState(true)
   const [inputFocused, setInputFocused] = useState(false)
   const [focusedOnce, setFocusedOnce] = useState(false)
   const allWords = useRef<HTMLUListElement>(null)
@@ -198,7 +199,7 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
     else input.current?.focus()
   }
   function switchTo(index: number) {
-    setShowAll(false)
+    setShowAll(true)
     restart(index)
   }
   function requestSwitch(id: string) {
