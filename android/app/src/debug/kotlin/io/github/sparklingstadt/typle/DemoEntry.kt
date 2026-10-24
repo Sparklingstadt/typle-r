@@ -35,7 +35,7 @@ object DemoEntry {
     }
     File(directory, "workspace.json").writeBytes(encodeWorkspaceFile(WorkspaceFile("android:local", 1, document())))
     Launch.store = LocalWorkspaceStore(directory)
-    Launch.route = extras.getString("typleRoute")?.let { if (it == "editList") Route.EditList("sample-1") else Route.fromName(it) }
+    Launch.route = extras.getString("typleRoute")?.let { if (it == "editList") Route.EditList("8f3cf116-1f9f-4579-a071-e600094b104d") else Route.fromName(it) }
     Launch.rankingsList = extras.getString("typleRankingsList")
     Launch.language = AppLanguage.from(extras.getString("typleLanguage"))
     Launch.typing = extras.getString("typleTyping")

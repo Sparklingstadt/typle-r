@@ -72,7 +72,7 @@ foreach ($route in 'home', 'practice', 'records', 'rankings', 'lists', 'createLi
 }
 Capture 'typing-practice' @('--route', 'practice', '--language', 'ja', '--theme', 'light', '--typing', 'hogefx') 12
 Capture 'result-practice' @('--route', 'practice', '--language', 'ja', '--theme', 'light', '--typing', 'hogefoobar') 12
-Capture 'detail-rankings' @('--route', 'rankings', '--language', 'ja', '--theme', 'light', '--rankings-list', 'sample-1')
+Capture 'detail-rankings' @('--route', 'rankings', '--language', 'ja', '--theme', 'light', '--rankings-list', '8f3cf116-1f9f-4579-a071-e600094b104d')
 Capture 'dark-practice' @('--route', 'practice', '--language', 'ja', '--theme', 'dark')
 Capture 'en-practice' @('--route', 'practice', '--language', 'en', '--theme', 'light')
 

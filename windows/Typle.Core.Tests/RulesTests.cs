@@ -362,7 +362,7 @@ public class WorkspaceTests
         var text = Encoding.UTF8.GetString(Workspace.EncodeFile(WorkspaceFile.Of("windows:local", 0, new WorkspaceDocument(lists, []))));
         Assert.Contains("\"levels\":[\"基本\",\"初級\"]", text);
         Assert.Null(WordLists.Duplicate(lists, "x", "z", _ => "（コピー）").Copy.Group);
-        Assert.Equal(11, Workspace.InitialLists().Count(list => list.Group == "Linuxコマンド"));
+        Assert.Equal(5, Workspace.InitialLists().Count(list => list.Group == "Kotlin構文"));
     }
 
     // The category and tags (v0.78.0) are kept through a read, a save, an edit and a copy, and left out when there are none.
@@ -381,7 +381,8 @@ public class WorkspaceTests
         Assert.Equal(["Go"], saved[0].Tags!);
         Assert.Equal(["Go"], WordLists.Duplicate(saved, "x", "z", _ => "（コピー）").Copy.Tags!);
         Assert.True(WordLists.MatchesQuery(saved[0], "語学"));
-        Assert.All(Workspace.InitialLists(), list => Assert.True(list.Category is not null && list.Tags is { Count: > 0 }));
+        // The initial lists the sparklingstadt account did not make itself or keep whole beside their parts are labeled.
+        Assert.Equal(54, Workspace.InitialLists().Count(list => list.Category is not null && list.Tags is { Count: > 0 }));
         Assert.Throws<TypleException>(() => WordLists.ValidateAll([lists[1] with { Tags = [new string('t', 51)] }]));
     }
 
@@ -414,11 +415,11 @@ public class WorkspaceTests
     public void InitialListsMatchThePacks()
     {
         var lists = Workspace.InitialLists();
-        Assert.Equal(["sample-1", "sample-2"], lists.Select(list => list.Id).Take(2));
-        Assert.Equal(85, lists.Count);
-        Assert.Equal(["un-member-states-chinese-193-beginner-1", "linux-commands-basic-beginner", "sql-server-tsql-syntax-advanced"],
-            new[] { lists[2], lists[7], lists[^1] }.Select(list => list.Id));
-        Assert.All(lists, list => Assert.True(list.Words.Count <= 40));
+        // Since v0.85.0 the initial lists are the lists of the sparklingstadt account, in its order.
+        Assert.Equal(["8f3cf116-1f9f-4579-a071-e600094b104d", "ef974a4b-3c7a-4eeb-9979-6721a0a1c81a"], lists.Select(list => list.Id).Take(2));
+        Assert.Equal(67, lists.Count);
+        Assert.Equal(["arch-linux", "arch-linux-beginner", "sql-server-tsql-syntax-advanced"],
+            new[] { lists[9], lists[10], lists[^1] }.Select(list => list.Id));
         WordLists.ValidateAll(lists);
     }
 }

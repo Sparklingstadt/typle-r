@@ -70,8 +70,12 @@ test('the categories and tags in use are counted once each, in name order', () =
   })
 })
 
-test('every initial list has a category and tags', () => {
-  for (const item of initialLists) {
+test('every initial list the sparklingstadt account did not make itself has a category and tags', () => {
+  // Since v0.85.0 the initial lists are the lists of the sparklingstadt account. The lists it made itself, and those it
+  // kept whole beside their parts, have none.
+  const unlabeled = initialLists.filter(item => !item.category && !item.tags)
+  assert.deepEqual(unlabeled.map(item => item.id), [...initialLists.slice(0, 9).map(item => item.id), 'arch-linux', 'vim', 'go-syntax', 'un-member-states-chinese-193-lowercase'])
+  for (const item of initialLists.filter(item => !unlabeled.includes(item))) {
     assert.ok(['プログラミング', '語学'].includes(item.category), `${item.id}: ${item.category}`)
     assert.ok(item.tags?.length, item.id)
     assert.deepEqual(normalizeLabels(item), { category: item.category, tags: item.tags }, item.id)
@@ -83,7 +87,9 @@ test('migration 0021 gives the initial lists in saved workspaces their category 
   const fs = require('node:fs')
   const sql = fs.readFileSync(require.resolve('../prisma/migrations/0021_label_initial_lists/migration.sql'), 'utf8')
   const pack = JSON.parse(sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'"))
-  assert.deepEqual(pack, initialLists.map(({ id, category, tags }) => ({ id, category, tags })))
+  // The initial lists the migration labels have the same category and tags.
+  const kept = initialLists.filter(item => item.category)
+  assert.deepEqual(pack.filter(item => kept.some(other => other.id === item.id)), kept.map(({ id, category, tags }) => ({ id, category, tags })))
   assert.match(sql, /saved\.list->'category' IS NULL AND saved\.list->'tags' IS NULL/)
   assert.match(sql, /octet_length\(rebuilt\.lists::text\) <= 896 \* 1024;/)
 })

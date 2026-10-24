@@ -3,6 +3,19 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
+## v0.85.0 — 初期リストを sparklingstadt アカウントの単語リストと同じにしました
+
+ログインしていないとき（ゲスト）と、まだ一度も保存していないアカウントに最初に表示する単語リストを、本番DBの sparklingstadt アカウント（`github:219588180`）の67リストと同じにしました。リストの順番・名前・単語・カテゴリ・タグ・まとまり（`group`・`levels`）・作成日時はそのままで、練習記録は含めません。
+
+- 85件から67件になります。共通の54リスト（Arch Linux・Vim・Go・Java・Kotlin・PostgreSQL・Prisma・Jest・Playwright の各難易度、小文字の国名の各難易度、v0.75.0 の21リスト）は中身が同じです。
+- 「サンプル：英単語（果物）」「サンプル：英単語（動物）」、国名（ピンインの大文字始まり）の5リスト、Linux・Vercel CLI・gcloud・AWS CLI・macOS（zsh）の難易度別の24リストはなくなります。
+- 代わりに、アカウントにある難易度に分ける前の13リスト（Linuxコマンド：基本・オプション・応用、Linux：シェルとBash・システムの仕組み、Vercel CLI・gcloud・AWS CLI・macOS（zsh）、Arch Linux・Vim・Go構文・小文字の国名の分ける前のもの）が入ります。この13リストにはカテゴリ・タグ・まとまりがなく、40語を超えるもの（最大146語）もあります。Arch Linux・Vim・Go構文・小文字の国名は、分ける前のリストと難易度別のリストの両方が並びます。
+- アカウントで作ったリストの ID（UUID）と、名前の「ド」が分解された形（`ト` + 濁点）で保存されている7リストも、そのまま使います。
+- 3つのファイルを読む作りは変えず、67リストをすべて `src/plugins/packs/commands.json` に入れ、`samples.json` と `countries.json` は空の配列にしました。Goのバックエンド・iPad/Mac・Android のコピーも同じにし、Windows は同じファイルを埋め込みます。
+- すでに保存しているアカウントと、ブラウザーにすでに保存しているゲストのリストは変わりません（マイグレーションはありません）。
+- 初期リストは約464KB・2,774語で、新しいアカウントで作れるリストは残り83件です（上限150件）。
+- iPad・Android・Windows のデモ起動とスクリーンショットで開くリストを、`sample-1` から最初のリスト（macOSターミナル（zsh）コマンド）にしました。
+
 ## v0.84.1 — 単語一覧で長いリストを一番下までスクロールすると、単語リストの欄が上のバーに隠れる不具合を修正しました
 
 単語一覧画面（`/words`、1024px以上）の左の「単語リスト」の欄は、スクロールしても上に留まりますが、単語の多いリストを一番下までスクロールすると欄が押し上げられ、見出しや検索欄が上のバーの下に隠れていました。欄の高さを画面の高さに収まる上限にし、一番下でも欄全体が見えるようにしました。リストが多いときは欄の中でスクロールします。
@@ -274,7 +287,7 @@ Next.js のアプリは1つで、`src` を層に分けています。依存は�
 | 層 | 場所 | 内容 |
 |---|---|---|
 | 画面 | `src/app`・`src/components`・`src/i18n`・`src/lib` | ページ、UI、多言語化、React のフック。`useWordLists` は React の状態とブラウザーのイベント（フォーカス・他タブの変更）だけを受け持ち、読み込み・保存は core の `createWorkspaceSession` に任せます |
-| プラグイン | `src/plugins` | core のポートの実装と初期データ。`storage`：`cloud`（Goのバックエンドが提供する `/api/workspace`）と `guest`（LocalStorage）を `workspaceStore(accountId)` がアカウントに応じて選びます。`formats`：CSV・TSV（`delimited.ts`）と旧バージョンのブラウザー保存からの移行（`legacy.ts`）。`packs`：最初に表示する単語リスト（サンプル、国名193か国、Linux・Vercel CLI・gcloud・AWS CLI・macOS（zsh）・Arch Linux・Vim・Go構文・Java構文・Kotlin構文・PostgreSQL構文・Prisma構文・Jest構文・Playwright構文の18種類。40語を超えるものは初級・中級・上級に分け、全部で64リスト。v0.75.0 から TypeScript・Hono・PHP・Rails・Express・Oracle PL/SQL・SQL Server T-SQL の7種類を3つずつ加えて85リスト） |
+| プラグイン | `src/plugins` | core のポートの実装と初期データ。`storage`：`cloud`（Goのバックエンドが提供する `/api/workspace`）と `guest`（LocalStorage）を `workspaceStore(accountId)` がアカウントに応じて選びます。`formats`：CSV・TSV（`delimited.ts`）と旧バージョンのブラウザー保存からの移行（`legacy.ts`）。`packs`：最初に表示する単語リスト（v0.85.0 から sparklingstadt アカウントの67リストのコピーで、すべて `commands.json` にあります。それまではサンプル、国名193か国、コマンドと構文の25種類を初級・中級・上級に分けた85リスト） |
 | core | `src/core` | React・Next.js・ブラウザーAPIに依存しない TypeScript。単語リスト・入力判定・記録・集計・ワークスペースのモデルと検証、保存先のポート `WorkspaceStore`（`workspaceStore.ts`、保存場所 `location` を含む）、ワークスペースの読み込み・保存 `createWorkspaceSession`（`workspaceSession.ts`。アカウントの切り替え後に届いた結果の破棄、保存の直列化、409での再読み込み、古いクラウド読み込みの無視）とファイル形式のポート `WordFormat`（`wordFormat.ts`） |
 
 保存先を増やすときは `WorkspaceStore` を実装したプラグインを `src/plugins/storage` に追加し、`workspaceStore` で選びます。ファイル形式を増やすときは `WordFormat` を実装して `src/plugins/formats/index.ts` の一覧に加えると、取り込みの拡張子判定と `accept` に反映されます。どちらも画面のコードは変わりません。

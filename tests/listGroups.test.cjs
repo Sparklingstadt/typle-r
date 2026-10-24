@@ -48,18 +48,18 @@ test('the group and levels are saved trimmed, kept when read, refused past their
 
 test('the initial lists split into levels are put in groups, each list with levels of its own', () => {
   const entries = groupEntries(initialLists, item => item)
-  assert.equal(entries.length, 27)
+  assert.equal(entries.length, 30)
   const groups = entries.filter(entry => entry.group)
-  assert.equal(groups.length, 23)
-  const linuxGroup = groups.find(entry => entry.group === 'Linuxコマンド')
-  assert.deepEqual(levelSteps(linuxGroup.items, [])[0].options, ['基本', 'オプション', '応用'])
-  assert.deepEqual(levelSteps(linuxGroup.items, ['応用'])[1].options, ['初級', '中級1', '中級2', '上級'])
+  assert.equal(groups.length, 17)
+  const kotlinGroup = groups.find(entry => entry.group === 'Kotlin構文')
+  assert.deepEqual(levelSteps(kotlinGroup.items, [])[0].options, ['初級1', '初級2', '中級', '上級1', '上級2'])
   for (const entry of groups) {
     const paths = entry.items.map(item => item.levels.join('/'))
     assert.equal(new Set(paths).size, paths.length, entry.group)
     for (const item of entry.items) assert.equal(listAtLevels(entry.items, item.levels), item)
   }
-  assert.deepEqual(entries.filter(entry => !entry.group).map(entry => entry.items[0].id), ['sample-1', 'sample-2', 'vercel-cli', 'gcloud-cli'])
+  // The lists the sparklingstadt account keeps whole (since v0.85.0 the initial lists are its lists) are not grouped.
+  assert.deepEqual(entries.filter(entry => !entry.group).map(entry => entry.items[0].id), [...initialLists.slice(0, 9).map(item => item.id), 'arch-linux', 'vim', 'go-syntax', 'un-member-states-chinese-193-lowercase'])
   validateLists(initialLists)
 })
 
@@ -67,7 +67,10 @@ test('migration 0022 puts the initial lists in saved workspaces in their groups,
   const fs = require('node:fs')
   const sql = fs.readFileSync(require.resolve('../prisma/migrations/0022_group_initial_lists/migration.sql'), 'utf8')
   const pack = JSON.parse(sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'"))
-  assert.deepEqual(pack, initialLists.filter(item => item.group).map(({ id, group, levels }) => ({ id, group, levels })))
+  // Since v0.85.0 the initial lists are the lists of the sparklingstadt account, which has some of the lists the
+  // migration groups, with the same groups.
+  const kept = initialLists.filter(item => item.group)
+  assert.deepEqual(pack.filter(item => kept.some(other => other.id === item.id)), kept.map(({ id, group, levels }) => ({ id, group, levels })))
   assert.match(sql, /saved\.list->'group' IS NULL AND saved\.list->'levels' IS NULL/)
   assert.match(sql, /octet_length\(rebuilt\.lists::text\) <= 896 \* 1024;/)
 })

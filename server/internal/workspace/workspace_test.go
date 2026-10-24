@@ -68,13 +68,15 @@ func TestInitial(t *testing.T) {
 			t.Fatalf("%s has records", list.ID)
 		}
 	}
-	if len(ids) != 85 || strings.Join(ids[:3], ",") != "sample-1,sample-2,un-member-states-chinese-193-beginner-1" ||
-		ids[7] != "linux-commands-basic-beginner" || ids[len(ids)-1] != "sql-server-tsql-syntax-advanced" {
+	// Since v0.85.0 the initial lists are the lists of the sparklingstadt account, in its order.
+	if len(ids) != 67 || strings.Join(ids[:2], ",") != "8f3cf116-1f9f-4579-a071-e600094b104d,ef974a4b-3c7a-4eeb-9979-6721a0a1c81a" ||
+		ids[9] != "arch-linux" || ids[len(ids)-1] != "sql-server-tsql-syntax-advanced" {
 		t.Fatalf("ids = %v", ids)
 	}
 	for _, list := range w.Lists {
-		if len(list.Words) > 40 {
-			t.Fatalf("%s has %d words", list.ID, len(list.Words))
+		// The lists the account made itself, and those it keeps whole beside their parts, have no labels.
+		if list.Category == "" && len(list.Tags) == 0 && list.Extra == "" {
+			continue
 		}
 		// The group and levels (v0.79.0) are fields Go keeps without reading them.
 		if (list.Category != "プログラミング" && list.Category != "語学") || len(list.Tags) == 0 ||

@@ -179,7 +179,8 @@ final class WordListTests: XCTestCase {
     let copy = try duplicateList(saved, id: "x", copyId: "z", suffix: { _ in "（コピー）" }).copy
     XCTAssertEqual(copy.tags, ["Go"])
     XCTAssertTrue(matchesQuery(saved[0], "語学"))
-    XCTAssertTrue(initialLists().allSatisfy { $0.category != nil && !($0.tags ?? []).isEmpty })
+    // The initial lists the sparklingstadt account did not make itself or keep whole beside their parts are labeled.
+    XCTAssertEqual(initialLists().filter { $0.category != nil && !($0.tags ?? []).isEmpty }.count, 54)
     XCTAssertThrowsError(try validateLists([WordList(id: "a", name: "A", words: words, createdAt: "x", tags: [String(repeating: "t", count: 51)])]))
   }
 
@@ -192,7 +193,7 @@ final class WordListTests: XCTestCase {
     let body = String(decoding: try encodeAccountWorkspace(decoded), as: UTF8.self)
     XCTAssertTrue(body.contains(#""levels":["基本","初級"]"#), body)
     XCTAssertNil(try duplicateList(decoded.document.lists, id: "x", copyId: "z", suffix: { _ in "（コピー）" }).copy.group)
-    XCTAssertEqual(initialLists().filter { $0.group == "Linuxコマンド" }.count, 11)
+    XCTAssertEqual(initialLists().filter { $0.group == "Kotlin構文" }.count, 5)
   }
 
   func testWorkspaceFileRoundTrip() throws {
@@ -241,11 +242,10 @@ final class WordListTests: XCTestCase {
 
   func testInitialLists() {
     let lists = initialLists()
-    XCTAssertEqual(lists.map(\.id).prefix(2), ["sample-1", "sample-2"])
-    XCTAssertEqual(lists.count, 85)
-    XCTAssertEqual([lists[2].id, lists[7].id, lists.last?.id],
-                   ["un-member-states-chinese-193-beginner-1", "linux-commands-basic-beginner", "sql-server-tsql-syntax-advanced"])
-    XCTAssertTrue(lists.allSatisfy { $0.words.count <= 40 })
+    // Since v0.85.0 the initial lists are the lists of the sparklingstadt account, in its order.
+    XCTAssertEqual(lists.map(\.id).prefix(2), ["8f3cf116-1f9f-4579-a071-e600094b104d", "ef974a4b-3c7a-4eeb-9979-6721a0a1c81a"])
+    XCTAssertEqual(lists.count, 67)
+    XCTAssertEqual([lists[9].id, lists[10].id, lists.last?.id], ["arch-linux", "arch-linux-beginner", "sql-server-tsql-syntax-advanced"])
     XCTAssertNoThrow(try validateLists(lists))
   }
 }

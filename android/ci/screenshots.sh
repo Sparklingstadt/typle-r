@@ -41,7 +41,7 @@ for route in home practice records rankings lists createList editList general de
 done
 settle=15 capture typing-practice practice ja no --es typleTyping hogefx
 settle=15 capture result-practice practice ja no --es typleTyping hogefoobar
-capture detail-rankings rankings ja no --es typleRankingsList sample-1
+capture detail-rankings rankings ja no --es typleRankingsList 8f3cf116-1f9f-4579-a071-e600094b104d
 capture dark-practice practice ja yes
 capture en-practice practice en no
 rotate 1

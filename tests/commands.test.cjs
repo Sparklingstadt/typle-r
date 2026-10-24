@@ -4,46 +4,65 @@ const assert = require('node:assert/strict')
 const commands = require('../src/plugins/packs/commands.json')
 const { decodeLists, validateList } = require('../src/core/wordLists.ts')
 
-// A list over 40 words is kept as its 初級, 中級 and 上級 parts (`<id>-beginner`, `<id>-intermediate-1`, ...), and words(id)
-// joins them again.
+// Since v0.85.0 the initial lists are a copy of the lists of the sparklingstadt account, in its order and without its
+// records. Some lists are kept both whole and as their 初級, 中級 and 上級 parts (`<id>-beginner`, `<id>-intermediate-1`,
+// ...); words(id) gives the whole list, or joins the parts when there is none. named(name) gives the words of a list
+// the account made itself, under an id of its own; some of those names were saved with a decomposed ド, kept as saved.
 const level = /-(beginner|intermediate|advanced)(-\d)?$/
 const source = id => id.replace(level, '')
-const parts = id => commands.filter(list => source(list.id) === id)
-const words = id => parts(id).flatMap(list => list.words)
+const parts = id => commands.filter(list => list.id !== id && source(list.id) === id)
+const words = id => (commands.find(list => list.id === id) ? [commands.find(list => list.id === id)] : parts(id)).flatMap(list => list.words)
+const named = name => commands.find(list => list.name.normalize('NFC') === name).words
 const sources = [...new Set(commands.map(list => source(list.id)))]
+// The lists migrations 0009 to 0017 add, and the parts migration 0018 puts in their place.
+const migration = name => {
+  const sql = require('node:fs').readFileSync(require.resolve(`../prisma/migrations/${name}/migration.sql`), 'utf8')
+  return JSON.parse(sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'"))
+}
+const added = () => ['0009_seed_command_lists', '0010_seed_arch_linux_list', '0011_seed_vim_list', '0012_seed_go_syntax_list', '0013_seed_java_syntax_list', '0014_seed_kotlin_syntax_list', '0015_seed_lowercase_country_list', '0016_seed_postgresql_syntax_list', '0017_seed_test_framework_lists']
+  .flatMap(name => decodeLists(JSON.stringify({ version: 1, lists: migration(name) })))
+const sorted = list => [...list].sort((a, b) => a.input < b.input ? -1 : a.input > b.input ? 1 : 0)
 // The lists of v0.75.0 come in three levels whatever their length, and migration 0019 adds them.
 const leveled = ['typescript-syntax', 'hono-methods', 'php-syntax', 'rails-methods', 'express-methods', 'oracle-plsql-syntax', 'sql-server-tsql-syntax']
 // The lists as migrations before 0021 added them: without the category and tags (0021) or the group and levels (0022).
 const unlabeled = lists => lists.map(({ category: _category, tags: _tags, group: _group, levels: _levels, ...list }) => list)
 
-test('the command lists decode in Typle with their own ids and names', () => {
+test('the initial lists decode in Typle with their own ids and names', () => {
   const lists = decodeLists(JSON.stringify({ version: 1, lists: commands }))
-  assert.deepEqual(sources.map(id => [id, parts(id).map(list => list.words.length)]), [
-    ['linux-commands-basic', [40, 39, 39]], ['linux-commands-options', [37, 37, 36, 36]], ['linux-commands-advanced', [33, 33, 33, 32]],
-    ['linux-shell-bash', [38, 38]], ['linux-system', [35, 35, 35, 35]], ['vercel-cli', [34]], ['gcloud-cli', [35]], ['aws-cli', [23, 23]],
-    ['macos-zsh', [30, 30, 30]], ['arch-linux', [32, 32, 32]], ['vim', [38, 37, 37]], ['go-syntax', [37, 36, 36]],
-    ['java-syntax', [33, 33, 32, 32]], ['kotlin-syntax', [33, 33, 33, 32, 32]], ['un-member-states-chinese-193-lowercase', [39, 39, 39, 38, 38]],
+  assert.deepEqual(require('../src/plugins/packs/samples.json'), [])
+  assert.deepEqual(require('../src/plugins/packs/countries.json'), [])
+  assert.deepEqual(sources.map(id => [id, commands.filter(list => source(list.id) === id).map(list => list.words.length)]), [
+    ['8f3cf116-1f9f-4579-a071-e600094b104d', [90]], ['ef974a4b-3c7a-4eeb-9979-6721a0a1c81a', [46]], ['d6a056c2-9f2b-48ba-b4e6-1d851cc45f41', [35]],
+    ['04450fbe-2974-417c-9350-39802a5c650c', [140]], ['d3638812-0c0a-4f37-a413-d17404344c32', [76]], ['3099bf52-7790-49b0-841d-5230d7d3dd68', [131]],
+    ['78aaf407-fd11-4b12-92bd-2f0bffaf3779', [146]], ['0b27f311-38aa-40aa-9c29-ea17e374e1fe', [118]], ['eba3ec64-7d45-4f41-9de1-200ba5e957d5', [34]],
+    ['arch-linux', [96, 32, 32, 32]], ['vim', [112, 38, 37, 37]], ['go-syntax', [109, 37, 36, 36]],
+    ['java-syntax', [33, 33, 32, 32]], ['kotlin-syntax', [33, 33, 33, 32, 32]], ['un-member-states-chinese-193-lowercase', [193, 39, 39, 39, 38, 38]],
     ['postgresql-syntax', [38, 38, 38, 38]], ['prisma-syntax', [32, 32]], ['jest-syntax', [34, 33]], ['playwright-syntax', [35, 35]],
     ['typescript-syntax', [18, 18, 18]], ['hono-methods', [12, 12, 12]], ['php-syntax', [14, 14, 13]], ['rails-methods', [15, 15, 14]],
     ['express-methods', [12, 12, 11]], ['oracle-plsql-syntax', [13, 12, 12]], ['sql-server-tsql-syntax', [15, 15, 15]],
   ])
   assert.equal(lists.length, commands.length)
   const { initialLists } = require('../src/plugins/packs/index.ts')
+  assert.deepEqual(initialLists, commands)
   for (const list of lists) validateList(list, initialLists.filter(other => other.id !== list.id))
   assert.ok(lists.every(list => list.records.length === 0))
 })
 
-test('a list over 40 words is split into the fewest parts of at most 40, from the easiest words to type to the hardest', () => {
-  // The lists of v0.75.0 are split into at least three levels.
+test('a list kept both whole and in parts holds the same words in each', () => {
+  for (const id of ['arch-linux', 'vim', 'go-syntax', 'un-member-states-chinese-193-lowercase']) {
+    assert.deepEqual(sorted(parts(id).flatMap(list => list.words)), sorted(words(id)), id)
+  }
+})
+
+test('a list split into parts has the fewest parts of at most 40, from the easiest words to type to the hardest', () => {
+  // The lists of v0.75.0 are split into at least three levels. A list kept whole beside its parts is left out.
   const { initialLists } = require('../src/plugins/packs/index.ts')
-  assert.ok(initialLists.every(list => list.words.length <= 40), initialLists.find(list => list.words.length > 40)?.name)
   // A symbol or a Japanese character counts as two letters. The first word introduces the list, so it opens 初級.
   const score = word => [...word.input.toLowerCase()].reduce((sum, c) => sum + (/[a-z0-9 ]/.test(c) ? 1 : 2), 0)
   const labels = { 2: ['初級', '上級'], 3: ['初級', '中級', '上級'], 4: ['初級', '中級1', '中級2', '上級'], 5: ['初級1', '初級2', '中級', '上級1', '上級2'] }
-  const countries = require('../src/plugins/packs/countries.json')
   const grouped = [...new Set(initialLists.map(list => source(list.id)))]
-    .map(id => initialLists.filter(list => source(list.id) === id)).filter(group => group.length > 1)
-  assert.equal(grouped.length, 25)
+    .map(id => initialLists.filter(list => list.id !== id && source(list.id) === id)).filter(group => group.length > 1)
+  assert.equal(grouped.length, 17)
   for (const group of grouped) {
     const total = group.reduce((sum, list) => sum + list.words.length, 0)
     assert.equal(group.length, Math.max(Math.ceil(total / 40), leveled.includes(source(group[0].id)) ? 3 : 1), group[0].id)
@@ -54,7 +73,6 @@ test('a list over 40 words is split into the fewest parts of at most 40, from th
       assert.ok(Math.max(...scores[index - 1]) <= Math.min(...scores[index]), group[index].id)
     }
   }
-  assert.deepEqual(countries.map(list => list.name), ['初級1', '初級2', '中級', '上級1', '上級2'].map(label => `国名：中国語・国連加盟国（${label}）`))
 })
 
 test('each command is typed as shown, in ASCII, once per list, with an explanation', () => {
@@ -75,33 +93,34 @@ test('each command is typed as shown, in ASCII, once per list, with an explanati
     }
   }
   assert.ok(japanese.every(input => commands.some(list => list.words.some(word => word.input === input))))
-  assert.deepEqual(words('linux-commands-basic')[0], { display: 'pwd', input: 'pwd', annotation: 'Print Working Directory：現在のディレクトリを表示' })
-  assert.equal(words('linux-commands-basic').find(word => word.input === 'ls -la').annotation, 'ls（List）：ファイル・フォルダの一覧表示')
-  assert.equal(words('linux-system').find(word => word.input === 'SIGTERM').annotation, '15番（Terminate）：正常終了の要求')
+  assert.deepEqual(named('Linuxコマンド：基本')[0], { display: 'pwd', input: 'pwd', annotation: 'Print Working Directory：現在のディレクトリを表示' })
+  assert.equal(named('Linuxコマンド：基本').find(word => word.input === 'ls -la').annotation, 'ls（List）：ファイル・フォルダの一覧表示')
+  assert.equal(named('Linux：システムの仕組み').find(word => word.input === 'SIGTERM').annotation, '15番（Terminate）：正常終了の要求')
   // The source puts two commands in one row and one command in two rows.
-  assert.ok(['vercel project pause', 'vercel project resume'].every(input => words('vercel-cli').some(word => word.input === input)))
-  assert.equal(words('gcloud-cli').find(word => word.input === 'gcloud compute').annotation,
+  assert.ok(['vercel project pause', 'vercel project resume'].every(input => named('Vercel CLIコマンド').some(word => word.input === input)))
+  assert.equal(named('Google Cloud CLI（gcloud）コマンド').find(word => word.input === 'gcloud compute').annotation,
     'VM管理：VMの作成・起動・停止やディスクを管理（コマンドグループ） / ネットワーク管理：VPC・ファイアウォール・IPアドレスを管理（コマンドグループ）')
 })
 
 test('the zsh list leaves out key presses and keeps one word per example', () => {
-  const zsh = words('macos-zsh')
+  const zsh = named('macOSターミナル（zsh）コマンド')
   assert.ok(!zsh.some(word => /Control|Command|Tab|↑/.test(word.input)))
   assert.equal(zsh.find(word => word.input === 'open .').annotation, '.：現在のフォルダを表す（パスの記号） / Finderで現在のフォルダを開く')
   assert.equal(zsh.find(word => word.input === 'project=ffpf-portal').annotation, '名前=値：シェル変数を設定')
-  assert.equal(words('aws-cli').find(word => word.input === 'aws sts get-caller-identity').annotation,
+  assert.equal(named('AWS CLIコマンド').find(word => word.input === 'aws sts get-caller-identity').annotation,
     'STS：操作中のアカウント・権限を確認（Account・Arn・UserIdを確認）')
 })
 
 test('migrations 0009 to 0017 add the command lists to saved workspaces', () => {
-  const fs = require('node:fs')
-  const added = ['0009_seed_command_lists', '0010_seed_arch_linux_list', '0011_seed_vim_list', '0012_seed_go_syntax_list', '0013_seed_java_syntax_list', '0014_seed_kotlin_syntax_list', '0015_seed_lowercase_country_list', '0016_seed_postgresql_syntax_list', '0017_seed_test_framework_lists'].flatMap(name => {
-    const sql = fs.readFileSync(require.resolve(`../prisma/migrations/${name}/migration.sql`), 'utf8')
-    const literal = sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'")
-    return decodeLists(JSON.stringify({ version: 1, lists: JSON.parse(literal) }))
-  })
-  assert.deepEqual(added.map(list => list.id), sources.filter(id => !leveled.includes(id)))
-  assert.ok(added.every(list => list.records.length === 0))
+  const lists = added()
+  assert.deepEqual(lists.map(list => list.id), ['linux-commands-basic', 'linux-commands-options', 'linux-commands-advanced', 'linux-shell-bash',
+    'linux-system', 'vercel-cli', 'gcloud-cli', 'aws-cli', 'macos-zsh', 'arch-linux', 'vim', 'go-syntax', 'java-syntax', 'kotlin-syntax',
+    'un-member-states-chinese-193-lowercase', 'postgresql-syntax', 'prisma-syntax', 'jest-syntax', 'playwright-syntax'])
+  assert.ok(lists.every(list => list.records.length === 0))
+  // The whole lists the initial lists still have are the ones these migrations added.
+  for (const id of ['arch-linux', 'vim', 'go-syntax', 'un-member-states-chinese-193-lowercase']) {
+    assert.deepEqual(words(id), lists.find(list => list.id === id).words, id)
+  }
 })
 
 test('migration 0019 adds the lists of v0.75.0 to saved workspaces', () => {
@@ -123,15 +142,19 @@ test('migration 0020 adds the lists of 0019 again, up to 150 lists, where 0019 a
 })
 
 test('migration 0018 puts the parts of each split list in its place in saved workspaces', () => {
-  const fs = require('node:fs')
-  const sql = fs.readFileSync(require.resolve('../prisma/migrations/0018_split_long_initial_lists/migration.sql'), 'utf8')
-  const pack = JSON.parse(sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'"))
-  const lists = [...require('../src/plugins/packs/countries.json'), ...commands]
-  const split = [...new Set(lists.map(list => source(list.id)))].filter(id => !leveled.includes(id) && lists.filter(list => source(list.id) === id).length > 1)
-  assert.deepEqual(pack.map(item => item.id), split)
+  const pack = migration('0018_split_long_initial_lists')
+  const lists = added()
+  assert.deepEqual(pack.map(item => item.id), ['un-member-states-chinese-193', ...lists.map(list => list.id).filter(id => !['vercel-cli', 'gcloud-cli'].includes(id))])
   for (const item of pack) {
     assert.match(item.words, /^[0-9a-f]{32}$/)
-    assert.deepEqual(item.parts, unlabeled(lists.filter(list => source(list.id) === item.id)))
+    assert.ok(item.parts.every(part => source(part.id) === item.id && part.records.length === 0), item.id)
+    // The parts hold the words of the list they replace; the country list typed its pinyin with capitals.
+    const whole = lists.find(list => list.id === (item.id === 'un-member-states-chinese-193' ? `${item.id}-lowercase` : item.id)).words
+    const joined = item.parts.flatMap(part => part.words).map(word => item.id === 'un-member-states-chinese-193' ? { ...word, input: word.input.toLowerCase() } : word)
+    assert.deepEqual(sorted(joined), sorted(whole), item.id)
+    // The parts the initial lists still have are the ones this migration added.
+    const kept = commands.filter(list => list.id !== item.id && source(list.id) === item.id)
+    if (kept.length) assert.deepEqual(unlabeled(kept), item.parts, item.id)
   }
 })
 
@@ -182,9 +205,8 @@ test('the Kotlin list types each code example on one line, ending statements whe
 })
 
 test('the lowercase country list types the pinyin of the country list in lowercase, spaces kept', () => {
-  const countries = require('../src/plugins/packs/countries.json')
   const lower = words('un-member-states-chinese-193-lowercase')
-  assert.deepEqual(lower, countries.flatMap(list => list.words).map(word => ({ ...word, input: word.input.toLowerCase() })))
+  assert.equal(new Set(lower.map(word => word.display)).size, 193)
   assert.ok(lower.every(word => /^[a-z]+( [a-z]+)*$/.test(word.input)))
   assert.equal(lower.find(word => word.display === '安提瓜和巴布达').input, 'antigua he babuda')
   assert.equal(lower.find(word => word.display === '菲律宾').input, 'feilvbin')

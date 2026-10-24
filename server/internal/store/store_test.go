@@ -107,7 +107,7 @@ func TestReadWithoutRowGivesInitialLists(t *testing.T) {
 		t.Fatal(err)
 	}
 	w, err := s.Read(ctx, owner(t, conn))
-	if err != nil || len(w.Lists) != len(initial.Lists) || w.Lists[0].ID != "sample-1" {
+	if err != nil || len(w.Lists) != len(initial.Lists) || w.Lists[0].ID != first {
 		t.Fatalf("workspace = %+v, %v", w, err)
 	}
 }
@@ -178,6 +178,9 @@ func row(t *testing.T, conn *pgx.Conn, id string) (lists string, revision int, u
 	return lists, revision, updated
 }
 
+// The first of the initial lists (src/plugins/packs).
+const first = "8f3cf116-1f9f-4579-a071-e600094b104d"
+
 func deleteList(id string) func(*workspace.Workspace) (bool, error) {
 	return func(w *workspace.Workspace) (bool, error) { return true, workspace.DeleteList(w, id) }
 }
@@ -199,7 +202,7 @@ func TestModifyCreatesRow(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	w, err := s.Modify(ctx, id, deleteList("sample-1"))
+	w, err := s.Modify(ctx, id, deleteList(first))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -208,7 +211,7 @@ func TestModifyCreatesRow(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, got := range []*workspace.Workspace{w, read} {
-		if len(got.Lists) != len(initial.Lists)-1 || got.Lists[0].ID != "sample-2" || got.Find("sample-1") != nil {
+		if len(got.Lists) != len(initial.Lists)-1 || got.Lists[0].ID != "ef974a4b-3c7a-4eeb-9979-6721a0a1c81a" || got.Find(first) != nil {
 			t.Fatalf("lists = %+v", got.Lists)
 		}
 	}
@@ -483,7 +486,7 @@ func TestModifyImportsList(t *testing.T) {
 		t.Fatal(err)
 	}
 	stored, _, _ := row(t, conn, id)
-	// A new account starts with the sample lists; the imported one is added after them.
+	// A new account starts with the initial lists; the imported one is added after them.
 	want := `{"id": "i1", "name": "動物", "words": [{"input": "neko", "display": "猫,ねこ", "annotation": "1行目\n2行目"}], "records": [], "createdAt": "2026-10-21T00:00:00.000Z"}]`
 	if !strings.HasSuffix(stored, want) {
 		t.Fatalf("lists = %.300s…", stored[max(0, len(stored)-300):])

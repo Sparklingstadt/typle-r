@@ -85,15 +85,14 @@ test('a group is one choice on the practice screen, and its levels are chosen on
   await expect(page.locator('#wordDisplay')).toHaveText('ls')
 })
 
-test('the initial Linux commands are one list with 基本, オプション and 応用', async ({ page }) => {
+test('the initial Kotlin syntax lists are one list with 初級1 to 上級2', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto('/play?list=vercel-cli')
+  await page.goto('/play?list=arch-linux')
   const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
-  await aside.getByRole('searchbox').fill('Linuxコマンド')
-  await aside.getByRole('button', { name: /^Linuxコマンド/ }).click()
-  const levels = aside.getByRole('group', { name: 'Linuxコマンド の難易度' })
-  await expect(levels.getByRole('group', { name: '難易度の1段目' }).getByRole('button')).toHaveText(['基本', 'オプション', '応用'])
-  await levels.getByRole('button', { name: '応用' }).click()
-  await levels.getByRole('button', { name: '中級2' }).click()
-  await expect(page.getByRole('button', { name: '単語リストを切り替える（現在: Linuxコマンド：応用（中級2））' })).toBeVisible()
+  await aside.getByRole('searchbox').fill('Kotlin構文')
+  await aside.getByRole('button', { name: /^Kotlin構文/ }).click()
+  const levels = aside.getByRole('group', { name: 'Kotlin構文 の難易度' })
+  await expect(levels.getByRole('group', { name: '難易度の1段目' }).getByRole('button')).toHaveText(['初級1', '初級2', '中級', '上級1', '上級2'])
+  await levels.getByRole('button', { name: '中級' }).click()
+  await expect(page.getByRole('button', { name: '単語リストを切り替える（現在: Kotlin構文（中級））' })).toBeVisible()
 })
