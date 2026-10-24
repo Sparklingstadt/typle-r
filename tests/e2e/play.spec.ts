@@ -89,6 +89,30 @@ test('the list picker filters lists and the result screen offers the next step',
   await expect(result.getByRole('link', { name: '記録を見る' })).toHaveAttribute('href', '/records')
 })
 
+test('the clock stops while the input has lost focus and runs again once it is back', async ({ page }) => {
+  await seedGuest(page)
+  await page.goto('/play')
+  const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
+  const elapsed = page.getByRole('definition').first()
+  await expect(input).toBeFocused()
+  await input.pressSequentially('a')
+  await expect(elapsed).not.toHaveText('0:00.0')
+  await input.blur()
+  await expect(page.getByRole('button', { name: 'クリックまたは任意のキーで再開' })).toBeVisible()
+  const paused = await elapsed.textContent()
+  await page.waitForTimeout(2500)
+  await expect(elapsed).toHaveText(paused!)
+  await page.getByRole('button', { name: 'クリックまたは任意のキーで再開' }).click()
+  await expect(input).toBeFocused()
+  // Running again from where it stopped.
+  await expect(elapsed).not.toHaveText(paused!)
+  await input.pressSequentially('b')
+  await input.pressSequentially('cd')
+  await expect(page.getByLabel('練習結果', { exact: true })).toContainText('練習記録を保存しました。')
+  const time = await page.evaluate(key => JSON.parse(localStorage.getItem(key)!).lists.find((list: { id: string }) => list.id === 'first').records[0].time, key)
+  expect(time).toBeLessThan(2.5)
+})
+
 test('long text keeps its spaces and wraps inside the practice card at 390px', async ({ page }) => {
   await seedGuest(page)
   await page.setViewportSize({ width: 390, height: 844 })
@@ -107,8 +131,24 @@ test('long text keeps its spaces and wraps inside the practice card at 390px', a
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   // The input stays above a typical on-screen keyboard.
   expect((await input.boundingBox())!.y + 56).toBeLessThan(844 - 291)
-  await page.getByRole('button', { name: 'すべての単語を表示' }).click()
+  await expect(page.getByRole('button', { name: 'すべての単語を表示' })).toHaveAttribute('aria-expanded', 'true')
   await expect(page.getByRole('list', { name: 'すべての単語' }).locator('[aria-current="step"]')).toContainText(sentence)
+})
+
+test('all the words of a list are shown when it is chosen, to preview it', async ({ page }) => {
+  await seedGuest(page)
+  await page.goto('/play')
+  const toggle = page.getByRole('button', { name: 'すべての単語を表示' })
+  const all = page.getByRole('list', { name: 'すべての単語' })
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+  await expect(all.getByRole('listitem')).toHaveText(['ab（入力中）', 'cd（未入力）'])
+  await toggle.click()
+  await expect(all).toHaveCount(0)
+  // Choosing another list opens them again, with that list's words.
+  await page.getByRole('button', { name: 'Second list を選択', exact: true }).click()
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+  await expect(all.getByRole('listitem')).toHaveText(['x（入力中）'])
+  await expect(page.getByRole('textbox', { name: '表示された文字を入力', exact: true })).toBeFocused()
 })
 
 test('text gets a step smaller for each line over two it would wrap to, and short text keeps its size', async ({ page }) => {
@@ -127,11 +167,10 @@ test('text gets a step smaller for each line over two it would wrap to, and shor
   for (const [index, text] of texts.entries()) {
     await page.getByRole('button', { name: `Text ${index + 1} を選択`, exact: true }).click()
     await expect(display).toHaveText(text)
-    await expect.poll(fontSize).toBeLessThan(20)
+    // Right after a switch the size chosen for the previous text can show until the new one is measured.
+    await expect.poll(fontSize).toBeLessThan(sizes.at(-1) ?? 20)
     sizes.push(await fontSize())
   }
-  expect(sizes[1]).toBeLessThan(sizes[0])
-  expect(sizes[2]).toBeLessThan(sizes[1])
   expect(sizes[2]).toBeGreaterThanOrEqual(15)
   // On a wide screen the first one fits in two lines and keeps the usual 26px, and goes back down on a narrow one.
   await page.getByRole('button', { name: 'Text 1 を選択', exact: true }).click()
