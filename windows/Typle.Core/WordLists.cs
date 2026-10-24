@@ -94,7 +94,8 @@ public static partial class WordLists
         if (editing && lists.All(item => item.Id != list.Id)) throw new TypleException("listDeleted");
         Validate(list, lists.Where(item => item.Id != list.Id).ToList());
         var (category, tags) = NormalizeLabels(list.Category, list.Tags);
-        var normalized = list with { Name = list.Name.Trim(), Category = category, Tags = tags };
+        var (group, levels) = NormalizeGroup(list.Group, list.Levels);
+        var normalized = list with { Name = list.Name.Trim(), Category = category, Tags = tags, Group = group, Levels = levels };
         if (lists.Any(item => item.Id == list.Id))
         {
             return lists.Select(item => item.Id != list.Id ? item : normalized with { Records = item.Records }).ToList();
@@ -148,12 +149,13 @@ public static partial class WordLists
         return x.Count.CompareTo(y.Count);
     }
 
-    /// <summary>Matches the list name, its category and tags, and the words, so a list can be found by one of its words.</summary>
+    /// <summary>Matches the list name, its group, category and tags, and the words, so a list can be found by one of its words.</summary>
     public static bool MatchesQuery(WordList list, string query)
     {
         var needle = query.Trim().ToLowerInvariant();
         if (needle.Length == 0) return true;
-        return list.Name.ToLowerInvariant().Contains(needle) || (list.Category?.ToLowerInvariant().Contains(needle) ?? false) ||
+        return list.Name.ToLowerInvariant().Contains(needle) || (list.Group?.ToLowerInvariant().Contains(needle) ?? false) ||
+            (list.Category?.ToLowerInvariant().Contains(needle) ?? false) ||
             (list.Tags ?? []).Any(tag => tag.ToLowerInvariant().Contains(needle)) || list.Words.Any(word =>
             word.Display.ToLowerInvariant().Contains(needle) || word.Input.ToLowerInvariant().Contains(needle));
     }
