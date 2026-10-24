@@ -200,5 +200,25 @@
     "toAccount": "迁移到此账号",
     "toBrowser": "迁移到此浏览器",
     "suffix": "（迁移 {n}）"
+  },
+  "words": {
+    "title": "单词一览",
+    "description": "选择单词列表后，以表格显示该列表中显示的单词、输入的文字和备注。",
+    "lists": "单词列表",
+    "filter": "按列表名称、分类或标签筛选",
+    "noMatch": "没有符合条件的列表。",
+    "candidates": "可选的单词列表",
+    "pickerTitle": "选择单词列表",
+    "pickerDescription": "以表格显示所选列表中的单词。",
+    "switch": "选择列表",
+    "switchList": "选择单词列表（当前：{name}）",
+    "wordCount": "{count, plural, other {# 个单词}}",
+    "groupSummary": "{group}・{level} · {count, plural, other {# 个单词}}",
+    "practice": "练习",
+    "practiceList": "练习 {name}",
+    "edit": "编辑",
+    "editList": "编辑 {name}",
+    "number": "编号",
+    "noAnnotation": "无"
   }
 }
