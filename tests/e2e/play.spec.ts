@@ -107,8 +107,24 @@ test('long text keeps its spaces and wraps inside the practice card at 390px', a
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   // The input stays above a typical on-screen keyboard.
   expect((await input.boundingBox())!.y + 56).toBeLessThan(844 - 291)
-  await page.getByRole('button', { name: 'すべての単語を表示' }).click()
+  await expect(page.getByRole('button', { name: 'すべての単語を表示' })).toHaveAttribute('aria-expanded', 'true')
   await expect(page.getByRole('list', { name: 'すべての単語' }).locator('[aria-current="step"]')).toContainText(sentence)
+})
+
+test('all the words of a list are shown when it is chosen, to preview it', async ({ page }) => {
+  await seedGuest(page)
+  await page.goto('/play')
+  const toggle = page.getByRole('button', { name: 'すべての単語を表示' })
+  const all = page.getByRole('list', { name: 'すべての単語' })
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+  await expect(all.getByRole('listitem')).toHaveText(['ab（入力中）', 'cd（未入力）'])
+  await toggle.click()
+  await expect(all).toHaveCount(0)
+  // Choosing another list opens them again, with that list's words.
+  await page.getByRole('button', { name: 'Second list を選択', exact: true }).click()
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+  await expect(all.getByRole('listitem')).toHaveText(['x（入力中）'])
+  await expect(page.getByRole('textbox', { name: '表示された文字を入力', exact: true })).toBeFocused()
 })
 
 test('text gets a step smaller for each line over two it would wrap to, and short text keeps its size', async ({ page }) => {
