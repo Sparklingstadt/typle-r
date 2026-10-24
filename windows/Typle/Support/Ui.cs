@@ -404,19 +404,31 @@ public static class Ui
 
     // MARK: Pages
 
-    /// <summary>The page's content column: centred with the web's max width and padding, in a scroller.</summary>
+    /// <summary>
+    /// The page's content column: centred with the web's max width and padding, in a scroller. <paramref name="maxWidth"/> is
+    /// the width of the contents, as the web's max-w-4xl/5xl/6xl less their 32 px padding on each side.
+    /// </summary>
     public static (ScrollViewer Scroll, StackPanel Content) PageScroll(double maxWidth = 960)
     {
-        var content = new StackPanel
-        {
-            Spacing = 24, MaxWidth = maxWidth, Padding = new Thickness(32, 32, 32, 48), HorizontalAlignment = HorizontalAlignment.Stretch,
-        };
+        var content = new StackPanel { Spacing = 24, Padding = new Thickness(32, 32, 32, 48) };
         var scroll = new ScrollViewer
         {
             Content = content, Background = Brush(P.Page), HorizontalScrollMode = ScrollMode.Disabled,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
         };
+        Center(scroll, content, maxWidth + 64);
         return (scroll, content);
+    }
+
+    /// <summary>
+    /// Centres a scroller's content at most <paramref name="maxWidth"/> wide (padding included), like the web's mx-auto max-w-*.
+    /// MaxWidth does not do it: in a scroller, WinUI centres a stretched element by the width it measured, so a page whose
+    /// contents are narrower than the max width (a new list's editor, the records) slid to the right, past the window's edge.
+    /// </summary>
+    public static void Center(ScrollViewer scroll, FrameworkElement content, double maxWidth)
+    {
+        content.HorizontalAlignment = HorizontalAlignment.Center;
+        scroll.SizeChanged += (_, args) => content.Width = Math.Min(maxWidth, args.NewSize.Width);
     }
 
     /// <summary>A page's heading and description, with something (the storage badge) on the right like the web pages.</summary>
