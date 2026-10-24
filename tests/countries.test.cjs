@@ -2,8 +2,12 @@ require('./register.cjs')
 const test = require('node:test')
 const assert = require('node:assert/strict')
 const crypto = require('node:crypto')
-// The 初級 to 上級 parts of the country list (tests/commands.test.cjs checks how it is split).
-const countries = require('../src/plugins/packs/countries.json')
+// The 初級 to 上級 parts of the country list as migration 0018 split it (tests/commands.test.cjs checks how). Since
+// v0.85.0 the initial lists keep only its lowercase list.
+const fs = require('node:fs')
+const migration = fs.readFileSync(require.resolve('../prisma/migrations/0018_split_long_initial_lists/migration.sql'), 'utf8')
+const countries = JSON.parse(migration.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'"))
+  .find(item => item.id === 'un-member-states-chinese-193').parts
 const words = countries.flatMap(list => list.words)
 const { decodeLists } = require('../src/core/wordLists.ts')
 const { localDevelopmentEnabled } = require('../src/lib/localDevelopment.ts')
@@ -58,6 +62,6 @@ test('the initial lists are valid saved lists with distinct ids and no records',
   const { initialLists } = require('../src/plugins/packs/index.ts')
   const lists = decodeLists(JSON.stringify({ version: 1, lists: initialLists }))
   assert.equal(new Set(lists.map(list => list.id)).size, lists.length)
-  assert.ok(countries.every(country => lists.some(list => list.id === country.id)))
+  assert.ok(lists.some(list => list.id === 'un-member-states-chinese-193-lowercase'))
   assert.ok(lists.every(list => list.records.length === 0))
 })

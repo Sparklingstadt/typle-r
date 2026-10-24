@@ -84,7 +84,7 @@ final class AppModel {
       store = demo
       selectedDeviceId = nil
       if let name = defaults.string(forKey: "TypleRoute") {
-        if name == "editList" { self.route = .editList("sample-1") } else if let route = Route(name: name) { self.route = route }
+        if name == "editList" { self.route = .editList("8f3cf116-1f9f-4579-a071-e600094b104d") } else if let route = Route(name: name) { self.route = route }
       }
       rankingsList = defaults.string(forKey: "TypleRankingsList")
       return

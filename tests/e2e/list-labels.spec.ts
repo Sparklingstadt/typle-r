@@ -153,6 +153,6 @@ test('the initial lists come with their category and tags', async ({ page }) => 
   await page.goto('/edit')
   await page.getByRole('searchbox', { name: 'リスト名・カテゴリ・タグ・単語で検索' }).fill('Kotlin構文（初級1）')
   await expect(page.locator('li[data-list-id="kotlin-syntax-beginner-1"] [data-list-labels]')).toHaveText(/プログラミング.*Kotlin/)
-  await page.getByRole('searchbox').fill('果物')
-  await expect(page.locator('li[data-list-id="sample-1"] [data-list-labels]')).toHaveText(/語学.*英語/)
+  await page.getByRole('searchbox').fill('小文字・初級1')
+  await expect(page.locator('li[data-list-id="un-member-states-chinese-193-lowercase-beginner-1"] [data-list-labels]')).toHaveText(/語学.*中国語.*国名/)
 })

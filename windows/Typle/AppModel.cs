@@ -81,7 +81,7 @@ public sealed class AppModel
         if (launch.Route == "editList")
         {
             Route = Page.EditList;
-            EditingListId = "sample-1";
+            EditingListId = "8f3cf116-1f9f-4579-a071-e600094b104d";
         }
         else if (Enum.TryParse<Page>(launch.Route, ignoreCase: true, out var route))
         {

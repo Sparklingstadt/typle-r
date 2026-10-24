@@ -43,12 +43,12 @@ class WorkspaceTest {
 
   @Test fun initialListsMatchThePacks() {
     val lists = initialLists()
-    assertEquals(listOf("sample-1", "sample-2"), lists.map { it.id }.take(2))
-    assertEquals(85, lists.size)
-    assertEquals(listOf("un-member-states-chinese-193-beginner-1", "linux-commands-basic-beginner", "sql-server-tsql-syntax-advanced"),
-      listOf(lists[2].id, lists[7].id, lists.last().id))
-    assertEquals(true, lists.all { it.words.size <= 40 })
-    assertEquals(true, lists.all { it.category != null && !it.tags.isNullOrEmpty() })
+    // Since v0.85.0 the initial lists are the lists of the sparklingstadt account, in its order. The lists it made
+    // itself, and those it keeps whole beside their parts, have no category or tags.
+    assertEquals(listOf("8f3cf116-1f9f-4579-a071-e600094b104d", "ef974a4b-3c7a-4eeb-9979-6721a0a1c81a"), lists.map { it.id }.take(2))
+    assertEquals(67, lists.size)
+    assertEquals(listOf("arch-linux", "arch-linux-beginner", "sql-server-tsql-syntax-advanced"), listOf(lists[9].id, lists[10].id, lists.last().id))
+    assertEquals(54, lists.count { it.category != null && !it.tags.isNullOrEmpty() })
     validateLists(lists)
   }
 
@@ -62,7 +62,7 @@ class WorkspaceTest {
       document = WorkspaceDocument(lists = lists, devices = emptyList()))).decodeToString()
     assertEquals(true, text.contains("\"levels\":[\"基本\",\"初級\"]"))
     assertEquals(null, duplicateList(lists, "x", "z", { "（コピー）" }).copy.group)
-    assertEquals(11, initialLists().count { it.group == "Linuxコマンド" })
+    assertEquals(5, initialLists().count { it.group == "Kotlin構文" })
   }
 
   // The category and tags (v0.78.0) are kept through a read, a save, an edit and a copy, and left out when there are none.
