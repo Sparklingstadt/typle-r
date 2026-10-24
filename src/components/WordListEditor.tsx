@@ -20,7 +20,7 @@ import type { WorkspaceLocation } from "@/core/workspaceStore"
 import { AppError, type ErrorKey } from "@/core/appError"
 import { currentRecordCount, listLabels } from "@/core/listOverview"
 import PageStorageBadge from "@/components/PageStorageBadge"
-import LabelFields, { addTags } from "@/components/WordLists/LabelFields"
+import LabelFields from "@/components/WordLists/LabelFields"
 
 type Word = SavedWordList["words"][number]
 const MAX_WORDS = 1000
@@ -74,12 +74,10 @@ export default function WordListEditor({ title, description, storage, initial, l
   const [name, setName] = useState(initial?.name ?? "")
   const [category, setCategory] = useState(initial?.category ?? "")
   const [tags, setTags] = useState(initial?.tags ?? [])
-  const [tagDraft, setTagDraft] = useState("")
   const suggestions = useMemo(() => listLabels(lists, locale), [lists, locale])
   const [words, setWords] = useState(() => (initial?.words ?? [emptyWord()]).map((word, index) => ({ ...normalize(word), key: `initial-${index}` })))
   const [initialSnapshot] = useState(() => snapshot(initial?.name ?? "", initial?.category ?? "", initial?.tags ?? [], (initial?.words ?? [emptyWord()]).map(normalize)))
-  // A tag still being typed counts, as saving keeps it.
-  const dirty = snapshot(name, category, addTags(tags, tagDraft), words) !== initialSnapshot
+  const dirty = snapshot(name, category, tags, words) !== initialSnapshot
 
   const draftId = useRef<string | undefined>(undefined)
   const [saving, setSaving] = useState(false)
@@ -205,7 +203,7 @@ export default function WordListEditor({ title, description, storage, initial, l
     setSaving(true)
     try {
       // The editor does not change the group and levels, so they stay as saved.
-      const saved = await onSave({ id: draftId.current, name, category, tags: addTags(tags, tagDraft), group: initial?.group, levels: initial?.levels,
+      const saved = await onSave({ id: draftId.current, name, category, tags, group: initial?.group, levels: initial?.levels,
         words: words.map(({ key, ...word }) => ({ ...word, input: word.input || word.display })),
         records: initial?.records ?? [], createdAt: initial?.createdAt ?? new Date().toISOString() })
       if (!saved) setFailure(current => ({ count: current.count + 1, name }))
@@ -228,8 +226,7 @@ export default function WordListEditor({ title, description, storage, initial, l
         {nameError ? <FieldError id={`${nameId}-error`} message={nameError} alert={duplicate && !errorFor(nameId)} />
           : null}
         <p id={`${nameId}-help`} className="text-xs text-muted-foreground">{t("nameHelp")}</p>
-        <LabelFields category={category} tags={tags} draft={tagDraft} suggestions={suggestions}
-          onCategoryChange={setCategory} onTagsChange={setTags} onDraftChange={setTagDraft} />
+        <LabelFields category={category} tags={tags} suggestions={suggestions} onCategoryChange={setCategory} onTagsChange={setTags} />
       </section>
 
       <section aria-labelledby={`${baseId}-words`} className="md:overflow-hidden md:rounded-xl md:border md:bg-card">

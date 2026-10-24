@@ -41,7 +41,9 @@ test('the lists of a group are one row that opens to show each of them', async (
 
   // A list of the group is edited as before, and keeps its group and levels.
   await group.getByRole('button', { name: 'Shell：基本・上級 を編集' }).click()
-  await page.getByRole('combobox', { name: 'カテゴリ（任意）' }).fill('プログラミング')
+  await page.getByRole('combobox', { name: 'カテゴリ（任意）' }).click()
+  await page.getByRole('combobox', { name: 'カテゴリを検索・作成' }).fill('プログラミング')
+  await page.getByRole('option', { name: '「プログラミング」を作成' }).click()
   await page.getByRole('button', { name: '保存', exact: true }).click()
   await expect(page.getByText('「Shell：基本・上級」を更新しました。')).toBeVisible()
   expect((await saved(page)).find((list: { id: string }) => list.id === 'basic-2')).toMatchObject({ group: 'Shell', levels: ['基本', '上級'], category: 'プログラミング' })

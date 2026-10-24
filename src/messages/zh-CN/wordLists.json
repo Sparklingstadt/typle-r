@@ -150,13 +150,20 @@
     "discard": "放弃并离开",
     "category": "分类（可选）",
     "categoryPlaceholder": "编程、语言等",
-    "categoryHelp": "设置一个大致的分类，可在列表和练习界面中筛选。",
+    "categoryHelp": "从已使用的分类中选择一个，或输入新建。可在列表和练习页面中按分类筛选。",
     "tags": "标签（可选）",
     "tagList": "已添加的标签",
     "removeTag": "移除标签“{tag}”",
     "tagsFull": "最多{max}个标签",
     "tagPlaceholder": "Kotlin、PostgreSQL等",
-    "tagsHelp": "按 Enter 或输入逗号添加（最多{max}个）。搜索时也会查找标签。"
+    "tagsHelp": "从已使用的标签中选择，或输入新建（最多{max}个）。搜索时也会查找标签。",
+    "chooseCategory": "选择分类",
+    "searchCategory": "搜索或创建分类",
+    "clearCategory": "移除分类",
+    "addTag": "选择或创建标签",
+    "searchTag": "搜索或创建标签",
+    "create": "创建“{name}”",
+    "noLabels": "还没有。输入即可创建。"
   },
   "import": {
     "open": "导入 CSV/TSV",

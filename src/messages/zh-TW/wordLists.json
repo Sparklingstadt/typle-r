@@ -150,13 +150,20 @@
     "discard": "捨棄並離開",
     "category": "分類（選填）",
     "categoryPlaceholder": "程式設計、語言等",
-    "categoryHelp": "設定一個大致的分類，可在清單和練習畫面中篩選。",
+    "categoryHelp": "從已使用的分類中選擇一個，或輸入新建。可在清單和練習頁面中依分類篩選。",
     "tags": "標籤（選填）",
     "tagList": "已加上的標籤",
     "removeTag": "移除標籤「{tag}」",
     "tagsFull": "最多{max}個標籤",
     "tagPlaceholder": "Kotlin、PostgreSQL等",
-    "tagsHelp": "按 Enter 或輸入逗號加入（最多{max}個）。搜尋時也會查找標籤。"
+    "tagsHelp": "從已使用的標籤中選擇，或輸入新建（最多{max}個）。搜尋時也會查找標籤。",
+    "chooseCategory": "選擇分類",
+    "searchCategory": "搜尋或建立分類",
+    "clearCategory": "移除分類",
+    "addTag": "選擇或建立標籤",
+    "searchTag": "搜尋或建立標籤",
+    "create": "建立「{name}」",
+    "noLabels": "還沒有。輸入即可建立。"
   },
   "import": {
     "open": "匯入 CSV/TSV",

@@ -150,13 +150,20 @@
     "discard": "Abandonner et quitter",
     "category": "Catégorie (facultatif)",
     "categoryPlaceholder": "Programmation, Langues…",
-    "categoryHelp": "Un grand groupe. Vos listes et l’écran d’entraînement peuvent être filtrés par catégorie.",
+    "categoryHelp": "Choisissez une catégorie déjà utilisée ou tapez pour en créer une. Les listes peuvent être filtrées par catégorie.",
     "tags": "Étiquettes (facultatif)",
     "tagList": "Étiquettes de cette liste",
     "removeTag": "Retirer l’étiquette « {tag} »",
     "tagsFull": "{max} étiquettes au maximum",
     "tagPlaceholder": "Kotlin, PostgreSQL…",
-    "tagsHelp": "Appuyez sur Entrée ou tapez une virgule pour l’ajouter ({max} au maximum). La recherche porte aussi sur les étiquettes."
+    "tagsHelp": "Choisissez des étiquettes déjà utilisées ou tapez pour en créer ({max} au maximum). La recherche porte aussi sur les étiquettes.",
+    "chooseCategory": "Choisir une catégorie",
+    "searchCategory": "Rechercher ou créer une catégorie",
+    "clearCategory": "Retirer la catégorie",
+    "addTag": "Choisir ou créer des étiquettes",
+    "searchTag": "Rechercher ou créer des étiquettes",
+    "create": "Créer « {name} »",
+    "noLabels": "Aucune pour l’instant. Tapez pour en créer une."
   },
   "import": {
     "open": "Importer un CSV/TSV",
