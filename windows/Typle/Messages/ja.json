@@ -534,5 +534,33 @@
  "wordLists.words.switch": "リストを選ぶ",
  "wordLists.words.switchList": "単語リストを選ぶ（現在: {0}）",
  "wordLists.row.practice": "練習",
- "wordLists.row.recordCount": "{0}件"
+ "wordLists.row.recordCount": "{0}件",
+ "rankings.detail.others.old": {
+  "other": "単語数の記録がない古い記録 {0}件"
+ },
+ "rankings.detail.others.words": {
+  "other": "{0}語の記録 {1}件",
+  "arg": 2
+ },
+ "rankings.detail.others.separator": "、",
+ "rankings.detail.others.included": "単語数が今と違う記録（{0}）も含めています。単語数が違うと所要時間は単純に比べられません。",
+ "rankings.detail.others.excludedCount": {
+  "other": "単語数が今と違う{0}件は順位に含めていません。"
+ },
+ "rankings.detail.others.excludedDetail": "リストを編集する前の記録などです（{0}）。",
+ "rankings.detail.others.exclude": "含めない",
+ "rankings.detail.others.include": "含めて表示",
+ "records.more": {
+  "other": "さらに表示（残り {0}件）"
+ },
+ "home.welcome.lists": {
+  "other": "単語リスト {0} 件"
+ },
+ "home.welcome.practices": {
+  "other": "完了した練習 {0} 回"
+ },
+ "home.welcome.records": "記録を見る",
+ "rankings.detail.others.fallback": {
+  "other": "今の{0}語で練習した記録がないため、単語数が違う記録（{1}）で順位を付けています。"
+ }
 }

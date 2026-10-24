@@ -37,8 +37,15 @@ public sealed class HomePage : PageView
         content.Children.Add(card);
     }
 
-    private void Welcome(StackPanel inner) =>
-        inner.Children.Add(Column(16, T(L("home.welcomeTitle"), 30), T(L("home.welcomeDescription"), color: P.MutedForeground), StartButtons()));
+    private void Welcome(StackPanel inner)
+    {
+        // How much there is so far, as the web's welcome shows it.
+        var counts = Row(8, CountBadge(L("home.welcome.lists", App.Lists.Count)),
+            CountBadge(L("home.welcome.practices", App.Lists.Sum(list => list.Records.Count))));
+        var buttons = StartButtons();
+        buttons.Children.Add(Button(L("home.welcome.records"), () => App.Navigate(Page.Records), Variant.Outline, ButtonSize.Large, Icons.History));
+        inner.Children.Add(Column(16, T(L("home.welcomeTitle"), 30), T(L("home.welcomeDescription"), color: P.MutedForeground), counts, buttons));
+    }
 
     private StackPanel StartButtons() => Row(12,
         Button(L("dashboard.practice"), () => App.Navigate(Page.Practice), size: ButtonSize.Large, icon: Icons.Keyboard),

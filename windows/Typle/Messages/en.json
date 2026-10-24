@@ -691,5 +691,39 @@
  "wordLists.words.switch": "Choose list",
  "wordLists.words.switchList": "Choose a word list (current: {0})",
  "wordLists.row.practice": "Practice",
- "wordLists.row.recordCount": "{0}"
+ "wordLists.row.recordCount": "{0}",
+ "rankings.detail.others.old": {
+  "one": "{0} old record without a word count",
+  "other": "{0} old records without a word count"
+ },
+ "rankings.detail.others.words": {
+  "one": "{1} record at {0} words",
+  "other": "{1} records at {0} words",
+  "arg": 2
+ },
+ "rankings.detail.others.separator": ", ",
+ "rankings.detail.others.included": "Records at other word counts ({0}) are included. Times are not directly comparable when the word count differs.",
+ "rankings.detail.others.excludedCount": {
+  "one": "{0} record at a different word count is not ranked.",
+  "other": "{0} records at a different word count are not ranked."
+ },
+ "rankings.detail.others.excludedDetail": "They are from before the list was edited, for example ({0}).",
+ "rankings.detail.others.exclude": "Exclude",
+ "rankings.detail.others.include": "Include",
+ "records.more": {
+  "other": "Show more ({0} left)"
+ },
+ "home.welcome.lists": {
+  "one": "{0} word list",
+  "other": "{0} word lists"
+ },
+ "home.welcome.practices": {
+  "one": "{0} practice completed",
+  "other": "{0} practices completed"
+ },
+ "home.welcome.records": "View records",
+ "rankings.detail.others.fallback": {
+  "one": "There are no records at the current {0} word, so records at other word counts ({1}) are ranked.",
+  "other": "There are no records at the current {0} words, so records at other word counts ({1}) are ranked."
+ }
 }
