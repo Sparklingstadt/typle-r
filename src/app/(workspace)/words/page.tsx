@@ -154,34 +154,26 @@ function SearchField({ value, onChange, className }: { value: string; onChange: 
   </label>
 }
 
-// Long words, such as an SQL statement, wrap inside their cell instead of widening the table. Below sm the text to type
-// and the note move under the word, so a phone shows one readable column.
+// Two columns at every width: the number, and the text to type with its note under it. Long words, such as an SQL
+// statement, wrap inside their cell instead of widening the table.
 function WordTable({ list }: { list: SavedWordList }) {
   const t = useTranslations('wordLists.words')
   const editor = useTranslations('wordLists.editor')
   const text = 'whitespace-pre-wrap [overflow-wrap:anywhere]'
-  const none = <><span aria-hidden="true" className="text-muted-foreground">—</span><span className="sr-only">{t('noAnnotation')}</span></>
   return <Table aria-labelledby="words-title" className="table-fixed">
     <TableHeader>
       <TableRow className="hover:bg-transparent">
         <TableHead className="w-12 pl-4 text-right sm:w-14 sm:pl-6"><span aria-hidden="true">#</span><span className="sr-only">{t('number')}</span></TableHead>
-        <TableHead className="pr-4 sm:w-[38%] sm:pr-2">{editor('display')}</TableHead>
-        <TableHead className="hidden w-[30%] sm:table-cell">{editor('input')}</TableHead>
-        <TableHead className="hidden pr-6 sm:table-cell">{editor('annotation')}</TableHead>
+        <TableHead className="pr-4 sm:pr-6">{editor('input')}</TableHead>
       </TableRow>
     </TableHeader>
     <TableBody>
       {list.words.map((word, index) => <TableRow key={index} className="align-top">
         <TableCell className="py-2.5 pl-4 text-right align-top text-muted-foreground tabular-nums sm:pl-6">{index + 1}</TableCell>
-        <TableCell className={`py-2.5 pr-4 align-top sm:pr-2 ${text}`}>
-          <span className="font-medium">{word.display}</span>
-          <dl className="mt-1 grid gap-0.5 text-[13px] sm:hidden">
-            <div className="flex gap-2"><dt className="shrink-0 text-muted-foreground">{editor('input')}</dt><dd className="min-w-0 font-mono">{word.input}</dd></div>
-            <div className="flex gap-2"><dt className="shrink-0 text-muted-foreground">{editor('annotation')}</dt><dd className="min-w-0">{word.annotation || none}</dd></div>
-          </dl>
+        <TableCell className={`py-2.5 pr-4 align-top sm:pr-6 ${text}`}>
+          <span className="font-mono font-medium">{word.input}</span>
+          {word.annotation && <p className="mt-1 text-[13px] text-muted-foreground">{word.annotation}</p>}
         </TableCell>
-        <TableCell className={`hidden py-2.5 align-top font-mono sm:table-cell ${text}`}>{word.input}</TableCell>
-        <TableCell className={`hidden py-2.5 pr-6 align-top sm:table-cell ${text}`}>{word.annotation || none}</TableCell>
       </TableRow>)}
     </TableBody>
   </Table>

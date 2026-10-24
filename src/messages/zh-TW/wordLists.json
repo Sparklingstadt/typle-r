@@ -210,7 +210,7 @@
   },
   "words": {
     "title": "單字一覽",
-    "description": "選擇單字清單後，以表格顯示該清單中顯示的單字、輸入的文字與補充說明。",
+    "description": "選擇單字清單後，以表格顯示該清單中輸入的文字與補充說明。",
     "lists": "單字清單",
     "filter": "依清單名稱、分類或標籤篩選",
     "noMatch": "沒有符合條件的清單。",
@@ -225,7 +225,6 @@
     "practiceList": "練習 {name}",
     "edit": "編輯",
     "editList": "編輯 {name}",
-    "number": "編號",
-    "noAnnotation": "無"
+    "number": "編號"
   }
 }

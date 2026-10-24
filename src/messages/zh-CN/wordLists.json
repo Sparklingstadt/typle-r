@@ -210,7 +210,7 @@
   },
   "words": {
     "title": "单词一览",
-    "description": "选择单词列表后，以表格显示该列表中显示的单词、输入的文字和备注。",
+    "description": "选择单词列表后，以表格显示该列表中输入的文字和备注。",
     "lists": "单词列表",
     "filter": "按列表名称、分类或标签筛选",
     "noMatch": "没有符合条件的列表。",
@@ -225,7 +225,6 @@
     "practiceList": "练习 {name}",
     "edit": "编辑",
     "editList": "编辑 {name}",
-    "number": "编号",
-    "noAnnotation": "无"
+    "number": "编号"
   }
 }

@@ -210,7 +210,7 @@
   },
   "words": {
     "title": "Browse words",
-    "description": "Choose a word list to see all its words, with the word to display, the text to type, and the note.",
+    "description": "Choose a word list to see all its words, with the text to type and its note.",
     "lists": "Word lists",
     "filter": "Filter by list name, category, or tag",
     "noMatch": "No lists match.",
@@ -225,7 +225,6 @@
     "practiceList": "Practice {name}",
     "edit": "Edit",
     "editList": "Edit {name}",
-    "number": "Number",
-    "noAnnotation": "None"
+    "number": "Number"
   }
 }
