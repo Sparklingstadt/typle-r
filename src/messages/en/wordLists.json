@@ -150,13 +150,20 @@
     "discard": "Discard and leave",
     "category": "Category (optional)",
     "categoryPlaceholder": "Programming, Languages…",
-    "categoryHelp": "One broad group. Your lists and the practice screen can be filtered by it.",
+    "categoryHelp": "Choose one of the categories in use, or type to create one. Lists can be narrowed down by it.",
     "tags": "Tags (optional)",
     "tagList": "Tags on this list",
     "removeTag": "Remove tag “{tag}”",
     "tagsFull": "Up to {max} tags",
     "tagPlaceholder": "Kotlin, PostgreSQL…",
-    "tagsHelp": "Press Enter or type a comma to add one (up to {max}). Searches look at tags too."
+    "tagsHelp": "Choose tags in use, or type to create them (up to {max}). Searches look at tags too.",
+    "chooseCategory": "Choose a category",
+    "searchCategory": "Search or create a category",
+    "clearCategory": "Remove the category",
+    "addTag": "Choose or create tags",
+    "searchTag": "Search or create tags",
+    "create": "Create “{name}”",
+    "noLabels": "None yet. Type to create one."
   },
   "import": {
     "open": "Import CSV/TSV",

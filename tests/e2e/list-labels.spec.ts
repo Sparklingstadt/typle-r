@@ -63,22 +63,50 @@ test('lists show their category and tags and can be narrowed down by them', asyn
   expect(errors).toEqual([])
 })
 
-test('the editor sets the category and tags, and a copy keeps them', async ({ page }) => {
+test('the editor chooses the category and tags from those in use or creates them, and a copy keeps them', async ({ page }) => {
   await seed(page)
   await page.goto('/edit?list=plain')
   const category = page.getByRole('combobox', { name: 'カテゴリ（任意）' })
   const tags = page.getByRole('combobox', { name: 'タグ（任意）' })
-  await category.fill(' プログラミング ')
-  await tags.fill('Kotlin')
-  await tags.press('Enter')
-  // Enter adds the tag and stays in the field instead of moving to the words.
+  const options = page.getByRole('listbox').getByRole('option')
+  await expect(category).toHaveText('カテゴリを選ぶ')
+
+  // A new category is created from what is typed and chosen at once.
+  await category.click()
+  await expect(options).toHaveText(['プログラミング', '語学'])
+  const categorySearch = page.getByRole('combobox', { name: 'カテゴリを検索・作成' })
+  await categorySearch.fill(' 音楽 ')
+  await expect(options).toHaveText(['「音楽」を作成'])
+  await categorySearch.press('Enter')
+  await expect(category).toHaveText('音楽')
+  await expect(category).toBeFocused()
+  // One in use is chosen from the list, filtered by what is typed.
+  await category.click()
+  await categorySearch.fill('ぷろ')
+  await expect(options).toHaveText(['「ぷろ」を作成', 'カテゴリを外す'])
+  await categorySearch.fill('プロ')
+  await options.filter({ hasText: 'プログラミング' }).click()
+  await expect(category).toHaveText('プログラミング')
+
+  // Tags stay open to choose several; Enter creates the typed one and stays in the search box.
+  await tags.click()
+  await expect(options).toHaveText(['CLI', 'Go', 'PostgreSQL', '英語'])
+  const tagSearch = page.getByRole('combobox', { name: 'タグを検索・作成' })
+  await tagSearch.fill('Kotlin')
+  await tagSearch.press('Enter')
+  await expect(tagSearch).toBeFocused()
+  await expect(tagSearch).toHaveValue('')
+  await tagSearch.fill('JVM, kotlin, Gradle')
+  await expect(options).toHaveText(['「JVM, Gradle」を作成'])
+  await options.first().click()
+  await options.filter({ hasText: /^Go$/ }).click()
+  await expect(page.getByRole('list', { name: '付けたタグ' }).getByRole('listitem')).toHaveText(['Kotlin', 'JVM', 'Gradle', 'Go'])
+  // Choosing a chosen tag again takes it off.
+  await options.filter({ hasText: /^Go$/ }).click()
+  await page.keyboard.press('Escape')
   await expect(tags).toBeFocused()
-  await tags.pressSequentially('JVM, kotlin, Gradle')
-  await expect(page.getByRole('list', { name: '付けたタグ' }).getByRole('listitem')).toHaveText(['Kotlin', 'JVM'])
-  await expect(tags).toHaveValue(' Gradle')
   await page.getByRole('button', { name: 'タグ「JVM」を外す' }).click()
   await expect(page.getByText('未保存の変更があります')).toBeVisible()
-  // The tag still being typed is saved too.
   await page.getByRole('button', { name: '保存', exact: true }).click()
   await expect(page.getByText('「Plain」を更新しました。')).toBeVisible()
   expect((await saved(page)).find((list: { id: string }) => list.id === 'plain')).toMatchObject({ category: 'プログラミング', tags: ['Kotlin', 'Gradle'] })
@@ -91,7 +119,8 @@ test('the editor sets the category and tags, and a copy keeps them', async ({ pa
 
   // Clearing both leaves them out of the saved list, as before they existed.
   await page.goto('/edit?list=plain')
-  await page.getByRole('combobox', { name: 'カテゴリ（任意）' }).fill('')
+  await page.getByRole('combobox', { name: 'カテゴリ（任意）' }).click()
+  await page.getByRole('option', { name: 'カテゴリを外す' }).click()
   await page.getByRole('button', { name: 'タグ「Kotlin」を外す' }).click()
   await page.getByRole('button', { name: 'タグ「Gradle」を外す' }).click()
   await page.getByRole('button', { name: '保存', exact: true }).click()
