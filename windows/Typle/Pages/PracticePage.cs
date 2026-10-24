@@ -43,7 +43,19 @@ public sealed class PracticePage : PageView
     private readonly Border statsHost = new() { Padding = new Thickness(24, 0, 24, 20) };
     private readonly Border upcomingHost = new();
     private readonly Microsoft.UI.Dispatching.DispatcherQueueTimer ticker;
-    private bool showAll;
+    // The side panel's lists keep their search while the screen refreshes on every key, and are drawn again only when what
+    // they show changes.
+    private readonly TextBox asideFilter;
+    private readonly Border categoryHost = new() { Margin = new Thickness(4, 0, 4, 4) };
+    private readonly ScrollViewer asideScroll = new() { MaxHeight = 576, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+    private readonly ListOptions asideOptions = new();
+    private readonly Border listsCard;
+    private (IReadOnlyList<WordList> Lists, string Id, string Query, string? Category)? asideShown;
+    private string? scrolledTo;
+    // One category for both list choosers: the lists of a subject stay in view while switching between them.
+    private string? category;
+    // All the words of the list start shown, so a list can be previewed right after choosing it.
+    private bool showAll = true;
     private bool inputFocused;
     private bool focusedOnce;
     private bool suppressText;
@@ -94,13 +106,23 @@ public sealed class PracticePage : PageView
         {
             inputFocused = true;
             focusedOnce = true;
+            model.Resume();
             Refresh();
         };
+        // The clock stands still while the field has lost focus, or the window has (v0.81.0).
         input.LostFocus += (_, _) =>
         {
             inputFocused = false;
+            model.Pause();
             Refresh();
         };
+        void Activated(object sender, WindowActivatedEventArgs args)
+        {
+            if (args.WindowActivationState == WindowActivationState.Deactivated) model.Pause();
+            else if (inputFocused) model.Resume();
+        }
+        Shell.Window.Activated += Activated;
+        input.Unloaded += (_, _) => Shell.Window.Activated -= Activated;
         inputRing.Child = input;
         inputRing.HorizontalAlignment = HorizontalAlignment.Stretch;
 
@@ -137,12 +159,26 @@ public sealed class PracticePage : PageView
             Arrange();
         };
         Arrange();
+        asideFilter = Input("", L("practice.picker.filter"), height: 36);
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(asideFilter, L("practice.aside.filter"));
+        asideFilter.TextChanged += (_, _) =>
+        {
+            if (model.List(App.Lists) is { } current) RenderListOptions(current);
+        };
+        var search = SearchField(asideFilter);
+        search.Margin = new Thickness(4, 4, 4, 4);
+        var listsHeader = Cells(8,
+            (Star(), T(L("practice.aside.lists"), 15, FontWeights.Bold)),
+            (Auto, Button(L("practice.aside.create"), () => App.Navigate(Page.CreateList), Variant.Ghost, ButtonSize.Large, Icons.Add)));
+        listsHeader.Padding = new Thickness(8, 0, 0, 0);
+        listsCard = Card(Column(4, listsHeader, search, categoryHost, asideScroll), 12);
         scroll = new ScrollViewer { Content = layout, Background = Brush(P.Page), HorizontalScrollMode = ScrollMode.Disabled };
         Ui.Center(scroll, layout, 1280);
-        // Any key while the field is not focused brings the focus back, as on the web.
+        // Any key while the field is not focused brings the focus back, as on the web, but not from the lists' search.
         scroll.KeyDown += (_, args) =>
         {
             if (model.Finished || dialogOpen || inputFocused) return;
+            if (args.OriginalSource is TextBox box && box != input) return;
             if (args.Key is VirtualKey.Tab or VirtualKey.Enter or VirtualKey.Space) return;
             FocusInput();
         };
@@ -196,7 +232,7 @@ public sealed class PracticePage : PageView
 
     private void SwitchTo(string id)
     {
-        showAll = false;
+        showAll = true;
         model.Restart(id);
         SyncInput();
         Refresh();
@@ -227,7 +263,6 @@ public sealed class PracticePage : PageView
 
     private void Restart()
     {
-        showAll = false;
         model.Restart();
         SyncInput();
         Refresh();
@@ -524,7 +559,7 @@ public sealed class PracticePage : PageView
         var session = model.Session;
         var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var running = model.Running;
-        var elapsed = running ? Math.Max(0, now - (session.StartedAt ?? now)) : 0;
+        var elapsed = running ? Typing.Elapsed(session, now) : 0;
         var speed = running ? Typing.Speed(session, now) : null;
         var seconds = elapsed / 1000;
         var clock = $"{(int)(seconds / 60)}:{(seconds % 60).ToString("00.0", CultureInfo.InvariantCulture)}";
@@ -614,16 +649,7 @@ public sealed class PracticePage : PageView
 
     private StackPanel Aside(WordList list)
     {
-        var listsColumn = Column(4, Cells(8,
-            (Star(), T(L("practice.aside.lists"), 15, FontWeights.Bold)),
-            (Auto, Button(L("practice.aside.create"), () => App.Navigate(Page.CreateList), Variant.Ghost, ButtonSize.Large, Icons.Add))));
-        ((FrameworkElement)listsColumn.Children[0]).Margin = new Thickness(8, 0, 0, 0);
-        foreach (var item in App.Lists.Take(8)) listsColumn.Children.Add(ListOptionRow(item, item.Id == list.Id, () => RequestSwitch(item.Id)));
-        if (App.Lists.Count > 8)
-        {
-            listsColumn.Children.Add(Button(L("practice.aside.allLists"), () => _ = ChooseList(), Variant.Ghost));
-        }
-
+        RenderListOptions(list);
         var candidates = Records.Comparable(list);
         var title = T(L("practice.aside.best"), 15, FontWeights.Bold);
         title.VerticalAlignment = VerticalAlignment.Bottom;
@@ -638,7 +664,54 @@ public sealed class PracticePage : PageView
                 color: P.MutedForeground),
             BestRecords(candidates, model.SaveState == SaveState.Saved ? model.Record?.Id : null),
             allBest);
-        return Column(24, Card(listsColumn, 12), Card(best, 16));
+        return Column(24, Detach(listsCard), Card(best, 16));
+    }
+
+    /// <summary>
+    /// Every list in the side panel, the most recently practised first, narrowed down by its search and the category, in
+    /// a scroller of its own so a long collection never pushes the page far below the practice card.
+    /// </summary>
+    private void RenderListOptions(WordList list, bool force = false)
+    {
+        (IReadOnlyList<WordList> Lists, string Id, string Query, string? Category) shown = (App.Lists, list.Id, asideFilter.Text, category);
+        if (!force && asideShown is { } last && ReferenceEquals(last.Lists, shown.Lists) && last.Id == shown.Id && last.Query == shown.Query &&
+            last.Category == shown.Category)
+        {
+            return;
+        }
+        asideShown = shown;
+        categoryHost.Child = ListParts.CategorySelect(WordLists.Labels(App.Lists), category, value =>
+        {
+            category = value;
+            RenderListOptions(list);
+        });
+        categoryHost.Visibility = categoryHost.Child is null ? Visibility.Collapsed : Visibility.Visible;
+        var matching = ListParts.Matching(App.Lists, asideFilter.Text, category);
+        if (matching.Count == 0)
+        {
+            var empty = T(L("practice.picker.noMatch"), color: P.MutedForeground);
+            empty.Margin = new Thickness(8);
+            asideScroll.Content = empty;
+            return;
+        }
+        asideScroll.Content = asideOptions.Render(matching, App.Lists, list.Id, id =>
+        {
+            asideFilter.Text = "";
+            RequestSwitch(id);
+        }, () => RenderListOptions(list, force: true));
+        if (scrolledTo == list.Id) return;
+        scrolledTo = list.Id;
+        // Keeps the chosen list in view inside the lists' scroller, without scrolling the page.
+        Shell.Window.DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
+        {
+            if (asideOptions.SelectedElement is not { } chosen || asideScroll.Content is not UIElement content || chosen.XamlRoot is null) return;
+            asideScroll.UpdateLayout();
+            var top = chosen.TransformToVisual(content).TransformPoint(default).Y;
+            if (top < asideScroll.VerticalOffset || top + chosen.ActualHeight > asideScroll.VerticalOffset + asideScroll.ViewportHeight)
+            {
+                asideScroll.ChangeView(null, Math.Max(0, top - 8), null, true);
+            }
+        });
     }
 
     /// <summary>The five best runs of a list (src/components/Practice/PracticeBestRecords.tsx).</summary>
@@ -671,45 +744,36 @@ public sealed class PracticePage : PageView
         return column;
     }
 
-    /// <summary>A list to pick, with a round check like the web's WordListOptions.</summary>
-    private static Button ListOptionRow(WordList list, bool selected, Action onClick)
-    {
-        var best = Records.ListBest(list);
-        var text = Column(1, T(list.Name, 15, FontWeights.Medium, maxLines: 2),
-            T(best is not null ? L("practice.options.withBest", list.Words.Count, Format.Seconds(best.Time)) : L("practice.options.noRecord", list.Words.Count),
-                12, color: P.MutedForeground, maxLines: 1));
-        var row = Cells(12, (Auto, Icon(selected ? Icons.CheckCircle : Icons.Circle, 20, selected ? P.Primary : P.Border)), (Star(), text));
-        return Clickable(row, onClick, list.Name, 10, new Thickness(12, 10, 12, 10), selected ? P.Muted : null);
-    }
-
-    /// <summary>Choosing a list, with a filter by name (the web's 「単語リストを選ぶ」 dialog).</summary>
+    /// <summary>Choosing a list, with a search and the category (the web's 「単語リストを選ぶ」 dialog).</summary>
     private async Task ChooseList()
     {
         if (XamlRoot() is not { } root) return;
-        var options = Column(2);
+        var options = new Border();
+        var categoryBox = new Border();
+        var choices = new ListOptions();
         var filter = Input("", L("practice.picker.filter"));
         ContentDialog? dialog = null;
         // Switching may ask about the run in progress, in a dialog of its own once this one has closed.
         string? picked = null;
         void Fill()
         {
-            options.Children.Clear();
-            var needle = filter.Text.Trim().ToLowerInvariant();
-            var current = model.List(App.Lists)?.Id;
-            var filtered = App.Lists.Where(list => needle.Length == 0 || list.Name.ToLowerInvariant().Contains(needle)).ToList();
-            foreach (var list in filtered)
+            categoryBox.Child = ListParts.CategorySelect(WordLists.Labels(App.Lists), category, value =>
             {
-                options.Children.Add(ListOptionRow(list, list.Id == current, () =>
+                category = value;
+                Fill();
+            }, 40);
+            var matching = ListParts.Matching(App.Lists, filter.Text, category);
+            options.Child = matching.Count == 0
+                ? T(L("practice.picker.noMatch"), color: P.MutedForeground)
+                : choices.Render(matching, App.Lists, model.List(App.Lists)?.Id, id =>
                 {
-                    picked = list.Id;
+                    picked = id;
                     dialog?.Hide();
-                }));
-            }
-            if (filtered.Count == 0) options.Children.Add(T(L("practice.picker.noMatch"), color: P.MutedForeground));
+                }, Fill);
         }
         filter.TextChanged += (_, _) => Fill();
         Fill();
-        var body = Column(16, T(L("practice.picker.description"), color: P.MutedForeground), SearchField(filter),
+        var body = Column(12, T(L("practice.picker.description"), color: P.MutedForeground), SearchField(filter), categoryBox,
             new ScrollViewer { Content = options, MaxHeight = 420, VerticalScrollBarVisibility = ScrollBarVisibility.Auto });
         body.Width = 420;
         dialog = Dialog(root, L("practice.picker.title"), body);

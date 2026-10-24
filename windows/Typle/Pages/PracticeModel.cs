@@ -43,6 +43,11 @@ public sealed class PracticeModel
         SaveState = SaveState.Idle;
     }
 
+    /// <summary>Stops the clock while the field has lost focus mid-run (v0.81.0); the time away is left out of the record.</summary>
+    public void Pause() => Session = Typing.Pause(Session, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+
+    public void Resume() => Session = Typing.Resume(Session, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+
     /// <summary>Applies the field's committed text. Returns the record to save when the run has just finished.</summary>
     public StoredRecord? Enter(string value, WordList list, PracticeDevice? device)
     {

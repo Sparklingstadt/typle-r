@@ -16,10 +16,15 @@ public sealed class RecordsPage : PageView
     private string? listFilter;
     private string? deviceFilter;
     private (string Text, bool Failed)? message;
+    // Rows are shown 50 at a time, as on the web; changing a filter starts again from the first 50.
+    private const int PageSize = 50;
+    private int shownCount = PageSize;
 
     public RecordsPage(AppModel app, Shell shell) : base(app, shell)
     {
         (scroll, content) = PageScroll();
+        listFilter = app.RecordsList;
+        app.RecordsList = null;
         Refresh();
     }
 
@@ -44,7 +49,7 @@ public sealed class RecordsPage : PageView
         List<(string?, string)> listOptions =
         [
             (null, L("records.filter.allLists")),
-            .. App.Lists.Where(list => list.Records.Count > 0).Select(list => ((string?)list.Id, L("records.filterMenu.option", list.Name, list.Records.Count))),
+            .. App.Lists.Select(list => ((string?)list.Id, L("records.filterMenu.option", list.Name, list.Records.Count))),
         ];
         List<(string?, string)> deviceChoices =
         [
@@ -55,11 +60,13 @@ public sealed class RecordsPage : PageView
             FilterMenu(L("records.filter.list"), listOptions, listFilter, value =>
             {
                 listFilter = value;
+                shownCount = PageSize;
                 Refresh();
             }, listFilter is null ? L("records.filterMenu.all") : App.Lists.FirstOrDefault(list => list.Id == listFilter)?.Name),
             FilterMenu(L("records.filter.device"), deviceChoices, deviceFilter, value =>
             {
                 deviceFilter = value;
+                shownCount = PageSize;
                 Refresh();
             }, deviceFilter is null ? L("records.filterMenu.all") : DeviceName(deviceFilter)),
             listFilter is not null || deviceFilter is not null
@@ -79,7 +86,7 @@ public sealed class RecordsPage : PageView
             return;
         }
         var days = Column(12, Columns());
-        foreach (var group in Records.GroupByDay(rows))
+        foreach (var group in Records.GroupByDay(rows.Take(shownCount).ToList()))
         {
             var heading = Cells(8, (Star(), T(DayHeading(group.Day), 14, FontWeights.Bold)),
                 (Auto, T(L("records.day.summary", group.Rows.Count, Format.Total(group.Seconds)), 12, color: P.MutedForeground)));
@@ -93,6 +100,16 @@ public sealed class RecordsPage : PageView
             days.Children.Add(Column(10, heading, Card(list)));
         }
         content.Children.Add(days);
+        if (rows.Count > shownCount)
+        {
+            var more = Button(L("records.more", rows.Count - shownCount), () =>
+            {
+                shownCount += PageSize;
+                Refresh();
+            }, Variant.Outline);
+            more.HorizontalAlignment = HorizontalAlignment.Center;
+            content.Children.Add(more);
+        }
         content.Children.Add(T(L("records.note"), 12, color: P.MutedForeground));
     }
 

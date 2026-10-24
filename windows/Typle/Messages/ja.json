@@ -180,7 +180,7 @@
  "practice.aside.allBest": "すべてのベスト記録",
  "practice.picker.title": "単語リストを選ぶ",
  "practice.picker.description": "練習の途中で別のリストを選ぶと、中断してよいか確認します。",
- "practice.picker.filter": "リスト名で絞り込む",
+ "practice.picker.filter": "リスト名・カテゴリ・タグで絞り込む",
  "practice.picker.noMatch": "一致するリストがありません。",
  "practice.switch.title": "練習を中断しますか？",
  "practice.switch.description": "「{0}」の進捗（{1} / {2} 語）は記録されません。「{3}」に切り替えます。",
@@ -336,10 +336,10 @@
  "wordLists.page.deleted": "「{0}」を削除しました。",
  "wordLists.manager.heading": "保存済みのリスト",
  "wordLists.manager.create": "新しいリストを作成",
- "wordLists.manager.search": "リスト名・単語で検索",
+ "wordLists.manager.search": "リスト名・カテゴリ・タグ・単語で検索",
  "wordLists.manager.countFiltered": "{0}件 / 全{1}件",
  "wordLists.manager.count": "{0}件",
- "wordLists.manager.noMatch": "「{0}」に一致するリストはありません。リスト名と単語から探します。",
+ "wordLists.manager.noMatch": "「{0}」に一致するリストはありません。リスト名・カテゴリ・タグ・単語から探します。",
  "wordLists.manager.csvNote": "CSVエクスポートは表示する単語・入力する文字・補足を保存します（練習記録は含みません）。作成・編集画面の「CSV・TSVを読み込む」で使えます。",
  "wordLists.delete.title": "「{0}」を削除しますか？",
  "wordLists.delete.withRecords": "単語リストと、このリストの練習記録をすべて削除します。",
@@ -468,5 +468,99 @@
  "settings.signInWaiting": "ブラウザーで GitHub のログインを続けてください。終わると Typle に戻ります。",
  "settings.cancelSignIn": "ログインをやめる",
  "wordLists.export.done": "「{0}」を書き出しました",
- "wordLists.editor.shortcutMove": "並べ替え"
+ "wordLists.editor.shortcutMove": "並べ替え",
+ "nav.links.words": "単語一覧",
+ "practice.aside.filter": "単語リストをリスト名・カテゴリ・タグで絞り込む",
+ "practice.options.groupSelected": "{0} · {1}",
+ "practice.options.groupLists": {
+  "other": "{0}リスト · 難易度を選ぶ"
+ },
+ "practice.options.levels": "{0} の難易度",
+ "practice.options.chooseLevel": "続けて難易度を選んでください。",
+ "wordLists.labels.category": "カテゴリ",
+ "wordLists.labels.tag": "タグ",
+ "wordLists.filter.category": "カテゴリで絞り込む",
+ "wordLists.filter.allCategories": "すべてのカテゴリ",
+ "wordLists.filter.noCategory": "カテゴリなし",
+ "wordLists.filter.categoryCurrent": "カテゴリ：{0}",
+ "wordLists.filter.allTags": "すべてのタグ",
+ "wordLists.filter.tagsCurrent": "タグ：{0}",
+ "wordLists.filter.separator": "・",
+ "wordLists.filter.tagsHint": "選んだタグをすべて持つリスト",
+ "wordLists.filter.clearTags": "タグの選択を解除",
+ "wordLists.filter.clear": "絞り込みを解除",
+ "wordLists.filter.clearAll": "検索と絞り込みを解除",
+ "wordLists.filter.noMatch": "条件に一致するリストはありません。",
+ "wordLists.filter.option": "{0}（{1}）",
+ "wordLists.group.levels": {
+  "other": "難易度別に{0}リスト"
+ },
+ "wordLists.group.wordCount": {
+  "other": "{0}語"
+ },
+ "wordLists.group.practice": "練習",
+ "wordLists.group.practiceGroup": "{0} を練習",
+ "wordLists.editor.category": "カテゴリ（任意）",
+ "wordLists.editor.categoryPlaceholder": "プログラミング、語学など",
+ "wordLists.editor.categoryHelp": "使っているカテゴリから1つ選ぶか、入力して新しく作成します。一覧や練習画面で絞り込めます。",
+ "wordLists.editor.tags": "タグ（任意）",
+ "wordLists.editor.removeTag": "タグ「{0}」を外す",
+ "wordLists.editor.tagsFull": "タグは{0}個までです",
+ "wordLists.editor.tagPlaceholder": "Kotlin、PostgreSQLなど",
+ "wordLists.editor.tagsHelp": "使っているタグから選ぶか、入力して新しく作成します（{0}個まで）。リスト名やタグでの検索に使えます。",
+ "wordLists.editor.chooseCategory": "カテゴリを選ぶ",
+ "wordLists.editor.clearCategory": "カテゴリを外す",
+ "wordLists.editor.addTag": "タグを選ぶ・作成する",
+ "wordLists.editor.create": "「{0}」を作成",
+ "wordLists.editor.noLabels": "まだありません。入力すると新しく作成できます。",
+ "wordLists.words.title": "単語一覧",
+ "wordLists.words.description": "単語リストを選ぶと、そのリストの入力する文字と補足を一覧で表示します。",
+ "wordLists.words.lists": "単語リスト",
+ "wordLists.words.filter": "リスト名・カテゴリ・タグで絞り込む",
+ "wordLists.words.noMatch": "一致するリストがありません。",
+ "wordLists.words.wordCount": {
+  "other": "{0}語"
+ },
+ "wordLists.words.groupSummary": {
+  "other": "{0}・{1} · {2}語",
+  "arg": 3
+ },
+ "wordLists.words.practice": "練習",
+ "wordLists.words.practiceList": "{0} を練習",
+ "wordLists.words.edit": "編集",
+ "wordLists.words.editList": "{0} を編集",
+ "wordLists.words.pickerTitle": "単語リストを選ぶ",
+ "wordLists.words.pickerDescription": "選んだリストの単語を一覧で表示します。",
+ "wordLists.words.switch": "リストを選ぶ",
+ "wordLists.words.switchList": "単語リストを選ぶ（現在: {0}）",
+ "wordLists.row.practice": "練習",
+ "wordLists.row.recordCount": "{0}件",
+ "rankings.detail.others.old": {
+  "other": "単語数の記録がない古い記録 {0}件"
+ },
+ "rankings.detail.others.words": {
+  "other": "{0}語の記録 {1}件",
+  "arg": 2
+ },
+ "rankings.detail.others.separator": "、",
+ "rankings.detail.others.included": "単語数が今と違う記録（{0}）も含めています。単語数が違うと所要時間は単純に比べられません。",
+ "rankings.detail.others.excludedCount": {
+  "other": "単語数が今と違う{0}件は順位に含めていません。"
+ },
+ "rankings.detail.others.excludedDetail": "リストを編集する前の記録などです（{0}）。",
+ "rankings.detail.others.exclude": "含めない",
+ "rankings.detail.others.include": "含めて表示",
+ "records.more": {
+  "other": "さらに表示（残り {0}件）"
+ },
+ "home.welcome.lists": {
+  "other": "単語リスト {0} 件"
+ },
+ "home.welcome.practices": {
+  "other": "完了した練習 {0} 回"
+ },
+ "home.welcome.records": "記録を見る",
+ "rankings.detail.others.fallback": {
+  "other": "今の{0}語で練習した記録がないため、単語数が違う記録（{1}）で順位を付けています。"
+ }
 }

@@ -28,6 +28,8 @@ public sealed class RankingsPage : PageView
     private ListSort sort = ListSort.Recent;
     private string? device;
     private bool showAll;
+    // Whether records at another word count than the list has now are ranked too.
+    private bool includeOthers;
 
     public RankingsPage(AppModel app, Shell shell) : base(app, shell)
     {
@@ -68,7 +70,7 @@ public sealed class RankingsPage : PageView
         var chosen = App.RankingsList is { } id ? App.Lists.FirstOrDefault(list => list.Id == id) : null;
         if (chosen is not null)
         {
-            bodyHost.Child = Detail(Rankings.For(chosen, device, order, showAll));
+            bodyHost.Child = Detail(Rankings.For(chosen, device, order, includeOthers));
             return;
         }
         if (!ReferenceEquals(bodyHost.Child, listsCard)) bodyHost.Child = Detach(listsCard);
@@ -153,6 +155,7 @@ public sealed class RankingsPage : PageView
         var back = Clickable(Row(6, Icon(Icons.ArrowLeft, 12), T(L("rankings.detail.back"), 13, FontWeights.Medium)), () =>
         {
             showAll = false;
+            includeOthers = false;
             App.ShowRankings(null);
         }, L("rankings.detail.back"), 8, new Thickness(4));
         back.HorizontalAlignment = HorizontalAlignment.Left;
@@ -164,7 +167,7 @@ public sealed class RankingsPage : PageView
         }.OfType<string>();
         column.Children.Add(Cells(8,
             (Star(), Column(6, T(ranking.List.Name, 22, FontWeights.Bold), T(string.Join("  ·  ", meta), 13, color: P.MutedForeground))),
-            (Auto, Button(L("rankings.detail.viewRecords"), () => App.Navigate(Page.Records), Variant.Ghost, trailing: Icon(Icons.ArrowRight, 12))),
+            (Auto, Button(L("rankings.detail.viewRecords"), () => App.ShowRecords(ranking.List.Id), Variant.Ghost, trailing: Icon(Icons.ArrowRight, 12))),
             (Auto, Button(L("rankings.detail.practice"), () => App.Practise(ranking.List.Id), icon: Icons.Keyboard))));
         if (ranking.Records.Count == 0)
         {
@@ -194,7 +197,7 @@ public sealed class RankingsPage : PageView
             Box(stats.Points.Count > 1
                 ? TrendChart.Create(stats.Points, Dashboard.SpeedScale(stats.Points.Select(point => point.Value).ToList()))
                 : T(L("rankings.detail.trend.needTwo"), color: P.MutedForeground), Palette.WithAlpha(P.Muted, 0.5), 14)));
-        if (ranking.Fallback) column.Children.Add(T(L("rankings.fallback", ranking.List.Words.Count), 13, color: P.MutedForeground));
+        if (Others(ranking) is { } others) column.Children.Add(others);
 
         var top = Column(4);
         var topTitle = T(L("rankings.detail.top.title"), 14, FontWeights.Bold);
@@ -243,6 +246,42 @@ public sealed class RankingsPage : PageView
         }
         column.Children.Add(top);
         return Card(column, 24);
+    }
+
+    /// <summary>
+    /// Records at another word count than the list has now, such as those from before it was edited: ranked only when
+    /// there are no others, or when asked for, since their times do not compare.
+    /// </summary>
+    private Border? Others(ListRanking ranking)
+    {
+        if (ranking.Others.Count == 0) return null;
+        var detail = string.Join(L("rankings.detail.others.separator"), ranking.OtherCounts.Select(group => group.WordCount is { } words
+            ? L("rankings.detail.others.words", words, group.Count)
+            : L("rankings.detail.others.old", group.Count)));
+        if (ranking.Fallback)
+        {
+            return Box(T(L("rankings.detail.others.fallback", ranking.List.Words.Count, detail), 13, color: P.MutedForeground),
+                Palette.WithAlpha(P.Muted, 0.5), 14);
+        }
+        var text = new TextBlock { FontSize = 13, TextWrapping = TextWrapping.Wrap, Foreground = Brush(P.MutedForeground), VerticalAlignment = VerticalAlignment.Center };
+        if (includeOthers)
+        {
+            text.Text = L("rankings.detail.others.included", detail);
+        }
+        else
+        {
+            text.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run
+            {
+                Text = L("rankings.detail.others.excludedCount", ranking.Others.Count), FontWeight = FontWeights.SemiBold, Foreground = Brush(P.Foreground),
+            });
+            text.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = L("rankings.detail.others.excludedDetail", detail) });
+        }
+        var toggle = Button(L(includeOthers ? "rankings.detail.others.exclude" : "rankings.detail.others.include"), () =>
+        {
+            includeOthers = !includeOthers;
+            Refresh();
+        }, Variant.Outline, ButtonSize.Small);
+        return Box(Cells(12, (Star(), text), (Auto, toggle)), Palette.WithAlpha(P.Muted, 0.5), 14);
     }
 
     private static Border Figure(string term, string value, string unit, string note, bool highlight = false)

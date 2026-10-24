@@ -56,6 +56,7 @@ public sealed class ListEditorPage : PageView
     private readonly Border errorHost = new();
     private readonly TextBox name;
     private readonly TextBlock nameHelp;
+    private readonly LabelFields labels;
     private readonly StackPanel rowsPanel = new();
     private readonly Border countHost = new();
     private readonly Border recountHost = new();
@@ -74,6 +75,7 @@ public sealed class ListEditorPage : PageView
         (scroll, content) = PageScroll();
         name = Ui.Input(original?.Name ?? "", height: 44);
         nameHelp = T(L("wordLists.editor.nameHelp"), 12, color: P.MutedForeground);
+        labels = new LabelFields(original?.Category, original?.Tags, WordLists.Labels(app.Lists, Loc.Culture));
         if (missing)
         {
             content.Children.Add(Card(T(L("wordLists.page.notFound")), 24));
@@ -100,9 +102,11 @@ public sealed class ListEditorPage : PageView
             Shell.StorageBadge(App)));
         content.Children.Add(errorHost);
 
-        // The name.
+        // The name, category and tags.
+        labels.Changed += UpdateFooter;
+        labels.Root.Margin = new Thickness(0, 8, 0, 0);
         content.Children.Add(Card(Column(8, Row(4, T(L("wordLists.editor.name"), 14, FontWeights.SemiBold), T("*", 14, FontWeights.SemiBold, P.Destructive)),
-            name, nameHelp), 24));
+            name, nameHelp, labels.Root), 24));
 
         // The words.
         var import = Button(L("wordLists.import.open"), () => _ = Import(), Variant.Outline, ButtonSize.Small, Icons.Import);
@@ -165,7 +169,8 @@ public sealed class ListEditorPage : PageView
 
     private List<Word> Words() => rows.Select(row => row.Word).ToList();
 
-    private bool Changed => savedName != name.Text || !savedWords.SequenceEqual(Words());
+    private bool Changed => savedName != name.Text || !savedWords.SequenceEqual(Words()) ||
+        labels.Category.Trim() != (original?.Category ?? "") || !labels.Tags.SequenceEqual(original?.Tags ?? []);
 
     private static string Description(WordList? original)
     {
@@ -387,8 +392,8 @@ public sealed class ListEditorPage : PageView
             Id = original?.Id ?? Ids.Random(), Name = name.Text,
             Words = kept.Select(row => new Word(row.Display.Text, row.Input.Text.Length == 0 ? row.Display.Text : row.Input.Text, row.Annotation.Text)).ToList(),
             Records = original?.Records ?? [], CreatedAt = original?.CreatedAt ?? Dates.IsoString(DateTimeOffset.UtcNow),
-            // The Windows editor does not edit these yet, so they stay as saved.
-            Category = original?.Category, Tags = original?.Tags, Group = original?.Group, Levels = original?.Levels,
+            // The group and levels are not edited here, so they stay as saved.
+            Category = labels.Category, Tags = labels.Tags, Group = original?.Group, Levels = original?.Levels,
         };
         saving = true;
         UpdateFooter();
