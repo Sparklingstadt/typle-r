@@ -528,5 +528,9 @@
  "wordLists.words.practice": "練習",
  "wordLists.words.practiceList": "{0} を練習",
  "wordLists.words.edit": "編集",
- "wordLists.words.editList": "{0} を編集"
+ "wordLists.words.editList": "{0} を編集",
+ "wordLists.words.pickerTitle": "単語リストを選ぶ",
+ "wordLists.words.pickerDescription": "選んだリストの単語を一覧で表示します。",
+ "wordLists.words.switch": "リストを選ぶ",
+ "wordLists.words.switchList": "単語リストを選ぶ（現在: {0}）"
 }

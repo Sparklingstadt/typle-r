@@ -77,6 +77,7 @@ public static class Icons
     public const string Sync = "";
     public const string Pointer = "";
     public const string UnfoldMore = "";
+    public const string Table = "";
 }
 
 /// <summary>The web app's parts (shadcn's Card, Button, Badge, Input…), built as WinUI elements in the current colours.</summary>

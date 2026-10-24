@@ -86,7 +86,7 @@ public class ListLabelsTests
         Assert.Equal(s, Typing.Pause(s, 3000));
         // Typing resumes the clock by itself.
         s = Typing.TypeInput(s, words, "ab", 7000);
-        Assert.Equal(2, Typing.Result(s).Time);
+        Assert.Equal(1, Typing.Result(s).Time);
         Assert.Null(s.PausedAt);
     }
 

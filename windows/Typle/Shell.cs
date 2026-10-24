@@ -146,6 +146,7 @@ public sealed class Shell
                     Page.Records => new RecordsPage(app, this),
                     Page.Rankings => new RankingsPage(app, this),
                     Page.Lists => new ListsPage(app, this),
+                    Page.Words => new WordsPage(app, this),
                     Page.CreateList => new ListEditorPage(app, this, null),
                     Page.EditList => new ListEditorPage(app, this, app.EditingListId),
                     Page.Devices => new DevicesPage(app, this),
@@ -265,6 +266,7 @@ public sealed class Shell
             ]),
             (L("nav.groups.wordLists"), [
                 new(L("nav.links.edit"), Icons.List, Page.Lists),
+                new(L("nav.links.words"), Icons.Table, Page.Words),
                 new(L("nav.links.create"), Icons.Add, Page.CreateList),
             ]),
             (L("nav.groups.settings"), [

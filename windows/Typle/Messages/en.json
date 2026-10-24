@@ -685,5 +685,9 @@
  "wordLists.words.practice": "Practice",
  "wordLists.words.practiceList": "Practice {0}",
  "wordLists.words.edit": "Edit",
- "wordLists.words.editList": "Edit {0}"
+ "wordLists.words.editList": "Edit {0}",
+ "wordLists.words.pickerTitle": "Choose a word list",
+ "wordLists.words.pickerDescription": "The words of the list you choose are shown in a table.",
+ "wordLists.words.switch": "Choose list",
+ "wordLists.words.switchList": "Choose a word list (current: {0})"
 }

@@ -8,7 +8,7 @@ using Typle.Support;
 namespace Typle;
 
 /// <summary>The web app's pages, in the order of its sidebar.</summary>
-public enum Page { Home, Practice, Records, Rankings, Lists, CreateList, EditList, General, Devices }
+public enum Page { Home, Practice, Records, Rankings, Lists, Words, CreateList, EditList, General, Devices }
 
 public enum Appearance { System, Light, Dark }
 
@@ -100,6 +100,9 @@ public sealed class AppModel
 
     /// <summary>The list the best records page shows, like <c>/rankings?list=&lt;id&gt;</c>.</summary>
     public string? RankingsList { get; private set; }
+
+    /// <summary>The list 単語一覧 shows, like <c>/words?list=&lt;id&gt;</c>; null is the first list.</summary>
+    public string? WordsList { get; private set; }
 
     /// <summary>A list another screen asked the practice screen to open, like <c>/play?list=&lt;id&gt;</c>.</summary>
     public string? PracticeRequest { get; set; }
@@ -198,6 +201,13 @@ public sealed class AppModel
     {
         PracticeRequest = listId;
         Navigate(Page.Practice);
+    }
+
+    public void ShowWords(string? listId)
+    {
+        WordsList = listId;
+        Route = Page.Words;
+        Notify();
     }
 
     public void ShowRankings(string? listId)
