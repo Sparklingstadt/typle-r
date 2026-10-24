@@ -37,12 +37,15 @@ test('the sidebar opens the words of a list, and another list or a level of a gr
   await expect(page.getByRole('heading', { level: 1, name: '単語一覧' })).toBeVisible()
   await expect(navigation.getByRole('link', { name: '単語一覧', exact: true })).toHaveAttribute('aria-current', 'page')
 
-  // The first list is shown, with what is displayed, what is typed and the note of each word. innerText leaves out
-  // the copy of the text to type and the note that only a phone shows under the word.
+  // The first list is shown in two columns: the number, and the text to type with its note under it. A word without
+  // a note shows only the text to type.
   const table = page.getByRole('table', { name: 'Fruits' })
-  await expect(table.getByRole('columnheader')).toHaveText(['#番号', '表示する単語', '入力する文字', '補足'])
-  await expect(table.getByRole('row').nth(1).getByRole('cell')).toHaveText(['1', 'りんご', 'ringo', '赤い果物'], { useInnerText: true })
-  await expect(table.getByRole('row').nth(2).getByRole('cell')).toHaveText(['2', 'banana', 'banana', /^—\s*なし$/], { useInnerText: true })
+  await expect(table.getByRole('columnheader')).toHaveText(['#番号', '入力する文字'])
+  await expect(table.getByRole('row').nth(1).getByRole('cell')).toHaveText(['1', /^ringo\s+赤い果物$/], { useInnerText: true })
+  await expect(table.getByRole('row').nth(2).getByRole('cell')).toHaveText(['2', 'banana'], { useInnerText: true })
+  const [input, note] = await table.getByRole('row').nth(1).getByRole('cell').nth(1).evaluate(cell =>
+    [...cell.children].map(child => child.getBoundingClientRect()))
+  expect(note.top).toBeGreaterThanOrEqual(input.bottom)
   await expect(page.getByRole('link', { name: 'Fruits を練習' })).toHaveAttribute('href', '/play?list=fruits')
   await expect(page.getByRole('link', { name: 'Fruits を編集' })).toHaveAttribute('href', '/edit?list=fruits')
 
@@ -53,7 +56,7 @@ test('the sidebar opens the words of a list, and another list or a level of a gr
   await aside.getByRole('button', { name: 'SQL を選択' }).click()
   await expect(page).toHaveURL(/\/words\?list=sql$/)
   const long = page.getByRole('table', { name: 'SQL' })
-  await expect(long.getByRole('row').nth(1).getByRole('cell').nth(2)).toHaveText(sql, { useInnerText: true })
+  await expect(long.getByRole('row').nth(1).getByRole('cell').nth(1)).toHaveText(`${sql}\n1年間の購入額`, { useInnerText: true })
   // A long statement wraps inside its cell instead of widening the table.
   expect(await long.evaluate(table => table.scrollWidth <= table.parentElement!.clientWidth)).toBe(true)
   expect(await fitsWidth(page)).toBe(true)
@@ -85,10 +88,10 @@ test('on a phone the drawer opens the words, which fit the width, and the list i
   await expect(drawer).toBeHidden()
   await expect(page.getByRole('complementary', { name: '単語リスト' })).toBeHidden()
 
-  // Below sm the text to type and the note sit under the word, in one column.
+  // A phone shows the same two columns.
   const fruits = page.getByRole('table', { name: 'Fruits' })
-  await expect(fruits.getByRole('columnheader')).toHaveText(['#番号', '表示する単語'])
-  await expect(fruits.getByRole('row').nth(1).getByRole('cell').nth(1)).toHaveText('りんご入力する文字ringo補足赤い果物')
+  await expect(fruits.getByRole('columnheader')).toHaveText(['#番号', '入力する文字'])
+  await expect(fruits.getByRole('row').nth(1).getByRole('cell').nth(1)).toHaveText('ringo赤い果物')
 
   await page.getByRole('button', { name: '単語リストを選ぶ（現在: Fruits）' }).click()
   const picker = page.getByRole('dialog', { name: '単語リストを選ぶ' })

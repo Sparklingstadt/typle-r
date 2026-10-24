@@ -210,7 +210,7 @@
   },
   "words": {
     "title": "Voir les mots",
-    "description": "Choisissez une liste de mots pour voir tous ses mots : le mot affiché, le texte à saisir et la note.",
+    "description": "Choisissez une liste de mots pour voir tous ses mots : le texte à saisir et sa note.",
     "lists": "Listes de mots",
     "filter": "Filtrer par nom de liste, catégorie ou étiquette",
     "noMatch": "Aucune liste ne correspond.",
@@ -225,7 +225,6 @@
     "practiceList": "S’entraîner sur {name}",
     "edit": "Modifier",
     "editList": "Modifier {name}",
-    "number": "Numéro",
-    "noAnnotation": "Aucune"
+    "number": "Numéro"
   }
 }
