@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Documents;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using Typle.Core;
 using Typle.Support;
 using Windows.System;
@@ -22,7 +23,7 @@ public sealed class PracticePage : PageView
 {
     private readonly PracticeModel model;
     private readonly ScrollViewer scroll;
-    private readonly Grid layout = new() { ColumnSpacing = 24, RowSpacing = 24, MaxWidth = 1280, Padding = new Thickness(40, 32, 40, 32) };
+    private readonly Grid layout = new() { ColumnSpacing = 24, RowSpacing = 24, Padding = new Thickness(40, 32, 40, 32) };
     private readonly Border cardHost = new();
     private readonly Border practiceCard;
     private readonly Border asideHost = new();
@@ -34,6 +35,9 @@ public sealed class PracticePage : PageView
     private readonly Border wordHost = new() { Padding = new Thickness(24, 32, 24, 0) };
     private readonly Border resumeOverlay = new();
     private readonly TextBox input;
+    // The field's border in every state. Its template reads the brush once, when it is first shown (unfocused), so the
+    // border changes by this brush's colour rather than by giving the field new brushes.
+    private readonly SolidColorBrush inputBorder = new();
     private readonly Border inputRing = new() { CornerRadius = new CornerRadius(14), Padding = new Thickness(4), MaxWidth = 456 };
     private readonly Border feedbackHost = new() { MinHeight = 20, HorizontalAlignment = HorizontalAlignment.Center };
     private readonly Border statsHost = new() { Padding = new Thickness(24, 0, 24, 20) };
@@ -58,7 +62,7 @@ public sealed class PracticePage : PageView
         }
         input = new TextBox
         {
-            Height = 56, FontSize = 20, CornerRadius = new CornerRadius(10), BorderThickness = new Thickness(2),
+            Height = 56, FontSize = 24, CornerRadius = new CornerRadius(10), BorderThickness = new Thickness(2),
             IsSpellCheckEnabled = false, IsTextPredictionEnabled = false, TextAlignment = TextAlignment.Center,
             VerticalContentAlignment = VerticalAlignment.Center, Text = model.Session.Input,
         };
@@ -134,6 +138,7 @@ public sealed class PracticePage : PageView
         };
         Arrange();
         scroll = new ScrollViewer { Content = layout, Background = Brush(P.Page), HorizontalScrollMode = ScrollMode.Disabled };
+        Ui.Center(scroll, layout, 1280);
         // Any key while the field is not focused brings the focus back, as on the web.
         scroll.KeyDown += (_, args) =>
         {
@@ -420,14 +425,14 @@ public sealed class PracticePage : PageView
         var invalid = comparison.ErrorIndex is not null;
         inputRing.BorderThickness = new Thickness(0);
         inputRing.Background = Brush(invalid ? Palette.WithAlpha(P.Destructive, 0.2) : inputFocused ? Palette.WithAlpha(P.Ring, 0.35) : Microsoft.UI.Colors.Transparent);
-        var border = Brush(invalid ? P.Destructive : inputFocused ? P.Primary : P.Input);
-        input.BorderBrush = border;
+        inputBorder.Color = invalid ? P.Destructive : inputFocused ? P.Primary : P.Input;
+        input.BorderBrush = inputBorder;
         input.Background = Brush(P.Card);
         input.Foreground = Brush(P.Foreground);
         input.PlaceholderText = L("practice.word.placeholder");
         foreach (var key in new[] { "TextControlBorderBrush", "TextControlBorderBrushPointerOver", "TextControlBorderBrushFocused" })
         {
-            input.Resources[key] = border;
+            input.Resources[key] = inputBorder;
         }
         foreach (var key in new[] { "TextControlBackground", "TextControlBackgroundPointerOver", "TextControlBackgroundFocused" })
         {
