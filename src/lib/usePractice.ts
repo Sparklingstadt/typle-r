@@ -5,7 +5,7 @@ import type { PracticeDevice } from '../core/devices'
 import type { SavedWordList } from '../core/wordLists'
 import type { WorkspaceUpdate } from './useWordLists'
 import { addRecord, makeRecord, type PracticeRecord } from '../core/records'
-import { newSession, sessionResult, typeInput } from '../core/typing'
+import { newSession, pauseSession, resumeSession, sessionResult, typeInput } from '../core/typing'
 
 export function usePractice(wordLists: SavedWordList[], update: WorkspaceUpdate, device?: PracticeDevice, initialListId?: string | null) {
   const [list, setList] = useState<SavedWordList | undefined>(() => wordLists.find(item => item.id === initialListId) ?? wordLists[0])
@@ -52,6 +52,14 @@ export function usePractice(wordLists: SavedWordList[], update: WorkspaceUpdate,
     }
   }
 
+  // The clock stops while the input has lost focus and runs again once it is back.
+  function pause() {
+    setSession(current => pauseSession(current, Date.now()))
+  }
+  function resume() {
+    setSession(current => resumeSession(current, Date.now()))
+  }
+
   function saveRecord(record: PracticeRecord) {
     if (!list) return
     setSaveState('saving')
@@ -80,5 +88,5 @@ export function usePractice(wordLists: SavedWordList[], update: WorkspaceUpdate,
       if (!duplicate) enter(value)
     }
   }
-  return { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave }
+  return { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave, pause, resume }
 }

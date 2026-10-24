@@ -46,3 +46,32 @@ test('typingSpeed counts correct characters per minute after one second', () => 
   assert.equal(typingSpeed(s, 3000), 300)
   assert.equal(typingSpeed({ ...s, finishedAt: 31000 }, 99999), 20)
 })
+test('a pause leaves its time out of elapsed time, speed and the result', () => {
+  const { pauseSession, resumeSession, elapsedTime, typingSpeed } = require('../src/core/typing.ts')
+  const words = [{ input: 'ab' }, { input: 'c' }]
+  // Nothing to pause before the first character.
+  assert.equal(pauseSession(newSession(), 500).pausedAt, null)
+  let s = typeInput(newSession(), words, 'a', 1000)
+  s = pauseSession(s, 3000)
+  assert.equal(pauseSession(s, 4000), s)
+  // The clock stands still while paused.
+  assert.equal(elapsedTime(s, 60000), 2000)
+  assert.equal(typingSpeed(s, 60000), 30)
+  s = resumeSession(s, 63000)
+  assert.equal(s.pausedAt, null)
+  assert.equal(elapsedTime(s, 64000), 3000)
+  assert.equal(resumeSession(s, 70000), s)
+  s = typeInput(s, words, 'ab', 64000)
+  s = typeInput(s, words, 'c', 65000)
+  assert.deepEqual(sessionResult(s), { time: 4, mistakes: 0, accuracy: 100 })
+  // A finished session is not paused.
+  assert.equal(pauseSession(s, 66000), s)
+})
+test('typing while paused resumes the clock first', () => {
+  const { pauseSession, elapsedTime } = require('../src/core/typing.ts')
+  const words = [{ input: 'abc' }]
+  let s = pauseSession(typeInput(newSession(), words, 'a', 1000), 2000)
+  s = typeInput(s, words, 'ab', 12000)
+  assert.equal(s.pausedAt, null)
+  assert.equal(elapsedTime(s, 12000), 1000)
+})
