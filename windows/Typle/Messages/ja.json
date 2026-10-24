@@ -532,5 +532,7 @@
  "wordLists.words.pickerTitle": "単語リストを選ぶ",
  "wordLists.words.pickerDescription": "選んだリストの単語を一覧で表示します。",
  "wordLists.words.switch": "リストを選ぶ",
- "wordLists.words.switchList": "単語リストを選ぶ（現在: {0}）"
+ "wordLists.words.switchList": "単語リストを選ぶ（現在: {0}）",
+ "wordLists.row.practice": "練習",
+ "wordLists.row.recordCount": "{0}件"
 }

@@ -203,6 +203,15 @@ public sealed class AppModel
         Navigate(Page.Practice);
     }
 
+    /// <summary>The list the records page opens filtered to, like <c>/records?list=&lt;id&gt;</c>; the page takes it once.</summary>
+    public string? RecordsList { get; set; }
+
+    public void ShowRecords(string? listId)
+    {
+        RecordsList = listId;
+        Navigate(Page.Records);
+    }
+
     public void ShowWords(string? listId)
     {
         WordsList = listId;

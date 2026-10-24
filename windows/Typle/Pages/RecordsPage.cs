@@ -20,6 +20,8 @@ public sealed class RecordsPage : PageView
     public RecordsPage(AppModel app, Shell shell) : base(app, shell)
     {
         (scroll, content) = PageScroll();
+        listFilter = app.RecordsList;
+        app.RecordsList = null;
         Refresh();
     }
 
