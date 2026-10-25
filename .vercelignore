@@ -8,4 +8,3 @@ test-results
 playwright-report
 server/cmd
 *_test.go
-ios
