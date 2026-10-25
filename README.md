@@ -3,6 +3,15 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
+## v0.89.0 — Android 版と Kotlin のバックエンドを別のリポジトリ typle-a・typle-kotlin-backend に分けました
+
+Android タブレット版（Kotlin・Jetpack Compose）を `android/` から公開リポジトリ [Sparklingstadt/typle-a](https://github.com/Sparklingstadt/typle-a) に、手元用の Kotlin（Ktor）のバックエンドを `server-kotlin/` から公開リポジトリ [Sparklingstadt/typle-kotlin-backend](https://github.com/Sparklingstadt/typle-kotlin-backend) に移しました。どちらも git の履歴と設計のドキュメント（`docs/superpowers` の Android・Kotlin の spec と plan）を引き継いでいます。コミットの `(#N)` は `(Sparklingstadt/typle-r#N)` に書き換えたので、このリポジトリの PR を指します。
+
+- `android/`・`server-kotlin/`・`tests/android.test.cjs` と、Android・Kotlin の spec と plan を削除しました。Android の文言と最初の単語リストの写しの確認は typle-a の `tests/strings.test.cjs`（`TYPLE_R=../typle-r node --test tests/`）に移しました。`.gitignore`・`.vercelignore` の `android`・`server-kotlin` も外しました。手元に残った `android/`・`server-kotlin/`（`build` など）は消してかまいません。
+- `TYPLE_BACKEND=kotlin npm run dev`・`npm run test:e2e` はこれまでどおり使えます。Kotlin のバックエンドは `TYPLE_KOTLIN_BACKEND` に指定した typle-kotlin-backend の手元から、指定しなければこのリポジトリの隣の `../typle-kotlin-backend` からビルドして起動します。
+- `src/plugins/packs` を変えたら、typle-a の `core/src/main/resources` にも写してください（手順は typle-a の README）。Go のバックエンドを変えたら、typle-kotlin-backend も同じように直します。
+- サーバーは引き続き `client=android` のログインを受け付けます。Web 版・iPad 版と保存形式・API に変更はありません。
+
 ## v0.88.0 — macOS 版を別のリポジトリ typle-m に分けました
 
 macOS 版（SwiftUI）を、このリポジトリの `macos/` から公開リポジトリ [Sparklingstadt/typle-m](https://github.com/Sparklingstadt/typle-m) に移しました。Mac 版は iPad 版（`ios/Typle`）の SwiftUI のコードと共通の規則（`ios/TypleCore`）をそのまま使っていたため、typle-m には v0.86.1 時点のその写しを入れ、単独でビルドできるようにしました。`macos/`・`ios/Typle`・`ios/TypleCore` の git の履歴も typle-m に引き継いでいます。
@@ -359,12 +368,12 @@ API（`server/`）はNext.jsとは独立したGoのコードで、モジュー�
 | `server/internal/auth` | `/api/v1` のトークン確認のほか、アプリのログイン用の GitHub OAuth クライアント（認可コードと PKCE）を持ちます |
 | `server/vercel` | `web` のハンドラーを Vercel の Go の関数として呼ぶ橋渡しです。リポジトリ直下の `api/health.go`・`api/workspace.go`・`api/auth/*.go`（`api/auth/token.go` を含む）がこれを呼びます。`/api/health` はログインの設定（`AUTH_SECRET`・`AUTH_URL`）がなくても DB だけで答え、`/api/workspace` はログインの設定がなければ DB を開かずに 503（`authUnavailable`）を返します |
 | `server/cmd/typle-web` | `web` のハンドラーを手元で起動します（既定 `127.0.0.1:8081`）。`npm run dev` と E2E が使います |
-| `server-kotlin/` | `typle-web` と同じ API の Kotlin（Ktor）版です。`TYPLE_BACKEND=kotlin` のとき `npm run dev` と E2E が Go の代わりに使います。本番には載せません（[server-kotlin/README.md](server-kotlin/README.md)） |
+| [typle-kotlin-backend](https://github.com/Sparklingstadt/typle-kotlin-backend) リポジトリ | `typle-web` と同じ API の Kotlin（Ktor）版です。`TYPLE_BACKEND=kotlin` のとき `npm run dev` と E2E が Go の代わりに使います（`TYPLE_KOTLIN_BACKEND`、既定は隣の `../typle-kotlin-backend`）。本番には載せません |
 | `server/internal/serve` | `typle-web` と `typle-api` の待受です。止めるとき（SIGINT・SIGTERM）は、処理中のリクエストが終わるまで最大5秒待ってから DB を閉じます |
 
 ### iPad と Mac と Android と Windows のログイン
 
-iPad アプリ（`ios/`）・Mac アプリ（[typle-m](https://github.com/Sparklingstadt/typle-m) リポジトリ）・Android アプリ（`android/`）・Windows アプリ（[typle-w](https://github.com/Sparklingstadt/typle-w) リポジトリ）は、Web版と同じ GitHub OAuth App でログインし、Cookie の代わりにトークンを使います（RFC 8252 のネイティブアプリの形）。サーバーの側は `client` が `ipad`・`macos`・`android`・`windows` のどれかだけが違い、流れは同じです。
+iPad アプリ（`ios/`）・Mac アプリ（[typle-m](https://github.com/Sparklingstadt/typle-m) リポジトリ）・Android アプリ（[typle-a](https://github.com/Sparklingstadt/typle-a) リポジトリ）・Windows アプリ（[typle-w](https://github.com/Sparklingstadt/typle-w) リポジトリ）は、Web版と同じ GitHub OAuth App でログインし、Cookie の代わりにトークンを使います（RFC 8252 のネイティブアプリの形）。サーバーの側は `client` が `ipad`・`macos`・`android`・`windows` のどれかだけが違い、流れは同じです。
 
 1. アプリが32バイトの乱数から検証値（verifier）を作り、システムのログイン画面（iPad と Mac は `ASWebAuthenticationSession`、Android は Custom Tabs、Windows は既定のブラウザー）で `/api/auth/signin?client=<ipad|macos|android|windows>&code_challenge=<S256>` を開きます。チャレンジは OAuth の Cookie に入り、GitHub にはサーバー自身の PKCE を使います。
 2. `callback/github` は Cookie を発行せず、`typle-r://login?code=<コード>` へリダイレクトします。コードはユーザーとチャレンジに署名したもので、2分で切れます。失敗・キャンセルは `typle-r://login?error=loginFailed` です。Android は `MainActivity` の intent-filter（scheme `typle-r`・host `login`）で、Windows は起動のたびに登録するプロトコル（`typle-r`、この Windows ユーザーの `HKEY_CURRENT_USER`）でこの URL を受け取ります。Windows では、ブラウザーが開いた2つ目の Typle が、動いている Typle にこの URL を渡して終わります。アプリを離れてコールバックが来なかったときは、何も起きなかったものとして戻ります（Windows は「ログインをやめる」で待つのをやめます）。
@@ -514,7 +523,7 @@ Client IDとClient secretを `.env.local` の `AUTH_GITHUB_ID` / `AUTH_GITHUB_SE
 npm run dev
 ```
 
-`npm run dev` は2つのプロセスを起動します。Go のバックエンド（`go run ./server/cmd/typle-web`、`127.0.0.1:8081`）と `next dev`（`127.0.0.1:3000`）で、どちらかが止まるともう片方も止めます。`go` コマンドがないときは、メッセージを出して終了します。バックエンドは `.env.local` の値を使い、起動のたびにコンパイルするため、初回は少し時間がかかります。`npm run dev:local`・`npm run dev:lan` も同じです。`TYPLE_WEB_URL` を設定すると、`next.config.mjs` の転送先と、バックエンドの待受（その URL のホストとポート）の両方がそこに変わります。バックエンドは HTTP だけで待ち受けるため、`TYPLE_WEB_URL` が `https://` の URL なら起動せずにメッセージを出して終了します。DB に接続できなくても起動し、その間 `/api/workspace`・`/api/health` は 503（`databaseUnavailable`）を返しますが、ログインは使えます。GitHub のログインは `AUTH_GITHUB_ID`・`AUTH_GITHUB_SECRET` が揃っているときだけ使え、揃っていなければ `/api/auth/signin` だけが 503 になります（開発ログインだけで開発できます）。`TYPLE_BACKEND=kotlin` を付けると、Go の代わりに Kotlin のバックエンド（`server-kotlin`、JDK 21 が必要）を同じアドレスで起動します（先に `server-kotlin/gradlew installDist` でビルドします）。
+`npm run dev` は2つのプロセスを起動します。Go のバックエンド（`go run ./server/cmd/typle-web`、`127.0.0.1:8081`）と `next dev`（`127.0.0.1:3000`）で、どちらかが止まるともう片方も止めます。`go` コマンドがないときは、メッセージを出して終了します。バックエンドは `.env.local` の値を使い、起動のたびにコンパイルするため、初回は少し時間がかかります。`npm run dev:local`・`npm run dev:lan` も同じです。`TYPLE_WEB_URL` を設定すると、`next.config.mjs` の転送先と、バックエンドの待受（その URL のホストとポート）の両方がそこに変わります。バックエンドは HTTP だけで待ち受けるため、`TYPLE_WEB_URL` が `https://` の URL なら起動せずにメッセージを出して終了します。DB に接続できなくても起動し、その間 `/api/workspace`・`/api/health` は 503（`databaseUnavailable`）を返しますが、ログインは使えます。GitHub のログインは `AUTH_GITHUB_ID`・`AUTH_GITHUB_SECRET` が揃っているときだけ使え、揃っていなければ `/api/auth/signin` だけが 503 になります（開発ログインだけで開発できます）。`TYPLE_BACKEND=kotlin` を付けると、Go の代わりに Kotlin のバックエンド（[typle-kotlin-backend](https://github.com/Sparklingstadt/typle-kotlin-backend)、JDK 21 が必要）を同じアドレスで起動します。`TYPLE_KOTLIN_BACKEND` に指定した typle-kotlin-backend の手元（指定しなければこのリポジトリの隣の `../typle-kotlin-backend`）で、先に `gradlew installDist` でビルドします。
 
 [ローカルアプリ](http://localhost:3000) を開いてGitHubでログインします。通常の停止は `docker compose --env-file .env.local stop`、再開は `up -d --wait` です。`down -v` は保存データを削除するため使用しないでください。
 
@@ -551,7 +560,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-Kotlin のバックエンドは `cd server-kotlin && ./gradlew test` で確かめ、`TYPLE_BACKEND=kotlin npm run test:e2e` で同じ E2E を Kotlin を相手に流せます（先に `./gradlew installDist`。CI では `Kotlin backend` のワークフローが行います）。
+Kotlin のバックエンドは typle-kotlin-backend で `./gradlew test` で確かめ、`TYPLE_BACKEND=kotlin npm run test:e2e` で同じ E2E を Kotlin を相手に流せます（先に typle-kotlin-backend で `./gradlew installDist`。場所は `TYPLE_KOTLIN_BACKEND`、既定は `../typle-kotlin-backend`。CI では行いません）。
 
 Goのバックエンドと API はリポジトリ直下で `gofmt -l .`・`go vet ./...`・`go test ./...` を実行します。ログインの Cookie、GitHub の OAuth（`httptest` で作った偽の GitHub を相手にします）、`/api/workspace`（検証・`revision` の競合・`409`）、iPad・Mac・Android・Windows のログイン（コード・トークン・Bearer）、セキュリティヘッダーなど、`server/internal/web` のハンドラーのテストも含みます。マイグレーション済みのテスト用DBを `TYPLE_TEST_DATABASE_URL` で指定すると、DBの読み書きも確かめます（CIの `verify` は `db:migrate` の後に実行します）。
 

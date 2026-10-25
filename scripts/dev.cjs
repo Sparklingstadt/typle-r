@@ -1,13 +1,15 @@
 // Starts the backend (typle-web) and `next dev` together. When either one stops, the other is stopped too and this
 // script exits with the code of the first. The backend is the Go one (server/cmd/typle-web), or with TYPLE_BACKEND=kotlin
-// the Kotlin one (server-kotlin), which answers the same. Usage: node scripts/dev.cjs [next dev arguments...]
+// the Kotlin one (the typle-kotlin-backend repository), which answers the same. Usage: node scripts/dev.cjs [next dev
+// arguments...]
 const { loadEnvConfig } = require('@next/env')
 const { spawn, spawnSync } = require('node:child_process')
+const path = require('node:path')
 
 const GO_MISSING = 'go コマンドが見つかりません。バックエンドの起動に Go 1.25 以上が必要です。https://go.dev/dl/ からインストールしてください。'
 const JAVA_MISSING = 'java コマンドが見つかりません。Kotlin のバックエンドに JDK 21 が必要です。https://adoptium.net/ からインストールし、JAVA_HOME をそこに向けてください。'
-// What `server-kotlin/gradlew installDist` builds.
-const KOTLIN_BINARY = 'server-kotlin/build/install/typle-web/bin/typle-web'
+// What `gradlew installDist` builds in a typle-kotlin-backend checkout.
+const KOTLIN_BINARY = 'build/install/typle-web/bin/typle-web'
 const STOP_TIMEOUT_MS = 5000
 const DEFAULT_WEB_ADDRESS = '127.0.0.1:8081'
 
@@ -39,6 +41,14 @@ function backendOf(value = process.env.TYPLE_BACKEND) {
   if (!value || value === 'go') return 'go'
   if (value === 'kotlin') return 'kotlin'
   throw new Error(`TYPLE_BACKEND (${value}) は go か kotlin にしてください。`)
+}
+
+/**
+ * The typle-kotlin-backend checkout TYPLE_KOTLIN_BACKEND names, relative to this repository's root, or the one beside
+ * this repository when it is not set.
+ */
+function kotlinBackendDir(value = process.env.TYPLE_KOTLIN_BACKEND) {
+  return path.resolve(__dirname, '..', value || '../typle-kotlin-backend')
 }
 
 /**
@@ -75,9 +85,14 @@ function startBackend(backend, address) {
     console.error(`Kotlin のバックエンドのビルドに JDK 21 が必要です（${java} は ${major ?? '版が分からない'} です）。JAVA_HOME を JDK 21 にしてください。`)
     process.exit(1)
   }
-  const build = spawnSync('server-kotlin/gradlew', ['-p', 'server-kotlin', '--quiet', 'installDist'], { stdio: 'inherit' })
+  const dir = kotlinBackendDir()
+  const build = spawnSync(path.join(dir, 'gradlew'), ['-p', dir, '--quiet', 'installDist'], { stdio: 'inherit' })
+  if (build.error?.code === 'ENOENT') {
+    console.error(`${dir} に typle-kotlin-backend が見つかりません。https://github.com/Sparklingstadt/typle-kotlin-backend をそこに clone するか、TYPLE_KOTLIN_BACKEND にその場所を指定してください。`)
+    process.exit(1)
+  }
   if (build.status !== 0) process.exit(build.status || 1)
-  return spawn(KOTLIN_BINARY, ['-addr', address], { stdio: 'inherit', detached: true })
+  return spawn(path.join(dir, KOTLIN_BINARY), ['-addr', address], { stdio: 'inherit', detached: true })
 }
 
 /** Runs typle-web and `next dev <nextArgs>` until one of them ends. */
@@ -114,7 +129,7 @@ function startDev(nextArgs = []) {
   for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => finish(exitCode(null, signal), signal))
   for (const child of children) {
     child.on('error', error => {
-      const missing = backend === 'go' ? GO_MISSING : `${KOTLIN_BINARY} が見つかりません。server-kotlin/gradlew -p server-kotlin installDist を確かめてください。`
+      const missing = backend === 'go' ? GO_MISSING : `${path.join(kotlinBackendDir(), KOTLIN_BINARY)} が見つかりません。typle-kotlin-backend の gradlew installDist を確かめてください。`
       console.error(error.code === 'ENOENT' && child === children[0] ? missing : error.message)
       running.delete(child)
       finish(1, 'SIGTERM')
@@ -126,5 +141,5 @@ function startDev(nextArgs = []) {
   }
 }
 
-module.exports = { startDev, webAddress, backendOf, javaMajorVersion, KOTLIN_BINARY }
+module.exports = { startDev, webAddress, backendOf, kotlinBackendDir, javaMajorVersion, KOTLIN_BINARY }
 if (require.main === module) startDev(process.argv.slice(2))
