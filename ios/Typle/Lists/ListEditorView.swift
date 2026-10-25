@@ -218,7 +218,6 @@ struct ListEditorView: View {
         } label: {
           Image(systemName: "ellipsis").font(.system(size: 14)).frame(width: 32, height: 36).contentShape(Rectangle())
         }
-        .plainMenu()
         .foregroundStyle(Palette.foreground)
         .accessibilityLabel(L("wordLists.editor.wordActions", index + 1))
         Button { remove(index) } label: { Image(systemName: "trash").font(.system(size: 14)) }
@@ -372,7 +371,7 @@ struct ListEditorView: View {
     let list = WordList(id: original?.id ?? randomId(), name: name,
                         words: kept.map { Word(display: $0.word.display, input: $0.word.input.isEmpty ? $0.word.display : $0.word.input, annotation: $0.word.annotation) },
                         records: original?.records ?? [], createdAt: original?.createdAt ?? isoString(Date()),
-                        // The iPad and Mac editors do not edit these yet, so they stay as saved.
+                        // The iPad editor does not edit these yet, so they stay as saved.
                         category: original?.category, tags: original?.tags, group: original?.group, levels: original?.levels)
     saving = true
     Task {

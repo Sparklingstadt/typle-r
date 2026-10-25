@@ -1,7 +1,7 @@
 import Foundation
 import Security
 
-/// The token the app signs in to the account with, kept in the Keychain on this iPad or Mac only.
+/// The token the app signs in to the account with, kept in the Keychain on this iPad only.
 enum Keychain {
   private static let service = "typle.account-token"
   private static let account = "github"
@@ -27,9 +27,7 @@ enum Keychain {
     guard let token, !token.isEmpty else { return true }
     var item = query(service)
     item[kSecValueData as String] = Data(token.utf8)
-    #if os(iOS)
     item[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
-    #endif
     return SecItemAdd(item as CFDictionary, nil) == errSecSuccess
   }
 

@@ -56,11 +56,7 @@ final class LocalWorkspaceStore: WorkspaceStore {
     let data = try encodeWorkspaceFile(next)
     do {
       try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-      #if os(iOS)
       try data.write(to: url, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
-      #else
-      try data.write(to: url, options: .atomic)
-      #endif
     } catch {
       throw TypleError("localWriteFailed")
     }

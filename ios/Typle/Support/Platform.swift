@@ -1,18 +1,11 @@
 import Foundation
 
-/// What differs between the iPad app and the Mac app (macos/), which is built from the same sources.
+/// What the iPad app names itself by. The Mac app, which began as these sources, is Sparklingstadt/typle-m.
 enum Platform {
-  #if os(macOS)
   /// The signin's `client` for the app's own login (docs/api.md).
-  static let loginClient = "macos"
-  /// Names the data in this Mac's file, like `typle-r:device:<accountId>` in the web app.
-  static let localAccountId = "mac:local"
-  static let resumeIcon = "cursorarrow.click"
-  static let demoDeviceName = "MacBook Air（JIS）"
-  #else
   static let loginClient = "ipad"
+  /// Names the data in this iPad's file, like `typle-r:device:<accountId>` in the web app.
   static let localAccountId = "ipad:local"
   static let resumeIcon = "hand.tap"
   static let demoDeviceName = "iPad＋Magic Keyboard"
-  #endif
 }
