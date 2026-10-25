@@ -3,6 +3,16 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
+## v0.87.0 — Windows アプリを typle-w リポジトリに移しました
+
+Windows アプリ（C#・WinUI 3）を、このリポジトリの `windows/` から [typle-w](https://github.com/Sparklingstadt/typle-w) に移しました。`windows/` の履歴（v0.59.0 から v0.86.1 まで）も一緒に移しています。ビルド・テスト・入れ方は typle-w の README を見てください。
+
+- サーバーはこれまでどおり `client=windows` のログインを受け付けます（Go のバックエンドと、手元用の Kotlin のバックエンド）。ログインの流れは下の「iPad と Mac と Android と Windows のログイン」のままです。
+- Windows アプリはこれまで `src/plugins/packs` の最初の単語リストをそのまま埋め込んでいました。typle-w では写しを持ちます。`src/plugins/packs` を変えたら、typle-w の `packs/` にも写してください（手順は typle-w の README）。
+- `tests/windows.test.cjs`（Windows アプリの文言のテスト）は typle-w の `tests/` に、Windows アプリの設計（`docs/superpowers/specs/2026-10-22-windows-app-design.md`）は typle-w の `docs/` に移しました。`.gitignore`・`.vercelignore` の `windows` も外しました。手元に残った `windows/`（`bin`・`obj`・`publish`）は消してかまいません。
+- 移すときに、v0.86.0 から Windows アプリの文言の一部（日本語で数が1のとき、単語リストの「検索をクリア」）がキーのまま出ていたことが分かり、typle-w で直しました。`npm test` の `tests/windows.test.cjs` もこれで失敗していました。
+- Web 版・iPad/Mac・Android・サーバーの動きと、保存形式・API に変更はありません。
+
 ## v0.86.1 — Windows アプリが公開フォルダーから起動できない不具合を修正しました
 
 `dotnet publish` で作った Windows アプリ（`windows/publish/Typle.exe`）が、起動直後に「`Cannot locate resource from 'ms-appx:///Microsoft.UI.Xaml/Themes/themeresources.xaml'`」で止まり、窓が開かないことがありました。ビルドはアプリのリソースの索引（`Typle.pri`。WinUI の部品の見た目を含む）を `bin` の `Typle.exe` の隣に書きますが、`dotnet publish` はそれを公開フォルダーにコピーしていなかったためです。`Typle.csproj` で `Typle.pri` を公開するファイルに加えました。
@@ -335,7 +345,7 @@ API（`server/`）はNext.jsとは独立したGoのコードで、モジュー�
 
 ### iPad と Mac と Android と Windows のログイン
 
-iPad アプリ（`ios/`）・Mac アプリ（`macos/`）・Android アプリ（`android/`）・Windows アプリ（`windows/`）は、Web版と同じ GitHub OAuth App でログインし、Cookie の代わりにトークンを使います（RFC 8252 のネイティブアプリの形）。サーバーの側は `client` が `ipad`・`macos`・`android`・`windows` のどれかだけが違い、流れは同じです。
+iPad アプリ（`ios/`）・Mac アプリ（`macos/`）・Android アプリ（`android/`）・Windows アプリ（[typle-w](https://github.com/Sparklingstadt/typle-w) リポジトリ）は、Web版と同じ GitHub OAuth App でログインし、Cookie の代わりにトークンを使います（RFC 8252 のネイティブアプリの形）。サーバーの側は `client` が `ipad`・`macos`・`android`・`windows` のどれかだけが違い、流れは同じです。
 
 1. アプリが32バイトの乱数から検証値（verifier）を作り、システムのログイン画面（iPad と Mac は `ASWebAuthenticationSession`、Android は Custom Tabs、Windows は既定のブラウザー）で `/api/auth/signin?client=<ipad|macos|android|windows>&code_challenge=<S256>` を開きます。チャレンジは OAuth の Cookie に入り、GitHub にはサーバー自身の PKCE を使います。
 2. `callback/github` は Cookie を発行せず、`typle-r://login?code=<コード>` へリダイレクトします。コードはユーザーとチャレンジに署名したもので、2分で切れます。失敗・キャンセルは `typle-r://login?error=loginFailed` です。Android は `MainActivity` の intent-filter（scheme `typle-r`・host `login`）で、Windows は起動のたびに登録するプロトコル（`typle-r`、この Windows ユーザーの `HKEY_CURRENT_USER`）でこの URL を受け取ります。Windows では、ブラウザーが開いた2つ目の Typle が、動いている Typle にこの URL を渡して終わります。アプリを離れてコールバックが来なかったときは、何も起きなかったものとして戻ります（Windows は「ログインをやめる」で待つのをやめます）。
