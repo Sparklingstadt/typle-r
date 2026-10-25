@@ -64,13 +64,13 @@ test('the initial lists split into levels are put in groups, each list with leve
 })
 
 test('migration 0022 puts the initial lists in saved workspaces in their groups, unless they have one', () => {
-  const fs = require('node:fs')
-  const sql = fs.readFileSync(require.resolve('../prisma/migrations/0022_group_initial_lists/migration.sql'), 'utf8')
-  const pack = JSON.parse(sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'"))
+  const { step, pack: read } = require('./seedMigration.cjs')
+  const sql = step('0022_group_initial_lists')
+  const pack = read('0022_group_initial_lists')
   // Since v0.85.0 the initial lists are the lists of the sparklingstadt account, which has some of the lists the
   // migration groups, with the same groups.
   const kept = initialLists.filter(item => item.group)
   assert.deepEqual(pack.filter(item => kept.some(other => other.id === item.id)), kept.map(({ id, group, levels }) => ({ id, group, levels })))
   assert.match(sql, /saved\.list->'group' IS NULL AND saved\.list->'levels' IS NULL/)
-  assert.match(sql, /octet_length\(rebuilt\.lists::text\) <= 896 \* 1024;/)
+  assert.match(sql, /octet_length\(rebuilt\.lists::text\) <= 896 \* 1024\n/)
 })
