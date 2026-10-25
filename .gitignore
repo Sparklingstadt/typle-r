@@ -43,9 +43,3 @@ next-env.d.ts
 /server-kotlin/build/
 /server-kotlin/.gradle/
 /server-kotlin/.kotlin/
-
-# Windows app (windows/)
-/windows/**/bin/
-/windows/**/obj/
-/windows/publish/
-/windows/screenshots/
