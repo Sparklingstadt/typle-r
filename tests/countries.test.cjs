@@ -2,11 +2,9 @@ require('./register.cjs')
 const test = require('node:test')
 const assert = require('node:assert/strict')
 const crypto = require('node:crypto')
-// The 初級 to 上級 parts of the country list as migration 0018 split it (tests/commands.test.cjs checks how). Since
-// v0.85.0 the initial lists keep only its lowercase list.
-const fs = require('node:fs')
-const migration = fs.readFileSync(require.resolve('../prisma/migrations/0018_split_long_initial_lists/migration.sql'), 'utf8')
-const countries = JSON.parse(migration.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'"))
+// The 初級 to 上級 parts of the country list as step 0018 of migration 0023 splits it (tests/commands.test.cjs checks
+// how). Since v0.85.0 the initial lists keep only its lowercase list.
+const countries = require('./seedMigration.cjs').pack('0018_split_long_initial_lists')
   .find(item => item.id === 'un-member-states-chinese-193').parts
 const words = countries.flatMap(list => list.words)
 const { decodeLists } = require('../src/core/wordLists.ts')

@@ -14,11 +14,9 @@ const parts = id => commands.filter(list => list.id !== id && source(list.id) ==
 const words = id => (commands.find(list => list.id === id) ? [commands.find(list => list.id === id)] : parts(id)).flatMap(list => list.words)
 const named = name => commands.find(list => list.name.normalize('NFC') === name).words
 const sources = [...new Set(commands.map(list => source(list.id)))]
-// The lists migrations 0009 to 0017 add, and the parts migration 0018 puts in their place.
-const migration = name => {
-  const sql = require('node:fs').readFileSync(require.resolve(`../prisma/migrations/${name}/migration.sql`), 'utf8')
-  return JSON.parse(sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'"))
-}
+// The lists the steps 0009 to 0017 of migration 0023 add, and the parts its step 0018 puts in their place.
+const seed = require('./seedMigration.cjs')
+const migration = seed.pack
 const added = () => ['0009_seed_command_lists', '0010_seed_arch_linux_list', '0011_seed_vim_list', '0012_seed_go_syntax_list', '0013_seed_java_syntax_list', '0014_seed_kotlin_syntax_list', '0015_seed_lowercase_country_list', '0016_seed_postgresql_syntax_list', '0017_seed_test_framework_lists']
   .flatMap(name => decodeLists(JSON.stringify({ version: 1, lists: migration(name) })))
 const sorted = list => [...list].sort((a, b) => a.input < b.input ? -1 : a.input > b.input ? 1 : 0)
@@ -124,21 +122,28 @@ test('migrations 0009 to 0017 add the command lists to saved workspaces', () => 
 })
 
 test('migration 0019 adds the lists of v0.75.0 to saved workspaces', () => {
-  const fs = require('node:fs')
-  const sql = fs.readFileSync(require.resolve('../prisma/migrations/0019_seed_framework_and_sql_lists/migration.sql'), 'utf8')
-  const literal = sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1].replaceAll("''", "'")
-  assert.deepEqual(decodeLists(JSON.stringify({ version: 1, lists: JSON.parse(literal) })), unlabeled(commands.filter(list => leveled.includes(source(list.id)))))
+  const lists = migration('0019_seed_framework_and_sql_lists')
+  assert.deepEqual(decodeLists(JSON.stringify({ version: 1, lists })), unlabeled(commands.filter(list => leveled.includes(source(list.id)))))
 })
 
 test('migration 0020 adds the lists of 0019 again, up to 150 lists, where 0019 added none of them', () => {
-  const fs = require('node:fs')
-  const read = name => fs.readFileSync(require.resolve(`../prisma/migrations/${name}/migration.sql`), 'utf8')
-  const pack = sql => sql.match(/jsonb_array_elements\('(.*)'::jsonb\)/)[1]
-  const sql = read('0020_seed_framework_and_sql_lists_again')
-  assert.equal(pack(sql), pack(read('0019_seed_framework_and_sql_lists')))
+  const sql = seed.step('0020_seed_framework_and_sql_lists_again')
+  assert.deepEqual(migration('0020_seed_framework_and_sql_lists_again'), migration('0019_seed_framework_and_sql_lists'))
   assert.match(sql, /saved->>'id' = added\.list->>'id'/)
   assert.match(sql, /jsonb_array_length\(missing\.lists\) <= 150\n/)
   assert.equal(require('../src/core/listOverview.ts').MAX_LISTS, 150)
+})
+
+test('migration 0023 runs the seeds of 0009 to 0022 in order, each only where the migration of its name was not applied', () => {
+  assert.deepEqual(seed.names, ['0009_seed_command_lists', '0010_seed_arch_linux_list', '0011_seed_vim_list', '0012_seed_go_syntax_list',
+    '0013_seed_java_syntax_list', '0014_seed_kotlin_syntax_list', '0015_seed_lowercase_country_list', '0016_seed_postgresql_syntax_list',
+    '0017_seed_test_framework_lists', '0018_split_long_initial_lists', '0019_seed_framework_and_sql_lists',
+    '0020_seed_framework_and_sql_lists_again', '0021_label_initial_lists', '0022_group_initial_lists'])
+  for (const name of seed.names) {
+    const sql = seed.step(name)
+    assert.equal(sql.match(/;\n/g).length, 1, name)
+    assert.ok(sql.endsWith(`\n  AND NOT EXISTS (SELECT 1 FROM "_prisma_migrations" WHERE migration_name = '${name}' AND finished_at IS NOT NULL AND rolled_back_at IS NULL);\n${name === '0022_group_initial_lists' ? '' : '\n'}`), name)
+  }
 })
 
 test('migration 0018 puts the parts of each split list in its place in saved workspaces', () => {

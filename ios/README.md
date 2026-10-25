@@ -61,7 +61,7 @@ Web 版と同じ画面構成・色・部品です。上部バー（ブランド�
 | `Typle/` | SwiftUI のアプリ。`Storage/`（この iPad とアカウント、ログイン）、`Practice/`、`Lists/`、`Records/`、`Devices/`、`Resources/`（文言とアイコン） |
 | `project.yml` | XcodeGen の設定 |
 
-Mac 版は v0.60.0 から `Typle/` と `TypleCore/` をそのまま使っていましたが、v0.87.0 で別のリポジトリ [Sparklingstadt/typle-m](https://github.com/Sparklingstadt/typle-m) に分けました。typle-m は v0.86.1 の `Typle/` と `TypleCore/` の写しを持つため、ここを変えても Mac 版には入りません。Mac にも入れたいときは typle-m でも同じように直します。
+Mac 版は v0.60.0 から `Typle/` と `TypleCore/` をそのまま使っていましたが、v0.88.0 で別のリポジトリ [Sparklingstadt/typle-m](https://github.com/Sparklingstadt/typle-m) に分けました。typle-m は v0.86.1 の `Typle/` と `TypleCore/` の写しを持つため、ここを変えても Mac 版には入りません。Mac にも入れたいときは typle-m でも同じように直します。
 
 文字は JavaScript の `Array.from` と同じくコードポイントで数えるため、Web 版と同じ入力が同じミス数・正確率になります。
 

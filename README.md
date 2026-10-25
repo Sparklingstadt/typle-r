@@ -3,14 +3,34 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
-## v0.87.0 — macOS 版を別のリポジトリ typle-m に分けました
+## v0.88.0 — macOS 版を別のリポジトリ typle-m に分けました
 
 macOS 版（SwiftUI）を、このリポジトリの `macos/` から公開リポジトリ [Sparklingstadt/typle-m](https://github.com/Sparklingstadt/typle-m) に移しました。Mac 版は iPad 版（`ios/Typle`）の SwiftUI のコードと共通の規則（`ios/TypleCore`）をそのまま使っていたため、typle-m には v0.86.1 時点のその写しを入れ、単独でビルドできるようにしました。`macos/`・`ios/Typle`・`ios/TypleCore` の git の履歴も typle-m に引き継いでいます。
 
 - `macos/` と、Mac の文言を確かめる `tests/macos.test.cjs` を削除しました。同じ確認は typle-m の `tests/strings.test.cjs` に移しました。
 - iPad 版のコードから、Mac のビルドのためだけにあった `#if os(macOS)`・`canImport(AppKit)` の分岐と、iPad では何もしない部品（`plainMenu`・`menuPicker`・`sheetSize`）を外しました。iPad 版の見た目と動きは変わりません。
 - これからは iPad 版を直しても Mac 版には入りません。Mac 版の変更は typle-m で行います。
-- サーバーは引き続き `client=macos` のログインを受け付けます（typle-m の Mac 版が使います）。Web 版・iPad・Android・Windows と保存形式・API に変更はありません。
+- サーバーは引き続き `client=macos` のログインを受け付けます（typle-m の Mac 版が使います）。Web 版・iPad・Android と保存形式・API に変更はありません。
+
+## v0.87.1 — 単語リストのマイグレーション14本を1本にまとめました
+
+保存済みのアカウントに初期リストを追加・分割・ラベル付けしていたマイグレーション `0009_seed_command_lists` 〜 `0022_group_initial_lists` を、`prisma/migrations/0023_seed_initial_lists` の1ファイルにまとめました。アプリの動きと保存データは変わりません。
+
+- 14本の SQL を元の順番のまま、元の名前の見出し（`-- 0009_seed_command_lists` など）を付けて並べました。各手順は元のマイグレーションと同じ SQL です。
+- 違いは1つです。各手順は、同じ名前のマイグレーションが `_prisma_migrations` に適用済みとして記録されている DB では何もしません。そのため本番の DB（14本すべて適用済み）では 0023 は記録されるだけで、その後に削除したリストが戻ることはありません。一部だけ適用した DB は残りの手順だけを、新しい DB はすべての手順を実行します（ワークスペースがまだ無いので何も変わりません）。
+- `prisma migrate deploy` は、適用済みで手元に無いマイグレーションを気にせず、まだ適用していない 0023 だけを適用します。旧14本を適用した DB と新しい1本を適用した DB で結果が同じこと、本番と同じ状態の DB で 0023 が何も変えないことを、一時的な PostgreSQL で確かめました。
+- 本番の `_prisma_migrations` には 0009〜0022 の記録が残ります。`prisma migrate dev` は手元に無い適用済みのマイグレーションを不一致とみなすため、これまでどおり使いません（`npm run db:migrate` を使います）。
+- テストは `tests/seedMigration.cjs` から各手順の SQL を読みます。
+
+## v0.87.0 — Windows アプリを typle-w リポジトリに移しました
+
+Windows アプリ（C#・WinUI 3）を、このリポジトリの `windows/` から [typle-w](https://github.com/Sparklingstadt/typle-w) に移しました。`windows/` の履歴（v0.59.0 から v0.86.1 まで）も一緒に移しています。ビルド・テスト・入れ方は typle-w の README を見てください。
+
+- サーバーはこれまでどおり `client=windows` のログインを受け付けます（Go のバックエンドと、手元用の Kotlin のバックエンド）。ログインの流れは下の「iPad と Mac と Android と Windows のログイン」のままです。
+- Windows アプリはこれまで `src/plugins/packs` の最初の単語リストをそのまま埋め込んでいました。typle-w では写しを持ちます。`src/plugins/packs` を変えたら、typle-w の `packs/` にも写してください（手順は typle-w の README）。
+- `tests/windows.test.cjs`（Windows アプリの文言のテスト）は typle-w の `tests/` に、Windows アプリの設計（`docs/superpowers/specs/2026-10-22-windows-app-design.md`）は typle-w の `docs/` に移しました。`.gitignore`・`.vercelignore` の `windows` も外しました。手元に残った `windows/`（`bin`・`obj`・`publish`）は消してかまいません。
+- 移すときに、v0.86.0 から Windows アプリの文言の一部（日本語で数が1のとき、単語リストの「検索をクリア」）がキーのまま出ていたことが分かり、typle-w で直しました。`npm test` の `tests/windows.test.cjs` もこれで失敗していました。
+- Web 版・iPad/Mac・Android・サーバーの動きと、保存形式・API に変更はありません。
 
 ## v0.86.1 — Windows アプリが公開フォルダーから起動できない不具合を修正しました
 
@@ -344,7 +364,7 @@ API（`server/`）はNext.jsとは独立したGoのコードで、モジュー�
 
 ### iPad と Mac と Android と Windows のログイン
 
-iPad アプリ（`ios/`）・Mac アプリ（v0.87.0 から別のリポジトリ [Sparklingstadt/typle-m](https://github.com/Sparklingstadt/typle-m)）・Android アプリ（`android/`）・Windows アプリ（`windows/`）は、Web版と同じ GitHub OAuth App でログインし、Cookie の代わりにトークンを使います（RFC 8252 のネイティブアプリの形）。サーバーの側は `client` が `ipad`・`macos`・`android`・`windows` のどれかだけが違い、流れは同じです。
+iPad アプリ（`ios/`）・Mac アプリ（[typle-m](https://github.com/Sparklingstadt/typle-m) リポジトリ）・Android アプリ（`android/`）・Windows アプリ（[typle-w](https://github.com/Sparklingstadt/typle-w) リポジトリ）は、Web版と同じ GitHub OAuth App でログインし、Cookie の代わりにトークンを使います（RFC 8252 のネイティブアプリの形）。サーバーの側は `client` が `ipad`・`macos`・`android`・`windows` のどれかだけが違い、流れは同じです。
 
 1. アプリが32バイトの乱数から検証値（verifier）を作り、システムのログイン画面（iPad と Mac は `ASWebAuthenticationSession`、Android は Custom Tabs、Windows は既定のブラウザー）で `/api/auth/signin?client=<ipad|macos|android|windows>&code_challenge=<S256>` を開きます。チャレンジは OAuth の Cookie に入り、GitHub にはサーバー自身の PKCE を使います。
 2. `callback/github` は Cookie を発行せず、`typle-r://login?code=<コード>` へリダイレクトします。コードはユーザーとチャレンジに署名したもので、2分で切れます。失敗・キャンセルは `typle-r://login?error=loginFailed` です。Android は `MainActivity` の intent-filter（scheme `typle-r`・host `login`）で、Windows は起動のたびに登録するプロトコル（`typle-r`、この Windows ユーザーの `HKEY_CURRENT_USER`）でこの URL を受け取ります。Windows では、ブラウザーが開いた2つ目の Typle が、動いている Typle にこの URL を渡して終わります。アプリを離れてコールバックが来なかったときは、何も起きなかったものとして戻ります（Windows は「ログインをやめる」で待つのをやめます）。
@@ -610,7 +630,7 @@ Prisma構文・Jest構文・Playwright構文もコード例を入力し、補足
 
 `tests/commands.test.cjs` で、18リストの読み込み、語数、入力が前後に空白のないASCII（Go・Java・Kotlin・PostgreSQL・Prisma・Jest・Playwright構文と、日本語を含む13語を除く）で表示と一致すること、リスト内で入力が重複しないことを確かめます。
 
-初期リストなので、まだ一度も保存していないアカウントとブラウザーには最初から表示されます。v0.63.0 から、すでに保存しているアカウントにも、マイグレーション `0009_seed_command_lists`（`npm run db:migrate`。本番ではデプロイ時に実行）が9リストを、v0.64.0 から `0010_seed_arch_linux_list` がArch Linuxのリストを、v0.65.0 から `0011_seed_vim_list` がVimのリストを、v0.66.0 から `0012_seed_go_syntax_list` がGo構文のリストを、v0.67.0 から `0013_seed_java_syntax_list` がJava構文のリストを、v0.68.0 から `0014_seed_kotlin_syntax_list` がKotlin構文のリストを、v0.71.0 から `0016_seed_postgresql_syntax_list` がPostgreSQL構文のリストを、v0.72.0 から `0017_seed_test_framework_lists` がPrisma・Jest・Playwright構文の3リストを、v0.75.0 から `0019_seed_framework_and_sql_lists` がTypeScript・Hono・PHP・Rails・Express・Oracle PL/SQL・SQL Server T-SQLの21リストを追加します。小文字の国名リストも、同じ規則で `0015_seed_lowercase_country_list` が追加します。`scripts/seed.cjs` と同じく、同じIDまたは同じ名前のリストがある場合はそのリストを追加せず、ほかのリストと練習記録はそのまま残します。追加すると100リストか保存できる大きさ（`MaxListsBytes`）を超えるアカウントには追加しません。マイグレーションは1回だけ実行されるため、その後に削除したリストは戻りません。改めて追加するときは `npm run db:seed -- --owner github:<ID>` を使います。このブラウザーに保存している場合（ログインしていない場合）はマイグレーションの対象外です。
+初期リストなので、まだ一度も保存していないアカウントとブラウザーには最初から表示されます。v0.63.0 から、すでに保存しているアカウントにも、マイグレーション `0009_seed_command_lists`（`npm run db:migrate`。本番ではデプロイ時に実行）が9リストを、v0.64.0 から `0010_seed_arch_linux_list` がArch Linuxのリストを、v0.65.0 から `0011_seed_vim_list` がVimのリストを、v0.66.0 から `0012_seed_go_syntax_list` がGo構文のリストを、v0.67.0 から `0013_seed_java_syntax_list` がJava構文のリストを、v0.68.0 から `0014_seed_kotlin_syntax_list` がKotlin構文のリストを、v0.71.0 から `0016_seed_postgresql_syntax_list` がPostgreSQL構文のリストを、v0.72.0 から `0017_seed_test_framework_lists` がPrisma・Jest・Playwright構文の3リストを、v0.75.0 から `0019_seed_framework_and_sql_lists` がTypeScript・Hono・PHP・Rails・Express・Oracle PL/SQL・SQL Server T-SQLの21リストを追加します。小文字の国名リストも、同じ規則で `0015_seed_lowercase_country_list` が追加します。`scripts/seed.cjs` と同じく、同じIDまたは同じ名前のリストがある場合はそのリストを追加せず、ほかのリストと練習記録はそのまま残します。追加すると100リストか保存できる大きさ（`MaxListsBytes`）を超えるアカウントには追加しません。マイグレーションは1回だけ実行されるため、その後に削除したリストは戻りません。v0.87.1 から、これらのマイグレーション（0009〜0022）は `0023_seed_initial_lists` の1ファイルに元の名前の手順としてまとめてあり、適用済みの DB では実行しません。改めて追加するときは `npm run db:seed -- --owner github:<ID>` を使います。このブラウザーに保存している場合（ログインしていない場合）はマイグレーションの対象外です。
 
 上の表の語数は元のリストのものです。v0.74.0 から、40語を超えるリストは初級・中級・上級などに分けて `commands.json`・`countries.json` に入れています（分け方は v0.74.0 の説明、確かめ方は `tests/commands.test.cjs`）。保存済みのアカウントでは `0018_split_long_initial_lists` が分けたリストに置き換えます。
 
