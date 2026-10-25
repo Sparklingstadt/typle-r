@@ -3,6 +3,23 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
+## 関連リポジトリ
+
+| リポジトリ | 内容 |
+|---|---|
+| typle-r（このリポジトリ） | Web 版（Next.js）、Go のバックエンドと API（`server/`）、iPad 版（`ios/`） |
+| [typle-m](https://github.com/Sparklingstadt/typle-m) | Mac 版（SwiftUI） |
+| [typle-w](https://github.com/Sparklingstadt/typle-w) | Windows 11 版（C#・WinUI 3） |
+| [typle-a](https://github.com/Sparklingstadt/typle-a) | Android タブレット版（Kotlin・Jetpack Compose） |
+| [typle-kotlin-backend](https://github.com/Sparklingstadt/typle-kotlin-backend) | Go のバックエンドと同じ API の Kotlin（Ktor）版。手元の開発と E2E で Go の代わりに使います（本番には載せません） |
+
+どのアプリも、このリポジトリの Go のバックエンド（本番は `https://typle-r-six.vercel.app`）に同じ GitHub ログインでつなぎます。ほかのリポジトリは、このリポジトリのコードやデータの写しや対応する実装を持っています。ここを変えたら、合わせて直してください。
+
+- 最初の単語リスト（`src/plugins/packs`）：typle-w の `packs/`、typle-a の `core/src/main/resources` に写します。どちらも `TYPLE_R=../typle-r node --test tests/` で同じになったことを確かめられます。
+- iPad 版（`ios/Typle`・`ios/TypleCore`）：typle-m の `Shared/`・`TypleCore/` は v0.86.1 時点の写しで、自動では入りません。Mac 版にも必要なら typle-m で同じように直します。
+- Go のバックエンド（`server/internal/*`）：typle-kotlin-backend の対応するコードを同じように直し、`TYPLE_BACKEND=kotlin npm run test:e2e` で確かめます。
+- ログイン（`client=ipad|macos|android|windows`）とトークンの形：各アプリが使うので、互換を保ちます。
+
 ## v0.89.0 — Android 版と Kotlin のバックエンドを別のリポジトリ typle-a・typle-kotlin-backend に分けました
 
 Android タブレット版（Kotlin・Jetpack Compose）を `android/` から公開リポジトリ [Sparklingstadt/typle-a](https://github.com/Sparklingstadt/typle-a) に、手元用の Kotlin（Ktor）のバックエンドを `server-kotlin/` から公開リポジトリ [Sparklingstadt/typle-kotlin-backend](https://github.com/Sparklingstadt/typle-kotlin-backend) に移しました。どちらも git の履歴と設計のドキュメント（`docs/superpowers` の Android・Kotlin の spec と plan）を引き継いでいます。コミットの `(#N)` は `(Sparklingstadt/typle-r#N)` に書き換えたので、このリポジトリの PR を指します。
