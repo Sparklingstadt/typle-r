@@ -1,11 +1,13 @@
 import { defineConfig } from '@playwright/test'
 import { loadEnvConfig } from '@next/env'
+import { kotlinBackendDir, KOTLIN_BINARY } from './scripts/dev.cjs'
+import path from 'node:path'
 loadEnvConfig(process.cwd())
 
-// TYPLE_BACKEND=kotlin runs the same tests against the Kotlin backend (server-kotlin), which must be built first:
-// server-kotlin/gradlew -p server-kotlin installDist.
+// TYPLE_BACKEND=kotlin runs the same tests against the Kotlin backend (the typle-kotlin-backend checkout at
+// TYPLE_KOTLIN_BACKEND, by default ../typle-kotlin-backend), which must be built first with its gradlew installDist.
 const backend = process.env.TYPLE_BACKEND === 'kotlin'
-  ? 'server-kotlin/build/install/typle-web/bin/typle-web -addr 127.0.0.1:8081'
+  ? `${JSON.stringify(path.join(kotlinBackendDir(), KOTLIN_BINARY))} -addr 127.0.0.1:8081`
   : 'go run ./server/cmd/typle-web -addr 127.0.0.1:8081'
 
 export default defineConfig({
