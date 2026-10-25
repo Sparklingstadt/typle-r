@@ -69,7 +69,7 @@ public sealed partial class ListsPage : PageView
             filter.IsFiltered ? Button(L("wordLists.filter.clear"), () => ChangeFilter(ListFilter.None), Variant.Ghost, ButtonSize.Large) : null);
         clearSearchHost.Child = search.Text.Length == 0
             ? null
-            : Button(null, () => search.Text = "", Variant.Ghost, ButtonSize.Icon, Icons.Close, L("wordLists.manager.clearSearch"));
+            : Button(null, () => search.Text = "", Variant.Ghost, ButtonSize.Icon, Icons.Close, L("common.clearSearch"));
         if (clearSearchHost.Child is Button clear)
         {
             clear.Width = 28;
@@ -89,7 +89,7 @@ public sealed partial class ListsPage : PageView
                 T(App.Lists.Count == 0 ? L("wordLists.empty.title") : query.Trim().Length > 0 ? L("wordLists.manager.noMatch", query.Trim()) : L("wordLists.filter.noMatch"),
                     16, FontWeights.SemiBold, align: TextAlignment.Center),
                 App.Lists.Count == 0 ? T(L("wordLists.empty.description"), color: P.MutedForeground, align: TextAlignment.Center) : null,
-                App.Lists.Count == 0 ? null : Button(L(filter.IsFiltered ? "wordLists.filter.clearAll" : "wordLists.manager.clearSearch"), () =>
+                App.Lists.Count == 0 ? null : Button(L(filter.IsFiltered ? "wordLists.filter.clearAll" : "common.clearSearch"), () =>
                 {
                     filter = ListFilter.None;
                     search.Text = "";

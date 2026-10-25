@@ -711,6 +711,7 @@
  "rankings.detail.others.exclude": "Exclude",
  "rankings.detail.others.include": "Include",
  "records.more": {
+  "one": "Show more ({0} left)",
   "other": "Show more ({0} left)"
  },
  "home.welcome.lists": {

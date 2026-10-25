@@ -3,6 +3,13 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
+## v0.86.2 — Windows アプリの文言の不具合を修正しました
+
+- 単語リスト画面の検索のクリアボタンと、検索で何も見つからないときの「検索をクリア」が、ない文言キー（`wordLists.manager.clearSearch`）を使っていたため、文言の代わりにキー名を表示していました。共通の `common.clearSearch` を使うようにしました（v0.86.0 から）。
+- 日本語の複数形の文言（`other` だけを持つもの）が、数が1のときにキー名を表示していました。「1語」「1リスト」などが正しく表示されます。数が1の形（`one`）がないときは `other` を使います。
+- `tests/windows.test.cjs` が日本語の複数形を読めずに失敗していたのを直し、英語の「さらに表示」に `one` を足しました。
+- Web 版・iPad・Android と保存形式・API に変更はありません。
+
 ## v0.86.1 — Windows アプリが公開フォルダーから起動できない不具合を修正しました
 
 `dotnet publish` で作った Windows アプリ（`windows/publish/Typle.exe`）が、起動直後に「`Cannot locate resource from 'ms-appx:///Microsoft.UI.Xaml/Themes/themeresources.xaml'`」で止まり、窓が開かないことがありました。ビルドはアプリのリソースの索引（`Typle.pri`。WinUI の部品の見た目を含む）を `bin` の `Typle.exe` の隣に書きますが、`dotnet publish` はそれを公開フォルダーにコピーしていなかったためです。`Typle.csproj` で `Typle.pri` を公開するファイルに加えました。

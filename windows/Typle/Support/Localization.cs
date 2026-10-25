@@ -51,7 +51,7 @@ public static class Loc
 
     /// <summary>
     /// The text for a key in the chosen language, with <c>{0}</c>-style arguments. A plural (<c>{ "one", "other", "arg" }</c>)
-    /// is chosen by its numeric argument (1-based <c>arg</c>).
+    /// is chosen by its numeric argument (1-based <c>arg</c>); Japanese has only <c>other</c>, which then stands for one too.
     /// </summary>
     public static string L(string key, params object[] args)
     {
@@ -67,7 +67,7 @@ public static class Loc
                 var arg = value.TryGetProperty("arg", out var position) ? position.GetInt32() : 1;
                 var count = arg - 1 < args.Length ? args[arg - 1] : null;
                 var one = count is int or long or double && Convert.ToDouble(count, CultureInfo.InvariantCulture) == 1;
-                format = value.TryGetProperty(one ? "one" : "other", out var form) ? form.GetString()! : key;
+                format = (one && value.TryGetProperty("one", out var form)) || value.TryGetProperty("other", out form) ? form.GetString()! : key;
             }
         }
         return args.Length == 0 ? format : string.Format(Culture, format, args);

@@ -74,7 +74,8 @@ test('the Windows app has Japanese and English text for every key it uses, with 
     }
     // string.Format reads every brace: outside the errors (filled by name), only {0}, {1}… may appear.
     if (!key.startsWith('errors.')) {
-      for (const text of [value, en[key]].flatMap(item => typeof item === 'string' ? [item] : [item.one, item.other])) {
+      // A Japanese plural has only other.
+      for (const text of [value, en[key]].flatMap(item => typeof item === 'string' ? [item] : [item.one ?? item.other, item.other])) {
         assert.ok(!/[{}]/.test(text.replace(/\{\d+\}/g, '')), `${key}: a brace that is not an argument`)
       }
     }
