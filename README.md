@@ -7,7 +7,8 @@
 
 | リポジトリ | 内容 |
 |---|---|
-| typle-r（このリポジトリ） | Web 版（Next.js）、Go のバックエンドと API（`server/`）、iPad 版（`ios/`） |
+| typle-r（このリポジトリ） | Web 版（Next.js）、Go のバックエンドと API（`server/`） |
+| [typle-ipad](https://github.com/Sparklingstadt/typle-ipad) | iPad 版（SwiftUI） |
 | [typle-m](https://github.com/Sparklingstadt/typle-m) | Mac 版（SwiftUI） |
 | [typle-w](https://github.com/Sparklingstadt/typle-w) | Windows 11 版（C#・WinUI 3） |
 | [typle-a](https://github.com/Sparklingstadt/typle-a) | Android タブレット版（Kotlin・Jetpack Compose） |
@@ -15,10 +16,18 @@
 
 どのアプリも、このリポジトリの Go のバックエンド（本番は `https://typle-r-six.vercel.app`）に同じ GitHub ログインでつなぎます。ほかのリポジトリは、このリポジトリのコードやデータの写しや対応する実装を持っています。ここを変えたら、合わせて直してください。
 
-- 最初の単語リスト（`src/plugins/packs`）：typle-w の `packs/`、typle-a の `core/src/main/resources` に写します。どちらも `TYPLE_R=../typle-r node --test tests/` で同じになったことを確かめられます。
-- iPad 版（`ios/Typle`・`ios/TypleCore`）：typle-m の `Shared/`・`TypleCore/` は v0.86.1 時点の写しで、自動では入りません。Mac 版にも必要なら typle-m で同じように直します。
+- 最初の単語リスト（`src/plugins/packs`）：typle-ipad の `TypleCore/Sources/TypleCore/Resources`、typle-w の `packs/`、typle-a の `core/src/main/resources` に写します。どれも `TYPLE_R=../typle-r node --test tests/` で同じになったことを確かめられます。
+- iPad 版と Mac 版：typle-m の `Shared/`・`TypleCore/` は typle-ipad の `Typle/`・`TypleCore/` の v0.86.1 時点の写しで、自動では入りません。両方に必要な変更は、それぞれのリポジトリで同じように直します。
 - Go のバックエンド（`server/internal/*`）：typle-kotlin-backend の対応するコードを同じように直し、`TYPLE_BACKEND=kotlin npm run test:e2e` で確かめます。
 - ログイン（`client=ipad|macos|android|windows`）とトークンの形：各アプリが使うので、互換を保ちます。
+
+## v0.90.0 — iPad 版を別のリポジトリ typle-ipad に分けました
+
+iPad 版（SwiftUI）を、このリポジトリの `ios/` から公開リポジトリ [Sparklingstadt/typle-ipad](https://github.com/Sparklingstadt/typle-ipad) に移しました。`ios/` の git の履歴と設計のドキュメント（`docs/superpowers/specs` の iPad の2つの spec）を引き継いでいます。コミットの `(#N)` は `(Sparklingstadt/typle-r#N)` に書き換えたので、このリポジトリの PR を指します。これで、このリポジトリは Web 版と Go のバックエンドだけになりました。
+
+- `ios/`・`tests/ios.test.cjs` と、iPad の spec を削除しました。iPad の文言と最初の単語リストの写しの確認は typle-ipad の `tests/strings.test.cjs`（`TYPLE_R=../typle-r node --test tests/`）に移しました。`.vercelignore` の `ios` も外しました。手元に残った `ios/`（`Typle.xcodeproj`・`.build` など）は消してかまいません。
+- `src/plugins/packs` を変えたら、typle-ipad の `TypleCore/Sources/TypleCore/Resources` にも写してください（手順は typle-ipad の README）。
+- サーバーは引き続き `client=ipad` のログインを受け付けます。本番の確認（`POST /api/auth/token`）も変わりません。Web 版と保存形式・API に変更はありません。
 
 ## v0.89.0 — Android 版と Kotlin のバックエンドを別のリポジトリ typle-a・typle-kotlin-backend に分けました
 
@@ -390,7 +399,7 @@ API（`server/`）はNext.jsとは独立したGoのコードで、モジュー�
 
 ### iPad と Mac と Android と Windows のログイン
 
-iPad アプリ（`ios/`）・Mac アプリ（[typle-m](https://github.com/Sparklingstadt/typle-m) リポジトリ）・Android アプリ（[typle-a](https://github.com/Sparklingstadt/typle-a) リポジトリ）・Windows アプリ（[typle-w](https://github.com/Sparklingstadt/typle-w) リポジトリ）は、Web版と同じ GitHub OAuth App でログインし、Cookie の代わりにトークンを使います（RFC 8252 のネイティブアプリの形）。サーバーの側は `client` が `ipad`・`macos`・`android`・`windows` のどれかだけが違い、流れは同じです。
+iPad アプリ（[typle-ipad](https://github.com/Sparklingstadt/typle-ipad) リポジトリ）・Mac アプリ（[typle-m](https://github.com/Sparklingstadt/typle-m) リポジトリ）・Android アプリ（[typle-a](https://github.com/Sparklingstadt/typle-a) リポジトリ）・Windows アプリ（[typle-w](https://github.com/Sparklingstadt/typle-w) リポジトリ）は、Web版と同じ GitHub OAuth App でログインし、Cookie の代わりにトークンを使います（RFC 8252 のネイティブアプリの形）。サーバーの側は `client` が `ipad`・`macos`・`android`・`windows` のどれかだけが違い、流れは同じです。
 
 1. アプリが32バイトの乱数から検証値（verifier）を作り、システムのログイン画面（iPad と Mac は `ASWebAuthenticationSession`、Android は Custom Tabs、Windows は既定のブラウザー）で `/api/auth/signin?client=<ipad|macos|android|windows>&code_challenge=<S256>` を開きます。チャレンジは OAuth の Cookie に入り、GitHub にはサーバー自身の PKCE を使います。
 2. `callback/github` は Cookie を発行せず、`typle-r://login?code=<コード>` へリダイレクトします。コードはユーザーとチャレンジに署名したもので、2分で切れます。失敗・キャンセルは `typle-r://login?error=loginFailed` です。Android は `MainActivity` の intent-filter（scheme `typle-r`・host `login`）で、Windows は起動のたびに登録するプロトコル（`typle-r`、この Windows ユーザーの `HKEY_CURRENT_USER`）でこの URL を受け取ります。Windows では、ブラウザーが開いた2つ目の Typle が、動いている Typle にこの URL を渡して終わります。アプリを離れてコールバックが来なかったときは、何も起きなかったものとして戻ります（Windows は「ログインをやめる」で待つのをやめます）。
