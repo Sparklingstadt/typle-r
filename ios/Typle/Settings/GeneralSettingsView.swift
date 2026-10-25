@@ -49,9 +49,7 @@ struct GeneralSettingsView: View {
         VStack(alignment: .leading, spacing: 12) {
           labelled(L("settings.serverURL")) {
             TextField(AppModel.defaultServerURL, text: $serverURL)
-              #if os(iOS)
               .keyboardType(.URL)
-              #endif
               .plainInput()
               .font(.system(size: 14))
               .padding(.horizontal, 12).frame(height: 40)

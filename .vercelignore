@@ -9,6 +9,5 @@ playwright-report
 server/cmd
 *_test.go
 ios
-macos
 android
 server-kotlin

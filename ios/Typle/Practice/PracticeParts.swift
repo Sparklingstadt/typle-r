@@ -177,7 +177,6 @@ struct DeviceMenu: View {
       .background(Palette.card, in: Capsule())
       .overlay(Capsule().strokeBorder(Palette.border))
     }
-    .plainMenu()
     .disabled(locked)
     .accessibilityLabel(L("practice.device.label", current.map { Format.device($0) } ?? L("devices.none")))
   }
@@ -257,7 +256,6 @@ struct ListPickerSheet: View {
     .padding(24)
     .frame(maxWidth: 448)
     .background(Palette.card)
-    .sheetSize(width: 448, height: 560)
     .presentationDetents([.medium, .large])
   }
 }

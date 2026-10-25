@@ -3,6 +3,15 @@
 
 自分の単語リストで練習できるタイピングアプリです。
 
+## v0.88.0 — macOS 版を別のリポジトリ typle-m に分けました
+
+macOS 版（SwiftUI）を、このリポジトリの `macos/` から公開リポジトリ [Sparklingstadt/typle-m](https://github.com/Sparklingstadt/typle-m) に移しました。Mac 版は iPad 版（`ios/Typle`）の SwiftUI のコードと共通の規則（`ios/TypleCore`）をそのまま使っていたため、typle-m には v0.86.1 時点のその写しを入れ、単独でビルドできるようにしました。`macos/`・`ios/Typle`・`ios/TypleCore` の git の履歴も typle-m に引き継いでいます。
+
+- `macos/` と、Mac の文言を確かめる `tests/macos.test.cjs` を削除しました。同じ確認は typle-m の `tests/strings.test.cjs` に移しました。
+- iPad 版のコードから、Mac のビルドのためだけにあった `#if os(macOS)`・`canImport(AppKit)` の分岐と、iPad では何もしない部品（`plainMenu`・`menuPicker`・`sheetSize`）を外しました。iPad 版の見た目と動きは変わりません。
+- これからは iPad 版を直しても Mac 版には入りません。Mac 版の変更は typle-m で行います。
+- サーバーは引き続き `client=macos` のログインを受け付けます（typle-m の Mac 版が使います）。Web 版・iPad・Android と保存形式・API に変更はありません。
+
 ## v0.87.1 — 単語リストのマイグレーション14本を1本にまとめました
 
 保存済みのアカウントに初期リストを追加・分割・ラベル付けしていたマイグレーション `0009_seed_command_lists` 〜 `0022_group_initial_lists` を、`prisma/migrations/0023_seed_initial_lists` の1ファイルにまとめました。アプリの動きと保存データは変わりません。
@@ -355,7 +364,7 @@ API（`server/`）はNext.jsとは独立したGoのコードで、モジュー�
 
 ### iPad と Mac と Android と Windows のログイン
 
-iPad アプリ（`ios/`）・Mac アプリ（`macos/`）・Android アプリ（`android/`）・Windows アプリ（[typle-w](https://github.com/Sparklingstadt/typle-w) リポジトリ）は、Web版と同じ GitHub OAuth App でログインし、Cookie の代わりにトークンを使います（RFC 8252 のネイティブアプリの形）。サーバーの側は `client` が `ipad`・`macos`・`android`・`windows` のどれかだけが違い、流れは同じです。
+iPad アプリ（`ios/`）・Mac アプリ（[typle-m](https://github.com/Sparklingstadt/typle-m) リポジトリ）・Android アプリ（`android/`）・Windows アプリ（[typle-w](https://github.com/Sparklingstadt/typle-w) リポジトリ）は、Web版と同じ GitHub OAuth App でログインし、Cookie の代わりにトークンを使います（RFC 8252 のネイティブアプリの形）。サーバーの側は `client` が `ipad`・`macos`・`android`・`windows` のどれかだけが違い、流れは同じです。
 
 1. アプリが32バイトの乱数から検証値（verifier）を作り、システムのログイン画面（iPad と Mac は `ASWebAuthenticationSession`、Android は Custom Tabs、Windows は既定のブラウザー）で `/api/auth/signin?client=<ipad|macos|android|windows>&code_challenge=<S256>` を開きます。チャレンジは OAuth の Cookie に入り、GitHub にはサーバー自身の PKCE を使います。
 2. `callback/github` は Cookie を発行せず、`typle-r://login?code=<コード>` へリダイレクトします。コードはユーザーとチャレンジに署名したもので、2分で切れます。失敗・キャンセルは `typle-r://login?error=loginFailed` です。Android は `MainActivity` の intent-filter（scheme `typle-r`・host `login`）で、Windows は起動のたびに登録するプロトコル（`typle-r`、この Windows ユーザーの `HKEY_CURRENT_USER`）でこの URL を受け取ります。Windows では、ブラウザーが開いた2つ目の Typle が、動いている Typle にこの URL を渡して終わります。アプリを離れてコールバックが来なかったときは、何も起きなかったものとして戻ります（Windows は「ログインをやめる」で待つのをやめます）。
