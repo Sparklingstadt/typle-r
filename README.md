@@ -5,6 +5,8 @@
 
 ## 関連リポジトリ
 
+Android・Kotlinの同期対象、共通のAPI回帰テストとローカルでの検証手順は [互換性の確認](docs/android-kotlin-compatibility.md) にあります。
+
 | リポジトリ | 内容 |
 |---|---|
 | typle-r（このリポジトリ） | Web 版（Next.js）、Go のバックエンドと API（`server/`） |

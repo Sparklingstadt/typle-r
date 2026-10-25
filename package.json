@@ -1,6 +1,6 @@
 {
   "name": "typle-r",
-  "version": "0.90.0",
+  "version": "0.90.1",
   "private": true,
   "scripts": {
     "dev": "node scripts/dev.cjs --hostname 127.0.0.1",
@@ -10,6 +10,8 @@
     "test": "node --test tests/*.test.cjs",
     "typecheck": "tsc --noEmit --incremental false",
     "test:e2e": "playwright test",
+    "test:compat": "node scripts/test-compat.cjs",
+    "test:compat:matrix": "node scripts/test-compat.cjs --matrix",
     "db:migrate": "node scripts/migrate.cjs",
     "db:seed": "node scripts/seed.cjs",
     "db:generate": "prisma generate",
