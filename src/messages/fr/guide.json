@@ -90,6 +90,13 @@
       "p3": "Choisissez ce fichier avec « Importer depuis un fichier » pour l’importer comme nouveau pack (cela fonctionne aussi quand vous n’avez encore aucun pack). Les fichiers vont jusqu’à 1 Mio ; un fichier illisible est refusé. Si un pack du même nom existe, le nouveau s’appelle « Nom (2) ».",
       "p4": "Dans « Packs officiels », parmi les packs de mots, « Suivre » ajoute ce pack à vos packs. Les packs suivis portent la mention « Officiel » et restent à jour avec la version officielle. Un pack suivi ne peut pas être modifié : pour le changer, utilisez « Dupliquer » afin d’en faire votre propre pack. « Ne plus suivre » retire le pack de vos packs, avec son historique d’entraînement."
     },
+    "interests": {
+      "title": "Centres d’intérêt",
+      "p1": "Dans <interests>Centres d’intérêt</interests>, choisissez les puces « Langues » et « Programmation ». Vous pouvez en choisir autant que vous voulez ; chaque choix est enregistré dès que vous appuyez.",
+      "p2": "Choisir une puce parente ouvre les puces en dessous, comme « Chinois », « Russe » et « Coréen », ou « Go » et « Kotlin ». Désélectionner la parente désélectionne aussi les puces en dessous.",
+      "p3": "Avec des centres d’intérêt choisis, « Packs officiels » parmi les packs de mots est séparé en « Packs correspondant à vos centres d’intérêt » et « Autres packs ». Sans puce choisie sous une parente, tous les packs de ce domaine correspondent ; avec des puces choisies, ce sont les packs portant ces étiquettes.",
+      "p4": "Les centres d’intérêt sont enregistrés dans votre compte si vous êtes connecté, et dans ce navigateur sinon."
+    },
     "share": {
       "title": "Partager un pack",
       "p1": "Une fois connecté, « Partager » dans le menu « … » d’un pack crée un lien de partage. Choisissez « Créer le lien », puis « Copier » et envoyez-le.",

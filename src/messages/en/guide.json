@@ -90,6 +90,13 @@
       "p3": "Choose that file with “Import from file” to import it as a new pack (this also works when you have no packs yet). Files up to 1 MiB are accepted, and unreadable files are refused. If a pack with the same name exists, the new one is named “Name (2)”.",
       "p4": "In “Official packs” under Word packs, “Follow” puts that pack into your packs. Followed packs are marked “Official” and stay up to date with the official version. A followed pack cannot be edited; to change it, use “Duplicate” to make a pack of your own. “Unfollow” removes the pack from your packs, together with its practice history."
     },
+    "interests": {
+      "title": "Interests",
+      "p1": "In <interests>Interests</interests>, pick the “Languages” and “Programming” chips. You can pick any number, and each pick is saved as soon as you press it.",
+      "p2": "Picking a parent chip opens chips under it, such as “Chinese”, “Russian” and “Korean”, or “Go” and “Kotlin”. Unpicking the parent also unpicks the chips under it.",
+      "p3": "With interests picked, “Official packs” under Word packs is split into “Packs matching your interests” and “Other packs”. With no chip picked under a parent, every pack of that field matches; with some picked, the packs with those tags match.",
+      "p4": "Interests are saved to your account when you are signed in, and in this browser when you are not."
+    },
     "share": {
       "title": "Sharing a pack",
       "p1": "When you are logged in, \"Share\" in a pack's \"…\" menu creates a share link. Choose \"Create link\", then \"Copy\" it and send it to others.",
