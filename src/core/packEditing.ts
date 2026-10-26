@@ -99,14 +99,18 @@ export function updatePack(library: Library, packId: string, fields: PackInput):
   return settle({ packs, lists: library.lists })
 }
 
-/** `listIds` is every id of the pack's lists, in the new order. */
+/**
+ * `listIds` is the pack's lists in the new order. It may be stale (another tab added or deleted a list):
+ * ids the pack does not hold are dropped, and lists of the pack not given keep their saved order after the given ones.
+ */
 export function reorderPackLists(library: Library, packId: string, listIds: string[]): Library {
   requirePack(library, packId)
   const mine = library.lists.filter(list => list.packId === packId)
   const byId = new Map(mine.map(list => [list.id, list]))
-  if (listIds.length !== mine.length || new Set(listIds).size !== listIds.length || listIds.some(id => !byId.has(id))) throw invalid()
+  const given = [...new Set(listIds)].filter(id => byId.has(id))
+  const order = [...given, ...mine.map(list => list.id).filter(id => !given.includes(id))]
   let next = 0
-  return settle({ packs: library.packs, lists: library.lists.map(list => list.packId === packId ? byId.get(listIds[next++])! : list) })
+  return settle({ packs: library.packs, lists: library.lists.map(list => list.packId === packId ? byId.get(order[next++])! : list) })
 }
 
 export function deletePack(library: Library, packId: string): Library {

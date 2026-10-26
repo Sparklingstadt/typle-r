@@ -167,7 +167,7 @@ test('empty and unreadable storage explain what to do instead of showing an empt
   const main = page.getByRole('main')
   await expect(main.getByRole('heading', { name: 'まだベスト記録がありません', exact: true })).toBeVisible()
   await expect(main.getByRole('link', { name: '練習する', exact: true })).toHaveAttribute('href', '/play')
-  await expect(main.getByRole('link', { name: '単語リストを作る', exact: true })).toHaveAttribute('href', '/create')
+  await expect(main.getByRole('link', { name: '単語パックを作る', exact: true })).toHaveAttribute('href', '/packs/create')
 
   await page.evaluate(key => localStorage.setItem(key, '{broken'), key)
   await page.reload()

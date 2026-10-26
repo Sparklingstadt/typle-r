@@ -63,7 +63,7 @@ test('the lists of a group are one row that opens to show each of them', async (
   await expect(toggle).toHaveAttribute('aria-expanded', 'true')
 
   await toggle.click()
-  await page.getByRole('searchbox', { name: 'リスト名・カテゴリ・タグ・単語で検索' }).fill('tar')
+  await page.getByRole('searchbox', { name: 'パック名・リスト名・カテゴリ・タグ・単語で検索' }).fill('tar')
   await expect(page.locator('li[data-list-id] h3')).toHaveText(['Shell：オプション・上級'])
   await expect(toggle).toHaveAttribute('aria-expanded', 'true')
   expect(errors).toEqual([])

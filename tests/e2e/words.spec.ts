@@ -131,6 +131,6 @@ test('a list that is not there says so, and without lists the page offers to cre
   await seed(empty, [])
   await empty.goto('/words')
   await expect(empty.getByRole('heading', { name: '単語リストはまだありません' })).toBeVisible()
-  await expect(empty.getByRole('main').getByRole('link', { name: '新しいリストを作成' })).toHaveAttribute('href', '/create')
+  await expect(empty.getByRole('main').getByRole('link', { name: '新しいパックを作成' })).toHaveAttribute('href', '/packs/create')
   await context.close()
 })

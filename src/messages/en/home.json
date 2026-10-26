@@ -6,7 +6,7 @@
     "practices": "{count, plural, one {# practice completed} other {# practices completed}}",
     "navLabel": "Get started",
     "play": "Practice",
-    "create": "Create a list",
+    "create": "Create a pack",
     "records": "View records"
   },
   "storage": "You can use every practice and editing feature without signing in. Word lists, practice history, and devices are saved in this browser. Signing in with GitHub switches to a separate storage location, your account, which syncs across devices. Data in the browser is not moved automatically.",

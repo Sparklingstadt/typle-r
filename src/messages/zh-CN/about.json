@@ -10,7 +10,7 @@
   "features": {
     "title": "主要功能",
     "create": {
-      "title": "创建列表",
+      "title": "创建包",
       "description": "添加想要记住的单词。显示的单词和要输入的字符可以分别指定，也可以从 CSV、TSV 文件添加。"
     },
     "play": {

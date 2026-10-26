@@ -1,8 +1,8 @@
 "use client"
-import { useEffect, useId, useMemo, useState } from "react"
+import { useEffect, useId, useMemo, useRef, useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
 import { ChevronLeft, CircleAlert } from "lucide-react"
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
+import { DndContext, closestCenter, type Announcements, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
@@ -18,6 +18,13 @@ import type { WorkspaceLocation } from "@/core/workspaceStore"
 import type { WordPack } from "@/core/wordPacks"
 
 const fieldsOf = (pack: WordPack): PackInput => ({ name: pack.name, description: pack.description ?? "", category: pack.category ?? "", tags: pack.tags ?? [] })
+
+// Another tab may add or delete a list of the pack while it is edited: the order keeps the ids that still exist, then the new lists.
+const rebuild = (order: string[], lists: SavedWordList[]) => {
+  const ids = new Set(lists.map(list => list.id))
+  const kept = order.filter(id => ids.has(id))
+  return [...kept, ...lists.map(list => list.id).filter(id => !kept.includes(id))]
+}
 
 // Edits a pack: its fields and the order of its lists. Leaving with unsaved changes asks first.
 export default function PackEditor({ pack, lists, packs, storage, error, errorKey, onSave, onCancel }: {
@@ -46,11 +53,14 @@ export default function PackEditor({ pack, lists, packs, storage, error, errorKe
   const [initialFields] = useState(() => fieldsOf(pack))
   const [initialOrder] = useState(() => lists.map(list => list.id))
   const [fields, setFields] = useState(initialFields)
-  const [order, setOrder] = useState(initialOrder)
+  const [storedOrder, setOrder] = useState(initialOrder)
   const [saving, setSaving] = useState(false)
   const [confirmingCancel, setConfirmingCancel] = useState(false)
   const [failedName, setFailedName] = useState<string | null>(null)
-  const dirty = !samePackInput(fields, initialFields) || order.join("\n") !== initialOrder.join("\n")
+  // After a failed save, the name field is focused only when the error is about the name.
+  const [focusRequest, setFocusRequest] = useState(0)
+  const order = rebuild(storedOrder, lists)
+  const dirty = !samePackInput(fields, initialFields) || order.join("\n") !== rebuild(initialOrder, lists).join("\n")
   const suggestions = useMemo(() => listLabels(packs, locale), [packs, locale])
   const byId = useMemo(() => new Map(lists.map(list => [list.id, list])), [lists])
 
@@ -62,6 +72,23 @@ export default function PackEditor({ pack, lists, packs, storage, error, errorKe
     return () => window.removeEventListener("beforeunload", warn)
   }, [dirty])
 
+  // Moves a list to the place `target` of the order shown.
+  function move(id: string, target: number) {
+    const from = order.indexOf(id)
+    if (saving || from < 0 || target < 0 || target >= order.length || target === from) return
+    setOrder(arrayMove(order, from, target))
+  }
+
+  // Screen readers hear the list's name and place, not its id.
+  const nameOf = (id: string | number) => byId.get(String(id))?.name ?? ""
+  const placeOf = (id: string | number) => ({ position: order.indexOf(String(id)) + 1, total: order.length })
+  const announcements: Announcements = {
+    onDragStart: ({ active }) => t("announceStart", { name: nameOf(active.id), ...placeOf(active.id) }),
+    onDragOver: ({ active, over }) => over ? t("announceOver", { name: nameOf(active.id), ...placeOf(over.id) }) : t("announceOutside", { name: nameOf(active.id) }),
+    onDragEnd: ({ active, over }) => over ? t("announceEnd", { name: nameOf(active.id), ...placeOf(over.id) }) : t("announceCancel", { name: nameOf(active.id) }),
+    onDragCancel: ({ active }) => t("announceCancel", { name: nameOf(active.id) }),
+  }
+
   function cancel() {
     if (dirty) setConfirmingCancel(true)
     else onCancel()
@@ -70,6 +97,12 @@ export default function PackEditor({ pack, lists, packs, storage, error, errorKe
   const nameKeyError = errorKey === "packNameRequired" || errorKey === "packNameDuplicate"
   const nameError = nameKeyError && failedName === fields.name ? errors(errorKey) : undefined
   const serverError = error && !nameKeyError ? error : ""
+  const handledFocus = useRef(0)
+  useEffect(() => {
+    if (focusRequest === handledFocus.current) return
+    handledFocus.current = focusRequest
+    if (nameKeyError) document.querySelector<HTMLElement>(`input[name="${PACK_NAME_FIELD}"]`)?.focus()
+  }, [focusRequest, nameKeyError])
 
   return <form noValidate onSubmit={async event => {
     event.preventDefault()
@@ -78,7 +111,7 @@ export default function PackEditor({ pack, lists, packs, storage, error, errorKe
     setFailedName(fields.name)
     try {
       const saved = await onSave(fields, order)
-      if (!saved) document.querySelector<HTMLElement>(`input[name="${PACK_NAME_FIELD}"]`)?.focus()
+      if (!saved) setFocusRequest(count => count + 1)
     } finally { setSaving(false) }
   }}>
     <Button variant="ghost" size="lg" className="-ml-2.5 mb-2 text-muted-foreground" onClick={cancel}><ChevronLeft aria-hidden="true" />{page("title")}</Button>
@@ -98,21 +131,18 @@ export default function PackEditor({ pack, lists, packs, storage, error, errorKe
           <p className="text-xs text-muted-foreground">{t("listsHelp")}</p>
         </div>
         <DndContext id={dragId} sensors={sensors} collisionDetection={closestCenter}
-          accessibility={{ screenReaderInstructions: { draggable: t("dragInstructions") } }}
+          accessibility={{ screenReaderInstructions: { draggable: t("dragInstructions") }, announcements }}
           onDragEnd={({ active, over }) => {
             if (saving || !over || active.id === over.id) return
-            setOrder(current => {
-              const from = current.indexOf(String(active.id))
-              const to = current.indexOf(String(over.id))
-              return from < 0 || to < 0 ? current : arrayMove(current, from, to)
-            })
+            move(String(active.id), order.indexOf(String(over.id)))
           }}>
           <SortableContext items={order} strategy={verticalListSortingStrategy}>
             <ul className="space-y-2">
-              {order.map(id => {
+              {order.map((id, index) => {
                 const list = byId.get(id)
                 if (!list) return null
-                return <SortableListRow key={id} id={id} name={list.name} disabled={saving || order.length < 2}
+                return <SortableListRow key={id} id={id} name={list.name} index={index} count={order.length} disabled={saving || order.length < 2}
+                  onMove={target => move(id, target)}
                   levels={list.levels?.length ? t("levels", { levels: list.levels.join("・") }) : t("noLevels")}
                   wordCount={t("wordCount", { count: list.words.length })} />
               })}

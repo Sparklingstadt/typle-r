@@ -43,7 +43,7 @@ function FieldError({ id, message, alert }: { id: string; message: string; alert
   </p>
 }
 
-export default function WordListEditor({ title, description, storage, initial, packs = [], packId, error, errorKey, packFields, packDirty = false, onSave, onCancel, onDirtyChange, cancelRequest = 0 }: {
+export default function WordListEditor({ title, description, storage, initial, packs = [], packId, lonePackName, error, errorKey, packFields, packDirty = false, onSave, onCancel, onDirtyChange, cancelRequest = 0 }: {
   title: string
   description?: ReactNode
   storage?: WorkspaceLocation
@@ -52,6 +52,8 @@ export default function WordListEditor({ title, description, storage, initial, p
   packs?: WordPack[]
   /** The pack that is chosen at first; `null`, a pack that is gone, or none given at all means a new pack named after the list. */
   packId?: string | null
+  /** The name of the pack when `initial` is its only list: choosing another pack deletes it, which is said under the choice. */
+  lonePackName?: string
   error?: string
   /** Which error `error` is, so a duplicate name can be shown on the name field. */
   errorKey?: ErrorKey | null
@@ -88,6 +90,7 @@ export default function WordListEditor({ title, description, storage, initial, p
   const [levels, setLevels] = useState(initial?.levels ?? [])
   const [words, setWords] = useState(() => (initial?.words ?? [emptyWord()]).map((word, index) => ({ ...normalize(word), key: `initial-${index}` })))
   const [initialSnapshot] = useState(() => snapshot(initial?.name ?? "", firstPackId, initial?.levels ?? [], (initial?.words ?? [emptyWord()]).map(normalize)))
+  const leavingLonePack = !!lonePackName && !!initial?.packId && chosenPack !== initial.packId
   const dirty = snapshot(name, chosenPack, levels, words) !== initialSnapshot || packDirty
 
   const draftId = useRef<string | undefined>(undefined)
@@ -235,11 +238,14 @@ export default function WordListEditor({ title, description, storage, initial, p
       <section className="space-y-2 rounded-xl border bg-card p-4 sm:p-6" aria-label={t("basics")}>
         {!packFields && <>
           <Label htmlFor={packSelectId}>{t("pack")}</Label>
-          <select id={packSelectId} value={chosenPack ?? ""} aria-describedby={`${packSelectId}-help`} onChange={event => setChosenPack(event.target.value || null)}
+          <select id={packSelectId} value={chosenPack ?? ""} aria-describedby={`${leavingLonePack ? `${packSelectId}-deleted ` : ""}${packSelectId}-help`} onChange={event => setChosenPack(event.target.value || null)}
             className="h-11 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30 dark:[&>option]:bg-popover">
             {packs.map(pack => <option key={pack.id} value={pack.id}>{pack.name}</option>)}
             <option value="">{t("newPack")}</option>
           </select>
+          {leavingLonePack && <p id={`${packSelectId}-deleted`} className="flex gap-2 rounded-lg bg-amber-50 px-3 py-2 text-[13px] text-amber-900 dark:bg-amber-950/50 dark:text-amber-200">
+            <Info className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" /><span className="[overflow-wrap:anywhere]">{t("packWillBeDeleted", { name: lonePackName })}</span>
+          </p>}
           <p id={`${packSelectId}-help`} className="pb-2 text-xs text-muted-foreground">{t("packHelp")}</p>
         </>}
         <Label htmlFor={nameId}>{t("name")}<span aria-hidden="true" className="text-destructive">*</span></Label>

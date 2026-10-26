@@ -8,9 +8,8 @@ import { Textarea } from "@/components/ui/textarea"
 import LabelFields from "@/components/WordLists/LabelFields"
 import type { listLabels } from "@/core/listOverview"
 import type { PackInput } from "@/core/packEditing"
+import { MAX_PACK_DESCRIPTION, MAX_PACK_NAME } from "@/core/wordPacks"
 
-export const MAX_PACK_NAME = 200
-export const MAX_PACK_DESCRIPTION = 500
 /** The `name` of the pack name field, for finding it to focus. */
 export const PACK_NAME_FIELD = "pack-name"
 

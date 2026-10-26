@@ -1,5 +1,5 @@
 {
-  "empty": "単語がありません。<link>単語リストを作成</link>してください。",
+  "empty": "単語がありません。<link>単語パックを作成</link>してください。",
   "stats": {
     "label": "練習中の記録",
     "elapsed": "経過",
@@ -45,7 +45,7 @@
   "aside": {
     "label": "単語リストとベスト記録",
     "lists": "単語リスト",
-    "create": "作成",
+    "create": "パックを作成",
     "best": "ベスト記録",
     "bestOrder": "正確率が高い順・同じなら速い順",
     "bestOrderAtCount": "正確率が高い順・同じなら速い順・今の{count}語の記録",

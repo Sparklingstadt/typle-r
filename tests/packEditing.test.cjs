@@ -58,6 +58,13 @@ test('createPack adds a pack and its first list at the end', () => {
   assert.throws(() => createPack(full, { name: 'N' }, input('n', 'N'), 'pn'), { key: 'listLimit', values: { max: MAX_LISTS } })
 })
 
+test('createPack keeps the first list\'s levels, tidied', () => {
+  const next = createPack(library(), { name: 'New' }, input('n', 'First', { levels: [' 基本 ', '', '  ', '初級'] }), 'pn')
+  assert.deepEqual(next.lists.at(-1).levels, ['基本', '初級'])
+  const none = createPack(library(), { name: 'New' }, input('n', 'First', { levels: [' ', ''] }), 'pn')
+  assert.equal('levels' in none.lists.at(-1), false)
+})
+
 test('updatePack changes name, description and labels, and checks the name against other packs', () => {
   const next = updatePack(library(), 'p', { name: 'Linux2', description: 'd', category: '', tags: ['x'] })
   assert.deepEqual(next.packs[0], { id: 'p', name: 'Linux2', description: 'd', tags: ['x'], createdAt: stamp })
@@ -71,10 +78,20 @@ test('updatePack changes name, description and labels, and checks the name again
 
 test('reorderPackLists reorders only the places that pack holds in lists', () => {
   assert.deepEqual(ids(reorderPackLists(library(), 'p', ['b', 'a'])), ['b', 'g', 'a'])
-  for (const bad of [['a'], ['a', 'a'], ['a', 'b', 'g'], ['a', 'x']]) {
-    assert.throws(() => reorderPackLists(library(), 'p', bad), { message: 'Invalid packs' })
-  }
   assert.throws(() => reorderPackLists(library(), 'zz', []), { key: 'packDeleted' })
+})
+
+test('reorderPackLists drops ids the pack does not hold, and keeps repeated ids once', () => {
+  assert.deepEqual(ids(reorderPackLists(library(), 'p', ['x', 'b', 'g', 'a'])), ['b', 'g', 'a'])
+  assert.deepEqual(ids(reorderPackLists(library(), 'p', ['b', 'b', 'a'])), ['b', 'g', 'a'])
+})
+
+test('reorderPackLists puts lists of the pack that were not given after the given ones, in saved order', () => {
+  const more = library()
+  more.lists.push(list('c', '発展', 'p'))
+  assert.deepEqual(ids(reorderPackLists(more, 'p', ['b'])), ['b', 'g', 'a', 'c'])
+  assert.deepEqual(ids(reorderPackLists(more, 'p', ['c', 'x'])), ['c', 'g', 'a', 'b'])
+  assert.deepEqual(ids(reorderPackLists(more, 'p', [])), ['a', 'g', 'b', 'c'])
 })
 
 test('deletePack removes the pack and its lists', () => {

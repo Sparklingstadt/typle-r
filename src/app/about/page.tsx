@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const features: { key: "create" | "play" | "rankings"; path: string; icon: LucideIcon }[] = [
-  { key: "create", path: "/create", icon: Plus },
+  { key: "create", path: "/packs/create", icon: Plus },
   { key: "play", path: "/play", icon: Keyboard },
   { key: "rankings", path: "/rankings", icon: Trophy },
 ]

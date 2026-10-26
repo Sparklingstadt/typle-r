@@ -79,7 +79,7 @@
     "packs": {
       "title": "Packs and lists",
       "p1": "Word lists are organized into packs. When you create a pack, you enter the pack’s name and its first list.",
-      "p2": "Use “Add list” in a pack’s “…” menu to add a list to a saved pack.",
+      "p2": "Use “Add a list” in a pack’s “…” menu to add a list to a saved pack.",
       "p3": "Use “Edit pack” in a pack’s “…” menu to change its name, description, category, and tags, or to reorder the lists inside it.",
       "p4": "In the list editor, you can choose which pack the list belongs to (this moves it to another pack). You can also enter a difficulty (level names) for the words."
     },

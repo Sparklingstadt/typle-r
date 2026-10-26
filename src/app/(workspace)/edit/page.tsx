@@ -154,7 +154,10 @@ function WordLists({ workspace }: { workspace: Workspace }) {
 
   const trackDirty = useCallback((value: boolean) => setDirty(value), [])
 
+  // Moving the only list of a pack to another pack deletes that pack, which the editor says when another pack is chosen.
+  const lonePack = editing && lists.filter(list => list.packId === editing.packId).length === 1 ? packs.find(pack => pack.id === editing.packId) : undefined
   if (openId && editing) return <WordListEditor key={editing.id} title={t('editTitle')} initial={editing} packs={packs} packId={editing.packId ?? null} error={error} errorKey={errorKey}
+    lonePackName={lonePack?.name}
     description={t('editDescription', { count: editing.words.length, practice: practiceText(listOverviews([editing])[0], new Date()) })}
     storage={storage} onDirtyChange={trackDirty} cancelRequest={cancelRequest}
     onCancel={() => close()} onSave={async (list, packId) => {
@@ -377,7 +380,7 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
         const saved = await updateLibrary(current => deletePack(current, pack.id))
         if (saved) {
           packDeleted.current = true
-          notify(t('page.deleted', { name: pack.name }))
+          notify(t('page.packDeleted', { name: pack.name }))
         }
         return saved
       }} />}

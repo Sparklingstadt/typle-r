@@ -10,7 +10,7 @@
   "features": {
     "title": "Fonctionnalités",
     "create": {
-      "title": "Créer une liste",
+      "title": "Créer un pack",
       "description": "Ajoutez les mots que vous voulez retenir. Le mot affiché et les caractères à taper se définissent séparément, et vous pouvez aussi importer des fichiers CSV ou TSV."
     },
     "play": {

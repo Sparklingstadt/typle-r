@@ -23,7 +23,7 @@ export default function Home() {
       <div className="flex flex-wrap gap-3 mb-6"><Badge variant="secondary">{t("welcome.lists", { count: lists.length })}</Badge><Badge variant="secondary">{t("welcome.practices", { count })}</Badge></div>
       <nav aria-label={t("welcome.navLabel")} className="flex gap-4 flex-wrap">
         <Button asChild><Link href="/play">{t("welcome.play")}</Link></Button>
-        <Button asChild variant="outline"><Link href="/create">{t("welcome.create")}</Link></Button>
+        <Button asChild variant="outline"><Link href="/packs/create">{t("welcome.create")}</Link></Button>
         <Button asChild variant="outline"><Link href="/records">{t("welcome.records")}</Link></Button>
       </nav>
     </>}

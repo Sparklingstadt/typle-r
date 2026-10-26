@@ -141,7 +141,7 @@ test('about page explains features and storage, marks the browser as the current
   await expect(page).toHaveTitle('Typleについて | Typle')
   await expect(page.getByRole('heading', { name: 'Typleについて', exact: true, level: 1 })).toBeVisible()
   const features = page.getByRole('region', { name: 'できること', exact: true })
-  for (const [name, path] of [['リストを作成', '/create'], ['練習する', '/play'], ['ベスト記録', '/rankings']]) {
+  for (const [name, path] of [['パックを作成', '/packs/create'], ['練習する', '/play'], ['ベスト記録', '/rankings']]) {
     await expect(features.getByRole('link', { name, exact: true })).toHaveAttribute('href', path)
   }
   const storage = page.getByRole('region', { name: 'データの保存先', exact: true })

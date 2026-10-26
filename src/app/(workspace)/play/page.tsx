@@ -231,7 +231,7 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
 
   return <main className="mx-auto my-6 w-11/12 max-w-7xl pb-12 sm:my-8">
     {error && <Alert variant="destructive" className="mb-4"><AlertDescription>{error}</AlertDescription></Alert>}
-    {!list?.words.length ? <Card className="px-5 py-8 text-base sm:px-8"><p>{t.rich('empty', { link: chunks => <Link href="/create" className="underline">{chunks}</Link> })}</p></Card> :
+    {!list?.words.length ? <Card className="px-5 py-8 text-base sm:px-8"><p>{t.rich('empty', { link: chunks => <Link href="/packs/create" className="underline">{chunks}</Link> })}</p></Card> :
     <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <Card className="min-w-0 gap-0 py-0 text-base">
         <div className="flex h-14 items-center gap-1.5 border-b px-2 sm:h-16 sm:gap-3 sm:px-3">
@@ -321,7 +321,7 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
           <div className="flex items-center gap-2 pl-2">
             <h2 className="text-[15px] font-bold">{t('aside.lists')}</h2>
             <span className="flex-1" />
-            <Button variant="ghost" size="lg" asChild><Link href="/create"><Plus aria-hidden="true" />{t('aside.create')}</Link></Button>
+            <Button variant="ghost" size="lg" asChild><Link href="/packs/create"><Plus aria-hidden="true" />{t('aside.create')}</Link></Button>
           </div>
           <label className="mx-1 mt-1 mb-1 flex h-9 items-center gap-2 rounded-lg border px-3 text-muted-foreground focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
             <Search className="size-4 shrink-0" aria-hidden="true" />

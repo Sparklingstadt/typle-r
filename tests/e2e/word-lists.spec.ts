@@ -46,7 +46,7 @@ test('lists show their words and use, and can be searched and ordered', async ({
   await expect(row(page, 'kana')).toContainText('まだ練習していません')
   await expect(row(page, 'fruits').getByRole('link', { name: 'Fruits を練習' })).toHaveAttribute('href', '/play?list=fruits')
 
-  await page.getByRole('searchbox', { name: 'リスト名・カテゴリ・タグ・単語で検索' }).fill('KIWI')
+  await page.getByRole('searchbox', { name: 'パック名・リスト名・カテゴリ・タグ・単語で検索' }).fill('KIWI')
   expect(await rowNames(page)).toEqual(['Fruits'])
   await expect(page.getByText('1パック / 全3パック')).toBeVisible()
   await page.getByRole('searchbox').fill('nothing')

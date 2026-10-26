@@ -189,7 +189,7 @@ function EmptyState() {
       <h2 className="font-bold">{t('empty.title')}</h2>
       <p className="max-w-md text-sm text-balance text-muted-foreground">{t('empty.description')}</p>
     </div>
-    <Button asChild><Link href="/create"><Plus aria-hidden="true" />{t('manager.create')}</Link></Button>
+    <Button asChild><Link href="/packs/create"><Plus aria-hidden="true" />{t('manager.create')}</Link></Button>
   </div>
 }
 
