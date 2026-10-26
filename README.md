@@ -21,6 +21,19 @@
 - Go のバックエンド（`server/internal/*`）：typle-kotlin-backend の対応するコードを同じように直し、`TYPLE_BACKEND=kotlin npm run test:e2e` で確かめます。
 - ログイン（`client=ipad|macos|android|windows`）とトークンの形：各アプリが使うので、互換を保ちます。
 
+## v0.96.1 — パックがなくなった共有リンクを消す・止められるようにしました
+
+v0.96.0 の共有リンクの後始末です（計画は `docs/superpowers/plans/2026-10-26-word-packs-7-share-followups.md`）。保存形式は変えていません。
+
+- 保存のたびに消す：`lists` だけの保存（パックを知らない古いアプリ）でも、保存後の行のパック（保存済みの `packs` がなければリストから導いたもの）にない共有を、同じトランザクションで消すようにしました。端末だけの保存では消しません。
+- 止める手段：それでも残った共有（前の版に戻していた間に作られたものなど）は、単語パックの画面の下の「パックが見つからない共有」に出し、「共有をやめる」で止められます（ログインしているときだけ）。そのため `GET /api/shares` の各要素と `PUT /api/shares` の応答に、共有したときのパック名 `name` を足しました（`{ "id", "packId", "name", "updatedAt" }`）。
+- 失敗の理由：共有の作成・更新・停止に失敗したとき、サーバーが返すエラー（`packNotFound` など）に合った文言を出します（`packNotFound` の文言を6言語で足しました）。
+- 読み上げ：共有ダイアログの「コピーしました」をスクリーンリーダーに読み上げます（続けてコピーしても毎回）。
+- 検索エンジン：`/api/shared` のすべての応答に `X-Robots-Tag: noindex` を付けました。
+- エラー報告：Sentry に送る URL の `/shared/<id>` を `/shared/[id]` にし、リンクが報告に残らないようにしました。
+- Kotlin 版：typle-kotlin-backend の `feat/share-followups` ブランチで同じ変更をしました。
+- リクエスト数の制限：`/api/shared` はログインなしで読めるため、Vercel Firewall の Rate Limit ルール（例：パス `/api/shared`、IP ごとに 60 回/分、超えたら 429）で制限します。アプリのコードでは制限しません（関数のインスタンスをまたいで数えられないため）。
+
 ## v0.96.0 — 単語パックをリンクで共有できるようにしました
 
 ログインしているとき、パックを「共有リンク」で人に見せられるようにしました（設計は `docs/superpowers/specs/2026-10-26-word-packs-design.md`）。保存形式（`typle_workspaces`）は変えていません。
