@@ -29,8 +29,13 @@ export default function Catalog() {
   const entries = useMemo(() => catalogEntries({ packs, lists }), [packs, lists])
 
   // With interests, the entries that match come first in a section of their own; each keeps its place in the catalog order.
-  const matching = useMemo(() => entries.filter(entry => matchesInterests(entry.pack, interests)), [entries, interests])
-  const others = useMemo(() => entries.filter(entry => !matching.includes(entry)), [entries, matching])
+  const [matching, others] = useMemo(() => {
+    const fits: CatalogEntry[] = []
+    const rest: CatalogEntry[] = []
+    for (const entry of entries) (matchesInterests(entry.pack, interests) ? fits : rest).push(entry)
+    return [fits, rest]
+  }, [entries, interests])
+  const split = interests.length > 0
 
   // The pack that came from an entry: the one with its origin, or the one with its id (see catalogEntries).
   function ownedPack(entry: CatalogEntry) {
@@ -52,8 +57,7 @@ export default function Catalog() {
   }
 
   // Entries sit under a section heading once the catalog is split, so their names step down a level.
-  const Name = interests.length ? "h3" : "h2"
-  const renderEntries = (items: CatalogEntry[]) => (
+  const renderEntries = (items: CatalogEntry[], Name: "h2" | "h3") => (
     <ul className="divide-y overflow-hidden rounded-xl border bg-card">
       {items.map(entry => {
         const owned = entry.followed ? ownedPack(entry) : undefined
@@ -104,17 +108,17 @@ export default function Catalog() {
         <CircleAlert aria-hidden="true" />
         <AlertDescription>{error}</AlertDescription>
       </Alert>}
-      {interests.length === 0 ? renderEntries(entries) : <div className="space-y-8">
+      {!split ? renderEntries(entries, "h2") : <div className="space-y-8">
         <section aria-labelledby="catalog-matching" className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 id="catalog-matching" className="text-base font-bold">{t("matching")}</h2>
             <Link href="/interests" className="text-sm underline underline-offset-3 hover:text-foreground">{t("changeInterests")}</Link>
           </div>
-          {matching.length ? renderEntries(matching) : <p className="rounded-xl border border-dashed bg-card px-5 py-6 text-sm text-muted-foreground">{t("noMatching")}</p>}
+          {matching.length ? renderEntries(matching, "h3") : <p className="rounded-xl border border-dashed bg-card px-5 py-6 text-sm text-muted-foreground">{t("noMatching")}</p>}
         </section>
         {others.length > 0 && <section aria-labelledby="catalog-others" className="space-y-3">
           <h2 id="catalog-others" className="text-base font-bold">{t("others")}</h2>
-          {renderEntries(others)}
+          {renderEntries(others, "h3")}
         </section>}
       </div>}
       <UnfollowDialog pack={unfollowing} onOpenChange={open => { if (!open) setUnfollowing(null) }} updateLibrary={updateLibrary} onUnfollowed={() => setUnfollowing(null)} />

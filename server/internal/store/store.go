@@ -305,12 +305,12 @@ func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, c
 		}
 	}
 	if change.HasInterests {
+		// Interests the app would refuse are refused as the request would be.
+		if err := workspace.CheckInterests(change.Interests); err != nil {
+			return nil, &workspace.Error{Key: "invalidWorkspace"}
+		}
 		if interests, err = workspace.EncodeInterests(change.Interests); err != nil {
 			return nil, err
-		}
-		// Interests the app would refuse are refused as the request would be.
-		if _, err := workspace.DecodeInterests(interests); err != nil {
-			return nil, &workspace.Error{Key: "invalidWorkspace"}
 		}
 	}
 	// A part left out is saved as it is, so only the other one can be refused; it is read with an empty one. Lists
