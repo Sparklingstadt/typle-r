@@ -50,5 +50,6 @@
   "recordListDeleted": "単語リストが削除されているため、記録を保存できません。",
   "packNameRequired": "パック名を入力してください",
   "packNameDuplicate": "同じ名前のパックがあります",
-  "packDeleted": "このパックは削除されています"
+  "packDeleted": "このパックは削除されています",
+  "levelsConflict": "同じパックに、同じ難易度か、その途中までが同じ難易度のリストがあります"
 }

@@ -50,5 +50,6 @@
   "recordListDeleted": "单词列表已被删除，无法保存记录。",
   "packNameRequired": "请输入包名称。",
   "packNameDuplicate": "已存在同名的包。",
-  "packDeleted": "此包已被删除。"
+  "packDeleted": "此包已被删除。",
+  "levelsConflict": "同一个包中已有难度相同，或前几步难度相同的列表。"
 }

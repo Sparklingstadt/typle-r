@@ -50,5 +50,6 @@
   "recordListDeleted": "單字清單已被刪除，無法儲存紀錄。",
   "packNameRequired": "請輸入包名稱。",
   "packNameDuplicate": "已有同名的包。",
-  "packDeleted": "此包已被刪除。"
+  "packDeleted": "此包已被刪除。",
+  "levelsConflict": "同一個包中已有難度相同，或前幾步難度相同的清單。"
 }
