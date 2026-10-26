@@ -21,6 +21,25 @@
 - Go のバックエンド（`server/internal/*`）：typle-kotlin-backend の対応するコードを同じように直し、`TYPLE_BACKEND=kotlin npm run test:e2e` で確かめます。
 - ログイン（`client=ipad|macos|android|windows`）とトークンの形：各アプリが使うので、互換を保ちます。
 
+## v0.96.0 — 単語パックをリンクで共有できるようにしました
+
+ログインしているとき、パックを「共有リンク」で人に見せられるようにしました（設計は `docs/superpowers/specs/2026-10-26-word-packs-design.md`）。保存形式（`typle_workspaces`）は変えていません。
+
+- 共有の作成・更新・停止：単語パックのパックの「…」メニューの「共有」（ログインしているときだけ）でダイアログを開き、「リンクを作る」でリンクを作って「コピー」します。パックを編集しても、リンクの内容は自動では変わりません。「共有を更新」で今の内容に写し直します（リンクは同じまま）。「共有をやめる」でリンクを使えなくします。共有中のパックには「共有中」の印が付きます。
+- 公開ページ（`/shared/<id>`）：リンクを知っていればログインなしで開けます。パック名・説明・カテゴリ・タグと、リストの名前・難易度・単語（表示・入力・補足）を見せます。持ち主の名前や練習記録は出ません。検索には載せず（`noindex`）、タイトルも共有の中身によらず同じです。「自分のパックに追加」で、パックのファイルの取り込み（v0.95.0）と同じ読み方で自分のパックにできます。ゲストはこのブラウザーに保存します。終わった・存在しないリンクは「この共有は終了しました。」を表示します。
+- パックの削除：共有中のパックを削除すると、共有も終わります（削除の確認にも書いています）。
+- DB：マイグレーション `0025_shared_packs` で `typle_shared_packs`（`id` uuid、`owner_id`、`pack_id`、`data` jsonb、`created_at`、`updated_at`、`UNIQUE (owner_id, pack_id)`）を足しました。テーブルを足すだけで、古いアプリと互換です。`data` は保存済みのパックをパックのファイル（`typle-pack` v1、1 MiB まで）にしたもので、記録・ID・作成日時・`origin` は入りません。
+- バックエンド：Go の `/api/shares`（持ち主用）と `/api/shared`（公開用）を足し、Vercel の関数は `api/shares.go`・`api/shared.go` です（ローカルの rewrites も足しました）。Kotlin 版は typle-kotlin-backend の `feat/shared-packs` ブランチで同じものを足しました（違いは、保存した行のないアカウントの共有が Kotlin では `404 packNotFound` になることです。Go は最初のパックを共有できます）。
+  - `GET /api/shares`：`200 { "shares": [{ "id", "packId", "updatedAt" }] }`（持ち主のもの、更新の新しい順）。
+  - `PUT /api/shares`：本文は `{ "packId" }` だけ。`200 { "id", "packId", "updatedAt" }`。保存済みのパックがなければ `404 packNotFound`、本文が空・ほかの項目がある・`packId` が空は `400 invalidWorkspace`、保存の失敗は `503 workspaceSaveFailed`。共有済みなら同じ `id` のまま内容を写し直します。
+  - `DELETE /api/shares?pack=<packId>`：`204`（共有していなくても `204`）。`pack` がなければ `400 invalidWorkspace`。`Content-Type` は要りません。
+  - `PUT`・`DELETE` の Origin・認証は `PUT /api/workspace` と同じです（Cookie ならサイトの Origin が必要、アプリのトークンも使えます。`PUT` は `Content-Type: application/json` も必要）。ログインがなければ `401 loginRequired`。
+  - `GET /api/shared?id=<id>`：認証なし。`200` でパックのファイルそのもの（`Cache-Control: no-store`）。`id` が UUID でない・行がなければ `404 sharedPackNotFound`（新しいエラーキー）。
+  - 共有中のパックがなくなる保存では共有も消えます。`/api/workspace` で `packs` を送る保存と、`/api/v1` の書き込みが、保存したパックにない `pack_id` の共有を同じトランザクションで消します（`lists` だけの保存では消しません）。
+- API の文書：`/api/workspace` は `docs/api.md` に章がないため、`/api/shares`・`/api/shared` もこの README に書きました（`docs/api.md` には `/api/v1` の書き込みで共有が消えることだけ足しました）。
+- spec からの変更：API のパスは spec の `PUT /api/workspace/packs/{p}/share`・`GET /api/shared/{id}` ではなく、クエリで指定します（Vercel の Go の関数は1ファイル1パスで、今ある `api/workspace.go` と動的なパスを組み合わせないため）。応答に `url` は入れず、画面がサイトの origin と `/shared/<id>` から作ります。共有を消すのは `/api/workspace` の保存と `/api/v1` の書き込みの両方です。
+- 使い方のページ（`/guide`）に、パックの共有の説明を6言語で足しました。
+
 ## v0.95.0 — パックの書き出し・取り込み・複製と、公式パックのカタログを追加しました
 
 パックをファイルで書き出して取り込めるようにし、パックの複製と公式パックのカタログを足しました（設計は `docs/superpowers/specs/2026-10-26-word-packs-design.md`）。保存形式は変えていません。

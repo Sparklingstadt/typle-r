@@ -90,6 +90,13 @@
       "p3": "Choose that file with “Import from file” to import it as a new pack (this also works when you have no packs yet). Files up to 1 MiB are accepted, and unreadable files are refused. If a pack with the same name exists, the new one is named “Name (2)”.",
       "p4": "In “Official packs” under Word packs, “Add” puts a ready-made pack into your own packs. You can edit an added pack freely, and packs you already have show “Added”. An official pack you deleted can be added again (its practice history does not come back)."
     },
+    "share": {
+      "title": "Sharing a pack",
+      "p1": "When you are logged in, \"Share\" in a pack's \"…\" menu creates a share link. Choose \"Create link\", then \"Copy\" it and send it to others.",
+      "p2": "Anyone with the link can see the pack's name, description, lists, and words without logging in, and add it to their own packs with \"Add to my packs\". Your practice records and your name are not visible.",
+      "p3": "Editing the pack does not change the link automatically. \"Update share\" brings it up to date (the link stays the same). \"Stop sharing\" ends the link, and it then shows that the share has ended. A shared pack is marked \"Shared\".",
+      "p4": "Deleting a shared pack also ends its share."
+    },
     "input": {
       "title": "Entering words",
       "p1": "Enter a list name and, for each word, the “Word to display” and the “Text to type”. The note is optional.",

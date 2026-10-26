@@ -107,6 +107,14 @@ export default async function Guide() {
               <li>{t("lists.files.p4")}</li>
             </Points>
           </Topic>
+          <Topic title={t("lists.share.title")}>
+            <Points>
+              <li>{t("lists.share.p1")}</li>
+              <li>{t("lists.share.p2")}</li>
+              <li>{t("lists.share.p3")}</li>
+              <li>{t("lists.share.p4")}</li>
+            </Points>
+          </Topic>
           <Topic title={t("lists.input.title")}>
             <Points>
               <li>{t("lists.input.p1")}</li>
