@@ -16,10 +16,10 @@
   },
   "start": {
     "title": "Get started in 3 steps",
-    "sample": {
-      "title": "Practice with a sample",
-      "text": "A sample list is included, so you can start right away. Just type the words shown on screen.",
-      "action": "Practice"
+    "follow": {
+      "title": "Follow official packs",
+      "text": "Follow official packs such as Go or Kotlin to put them in your packs and start practicing right away.",
+      "action": "Official packs"
     },
     "create": {
       "title": "Make your own pack",
@@ -88,7 +88,7 @@
       "p1": "“Duplicate” in a pack’s “…” menu copies the pack with all its lists. The copy is named “Name (copy)” and placed right after the original. Practice history is not copied.",
       "p2": "“Export” in a pack’s “…” menu saves the pack to a “pack-name.typle-pack.json” file. It contains the name, description, category, tags, lists, and words, but not practice history.",
       "p3": "Choose that file with “Import from file” to import it as a new pack (this also works when you have no packs yet). Files up to 1 MiB are accepted, and unreadable files are refused. If a pack with the same name exists, the new one is named “Name (2)”.",
-      "p4": "In “Official packs” under Word packs, “Add” puts a ready-made pack into your own packs. You can edit an added pack freely, and packs you already have show “Added”. An official pack you deleted can be added again (its practice history does not come back)."
+      "p4": "In “Official packs” under Word packs, “Follow” puts that pack into your packs. Followed packs are marked “Official” and stay up to date with the official version. A followed pack cannot be edited; to change it, use “Duplicate” to make a pack of your own. “Unfollow” removes the pack from your packs, together with its practice history."
     },
     "share": {
       "title": "Sharing a pack",
@@ -114,7 +114,7 @@
     "manage": {
       "title": "Managing lists",
       "p1": "In <edit>Word packs</edit>, you can search by pack name, list name, or word and change the sort order.",
-      "p2": "From a pack’s “…” menu you can practice, edit the pack, add a list, or delete it. Deleting a pack also deletes its lists and their practice history. Each list row has its own “…” menu for best records, practice history, CSV export, duplicating, and deleting.",
+      "p2": "From a pack’s “…” menu you can practice, edit the pack, add a list, or delete it. Deleting a pack also deletes its lists and their practice history. Each list row has its own “…” menu for best records, practice history, CSV export, duplicating, and deleting. Followed official packs cannot be edited, and have “Unfollow” instead of delete.",
       "p3": "Duplicating copies only the words, not the practice history. The same applies when you duplicate a pack."
     },
     "csv": {

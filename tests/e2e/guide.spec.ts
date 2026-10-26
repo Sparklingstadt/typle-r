@@ -21,7 +21,7 @@ test('the guide has a table of contents that jumps to each section below the top
 test('the guide links to each screen and shows the practice colors and keys', async ({ page }) => {
   await page.goto('/guide')
   const start = page.getByRole('region', { name: 'はじめの3ステップ' })
-  await expect(start.getByRole('link', { name: '練習する' })).toHaveAttribute('href', '/play')
+  await expect(start.getByRole('link', { name: '公式パック' })).toHaveAttribute('href', '/packs/catalog')
   await expect(start.getByRole('link', { name: 'パックを作成' })).toHaveAttribute('href', '/packs/create')
   await expect(start.getByRole('link', { name: 'ベスト記録' })).toHaveAttribute('href', '/rankings')
 

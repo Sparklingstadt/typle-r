@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { getTranslations } from "next-intl/server"
-import { ArrowRight, Cloud, Command, HardDrive, History, Keyboard, List, Monitor, Plus, TriangleAlert, Trophy, type LucideIcon } from "lucide-react"
+import { ArrowRight, Cloud, Command, HardDrive, History, Keyboard, Library, List, Monitor, Plus, TriangleAlert, Trophy, type LucideIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ColorLegend, GuideSection, Keys, Points, Topic, guideTags } from "@/components/Guide/GuideParts"
 
@@ -12,8 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const contents = ["practice", "lists", "records", "devices", "storage", "shortcuts"] as const
 
-const steps: { icon: LucideIcon; key: "sample" | "create" | "review"; href: string }[] = [
-  { icon: Keyboard, key: "sample", href: "/play" },
+const steps: { icon: LucideIcon; key: "follow" | "create" | "review"; href: string }[] = [
+  { icon: Library, key: "follow", href: "/packs/catalog" },
   { icon: Plus, key: "create", href: "/packs/create" },
   { icon: Trophy, key: "review", href: "/rankings" },
 ]
