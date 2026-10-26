@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
+import { openPacks } from './packRows'
 const key = 'typle-r:guest-workspace:v1'
 async function importWords(page: import('@playwright/test').Page, files: Parameters<import('@playwright/test').Locator['setInputFiles']>[0]) {
   await page.getByRole('button', { name: 'CSV・TSVを読み込む', exact: true }).click()
@@ -44,6 +45,7 @@ test('create, reorder, edit, play, reload and delete records', async ({ page }) 
   await page.getByRole('button', { name: '保存', exact: true }).click()
   await expect(page).toHaveURL(/\/edit$/)
   await page.reload()
+  await openPacks(page)
   await page.getByRole('button', { name: 'E2E Practice を編集', exact: true }).click()
   await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('Saved Practice')
   await page.getByRole('textbox', { name: '入力する文字 1', exact: true }).fill('c')
@@ -88,6 +90,7 @@ test('create, reorder, edit, play, reload and delete records', async ({ page }) 
   await page.reload()
   await expect(page.getByText('まだ練習記録がありません', { exact: false })).toBeVisible()
   await page.goto('/edit')
+  await openPacks(page)
   await page.getByRole('button', { name: 'Saved Practice のその他の操作', exact: true }).click()
   await page.getByRole('menuitem', { name: '削除', exact: true }).click()
   await page.getByRole('alertdialog').getByRole('button', { name: '削除する', exact: true }).click()
@@ -166,7 +169,7 @@ test('Tailwind editor remains accessible and fits mobile and desktop', async ({ 
     await expect(page.getByRole('textbox', { name: '表示する単語 1', exact: true })).toBeFocused()
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
     if (width < 1280) await page.getByRole('button', { name: 'メニューを開く' }).click()
-    await expect(page.getByRole('navigation', { name: 'メインナビゲーション' }).getByRole('link', { name: 'リストを作成', exact: true })).toHaveAttribute('aria-current', 'page')
+    await expect(page.getByRole('navigation', { name: 'メインナビゲーション' }).getByRole('link', { name: 'パックを作成', exact: true })).toHaveAttribute('href', '/packs/create')
     if (width < 1280) await page.keyboard.press('Escape')
     await page.screenshot({ path: `test-results/tailwind-editor-${width}.png`, fullPage: true })
   }
@@ -242,6 +245,7 @@ test('optional word fields preserve overrides and annotations after saving', asy
   await page.getByRole('button', { name: '保存', exact: true }).click()
   await expect(page).toHaveURL(/\/edit$/)
   await page.reload()
+  await openPacks(page)
   const workspace = await saved(page)
   expect(workspace.lists.find((list: { name: string }) => list.name === 'Defaults').words).toEqual([
     { display: '表示', input: 'custom', annotation: 'ヒント' },
@@ -266,12 +270,12 @@ test('mobile drawer closes by link, Esc and backdrop and returns focus to the me
   await open.click()
   await expect(drawer).toBeVisible()
   await expect(drawer).toContainText('このブラウザーに保存')
-  await drawer.getByRole('link', { name: 'リストを作成', exact: true }).click()
-  await expect(page).toHaveURL(/\/create$/)
+  await drawer.getByRole('link', { name: '単語パック', exact: true }).click()
+  await expect(page).toHaveURL(/\/edit$/)
   await expect(drawer).toBeHidden()
   await expect(open).toBeFocused()
   await open.click()
-  await expect(drawer.getByRole('link', { name: 'リストを作成', exact: true })).toHaveAttribute('aria-current', 'page')
+  await expect(drawer.getByRole('link', { name: '単語パック', exact: true })).toHaveAttribute('aria-current', 'page')
   await page.keyboard.press('Escape')
   await expect(drawer).toBeHidden()
   await expect(open).toBeFocused()
@@ -283,7 +287,7 @@ test('mobile drawer closes by link, Esc and backdrop and returns focus to the me
   await page.setViewportSize({ width: 1280, height: 800 })
   await expect(drawer).toBeHidden()
   await expect(open).toBeHidden()
-  await expect(page.getByRole('navigation', { name: 'メインナビゲーション' }).getByRole('link', { name: '単語リスト', exact: true })).toBeVisible()
+  await expect(page.getByRole('navigation', { name: 'メインナビゲーション' }).getByRole('link', { name: '単語パック', exact: true })).toBeVisible()
 })
 
 test('narrow desktop windows use the drawer so the page keeps its width', async ({ page }) => {
@@ -375,6 +379,7 @@ test('best five records sort by accuracy then time and refresh after practice', 
 test('save and delete notifications stack and animate before being dismissed', async ({ page }) => {
   await seed(page, [{ id: 'toast', name: 'Toast', createdAt: '2026-09-06', records: [], words: [{ display: 'a', input: 'a', annotation: '' }] }])
   await page.goto('/edit')
+  await openPacks(page)
   await page.getByRole('button', { name: 'Toast を編集', exact: true }).click()
   await page.getByRole('button', { name: '保存', exact: true }).click()
   const notifications = page.getByLabel('通知', { exact: true })
@@ -418,6 +423,7 @@ for (const format of ['csv', 'tsv'] as const) {
     await page.getByRole('button', { name: '保存', exact: true }).click()
     await expect(page).toHaveURL(/\/edit$/)
     await page.reload()
+    await openPacks(page)
     await page.getByRole('button', { name: 'Imported を編集', exact: true }).click()
     await expect(page.getByRole('textbox', { name: '表示する単語 1', exact: true })).toHaveValue(format === 'csv' ? '日本,Japan' : '日本')
     await expect(page.getByRole('textbox', { name: '表示する単語 2', exact: true })).toHaveValue('フランス')
@@ -455,6 +461,7 @@ for (const theme of ['light', 'dark']) {
     await input.fill('hello')
     await expect(page.getByLabel('練習結果', { exact: true })).toContainText('練習記録を保存しました。')
     await page.goto('/edit')
+    await openPacks(page)
     await page.getByRole('button', { name: 'Theme practice を編集', exact: true }).click()
     await expect(page.getByRole('textbox', { name: '単語リスト名', exact: true })).toHaveValue('Theme practice')
     await page.getByRole('button', { name: 'キャンセル', exact: true }).click()
@@ -553,6 +560,7 @@ test('CSV import preserves existing records and exact strings after a failed sav
   await page.getByRole('button', { name: '保存', exact: true }).click()
   await expect(page).toHaveURL(/\/edit$/)
   await page.reload()
+  await openPacks(page)
   await expect(page.getByRole('button', { name: 'CSV Chinese を編集', exact: true })).toBeVisible()
   const lists = (await saved(page)).lists
   expect(lists).toHaveLength(2)
@@ -576,6 +584,7 @@ for (const width of [390, 1440]) {
     await seed(page, [list])
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/edit')
+    await openPacks(page)
     const before = await saved(page)
     const downloadPromise = page.waitForEvent('download')
     await page.getByRole('button', { name: '中国語 のその他の操作', exact: true }).click()

@@ -1,7 +1,7 @@
 "use client"
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
 import { DropdownMenu } from "radix-ui"
 import { Check, ChevronDown, CircleAlert, Download, ListPlus, Plus, RotateCw, Search, X } from "lucide-react"
@@ -15,11 +15,12 @@ import WordListEditor from "@/components/WordListEditor"
 import { downloadWordCsv } from "@/components/WordListExport"
 import ListRow, { usePracticeText } from "@/components/WordLists/ListRow"
 import LabelFilter from "@/components/WordLists/LabelFilter"
-import GroupRow from "@/components/WordLists/GroupRow"
+import PackRow from "@/components/WordLists/PackRow"
 import { useWordLists } from "@/lib/useWordLists"
 import { useFormat } from "@/i18n/useFormat"
 import { randomId } from "@/core/randomId"
-import { duplicateList, groupEntries, isFiltered, LIST_ORDERS, listLabels, listOverviews, matchesFilter, matchesQuery, MAX_LISTS, NO_FILTER, sortOverviews, type ListFilter, type ListOrder, type ListOverview } from "@/core/listOverview"
+import { duplicateList, isFiltered, LIST_ORDERS, listLabels, listOverviews, matchesFilter, MAX_LISTS, NO_FILTER, type ListFilter, type ListOrder, type ListOverview } from "@/core/listOverview"
+import { deletePack, matchesPackQuery, matchingListIds, packOverviews, type PackOverview } from "@/core/packEditing"
 import { saveList, type SavedWordList } from "@/core/wordLists"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
@@ -63,7 +64,7 @@ function LoadingState() {
 // `/edit?list=<id>` opens the editor, so other screens can link to it and the browser's back button returns to the lists.
 // The editor stays open while it has unsaved changes: going back asks first, like キャンセル.
 function WordLists({ workspace }: { workspace: Workspace }) {
-  const { lists, error, errorKey, saving, update, storage } = workspace
+  const { lists, packs, error, errorKey, saving, update, updateLibrary, storage } = workspace
   const t = useTranslations('wordLists.page')
   const practiceText = usePracticeText()
   const notify = useSaveNotification()
@@ -74,8 +75,19 @@ function WordLists({ workspace }: { workspace: Workspace }) {
   const [dirty, setDirty] = useState(false)
   const [cancelRequest, setCancelRequest] = useState(0)
   const [highlight, setHighlight] = useState<string | null>(null)
-  // The open groups stay open while a list of one is edited, so the row is there to return to.
-  const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set())
+  // `/edit?pack=<id>` (from the pack screens, after saving) opens that pack and points at its row.
+  const packId = params.get('pack')
+  const [seenPack, setSeenPack] = useState<string | null>(null)
+  const [highlightPack, setHighlightPack] = useState<string | null>(null)
+  // The open packs stay open while a list is edited, so the row is there to return to.
+  const [openPacks, setOpenPacks] = useState<Set<string>>(() => new Set())
+  if (packId !== seenPack) {
+    setSeenPack(packId)
+    if (packId) {
+      setHighlightPack(packId)
+      setOpenPacks(current => new Set([...current, packId]))
+    }
+  }
   const pushed = useRef(false)
   const returnTo = useRef<{ id: string; scroll: number } | null>(null)
   const editing = lists.find(list => list.id === openId)
@@ -112,6 +124,12 @@ function WordLists({ workspace }: { workspace: Workspace }) {
     const timer = window.setTimeout(() => setHighlight(null), 2400)
     return () => window.clearTimeout(timer)
   }, [highlight])
+  useEffect(() => {
+    if (!highlightPack || openId) return
+    document.querySelector(`[data-pack-id="${CSS.escape(highlightPack)}"]`)?.scrollIntoView({ block: 'nearest' })
+    const timer = window.setTimeout(() => setHighlightPack(null), 2400)
+    return () => window.clearTimeout(timer)
+  }, [highlightPack, openId])
 
   function open(list: SavedWordList) {
     returnTo.current = { id: list.id, scroll: window.scrollY }
@@ -159,34 +177,53 @@ function WordLists({ workspace }: { workspace: Workspace }) {
       <AlertDescription>{t('notFound')}</AlertDescription>
     </Alert>}
     {/* After a failed load the lists are unknown; "no lists yet" would be wrong. */}
-    {!(error && !lists.length) && <ListManager lists={lists} saving={saving} highlight={highlight} update={update} notify={notify}
-      openGroups={openGroups} onOpenGroupsChange={setOpenGroups} onEdit={open} onHighlight={setHighlight} />}
+    {!(error && !lists.length) && <ListManager lists={lists} packs={packs} saving={saving} highlight={highlight} highlightPack={highlightPack}
+      update={update} updateLibrary={updateLibrary} notify={notify}
+      openPacks={openPacks} onOpenPacksChange={setOpenPacks} onEdit={open} onHighlight={setHighlight} />}
   </>
 }
 
-function ListManager({ lists, saving, highlight, update, notify, openGroups, onOpenGroupsChange, onEdit, onHighlight }: {
+// Newest first for 'added'. Packs without a record come after the practised ones for 'practiced'.
+function sortPacks(items: PackOverview[], order: ListOrder, locale: string) {
+  const collator = new Intl.Collator(locale, { numeric: true })
+  return [...items].sort((a, b) => {
+    if (order === 'name') return collator.compare(a.pack.name, b.pack.name) || b.position - a.position
+    if (order === 'words') return b.wordCount - a.wordCount || b.position - a.position
+    if (order === 'practiced') return (b.lastPracticed ?? -Infinity) - (a.lastPracticed ?? -Infinity) || b.position - a.position
+    return b.position - a.position
+  })
+}
+
+function ListManager({ lists, packs, saving, highlight, highlightPack, update, updateLibrary, notify, openPacks, onOpenPacksChange, onEdit, onHighlight }: {
   lists: SavedWordList[]
+  packs: Workspace['packs']
   saving: boolean
   highlight: string | null
-  openGroups: Set<string>
-  onOpenGroupsChange: (value: Set<string>) => void
+  highlightPack: string | null
+  openPacks: Set<string>
+  onOpenPacksChange: (value: Set<string>) => void
   update: Workspace['update']
+  updateLibrary: Workspace['updateLibrary']
   notify: (message: string) => void
   onEdit: (list: SavedWordList) => void
   onHighlight: (id: string) => void
 }) {
   const t = useTranslations('wordLists')
   const locale = useLocale()
+  const router = useRouter()
   const [now] = useState(() => new Date())
   const [query, setQuery] = useState('')
   const [order, setOrder] = useState<ListOrder>('added')
   const [filter, setFilter] = useState<ListFilter>(NO_FILTER)
   const [exportError, setExportError] = useState('')
   const [deleting, setDeleting] = useState<{ open: boolean; item: ListOverview | null; position: number }>({ open: false, item: null, position: 0 })
+  const [deletingPack, setDeletingPack] = useState<{ open: boolean; item: PackOverview | null; position: number }>({ open: false, item: null, position: 0 })
   const deleted = useRef(false)
-  const all = useMemo(() => listOverviews(lists), [lists])
-  const labels = useMemo(() => listLabels(lists, locale), [lists, locale])
-  const shown = useMemo(() => sortOverviews(all.filter(item => matchesQuery(item.list, query) && matchesFilter(item.list, filter)), order, locale),
+  const packDeleted = useRef(false)
+  // `lists` are the lists as screens see them (each carries its pack's labels), which is what the overviews are built from.
+  const all = useMemo(() => packOverviews({ packs, lists }), [packs, lists])
+  const labels = useMemo(() => listLabels(packs, locale), [packs, locale])
+  const shown = useMemo(() => sortPacks(all.filter(item => matchesPackQuery(item, query) && matchesFilter(item.pack, filter)), order, locale),
     [all, query, filter, order, locale])
   const narrowed = !!query.trim() || isFiltered(filter)
   const full = lists.length >= MAX_LISTS
@@ -211,11 +248,11 @@ function ListManager({ lists, saving, highlight, update, notify, openGroups, onO
     }
   }
 
-  // A list just changed is shown in its group, which stays open.
-  const highlightGroup = lists.find(list => list.id === highlight)?.group?.trim()
+  // A list just changed is shown in its pack, which stays open.
+  const highlightPackOfList = lists.find(list => list.id === highlight)?.packId
   useEffect(() => {
-    if (highlightGroup && !openGroups.has(highlightGroup)) onOpenGroupsChange(new Set([...openGroups, highlightGroup]))
-  }, [highlightGroup, openGroups, onOpenGroupsChange])
+    if (highlightPackOfList && !openPacks.has(highlightPackOfList)) onOpenPacksChange(new Set([...openPacks, highlightPackOfList]))
+  }, [highlightPackOfList, openPacks, onOpenPacksChange])
 
   // A row's place among the rows shown, which the focus goes back to after it is deleted.
   function rowPosition(id: string) {
@@ -231,14 +268,27 @@ function ListManager({ lists, saving, highlight, update, notify, openGroups, onO
     else document.getElementById('list-heading')?.focus()
   }
 
+  // After a pack is deleted, focus the pack that took its place, or the heading when none is left.
+  function focusAfterDeletePack(event: Event) {
+    event.preventDefault()
+    const buttons = document.querySelectorAll<HTMLElement>('[data-pack-id] h3 button')
+    const target = packDeleted.current ? buttons[Math.min(deletingPack.position, buttons.length - 1)] : buttons[deletingPack.position]
+    if (target) target.focus()
+    else document.getElementById('list-heading')?.focus()
+  }
+
+  // The last list of a pack takes the pack with it.
+  const deletingPackName = deleting.item && lists.filter(list => list.packId === deleting.item!.list.packId).length === 1
+    ? packs.find(pack => pack.id === deleting.item!.list.packId)?.name : undefined
+
   if (!lists.length) return <EmptyState />
 
   return <section aria-labelledby="list-heading" className="space-y-3">
     <div className="flex min-h-11 flex-wrap items-center gap-x-2 gap-y-2">
       <h2 id="list-heading" tabIndex={-1} className="text-base font-bold outline-none">{t('manager.heading')}</h2>
       <Badge variant="secondary" className="tabular-nums" title={t('manager.limitTitle', { max: MAX_LISTS })}>{lists.length} / {MAX_LISTS}</Badge>
-      {full ? <Button className="ml-auto" disabled><Plus aria-hidden="true" />{t('manager.create')}</Button>
-        : <Button asChild className="ml-auto"><Link href="/create"><Plus aria-hidden="true" />{t('manager.create')}</Link></Button>}
+      {full ? <Button className="ml-auto" disabled><Plus aria-hidden="true" />{t('manager.createPack')}</Button>
+        : <Button asChild className="ml-auto"><Link href="/packs/create"><Plus aria-hidden="true" />{t('manager.createPack')}</Link></Button>}
     </div>
     {full && <p className="text-sm text-muted-foreground">{t('manager.full', { max: MAX_LISTS })}</p>}
     {exportError && <p role="alert" className="flex items-center gap-1.5 text-sm text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{exportError}</p>}
@@ -257,27 +307,32 @@ function ListManager({ lists, saving, highlight, update, notify, openGroups, onO
       <LabelFilter labels={labels} value={filter} onChange={setFilter} />
       <OrderMenu value={order} onChange={setOrder} />
       {isFiltered(filter) && <Button variant="ghost" size="lg" className="text-muted-foreground" onClick={() => setFilter(NO_FILTER)}>{t('filter.clear')}</Button>}
-      <p aria-live="polite" className="ml-auto text-sm text-muted-foreground tabular-nums">{narrowed ? t('manager.countFiltered', { shown: shown.length, total: lists.length }) : t('manager.count', { total: lists.length })}</p>
+      <p aria-live="polite" className="ml-auto text-sm text-muted-foreground tabular-nums">{narrowed ? t('manager.countFiltered', { shown: shown.length, total: all.length }) : t('manager.count', { total: all.length })}</p>
     </div>
 
     {shown.length ? <ul className="divide-y overflow-hidden rounded-xl border bg-card">
-      {groupEntries(shown, item => item.list, lists).map(entry => {
-        const row = (item: ListOverview) => <ListRow key={item.list.id} item={item} now={now} highlight={highlight === item.list.id} disabled={saving} canCopy={!full}
-          onEdit={() => onEdit(item.list)} onExport={() => exportCsv(item.list)} onCopy={() => copy(item.list)}
-          onDelete={() => { deleted.current = false; setDeleting({ open: true, item, position: rowPosition(item.list.id) }) }} />
-        if (entry.group === null) return row(entry.items[0])
-        const group = entry.group
-        // A search or filter shows the matching lists of every group.
-        const open = narrowed || openGroups.has(group)
-        // Inside a group the lists keep their saved order, which goes from the first level to the last.
-        const items = [...entry.items].sort((a, b) => a.position - b.position)
-        return <GroupRow key={`group:${group}`} group={group} items={items} now={now} open={open}
+      {shown.map(item => {
+        const { pack } = item
+        // A search or filter opens every pack that matched.
+        const open = narrowed || openPacks.has(pack.id)
+        // A search that found lists by their name or words shows those; one that found the pack by its name or labels shows all.
+        const found = new Set(matchingListIds(item, query))
+        const byName = !!query.trim() && pack.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())
+        const rows = found.size && !byName ? item.lists.filter(row => found.has(row.list.id)) : item.lists
+        return <PackRow key={pack.id} item={item} now={now} open={open} highlight={highlightPack === pack.id} disabled={saving}
           onToggle={() => {
-            const next = new Set(openGroups)
-            if (open) next.delete(group)
-            else next.add(group)
-            onOpenGroupsChange(next)
-          }}>{items.map(row)}</GroupRow>
+            const next = new Set(openPacks)
+            if (open) next.delete(pack.id)
+            else next.add(pack.id)
+            onOpenPacksChange(next)
+          }}
+          onEditPack={() => router.push(`/packs/edit?pack=${encodeURIComponent(pack.id)}`)}
+          onAddList={full ? undefined : () => router.push(`/create?pack=${encodeURIComponent(pack.id)}`)}
+          onDeletePack={() => { packDeleted.current = false; setDeletingPack({ open: true, item, position: shown.indexOf(item) }) }}>
+          {rows.map(row => <ListRow key={row.list.id} item={row} now={now} highlight={highlight === row.list.id} disabled={saving} canCopy={!full}
+            onEdit={() => onEdit(row.list)} onExport={() => exportCsv(row.list)} onCopy={() => copy(row.list)}
+            onDelete={() => { deleted.current = false; setDeleting({ open: true, item: row, position: rowPosition(row.list.id) }) }} />)}
+        </PackRow>
       })}
     </ul> : <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed bg-card px-6 py-10 text-center">
       <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">{query.trim() ? t('manager.noMatch', { query: query.trim() }) : t('filter.noMatch')}</p>
@@ -287,7 +342,7 @@ function ListManager({ lists, saving, highlight, update, notify, openGroups, onO
 
     {deleting.item && <DeleteConfirmation open={deleting.open} onOpenChange={open => setDeleting(current => ({ ...current, open }))}
       title={t('delete.title', { name: deleting.item.list.name })}
-      description={`${deleting.item.practiceCount ? t('delete.withRecords') : t('delete.listOnly')}`}
+      description={[deleting.item.practiceCount ? t('delete.withRecords') : t('delete.listOnly'), deletingPackName ? t('delete.lastInPack', { name: deletingPackName }) : ''].filter(Boolean).join(' ')}
       onCloseAutoFocus={focusAfterDelete}
       onConfirm={async () => {
         const list = deleting.item?.list
@@ -301,6 +356,21 @@ function ListManager({ lists, saving, highlight, update, notify, openGroups, onO
       }}>
       <DeleteDetails item={deleting.item} now={now} onExport={() => exportCsv(deleting.item!.list)} />
     </DeleteConfirmation>}
+
+    {deletingPack.item && <DeleteConfirmation open={deletingPack.open} onOpenChange={open => setDeletingPack(current => ({ ...current, open }))}
+      title={t('delete.packTitle', { name: deletingPack.item.pack.name })}
+      description={t('delete.packDescription', { lists: deletingPack.item.lists.length, records: deletingPack.item.practiceCount })}
+      onCloseAutoFocus={focusAfterDeletePack}
+      onConfirm={async () => {
+        const pack = deletingPack.item?.pack
+        if (!pack) return false
+        const saved = await updateLibrary(current => deletePack(current, pack.id))
+        if (saved) {
+          packDeleted.current = true
+          notify(t('page.deleted', { name: pack.name }))
+        }
+        return saved
+      }} />}
   </section>
 }
 
@@ -350,9 +420,9 @@ function EmptyState() {
   return <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed bg-card px-6 py-10 text-center sm:py-14">
     <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground"><ListPlus className="size-6" aria-hidden="true" /></span>
     <div className="space-y-1.5">
-      <h2 className="font-bold">{t('empty.title')}</h2>
+      <h2 className="font-bold">{t('empty.packTitle')}</h2>
       <p className="max-w-md text-sm text-balance text-muted-foreground">{t('empty.description')}</p>
     </div>
-    <Button asChild><Link href="/create"><Plus aria-hidden="true" />{t('manager.create')}</Link></Button>
+    <Button asChild><Link href="/packs/create"><Plus aria-hidden="true" />{t('manager.createPack')}</Link></Button>
   </div>
 }

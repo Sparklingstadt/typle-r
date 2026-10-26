@@ -1,7 +1,7 @@
 {
   "page": {
-    "title": "Word lists",
-    "description": "Create and edit the word lists you practice with. Export a list as CSV to import it in another browser or account.",
+    "title": "Word packs",
+    "description": "Create and edit the word packs you practice with. Export a list as CSV to import it in another browser or account.",
     "reload": "Reload",
     "notFound": "The word list you tried to open could not be found. It may have been deleted.",
     "editTitle": "Edit word list",
@@ -14,15 +14,16 @@
     "copySuffix": "{n, plural, =1 { (copy)} other { (copy {n})}}"
   },
   "manager": {
-    "heading": "Saved lists",
+    "heading": "Saved packs",
     "limitTitle": "You can save up to {max} lists",
     "create": "Create a new list",
+    "createPack": "New pack",
     "full": "You can save up to {max} word lists. Delete lists you no longer use to create new ones.",
     "search": "Search by list name, category, tag or word",
     "clearSearch": "Clear search",
     "countFiltered": "{shown} of {total}",
-    "count": "{total, plural, one {# list} other {# lists}}",
-    "noMatch": "No lists match “{query}”. Searches list names, categories, tags and words.",
+    "count": "{total, plural, one {# pack} other {# packs}}",
+    "noMatch": "No packs match “{query}”. Searches pack names, list names, categories, tags and words.",
     "csvNote": "CSV export saves the words, what to type, and notes (practice history is not included). Use it with “Import CSV/TSV” on the create and edit screens."
   },
   "delete": {
@@ -35,7 +36,10 @@
     "noRecords": "No practice history",
     "records": "{count, plural, one {# practice record} other {# practice records}} (last: {day})",
     "exportHint": "You can keep the words by exporting them as CSV (practice history is not included).",
-    "export": "Export CSV"
+    "export": "Export CSV",
+    "packTitle": "Delete “{name}”?",
+    "packDescription": "This also deletes {lists, plural, one {# list} other {# lists}} and {records, plural, one {# practice record} other {# practice records}}.",
+    "lastInPack": "The pack “{name}” will be deleted too."
   },
   "order": {
     "label": "Sort",
@@ -57,15 +61,16 @@
     "allTags": "All tags",
     "tagsCurrent": "Tags: {tags}",
     "separator": ", ",
-    "tagsHint": "Lists with every chosen tag",
+    "tagsHint": "Packs with every chosen tag",
     "clearTags": "Clear tags",
     "clear": "Clear filters",
     "clearAll": "Clear search and filters",
-    "noMatch": "No lists match these filters.",
+    "noMatch": "No packs match these filters.",
     "option": "{name} ({count})"
   },
   "empty": {
     "title": "No word lists yet",
+    "packTitle": "No word packs yet",
     "description": "Add the words you want to practice and the text to type as the answer. You can also import them from a CSV or TSV file."
   },
   "row": {
@@ -89,12 +94,16 @@
     "copy": "Duplicate",
     "delete": "Delete"
   },
-  "group": {
-    "levels": "{levels, plural, one {# level} other {# levels}}",
+  "pack": {
+    "lists": "{count, plural, one {# list} other {# lists}}",
     "wordCount": "{count, plural, one {# word} other {# words}}",
     "practice": "Practice",
-    "practiceGroup": "Practice {name}",
-    "lists": "Lists of {name}"
+    "listsOf": "Lists of {name}",
+    "moreActions": "More actions",
+    "moreFor": "Actions for pack {name}",
+    "edit": "Edit pack",
+    "addList": "Add a list",
+    "delete": "Delete"
   },
   "wordRow": {
     "label": "Word {n}",

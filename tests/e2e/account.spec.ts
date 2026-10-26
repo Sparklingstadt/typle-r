@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { randomBytes } from 'node:crypto'
 import { sealSession } from './sessionCookie'
+import { openPacks } from './packRows'
 const origin = 'http://127.0.0.1:3101'
 const secret = 'typle-e2e-only-not-a-production-secret-32-bytes'
 // The Go backend's login cookie over HTTP; the sealed value is what it sets after GitHub.
@@ -68,7 +69,7 @@ test('real API rejects anonymous, cross-origin, account spoofing and stale write
   expect((await page.request.get('/api/workspace')).status()).toBe(401)
   expect((await page.request.put('/api/workspace', { headers: { Origin: origin }, data: base })).status()).toBe(401)
   await page.goto('/edit')
-  await expect(page.getByRole('heading', { level: 1, name: '単語リスト', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: '単語パック', exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Private を編集', exact: true })).toHaveCount(0)
   await context.addCookies(originalCookies)
   expect((await (await page.request.get('/api/workspace')).json()).lists[0].name).toBe('Private')
@@ -93,6 +94,7 @@ test('legacy data migrates once to the authenticated database account', async ({
 test('switching account refreshes the workspace without exposing the previous list', async ({ page, context }) => {
   await seed(page, [{ id: 'private-switch', name: 'Previous account list', createdAt: '2026-09-06', records: [], words: [{ display: 'a', input: 'a', annotation: '' }] }])
   await page.goto('/edit')
+  await openPacks(page)
   await expect(page.getByRole('button', { name: 'Previous account list を編集', exact: true })).toBeVisible()
   await context.addCookies([{ name: cookieName, value: login(accountId + '1', 'Other account'), url: origin }])
   await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')))
@@ -105,6 +107,7 @@ test('switching account refreshes the workspace without exposing the previous li
 test('a failed session check keeps the signed-in user and the cloud lists', async ({ page }) => {
   await seed(page, [{ id: 'cloud-keep', name: 'Cloud list', createdAt: '2026-09-06', records: [], words: [{ display: 'a', input: 'a', annotation: '' }] }])
   await page.goto('/edit')
+  await openPacks(page)
   const menu = page.getByRole('button', { name: 'アカウントメニュー', exact: true })
   const list = page.getByRole('button', { name: 'Cloud list を編集', exact: true })
   await expect(menu).toBeVisible()

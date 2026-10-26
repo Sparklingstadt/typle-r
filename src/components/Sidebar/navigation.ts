@@ -2,7 +2,7 @@ import { BookOpen, ExternalLink, History, House, Info, Keyboard, List, Monitor, 
 import type nav from "@/messages/ja/nav.json"
 
 // Names are keys of the `nav` messages; each matches its page's heading so the sidebar and the page read the same.
-export type NavLink = { name: keyof typeof nav.links; path: string; icon: LucideIcon; external?: boolean }
+export type NavLink = { name: keyof typeof nav.links; path: string; icon: LucideIcon; external?: boolean; prefetch?: false }
 export type NavGroup = { label?: keyof typeof nav.groups; links: NavLink[] }
 
 export const mainNavigation: NavGroup[] = [
@@ -15,7 +15,8 @@ export const mainNavigation: NavGroup[] = [
   { label: "wordLists", links: [
     { name: "edit", path: "/edit", icon: List },
     { name: "words", path: "/words", icon: TableProperties },
-    { name: "create", path: "/create", icon: Plus },
+    // Not prefetched until the pack screens exist: the request would be a 404 logged in every page's console.
+    { name: "create", path: "/packs/create", icon: Plus, prefetch: false },
   ] },
   { label: "settings", links: [
     { name: "general", path: "/settings", icon: Settings },

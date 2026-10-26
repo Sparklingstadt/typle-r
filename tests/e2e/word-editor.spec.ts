@@ -90,6 +90,8 @@ test('cancel asks before discarding unsaved changes', async ({ page }) => {
   await expect(page).toHaveURL(/\/edit$/)
   await expect(page.getByRole('button', { name: 'Draft を編集', exact: true })).toHaveCount(0)
 
+  // Go構文 is a pack of one list, which opens to show the list.
+  await page.getByRole('button', { name: 'Go構文', exact: true }).click()
   await page.getByRole('button', { name: 'Go構文 を編集', exact: true }).click()
   await page.getByRole('button', { name: 'キャンセル', exact: true }).click()
   await expect(page.getByRole('alertdialog')).toHaveCount(0)

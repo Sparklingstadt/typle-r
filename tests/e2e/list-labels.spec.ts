@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
+import { openPacks } from './packRows'
 const key = 'typle-r:guest-workspace:v1'
 const words = (...texts: string[]) => texts.map(text => ({ display: text, input: text, annotation: '' }))
 
@@ -35,6 +36,7 @@ test('lists show their category and tags and can be narrowed down by them', asyn
   await seed(page)
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/edit')
+  await openPacks(page)
   await expect(row(page, 'go').locator('[data-list-labels]')).toHaveText(/プログラミング.*#.*Go.*#.*CLI/)
   await expect(row(page, 'plain').locator('[data-list-labels]')).toHaveCount(0)
 
@@ -42,7 +44,7 @@ test('lists show their category and tags and can be narrowed down by them', asyn
   await expect(page.getByRole('menuitemradio', { name: 'プログラミング 2' })).toBeVisible()
   await page.getByRole('menuitemradio', { name: 'プログラミング 2' }).click()
   expect(await rowNames(page)).toEqual(['SQL basics', 'Go basics'])
-  await expect(page.getByText('2件 / 全4件')).toBeVisible()
+  await expect(page.getByText('2パック / 全4パック')).toBeVisible()
 
   // Tags narrow down further: a list must have every chosen tag.
   await page.getByRole('button', { name: 'すべてのタグ' }).click()
@@ -54,7 +56,7 @@ test('lists show their category and tags and can be narrowed down by them', asyn
   await page.getByRole('button', { name: 'タグ：Go・CLI' }).click()
   await page.getByRole('menuitemcheckbox', { name: 'PostgreSQL 1' }).click()
   await page.keyboard.press('Escape')
-  await expect(page.getByText('条件に一致するリストはありません。')).toBeVisible()
+  await expect(page.getByText('条件に一致するパックはありません。')).toBeVisible()
   await page.getByRole('button', { name: '検索と絞り込みを解除' }).click()
   expect(await rowNames(page)).toHaveLength(4)
 

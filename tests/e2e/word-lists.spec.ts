@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
+import { openPacks } from './packRows'
 const key = 'typle-r:guest-workspace:v1'
 const hour = 60 * 60 * 1000
 const ago = (ms: number) => new Date(Date.now() - ms).toISOString()
@@ -30,7 +31,8 @@ test('lists show their words and use, and can be searched and ordered', async ({
   await seed(page)
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/edit')
-  await expect(page.getByRole('heading', { level: 1, name: '単語リスト', exact: true })).toBeVisible()
+  await openPacks(page)
+  await expect(page.getByRole('heading', { level: 1, name: '単語パック', exact: true })).toBeVisible()
   // Where the data is saved shows once: in the top bar, or beside the heading on a phone, where the top bar hides it.
   await expect(page.getByRole('banner', { name: 'トップバー' })).toContainText('このブラウザーに保存')
   await expect(page.getByRole('main').getByText('このブラウザーに保存')).toBeHidden()
@@ -46,9 +48,9 @@ test('lists show their words and use, and can be searched and ordered', async ({
 
   await page.getByRole('searchbox', { name: 'リスト名・カテゴリ・タグ・単語で検索' }).fill('KIWI')
   expect(await rowNames(page)).toEqual(['Fruits'])
-  await expect(page.getByText('1件 / 全3件')).toBeVisible()
+  await expect(page.getByText('1パック / 全3パック')).toBeVisible()
   await page.getByRole('searchbox').fill('nothing')
-  await expect(page.getByText('「nothing」に一致するリストはありません。')).toBeVisible()
+  await expect(page.getByText('「nothing」に一致するパックはありません。')).toBeVisible()
   await page.getByRole('button', { name: '検索をクリア' }).first().click()
   expect(await rowNames(page)).toHaveLength(3)
 
@@ -70,6 +72,7 @@ test('the editor has its own URL, asks before going back with changes, and retur
   await seed(page)
   await page.setViewportSize({ width: 1280, height: 600 })
   await page.goto('/edit')
+  await openPacks(page)
   await page.evaluate(() => window.scrollTo(0, 200))
   await page.getByRole('button', { name: 'Fruits を編集', exact: true }).click()
   await expect(page).toHaveURL(/\/edit\?list=fruits$/)
@@ -111,7 +114,8 @@ test('the editor has its own URL, asks before going back with changes, and retur
 test('the sidebar link asks before dropping changes, and later edits still return to the lists', async ({ page }) => {
   await seed(page)
   await page.goto('/edit')
-  const sidebar = page.getByRole('navigation', { name: 'メインナビゲーション' }).getByRole('link', { name: '単語リスト', exact: true })
+  await openPacks(page)
+  const sidebar = page.getByRole('navigation', { name: 'メインナビゲーション' }).getByRole('link', { name: '単語パック', exact: true })
   await page.getByRole('button', { name: 'Kana を編集', exact: true }).click()
   await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('Kana 2')
   await sidebar.click()
@@ -135,10 +139,12 @@ test('copy and delete from the menu, with what is lost spelled out', async ({ pa
   await seed(page)
   await page.setViewportSize({ width: 1280, height: 800 })
   await page.goto('/edit')
+  await openPacks(page)
   await page.getByRole('button', { name: 'Fruits のその他の操作' }).click()
   await page.getByRole('menuitem', { name: '複製' }).click()
   await expect(page.getByLabel('通知', { exact: true }).getByText('「Fruits（コピー）」を作成しました。')).toBeVisible()
-  expect((await rowNames(page))[0]).toBe('Fruits（コピー）')
+  // The copy joins the pack of the list it was made from, after it.
+  expect(await page.locator('li[data-pack-id="pack-fruits"] li[data-list-id] h3').allInnerTexts()).toEqual(['Fruits', 'Fruits（コピー）'])
   const copy = (await saved(page)).at(-1)
   expect(copy).toMatchObject({ name: 'Fruits（コピー）', records: [] })
   expect(copy.words).toHaveLength(7)
@@ -154,8 +160,8 @@ test('copy and delete from the menu, with what is lost spelled out', async ({ pa
   await dialog.getByRole('button', { name: '削除する' }).click()
   await expect(dialog).toHaveCount(0)
   await expect(row(page, 'fruits')).toHaveCount(0)
-  // Fruits was the last row, so focus moves to the row now in its place.
-  await expect(page.getByRole('button', { name: 'Kana を編集', exact: true })).toBeFocused()
+  // Focus moves to the row now in its place: the copy, which followed Fruits.
+  await expect(page.getByRole('button', { name: 'Fruits（コピー） を編集', exact: true })).toBeFocused()
   expect((await saved(page)).map((list: { id: string }) => list.id)).not.toContain('fruits')
 })
 
@@ -163,10 +169,16 @@ test('fits a phone without horizontal scrolling and keeps every action reachable
   await seed(page)
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/edit')
+  await openPacks(page)
   await expect(row(page, 'long')).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false)
   for (const id of ['long', 'kana', 'fruits']) {
     const box = await row(page, id).getByRole('button', { name: /のその他の操作$/ }).boundingBox()
+    expect(box!.x + box!.width).toBeLessThanOrEqual(390)
+  }
+  // The menu of each pack row is reachable too.
+  for (const id of ['pack-long', 'pack-kana', 'pack-fruits']) {
+    const box = await page.locator(`li[data-pack-id="${id}"]`).getByRole('button', { name: /のパックの操作$/ }).first().boundingBox()
     expect(box!.x + box!.width).toBeLessThanOrEqual(390)
   }
   await expect(row(page, 'fruits')).toContainText('7語 · 練習 3回 · 最終 今日')
@@ -177,13 +189,13 @@ test('fits a phone without horizontal scrolling and keeps every action reachable
 test('empty and failed loads say different things', async ({ page }) => {
   await page.addInitScript(k => localStorage.setItem(k, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 2, lists: [], devices: [] })), key)
   await page.goto('/edit')
-  await expect(page.getByRole('heading', { name: '単語リストはまだありません' })).toBeVisible()
-  await expect(page.getByRole('link', { name: '新しいリストを作成' })).toHaveAttribute('href', '/create')
+  await expect(page.getByRole('heading', { name: '単語パックはまだありません' })).toBeVisible()
+  await expect(page.getByRole('link', { name: '新しいパック' })).toHaveAttribute('href', '/packs/create')
 
   const broken = await page.context().newPage()
   await broken.addInitScript(k => localStorage.setItem(k, '{broken'), key)
   await broken.goto('/edit')
   await expect(broken.getByRole('alert').filter({ hasText: '元のデータは変更していません' })).toBeVisible()
   await expect(broken.getByRole('button', { name: '再読み込み' })).toBeVisible()
-  await expect(broken.getByRole('heading', { name: '単語リストはまだありません' })).toHaveCount(0)
+  await expect(broken.getByRole('heading', { name: '単語パックはまだありません' })).toHaveCount(0)
 })
