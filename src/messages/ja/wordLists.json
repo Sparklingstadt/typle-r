@@ -97,6 +97,7 @@
   },
   "pack": {
     "lists": "{count, plural, other {#リスト}}",
+    "practiced": "練習済み {practiced}/{lists}",
     "wordCount": "{count, plural, other {#語}}",
     "practice": "練習",
     "listsOf": "{name} のリスト",

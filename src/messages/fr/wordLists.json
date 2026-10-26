@@ -97,6 +97,7 @@
   },
   "pack": {
     "lists": "{count, plural, one {# liste} other {# listes}}",
+    "practiced": "{practiced}/{lists} entraînées",
     "wordCount": "{count, plural, one {# mot} other {# mots}}",
     "practice": "S’entraîner",
     "listsOf": "Listes de {name}",

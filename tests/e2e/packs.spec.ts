@@ -679,3 +679,19 @@ test('a record of a pack of several lists is named 「pack › list」, and ?lis
   await expect(page.getByRole('button', { name: /^パックで絞り込む（現在：すべてのパック）/ })).toBeVisible()
   await expect(page.getByRole('region', { name: 'Shell › 応用', exact: true })).toBeVisible()
 })
+
+test('a pack of several lists shows how many of its lists were practised, and a pack of one list does not', async ({ page }) => {
+  await page.goto('/edit')
+  await expect(page.locator('li[data-pack-id="shell"]').first()).toContainText('練習済み 1/2')
+  await expect(page.locator('li[data-pack-id="fruits"]')).not.toContainText('練習済み')
+  await expect(page.locator('li[data-pack-id="solo"]')).not.toContainText('練習済み')
+})
+
+test('the result of a practice and the best records name a list in a pack with its pack', async ({ page }) => {
+  await page.goto('/play?list=adv')
+  const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
+  await expect(page.getByRole('complementary').getByRole('heading', { name: 'ベスト記録' }).locator('..')).toContainText('Shell › 応用')
+  await input.pressSequentially('find')
+  await input.pressSequentially('tar')
+  await expect(page.getByLabel('練習結果', { exact: true })).toContainText('練習完了：Shell › 応用')
+})
