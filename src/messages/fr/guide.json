@@ -124,12 +124,12 @@
     "history": {
       "title": "Historique",
       "p1": "L’<records>Historique</records> affiche vos entraînements par date, du plus récent au plus ancien, et peut être filtré par liste ou par appareil. Les filtres sont conservés dans l’URL : vous pouvez rouvrir le même affichage depuis un favori ou un lien.",
-      "p2": "Avec un filtre par liste, le nombre d’entraînements et le meilleur résultat de cette liste s’affichent, et « S’entraîner » permet de commencer tout de suite.",
+      "p2": "Avec un filtre par liste, le nombre d’entraînements et le meilleur résultat de cette liste s’affichent, et « S’entraîner » permet de commencer tout de suite. Choisir un pack limite les listes proposées à celles de ce pack. Les résultats d’un pack de deux listes ou plus s’affichent sous la forme « pack › liste ».",
       "p3": "Le meilleur résultat de chaque liste porte la mention « Meilleur ». Si vous supprimez un meilleur résultat, la confirmation indique celui qui deviendra le meilleur."
     },
     "best": {
       "title": "Meilleurs résultats",
-      "p1": "Choisissez une liste dans <rankings>Meilleurs résultats</rankings> pour voir votre record personnel, la moyenne de vos 5 derniers essais, l’évolution de votre temps et vos meilleurs résultats.",
+      "p1": "Choisissez une liste dans <rankings>Meilleurs résultats</rankings> pour voir votre record personnel, la moyenne de vos 5 derniers essais, l’évolution de votre temps et vos meilleurs résultats. L’écran des meilleurs résultats regroupe les listes par pack. Chaque pack indique le nombre d’entraînements, le nombre de listes déjà pratiquées (pratiquées n/m), la date du dernier entraînement et le nombre de listes dont le meilleur résultat a été battu ces 7 derniers jours. Le tri s’applique aux packs ; les listes d’un pack restent classées par difficulté.",
       "p2": "Le classement peut basculer entre « Précision d’abord » (précision la plus élevée, puis le plus rapide) et « Vitesse d’abord », et être filtré par appareil. La liste et les options choisies sont conservées dans l’URL.",
       "p3": "L’écran d’entraînement affiche aussi les 5 meilleurs résultats de la liste choisie et met en évidence le dernier."
     },
