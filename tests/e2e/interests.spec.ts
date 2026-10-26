@@ -1,9 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { randomBytes } from 'node:crypto'
-import { sealSession } from './sessionCookie'
-
-const origin = 'http://127.0.0.1:3101'
-const secret = 'typle-e2e-only-not-a-production-secret-32-bytes'
+import { deleteWorkspace, newAccountId, signIn } from './account'
 
 async function choose(page: Page) {
   await page.goto('/home')
@@ -54,17 +50,14 @@ test('with no interests the catalog is not split', async ({ page }) => {
 })
 
 test('an account keeps its interests after a reload', async ({ page, context }) => {
-  const accountId = 'github:' + BigInt('0x' + randomBytes(16).toString('hex')).toString()
-  const iat = Math.floor(Date.now() / 1000)
-  await context.addCookies([{ name: 'typle-session', value: sealSession(secret, { sub: accountId, name: 'E2E User', image: '', iat, exp: iat + 3600 }), url: origin, httpOnly: true, sameSite: 'Lax' }])
+  const accountId = newAccountId()
+  await signIn(context, accountId)
   try {
     await choose(page)
     await expectSelectionKept(page)
     const response = await page.request.get('/api/workspace')
     expect((await response.json()).interests).toEqual(['language', 'language/zh'])
   } finally {
-    const { Pool } = await import('pg')
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-    try { await pool.query('DELETE FROM typle_workspaces WHERE owner_id = $1', [accountId]) } finally { await pool.end() }
+    await deleteWorkspace(accountId)
   }
 })

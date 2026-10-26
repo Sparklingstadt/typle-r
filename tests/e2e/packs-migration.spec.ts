@@ -1,9 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
-import { randomBytes } from 'node:crypto'
-import { sealSession } from './sessionCookie'
+import { deleteWorkspace, newAccountId, origin, signIn } from './account'
 const key = 'typle-r:guest-workspace:v1'
-const origin = 'http://127.0.0.1:3101'
-const secret = 'typle-e2e-only-not-a-production-secret-32-bytes'
 const words = (...texts: string[]) => texts.map(text => ({ display: text, input: text, annotation: '' }))
 // The shape v0.90.0 saved: no packs, and group / category / tags on each list.
 const member = (id: string, levels: string[], ...texts: string[]) =>
@@ -106,16 +103,10 @@ test('a guest workspace with copies of official packs loses the copies and their
 test.describe('account', () => {
   let accountId = ''
   test.beforeEach(async ({ context }) => {
-    accountId = 'github:' + BigInt('0x' + randomBytes(16).toString('hex')).toString()
-    const iat = Math.floor(Date.now() / 1000)
-    const value = sealSession(secret, { sub: accountId, name: 'E2E User', image: '', iat, exp: iat + 3600 })
-    await context.addCookies([{ name: 'typle-session', value, url: origin, httpOnly: true, sameSite: 'Lax' }])
+    accountId = newAccountId()
+    await signIn(context, accountId)
   })
-  test.afterEach(async () => {
-    const { Pool } = await import('pg')
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-    try { await pool.query('DELETE FROM typle_workspaces WHERE owner_id = $1', [accountId]) } finally { await pool.end() }
-  })
+  test.afterEach(() => deleteWorkspace(accountId))
 
   test('a row whose packs is NULL is read, shown, and gets packs when saved', async ({ page }) => {
     const { Pool } = await import('pg')

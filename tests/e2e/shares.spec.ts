@@ -1,28 +1,19 @@
 import { test, expect, type Page } from '@playwright/test'
-import { randomBytes } from 'node:crypto'
-import { sealSession } from './sessionCookie'
-const origin = 'http://127.0.0.1:3101'
-const secret = 'typle-e2e-only-not-a-production-secret-32-bytes'
+import { newAccountId, origin, signIn as signInAs, withDatabase } from './account'
 const words = (...texts: string[]) => texts.map(text => ({ display: text, input: text, annotation: '' }))
 const row = (page: Page) => page.locator('li[data-pack-id="pack-shared-one"]')
 
 let accountId = ''
 test.beforeEach(() => {
-  accountId = 'github:' + BigInt('0x' + randomBytes(16).toString('hex')).toString()
+  accountId = newAccountId()
 })
-test.afterEach(async () => {
-  const { Pool } = await import('pg')
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-  try {
-    await pool.query('DELETE FROM typle_shared_packs WHERE owner_id = $1', [accountId])
-    await pool.query('DELETE FROM typle_workspaces WHERE owner_id = $1', [accountId])
-  } finally { await pool.end() }
-})
+test.afterEach(() => withDatabase(async pool => {
+  await pool.query('DELETE FROM typle_shared_packs WHERE owner_id = $1', [accountId])
+  await pool.query('DELETE FROM typle_workspaces WHERE owner_id = $1', [accountId])
+}))
 
 async function signIn(page: Page) {
-  const iat = Math.floor(Date.now() / 1000)
-  const value = sealSession(secret, { sub: accountId, name: 'E2E User', image: '', iat, exp: iat + 3600 })
-  await page.context().addCookies([{ name: 'typle-session', value, url: origin, httpOnly: true, sameSite: 'Lax' }])
+  await signInAs(page.context(), accountId)
   const packs = [{ id: 'pack-shared-one', name: 'Shared pack', createdAt: '2026-09-02' }]
   const lists = [{ id: 'shared-one', name: 'Shared pack', packId: 'pack-shared-one', createdAt: '2026-09-02', words: words('ls', 'cd'), records: [] }]
   const put = await page.request.put('/api/workspace', { headers: { Origin: origin }, data: { accountId, revision: 0, packs, lists } })
