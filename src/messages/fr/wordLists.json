@@ -187,11 +187,8 @@
     "packHelp": "Le pack auquel appartient cette liste. En choisir un autre y déplace la liste.",
     "packWillBeDeleted": "Le pack « {name} » sera supprimé.",
     "levels": "Difficulté (facultatif)",
-    "levelLabel": "Difficulté {n}",
     "levelPlaceholder": "Base, débutant…",
-    "addLevel": "Ajouter une difficulté",
-    "removeLevel": "Supprimer la difficulté {n}",
-    "levelsHelp": "Sert à choisir pas à pas parmi les listes d’un pack sur l’écran d’entraînement, par exemple Base › Débutant (jusqu’à {max} niveaux)."
+    "levelsHelp": "Sert à choisir parmi les listes d’un pack sur l’écran d’entraînement, par exemple Débutant."
   },
   "import": {
     "open": "Importer un CSV/TSV",
