@@ -347,6 +347,15 @@ func TestCheckPacksLevels(t *testing.T) {
 		with("e", func(l *List) { l.PackID, l.Levels = "q", []string{"初級"} })}); err != nil {
 		t.Fatal(err)
 	}
+	// A level given twice in one list is refused with levelDuplicate; levels are compared as they are.
+	var duplicate *Error
+	if err := CheckPacks(packs, []List{with("a", func(l *List) { l.Levels = []string{"中級1", "A", "中級1"} }), inQ}); !errors.As(err, &duplicate) ||
+		duplicate.Key != "levelDuplicate" {
+		t.Errorf("repeated level: err = %v", err)
+	}
+	if err := CheckPacks(packs, []List{with("a", func(l *List) { l.Levels = []string{"基本", "基本 ", "基本（2）"} }), inQ}); err != nil {
+		t.Fatal(err)
+	}
 	// CheckLibrary keeps the key, so a save is refused with it.
 	sent := `[{"id":"a","name":"a","packId":"p","levels":["初級"],"createdAt":"2026-10-01","words":[{"display":"ls","input":"ls","annotation":""}],"records":[]},` +
 		`{"id":"b","name":"b","packId":"p","levels":["初級","A"],"createdAt":"2026-10-01","words":[{"display":"ls","input":"ls","annotation":""}],"records":[]}]`
@@ -375,6 +384,22 @@ func TestSeparateLevelsLimit(t *testing.T) {
 	// A character of two code units is not split by the cut.
 	if got := separated[13].Levels[0]; got != strings.Repeat("😀", 23)+"（2）" {
 		t.Fatalf("level = %q", got)
+	}
+}
+
+// The cases of a repeated level in tests/wordPacks.test.cjs: it gets the smallest （n） its list does not hold, within
+// MaxLevel UTF-16 code units, and a character of two code units is not split.
+func TestDistinctLevels(t *testing.T) {
+	cases := []struct{ levels, want []string }{
+		{[]string{"基本", "基本", "基本"}, []string{"基本", "基本（2）", "基本（3）"}},
+		{[]string{"基本", "基本", "基本（2）"}, []string{"基本", "基本（3）", "基本（2）"}},
+		{[]string{strings.Repeat("a", 50), strings.Repeat("a", 50)}, []string{strings.Repeat("a", 50), strings.Repeat("a", 47) + "（2）"}},
+		{[]string{strings.Repeat("😀", 25), strings.Repeat("😀", 25)}, []string{strings.Repeat("😀", 25), strings.Repeat("😀", 23) + "（2）"}},
+	}
+	for _, c := range cases {
+		if got := separateLevels([]List{{ID: "a", Name: "a", PackID: "p", Levels: c.levels}})[0].Levels; !slices.Equal(got, c.want) {
+			t.Errorf("%q: levels = %q; want %q", c.levels, got, c.want)
+		}
 	}
 }
 

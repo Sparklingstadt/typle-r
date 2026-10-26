@@ -154,6 +154,7 @@ func TestCreatePack(t *testing.T) {
 		{`{"name":"N","description":"` + strings.Repeat("d", 501) + `",` + lists + `}`, "invalidPack"},
 		{`{"name":"N","lists":[{"name":"a","words":[{"display":"a","input":"a"}]},{"name":"A","words":[{"display":"a","input":"a"}]}]}`, "listNameDuplicate"},
 		{`{"name":"N","lists":[{"name":"a","levels":["x"],"words":[{"display":"a","input":"a"}]},{"name":"b","levels":["x","y"],"words":[{"display":"a","input":"a"}]}]}`, "levelsConflict"},
+		{`{"name":"N","lists":[{"name":"a","levels":["x"," x"],"words":[{"display":"a","input":"a"}]}]}`, "levelDuplicate"},
 		{`{"name":"N","lists":[{"name":"a","words":[]}]}`, "wordsRequired"},
 		{`{"name":"N","listOrder":[],` + lists + `}`, "invalidJson"},
 		{`{"name":"N","lists":[{"name":"a","words":[{"display":"a","input":"a"}],"records":[]}]}`, "invalidJson"},
@@ -323,6 +324,7 @@ func TestListsInPacks(t *testing.T) {
 	expect(t, send(w, "POST", "/api/v1/lists", `{"name":"N","packId":"p","category":"c","words":[{"display":"a","input":"a"}]}`), 400, `{"error":"invalidList"}`)
 	expect(t, send(w, "POST", "/api/v1/lists", `{"name":"N","packId":"zz","words":[{"display":"a","input":"a"}]}`), 400, `{"error":"packNotFound"}`)
 	expect(t, send(w, "POST", "/api/v1/lists", `{"name":"N","packId":"p","levels":["基本","1"],"words":[{"display":"a","input":"a"}]}`), 400, `{"error":"levelsConflict"}`)
+	expect(t, send(w, "POST", "/api/v1/lists", `{"name":"N","levels":["中級1","","中級1 "],"words":[{"display":"a","input":"a"}]}`), 400, `{"error":"levelDuplicate"}`)
 	// A list moves to another pack after its last list, and shows that pack's labels; levels alone may change.
 	if response := send(w, "PATCH", "/api/v1/lists/"+id, `{"packId":"q"}`); response.Code != 200 ||
 		!strings.Contains(body(t, response), `"name":"上級","packId":"q","category":null,"tags":[],"levels":["上級"]`) {
@@ -333,6 +335,7 @@ func TestListsInPacks(t *testing.T) {
 	}
 	expect(t, send(w, "PATCH", "/api/v1/lists/"+id, `{"packId":"zz"}`), 400, `{"error":"packNotFound"}`)
 	expect(t, send(w, "PATCH", "/api/v1/lists/b", `{"levels":["基本","x"]}`), 400, `{"error":"levelsConflict"}`)
+	expect(t, send(w, "PATCH", "/api/v1/lists/b", `{"levels":["x","x"]}`), 400, `{"error":"levelDuplicate"}`)
 	// A copy stays in its source's pack, after every list, with no levels.
 	response = send(w, "POST", "/api/v1/lists/a/copy", "")
 	if got := body(t, response); response.Code != 201 || !strings.Contains(got, `"name":"基本（コピー）","packId":"p","category":"プログラミング","tags":["シェル"],"levels":[],"wordCount":1,"recordCount":0`) {

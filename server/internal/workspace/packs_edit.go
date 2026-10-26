@@ -47,7 +47,8 @@ func findPack(w *Workspace, id string) *Pack {
 }
 
 // tidyLevels follows tidyLevels (src/core/packEditing.ts): the levels trimmed, without empty ones, and nil when none is
-// left. More than MaxLevels or one longer than MaxLevel is invalidList, as is U+0000.
+// left. More than MaxLevels or one longer than MaxLevel is invalidList, as is U+0000; a level given twice is
+// levelDuplicate.
 func tidyLevels(levels []string) ([]string, error) {
 	var kept []string
 	for _, level := range levels {
@@ -59,7 +60,20 @@ func tidyLevels(levels []string) ([]string, error) {
 		slices.ContainsFunc(kept, func(level string) bool { return length(level) > MaxLevel || strings.ContainsRune(level, 0) }) {
 		return nil, &Error{Key: "invalidList"}
 	}
+	if repeatsLevel(kept) {
+		return nil, &Error{Key: "levelDuplicate"}
+	}
 	return kept, nil
+}
+
+// repeatsLevel reports whether levels hold one level twice, compared as they are.
+func repeatsLevel(levels []string) bool {
+	for i, level := range levels {
+		if slices.Contains(levels[:i], level) {
+			return true
+		}
+	}
+	return false
 }
 
 // levelPath follows levelPath (src/core/packEditing.ts): the levels the practice screen picks a list of a pack by, or

@@ -159,11 +159,37 @@ func numbered(name string) func(count int) string {
 	return func(count int) string { return fit(name, fmt.Sprintf("（%d）", count), MaxListName) }
 }
 
+// distinctLevels follows distinctLevels (src/core/wordPacks.ts): a level given twice in one list gets the smallest
+// （n） from 2 that the list's levels do not hold yet.
+func distinctLevels(list List) List {
+	if !repeatsLevel(list.Levels) {
+		return list
+	}
+	levels := slices.Clone(list.Levels)
+	for at, level := range levels {
+		if !slices.Contains(levels[:at], level) {
+			continue
+		}
+		count := 2
+		for slices.Contains(levels, fit(level, fmt.Sprintf("（%d）", count), MaxLevel)) {
+			count++
+		}
+		levels[at] = fit(level, fmt.Sprintf("（%d）", count), MaxLevel)
+	}
+	list.Levels = levels
+	return list
+}
+
 // separateLevels follows separateLevels (src/core/wordPacks.ts), which brings back in reach the lists an older app let
 // overlap (see pathsOverlap): a list whose path overlaps that of an earlier list of its pack gets （2）, （3）… on the
-// level where they meet, or on its name when it has no levels (a name another list of the pack does not use). Earlier
-// lists, and data without overlaps, stay as they are.
+// level where they meet, or on its name when it has no levels (a name another list of the pack does not use, or a
+// level the list does not hold). A level given twice in a list is told apart first (distinctLevels). Earlier lists,
+// and data without overlaps, stay as they are.
 func separateLevels(lists []List) []List {
+	lists = slices.Clone(lists)
+	for i := range lists {
+		lists[i] = distinctLevels(lists[i])
+	}
 	names := map[string]map[string]bool{}
 	for _, list := range lists {
 		if names[list.PackID] == nil {
@@ -183,14 +209,26 @@ func separateLevels(lists []List) []List {
 		base := levelPath(list.Name, list.Levels)
 		path := slices.Clone(base)
 		nameTaken := func() bool { return !hasLevels && nameKey(path[0]) != nameKey(list.Name) && taken[nameKey(path[0])] }
+		// The level just given a （n） may not be one the list holds at another step.
+		at := -1
+		repeated := func() bool {
+			for n, level := range path {
+				if at >= 0 && n != at && level == path[at] {
+					return true
+				}
+			}
+			return false
+		}
 		for count := 2; ; count++ {
 			other := slices.IndexFunc(accepted[list.PackID], func(q []string) bool { return pathsOverlap(q, path) })
-			if other < 0 && !nameTaken() {
+			if other < 0 && !nameTaken() && !repeated() {
 				break
 			}
-			at := 0
-			if other >= 0 {
-				at = min(len(path), len(accepted[list.PackID][other])) - 1
+			if !repeated() {
+				at = 0
+				if other >= 0 {
+					at = min(len(path), len(accepted[list.PackID][other])) - 1
+				}
 			}
 			path[at] = fit(base[at], fmt.Sprintf("（%d）", count), limit)
 		}
@@ -432,7 +470,8 @@ func (w *Workspace) ApplyListChange(previous *Workspace) {
 }
 
 // CheckPacks follows validateLibrary (src/core/wordPacks.ts): it refuses packs and lists that are not in the saved
-// shape, with invalidWorkspace, and lists of a pack whose paths overlap, with levelsConflict.
+// shape, with invalidWorkspace, lists of a pack whose paths overlap, with levelsConflict, and a list with a level given
+// twice, with levelDuplicate.
 func CheckPacks(packs []Pack, lists []List) error {
 	invalid := &Error{Key: "invalidWorkspace"}
 	ids := map[string]bool{}
@@ -463,9 +502,13 @@ func CheckPacks(packs []Pack, lists []List) error {
 	if len(ids) != len(listNames) {
 		return invalid
 	}
-	// Lists of a pack whose paths overlap are refused as checkReach refuses them; separateLevels repairs saved ones.
+	// Lists of a pack whose paths overlap, or with a level given twice, are refused as checkReach and tidyLevels refuse
+	// them; separateLevels repairs saved ones.
 	paths := map[string][][]string{}
 	for _, list := range lists {
+		if repeatsLevel(list.Levels) {
+			return &Error{Key: "levelDuplicate"}
+		}
 		path := levelPath(list.Name, list.Levels)
 		if slices.ContainsFunc(paths[list.PackID], func(other []string) bool { return pathsOverlap(other, path) }) {
 			return &Error{Key: "levelsConflict"}
@@ -478,7 +521,8 @@ func CheckPacks(packs []Pack, lists []List) error {
 // CheckLibrary follows validateLibrary (src/core/wordPacks.ts) for a save that sends lists and packs. It reads them as
 // they were sent, before Decode repairs them: a list may not have a group, category or tags at all, not even "" or [],
 // and a pack's description, category, tags and origin may be left out but not null, as decodePacks requires. Anything
-// refused is invalidWorkspace, but for lists whose levels overlap (levelsConflict, see CheckPacks).
+// refused is invalidWorkspace, but for lists whose levels overlap or repeat (levelsConflict and levelDuplicate, see
+// CheckPacks).
 func CheckLibrary(lists, packs []byte) error {
 	invalid := &Error{Key: "invalidWorkspace"}
 	decoded, err := DecodeLists(lists)

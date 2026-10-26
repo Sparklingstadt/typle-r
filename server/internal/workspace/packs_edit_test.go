@@ -145,6 +145,7 @@ func TestImportPackRefusesAgainstTheRulesOfASave(t *testing.T) {
 			Words: packWordsOf("b")}}, name, "levelsConflict"},
 		{[]PackFileList{{Name: "A", Words: packWordsOf("a")}, {Name: "B", Levels: []string{"A"}, Words: packWordsOf("b")}}, name,
 			"levelsConflict"},
+		{[]PackFileList{{Name: "A", Levels: []string{"基本", " 基本 "}, Words: packWordsOf("a")}}, name, "levelDuplicate"},
 		{[]PackFileList{{Name: " ", Words: packWordsOf("a")}}, name, "listNameRequired"},
 		{[]PackFileList{{Name: "L", Words: []Word{}}}, name, "wordsRequired"},
 		{[]PackFileList{{Name: "L", Words: []Word{{Display: "a", Input: " "}}}}, name, "wordFieldsRequired"},
