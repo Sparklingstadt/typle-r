@@ -13,6 +13,8 @@ export type WordList = {
   group?: string,
   /** The list's place in its group, from the broadest choice to the finest, such as 基本 then 初級. */
   levels?: string[],
+  /** The word pack the list belongs to. Every saved list has one (see wordPacks.ts). */
+  packId?: string,
   words: {
     display: string,
     input: string,
@@ -85,6 +87,7 @@ export function decodeLists(raw: string): SavedWordList[] {
         (list.category !== undefined && typeof list.category !== "string") ||
         (list.tags !== undefined && (!Array.isArray(list.tags) || list.tags.some((tag: unknown) => typeof tag !== "string"))) ||
         (list.group !== undefined && typeof list.group !== "string") ||
+        (list.packId !== undefined && typeof list.packId !== "string") ||
         (list.levels !== undefined && (!Array.isArray(list.levels) || list.levels.some((level: unknown) => typeof level !== "string"))) ||
         list.words.some((word: WordList['words'][number]) => !word || typeof word.display !== "string" || typeof word.input !== "string" || typeof word.annotation !== "string") ||
         list.records.some((record: WordList['records'][number]) => !record || !Number.isFinite(record.time) || record.time < 0 || typeof record.date !== "string" ||

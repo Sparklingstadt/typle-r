@@ -27,14 +27,14 @@ function decodeLegacyProfiles(value: unknown): LegacyProfile[] {
   })
 }
 
-function unique(taken: Set<string>, wanted: string, variant: (count: number) => string) {
+export function unique(taken: Set<string>, wanted: string, variant: (count: number) => string) {
   let value = wanted
   for (let count = 2; taken.has(value.toLocaleLowerCase()); count++) value = variant(count)
   taken.add(value.toLocaleLowerCase())
   return value
 }
 
-const fit = (name: string, suffix: string) => name.slice(0, MAX_NAME - suffix.length).trimEnd() + suffix
+export const fit = (name: string, suffix: string) => name.slice(0, MAX_NAME - suffix.length).trimEnd() + suffix
 
 /** Puts the lists of removed profiles after the first one's. A name already in use gets the profile's name after it. */
 export function mergeProfiles(lists: SavedWordList[], profiles: LegacyProfile[]): SavedWordList[] {
