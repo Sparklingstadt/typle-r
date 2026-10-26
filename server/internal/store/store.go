@@ -118,7 +118,7 @@ func (s *Store) Read(ctx context.Context, owner string) (*workspace.Workspace, e
 // change edits the lists as Decode shows them, with their packs' category and tags; ApplyListChange then puts those
 // edits back into the packs, so the workspace returned has its lists in their packs (a new list in a pack of its own)
 // and both are written. Anything change keeps of the workspace, such as a pointer into its lists, is from before that:
-// find the list again in the workspace returned.
+// find the list again in the workspace returned. The links to packs the change removed are deleted with it.
 func (s *Store) Modify(ctx context.Context, owner string, change func(*workspace.Workspace) (bool, error)) (*workspace.Workspace, error) {
 	var result *workspace.Workspace
 	err := pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
@@ -156,9 +156,11 @@ func (s *Store) Modify(ctx context.Context, owner string, change func(*workspace
 		if _, err := workspace.Decode(after, devices, afterPacks); err != nil {
 			return fmt.Errorf("changed workspace of %s: %w", owner, err)
 		}
-		_, err = tx.Exec(ctx, `UPDATE typle_workspaces SET lists = $2::jsonb, packs = $3::jsonb, devices = $4::jsonb,
-			revision = revision + 1, updated_at = now() WHERE owner_id = $1`, owner, string(after), string(afterPacks), string(devices))
-		return err
+		if _, err := tx.Exec(ctx, `UPDATE typle_workspaces SET lists = $2::jsonb, packs = $3::jsonb, devices = $4::jsonb,
+			revision = revision + 1, updated_at = now() WHERE owner_id = $1`, owner, string(after), string(afterPacks), string(devices)); err != nil {
+			return err
+		}
+		return deleteRemovedShares(ctx, tx, owner, w.Packs)
 	})
 	if err != nil {
 		return nil, err
@@ -191,6 +193,10 @@ func lock(ctx context.Context, tx pgx.Tx, owner string) (*workspace.Workspace, e
 			return w, nil
 		}
 		if !errors.Is(err, pgx.ErrNoRows) || inserted {
+			return nil, err
+		}
+		// As the first save does (see lockOwner), so that the links PutShare made from the initial packs are seen.
+		if err := lockOwner(ctx, tx, owner); err != nil {
 			return nil, err
 		}
 		initial, err := workspace.Initial()
@@ -261,7 +267,8 @@ func (s *Store) ReadRevision(ctx context.Context, owner string) (*Saved, error) 
 // apart from the conflict and the saved number of lists, is checked before the database is touched.
 //
 // What is saved is not read back through Decode: only the saved revision and number of lists are read, a part left
-// out is kept by the UPDATE itself, and the result is the row's JSON as stored.
+// out is kept by the UPDATE itself, and the result is the row's JSON as stored. When packs are saved, the links to packs
+// no longer among them are deleted in the same transaction; lists saved without packs leave the links as they are.
 func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, change Change) (*Saved, error) {
 	// nil is a part left out: NULL in the queries below.
 	var lists, packs, devices []byte
@@ -294,12 +301,35 @@ func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, c
 	if _, err := workspace.Decode(orEmpty(lists), orEmpty(devices), packs); err != nil {
 		return nil, fmt.Errorf("changed workspace of %s: %w", owner, err)
 	}
+	var saved *Saved
+	err = pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
+		var err error
+		if saved, err = writeRevision(ctx, tx, owner, revision, change, lists, packs, devices); err != nil {
+			return err
+		}
+		if change.HasPacks {
+			return deleteRemovedShares(ctx, tx, owner, change.Packs)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return saved, nil
+}
+
+// writeRevision writes the parts of WriteRevision, encoded (nil for a part left out), in tx.
+func writeRevision(ctx context.Context, tx pgx.Tx, owner string, revision int, change Change, lists, packs, devices []byte) (*Saved, error) {
 	if revision == 0 {
 		if len(change.Lists) > workspace.MaxLists {
 			return nil, &workspace.Error{Key: "listLimit"}
 		}
+		// The links PutShare made from the initial packs are seen by deleteRemovedShares (see lockOwner).
+		if err := lockOwner(ctx, tx, owner); err != nil {
+			return nil, err
+		}
 		// Unique owner makes the existence check and the insert one atomic operation.
-		saved, err := scanSaved(s.pool.QueryRow(ctx, `INSERT INTO typle_workspaces (owner_id, lists, packs, devices)
+		saved, err := scanSaved(tx.QueryRow(ctx, `INSERT INTO typle_workspaces (owner_id, lists, packs, devices)
 			VALUES ($1, $2::jsonb, $3::jsonb, $4::jsonb) ON CONFLICT (owner_id) DO NOTHING
 			RETURNING lists::text, packs::text, devices::text, revision`,
 			owner, string(orEmpty(lists)), nullable(packs), string(orEmpty(devices))))
@@ -309,7 +339,7 @@ func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, c
 		return saved, err
 	}
 	var savedRevision, savedLists int
-	err = s.pool.QueryRow(ctx, `SELECT revision, jsonb_array_length(lists) FROM typle_workspaces WHERE owner_id = $1`, owner).
+	err := tx.QueryRow(ctx, `SELECT revision, jsonb_array_length(lists) FROM typle_workspaces WHERE owner_id = $1`, owner).
 		Scan(&savedRevision, &savedLists)
 	if errors.Is(err, pgx.ErrNoRows) || (err == nil && savedRevision != revision) {
 		return nil, ErrConflict
@@ -321,7 +351,7 @@ func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, c
 		return nil, &workspace.Error{Key: "listLimit"}
 	}
 	// Matching the revision in the UPDATE itself makes the comparison and the write one atomic operation.
-	saved, err := scanSaved(s.pool.QueryRow(ctx, `UPDATE typle_workspaces SET lists = COALESCE($3::jsonb, lists),
+	saved, err := scanSaved(tx.QueryRow(ctx, `UPDATE typle_workspaces SET lists = COALESCE($3::jsonb, lists),
 		packs = COALESCE($4::jsonb, packs), devices = COALESCE($5::jsonb, devices), revision = revision + 1, updated_at = now()
 		WHERE owner_id = $1 AND revision = $2 RETURNING lists::text, packs::text, devices::text, revision`,
 		owner, revision, nullable(lists), nullable(packs), nullable(devices)))

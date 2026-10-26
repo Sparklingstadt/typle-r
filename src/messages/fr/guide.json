@@ -90,6 +90,13 @@
       "p3": "Choisissez ce fichier avec « Importer depuis un fichier » pour l’importer comme nouveau pack (cela fonctionne aussi quand vous n’avez encore aucun pack). Les fichiers vont jusqu’à 1 Mio ; un fichier illisible est refusé. Si un pack du même nom existe, le nouveau s’appelle « Nom (2) ».",
       "p4": "Dans « Packs officiels », parmi les packs de mots, « Ajouter » ajoute un pack prêt à l’emploi à vos packs. Vous pouvez le modifier librement, et ceux que vous avez déjà sont signalés comme ajoutés. Un pack officiel supprimé peut être ajouté de nouveau (l’historique ne revient pas)."
     },
+    "share": {
+      "title": "Partager un pack",
+      "p1": "Une fois connecté, « Partager » dans le menu « … » d’un pack crée un lien de partage. Choisissez « Créer le lien », puis « Copier » et envoyez-le.",
+      "p2": "Toute personne disposant du lien peut voir, sans se connecter, le nom, la description, les listes et les mots du pack, et l’ajouter à ses packs avec « Ajouter à mes packs ». Vos enregistrements d’entraînement et votre nom ne sont pas visibles.",
+      "p3": "Modifier le pack ne change pas le lien automatiquement. « Mettre à jour » l’actualise (le lien reste le même). « Arrêter le partage » désactive le lien, qui indique alors que le partage est terminé. Un pack partagé porte la mention « Partagé ».",
+      "p4": "Supprimer un pack partagé met aussi fin à son partage."
+    },
     "input": {
       "title": "Saisir les mots",
       "p1": "Saisissez le nom de la liste puis, pour chaque mot, le « Mot affiché » et le « Texte à saisir ». La note est facultative.",

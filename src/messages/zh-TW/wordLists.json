@@ -42,7 +42,8 @@
     "export": "匯出 CSV",
     "packTitle": "要刪除「{name}」嗎？",
     "packDescription": "還會刪除 {lists} 個清單和 {records} 筆練習紀錄。",
-    "lastInPack": "包「{name}」也會被刪除。"
+    "lastInPack": "包「{name}」也會被刪除。",
+    "shareEnds": "它的分享連結也會失效。"
   },
   "order": {
     "label": "排序",
@@ -109,7 +110,9 @@
     "addList": "新增清單",
     "delete": "刪除",
     "copy": "複製",
-    "export": "匯出"
+    "export": "匯出",
+    "share": "分享",
+    "shared": "分享中"
   },
   "wordRow": {
     "label": "單字 {n}",
@@ -288,5 +291,30 @@
     "addedState": "已加入",
     "added": "已加入「{name}」。",
     "full": "清單已達上限（{max} 個），無法加入。請刪除不用的清單。"
+  },
+  "share": {
+    "title": "分享「{name}」",
+    "description": "知道連結的人可以查看此包的名稱、說明、清單和單字，並將其加入自己的包。不含練習紀錄。連結顯示的是建立連結時的內容，之後修改包不會自動更新。",
+    "sharing": "知道連結的人可以查看此包並加入自己的包。修改包之後，請用「更新分享」重新整理連結的內容。",
+    "link": "分享連結",
+    "copy": "複製",
+    "copied": "已複製",
+    "copyFailed": "無法複製。請選取連結後手動複製。",
+    "updatedAt": "最後更新 {date}",
+    "updateHint": "編輯包不會自動更新連結的內容。",
+    "create": "建立連結",
+    "update": "更新分享",
+    "stop": "停止分享",
+    "failed": "無法變更分享。"
+  },
+  "sharedPage": {
+    "loading": "正在載入分享",
+    "intro": "這是別人分享的包。加入我的包後，就能編輯並用來練習。",
+    "add": "加入我的包",
+    "toPacks": "開啟單字包",
+    "loadFailed": "無法載入此分享。請稍後再試。",
+    "levels": "難度：{levels}",
+    "lists": "清單",
+    "addFailed": "無法加入此包。請重試。"
   }
 }

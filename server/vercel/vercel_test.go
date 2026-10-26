@@ -2,6 +2,7 @@ package vercel
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -35,6 +36,16 @@ func (fakeStore) ReadRevision(context.Context, string) (*store.Saved, error) {
 func (fakeStore) WriteRevision(context.Context, string, int, store.Change) (*store.Saved, error) {
 	return nil, errors.New("not used")
 }
+func (fakeStore) PutShare(context.Context, string, string) (*store.Share, error) {
+	return nil, errors.New("not used")
+}
+func (fakeStore) DeleteShare(context.Context, string, string) error { return errors.New("not used") }
+func (fakeStore) ListShares(context.Context, string) ([]store.Share, error) {
+	return nil, errors.New("not used")
+}
+
+// SharedPack has no links: every id is not found.
+func (fakeStore) SharedPack(context.Context, string) (json.RawMessage, error) { return nil, nil }
 
 func settings(t *testing.T) {
 	t.Helper()
@@ -348,4 +359,39 @@ func TestHandlerUnreachableDatabase(t *testing.T) {
 	settings(t)
 	t.Setenv("DATABASE_URL", "postgresql://typle@127.0.0.1:1/typle?connect_timeout=1")
 	expect(t, serve(t), http.StatusServiceUnavailable, `{"error":"databaseUnavailable"}`)
+}
+
+// /api/shared is for anyone with a link, so it needs the database only: it answers without the login settings. /api/shares
+// is the owner's, and answers as /api/workspace does without them.
+func TestSharedWithoutSecret(t *testing.T) {
+	reset(t)
+	settings(t)
+	t.Setenv("AUTH_SECRET", "")
+	t.Setenv("AUTH_URL", "")
+	var opened atomic.Int32
+	backend.open = func(context.Context, string) (web.Store, error) { opened.Add(1); return fakeStore{}, nil }
+	expect(t, get("/api/shares"), http.StatusServiceUnavailable, `{"error":"authUnavailable"}`)
+	if opened.Load() != 0 {
+		t.Fatal("the database was opened for /api/shares without the login settings")
+	}
+	expect(t, get("/api/shared?id=0b6f2c1e-3d4a-4f5b-8c9d-0e1f2a3b4c5d"), http.StatusNotFound, `{"error":"sharedPackNotFound"}`)
+	if opened.Load() != 1 {
+		t.Fatalf("the database was opened %d times for /api/shared", opened.Load())
+	}
+
+	t.Setenv("AUTH_SECRET", "secret")
+	t.Setenv("AUTH_URL", "https://typle.example")
+	expect(t, get("/api/shares"), http.StatusUnauthorized, `{"error":"loginRequired"}`)
+	expect(t, get("/api/shared?id=nope"), http.StatusNotFound, `{"error":"sharedPackNotFound"}`)
+}
+
+// While the database does not open, both say databaseUnavailable.
+func TestSharedDatabaseDown(t *testing.T) {
+	reset(t)
+	settings(t)
+	backend.retryAfter = 0
+	backend.open = func(context.Context, string) (web.Store, error) { return nil, errors.New("connection refused") }
+	for _, path := range []string{"/api/shared?id=x", "/api/shares"} {
+		expect(t, get(path), http.StatusServiceUnavailable, `{"error":"databaseUnavailable"}`)
+	}
 }

@@ -50,6 +50,12 @@ func EncodePackFile(w *Workspace, packID string) ([]byte, error) {
 			file.Lists = append(file.Lists, PackFileList{Name: list.Name, Levels: list.Levels, Words: plainWords(list.Words)})
 		}
 	}
+	return file.Encode()
+}
+
+// Encode writes the file as EncodePackFile does. A file read back with DecodePackFile is written again byte for byte,
+// whatever the spacing and order of keys it was read from.
+func (file *PackFile) Encode() ([]byte, error) {
 	var buffer bytes.Buffer
 	encoder := json.NewEncoder(&buffer)
 	encoder.SetEscapeHTML(false)

@@ -128,6 +128,30 @@ func packFileText(lists string, pack string) string {
 	return `{"format":"typle-pack","version":1,"pack":` + pack + `,"lists":` + lists + `}`
 }
 
+// A file kept as jsonb comes back with other spacing and key order; Encode writes it again as it was written.
+func TestPackFileEncodeAgain(t *testing.T) {
+	for name, fixture := range packFileFixtures(t) {
+		t.Run(name, func(t *testing.T) {
+			var reordered any
+			if err := json.Unmarshal([]byte(fixture.File), &reordered); err != nil {
+				t.Fatal(err)
+			}
+			compact, err := json.Marshal(reordered)
+			if err != nil {
+				t.Fatal(err)
+			}
+			file, err := DecodePackFile(compact)
+			if err != nil {
+				t.Fatal(err)
+			}
+			got, err := file.Encode()
+			if err != nil || string(got) != fixture.File {
+				t.Fatalf("Encode =\n%s, %v\nwant\n%s", got, err, fixture.File)
+			}
+		})
+	}
+}
+
 func TestEncodePackFileLeavesOutEmptyFields(t *testing.T) {
 	w := &Workspace{
 		Packs: []Pack{{ID: "q", Name: "Go", Description: "", Category: "", Tags: []string{}, CreatedAt: packStamp}},

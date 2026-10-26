@@ -73,6 +73,12 @@ func (s *server) sameOrigin(r *http.Request) bool {
 	return origin != "" && origin == scheme+"://"+host
 }
 
+// jsonContent reports whether the request's body is declared as JSON. A form cannot send that type to another site
+// without asking first (CORS), so with the Origin it keeps other sites' pages out.
+func jsonContent(r *http.Request) bool {
+	return strings.TrimSpace(strings.SplitN(r.Header.Get("Content-Type"), ";", 2)[0]) == "application/json"
+}
+
 // report tells Config.Report, or the log, of a failure that is answered with a 503.
 func (s *server) report(r *http.Request, err error, operation string) {
 	if s.config.Report != nil {
@@ -116,7 +122,7 @@ func (s *server) readWorkspace(w http.ResponseWriter, r *http.Request) {
 func (s *server) writeWorkspace(w http.ResponseWriter, r *http.Request) {
 	// The Origin keeps other sites from saving with the browser's cookie. An app's (iPad, Mac, Android or Windows) token is not sent by
 	// a browser on its own, so its requests, which have no Origin, need none.
-	if !(fromApp(r) || s.sameOrigin(r)) || strings.TrimSpace(strings.SplitN(r.Header.Get("Content-Type"), ";", 2)[0]) != "application/json" {
+	if !(fromApp(r) || s.sameOrigin(r)) || !jsonContent(r) {
 		refuse(w, http.StatusForbidden, "forbiddenRequest")
 		return
 	}
