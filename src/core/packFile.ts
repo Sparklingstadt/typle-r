@@ -1,8 +1,8 @@
 import { AppError } from './appError'
 import { copyName, MAX_LISTS, MAX_LIST_NAME } from './listOverview'
-import { levelPath, pathsOverlap, settle, tidyLevels } from './packEditing'
+import { settle, trimLevels } from './packEditing'
 import { MAX_CATEGORY, MAX_LEVEL, MAX_LEVELS, MAX_TAG, MAX_TAGS, normalizeLabels, validateList, type SavedWordList } from './wordLists'
-import { MAX_PACK_DESCRIPTION, MAX_PACK_NAME, nameKey, type Library, type WordPack } from './wordPacks'
+import { MAX_PACK_DESCRIPTION, MAX_PACK_NAME, nameKey, separateLevels, type Library, type WordPack } from './wordPacks'
 import { fit, unique } from './workspaceDocument'
 
 /**
@@ -112,8 +112,9 @@ function checkIds(ids: NewPackIds, count: number) {
 }
 
 /**
- * The library with the file's pack added at the end, checked as createPack and saveListInPack check a save. The name
- * gets （2）, （3）… when a pack has it. Not settled: callers settle the result.
+ * The library with the file's pack added at the end, checked as createPack and saveListInPack check a save, but for
+ * levels that repeat or overlap, which are told apart (separateLevels). The name gets （2）, （3）… when a pack has it.
+ * Not settled: callers settle the result.
  */
 export function addPackFile(library: Library, file: PackFile, ids: NewPackIds, now: Date, origin?: WordPack['origin']): Library {
   if (!file.lists.length) throw new AppError('packFileUnreadable')
@@ -126,9 +127,7 @@ export function addPackFile(library: Library, file: PackFile, ids: NewPackIds, n
   const lists: SavedWordList[] = []
   file.lists.forEach((item, n) => {
     validateList({ name: item.name, words: item.words, records: [], createdAt }, lists)
-    const list: SavedWordList = { id: ids.lists[n], name: item.name.trim(), ...tidyLevels(item.levels), packId: ids.pack, words: wordsOf(item.words), records: [], createdAt }
-    if (lists.some(other => pathsOverlap(levelPath(other), levelPath(list)))) throw new AppError('levelsConflict')
-    lists.push(list)
+    lists.push({ id: ids.lists[n], name: item.name.trim(), ...trimLevels(item.levels), packId: ids.pack, words: wordsOf(item.words), records: [], createdAt })
   })
   const names = new Set(library.packs.map(pack => nameKey(pack.name)))
   const description = file.pack.description?.trim()
@@ -136,7 +135,9 @@ export function addPackFile(library: Library, file: PackFile, ids: NewPackIds, n
     id: ids.pack, name: unique(names, wanted, count => fit(wanted, `（${count}）`)),
     ...(description ? { description } : {}), ...normalizeLabels(file.pack), ...(origin ? { origin } : {}), createdAt,
   }
-  return { packs: [...library.packs, pack], lists: [...library.lists, ...lists] }
+  // A file written before v0.96.3 may repeat or overlap levels, which the one who imports it cannot change: they are
+  // told apart as reading saved data does.
+  return { packs: [...library.packs, pack], lists: [...library.lists, ...separateLevels({ packs: [], lists }).lists] }
 }
 
 /** Adds the file's pack at the end, as a new pack without records. Nothing is added when a list breaks a rule. */

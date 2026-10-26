@@ -889,6 +889,20 @@ func TestPutLevelDuplicate(t *testing.T) {
 	}
 }
 
+// Lists sent alone (by an app that does not know packs) that repeat a level are taken, and told apart when they are read.
+func TestPutLevelDuplicateWithoutPacksRealStore(t *testing.T) {
+	s, owner := realStore(t)
+	h := newHarness(t, s, testBase)
+	repeated := strings.Replace(aList("a", "a"), `"records":[]`, `"records":[],"levels":["基本","基本"]`, 1)
+	if response := h.put(owner, payload(owner, `"revision":0,"lists":[`+repeated+`]`)); response.Code != http.StatusOK {
+		t.Fatalf("response = %d %s", response.Code, response.Body)
+	}
+	w, err := s.Read(context.Background(), owner)
+	if err != nil || len(w.Lists) != 1 || !slices.Equal(w.Lists[0].Levels, []string{"基本", "基本（2）"}) {
+		t.Fatalf("read = %+v, %v", w, err)
+	}
+}
+
 func TestPutLevelsWithoutPacksRealStore(t *testing.T) {
 	s, owner := realStore(t)
 	h := newHarness(t, s, testBase)

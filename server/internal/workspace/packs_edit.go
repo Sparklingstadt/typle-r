@@ -46,10 +46,19 @@ func findPack(w *Workspace, id string) *Pack {
 	return nil
 }
 
-// tidyLevels follows tidyLevels (src/core/packEditing.ts): the levels trimmed, without empty ones, and nil when none is
-// left. More than MaxLevels or one longer than MaxLevel is invalidList, as is U+0000; a level given twice is
-// levelDuplicate.
+// tidyLevels follows tidyLevels (src/core/packEditing.ts): the levels as trimLevels keeps them, and a level given twice
+// is levelDuplicate.
 func tidyLevels(levels []string) ([]string, error) {
+	kept, err := trimLevels(levels)
+	if err == nil && repeatsLevel(kept) {
+		return nil, &Error{Key: "levelDuplicate"}
+	}
+	return kept, err
+}
+
+// trimLevels follows trimLevels (src/core/packEditing.ts): the levels trimmed, without empty ones, and nil when none is
+// left. More than MaxLevels or one longer than MaxLevel is invalidList, as is U+0000.
+func trimLevels(levels []string) ([]string, error) {
 	var kept []string
 	for _, level := range levels {
 		if level = trimJS(level); level != "" {
@@ -60,20 +69,22 @@ func tidyLevels(levels []string) ([]string, error) {
 		slices.ContainsFunc(kept, func(level string) bool { return length(level) > MaxLevel || strings.ContainsRune(level, 0) }) {
 		return nil, &Error{Key: "invalidList"}
 	}
-	if repeatsLevel(kept) {
-		return nil, &Error{Key: "levelDuplicate"}
-	}
 	return kept, nil
 }
 
-// repeatsLevel reports whether levels hold one level twice, compared as they are.
+// repeatsLevel follows repeatsLevel (src/core/wordPacks.ts): whether levels hold one level twice, compared trimmed.
 func repeatsLevel(levels []string) bool {
-	for i, level := range levels {
-		if slices.Contains(levels[:i], level) {
+	for i := range levels {
+		if heldBefore(levels, i) {
 			return true
 		}
 	}
 	return false
+}
+
+// heldBefore reports whether a level before levels[at] is the same, compared trimmed.
+func heldBefore(levels []string, at int) bool {
+	return slices.ContainsFunc(levels[:at], func(level string) bool { return trimJS(level) == trimJS(levels[at]) })
 }
 
 // levelPath follows levelPath (src/core/packEditing.ts): the levels the practice screen picks a list of a pack by, or
@@ -131,10 +142,11 @@ func checkPack(pack Pack) error {
 	return nil
 }
 
-// newLists checks the lists of a new pack packID as createPack and addPackFile do, each against those before it, and
-// returns them as they are saved: names trimmed, levels tidied, words as given but without fields Typle does not know,
-// no records, and created now.
-func newLists(packID string, inputs []PackListInput, ids []string, now time.Time) ([]List, error) {
+// newLists checks the lists of a new pack packID as createPack does, each against those before it, and returns them as
+// they are saved: names trimmed, levels tidied, words as given but without fields Typle does not know, no records, and
+// created now. With separate (a file, as addPackFile reads it), levels that repeat or overlap are told apart
+// (separateLevels) instead of refused.
+func newLists(packID string, inputs []PackListInput, ids []string, now time.Time, separate bool) ([]List, error) {
 	if len(ids) != len(inputs) {
 		return nil, errors.New("one list id is needed for each list")
 	}
@@ -149,15 +161,24 @@ func newLists(packID string, inputs []PackListInput, ids []string, now time.Time
 		}
 		var levels []string
 		if input.Levels != nil {
-			if levels, err = tidyLevels(*input.Levels); err != nil {
+			tidy := tidyLevels
+			if separate {
+				tidy = trimLevels
+			}
+			if levels, err = tidy(*input.Levels); err != nil {
 				return nil, err
 			}
 		}
-		if err := checkReach(scratch, packID, "", name, levels); err != nil {
-			return nil, err
+		if !separate {
+			if err := checkReach(scratch, packID, "", name, levels); err != nil {
+				return nil, err
+			}
 		}
 		scratch.Lists = append(scratch.Lists, List{ID: ids[n], Name: name, Levels: levels, PackID: packID, Words: plainWords(input.Words),
 			Records: []Record{}, CreatedAt: FormatTime(now)})
+	}
+	if separate {
+		return separateLevels(scratch.Lists), nil
 	}
 	return scratch.Lists, nil
 }
@@ -199,7 +220,7 @@ func CreatePack(w *Workspace, input PackInput, packID string, listIDs []string, 
 	if err := checkRoom(w, len(input.Lists)); err != nil {
 		return nil, err
 	}
-	lists, err := newLists(packID, input.Lists, listIDs, now)
+	lists, err := newLists(packID, input.Lists, listIDs, now, false)
 	if err != nil {
 		return nil, err
 	}

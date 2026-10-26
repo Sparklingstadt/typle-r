@@ -1,7 +1,7 @@
 import { AppError } from './appError'
 import { listOverviews, matchesQuery, MAX_LISTS, type ListOverview } from './listOverview'
 import { MAX_LEVEL, MAX_LEVELS, normalizeLabels, validateList, type SavedWordList } from './wordLists'
-import { levelPath, nameKey, pathsOverlap, repairLibrary, validateLibrary, viewLists, type Library, type WordPack } from './wordPacks'
+import { levelPath, nameKey, pathsOverlap, repairLibrary, repeatsLevel, validateLibrary, viewLists, type Library, type WordPack } from './wordPacks'
 
 export { levelPath, pathsOverlap }
 
@@ -60,13 +60,19 @@ function packFields(library: Library, fields: PackInput, selfId?: string) {
   return { name, ...(description ? { description } : {}), ...normalizeLabels(fields) }
 }
 
-// Levels as normalizeGroup keeps them: trimmed, without empty ones, and left out when none is left. A level given twice
-// could not be told apart on the practice screen (levelDuplicate).
-export function tidyLevels(levels: string[] | undefined) {
+// Levels as normalizeGroup keeps them: trimmed, without empty ones, and left out when none is left.
+export function trimLevels(levels: string[] | undefined) {
   const kept = (levels ?? []).map(level => level.trim()).filter(Boolean)
   if (kept.length > MAX_LEVELS || kept.some(level => level.length > MAX_LEVEL)) throw invalid()
-  if (new Set(kept).size !== kept.length) throw new AppError('levelDuplicate')
   return kept.length ? { levels: kept } : {}
+}
+
+// Levels as a save keeps them (trimLevels). A level given twice could not be told apart on the practice screen
+// (levelDuplicate).
+export function tidyLevels(levels: string[] | undefined) {
+  const kept = trimLevels(levels)
+  if (repeatsLevel(kept.levels)) throw new AppError('levelDuplicate')
+  return kept
 }
 
 const requirePack = (library: Library, packId: string) => {

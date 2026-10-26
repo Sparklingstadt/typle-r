@@ -160,18 +160,21 @@ func numbered(name string) func(count int) string {
 }
 
 // distinctLevels follows distinctLevels (src/core/wordPacks.ts): a level given twice in one list gets the smallest
-// （n） from 2 that the list's levels do not hold yet.
+// （n） from 2 that the list's levels do not hold yet. Levels are compared trimmed.
 func distinctLevels(list List) List {
 	if !repeatsLevel(list.Levels) {
 		return list
 	}
 	levels := slices.Clone(list.Levels)
+	held := func(value string) bool {
+		return slices.ContainsFunc(levels, func(level string) bool { return trimJS(level) == trimJS(value) })
+	}
 	for at, level := range levels {
-		if !slices.Contains(levels[:at], level) {
+		if !heldBefore(levels, at) {
 			continue
 		}
 		count := 2
-		for slices.Contains(levels, fit(level, fmt.Sprintf("（%d）", count), MaxLevel)) {
+		for held(fit(level, fmt.Sprintf("（%d）", count), MaxLevel)) {
 			count++
 		}
 		levels[at] = fit(level, fmt.Sprintf("（%d）", count), MaxLevel)
@@ -213,7 +216,7 @@ func separateLevels(lists []List) []List {
 		at := -1
 		repeated := func() bool {
 			for n, level := range path {
-				if at >= 0 && n != at && level == path[at] {
+				if at >= 0 && n != at && trimJS(level) == trimJS(path[at]) {
 					return true
 				}
 			}

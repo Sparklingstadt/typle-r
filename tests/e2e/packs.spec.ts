@@ -572,18 +572,25 @@ test('a level entered twice in one list is marked while typing, and refused unde
   const message = '同じ難易度が2回入っています。別の難易度にしてください。'
   await page.goto('/edit?list=adv')
   const level = (n: number) => page.getByRole('textbox', { name: `難易度 ${n}`, exact: true })
+  const alerts = page.getByRole('alert').filter({ hasText: message })
   await page.getByRole('button', { name: '難易度を追加' }).click()
   await level(1).fill('中級1')
   await page.getByRole('button', { name: '難易度を追加' }).click()
   await level(2).fill(' 中級1 ')
-  // The repeat is marked on the later input, which names the message, and the message is announced once.
+  // The repeat is marked on the later input, which names the one message under the levels.
   await expect(level(2)).toHaveAttribute('aria-invalid', 'true')
   await expect(level(1)).not.toHaveAttribute('aria-invalid', 'true')
-  await expect(page.getByRole('alert').filter({ hasText: message })).toHaveCount(1)
+  await expect(alerts).toHaveCount(1)
   await expect(level(2)).toHaveAccessibleDescription(new RegExp(message))
+  // A third repeat is marked too, and still has one message.
+  await page.getByRole('button', { name: '難易度を追加' }).click()
+  await level(3).fill('中級1')
+  await expect(level(3)).toHaveAttribute('aria-invalid', 'true')
+  await expect(alerts).toHaveCount(1)
+  await page.getByRole('button', { name: '難易度 3 を削除' }).click()
   await saveButton(page).click()
-  // The save is refused with the message under the levels, which the input then names, and nothing is saved.
-  await expect(page.getByRole('alert').filter({ hasText: message })).toHaveCount(1)
+  // The save is refused with the message under the levels, and nothing is saved.
+  await expect(alerts).toHaveCount(1)
   await expect(level(2)).toHaveAccessibleDescription(new RegExp(message))
   await expect(page.getByText('「応用」を更新しました。')).toHaveCount(0)
   expect((await saved(page)).lists.find((item: { id: string }) => item.id === 'adv').levels).toBeUndefined()

@@ -347,13 +347,17 @@ func TestCheckPacksLevels(t *testing.T) {
 		with("e", func(l *List) { l.PackID, l.Levels = "q", []string{"初級"} })}); err != nil {
 		t.Fatal(err)
 	}
-	// A level given twice in one list is refused with levelDuplicate; levels are compared as they are.
+	// A level given twice in one list is refused with levelDuplicate; levels are compared trimmed.
 	var duplicate *Error
 	if err := CheckPacks(packs, []List{with("a", func(l *List) { l.Levels = []string{"中級1", "A", "中級1"} }), inQ}); !errors.As(err, &duplicate) ||
 		duplicate.Key != "levelDuplicate" {
 		t.Errorf("repeated level: err = %v", err)
 	}
-	if err := CheckPacks(packs, []List{with("a", func(l *List) { l.Levels = []string{"基本", "基本 ", "基本（2）"} }), inQ}); err != nil {
+	if err := CheckPacks(packs, []List{with("a", func(l *List) { l.Levels = []string{" 基本", "基本"} }), inQ}); !errors.As(err, &duplicate) ||
+		duplicate.Key != "levelDuplicate" {
+		t.Errorf("repeated trimmed level: err = %v", err)
+	}
+	if err := CheckPacks(packs, []List{with("a", func(l *List) { l.Levels = []string{"基本", "基本1", "基本（2）"} }), inQ}); err != nil {
 		t.Fatal(err)
 	}
 	// CheckLibrary keeps the key, so a save is refused with it.

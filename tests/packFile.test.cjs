@@ -107,14 +107,23 @@ test('importPackFile adds the pack and its lists at the end, tidied as a save wo
   assert.equal(importPackFile(library(), file([{ name: 'L', words: words('a') }], { name: ' linux ' }), { pack: 'n', lists: ['n1'] }, now).packs.at(-1).name, 'linux（2）')
 })
 
+// A file written before v0.96.3 (or a share made then) may repeat a level in a list, or overlap levels of its lists; the
+// import tells them apart as reading saved data does, since the one who imports cannot change the file.
+test('importPackFile tells apart repeated and overlapping levels of a file, as reading saved data does', () => {
+  const next = importPackFile(library(), file([
+    { name: 'A', levels: ['基本', ' 基本 '], words: words('a') },
+    { name: 'B', levels: ['基本', '基本（2）'], words: words('b') },
+    { name: 'C', words: words('c') },
+    { name: 'D', levels: ['C'], words: words('d') },
+  ]), { pack: 'n', lists: ['n1', 'n2', 'n3', 'n4'] }, now)
+  assert.deepEqual(next.lists.slice(-4).map(item => item.levels), [['基本', '基本（2）'], ['基本', '基本（2）（2）'], undefined, ['C（2）']])
+})
+
 test('importPackFile refuses a file against the rules of a save, and changes nothing', () => {
   const lib = library()
   const before = JSON.stringify(lib)
   const run = (lists, pack) => importPackFile(lib, file(lists, pack), { pack: 'n', lists: lists.map((_, n) => `n${n}`) }, now)
   assert.throws(() => run([{ name: 'L', words: words('a') }, { name: ' l ', words: words('b') }]), { key: 'listNameDuplicate' })
-  assert.throws(() => run([{ name: 'A', levels: ['初級'], words: words('a') }, { name: 'B', levels: ['初級', '1'], words: words('b') }]), { key: 'levelsConflict' })
-  assert.throws(() => run([{ name: 'A', words: words('a') }, { name: 'B', levels: ['A'], words: words('b') }]), { key: 'levelsConflict' })
-  assert.throws(() => run([{ name: 'A', levels: ['基本', ' 基本 '], words: words('a') }]), { key: 'levelDuplicate' })
   assert.throws(() => run([{ name: ' ', words: words('a') }]), { key: 'listNameRequired' })
   assert.throws(() => run([{ name: 'L', words: [] }]), { key: 'wordsRequired' })
   assert.throws(() => run([{ name: 'L', words: [{ display: 'a', input: ' ', annotation: '' }] }]), { key: 'wordFieldsRequired' })

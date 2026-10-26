@@ -75,8 +75,9 @@ test('validateLibrary refuses a level given twice in one list, as levelDuplicate
   const packs = [{ id: 'p', name: 'P', createdAt: '2026-10-01T00:00:00.000Z' }]
   assert.throws(() => validateLibrary({ packs, lists: [{ ...list, levels: ['基本', '基本'] }] }), { key: 'levelDuplicate' })
   assert.throws(() => validateLibrary({ packs, lists: [{ ...list, levels: ['中級1', 'A', '中級1'] }] }), { key: 'levelDuplicate' })
-  // Levels are compared as they are.
-  validateLibrary({ packs, lists: [{ ...list, levels: ['基本', '基本 ', '基本（2）'] }] })
+  // Levels are compared trimmed, as tidyLevels compares them.
+  assert.throws(() => validateLibrary({ packs, lists: [{ ...list, levels: [' 基本', '基本'] }] }), { key: 'levelDuplicate' })
+  validateLibrary({ packs, lists: [{ ...list, levels: ['基本', '基本1', '基本（2）'] }] })
 })
 
 test('a repeated level gets the smallest （n） its list does not use, within the limit', () => {

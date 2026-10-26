@@ -34,15 +34,19 @@ export function pathsOverlap(a: string[], b: string[]) {
   return short.every((level, n) => level === long[n])
 }
 
+// Whether levels hold one level twice, compared trimmed as tidyLevels compares them.
+export const repeatsLevel = (levels: string[] | undefined) => new Set(levels?.map(level => level.trim())).size !== (levels?.length ?? 0)
+
 // A level given twice in one list (which an older app let through) gets the smallest （n） from 2 that the list's levels
-// do not hold yet, so that each level of the list can be told apart.
+// do not hold yet, so that each level of the list can be told apart. Levels are compared trimmed.
 function distinctLevels(list: SavedWordList): SavedWordList {
-  if (!list.levels || new Set(list.levels).size === list.levels.length) return list
-  const levels = [...list.levels]
+  if (!repeatsLevel(list.levels)) return list
+  const levels = [...list.levels!]
+  const held = (value: string) => levels.some(level => level.trim() === value.trim())
   levels.forEach((level, at) => {
-    if (!levels.slice(0, at).includes(level)) return
+    if (!levels.slice(0, at).some(other => other.trim() === level.trim())) return
     let count = 2
-    while (levels.includes(fit(level, `（${count}）`, MAX_LEVEL))) count++
+    while (held(fit(level, `（${count}）`, MAX_LEVEL))) count++
     levels[at] = fit(level, `（${count}）`, MAX_LEVEL)
   })
   return { ...list, levels }
@@ -68,7 +72,7 @@ export function separateLevels(library: Library): Library {
     const nameTaken = () => !hasLevels && nameKey(path[0]) !== nameKey(list.name) && taken.has(nameKey(path[0]))
     // The level just given a （n） may not be one the list holds at another step.
     let at = -1
-    const repeated = () => at >= 0 && path.some((level, n) => n !== at && level === path[at])
+    const repeated = () => at >= 0 && path.some((level, n) => n !== at && level.trim() === path[at].trim())
     for (let count = 2; ; count++) {
       const other = paths.find(q => pathsOverlap(q, path))
       if (!other && !nameTaken() && !repeated()) break
@@ -205,7 +209,7 @@ export function validateLibrary({ packs, lists }: Library) {
   // separateLevels repairs saved ones.
   const paths = new Map<string, string[][]>()
   for (const list of lists) {
-    if (list.levels && new Set(list.levels).size !== list.levels.length) throw new AppError('levelDuplicate')
+    if (repeatsLevel(list.levels)) throw new AppError('levelDuplicate')
     const mine = paths.get(list.packId!) ?? paths.set(list.packId!, []).get(list.packId!)!
     if (mine.some(path => pathsOverlap(path, levelPath(list)))) throw new AppError('levelsConflict')
     mine.push(levelPath(list))

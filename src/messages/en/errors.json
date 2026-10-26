@@ -52,7 +52,7 @@
   "packNameDuplicate": "A pack with the same name already exists.",
   "packDeleted": "This pack has been deleted.",
   "levelsConflict": "This pack already has a list with the same levels, or with the same levels up to a step.",
-  "levelDuplicate": "The same difficulty is entered twice. Change it to a different difficulty.",
+  "levelDuplicate": "This difficulty is already used in this list. Use a different one.",
   "packFileUnreadable": "This file could not be read as a word pack.",
   "invalidPackFile": "This file has an item that is over the limit for saving.",
   "sharedPackNotFound": "This share has ended.",
