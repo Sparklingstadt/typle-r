@@ -465,7 +465,8 @@ func TestModifyCopiesList(t *testing.T) {
 		t.Fatal(err)
 	}
 	stored, _, _ := row(t, conn, id)
-	want := `{"id": "c1", "name": "英単語（コピー）", "words": [{"input": "a", "display": "a", "reading": "エー", "annotation": ""}], "packId": "pack-c1", "records": [], "createdAt": "2026-10-21T00:00:00.000Z"}`
+	// The copy goes in its source's pack.
+	want := `{"id": "c1", "name": "英単語（コピー）", "words": [{"input": "a", "display": "a", "reading": "エー", "annotation": ""}], "packId": "pack-l1", "records": [], "createdAt": "2026-10-21T00:00:00.000Z"}`
 	if !strings.Contains(stored, want) || !strings.Contains(stored, `"color": "red"`) || !strings.Contains(stored, `"records": [{"id": "r1"`) {
 		t.Fatalf("lists = %s", stored)
 	}

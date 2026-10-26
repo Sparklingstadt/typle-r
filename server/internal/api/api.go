@@ -1,6 +1,6 @@
-// Package api serves workspaces in the shapes of the removed /api/v1 (docs/api.md): read-only, or with lists, devices and
-// records to create, change and delete when it is given a Writer. Each request names its GitHub account with a token
-// and reads and writes only that account's workspace.
+// Package api serves workspaces in the shapes of the removed /api/v1 (docs/api.md): read-only, or with packs, lists,
+// devices and records to create, change and delete when it is given a Writer. Each request names its GitHub account
+// with a token and reads and writes only that account's workspace.
 package api
 
 import (
@@ -26,8 +26,10 @@ type listSummary struct {
 	// PackID is the word pack the list belongs to; its category and tags are the pack's.
 	PackID string `json:"packId"`
 	// Category is null and Tags empty when the list has none.
-	Category    *string  `json:"category"`
-	Tags        []string `json:"tags"`
+	Category *string  `json:"category"`
+	Tags     []string `json:"tags"`
+	// Levels are what the practice screen picks the list of its pack by; empty when it has none.
+	Levels      []string `json:"levels"`
 	WordCount   int      `json:"wordCount"`
 	RecordCount int      `json:"recordCount"`
 	CreatedAt   string   `json:"createdAt"`
@@ -57,7 +59,11 @@ func summary(list *workspace.List) listSummary {
 	if tags == nil {
 		tags = []string{}
 	}
-	return listSummary{ID: list.ID, Name: list.Name, PackID: list.PackID, Category: category, Tags: tags, WordCount: len(list.Words),
+	levels := list.Levels
+	if levels == nil {
+		levels = []string{}
+	}
+	return listSummary{ID: list.ID, Name: list.Name, PackID: list.PackID, Category: category, Tags: tags, Levels: levels, WordCount: len(list.Words),
 		RecordCount: len(list.Records), CreatedAt: list.CreatedAt, PracticeCount: overview.PracticeCount, LastPracticed: last,
 		CurrentRecordCount: workspace.CurrentRecordCount(list)}
 }
@@ -96,6 +102,11 @@ func New(source Source, writer Writer, verifier Verifier) http.Handler {
 	mux.Handle("/api/v1/rankings/{listId}", s.route(ranking))
 	mux.Handle("/api/v1/devices", s.route(devices, write{http.MethodPost, s.createDevice}))
 	mux.Handle("/api/v1/devices/{deviceId}", s.route(device, write{http.MethodPatch, s.updateDevice}, write{http.MethodDelete, s.deleteDevice}))
+	mux.Handle("/api/v1/packs", s.route(packs, write{http.MethodPost, s.createPack}))
+	mux.Handle("/api/v1/packs/import", s.route(nil, write{http.MethodPost, s.importPack}))
+	mux.Handle("/api/v1/packs/{packId}", s.route(pack, write{http.MethodPatch, s.updatePack}, write{http.MethodDelete, s.deletePack}))
+	mux.Handle("/api/v1/packs/{packId}/copy", s.route(nil, write{http.MethodPost, s.copyPack}))
+	mux.Handle("/api/v1/packs/{packId}/export", s.route(exportPack))
 	mux.Handle("/api/v1/lists", s.route(lists, write{http.MethodPost, s.createList}))
 	mux.Handle("/api/v1/lists/import", s.route(nil, write{http.MethodPost, s.importList}))
 	mux.Handle("/api/v1/lists/{listId}/copy", s.route(nil, write{http.MethodPost, s.copyList}))

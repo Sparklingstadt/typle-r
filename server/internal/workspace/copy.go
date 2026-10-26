@@ -15,11 +15,14 @@ func copyMark(n int) string {
 	return fmt.Sprintf("（コピー%d）", n)
 }
 
-// copyName follows copyName (src/core/listOverview.ts) among the lists of w.
-func copyName(w *Workspace, name string) string {
+// copyName follows copyName (src/core/listOverview.ts) among the lists of w in the pack packID, or among all of them
+// when packID is "".
+func copyName(w *Workspace, name, packID string) string {
 	names := make([]string, 0, len(w.Lists))
 	for _, list := range w.Lists {
-		names = append(names, list.Name)
+		if packID == "" || list.PackID == packID {
+			names = append(names, list.Name)
+		}
 	}
 	return copyNameAmong(names, name)
 }
@@ -46,8 +49,9 @@ func copyNameAmong(names []string, name string) string {
 	}
 }
 
-// CopyList follows duplicateList (src/core/listOverview.ts): a new list after the others with the same category, tags
-// and words (and their fields Typle does not know) and no records. Without a name, the copy is named by copyName.
+// CopyList follows duplicateList (src/core/listOverview.ts): a new list after the others with the same words (and
+// their fields Typle does not know) and no records. A list of a pack is copied into that pack, named among its lists,
+// and shows its labels; its levels are not copied. Without a name, the copy is named by copyName.
 func CopyList(w *Workspace, sourceID string, name *string, id string, now time.Time) (*List, error) {
 	at := index(w, sourceID)
 	if at < 0 {
@@ -57,10 +61,19 @@ func CopyList(w *Workspace, sourceID string, name *string, id string, now time.T
 		return nil, &Error{Key: "listLimit"}
 	}
 	source := &w.Lists[at]
+	pack := findPack(w, source.PackID)
 	if name == nil {
-		generated := copyName(w, source.Name)
+		packID := ""
+		if pack != nil {
+			packID = pack.ID
+		}
+		generated := copyName(w, source.Name, packID)
 		name = &generated
 	}
+	words := slices.Clone(source.Words)
+	if pack != nil {
+		return CreateList(w, ListInput{Name: name, PackID: &pack.ID, Words: words}, id, now)
+	}
 	tags := slices.Clone(source.Tags)
-	return CreateList(w, ListInput{Name: name, Category: &source.Category, Tags: &tags, Words: slices.Clone(source.Words)}, id, now)
+	return CreateList(w, ListInput{Name: name, Category: &source.Category, Tags: &tags, Words: words}, id, now)
 }
