@@ -13,7 +13,7 @@ import PageStorageBadge from "@/components/PageStorageBadge"
 import { useWordLists } from "@/lib/useWordLists"
 import { randomId } from "@/core/randomId"
 import { MAX_LISTS } from "@/core/listOverview"
-import { addOfficialPack, catalogEntries, type CatalogEntry } from "@/plugins/packs/catalog"
+import { followOfficialPack, catalogEntries, type CatalogEntry } from "@/plugins/packs/catalog"
 
 export default function Catalog() {
   const { ready, packs, lists, error, updateLibrary, saving, storage } = useWordLists()
@@ -33,7 +33,7 @@ export default function Catalog() {
     const ids = { pack: randomId(), lists: entry.lists.map(() => randomId()) }
     let name = ""
     const saved = await updateLibrary(library => {
-      const next = addOfficialPack(library, entry.catalogId, ids)
+      const next = followOfficialPack(library, entry.catalogId, ids)
       name = next.packs.find(pack => pack.id === ids.pack)?.name ?? entry.pack.name
       return next
     })
@@ -65,7 +65,7 @@ export default function Catalog() {
       </Alert>}
       <ul className="divide-y overflow-hidden rounded-xl border bg-card">
         {entries.map(entry => {
-          const owned = entry.added ? ownedPack(entry) : undefined
+          const owned = entry.followed ? ownedPack(entry) : undefined
           const words = entry.lists.reduce((sum, list) => sum + list.words.length, 0)
           const full = lists.length + entry.lists.length > MAX_LISTS
           return <li key={entry.catalogId} data-catalog-id={entry.catalogId} className="flex flex-wrap items-center gap-x-4 gap-y-3 px-5 py-4">
@@ -73,13 +73,13 @@ export default function Catalog() {
               <h2 className="font-bold [overflow-wrap:anywhere]">{entry.pack.name}</h2>
               <ListLabels list={entry.pack} />
               <p className="text-[13px] text-muted-foreground tabular-nums">{row("lists", { count: entry.lists.length })} · {row("wordCount", { count: words })}</p>
-              {!entry.added && full && <p className="text-[13px] text-muted-foreground">{t("full", { max: MAX_LISTS })}</p>}
+              {!entry.followed && full && <p className="text-[13px] text-muted-foreground">{t("full", { max: MAX_LISTS })}</p>}
             </div>
             <div className="flex flex-wrap items-center gap-2">
               {owned && <Button asChild variant="outline"><Link href={`/edit?pack=${encodeURIComponent(owned.id)}`}>
                 <SquareArrowOutUpRight aria-hidden="true" />{t("open")}<span className="sr-only"> {entry.pack.name}</span>
               </Link></Button>}
-              {entry.added ? <Button disabled><Check aria-hidden="true" />{t("addedState")}</Button>
+              {entry.followed ? <Button disabled><Check aria-hidden="true" />{t("addedState")}</Button>
                 : <Button disabled={full || saving} aria-label={t("addPack", { name: entry.pack.name })} onClick={() => void add(entry)}>
                   <Plus aria-hidden="true" />{t("add")}
                 </Button>}

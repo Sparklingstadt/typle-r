@@ -1,6 +1,8 @@
 import { AppError } from '../../core/appError'
 import { applyChange, decodeDocument, type WorkspaceDocument } from '../../core/workspaceDocument'
 import { LegacyProfileRequest, MAX_WORKSPACE_BYTES, validateWorkspaceRequest } from '../../core/workspaceRequest'
+import { followOfficial } from '../../core/followedPacks'
+import { officialPacks } from '../packs/catalog'
 import { WorkspaceError, type WorkspaceState, type WorkspaceStore, type WorkspaceWrite } from '../../core/workspaceStore'
 
 export const GUEST_ACCOUNT_ID = 'guest:local'
@@ -39,10 +41,16 @@ function store(storage: Storage, { lists, packs, devices, revision }: Stored): W
 }
 
 // The lists of removed profiles are merged once, with a new revision, as for an account.
+// Followed packs are brought in line with the catalog on every read and write. A read that changes them does not save
+// them; the next write does.
+function followed<T extends { lists: Stored['lists']; packs: Stored['packs'] }>(state: T): T {
+  return { ...state, ...followOfficial({ lists: state.lists, packs: state.packs }, officialPacks()) }
+}
+
 export function readGuestWorkspace(storage: Storage = localStorage): WorkspaceState {
   const { legacy, ...document } = readDocument(storage)
-  if (legacy) return store(storage, { ...document, revision: document.revision + 1 })
-  return { ...document, accountId: GUEST_ACCOUNT_ID }
+  if (legacy) return followed(store(storage, { ...document, revision: document.revision + 1 }))
+  return followed({ ...document, accountId: GUEST_ACCOUNT_ID })
 }
 
 export function writeGuestWorkspace(request: WorkspaceWrite, storage: Storage = localStorage): WorkspaceState {
@@ -53,7 +61,7 @@ export function writeGuestWorkspace(request: WorkspaceWrite, storage: Storage = 
   try { change = validateWorkspaceRequest(request) }
   catch (error) { throw error instanceof LegacyProfileRequest ? new WorkspaceError('conflict', 409) : error }
   if ((change.lists || change.packs) && bytes(JSON.stringify({ lists: change.lists, packs: change.packs })) > MAX_WORKSPACE_BYTES) throw new AppError('guestQuotaExceeded')
-  return store(storage, { ...applyChange(previous, change), revision: change.revision + 1 })
+  return followed(store(storage, { ...applyChange(previous, change), revision: change.revision + 1 }))
 }
 
 // Serialize read/check/write across tabs where the Web Locks API is available.
