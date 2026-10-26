@@ -63,6 +63,7 @@ func owner(t *testing.T, conn *pgx.Conn) string {
 	id := "go-test:" + hex.EncodeToString(random)
 	t.Cleanup(func() {
 		_, _ = conn.Exec(context.Background(), `DELETE FROM typle_workspaces WHERE owner_id = $1`, id)
+		_, _ = conn.Exec(context.Background(), `DELETE FROM typle_shared_packs WHERE owner_id = $1`, id)
 	})
 	return id
 }

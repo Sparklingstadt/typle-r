@@ -16,3 +16,16 @@ model Workspace {
 
   @@map("typle_workspaces")
 }
+
+// A pack shared by link: data is a snapshot of the pack as a file (typle-pack v1), without records or the owner.
+model SharedPack {
+  id        String   @id @db.Uuid
+  ownerId   String   @map("owner_id") @db.Text
+  packId    String   @map("pack_id") @db.Text
+  data      Json     @db.JsonB
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([ownerId, packId], map: "typle_shared_packs_owner_pack")
+  @@map("typle_shared_packs")
+}
