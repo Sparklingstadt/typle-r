@@ -518,11 +518,12 @@ func TestPutFlow(t *testing.T) {
 	}
 }
 
+// One list more than MaxLists is refused, and nothing is saved.
 func TestPutListLimit(t *testing.T) {
 	s, owner := realStore(t)
 	h := newHarness(t, s, testBase)
 	var lists []string
-	for i := 0; i < 101; i++ {
+	for i := 0; i <= workspace.MaxLists; i++ {
 		lists = append(lists, aList(fmt.Sprintf("l%d", i), fmt.Sprintf("L%d", i)))
 	}
 	expectError(t, h.put(owner, payload(owner, `"revision":0,"lists":[`+strings.Join(lists, ",")+`]`)), http.StatusBadRequest, "listLimit")
