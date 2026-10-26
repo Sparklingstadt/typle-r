@@ -121,20 +121,13 @@ type rawList struct {
 // Decode reads a saved row: its lists, devices and packs columns. packs is nil (NULL) for lists saved before packs
 // existed, which are turned into packs as the app's normalizeLibrary does; saved packs are repaired as it does.
 func Decode(lists, devices, packs []byte) (*Workspace, error) {
-	var rawLists []*rawList
-	if err := json.Unmarshal(lists, &rawLists); err != nil {
-		return nil, fmt.Errorf("lists are not valid: %w", err)
-	}
-	if rawLists == nil {
-		return nil, errors.New("lists must be an array")
+	decoded, err := DecodeLists(lists)
+	if err != nil {
+		return nil, err
 	}
 	var rawDevices []json.RawMessage
 	if err := json.Unmarshal(devices, &rawDevices); err != nil {
 		return nil, fmt.Errorf("devices are not valid: %w", err)
-	}
-	decoded, err := decodeLists(rawLists)
-	if err != nil {
-		return nil, err
 	}
 	registered, err := decodeDevices(rawDevices)
 	if err != nil {
@@ -150,6 +143,20 @@ func Decode(lists, devices, packs []byte) (*Workspace, error) {
 	w.Packs, w.Lists = normalizeLibrary(decoded, saved, packs == nil)
 	viewLists(w)
 	return w, nil
+}
+
+// DecodeLists reads lists as they were sent or saved, with the checks Decode makes of them, but without packs made of
+// them: each keeps its packId, group, category and tags as they are. They are what an app that does not know packs
+// sends, to be written back with EncodeWithLabels.
+func DecodeLists(data []byte) ([]List, error) {
+	var raw []*rawList
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return nil, fmt.Errorf("lists are not valid: %w", err)
+	}
+	if raw == nil {
+		return nil, errors.New("lists must be an array")
+	}
+	return decodeLists(raw)
 }
 
 func decodeLists(raw []*rawList) ([]List, error) {

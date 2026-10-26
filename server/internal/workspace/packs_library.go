@@ -405,3 +405,40 @@ func CheckPacks(packs []Pack, lists []List) error {
 	}
 	return nil
 }
+
+// CheckLibrary follows validateLibrary (src/core/wordPacks.ts) for a save that sends lists and packs. It reads them as
+// they were sent, before Decode repairs them: a list may not have a group, category or tags at all, not even "" or [],
+// and a pack's description, category, tags and origin may be left out but not null, as decodePacks requires. Anything
+// refused is invalidWorkspace.
+func CheckLibrary(lists, packs []byte) error {
+	invalid := &Error{Key: "invalidWorkspace"}
+	decoded, err := DecodeLists(lists)
+	if err != nil || has(lists, func(key string, _ json.RawMessage) bool { return key == "group" || key == "category" || key == "tags" }) ||
+		has(packs, func(key string, value json.RawMessage) bool {
+			return (key == "description" || key == "category" || key == "tags" || key == "origin") && string(value) == "null"
+		}) {
+		return invalid
+	}
+	saved, err := decodePacks(packs)
+	if err != nil {
+		return invalid
+	}
+	return CheckPacks(saved, decoded)
+}
+
+// has reports whether an object of the JSON array data has a member that found accepts. data that is not an array of
+// objects has none; reading it is left to the decoders.
+func has(data []byte, found func(key string, value json.RawMessage) bool) bool {
+	var items []map[string]json.RawMessage
+	if json.Unmarshal(data, &items) != nil {
+		return false
+	}
+	for _, item := range items {
+		for key, value := range item {
+			if found(key, value) {
+				return true
+			}
+		}
+	}
+	return false
+}

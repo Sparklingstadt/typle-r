@@ -318,3 +318,73 @@ func TestCheckPacks(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+// CheckLibrary reads a save as it was sent, so a label left on a list is refused even when it is empty, and a pack's
+// optional field may be left out but not null, as validateLibrary and decodePacks do.
+func TestCheckLibrary(t *testing.T) {
+	const list = `{"id":"a","name":"a","packId":"p","createdAt":"2026-10-01T00:00:00.000Z","words":[{"display":"ls","input":"ls","annotation":""}],"records":[]}`
+	const pack = `{"id":"p","name":"P","createdAt":"2026-10-01T00:00:00.000Z"}`
+	withList := func(fields string) string { return strings.Replace(list, `"records":[]`, `"records":[],`+fields, 1) }
+	withPack := func(fields string) string { return strings.Replace(pack, `"createdAt"`, fields+`,"createdAt"`, 1) }
+	if err := CheckLibrary([]byte(`[`+list+`]`), []byte(`[`+withPack(`"description":"d","category":"c","tags":["t"],"origin":{"catalogId":"x","version":1}`)+`]`)); err != nil {
+		t.Fatal(err)
+	}
+	cases := map[string][2]string{
+		"an empty category":        {`[` + withList(`"category":""`) + `]`, `[` + pack + `]`},
+		"a category":               {`[` + withList(`"category":"c"`) + `]`, `[` + pack + `]`},
+		"a null category":          {`[` + withList(`"category":null`) + `]`, `[` + pack + `]`},
+		"empty tags":               {`[` + withList(`"tags":[]`) + `]`, `[` + pack + `]`},
+		"tags":                     {`[` + withList(`"tags":["t"]`) + `]`, `[` + pack + `]`},
+		"an empty group":           {`[` + withList(`"group":""`) + `]`, `[` + pack + `]`},
+		"a group":                  {`[` + withList(`"group":"g"`) + `]`, `[` + pack + `]`},
+		"a pack that is not there": {`[` + strings.Replace(list, `"p"`, `"missing"`, 1) + `]`, `[` + pack + `]`},
+		"a pack without lists":     {`[` + list + `]`, `[` + pack + `,` + strings.Replace(withPack(`"category":"c"`), `"p"`, `"q"`, 1) + `]`},
+		"a null description":       {`[` + list + `]`, `[` + withPack(`"description":null`) + `]`},
+		"a null pack category":     {`[` + list + `]`, `[` + withPack(`"category":null`) + `]`},
+		"null pack tags":           {`[` + list + `]`, `[` + withPack(`"tags":null`) + `]`},
+		"a null origin":            {`[` + list + `]`, `[` + withPack(`"origin":null`) + `]`},
+		"packs not an array":       {`[` + list + `]`, `{}`},
+		"null packs":               {`[` + list + `]`, `null`},
+		"a pack without a name":    {`[` + list + `]`, `[{"id":"p","createdAt":"2026-10-01T00:00:00.000Z"}]`},
+		"an unreadable list":       {`[{"id":""}]`, `[` + pack + `]`},
+		"lists not an array":       {`{}`, `[` + pack + `]`},
+	}
+	for name, c := range cases {
+		var refused *Error
+		if err := CheckLibrary([]byte(c[0]), []byte(c[1])); !errors.As(err, &refused) || refused.Key != "invalidWorkspace" {
+			t.Errorf("%s: err = %v; want invalidWorkspace", name, err)
+		}
+	}
+}
+
+// A save from an app that does not know packs keeps the labels on its lists, so that Decode makes packs of them when
+// they are read: DecodeLists reads them as sent and EncodeWithLabels writes them so.
+func TestListsWithLabelsRoundTrip(t *testing.T) {
+	sent := `[{"id":"a","name":"a","group":"G","category":"C","tags":["t"],"createdAt":"2026-10-01T00:00:00.000Z","words":[{"display":"ls","input":"ls","annotation":""}],"records":[]},` +
+		`{"id":"b","name":"b","group":"G","packId":"old","createdAt":"2026-10-02T00:00:00.000Z","words":[{"display":"cd","input":"cd","annotation":""}],"records":[]}]`
+	lists, err := DecodeLists([]byte(sent))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if lists[0].Group != "G" || lists[0].Category != "C" || !slices.Equal(lists[0].Tags, []string{"t"}) || lists[0].PackID != "" ||
+		lists[1].PackID != "old" {
+		t.Fatalf("lists = %+v", lists)
+	}
+	encoded, err := EncodeWithLabels(lists)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sameJSON(t, "encoded", encoded, []byte(sent))
+	w, err := Decode(encoded, []byte(`[]`), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(w.Packs) != 1 || w.Packs[0].Name != "G" || w.Packs[0].Category != "C" || w.Lists[1].PackID != w.Packs[0].ID {
+		t.Fatalf("packs = %+v, lists = %+v", w.Packs, w.Lists)
+	}
+	for _, bad := range []string{`{}`, `null`, `[{"id":""}]`} {
+		if _, err := DecodeLists([]byte(bad)); err == nil {
+			t.Errorf("DecodeLists(%s) succeeded", bad)
+		}
+	}
+}

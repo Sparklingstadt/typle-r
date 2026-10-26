@@ -12,11 +12,13 @@ import (
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
 
-// saved is the answer of GET and PUT. The lists and devices are the stored jsonb text, with the fields Typle does not
-// know: Go decodes them only to check them (store.ReadRevision), so where Go and the app's decoders differ, the browser
-// is the one to refuse the data (savedDataCorrupted).
+// saved is the answer of GET and PUT. The lists, packs and devices are the stored jsonb text, with the fields Typle
+// does not know: Go decodes them only to check them (store.ReadRevision), so where Go and the app's decoders differ, the
+// browser is the one to refuse the data (savedDataCorrupted). Packs are null for lists saved before packs existed, and
+// for an account that has saved nothing.
 type saved struct {
 	Lists     json.RawMessage `json:"lists"`
+	Packs     json.RawMessage `json:"packs"`
 	Devices   json.RawMessage `json:"devices"`
 	Revision  int             `json:"revision"`
 	AccountID string          `json:"accountId"`
@@ -108,7 +110,7 @@ func (s *server) readWorkspace(w http.ResponseWriter, r *http.Request) {
 		// An account that has saved nothing has no lists, not the first list that /api/v1 starts with.
 		result = &store.Saved{Lists: json.RawMessage("[]"), Devices: json.RawMessage("[]")}
 	}
-	reply(w, http.StatusOK, saved{result.Lists, result.Devices, result.Revision, user.Sub})
+	reply(w, http.StatusOK, saved{result.Lists, result.Packs, result.Devices, result.Revision, user.Sub})
 }
 
 func (s *server) writeWorkspace(w http.ResponseWriter, r *http.Request) {
@@ -167,6 +169,6 @@ func (s *server) writeWorkspace(w http.ResponseWriter, r *http.Request) {
 		s.report(r, err, "workspace.write")
 		refuse(w, http.StatusServiceUnavailable, "workspaceSaveFailed")
 	default:
-		reply(w, http.StatusOK, saved{result.Lists, result.Devices, result.Revision, user.Sub})
+		reply(w, http.StatusOK, saved{result.Lists, result.Packs, result.Devices, result.Revision, user.Sub})
 	}
 }

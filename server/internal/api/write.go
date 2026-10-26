@@ -101,18 +101,43 @@ func fieldType(t reflect.Type, key string) (reflect.Type, bool) {
 // modify saves a change to the owner's workspace, or answers the request with why it could not: the key of a
 // *workspace.Error, or 503 databaseUnavailable for anything else.
 func (s *server) modify(w http.ResponseWriter, r *http.Request, owner string, change func(*workspace.Workspace) (bool, error)) bool {
-	_, err := s.writer.Modify(r.Context(), owner, change)
+	return s.save(w, r, owner, change) != nil
+}
+
+// save is modify that returns the workspace as saved, or nil when the request was answered with why it could not be.
+// The lists change edits are put in their packs after it (see store.Store.Modify), so a list to answer with is found in
+// the workspace returned, not kept from change.
+func (s *server) save(w http.ResponseWriter, r *http.Request, owner string, change func(*workspace.Workspace) (bool, error)) *workspace.Workspace {
+	saved, err := s.writer.Modify(r.Context(), owner, change)
 	if err == nil {
-		return true
+		return saved
 	}
 	var refused *workspace.Error
 	if !errors.As(err, &refused) {
 		log.Printf("%s %s: %v", r.Method, r.URL.Path, err)
 		failure(w, http.StatusServiceUnavailable, "databaseUnavailable")
-		return false
+		return nil
 	}
 	refuse(w, r, refused)
-	return false
+	return nil
+}
+
+// modifyList is modify for a change that makes or edits one list, which it answers with in its saved shape.
+func (s *server) modifyList(w http.ResponseWriter, r *http.Request, owner string, status int,
+	change func(*workspace.Workspace) (*workspace.List, error)) {
+	var id string
+	saved := s.save(w, r, owner, func(ws *workspace.Workspace) (bool, error) {
+		list, err := change(ws)
+		if err != nil {
+			return false, err
+		}
+		id = list.ID
+		return true, nil
+	})
+	if saved == nil {
+		return
+	}
+	respond(w, status, map[string]any{"list": detail(saved.Find(id))})
 }
 
 // refuse answers a change that cannot be made with its key, and the line of a word file when there is one.
@@ -140,18 +165,9 @@ func (s *server) createList(w http.ResponseWriter, r *http.Request, owner string
 		return
 	}
 	id, now := workspace.NewID(), time.Now()
-	var created listDetail
-	if !s.modify(w, r, owner, func(ws *workspace.Workspace) (bool, error) {
-		list, err := workspace.CreateList(ws, *input, id, now)
-		if err != nil {
-			return false, err
-		}
-		created = detail(list)
-		return true, nil
-	}) {
-		return
-	}
-	respond(w, http.StatusCreated, map[string]any{"list": created})
+	s.modifyList(w, r, owner, http.StatusCreated, func(ws *workspace.Workspace) (*workspace.List, error) {
+		return workspace.CreateList(ws, *input, id, now)
+	})
 }
 
 func (s *server) updateList(w http.ResponseWriter, r *http.Request, owner string) {
@@ -163,18 +179,9 @@ func (s *server) updateList(w http.ResponseWriter, r *http.Request, owner string
 		failure(w, http.StatusBadRequest, "invalidJson")
 		return
 	}
-	var updated listDetail
-	if !s.modify(w, r, owner, func(ws *workspace.Workspace) (bool, error) {
-		list, err := workspace.UpdateList(ws, r.PathValue("listId"), *input)
-		if err != nil {
-			return false, err
-		}
-		updated = detail(list)
-		return true, nil
-	}) {
-		return
-	}
-	respond(w, http.StatusOK, map[string]any{"list": updated})
+	s.modifyList(w, r, owner, http.StatusOK, func(ws *workspace.Workspace) (*workspace.List, error) {
+		return workspace.UpdateList(ws, r.PathValue("listId"), *input)
+	})
 }
 
 func (s *server) deleteList(w http.ResponseWriter, r *http.Request, owner string) {
@@ -306,18 +313,9 @@ func (s *server) copyList(w http.ResponseWriter, r *http.Request, owner string) 
 		name = input.Name
 	}
 	id, now := workspace.NewID(), time.Now()
-	var copied listDetail
-	if !s.modify(w, r, owner, func(ws *workspace.Workspace) (bool, error) {
-		list, err := workspace.CopyList(ws, r.PathValue("listId"), name, id, now)
-		if err != nil {
-			return false, err
-		}
-		copied = detail(list)
-		return true, nil
-	}) {
-		return
-	}
-	respond(w, http.StatusCreated, map[string]any{"list": copied})
+	s.modifyList(w, r, owner, http.StatusCreated, func(ws *workspace.Workspace) (*workspace.List, error) {
+		return workspace.CopyList(ws, r.PathValue("listId"), name, id, now)
+	})
 }
 
 // importFormats are the word files a list is imported from, by the format query, as src/plugins/formats.
@@ -364,16 +362,7 @@ func (s *server) importList(w http.ResponseWriter, r *http.Request, owner string
 		name = &value
 	}
 	id, now := workspace.NewID(), time.Now()
-	var created listDetail
-	if !s.modify(w, r, owner, func(ws *workspace.Workspace) (bool, error) {
-		list, err := workspace.CreateList(ws, workspace.ListInput{Name: name, Words: words}, id, now)
-		if err != nil {
-			return false, err
-		}
-		created = detail(list)
-		return true, nil
-	}) {
-		return
-	}
-	respond(w, http.StatusCreated, map[string]any{"list": created})
+	s.modifyList(w, r, owner, http.StatusCreated, func(ws *workspace.Workspace) (*workspace.List, error) {
+		return workspace.CreateList(ws, workspace.ListInput{Name: name, Words: words}, id, now)
+	})
 }
