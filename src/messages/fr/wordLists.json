@@ -331,7 +331,6 @@
     "description": "Vous ne suivrez plus « {name} ». Les enregistrements de ce pack seront aussi supprimés.",
     "confirm": "Ne plus suivre",
     "confirming": "Arrêt du suivi…",
-    "done": "« {name} » n’est plus suivi.",
-    "notice": "Ce pack est officiel : il ne peut pas être modifié. Dupliquez-le pour le modifier comme votre propre pack."
+    "done": "« {name} » n’est plus suivi."
   }
 }

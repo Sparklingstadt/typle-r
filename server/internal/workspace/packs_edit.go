@@ -41,9 +41,11 @@ func invalidPack() error { return &Error{Key: "invalidPack"} }
 // refuseFollowed follows refuseFollowed (src/core/packEditing.ts): a followed official pack is the catalog's to change,
 // so edits to it, or to a list in it, are refused. It can still be deleted (unfollowed) or copied, and its lists' records
 // added, changed and deleted.
-func refuseFollowed(w *Workspace, packID string) error {
-	if pack := findPack(w, packID); pack != nil && pack.Origin != nil && pack.Origin.Followed {
-		return &Error{Key: "packFollowed"}
+func refuseFollowed(w *Workspace, packIDs ...string) error {
+	for _, id := range packIDs {
+		if pack := findPack(w, id); pack != nil && pack.followed() {
+			return &Error{Key: "packFollowed"}
+		}
 	}
 	return nil
 }

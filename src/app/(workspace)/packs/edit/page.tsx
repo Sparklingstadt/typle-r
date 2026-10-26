@@ -12,6 +12,7 @@ import WordListEditorPage from "@/components/WordListEditorPage/WordListEditorPa
 import { useSaveNotification } from "@/components/SaveNotification"
 import { useWordLists } from "@/lib/useWordLists"
 import { isFollowed } from "@/core/followedPacks"
+import Notice from "@/components/WordLists/Notice"
 import { copyPack } from "@/core/packFile"
 import { randomId } from "@/core/randomId"
 import { MAX_LISTS } from "@/core/listOverview"
@@ -37,21 +38,16 @@ function Editor() {
   const pack = packs.find(item => item.id === id)
   if (!ready) return <p>{common("loading")}</p>
   const back = id ? `/edit?pack=${encodeURIComponent(id)}` : "/edit"
-  if (!pack) return <Alert>
-    <CircleAlert aria-hidden="true" />
-    <AlertDescription className="flex flex-wrap items-center gap-x-3">
-      <span>{errors("packDeleted")}</span>
-      <Link href="/edit" className="underline underline-offset-4">{t("page.title")}</Link>
-    </AlertDescription>
-  </Alert>
+  if (!pack) return <Notice link={{ href: "/edit", label: t("page.title") }}>{errors("packDeleted")}</Notice>
   // A followed pack has no form: it can be duplicated into a pack of one's own or unfollowed.
   if (isFollowed(pack)) {
-    const mine = lists.filter(list => list.packId === pack.id).length
+    const packId = pack.id
+    const mine = lists.filter(list => list.packId === packId).length
     async function copy() {
       const ids = { pack: randomId(), lists: Array.from({ length: mine }, () => randomId()) }
       let name = ""
       const saved = await updateLibrary(library => {
-        const next = copyPack(library, pack!.id, ids, n => t("page.copySuffix", { n }))
+        const next = copyPack(library, packId, ids, n => t("page.copySuffix", { n }))
         name = next.packs.find(item => item.id === ids.pack)?.name ?? ""
         return next
       })
@@ -60,10 +56,7 @@ function Editor() {
     return <section className="space-y-4">
       <h1 className="text-2xl font-bold [overflow-wrap:anywhere]">{pack.name}</h1>
       {error && <Alert variant="destructive"><CircleAlert aria-hidden="true" /><AlertDescription>{error}</AlertDescription></Alert>}
-      <Alert>
-        <CircleAlert aria-hidden="true" />
-        <AlertDescription>{errors("packFollowed")}</AlertDescription>
-      </Alert>
+      <Notice>{errors("packFollowed")}</Notice>
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" onClick={() => router.push(back)}><ArrowLeft aria-hidden="true" />{t("catalog.back")}</Button>
         <Button disabled={saving || lists.length + mine > MAX_LISTS} onClick={() => void copy()}><Copy aria-hidden="true" />{t("pack.copy")}</Button>

@@ -8,6 +8,9 @@ export type OfficialPack = { catalogId: string; version: number; pack: WordPack;
 
 export const isFollowed = (pack: Pick<WordPack, 'origin'>) => pack.origin?.followed === true
 
+/** The packs a list can be put in: those that are not followed. */
+export const ownPacks = <T extends Pick<WordPack, 'origin'>>(packs: T[]) => packs.filter(pack => !isFollowed(pack))
+
 /**
  * Brings a library read from the saved data in line with the catalog, in two steps; applying it again changes nothing.
  * 1. Copies from before v0.98.0 are removed with their lists and records: a pack with an origin that is not followed,
@@ -21,18 +24,16 @@ export function followOfficial(library: Library, official: OfficialPack[]): Libr
     if (pack.origin) return pack.origin.followed === true && catalog.has(pack.origin.catalogId)
     return !catalog.has(pack.id)
   })
-  const packs = kept.map(pack => {
-    if (!isFollowed(pack)) return pack
-    const { description: _description, category: _category, tags: _tags, ...rest } = pack
-    const { description, category, tags } = catalog.get(pack.origin!.catalogId)!.pack
-    return { ...rest, ...(description ? { description } : {}), ...(category ? { category } : {}), ...(tags ? { tags: [...tags] } : {}) }
-  })
-  const byId = new Map(packs.map(pack => [pack.id, pack]))
+  const packs: WordPack[] = []
   const synced = new Map<string, SavedWordList[]>()
-  for (const pack of packs) {
-    if (!isFollowed(pack)) continue
+  for (const pack of kept) {
+    if (!isFollowed(pack)) { packs.push(pack); continue }
+    const official = catalog.get(pack.origin!.catalogId)!
+    const { description: _description, category: _category, tags: _tags, ...rest } = pack
+    const { description, category, tags } = official.pack
+    packs.push({ ...rest, ...(description ? { description } : {}), ...(category ? { category } : {}), ...(tags?.length ? { tags: [...tags] } : {}) })
     const mine = library.lists.filter(list => list.packId === pack.id)
-    synced.set(pack.id, catalog.get(pack.origin!.catalogId)!.lists.map(item => {
+    synced.set(pack.id, official.lists.map(item => {
       const found = mine.find(list => list.origin?.listId === item.id)
       const { levels: _levels, ...rest } = found ?? { id: `${pack.id}:${item.id}`, packId: pack.id, records: [], createdAt: item.createdAt, origin: { listId: item.id } }
       return {
@@ -41,6 +42,7 @@ export function followOfficial(library: Library, official: OfficialPack[]): Libr
       }
     }))
   }
+  const byId = new Map(packs.map(pack => [pack.id, pack]))
   // A followed pack's lists go where its first list was.
   const placed = new Set<string>()
   const lists = library.lists.flatMap(list => {

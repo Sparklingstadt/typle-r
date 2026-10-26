@@ -167,10 +167,7 @@ func UpdateList(w *Workspace, id string, input ListInput) (*List, error) {
 		target = pack.ID
 	}
 	// Neither the pack the list is in nor, when it is moved, the pack it joins may be followed.
-	if err := refuseFollowed(w, list.PackID); err != nil {
-		return nil, err
-	}
-	if err := refuseFollowed(w, target); err != nil {
+	if err := refuseFollowed(w, list.PackID, target); err != nil {
 		return nil, err
 	}
 	moving := target != list.PackID

@@ -92,11 +92,9 @@ export default function PackRow({ item, now, open, onToggle, highlight, disabled
               <DropdownMenu.Item className={menuItem} onSelect={onExport}><Download aria-hidden="true" />{t('export')}</DropdownMenu.Item>
               {onShare && <DropdownMenu.Item className={menuItem} onSelect={onShare}><Share2 aria-hidden="true" />{t('share')}</DropdownMenu.Item>}
               <DropdownMenu.Separator className="my-1 h-px bg-border" />
-              {followed ? <DropdownMenu.Item className={cn(menuItem, 'text-destructive data-[highlighted]:text-destructive [&_svg]:text-destructive')} disabled={disabled} onSelect={onUnfollow}>
-                <UserMinus aria-hidden="true" />{follow('unfollow')}
-              </DropdownMenu.Item> : <DropdownMenu.Item className={cn(menuItem, 'text-destructive data-[highlighted]:text-destructive [&_svg]:text-destructive')} disabled={disabled} onSelect={onDeletePack}>
-                <Trash2 aria-hidden="true" />{t('delete')}
-              </DropdownMenu.Item>}
+              <DropdownMenu.Item className={cn(menuItem, 'text-destructive data-[highlighted]:text-destructive [&_svg]:text-destructive')} disabled={disabled} onSelect={followed ? onUnfollow : onDeletePack}>
+                {followed ? <><UserMinus aria-hidden="true" />{follow('unfollow')}</> : <><Trash2 aria-hidden="true" />{t('delete')}</>}
+              </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Portal>
         </DropdownMenu.Root>

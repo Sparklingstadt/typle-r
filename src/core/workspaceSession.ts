@@ -12,7 +12,7 @@ export type WorkspaceShown = { lists: SavedWordList[]; packs: WordPack[]; device
 export type WorkspaceSessionOptions = {
   store: WorkspaceStore
   accountId: string
-  /** Shown until the first save, which keeps them as the account's own lists and packs. */
+  /** Shown while nothing is saved (revision 0), and saved with the first save. Empty since v0.98.0: packs are followed. */
   initialLibrary: Library
   show(shown: WorkspaceShown): void
   /** Whether a save is in progress. Not called after `close`. */
@@ -50,7 +50,7 @@ export function createWorkspaceSession({ store, accountId, initialLibrary, show,
     busy = true
     saving(true)
     try {
-      // The initial lists shown before the first save become real lists when anything is saved.
+      // The initial library shown before the first save is what the first save starts from.
       const request = change(previous, () => previous.revision === 0 && useDefaults ? initialLibrary : previous)
       const data = await store.write({ ...request, revision: previous.revision, accountId })
       if (closed || data.accountId !== accountId) throw new AppError('accountChanged')

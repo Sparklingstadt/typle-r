@@ -331,7 +331,6 @@
     "description": "Unfollow “{name}”. The records of this pack will be deleted too.",
     "confirm": "Unfollow",
     "confirming": "Unfollowing…",
-    "done": "Unfollowed “{name}”.",
-    "notice": "This is an official pack, so it cannot be edited. Duplicate it to edit it as your own pack."
+    "done": "Unfollowed “{name}”."
   }
 }

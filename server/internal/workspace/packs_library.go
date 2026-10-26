@@ -133,6 +133,9 @@ func decodePacks(data []byte) ([]Pack, error) {
 	return packs, nil
 }
 
+// followed follows isFollowed (src/core/followedPacks.ts): the pack is a followed official pack.
+func (p *Pack) followed() bool { return p.Origin != nil && p.Origin.Followed }
+
 func nameKey(name string) string { return lowerCase(trimJS(name)) }
 
 // unique follows unique (src/core/workspaceDocument.ts): wanted, or the first variant whose lowercase is not taken.
