@@ -45,6 +45,12 @@ export function decodePacks(value: unknown): WordPack[] {
 
 const withoutLabels = ({ group: _group, category: _category, tags: _tags, ...rest }: SavedWordList): SavedWordList => rest
 
+// A group's tags may add up to more than a pack can hold; the first ones stay.
+function labelsOf(category: string | undefined, tags: string[]) {
+  const labels = normalizeLabels({ category, tags })
+  return labels.tags ? { ...labels, tags: labels.tags.slice(0, MAX_TAGS) } : labels
+}
+
 /** Turns lists saved before packs existed into packs: one per group, one for each list without a group. */
 export function convertLibrary(lists: SavedWordList[]): Library {
   const packs: WordPack[] = []
@@ -57,10 +63,11 @@ export function convertLibrary(lists: SavedWordList[]): Library {
     if (found) return found.id
     const members = group ? lists.filter(item => item.group?.trim() === group) : [list]
     const oldest = members.reduce((a, b) => Date.parse(b.createdAt) < Date.parse(a.createdAt) ? b : a)
+    const wanted = group || list.name.trim()
     const pack: WordPack = {
       id: `pack-${list.id}`,
-      name: unique(names, group ?? list.name.trim(), numbered(group ?? list.name.trim())),
-      ...normalizeLabels({ category: list.category, tags: members.flatMap(item => item.tags ?? []) }),
+      name: unique(names, wanted, numbered(wanted)),
+      ...labelsOf(list.category, members.flatMap(item => item.tags ?? [])),
       createdAt: oldest.createdAt,
     }
     packOf.set(key, pack)
