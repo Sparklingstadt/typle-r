@@ -156,8 +156,14 @@ func (s *server) writeWorkspace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	revision, change, err := decodeFields(fields)
+	var refused *workspace.Error
 	if errors.Is(err, errLegacy) {
 		refuse(w, http.StatusConflict, "conflict")
+		return
+	}
+	// Lists sent with their packs whose levels overlap (workspace.CheckPacks) are told so; anything else is invalid.
+	if errors.As(err, &refused) && refused.Key == "levelsConflict" {
+		refuse(w, http.StatusBadRequest, refused.Key)
 		return
 	}
 	if err != nil {
@@ -165,7 +171,6 @@ func (s *server) writeWorkspace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	result, err := s.config.Store.WriteRevision(r.Context(), user.Sub, revision, change)
-	var refused *workspace.Error
 	switch {
 	case errors.Is(err, store.ErrConflict):
 		refuse(w, http.StatusConflict, "conflict")

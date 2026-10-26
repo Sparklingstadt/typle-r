@@ -2,6 +2,7 @@ require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { saveList, encodeLists, decodeLists } = require('../src/core/wordLists.ts')
+const { normalizeLibrary, validateLibrary } = require('../src/core/wordPacks.ts')
 const { duplicateList, levelName, levelSteps, listAtLevels, matchesQuery } = require('../src/core/listOverview.ts')
 const { validateLists } = require('../src/core/workspaceRequest.ts')
 const { initialLists } = require('../src/plugins/packs/index.ts')
@@ -35,6 +36,19 @@ test('the group and levels are saved trimmed, kept when read, refused past their
   const { copy } = duplicateList(linux, 'b1', 'c', n => `（${n}）`)
   assert.equal('group' in copy || 'levels' in copy, false)
   assert.equal(matchesQuery(linux[0], 'linux'), true)
+})
+
+test('a copy is named so that it does not overlap a level of its pack', () => {
+  const at = '2026-10-01T00:00:00.000Z'
+  const item = (id, name, levels) => ({ id, name, packId: 'p', words: [{ display: 'ls', input: 'ls', annotation: '' }], records: [], createdAt: at, ...(levels ? { levels } : {}) })
+  const suffix = n => n === 1 ? '（コピー）' : `（コピー${n}）`
+  // The copy is picked by its name, so a first level equal to it would leave one of them out of reach.
+  const lists = [item('a', '初級'), item('b', 'b', ['初級（コピー）', 'A']), item('c', 'c', ['初級（コピー2）'])]
+  const { lists: next, copy } = duplicateList(lists, 'a', 'd', suffix)
+  assert.equal(copy.name, '初級（コピー3）')
+  const library = normalizeLibrary(next, [{ id: 'p', name: 'P', createdAt: at }])
+  assert.equal(library.lists.find(list => list.id === 'd').name, copy.name)
+  validateLibrary(library)
 })
 
 test('the initial lists split into levels are put in groups, each list with levels of its own', () => {

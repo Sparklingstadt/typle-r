@@ -36,7 +36,11 @@ export function unique(taken: Set<string>, wanted: string, variant: (count: numb
   return value
 }
 
-export const fit = (name: string, suffix: string) => name.slice(0, MAX_NAME - suffix.length).trimEnd() + suffix
+export function fit(name: string, suffix: string, limit = MAX_NAME) {
+  const cut = name.slice(0, limit - suffix.length)
+  // A character of two code units is not split, which would leave a string that cannot be saved.
+  return (/[\uD800-\uDBFF]$/.test(cut) ? cut.slice(0, -1) : cut).trimEnd() + suffix
+}
 
 /** Puts the lists of removed profiles after the first one's. A name already in use gets the profile's name after it. */
 export function mergeProfiles(lists: SavedWordList[], profiles: LegacyProfile[]): SavedWordList[] {

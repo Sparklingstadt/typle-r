@@ -47,4 +47,8 @@ test('request validation takes packs only together with lists', () => {
   assert.throws(() => validateWorkspaceRequest({ revision: 0, lists: [{ ...saved, group: 'G' }], packs: [pack] }), { message: 'Invalid packs' })
   assert.throws(() => validateWorkspaceRequest({ revision: 0, lists: [saved], packs: [pack, { ...pack, id: 'q' }] }), { message: 'Invalid packs' })
   assert.throws(() => validateWorkspaceRequest({ revision: 0, lists: [saved], packs: {} }), { key: 'savedDataCorrupted' })
+  // Lists of a pack whose levels overlap are refused; lists sent without packs are separated when they are read.
+  const overlapping = [{ ...saved, levels: ['初級'] }, { ...saved, id: 'b', name: 'b', levels: ['初級', 'A'] }]
+  assert.throws(() => validateWorkspaceRequest({ revision: 0, lists: overlapping, packs: [pack] }), { key: 'levelsConflict' })
+  assert.equal(validateWorkspaceRequest({ revision: 0, lists: overlapping }).lists.length, 2)
 })

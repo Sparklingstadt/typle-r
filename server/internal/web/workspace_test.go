@@ -13,6 +13,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -850,6 +851,45 @@ func TestPutPacks(t *testing.T) {
 	}
 	if fake.writes != writes {
 		t.Fatalf("writes = %d; want %d", fake.writes, writes)
+	}
+}
+
+// Lists of a pack whose levels overlap are refused with levelsConflict when they are sent with their packs, and nothing
+// is saved. An app that does not know packs sends its lists alone; they are separated when they are read.
+func TestPutLevelsConflict(t *testing.T) {
+	leveled := func(id string, levels string) string {
+		return strings.Replace(packedOne, `"id":"one","name":"One"`, `"id":"`+id+`","name":"`+id+`","levels":`+levels, 1)
+	}
+	fake := &fakeWorkspaces{}
+	h := newHarness(t, fake, testBase)
+	expectError(t, h.put(testOwner, payload(testOwner, `"revision":1,"lists":[`+leveled("a", `["初級"]`)+`,`+leveled("b", `["初級","A"]`)+`],"packs":[`+aPack+`]`)),
+		http.StatusBadRequest, "levelsConflict")
+	if fake.writes != 0 {
+		t.Fatalf("writes = %d; want 0", fake.writes)
+	}
+	// Data repaired on reading is saved as it is.
+	if response := h.put(testOwner, payload(testOwner, `"revision":1,"lists":[`+leveled("a", `["初級"]`)+`,`+leveled("b", `["初級（2）","A"]`)+`],"packs":[`+aPack+`]`)); response.Code != http.StatusOK {
+		t.Fatalf("response = %d %s", response.Code, response.Body)
+	}
+}
+
+func TestPutLevelsWithoutPacksRealStore(t *testing.T) {
+	s, owner := realStore(t)
+	h := newHarness(t, s, testBase)
+	grouped := func(id string, levels string) string {
+		return strings.Replace(aList(id, id), `"records":[]`, `"records":[],"group":"G","levels":`+levels, 1)
+	}
+	if response := h.put(owner, payload(owner, `"revision":0,"lists":[`+grouped("a", `["初級"]`)+`,`+grouped("b", `["初級"]`)+`]`)); response.Code != http.StatusOK {
+		t.Fatalf("response = %d %s", response.Code, response.Body)
+	}
+	// GET gives the lists as they were saved, for the app to repair as it reads them; the server reads them repaired.
+	var lists []struct{ Levels []string }
+	if err := json.Unmarshal(decodeBody(t, h.get(owner))["lists"], &lists); err != nil || len(lists) != 2 || !slices.Equal(lists[1].Levels, []string{"初級"}) {
+		t.Fatalf("lists = %+v, %v", lists, err)
+	}
+	w, err := s.Read(context.Background(), owner)
+	if err != nil || len(w.Lists) != 2 || !slices.Equal(w.Lists[0].Levels, []string{"初級"}) || !slices.Equal(w.Lists[1].Levels, []string{"初級（2）"}) {
+		t.Fatalf("read = %+v, %v", w, err)
 	}
 }
 

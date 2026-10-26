@@ -5,6 +5,7 @@ const fs = require('node:fs')
 const path = require('node:path')
 const { normalizeLibrary, decodePacks, validateLibrary, viewLists, applyListChange } = require('../src/core/wordPacks.ts')
 const { decodeLists, saveList } = require('../src/core/wordLists.ts')
+const { levelSteps, listAtLevels } = require('../src/core/listOverview.ts')
 
 const dir = path.join(__dirname, 'fixtures/packs')
 for (const file of fs.readdirSync(dir).filter(name => name.endsWith('.json'))) {
@@ -51,6 +52,47 @@ test('validateLibrary refuses what a save must not contain', () => {
   for (const [reason, library] of Object.entries(cases)) assert.throws(() => validateLibrary(library), { message: 'Invalid packs' }, reason)
   // Packs have no limit of their own: every pack has a list, so the list limit bounds them.
   validateLibrary({ packs: many.map(i => ({ ...pack, id: `p${i}`, name: `P${i}` })), lists: many.map(i => ({ ...list, id: `l${i}`, name: `l${i}`, packId: `p${i}` })) })
+})
+
+test('validateLibrary refuses lists of a pack whose levels overlap, as levelsConflict', () => {
+  const list = { id: 'a', name: 'a', packId: 'p', words: [{ display: 'ls', input: 'ls', annotation: '' }], records: [], createdAt: '2026-10-01T00:00:00.000Z' }
+  const packs = [{ id: 'p', name: 'P', createdAt: '2026-10-01T00:00:00.000Z' }, { id: 'q', name: 'Q', createdAt: '2026-10-01T00:00:00.000Z' }]
+  const cases = {
+    'equal levels': [{ ...list, levels: ['初級'] }, { ...list, id: 'b', name: 'b', levels: ['初級'] }],
+    'one the start of the other': [{ ...list, levels: ['中級1', 'A'] }, { ...list, id: 'b', name: 'b', levels: ['中級1'] }],
+    'a name equal to a level': [{ ...list, name: '初級' }, { ...list, id: 'b', name: 'b', levels: ['初級'] }],
+  }
+  for (const [reason, lists] of Object.entries(cases)) {
+    assert.throws(() => validateLibrary({ packs, lists: [...lists, { ...list, id: 'z', name: 'z', packId: 'q' }] }), { key: 'levelsConflict' }, reason)
+  }
+  // Paths are compared as they are, and only within a pack.
+  validateLibrary({ packs, lists: [{ ...list, levels: ['初級'] }, { ...list, id: 'b', name: 'b', levels: ['初級 '] }, { ...list, id: 'c', name: 'c', levels: ['中級', 'A'] },
+    { ...list, id: 'd', name: 'd', levels: ['中級', 'B'] }, { ...list, id: 'e', name: 'e', packId: 'q', levels: ['初級'] }] })
+})
+
+test('every list of a pack whose levels were separated can be picked on the practice screen', () => {
+  for (const file of fs.readdirSync(dir).filter(name => name.startsWith('levels-'))) {
+    const { lists, packs } = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'))
+    const result = normalizeLibrary(lists, packs)
+    for (const pack of result.packs) {
+      const mine = result.lists.filter(list => list.packId === pack.id)
+      for (const list of mine) {
+        const chosen = list.levels?.length ? list.levels : [list.name]
+        assert.deepEqual(levelSteps(mine, chosen).map(step => step.chosen), chosen, `${file} ${list.id}`)
+        assert.equal(listAtLevels(mine, chosen), mine.find(item => item.id === list.id), `${file} ${list.id}`)
+      }
+    }
+  }
+})
+
+test('a level or name with （n） stays within its limit', () => {
+  const at = '2026-10-01T00:00:00.000Z'
+  const list = (id, fields) => ({ id, name: id, words: [{ display: 'ls', input: 'ls', annotation: '' }], records: [], createdAt: at, packId: 'p', ...fields })
+  const lists = Array.from({ length: 12 }, (_, i) => list(`l${i}`, { levels: ['a'.repeat(50)] }))
+  const result = normalizeLibrary(lists, [{ id: 'p', name: 'P', createdAt: at }])
+  assert.equal(result.lists[11].levels[0], `${'a'.repeat(46)}（12）`)
+  assert.ok(result.lists.every(item => item.levels[0].length <= 50))
+  validateLibrary(result)
 })
 
 test('a library of more lists than MAX_LISTS, all without a group, converts and passes validateLibrary', () => {
