@@ -38,10 +38,12 @@ export type SavedWordList = WordList & { id: string }
 export const MAX_CATEGORY = 50
 export const MAX_TAG = 50
 export const MAX_TAGS = 20
-// The limits of a list's group and levels (see validateLists).
+// The limits of a list's group and levels (see validateLists). A list has one level at most; apps before v0.97.0 let
+// it have up to MAX_SAVED_LEVELS, which are still read and joined into one (see collapseLevels in wordPacks.ts).
 export const MAX_GROUP = 200
 export const MAX_LEVEL = 50
-export const MAX_LEVELS = 5
+export const MAX_LEVELS = 1
+export const MAX_SAVED_LEVELS = 5
 
 /** The category and tags as they are saved: trimmed, without empty ones or a tag repeated in another case, and left out
  * when there are none, so a list without them is stored as before they existed. */

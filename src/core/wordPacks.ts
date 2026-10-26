@@ -1,6 +1,6 @@
 import { AppError } from './appError'
 import { MAX_LIST_NAME } from './listOverview'
-import { MAX_CATEGORY, MAX_LEVEL, MAX_TAG, MAX_TAGS, normalizeLabels, type SavedWordList } from './wordLists'
+import { MAX_CATEGORY, MAX_LEVEL, MAX_LEVELS, MAX_TAG, MAX_TAGS, normalizeLabels, type SavedWordList } from './wordLists'
 import { fit, unique } from './workspaceDocument'
 
 export const MAX_PACK_NAME = 200
@@ -34,32 +34,25 @@ export function pathsOverlap(a: string[], b: string[]) {
   return short.every((level, n) => level === long[n])
 }
 
-// Whether levels hold one level twice, compared trimmed as tidyLevels compares them.
-export const repeatsLevel = (levels: string[] | undefined) => new Set(levels?.map(level => level.trim())).size !== (levels?.length ?? 0)
-
-// A level given twice in one list (which an older app let through) gets the smallest （n） from 2 that the list's levels
-// do not hold yet, so that each level of the list can be told apart. Levels are compared trimmed.
-function distinctLevels(list: SavedWordList): SavedWordList {
-  if (!repeatsLevel(list.levels)) return list
-  const levels = [...list.levels!]
-  const held = (value: string) => levels.some(level => level.trim() === value.trim())
-  levels.forEach((level, at) => {
-    if (!levels.slice(0, at).some(other => other.trim() === level.trim())) return
-    let count = 2
-    while (held(fit(level, `（${count}）`, MAX_LEVEL))) count++
-    levels[at] = fit(level, `（${count}）`, MAX_LEVEL)
-  })
-  return { ...list, levels }
+/**
+ * A list holds one level at most since v0.97.0. Several levels saved by an older app become one: the levels trimmed,
+ * without empty ones, joined with ・ as levelName shows them, and cut to MAX_LEVEL; no level at all when none is left.
+ */
+export function collapseLevels(list: SavedWordList): SavedWordList {
+  if ((list.levels?.length ?? 0) <= 1) return list
+  const { levels, ...rest } = list
+  const joined = fit(levels!.map(level => level.trim()).filter(Boolean).join('・'), '', MAX_LEVEL)
+  return joined ? { ...list, levels: [joined] } : rest
 }
 
 /**
- * Brings back in reach the lists an older app let overlap (see pathsOverlap): a list whose path overlaps that of an
- * earlier list of its pack gets （2）, （3）… on the level where they meet, or on its name when it has no levels (a name
- * another list of the pack does not use, or a level the list does not hold). A level given twice in a list is told
- * apart first (distinctLevels). Earlier lists, and data without overlaps, stay as they are.
+ * Brings back in reach the lists an older app let overlap (see pathsOverlap): a list whose path equals that of an
+ * earlier list of its pack gets （2）, （3）… on its level, or on its name when it has no levels (a name another list of
+ * the pack does not use). Several levels of a list are joined into one first (collapseLevels). Earlier lists, and data
+ * without overlaps, stay as they are.
  */
 export function separateLevels(library: Library): Library {
-  const lists = library.lists.map(distinctLevels)
+  const lists = library.lists.map(collapseLevels)
   const names = new Map<string, Set<string>>()
   for (const list of lists) (names.get(list.packId!) ?? names.set(list.packId!, new Set()).get(list.packId!)!).add(nameKey(list.name))
   const accepted = new Map<string, string[][]>()
@@ -70,17 +63,11 @@ export function separateLevels(library: Library): Library {
     const base = levelPath(list)
     const path = [...base]
     const nameTaken = () => !hasLevels && nameKey(path[0]) !== nameKey(list.name) && taken.has(nameKey(path[0]))
-    // The level just given a （n） may not be one the list holds at another step.
-    let at = -1
-    const repeated = () => at >= 0 && path.some((level, n) => n !== at && level.trim() === path[at].trim())
-    for (let count = 2; ; count++) {
-      const other = paths.find(q => pathsOverlap(q, path))
-      if (!other && !nameTaken() && !repeated()) break
-      if (!repeated()) at = other ? Math.min(path.length, other.length) - 1 : 0
-      path[at] = fit(base[at], `（${count}）`, hasLevels ? MAX_LEVEL : MAX_LIST_NAME)
+    for (let count = 2; paths.some(q => pathsOverlap(q, path)) || nameTaken(); count++) {
+      path[0] = fit(base[0], `（${count}）`, hasLevels ? MAX_LEVEL : MAX_LIST_NAME)
     }
     paths.push(path)
-    if (path.every((level, n) => level === base[n])) return list
+    if (path[0] === base[0]) return list
     if (hasLevels) return { ...list, levels: path }
     taken.add(nameKey(path[0]))
     return { ...list, name: path[0] }
@@ -177,8 +164,8 @@ export function normalizeLibrary(lists: SavedWordList[], packs: WordPack[] | nul
 }
 
 /**
- * Refuses a library that is not in the saved shape, with lists out of reach on the practice screen (levelsConflict), or
- * with a level given twice in a list (levelDuplicate).
+ * Refuses a library that is not in the saved shape, with a list of more than one level (tooManyLevels), or with lists
+ * out of reach on the practice screen (levelsConflict).
  */
 export function validateLibrary({ packs, lists }: Library) {
   const invalid = () => new Error('Invalid packs')
@@ -205,11 +192,11 @@ export function validateLibrary({ packs, lists }: Library) {
     taken.add(name)
   }
   if (ids.size !== listNames.size) throw invalid()
-  // Lists of a pack whose paths overlap, or with a level given twice, are refused as packEditing refuses them;
+  // Lists of a pack whose paths overlap, or with more than one level, are refused as packEditing refuses them;
   // separateLevels repairs saved ones.
   const paths = new Map<string, string[][]>()
   for (const list of lists) {
-    if (repeatsLevel(list.levels)) throw new AppError('levelDuplicate')
+    if ((list.levels?.length ?? 0) > MAX_LEVELS) throw new AppError('tooManyLevels')
     const mine = paths.get(list.packId!) ?? paths.set(list.packId!, []).get(list.packId!)!
     if (mine.some(path => pathsOverlap(path, levelPath(list)))) throw new AppError('levelsConflict')
     mine.push(levelPath(list))

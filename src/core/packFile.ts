@@ -1,7 +1,7 @@
 import { AppError } from './appError'
 import { copyName, MAX_LISTS, MAX_LIST_NAME } from './listOverview'
 import { settle, trimLevels } from './packEditing'
-import { MAX_CATEGORY, MAX_LEVEL, MAX_LEVELS, MAX_TAG, MAX_TAGS, normalizeLabels, validateList, type SavedWordList } from './wordLists'
+import { MAX_CATEGORY, MAX_LEVEL, MAX_SAVED_LEVELS, MAX_TAG, MAX_TAGS, normalizeLabels, validateList, type SavedWordList } from './wordLists'
 import { MAX_PACK_DESCRIPTION, MAX_PACK_NAME, nameKey, separateLevels, type Library, type WordPack } from './wordPacks'
 import { fit, unique } from './workspaceDocument'
 
@@ -101,7 +101,7 @@ function checkSizes(file: PackFile) {
     (labels.category?.length ?? 0) > MAX_CATEGORY || (labels.tags?.length ?? 0) > MAX_TAGS || !!labels.tags?.some(tag => tag.length > MAX_TAG) ||
     file.lists.some(item => {
       const levels = (item.levels ?? []).map(level => level.trim()).filter(Boolean)
-      return item.name.length > MAX_LIST_NAME || item.words.length > MAX_WORDS || levels.length > MAX_LEVELS || levels.some(level => level.length > MAX_LEVEL) ||
+      return item.name.length > MAX_LIST_NAME || item.words.length > MAX_WORDS || levels.length > MAX_SAVED_LEVELS || levels.some(level => level.length > MAX_LEVEL) ||
         item.words.some(word => word.input.length > MAX_INPUT || word.display.length > MAX_DISPLAY || word.annotation.length > MAX_ANNOTATION)
     })
   if (tooLarge) throw new AppError('invalidPackFile')
@@ -113,7 +113,7 @@ function checkIds(ids: NewPackIds, count: number) {
 
 /**
  * The library with the file's pack added at the end, checked as createPack and saveListInPack check a save, but for
- * levels that repeat or overlap, which are told apart (separateLevels). The name gets （2）, （3）… when a pack has it.
+ * levels: several levels of a list are joined into one, and levels that overlap are told apart (separateLevels). The name gets （2）, （3）… when a pack has it.
  * Not settled: callers settle the result.
  */
 export function addPackFile(library: Library, file: PackFile, ids: NewPackIds, now: Date, origin?: WordPack['origin']): Library {
@@ -135,8 +135,8 @@ export function addPackFile(library: Library, file: PackFile, ids: NewPackIds, n
     id: ids.pack, name: unique(names, wanted, count => fit(wanted, `（${count}）`)),
     ...(description ? { description } : {}), ...normalizeLabels(file.pack), ...(origin ? { origin } : {}), createdAt,
   }
-  // A file written before v0.96.3 may repeat or overlap levels, which the one who imports it cannot change: they are
-  // told apart as reading saved data does.
+  // A file written before v0.97.0 may give a list several levels, or overlap levels, which the one who imports it
+  // cannot change: they are repaired as reading saved data repairs them.
   return { packs: [...library.packs, pack], lists: [...library.lists, ...separateLevels({ packs: [], lists }).lists] }
 }
 
