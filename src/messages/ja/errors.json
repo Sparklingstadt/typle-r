@@ -47,5 +47,8 @@
   "deviceNameDuplicate": "「{name}」はすでに登録されています。別の名前にしてください。",
   "deviceLimit": "端末は{max}台まで登録できます。使わなくなった端末を削除してから追加してください。",
   "practiceIncomplete": "練習が完了していません。",
-  "recordListDeleted": "単語リストが削除されているため、記録を保存できません。"
+  "recordListDeleted": "単語リストが削除されているため、記録を保存できません。",
+  "packNameRequired": "パック名を入力してください",
+  "packNameDuplicate": "同じ名前のパックがあります",
+  "packDeleted": "このパックは削除されています"
 }
