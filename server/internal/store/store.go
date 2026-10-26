@@ -268,9 +268,9 @@ func (s *Store) ReadRevision(ctx context.Context, owner string) (*Saved, error) 
 //
 // What is saved is not read back through Decode, except lists saved without packs (to find the packs they leave): only
 // the saved revision and number of lists are read, a part left out is kept by the UPDATE itself, and the result is the
-// row's JSON as stored. When packs are saved, the links to packs
-// no longer among them are deleted in the same transaction. So are those of lists saved without packs, against the packs
-// the row then has (derived from the lists when it has none); devices alone leave the links as they are.
+// row's JSON as stored. When packs are saved, the links to packs no longer among them are deleted in the same
+// transaction. So are those of lists saved without packs, against the packs the row then has (derived from the lists
+// when it has none); devices alone leave the links as they are.
 func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, change Change) (*Saved, error) {
 	// nil is a part left out: NULL in the queries below.
 	var lists, packs, devices []byte
