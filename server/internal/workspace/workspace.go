@@ -57,7 +57,8 @@ type List struct {
 	Name string
 	// PackID is the word pack the list belongs to. Every list Decode returns has one.
 	PackID string
-	// Group is the group of a list saved before packs existed. It is read to make the packs and never written.
+	// Group is the group of a list saved before packs existed, which Decode makes a pack of. Encode never writes it; only
+	// EncodeWithLabels does, for lists sent by an app that does not know packs.
 	Group string
 	// Category and Tags are those of the list's pack, as the app's viewLists shows them: "" and nil when it has none.
 	// They are not stored with the list; ApplyListChange puts a change to them back into the pack.

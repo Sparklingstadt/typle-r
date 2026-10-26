@@ -212,6 +212,7 @@ func TestCheckLimits(t *testing.T) {
 		{Name: text(MaxListName, "a"), Words: words(MaxWords), Records: make([]Record, MaxRecords)},
 		{Name: text(MaxListName/2, "𠮷"), Words: []Word{{Input: text(MaxWordText, "a"), Display: text(MaxWordText, "a"), Annotation: text(MaxAnnotation, "a")}}},
 		{Category: text(MaxCategory, "a"), Tags: slices.Repeat([]string{text(MaxTag, "a")}, MaxTags)},
+		{Group: text(MaxGroup/2, "𠮷")},
 	}
 	if err := CheckLimits(ok); err != nil {
 		t.Fatalf("limits themselves refused: %v", err)
@@ -230,6 +231,8 @@ func TestCheckLimits(t *testing.T) {
 		{"category", List{Category: text(MaxCategory+1, "a")}},
 		{"tags", List{Tags: make([]string, MaxTags+1)}},
 		{"tag", List{Tags: []string{text(MaxTag+1, "a")}}},
+		{"group", List{Group: text(MaxGroup+1, "a")}},
+		{"group in UTF-16 units", List{Group: text(MaxGroup/2, "𠮷") + "a"}},
 	}
 	for _, c := range tooMany {
 		var e *Error

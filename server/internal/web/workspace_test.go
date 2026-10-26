@@ -541,6 +541,20 @@ func TestPutLimits(t *testing.T) {
 	}
 }
 
+// A lists-only save stores the group it sends, which becomes a pack's name when it is read, so a group longer than
+// validateLists allows is refused, as the app does: a pack name over the limit would refuse every later save.
+func TestPutGroupLimit(t *testing.T) {
+	s, owner := realStore(t)
+	h := newHarness(t, s, testBase)
+	group := func(n int) string {
+		return strings.Replace(oneList, `"records":[]`, `"records":[],"group":"`+strings.Repeat("g", n)+`"`, 1)
+	}
+	expectError(t, h.put(owner, payload(owner, `"revision":0,"lists":[`+group(workspace.MaxGroup+1)+`]`)), http.StatusBadRequest, "invalidWorkspace")
+	if response := h.put(owner, payload(owner, `"revision":0,"lists":[`+group(workspace.MaxGroup)+`]`)); response.Code != http.StatusOK {
+		t.Fatalf("response = %d %s", response.Code, response.Body)
+	}
+}
+
 // The store's own refusals keep their keys; anything else is a failed save.
 func TestPutStoreErrors(t *testing.T) {
 	cases := map[string]struct {

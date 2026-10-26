@@ -20,6 +20,9 @@ const (
 	MaxCategory = 50
 	MaxTag      = 50
 	MaxTags     = 20
+	// The limit of the group a list saved by an app that does not know packs may have (MAX_GROUP in
+	// src/core/wordLists.ts): it becomes the name of a pack when the lists are read.
+	MaxGroup = 200
 	// The app saves the lists with its devices, revision and account in one request of at most 1 MiB
 	// (MAX_WORKSPACE_BYTES), so the lists written here leave 128 KiB for the rest.
 	MaxListsBytes = 896 << 10
@@ -105,11 +108,11 @@ func CheckSize(before, after int) error {
 }
 
 // CheckLimits refuses lists past the limits of validateLists (src/core/workspaceRequest.ts), which the app applies to
-// every save. The number of lists is not checked here: it is compared with the saved ones when the change is applied.
+// every save. The group is that of lists sent by an app that does not know packs (DecodeLists). The number of lists is not checked here: it is compared with the saved ones when the change is applied.
 func CheckLimits(lists []List) error {
 	for _, list := range lists {
 		if len(list.Words) > MaxWords || len(list.Records) > MaxRecords || length(list.Name) > MaxListName ||
-			length(list.Category) > MaxCategory || len(list.Tags) > MaxTags ||
+			length(list.Category) > MaxCategory || len(list.Tags) > MaxTags || length(list.Group) > MaxGroup ||
 			slices.ContainsFunc(list.Tags, func(tag string) bool { return length(tag) > MaxTag }) {
 			return &Error{Key: "invalidWorkspace"}
 		}
