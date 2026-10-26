@@ -21,6 +21,14 @@
 - Go のバックエンド（`server/internal/*`）：typle-kotlin-backend の対応するコードを同じように直し、`TYPLE_BACKEND=kotlin npm run test:e2e` で確かめます。
 - ログイン（`client=ipad|macos|android|windows`）とトークンの形：各アプリが使うので、互換を保ちます。
 
+## v0.99.4 — DB の旧シードを削除しました
+
+保存済みのアカウントに初期リストを追加していた DB のシードを削除しました。v0.98.0 から新しいアカウントは空のライブラリで始まり、公式パックはカタログからフォローするため、使われていませんでした。アプリの動きと保存データは変わりません。
+
+- マイグレーション `prisma/migrations/0023_seed_initial_lists`（0009〜0022 をまとめたもの）を削除しました。本番の DB には適用済みとして記録が残りますが、`prisma migrate deploy`（`npm run db:migrate`）は適用済みで手元に無いマイグレーションを気にしないため、そのまま動きます（v0.87.1 で 0009〜0022 を消したときと同じです）。新しい DB には実行しても何も変えない手順だったので、作られる DB も変わりません。
+- `scripts/seed.cjs`（`npm run db:seed`）と `prisma.config.ts` の `seed` を削除しました。手元の開発ログインは、シードなしで空のライブラリから始まります。
+- マイグレーションの SQL を確かめていたテスト（`tests/seedMigration.cjs` と、`tests/commands.test.cjs`・`tests/countries.test.cjs`・`tests/listLabels.test.cjs`・`tests/listGroups.test.cjs` の該当テスト）を削除しました。公式パックの中身（`src/plugins/packs`）のテストは残しています。
+
 ## v0.97.0 — 1 つのリストの難易度を 1 つまでにしました
 
 1 つのリストに難易度を 5 つまで（「基本」「初級」のように段階で）入れられましたが、1 つまでにしました。練習画面では、パックの中のリストを難易度 1 つ（ないときはリスト名）で選びます。
@@ -572,28 +580,13 @@ CSV・TSVから読み込んだ単語の前後空白・改行・順序・重複�
 npm run dev:local
 ```
 
-http://localhost:3000/local-login を開き「練習を始める」を押します。このMacのチェックアウトの `.env.local` は設定済みです。新規クローンでは上記のセットアップ後、`.env.local` に `LOCAL_DEVELOPMENT_LOGIN=1` を設定し、`npm run db:seed -- --owner github:0` を実行してください。DBは `docker compose --env-file .env.local up -d --wait` で再開できます。
+http://localhost:3000/local-login を開き「練習を始める」を押します。このMacのチェックアウトの `.env.local` は設定済みです。新規クローンでは上記のセットアップ後、`.env.local` に `LOCAL_DEVELOPMENT_LOGIN=1` を設定してください。DBは `docker compose --env-file .env.local up -d --wait` で再開できます。
 
 開発ログインは `NODE_ENV=development`、`LOCAL_DEVELOPMENT_LOGIN=1`、`AUTH_URL` がHTTPのloopbackまたは明示指定したLAN内IPv4、`AUTH_SECRET` 設定済みのすべてを満たす場合だけ有効です。専用アカウント `github:0` を使用し、GitHubアカウントとは分離します。本番ビルドでは無効です。GitHub OAuthを使用する場合は `LOCAL_DEVELOPMENT_LOGIN=0` とし、従来どおりOAuthの設定を行ってください。
 
 ## v0.9.0 — 練習画面の改善とE2E拡充
 
 練習画面に選択中リストのベスト記録5件を表示し、単語リストと左右に配置しました。アカウントの丸アイコン、選択中ボタン、補足の重ね表示にも対応しています。冪等なDB seedを追加し、共通テーブルとボタングループを整理しました。ローカルE2Eは14件に拡充しています。
-
-## DB seed
-
-マイグレーション後、対象アカウントのGitHub数値IDを指定して実行します。
-
-```sh
-npm run db:seed -- --owner github:123456
-```
-
-`123456` は対象ユーザーの数値IDに置き換えてください（ユーザー名ではありません）。`npx prisma db seed -- --owner github:123456` でも実行できます。
-
-- `Test 1`: hoge / foo / bar
-- `test 2`: one / two / three
-
-表示文字と入力文字は同じ、補足・記録は空で作成します。固定ID、または同名（大文字小文字を区別しない）のリストがあれば追加せず、既存の内容と記録を保持します。再実行で変更がなければrevisionも更新しません。同時実行はSerializableトランザクションと再試行で処理します。対象アカウントは自動選択しません。
 
 ## v0.8.0 — ナビゲーションと通知の改善
 
@@ -791,7 +784,7 @@ Prisma構文・Jest構文・Playwright構文もコード例を入力し、補足
 
 `tests/commands.test.cjs` で、18リストの読み込み、語数、入力が前後に空白のないASCII（Go・Java・Kotlin・PostgreSQL・Prisma・Jest・Playwright構文と、日本語を含む13語を除く）で表示と一致すること、リスト内で入力が重複しないことを確かめます。
 
-初期リストなので、まだ一度も保存していないアカウントとブラウザーには最初から表示されます。v0.63.0 から、すでに保存しているアカウントにも、マイグレーション `0009_seed_command_lists`（`npm run db:migrate`。本番ではデプロイ時に実行）が9リストを、v0.64.0 から `0010_seed_arch_linux_list` がArch Linuxのリストを、v0.65.0 から `0011_seed_vim_list` がVimのリストを、v0.66.0 から `0012_seed_go_syntax_list` がGo構文のリストを、v0.67.0 から `0013_seed_java_syntax_list` がJava構文のリストを、v0.68.0 から `0014_seed_kotlin_syntax_list` がKotlin構文のリストを、v0.71.0 から `0016_seed_postgresql_syntax_list` がPostgreSQL構文のリストを、v0.72.0 から `0017_seed_test_framework_lists` がPrisma・Jest・Playwright構文の3リストを、v0.75.0 から `0019_seed_framework_and_sql_lists` がTypeScript・Hono・PHP・Rails・Express・Oracle PL/SQL・SQL Server T-SQLの21リストを追加します。小文字の国名リストも、同じ規則で `0015_seed_lowercase_country_list` が追加します。`scripts/seed.cjs` と同じく、同じIDまたは同じ名前のリストがある場合はそのリストを追加せず、ほかのリストと練習記録はそのまま残します。追加すると100リストか保存できる大きさ（`MaxListsBytes`）を超えるアカウントには追加しません。マイグレーションは1回だけ実行されるため、その後に削除したリストは戻りません。v0.87.1 から、これらのマイグレーション（0009〜0022）は `0023_seed_initial_lists` の1ファイルに元の名前の手順としてまとめてあり、適用済みの DB では実行しません。改めて追加するときは `npm run db:seed -- --owner github:<ID>` を使います。このブラウザーに保存している場合（ログインしていない場合）はマイグレーションの対象外です。
+初期リストなので、まだ一度も保存していないアカウントとブラウザーには最初から表示されます。v0.63.0 から、すでに保存しているアカウントにも、マイグレーション `0009_seed_command_lists`（`npm run db:migrate`。本番ではデプロイ時に実行）が9リストを、v0.64.0 から `0010_seed_arch_linux_list` がArch Linuxのリストを、v0.65.0 から `0011_seed_vim_list` がVimのリストを、v0.66.0 から `0012_seed_go_syntax_list` がGo構文のリストを、v0.67.0 から `0013_seed_java_syntax_list` がJava構文のリストを、v0.68.0 から `0014_seed_kotlin_syntax_list` がKotlin構文のリストを、v0.71.0 から `0016_seed_postgresql_syntax_list` がPostgreSQL構文のリストを、v0.72.0 から `0017_seed_test_framework_lists` がPrisma・Jest・Playwright構文の3リストを、v0.75.0 から `0019_seed_framework_and_sql_lists` がTypeScript・Hono・PHP・Rails・Express・Oracle PL/SQL・SQL Server T-SQLの21リストを追加します。小文字の国名リストも、同じ規則で `0015_seed_lowercase_country_list` が追加します。`scripts/seed.cjs` と同じく、同じIDまたは同じ名前のリストがある場合はそのリストを追加せず、ほかのリストと練習記録はそのまま残します。追加すると100リストか保存できる大きさ（`MaxListsBytes`）を超えるアカウントには追加しません。マイグレーションは1回だけ実行されるため、その後に削除したリストは戻りません。v0.87.1 から、これらのマイグレーション（0009〜0022）は `0023_seed_initial_lists` の1ファイルに元の名前の手順としてまとめてあり、適用済みの DB では実行しません。v0.99.4 で `0023_seed_initial_lists` と `npm run db:seed` は削除しました。このブラウザーに保存している場合（ログインしていない場合）はマイグレーションの対象外です。
 
 上の表の語数は元のリストのものです。v0.74.0 から、40語を超えるリストは初級・中級・上級などに分けて `commands.json`・`countries.json` に入れています（分け方は v0.74.0 の説明、確かめ方は `tests/commands.test.cjs`）。保存済みのアカウントでは `0018_split_long_initial_lists` が分けたリストに置き換えます。
 

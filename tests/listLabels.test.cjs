@@ -82,14 +82,3 @@ test('every initial list the sparklingstadt account did not make itself has a ca
   }
   validateLists(initialLists)
 })
-
-test('migration 0021 gives the initial lists in saved workspaces their category and tags, unless they have some', () => {
-  const { step, pack: read } = require('./seedMigration.cjs')
-  const sql = step('0021_label_initial_lists')
-  const pack = read('0021_label_initial_lists')
-  // The initial lists the migration labels have the same category and tags.
-  const kept = initialLists.filter(item => item.category)
-  assert.deepEqual(pack.filter(item => kept.some(other => other.id === item.id)), kept.map(({ id, category, tags }) => ({ id, category, tags })))
-  assert.match(sql, /saved\.list->'category' IS NULL AND saved\.list->'tags' IS NULL/)
-  assert.match(sql, /octet_length\(rebuilt\.lists::text\) <= 896 \* 1024\n/)
-})
