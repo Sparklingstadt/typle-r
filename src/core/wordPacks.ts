@@ -1,5 +1,6 @@
 import { AppError } from './appError'
-import { MAX_CATEGORY, MAX_TAG, MAX_TAGS, normalizeLabels, type SavedWordList } from './wordLists'
+import { MAX_LIST_NAME } from './listOverview'
+import { MAX_CATEGORY, MAX_LEVEL, MAX_TAG, MAX_TAGS, normalizeLabels, type SavedWordList } from './wordLists'
 import { fit, unique } from './workspaceDocument'
 
 export const MAX_PACK_NAME = 200
@@ -22,6 +23,46 @@ export type Library = { packs: WordPack[]; lists: SavedWordList[] }
 const isString = (value: unknown): value is string => typeof value === 'string'
 export const nameKey = (name: string) => name.trim().toLocaleLowerCase()
 const numbered = (name: string) => (count: number) => fit(name, `（${count}）`)
+
+// The levels the practice screen picks a list of a pack by: its levels, or its name when it has none.
+export const levelPath = (list: Pick<SavedWordList, 'name' | 'levels'>) => list.levels?.length ? list.levels : [list.name]
+
+// Two lists of a pack whose paths are equal, or one the start of the other, leave one of them out of reach on the
+// practice screen: picking the shorter path picks its list, or asks for a further level, but never both.
+export function pathsOverlap(a: string[], b: string[]) {
+  const [short, long] = a.length <= b.length ? [a, b] : [b, a]
+  return short.every((level, n) => level === long[n])
+}
+
+/**
+ * Brings back in reach the lists an older app let overlap (see pathsOverlap): a list whose path overlaps that of an
+ * earlier list of its pack gets （2）, （3）… on the level where they meet, or on its name when it has no levels (a name
+ * another list of the pack does not use). Earlier lists, and data without overlaps, stay as they are.
+ */
+export function separateLevels(library: Library): Library {
+  const names = new Map<string, Set<string>>()
+  for (const list of library.lists) (names.get(list.packId!) ?? names.set(list.packId!, new Set()).get(list.packId!)!).add(nameKey(list.name))
+  const accepted = new Map<string, string[][]>()
+  return { ...library, lists: library.lists.map(list => {
+    const paths = accepted.get(list.packId!) ?? accepted.set(list.packId!, []).get(list.packId!)!
+    const taken = names.get(list.packId!)!
+    const hasLevels = Boolean(list.levels?.length)
+    const base = levelPath(list)
+    const path = [...base]
+    const nameTaken = () => !hasLevels && nameKey(path[0]) !== nameKey(list.name) && taken.has(nameKey(path[0]))
+    for (let count = 2; ; count++) {
+      const other = paths.find(q => pathsOverlap(q, path))
+      if (!other && !nameTaken()) break
+      const at = other ? Math.min(path.length, other.length) - 1 : 0
+      path[at] = fit(base[at], `（${count}）`, hasLevels ? MAX_LEVEL : MAX_LIST_NAME)
+    }
+    paths.push(path)
+    if (path.every((level, n) => level === base[n])) return list
+    if (hasLevels) return { ...list, levels: path }
+    taken.add(nameKey(path[0]))
+    return { ...list, name: path[0] }
+  }) }
+}
 
 /** Reads saved packs, keeping fields Typle does not know. */
 export function decodePacks(value: unknown): WordPack[] {
@@ -73,7 +114,7 @@ export function convertLibrary(lists: SavedWordList[]): Library {
     packs.push(pack)
     return pack.id
   })
-  return { packs, lists: lists.map((list, index) => ({ ...withoutLabels(list), packId: packIds[index] })) }
+  return separateLevels({ packs, lists: lists.map((list, index) => ({ ...withoutLabels(list), packId: packIds[index] })) })
 }
 
 /** Keeps the rules of ownership for data an older app saved: every list in one pack, no empty packs, no repeated names. */
@@ -101,10 +142,10 @@ export function repairLibrary(library: Library): Library {
   const names = new Set<string>()
   const kept = packs.filter(pack => used.has(pack.id)).map(pack => ({ ...pack, name: unique(names, pack.name.trim(), numbered(pack.name.trim())) }))
   const listNames = new Map<string, Set<string>>()
-  return { packs: kept, lists: lists.map(list => {
+  return separateLevels({ packs: kept, lists: lists.map(list => {
     const taken = listNames.get(list.packId!) ?? listNames.set(list.packId!, new Set()).get(list.packId!)!
     return { ...list, name: unique(taken, list.name.trim(), numbered(list.name.trim())) }
-  }) }
+  }) })
 }
 
 /** `packs` is null for data saved before packs existed. */
@@ -112,7 +153,7 @@ export function normalizeLibrary(lists: SavedWordList[], packs: WordPack[] | nul
   return packs === null ? convertLibrary(lists) : repairLibrary({ packs, lists })
 }
 
-/** Refuses a library that is not in the saved shape. */
+/** Refuses a library that is not in the saved shape, or with lists out of reach on the practice screen (levelsConflict). */
 export function validateLibrary({ packs, lists }: Library) {
   const invalid = () => new Error('Invalid packs')
   const ids = new Set<string>()
@@ -138,6 +179,13 @@ export function validateLibrary({ packs, lists }: Library) {
     taken.add(name)
   }
   if (ids.size !== listNames.size) throw invalid()
+  // Lists of a pack whose paths overlap are refused as packEditing refuses them; separateLevels repairs saved ones.
+  const paths = new Map<string, string[][]>()
+  for (const list of lists) {
+    const mine = paths.get(list.packId!) ?? paths.set(list.packId!, []).get(list.packId!)!
+    if (mine.some(path => pathsOverlap(path, levelPath(list)))) throw new AppError('levelsConflict')
+    mine.push(levelPath(list))
+  }
 }
 
 /**

@@ -1,7 +1,9 @@
 import { AppError } from './appError'
 import { listOverviews, matchesQuery, MAX_LISTS, type ListOverview } from './listOverview'
 import { MAX_LEVEL, MAX_LEVELS, normalizeLabels, validateList, type SavedWordList } from './wordLists'
-import { nameKey, repairLibrary, validateLibrary, viewLists, type Library, type WordPack } from './wordPacks'
+import { levelPath, nameKey, pathsOverlap, repairLibrary, validateLibrary, viewLists, type Library, type WordPack } from './wordPacks'
+
+export { levelPath, pathsOverlap }
 
 export type PackOverview = {
   pack: WordPack
@@ -139,16 +141,6 @@ export function saveListInPack(library: Library,
   if (existing!.packId === target) return settle({ packs, lists: library.lists.map(item => item.id === list.id ? saved : item) })
   const end = others.map(item => item.packId).lastIndexOf(target)
   return settle({ packs, lists: [...others.slice(0, end + 1), saved, ...others.slice(end + 1)] })
-}
-
-// The levels the practice screen picks a list of a pack by: its levels, or its name when it has none.
-export const levelPath = (list: Pick<SavedWordList, 'name' | 'levels'>) => list.levels?.length ? list.levels : [list.name]
-
-// Two lists of a pack whose paths are equal, or one the start of the other, leave one of them out of reach on the
-// practice screen: picking the shorter path picks its list, or asks for a further level, but never both.
-export function pathsOverlap(a: string[], b: string[]) {
-  const [short, long] = a.length <= b.length ? [a, b] : [b, a]
-  return short.every((level, n) => level === long[n])
 }
 
 function newPackId(library: Library, listId: string) {
