@@ -22,9 +22,9 @@
       "action": "Practice"
     },
     "create": {
-      "title": "Make your own list",
-      "text": "Add the words you want to learn. You can also import them from a CSV or TSV file.",
-      "action": "Create a list"
+      "title": "Make your own pack",
+      "text": "Register the words you want to learn as a pack, together with its first list. You can also import them from a CSV or TSV file.",
+      "action": "Create a pack"
     },
     "review": {
       "title": "Review your records",
@@ -75,7 +75,14 @@
     }
   },
   "lists": {
-    "lead": "Create a new list in <create>Create a list</create>, and edit saved lists in <edit>Word lists</edit>.",
+    "lead": "Create a new pack in <create>Create a pack</create>, and edit saved packs and lists in <edit>Word packs</edit>.",
+    "packs": {
+      "title": "Packs and lists",
+      "p1": "Word lists are organized into packs. When you create a pack, you enter the pack’s name and its first list.",
+      "p2": "Use “Add list” in a pack’s “…” menu to add a list to a saved pack.",
+      "p3": "Use “Edit pack” in a pack’s “…” menu to change its name, description, category, and tags, or to reorder the lists inside it.",
+      "p4": "In the list editor, you can choose which pack the list belongs to (this moves it to another pack). You can also enter a difficulty (level names) for the words."
+    },
     "input": {
       "title": "Entering words",
       "p1": "Enter a list name and, for each word, the “Word to display” and the “Text to type”. The note is optional.",
@@ -85,15 +92,15 @@
     },
     "cannotSave": {
       "title": "When a list cannot be saved",
-      "p1": "Lists with empty rows, lists without words, and lists with the same name as another list cannot be saved.",
+      "p1": "Lists with empty rows, lists without words, and lists with the same name as another list in the same pack cannot be saved.",
       "p2": "A list can hold up to 1,000 words, and you can save up to 150 lists.",
       "p3": "If you have unsaved changes, you are asked to confirm before canceling or going back in the browser.",
       "p4": "If you change the number of words, earlier records drop out of the best-record rankings (the records themselves are kept; see <wordCount>When the word count changes</wordCount>)."
     },
     "manage": {
       "title": "Managing lists",
-      "p1": "In <edit>Word lists</edit>, you can search by list name or word and change the sort order.",
-      "p2": "From each list’s “Practice” and “Edit” buttons and its “…” menu, you can open its best records and practice history, export it to CSV, duplicate it, or delete it.",
+      "p1": "In <edit>Word packs</edit>, you can search by pack name, list name, or word and change the sort order.",
+      "p2": "From a pack’s “…” menu you can practice, edit the pack, add a list, or delete it. Deleting a pack also deletes its lists and their practice history. Each list row has its own “…” menu for best records, practice history, CSV export, duplicating, and deleting.",
       "p3": "Duplicating copies only the words, not the practice history."
     },
     "csv": {

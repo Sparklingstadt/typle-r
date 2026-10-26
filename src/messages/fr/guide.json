@@ -22,9 +22,9 @@
       "action": "S’entraîner"
     },
     "create": {
-      "title": "Créer votre liste",
-      "text": "Ajoutez les mots que vous voulez retenir. Vous pouvez aussi les importer depuis un fichier CSV ou TSV.",
-      "action": "Créer une liste"
+      "title": "Créer votre pack",
+      "text": "Enregistrez les mots que vous voulez retenir sous forme de pack, avec sa première liste. Vous pouvez aussi les importer depuis un fichier CSV ou TSV.",
+      "action": "Créer un pack"
     },
     "review": {
       "title": "Suivre vos résultats",
@@ -75,7 +75,14 @@
     }
   },
   "lists": {
-    "lead": "Créez une liste dans <create>Créer une liste</create> et modifiez vos listes enregistrées dans <edit>Listes de mots</edit>.",
+    "lead": "Créez un pack dans <create>Créer un pack</create> et modifiez vos packs et listes enregistrés dans <edit>Packs de mots</edit>.",
+    "packs": {
+      "title": "Packs et listes",
+      "p1": "Les listes de mots sont regroupées en « packs ». Pour créer un pack, saisissez son nom et sa première liste.",
+      "p2": "« Ajouter une liste », dans le menu « … » d’un pack, ajoute une liste à un pack enregistré.",
+      "p3": "« Modifier le pack », dans le menu « … » d’un pack, permet de changer son nom, sa description, sa catégorie et ses tags, ou de réorganiser les listes qu’il contient.",
+      "p4": "Dans l’éditeur de liste, vous pouvez choisir le pack de la liste (ce qui la déplace vers un autre pack). Vous pouvez aussi saisir une difficulté (noms des niveaux)."
+    },
     "input": {
       "title": "Saisir les mots",
       "p1": "Saisissez le nom de la liste puis, pour chaque mot, le « Mot affiché » et le « Texte à saisir ». La note est facultative.",
@@ -85,15 +92,15 @@
     },
     "cannotSave": {
       "title": "Si la liste ne peut pas être enregistrée",
-      "p1": "Une liste avec des lignes vides, une liste sans mots ou une liste portant le même nom qu’une autre ne peut pas être enregistrée.",
+      "p1": "Une liste avec des lignes vides, une liste sans mots ou une liste portant le même nom qu’une autre liste du même pack ne peut pas être enregistrée.",
       "p2": "Une liste peut contenir jusqu’à 1 000 mots, et vous pouvez enregistrer jusqu’à 150 listes.",
       "p3": "Si des modifications ne sont pas enregistrées, une confirmation vous est demandée avant d’annuler ou de revenir en arrière dans le navigateur.",
       "p4": "Si vous modifiez le nombre de mots, les résultats précédents ne comptent plus dans le classement des meilleurs résultats (ils sont conservés ; voir <wordCount>Si le nombre de mots change</wordCount>)."
     },
     "manage": {
       "title": "Gérer les listes",
-      "p1": "Dans <edit>Listes de mots</edit>, vous pouvez rechercher par nom de liste ou par mot et changer l’ordre de tri.",
-      "p2": "Les boutons « S’entraîner » et « Modifier » de chaque liste et son menu « … » permettent d’ouvrir ses meilleurs résultats et son historique, de l’exporter en CSV, de la dupliquer ou de la supprimer.",
+      "p1": "Dans <edit>Packs de mots</edit>, vous pouvez rechercher par nom de pack, nom de liste ou mot et changer l’ordre de tri.",
+      "p2": "Le menu « … » d’un pack permet de s’entraîner, de modifier le pack, d’ajouter une liste ou de le supprimer. Supprimer un pack supprime aussi ses listes et leur historique. Chaque ligne de liste a son propre menu « … » : meilleurs résultats, historique, export CSV, duplication et suppression.",
       "p3": "La duplication ne copie que les mots, pas l’historique d’entraînement."
     },
     "csv": {
