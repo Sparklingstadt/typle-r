@@ -1,24 +1,42 @@
 "use client"
-import { useRouter } from "next/navigation"
+import { Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
 import WordListEditor from "@/components/WordListEditor"
 import WordListEditorPage from "@/components/WordListEditorPage/WordListEditorPage"
 import { useSaveNotification } from "@/components/SaveNotification"
 import { useWordLists } from "@/lib/useWordLists"
-import { saveList } from "@/core/wordLists"
+import { saveListInPack } from "@/core/packEditing"
 
 export default function Create() {
+  const common = useTranslations('common')
+  return <WordListEditorPage>
+    <Suspense fallback={<p>{common('loading')}</p>}><Editor /></Suspense>
+  </WordListEditorPage>
+}
+
+// `/create?pack=<id>` starts with that pack chosen; without it (or when it is gone) the list gets a pack of its own.
+function Editor() {
   const router = useRouter()
+  const params = useSearchParams()
   const notify = useSaveNotification()
   const t = useTranslations('wordLists')
   const common = useTranslations('common')
-  const { ready, lists, error, errorKey, update, storage } = useWordLists()
-  return <WordListEditorPage>
-    {ready ? <WordListEditor title={t('page.createTitle')} storage={storage} lists={lists} error={error} errorKey={errorKey}
-      onCancel={() => router.push('/edit')} onSave={async list => {
-        const saved = await update(current => saveList(current, list, false))
-        if (saved) { notify(t('page.created', { name: list.name })); router.push('/edit') }
-        return saved
-      }} /> : <p>{common('loading')}</p>}
-  </WordListEditorPage>
+  const { ready, packs, error, errorKey, updateLibrary, storage } = useWordLists()
+  if (!ready) return <p>{common('loading')}</p>
+  return <WordListEditor title={t('page.createTitle')} storage={storage} packs={packs} packId={params.get('pack')} error={error} errorKey={errorKey}
+    onCancel={() => router.push('/edit')} onSave={async (list, packId) => {
+      // The pack of a list that starts a pack is made while saving, so its id is read from the result.
+      let target = packId
+      const saved = await updateLibrary(library => {
+        const next = saveListInPack(library, { id: list.id, name: list.name, words: list.words, levels: list.levels, createdAt: list.createdAt }, packId, false)
+        target = next.lists.find(item => item.id === list.id)?.packId ?? packId
+        return next
+      })
+      if (saved) {
+        notify(t('page.created', { name: list.name.trim() }))
+        router.push(target ? `/edit?pack=${encodeURIComponent(target)}` : '/edit')
+      }
+      return saved
+    }} />
 }

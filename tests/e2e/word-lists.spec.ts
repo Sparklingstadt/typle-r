@@ -105,7 +105,7 @@ test('the editor has its own URL, asks before going back with changes, and retur
   // Opening the URL directly works, and キャンセル returns to the lists.
   await page.goto('/edit?list=kana')
   await expect(page.getByRole('textbox', { name: '単語リスト名', exact: true })).toHaveValue('Kana')
-  await page.getByRole('button', { name: '単語リスト', exact: true }).click()
+  await page.getByRole('button', { name: '単語パック', exact: true }).click()
   await expect(page).toHaveURL(/\/edit$/)
   await page.goto('/edit?list=missing')
   await expect(page.getByText('開こうとした単語リストは見つかりません。')).toBeVisible()

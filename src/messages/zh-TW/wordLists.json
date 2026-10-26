@@ -111,7 +111,7 @@
     "dragTitle": "拖曳以調整順序"
   },
   "editor": {
-    "back": "單字清單",
+    "back": "單字包",
     "description": "登錄打字時顯示的單字，以及作為正確答案輸入的文字。",
     "displayRequired": "請輸入要顯示的單字，或刪除此列（空白列無法儲存）。",
     "inputBlank": "輸入的文字只有空白。留空則與顯示的單字相同。",
@@ -172,7 +172,16 @@
     "addTag": "選擇或建立標籤",
     "searchTag": "搜尋或建立標籤",
     "create": "建立「{name}」",
-    "noLabels": "還沒有。輸入即可建立。"
+    "noLabels": "還沒有。輸入即可建立。",
+    "pack": "包",
+    "newPack": "建立新包（以清單名稱命名）",
+    "packHelp": "此清單所屬的包。選擇其他包會將清單移到該包。",
+    "levels": "難度（選填）",
+    "levelLabel": "難度 {n}",
+    "levelPlaceholder": "基礎、初級等",
+    "addLevel": "新增難度",
+    "removeLevel": "刪除難度 {n}",
+    "levelsHelp": "在練習畫面中用於逐級選擇包內的清單，例如：基礎 › 初級（最多 {max} 級）。"
   },
   "import": {
     "open": "匯入 CSV/TSV",

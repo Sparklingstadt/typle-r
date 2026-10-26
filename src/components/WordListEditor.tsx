@@ -1,8 +1,8 @@
 "use client"
 import { randomId } from "../core/randomId"
-import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react"
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react"
 import { flushSync } from "react-dom"
-import { useLocale, useTranslations } from "next-intl"
+import { useTranslations } from "next-intl"
 import { ArrowDown, ArrowDownToLine, ArrowUp, ArrowUpToLine, ChevronLeft, CircleAlert, GripVertical, Info, MoreHorizontal, Plus, Trash2 } from "lucide-react"
 import { DropdownMenu } from "radix-ui"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
@@ -16,19 +16,20 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import SortableWordRow, { WORD_ROW_COLUMNS } from "./SortableWordRow"
 import type { SavedWordList } from "@/core/wordLists"
+import type { WordPack } from "@/core/wordPacks"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
 import { AppError, type ErrorKey } from "@/core/appError"
-import { currentRecordCount, listLabels } from "@/core/listOverview"
+import { currentRecordCount } from "@/core/listOverview"
 import PageStorageBadge from "@/components/PageStorageBadge"
-import LabelFields from "@/components/WordLists/LabelFields"
+import LevelFields from "@/components/WordLists/LevelFields"
 
 type Word = SavedWordList["words"][number]
 const MAX_WORDS = 1000
 const emptyWord = (): Word => ({ display: "", input: "", annotation: "" })
 // An input equal to the display is shown as empty; saving uses the display for empty inputs.
 const normalize = (word: Word): Word => ({ ...word, input: word.input === word.display ? "" : word.input })
-const snapshot = (name: string, category: string, tags: string[], words: Word[]) =>
-  JSON.stringify([name, category.trim(), tags, words.map(word => [word.display, word.input, word.annotation])])
+const snapshot = (name: string, packId: string | null, levels: string[], words: Word[]) =>
+  JSON.stringify([name, packId, levels, words.map(word => [word.display, word.input, word.annotation])])
 const isFilled = (word: Word) => !!(word.display || word.input || word.annotation)
 const menuItem = "flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:size-4"
 
@@ -42,21 +43,24 @@ function FieldError({ id, message, alert }: { id: string; message: string; alert
   </p>
 }
 
-export default function WordListEditor({ title, description, storage, initial, lists = [], error, errorKey, packFields, packDirty = false, onSave, onCancel, onDirtyChange, cancelRequest = 0 }: {
+export default function WordListEditor({ title, description, storage, initial, packs = [], packId, error, errorKey, packFields, packDirty = false, onSave, onCancel, onDirtyChange, cancelRequest = 0 }: {
   title: string
   description?: ReactNode
   storage?: WorkspaceLocation
   initial?: SavedWordList
-  /** The saved lists, whose categories and tags are offered while typing. */
-  lists?: SavedWordList[]
+  /** The packs a list can be put in. */
+  packs?: WordPack[]
+  /** The pack that is chosen at first; `null`, a pack that is gone, or none given at all means a new pack named after the list. */
+  packId?: string | null
   error?: string
   /** Which error `error` is, so a duplicate name can be shown on the name field. */
   errorKey?: ErrorKey | null
-  /** The fields of a pack that this list starts, shown above the list's own. The pack then holds the category and tags. */
+  /** The fields of a pack that this list starts, shown above the list's own. The pack is then not chosen. */
   packFields?: ReactNode
   /** Whether `packFields` has unsaved changes, which are confirmed before leaving like the list's own. */
   packDirty?: boolean
-  onSave: (list: SavedWordList) => Promise<boolean>
+  /** `packId` is the chosen pack, or null for a new pack. The list carries neither category, tags nor group: those belong to the pack. */
+  onSave: (list: SavedWordList, packId: string | null) => Promise<boolean>
   onCancel: () => void
   onDirtyChange?: (dirty: boolean) => void
   /** Increment to leave the editor as if キャンセル was pressed: unsaved changes are confirmed first. */
@@ -67,6 +71,7 @@ export default function WordListEditor({ title, description, storage, initial, l
   const errors = useTranslations("errors")
   const baseId = useId()
   const nameId = `${baseId}-name`
+  const packSelectId = `${baseId}-pack`
   const displayId = (key: string) => `${baseId}-display-${key}`
   const inputId = (key: string) => `${baseId}-input-${key}`
   const dragId = useId()
@@ -74,14 +79,16 @@ export default function WordListEditor({ title, description, storage, initial, l
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
-  const locale = useLocale()
   const [name, setName] = useState(initial?.name ?? "")
-  const [category, setCategory] = useState(initial?.category ?? "")
-  const [tags, setTags] = useState(initial?.tags ?? [])
-  const suggestions = useMemo(() => listLabels(lists, locale), [lists, locale])
+  const [firstPackId] = useState(() => {
+    const wanted = packId === undefined ? initial?.packId : packId
+    return wanted && packs.some(pack => pack.id === wanted) ? wanted : null
+  })
+  const [chosenPack, setChosenPack] = useState<string | null>(firstPackId)
+  const [levels, setLevels] = useState(initial?.levels ?? [])
   const [words, setWords] = useState(() => (initial?.words ?? [emptyWord()]).map((word, index) => ({ ...normalize(word), key: `initial-${index}` })))
-  const [initialSnapshot] = useState(() => snapshot(initial?.name ?? "", initial?.category ?? "", initial?.tags ?? [], (initial?.words ?? [emptyWord()]).map(normalize)))
-  const dirty = snapshot(name, category, tags, words) !== initialSnapshot || packDirty
+  const [initialSnapshot] = useState(() => snapshot(initial?.name ?? "", firstPackId, initial?.levels ?? [], (initial?.words ?? [emptyWord()]).map(normalize)))
+  const dirty = snapshot(name, chosenPack, levels, words) !== initialSnapshot || packDirty
 
   const draftId = useRef<string | undefined>(undefined)
   const [saving, setSaving] = useState(false)
@@ -109,8 +116,8 @@ export default function WordListEditor({ title, description, storage, initial, l
   const errorFor = (id: string) => shown.find(problem => problem.id === id)?.message
 
   // The duplicate-name check runs while saving; show it on the name field until the name changes.
-  const [failure, setFailure] = useState<{ count: number; name: string }>({ count: 0, name: "" })
-  const duplicate = errorKey === "listNameDuplicate" && failure.name === name
+  const [failure, setFailure] = useState<{ count: number; name: string; pack: string | null }>({ count: 0, name: "", pack: null })
+  const duplicate = errorKey === "listNameDuplicate" && failure.name === name && failure.pack === chosenPack
   // A pack's name is shown on its own field by whoever passes `packFields`.
   const serverError = error && errorKey !== "listNameDuplicate" && errorKey !== "packNameRequired" && errorKey !== "packNameDuplicate" ? error : ""
   const nameError = errorFor(nameId) ?? (duplicate ? error : undefined)
@@ -207,11 +214,11 @@ export default function WordListEditor({ title, description, storage, initial, l
     draftId.current ??= initial?.id ?? randomId()
     setSaving(true)
     try {
-      // The editor does not change the group, levels and pack, so they stay as saved.
-      const saved = await onSave({ id: draftId.current, name, category, tags, group: initial?.group, levels: initial?.levels, packId: initial?.packId,
+      // The category, tags and group are the pack's, so the list does not carry them.
+      const saved = await onSave({ id: draftId.current, name, levels, packId: initial?.packId,
         words: words.map(({ key, ...word }) => ({ ...word, input: word.input || word.display })),
-        records: initial?.records ?? [], createdAt: initial?.createdAt ?? new Date().toISOString() })
-      if (!saved) setFailure(current => ({ count: current.count + 1, name }))
+        records: initial?.records ?? [], createdAt: initial?.createdAt ?? new Date().toISOString() }, packFields ? null : chosenPack)
+      if (!saved) setFailure(current => ({ count: current.count + 1, name, pack: chosenPack }))
     } finally { setSaving(false) }
   }}>
     <Button variant="ghost" size="lg" className="-ml-2.5 mb-2 text-muted-foreground" onClick={cancel}><ChevronLeft aria-hidden="true" />{t("back")}</Button>
@@ -226,13 +233,22 @@ export default function WordListEditor({ title, description, storage, initial, l
     <div className="space-y-6">
       {packFields}
       <section className="space-y-2 rounded-xl border bg-card p-4 sm:p-6" aria-label={t("basics")}>
+        {!packFields && <>
+          <Label htmlFor={packSelectId}>{t("pack")}</Label>
+          <select id={packSelectId} value={chosenPack ?? ""} aria-describedby={`${packSelectId}-help`} onChange={event => setChosenPack(event.target.value || null)}
+            className="h-11 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30 dark:[&>option]:bg-popover">
+            {packs.map(pack => <option key={pack.id} value={pack.id}>{pack.name}</option>)}
+            <option value="">{t("newPack")}</option>
+          </select>
+          <p id={`${packSelectId}-help`} className="pb-2 text-xs text-muted-foreground">{t("packHelp")}</p>
+        </>}
         <Label htmlFor={nameId}>{t("name")}<span aria-hidden="true" className="text-destructive">*</span></Label>
         <Input id={nameId} value={name} onChange={event => setName(event.target.value)} required aria-required="true"
           aria-invalid={nameError ? true : undefined} aria-describedby={`${nameId}-help${nameError ? ` ${nameId}-error` : ""}`} className="h-11" />
         {nameError ? <FieldError id={`${nameId}-error`} message={nameError} alert={duplicate && !errorFor(nameId)} />
           : null}
         <p id={`${nameId}-help`} className="text-xs text-muted-foreground">{t("nameHelp")}</p>
-        {!packFields && <LabelFields category={category} tags={tags} suggestions={suggestions} onCategoryChange={setCategory} onTagsChange={setTags} />}
+        <LevelFields value={levels} onChange={setLevels} />
       </section>
 
       <section aria-labelledby={`${baseId}-words`} className="md:overflow-hidden md:rounded-xl md:border md:bg-card">

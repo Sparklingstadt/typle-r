@@ -73,9 +73,9 @@ test('lists show their category and tags and can be narrowed down by them', asyn
   expect(errors).toEqual([])
 })
 
-test('the editor chooses the category and tags from those in use or creates them, and a copy keeps them', async ({ page }) => {
+test('the pack editor chooses the category and tags from those in use or creates them, and a copy keeps them', async ({ page }) => {
   await seed(page)
-  await page.goto('/edit?list=plain')
+  await page.goto('/packs/edit?pack=pack-plain')
   const category = page.getByRole('combobox', { name: 'カテゴリ（任意）' })
   const tags = page.getByRole('combobox', { name: 'タグ（任意）' })
   const options = page.getByRole('listbox').getByRole('option')
@@ -118,7 +118,7 @@ test('the editor chooses the category and tags from those in use or creates them
   await page.getByRole('button', { name: 'タグ「JVM」を外す' }).click()
   await expect(page.getByText('未保存の変更があります')).toBeVisible()
   await page.getByRole('button', { name: '保存', exact: true }).click()
-  await expect(page.getByText('「Plain」を更新しました。')).toBeVisible()
+  await expect(page.getByText('パック「Plain」を更新しました。')).toBeVisible()
   expect((await saved(page)).find((list: { id: string }) => list.id === 'plain')).toMatchObject({ category: 'プログラミング', tags: ['Kotlin', 'Gradle'] })
   await expect(row(page, 'plain').locator('[data-list-labels]')).toHaveText(/プログラミング.*Kotlin.*Gradle/)
 
@@ -128,15 +128,17 @@ test('the editor chooses the category and tags from those in use or creates them
   expect((await saved(page)).at(-1)).toMatchObject({ name: 'Plain（コピー）', category: 'プログラミング', tags: ['Kotlin', 'Gradle'] })
 
   // Clearing both leaves them out of the saved list, as before they existed.
-  await page.goto('/edit?list=plain')
+  await page.goto('/packs/edit?pack=pack-plain')
   await page.getByRole('combobox', { name: 'カテゴリ（任意）' }).click()
   await page.getByRole('option', { name: 'カテゴリを外す' }).click()
   await page.getByRole('button', { name: 'タグ「Kotlin」を外す' }).click()
   await page.getByRole('button', { name: 'タグ「Gradle」を外す' }).click()
   await page.getByRole('button', { name: '保存', exact: true }).click()
-  await expect(page.getByText('「Plain」を更新しました。')).toBeVisible()
+  await expect(page.getByText('パック「Plain」を更新しました。')).toBeVisible()
   const plain = (await saved(page)).find((list: { id: string }) => list.id === 'plain')
   expect('category' in plain || 'tags' in plain).toBe(false)
+  const pack = await page.evaluate(k => JSON.parse(localStorage.getItem(k) ?? 'null').packs.find((item: { id: string }) => item.id === 'pack-plain'), key)
+  expect('category' in pack || 'tags' in pack).toBe(false)
 })
 
 test('the practice screen shows the labels and narrows the lists to choose by category', async ({ page }) => {

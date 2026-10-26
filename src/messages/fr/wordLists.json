@@ -111,7 +111,7 @@
     "dragTitle": "Faire glisser pour réorganiser"
   },
   "editor": {
-    "back": "Listes de mots",
+    "back": "Packs de mots",
     "description": "Ajoutez les mots affichés pendant la frappe et le texte à saisir comme bonne réponse.",
     "displayRequired": "Saisissez un mot à afficher ou supprimez cette ligne (les lignes vides ne peuvent pas être enregistrées).",
     "inputBlank": "Le texte à saisir ne contient que des espaces. Laissez-le vide pour utiliser le mot affiché.",
@@ -172,7 +172,16 @@
     "addTag": "Choisir ou créer des étiquettes",
     "searchTag": "Rechercher ou créer des étiquettes",
     "create": "Créer « {name} »",
-    "noLabels": "Aucune pour l’instant. Tapez pour en créer une."
+    "noLabels": "Aucune pour l’instant. Tapez pour en créer une.",
+    "pack": "Pack",
+    "newPack": "Nouveau pack (nommé d’après la liste)",
+    "packHelp": "Le pack auquel appartient cette liste. En choisir un autre y déplace la liste.",
+    "levels": "Difficulté (facultatif)",
+    "levelLabel": "Difficulté {n}",
+    "levelPlaceholder": "Base, débutant…",
+    "addLevel": "Ajouter une difficulté",
+    "removeLevel": "Supprimer la difficulté {n}",
+    "levelsHelp": "Sert à choisir pas à pas parmi les listes d’un pack sur l’écran d’entraînement, par exemple Base › Débutant (jusqu’à {max} niveaux)."
   },
   "import": {
     "open": "Importer un CSV/TSV",

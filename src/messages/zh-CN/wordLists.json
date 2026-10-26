@@ -111,7 +111,7 @@
     "dragTitle": "拖动以调整顺序"
   },
   "editor": {
-    "back": "单词列表",
+    "back": "单词包",
     "description": "登记打字时显示的单词，以及作为正确答案输入的文字。",
     "displayRequired": "请输入要显示的单词，或删除此行（空行无法保存）。",
     "inputBlank": "输入的文字只有空格。留空则与显示的单词相同。",
@@ -172,7 +172,16 @@
     "addTag": "选择或创建标签",
     "searchTag": "搜索或创建标签",
     "create": "创建“{name}”",
-    "noLabels": "还没有。输入即可创建。"
+    "noLabels": "还没有。输入即可创建。",
+    "pack": "包",
+    "newPack": "新建包（以列表名称命名）",
+    "packHelp": "此列表所属的包。选择其他包会将列表移到该包。",
+    "levels": "难度（可选）",
+    "levelLabel": "难度 {n}",
+    "levelPlaceholder": "基础、初级等",
+    "addLevel": "添加难度",
+    "removeLevel": "删除难度 {n}",
+    "levelsHelp": "在练习界面中用于逐级选择包内的列表，例如：基础 › 初级（最多 {max} 级）。"
   },
   "import": {
     "open": "导入 CSV/TSV",

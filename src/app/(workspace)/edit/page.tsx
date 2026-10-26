@@ -20,8 +20,8 @@ import { useWordLists } from "@/lib/useWordLists"
 import { useFormat } from "@/i18n/useFormat"
 import { randomId } from "@/core/randomId"
 import { duplicateList, isFiltered, LIST_ORDERS, listLabels, listOverviews, matchesFilter, MAX_LISTS, NO_FILTER, type ListFilter, type ListOrder, type ListOverview } from "@/core/listOverview"
-import { deletePack, matchesPackQuery, matchingListIds, packOverviews, type PackOverview } from "@/core/packEditing"
-import { saveList, type SavedWordList } from "@/core/wordLists"
+import { deletePack, matchesPackQuery, matchingListIds, packOverviews, saveListInPack, type PackOverview } from "@/core/packEditing"
+import type { SavedWordList } from "@/core/wordLists"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
 
@@ -154,12 +154,22 @@ function WordLists({ workspace }: { workspace: Workspace }) {
 
   const trackDirty = useCallback((value: boolean) => setDirty(value), [])
 
-  if (openId && editing) return <WordListEditor key={editing.id} title={t('editTitle')} initial={editing} lists={lists} error={error} errorKey={errorKey}
+  if (openId && editing) return <WordListEditor key={editing.id} title={t('editTitle')} initial={editing} packs={packs} packId={editing.packId ?? null} error={error} errorKey={errorKey}
     description={t('editDescription', { count: editing.words.length, practice: practiceText(listOverviews([editing])[0], new Date()) })}
     storage={storage} onDirtyChange={trackDirty} cancelRequest={cancelRequest}
-    onCancel={() => close()} onSave={async list => {
-      const saved = await update(current => saveList(current, list, true))
-      if (saved) { close(list.id); notify(t('updated', { name: list.name.trim() })) }
+    onCancel={() => close()} onSave={async (list, packId) => {
+      let target = packId
+      const saved = await updateLibrary(library => {
+        const next = saveListInPack(library, { id: list.id, name: list.name, words: list.words, levels: list.levels, createdAt: list.createdAt }, packId, true)
+        target = next.lists.find(item => item.id === list.id)?.packId ?? packId
+        return next
+      })
+      if (saved) {
+        // The list's pack, possibly a new one, is opened so the row is there to return to.
+        if (target) setOpenPacks(current => new Set([...current, target!]))
+        close(list.id)
+        notify(t('updated', { name: list.name.trim() }))
+      }
       return saved
     }} />
 
