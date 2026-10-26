@@ -2,6 +2,8 @@
   "title": "練習記録",
   "intro": "これまでの練習を新しい順に表示します。リストごとの上位は<rankings>ベスト記録</rankings>、推移は<home>ホーム</home>で見られます。",
   "filter": {
+    "pack": "パック",
+    "allPacks": "すべてのパック",
     "list": "リスト",
     "allLists": "すべてのリスト",
     "device": "端末",

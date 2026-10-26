@@ -2,6 +2,8 @@
   "title": "Historique",
   "intro": "Vos entraînements, du plus récent au plus ancien. Les meilleurs résultats de chaque liste sont dans <rankings>Meilleurs résultats</rankings>, et votre progression sur l’<home>Accueil</home>.",
   "filter": {
+    "pack": "Pack",
+    "allPacks": "Tous les packs",
     "list": "Liste",
     "allLists": "Toutes les listes",
     "device": "Appareil",

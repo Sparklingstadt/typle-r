@@ -2,6 +2,8 @@
   "title": "练习记录",
   "intro": "按时间从新到旧显示所有练习。各列表的前几名请在<rankings>最佳记录</rankings>中查看，变化趋势请在<home>首页</home>查看。",
   "filter": {
+    "pack": "包",
+    "allPacks": "所有包",
     "list": "列表",
     "allLists": "所有列表",
     "device": "设备",

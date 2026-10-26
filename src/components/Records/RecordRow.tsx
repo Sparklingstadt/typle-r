@@ -3,6 +3,8 @@ import { Trash2, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useFormat } from '@/i18n/useFormat'
 import { LOW_ACCURACY } from '@/core/dashboard'
+import { usePracticeName } from '@/components/PracticeName'
+import { levelName } from '@/core/listOverview'
 import { formatAccuracy, secondsPerWord, type RecordRow as Row } from '@/core/records'
 import { cn } from '@/lib/utils'
 
@@ -27,15 +29,18 @@ export function RecordTime({ seconds, className }: { seconds: number; className?
 }
 
 // With one list selected, every row belongs to it, so the device becomes the row's title instead of the repeated list name.
-export default function RecordRow({ row, showList, disabled, onDelete }: { row: Row; showList: boolean; disabled: boolean; onDelete: () => void }) {
+// With a pack chosen (`inPack`) the pack name is left out of the row's name, since every row is in that pack.
+export default function RecordRow({ row, showList, inPack = false, disabled, onDelete }: { row: Row; showList: boolean; inPack?: boolean; disabled: boolean; onDelete: () => void }) {
   const t = useTranslations('records.row')
+  const nameOf = usePracticeName()
   const format = useFormat()
   const { list, record, best } = row
   const perWord = secondsPerWord(record)
   const low = record.accuracy !== undefined && record.accuracy < LOW_ACCURACY
   const time = format.clock(new Date(record.date))
   const device = format.recordDevice(record.device)
-  const title = showList ? list.name : device
+  const listName = inPack ? levelName(list) : nameOf(list)
+  const title = showList ? listName : device
   const date = format.numericDate(new Date(record.date))
   return <li data-record-key={row.key}
     className={cn('grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 px-4 py-3 sm:gap-y-0 sm:px-5', recordColumns)}>
@@ -65,7 +70,7 @@ export default function RecordRow({ row, showList, disabled, onDelete }: { row: 
     </p>
     <div className="col-start-2 row-span-2 row-start-1 -mr-2 sm:col-start-7 sm:row-span-1 sm:mr-0 sm:justify-self-end">
       <Button variant="ghost" size="icon-lg" className="size-10 text-muted-foreground hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20"
-        disabled={disabled} data-delete-record aria-label={t('deleteLabel', { name: list.name, date, time })} title={t('delete')} onClick={onDelete}>
+        disabled={disabled} data-delete-record aria-label={t('deleteLabel', { name: nameOf(list), date, time })} title={t('delete')} onClick={onDelete}>
         <Trash2 aria-hidden="true" />
       </Button>
     </div>

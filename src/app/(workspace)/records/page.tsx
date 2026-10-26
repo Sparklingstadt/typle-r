@@ -14,15 +14,19 @@ import ListSummary from "@/components/Records/ListSummary"
 import RecordRow, { recordColumns, RecordTime } from "@/components/Records/RecordRow"
 import { useFormat } from "@/i18n/useFormat"
 import { useWordLists } from "@/lib/useWordLists"
+import PracticeName, { usePracticeName } from "@/components/PracticeName"
 import { dayKind } from "@/core/dashboard"
 import { deviceOptions, filterRows, formatAccuracy, groupByDay, listBest, recordRows, removeRecord, type RecordFilter, type RecordRow as Row } from "@/core/records"
+import { levelName } from "@/core/listOverview"
+import { packRecordOptions } from "@/core/packRecords"
 import type { SavedWordList } from "@/core/wordLists"
+import type { WordPack } from "@/core/wordPacks"
 import { cn } from "@/lib/utils"
 import PageStorageBadge from "@/components/PageStorageBadge"
 
 const PAGE_SIZE = 50
 
-// `?list=<id>&device=<id>` keeps the filter in the URL, so the practice result and the dashboard can link to one list's history.
+// `?pack=<id>&list=<id>&device=<id>` keeps the filter in the URL, so the practice result and the dashboard can link to one list's history.
 export default function Records() {
   return <Suspense fallback={<Loading />}><RecordsPage /></Suspense>
 }
@@ -50,7 +54,7 @@ function RecordsPage() {
       {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
     </header>
     {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
-    {!workspace.ready ? <Loading /> : <RecordHistory key={workspace.accountId} lists={workspace.lists} saving={workspace.saving} update={workspace.update} />}
+    {!workspace.ready ? <Loading /> : <RecordHistory key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} saving={workspace.saving} update={workspace.update} />}
   </main>
 }
 
@@ -58,9 +62,10 @@ function useFilter(): [RecordFilter, (next: RecordFilter) => void] {
   const params = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
-  const filter = { pack: null, list: params.get('list'), device: params.get('device') }
+  const filter = { pack: params.get('pack'), list: params.get('list'), device: params.get('device') }
   return [filter, next => {
     const query = new URLSearchParams()
+    if (next.pack) query.set('pack', next.pack)
     if (next.list) query.set('list', next.list)
     if (next.device) query.set('device', next.device)
     router.replace(query.size ? `${pathname}?${query}` : pathname, { scroll: false })
@@ -78,14 +83,16 @@ function useDayHeading(now: Date) {
   }
 }
 
-function RecordHistory({ lists, saving, update }: {
+function RecordHistory({ lists, packs, saving, update }: {
   lists: SavedWordList[]
+  packs: WordPack[]
   saving: boolean
   update: (change: (current: SavedWordList[]) => SavedWordList[]) => Promise<boolean>
 }) {
   const t = useTranslations('records')
   const format = useFormat()
   const notify = useSaveNotification()
+  const nameOf = usePracticeName()
   const [filter, setFilter] = useFilter()
   const [now] = useState(() => new Date())
   const dayHeading = useDayHeading(now)
@@ -93,14 +100,17 @@ function RecordHistory({ lists, saving, update }: {
   const [deleting, setDeleting] = useState<{ open: boolean; row: Row | null; position: number }>({ open: false, row: null, position: 0 })
   const deleted = useRef(false)
   const all = useMemo(() => recordRows(lists), [lists])
-  const listOptions = useMemo<FilterOption[]>(() => lists.map(list => ({ value: list.id, label: list.name, count: list.records.length })), [lists])
+  const packOptions = useMemo<FilterOption[]>(() => packRecordOptions(packs, lists), [packs, lists])
+  // With a pack chosen the lists are only its lists, named by their level since the pack is already named in the filter.
+  const listOptions = useMemo<FilterOption[]>(() => lists.filter(list => !filter.pack || list.packId === filter.pack)
+    .map(list => ({ value: list.id, label: filter.pack ? levelName(list) : nameOf(list), count: list.records.length })), [lists, filter.pack, nameOf])
   const devicesOptions = useMemo<FilterOption[]>(() => deviceOptions(all.map(row => row.record)).map(({ value, device, count }) =>
     ({ value, count, label: format.recordDevice(device) })), [all, format])
   const selectedList = lists.find(list => list.id === filter.list)
-  const { list: listId, device: deviceId } = filter
-  const rows = useMemo(() => filterRows(all, { pack: null, list: listId, device: deviceId }), [all, listId, deviceId])
+  const { pack: packId, list: listId, device: deviceId } = filter
+  const rows = useMemo(() => filterRows(all, { pack: packId, list: listId, device: deviceId }), [all, packId, listId, deviceId])
   const groups = groupByDay(rows.slice(0, shown))
-  const filtered = Boolean(filter.list || filter.device)
+  const filtered = Boolean(filter.pack || filter.list || filter.device)
   const missing = rows.slice(0, shown).some(({ record }) => record.accuracy === undefined || record.wordCount === undefined)
 
   function changeFilter(next: RecordFilter) {
@@ -121,6 +131,8 @@ function RecordHistory({ lists, saving, update }: {
 
   return <div className="space-y-6">
     <div className="flex flex-wrap items-center gap-2">
+      <FilterMenu name={t('filter.pack')} allLabel={t('filter.allPacks')} value={filter.pack} options={packOptions}
+        onChange={pack => changeFilter({ ...filter, pack, list: pack && selectedList?.packId !== pack ? null : filter.list })} />
       <FilterMenu name={t('filter.list')} allLabel={t('filter.allLists')} value={filter.list} options={listOptions} onChange={list => changeFilter({ ...filter, list })} />
       <FilterMenu name={t('filter.device')} allLabel={t('filter.allDevices')} value={filter.device} options={devicesOptions} onChange={device => changeFilter({ ...filter, device })} />
       {filtered && <Button variant="ghost" size="lg" className="text-muted-foreground" onClick={() => changeFilter({ pack: null, list: null, device: null })}>{t('filter.clear')}</Button>}
@@ -140,7 +152,7 @@ function RecordHistory({ lists, saving, update }: {
           <p className="text-xs text-muted-foreground tabular-nums">{t('day.summary', { count: group.rows.length, duration: format.duration(group.seconds) })}</p>
         </div>
         <ul className="divide-y overflow-hidden rounded-xl border bg-card">
-          {group.rows.map(row => <RecordRow key={row.key} row={row} showList={!filter.list} disabled={saving} onDelete={() => {
+          {group.rows.map(row => <RecordRow key={row.key} row={row} showList={!filter.list} inPack={Boolean(filter.pack)} disabled={saving} onDelete={() => {
             deleted.current = false
             setDeleting({ open: true, row, position: rows.indexOf(row) })
           }} />)}
@@ -155,7 +167,7 @@ function RecordHistory({ lists, saving, update }: {
     </div>}
 
     {deleting.row && <DeleteConfirmation open={deleting.open} onOpenChange={open => setDeleting(current => ({ ...current, open }))}
-      title={t('delete.title')} description={t('delete.description', { name: deleting.row.list.name })}
+      title={t('delete.title')} description={t('delete.description', { name: nameOf(deleting.row.list) })}
       onCloseAutoFocus={focusAfterDelete}
       onConfirm={async () => {
         const row = deleting.row
@@ -164,7 +176,7 @@ function RecordHistory({ lists, saving, update }: {
         if (saved) {
           deleted.current = true
           const date = new Date(row.record.date)
-          notify(t('delete.done', { name: row.list.name, date: format.monthDay(date), time: format.clock(date) }))
+          notify(t('delete.done', { name: nameOf(row.list), date: format.monthDay(date), time: format.clock(date) }))
         }
         return saved
       }}>
@@ -181,7 +193,7 @@ function DeleteDetails({ row, dayHeading }: { row: Row; dayHeading: (day: Date) 
   const next = best ? listBest({ ...list, records: list.records.filter(item => item !== record) }) : undefined
   return <div className="space-y-3">
     <dl className="grid gap-1 rounded-lg border bg-muted/40 px-3.5 py-3 text-sm">
-      <dt className="sr-only">{t('list')}</dt><dd className="font-medium [overflow-wrap:anywhere]">{list.name}</dd>
+      <dt className="sr-only">{t('list')}</dt><dd className="font-medium [overflow-wrap:anywhere]"><PracticeName list={list} /></dd>
       <dt className="sr-only">{t('when')}</dt>
       <dd className="text-[13px] text-muted-foreground">{dayHeading(date)} {format.clock(date)} · {format.device(record.device)}</dd>
       <dt className="sr-only">{t('result')}</dt>
@@ -208,10 +220,11 @@ function EmptyState() {
 
 function FilteredEmpty({ list, onClear }: { list?: SavedWordList; onClear: () => void }) {
   const t = useTranslations('records')
+  const nameOf = usePracticeName()
   const unpractised = list && !list.records.length
   return <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed bg-card px-6 py-10 text-center">
     <div className="space-y-1.5">
-      <h2 className="font-bold">{unpractised ? t('filteredEmpty.listTitle', { name: list.name }) : t('filteredEmpty.title')}</h2>
+      <h2 className="font-bold">{unpractised ? t('filteredEmpty.listTitle', { name: nameOf(list) }) : t('filteredEmpty.title')}</h2>
       <p className="text-sm text-muted-foreground">{t(unpractised ? 'filteredEmpty.listDescription' : 'filteredEmpty.description')}</p>
     </div>
     <div className="flex flex-wrap justify-center gap-2">

@@ -628,3 +628,54 @@ test('a list opened by its URL shows its pack in the heading and the labels', as
   await expect(page.getByRole('table', { name: 'Shell › 基本 の上位の記録', exact: true })).toBeVisible()
   await expect(page.getByRole('region', { name: '単語リスト', exact: true }).locator('[data-list-id="basic"]')).toHaveAttribute('aria-current', 'true')
 })
+
+// The records screen filters by pack and names lists 「pack › list」.
+function seedRecords(page: Page) {
+  const data = workspace()
+  data.lists.find(item => item.id === 'adv')!.records = [record]
+  return page.evaluate(([k, raw]) => localStorage.setItem(k, raw), [key, JSON.stringify(data)])
+}
+const recordRows = (page: Page) => page.locator('[data-record-key]')
+
+test('the pack filter leaves the records of that pack and offers only its lists', async ({ page }) => {
+  await page.goto('/records')
+  await seedRecords(page)
+  await page.goto('/records')
+  await expect(recordRows(page)).toHaveCount(4)
+  await page.getByRole('button', { name: /^パックで絞り込む/ }).click()
+  // Only packs with records are offered.
+  await expect(page.getByRole('menuitemradio')).toHaveCount(3)
+  await page.getByRole('menuitemradio', { name: /^Shell/ }).click()
+  await expect(page).toHaveURL(/\/records\?pack=shell$/)
+  await expect(recordRows(page)).toHaveCount(3)
+  await expect(recordRows(page).first().getByRole('heading')).toContainText('基本')
+  await page.getByRole('button', { name: /^リストで絞り込む/ }).click()
+  await expect(page.getByRole('menuitemradio')).toHaveCount(3)
+  await expect(page.getByRole('menuitemradio', { name: /^単独リスト/ })).toHaveCount(0)
+  await page.getByRole('menuitemradio', { name: /^応用/ }).click()
+  await expect(page).toHaveURL(/pack=shell&list=adv$/)
+  await expect(recordRows(page)).toHaveCount(1)
+  // Another pack drops a list that is not in it.
+  await page.getByRole('button', { name: /^パックで絞り込む/ }).click()
+  await page.getByRole('menuitemradio', { name: /^単独/ }).click()
+  await expect(page).toHaveURL(/\/records\?pack=solo$/)
+  await expect(recordRows(page)).toHaveCount(1)
+  // Clearing the pack keeps the chosen list.
+  await page.getByRole('button', { name: /^リストで絞り込む/ }).click()
+  await page.getByRole('menuitemradio', { name: /^単独リスト/ }).click()
+  await page.getByRole('button', { name: /^パックで絞り込む/ }).click()
+  await page.getByRole('menuitemradio', { name: /^すべてのパック/ }).click()
+  await expect(page).toHaveURL(/\/records\?list=solo-list$/)
+})
+
+test('a record of a pack of several lists is named 「pack › list」, and ?list= alone selects no pack', async ({ page }) => {
+  await page.goto('/records')
+  await seedRecords(page)
+  await page.goto('/records')
+  await expect(recordRows(page).filter({ hasText: 'Shell › 基本' })).toHaveCount(2)
+  await expect(recordRows(page).filter({ hasText: '単独リスト' }).getByRole('heading')).not.toContainText('›')
+  await page.goto('/records?list=adv')
+  await expect(recordRows(page)).toHaveCount(1)
+  await expect(page.getByRole('button', { name: /^パックで絞り込む（現在：すべてのパック）/ })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Shell › 応用', exact: true })).toBeVisible()
+})
