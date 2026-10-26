@@ -16,6 +16,8 @@ import { downloadPackFile, downloadWordCsv } from "@/components/WordListExport"
 import ListRow, { usePracticeText } from "@/components/WordLists/ListRow"
 import LabelFilter from "@/components/WordLists/LabelFilter"
 import PackRow from "@/components/WordLists/PackRow"
+import ShareDialog from "@/components/WordLists/ShareDialog"
+import { useShares } from "@/lib/useShares"
 import { useWordLists } from "@/lib/useWordLists"
 import { useErrorText } from "@/i18n/useErrorText"
 import { AppError } from "@/core/appError"
@@ -244,6 +246,8 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
   const [exportError, setExportError] = useState('')
   const [deleting, setDeleting] = useState<{ open: boolean; item: ListOverview | null; position: number }>({ open: false, item: null, position: 0 })
   const [deletingPack, setDeletingPack] = useState<{ open: boolean; item: PackOverview | null; position: number }>({ open: false, item: null, position: 0 })
+  const { enabled: canShare, shares, share, stop } = useShares()
+  const [sharing, setSharing] = useState<{ id: string; name: string } | null>(null)
   const deleted = useRef(false)
   const packDeleted = useRef(false)
   // `lists` are the lists as screens see them (each carries its pack's labels), which is what the overviews are built from.
@@ -409,6 +413,7 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
           onEditPack={() => router.push(`/packs/edit?pack=${encodeURIComponent(pack.id)}`)}
           onAddList={full ? undefined : () => router.push(`/create?pack=${encodeURIComponent(pack.id)}`)}
           onCopy={lists.length + item.lists.length > MAX_LISTS ? undefined : () => copyPackOf(item)} onExport={() => exportPack(item)}
+          onShare={canShare ? () => setSharing({ id: pack.id, name: pack.name }) : undefined} shared={shares.has(pack.id)}
           onDeletePack={() => { packDeleted.current = false; setDeletingPack({ open: true, item, position: shown.indexOf(item) }) }}>
           {rows.map(row => <ListRow key={row.list.id} item={row} now={now} highlight={highlight === row.list.id} disabled={saving} canCopy={!full}
             onEdit={() => onEdit(row.list)} onExport={() => exportCsv(row.list)} onCopy={() => copy(row.list)}
@@ -440,7 +445,8 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
 
     {deletingPack.item && <DeleteConfirmation open={deletingPack.open} onOpenChange={open => setDeletingPack(current => ({ ...current, open }))}
       title={t('delete.packTitle', { name: deletingPack.item.pack.name })}
-      description={t('delete.packDescription', { lists: deletingPack.item.lists.length, records: deletingPack.item.practiceCount })}
+      description={[t('delete.packDescription', { lists: deletingPack.item.lists.length, records: deletingPack.item.practiceCount }),
+        shares.has(deletingPack.item.pack.id) ? t('delete.shareEnds') : ''].filter(Boolean).join(' ')}
       onCloseAutoFocus={focusAfterDeletePack}
       onConfirm={async () => {
         const pack = deletingPack.item?.pack
@@ -452,6 +458,9 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
         }
         return saved
       }} />}
+
+    <ShareDialog pack={sharing} share={sharing ? shares.get(sharing.id) : undefined} onShare={share} onStop={stop}
+      onOpenChange={open => { if (!open) setSharing(null) }} />
   </section>
 }
 

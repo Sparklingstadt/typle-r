@@ -53,5 +53,6 @@
   "packDeleted": "このパックは削除されています",
   "levelsConflict": "同じパックに、同じ難易度か、その途中までが同じ難易度のリストがあります",
   "packFileUnreadable": "単語パックのファイルとして読み込めませんでした",
-  "invalidPackFile": "このファイルの中に、保存できる上限を超える項目があります"
+  "invalidPackFile": "このファイルの中に、保存できる上限を超える項目があります",
+  "sharedPackNotFound": "この共有は終了しました。"
 }

@@ -42,7 +42,8 @@
     "export": "Exporter en CSV",
     "packTitle": "Supprimer « {name} » ?",
     "packDescription": "Cela supprime aussi {lists, plural, one {# liste} other {# listes}} et {records, plural, one {# enregistrement} other {# enregistrements}} d’entraînement.",
-    "lastInPack": "Le pack « {name} » sera aussi supprimé."
+    "lastInPack": "Le pack « {name} » sera aussi supprimé.",
+    "shareEnds": "Son lien de partage cessera aussi de fonctionner."
   },
   "order": {
     "label": "Tri",
@@ -109,7 +110,9 @@
     "addList": "Ajouter une liste",
     "delete": "Supprimer",
     "copy": "Dupliquer",
-    "export": "Exporter"
+    "export": "Exporter",
+    "share": "Partager",
+    "shared": "Partagé"
   },
   "wordRow": {
     "label": "Mot {n}",
@@ -288,5 +291,20 @@
     "addedState": "Ajouté",
     "added": "« {name} » ajouté.",
     "full": "Ajout impossible : la limite de {max} listes est atteinte. Supprimez les listes inutilisées."
+  },
+  "share": {
+    "title": "Partager « {name} »",
+    "description": "Toute personne qui a le lien peut voir le nom, la description, les listes et les mots de ce pack, et l’ajouter à ses propres packs. Les enregistrements d’entraînement ne sont pas inclus. Le lien montre le pack tel qu’il est à sa création ; modifier le pack ensuite ne le met pas à jour automatiquement.",
+    "sharing": "Toute personne qui a le lien peut voir ce pack et l’ajouter à ses propres packs. Après une modification du pack, utilisez « Mettre à jour » pour actualiser le lien.",
+    "link": "Lien de partage",
+    "copy": "Copier",
+    "copied": "Copié",
+    "copyFailed": "Copie impossible. Sélectionnez le lien et copiez-le.",
+    "updatedAt": "Dernière mise à jour : {date}",
+    "updateHint": "Modifier le pack ne met pas le lien à jour automatiquement.",
+    "create": "Créer le lien",
+    "update": "Mettre à jour",
+    "stop": "Arrêter le partage",
+    "failed": "Impossible de modifier le partage."
   }
 }

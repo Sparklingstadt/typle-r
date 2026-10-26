@@ -42,7 +42,8 @@
     "export": "Export CSV",
     "packTitle": "Delete “{name}”?",
     "packDescription": "This also deletes {lists, plural, one {# list} other {# lists}} and {records, plural, one {# practice record} other {# practice records}}.",
-    "lastInPack": "The pack “{name}” will be deleted too."
+    "lastInPack": "The pack “{name}” will be deleted too.",
+    "shareEnds": "Its share link will stop working too."
   },
   "order": {
     "label": "Sort",
@@ -109,7 +110,9 @@
     "addList": "Add a list",
     "delete": "Delete",
     "copy": "Duplicate",
-    "export": "Export"
+    "export": "Export",
+    "share": "Share",
+    "shared": "Shared"
   },
   "wordRow": {
     "label": "Word {n}",
@@ -288,5 +291,20 @@
     "addedState": "Added",
     "added": "“{name}” added.",
     "full": "Cannot add: you have reached the limit of {max} lists. Delete lists you no longer use."
+  },
+  "share": {
+    "title": "Share “{name}”",
+    "description": "Anyone with the link can see this pack’s name, description, lists and words, and add it to their own packs. Practice records are not included. The link shows the pack as it is when you create it; changing the pack later does not change it automatically.",
+    "sharing": "Anyone with the link can see this pack and add it to their own packs. After you change the pack, use “Update share” to refresh what the link shows.",
+    "link": "Share link",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyFailed": "Could not copy. Select the link and copy it.",
+    "updatedAt": "Last updated {date}",
+    "updateHint": "Editing the pack does not change the link automatically.",
+    "create": "Create link",
+    "update": "Update share",
+    "stop": "Stop sharing",
+    "failed": "Could not change the share."
   }
 }

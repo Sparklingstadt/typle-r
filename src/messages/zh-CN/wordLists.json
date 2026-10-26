@@ -42,7 +42,8 @@
     "export": "导出 CSV",
     "packTitle": "要删除“{name}”吗？",
     "packDescription": "还将删除 {lists} 个列表和 {records} 条练习记录。",
-    "lastInPack": "包“{name}”也将被删除。"
+    "lastInPack": "包“{name}”也将被删除。",
+    "shareEnds": "它的共享链接也将失效。"
   },
   "order": {
     "label": "排序",
@@ -109,7 +110,9 @@
     "addList": "添加列表",
     "delete": "删除",
     "copy": "复制",
-    "export": "导出"
+    "export": "导出",
+    "share": "共享",
+    "shared": "共享中"
   },
   "wordRow": {
     "label": "单词 {n}",
@@ -288,5 +291,20 @@
     "addedState": "已添加",
     "added": "已添加“{name}”。",
     "full": "词表已达上限（{max} 个），无法添加。请删除不用的词表。"
+  },
+  "share": {
+    "title": "共享“{name}”",
+    "description": "知道链接的人可以查看此包的名称、说明、列表和单词，并将其添加到自己的包中。不包含练习记录。链接显示的是创建链接时的内容，之后修改包不会自动更新。",
+    "sharing": "知道链接的人可以查看此包并添加到自己的包中。修改包之后，请用“更新共享”刷新链接的内容。",
+    "link": "共享链接",
+    "copy": "复制",
+    "copied": "已复制",
+    "copyFailed": "无法复制。请选中链接后手动复制。",
+    "updatedAt": "最后更新 {date}",
+    "updateHint": "编辑包不会自动更新链接的内容。",
+    "create": "创建链接",
+    "update": "更新共享",
+    "stop": "停止共享",
+    "failed": "无法更改共享。"
   }
 }
