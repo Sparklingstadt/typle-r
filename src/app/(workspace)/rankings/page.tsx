@@ -75,7 +75,7 @@ function RankingsView({ lists, packs, devices }: { lists: SavedWordList[]; packs
   const wide = useWide()
   const pushed = useRef(false)
   // Where focus goes once the view has switched: the detail heading, or the list that was just closed.
-  const focusAfter = useRef<{ detail: true } | { list: string } | null>(null)
+  const focusAfter = useRef<{ detail: true } | { list: string; pack?: string } | null>(null)
 
   const devicesOptions = useMemo(() => deviceOptions(lists.flatMap(list => list.records)).map(({ value, device, count }) => {
     const label = format.recordDevice(device)
@@ -97,7 +97,13 @@ function RankingsView({ lists, packs, devices }: { lists: SavedWordList[]; packs
     const target = focusAfter.current
     focusAfter.current = null
     if (target && 'detail' in target) document.getElementById('ranking-title')?.focus()
-    if (target && 'list' in target) document.querySelector<HTMLElement>(`[data-ranking-list] [data-list-id="${CSS.escape(target.list)}"]`)?.focus()
+    // A list collapsed into its pack's button has no row of its own, so the focus falls back to the pack's row.
+    if (target && 'list' in target) {
+      const root = document.querySelector('[data-ranking-list]')
+      const row = root?.querySelector<HTMLElement>(`[data-list-id="${CSS.escape(target.list)}"]`)
+        ?? (target.pack ? root?.querySelector<HTMLElement>(`[data-pack-id="${CSS.escape(target.pack)}"] button`) : null)
+      row?.focus()
+    }
   }, [opened])
 
   function navigate(next: Partial<View>, mode: 'push' | 'replace' = 'replace') {
@@ -120,7 +126,7 @@ function RankingsView({ lists, packs, devices }: { lists: SavedWordList[]; packs
   }
 
   function back() {
-    if (requested) focusAfter.current = { list: requested.id }
+    if (requested) focusAfter.current = { list: requested.id, pack: requested.packId }
     if (pushed.current) {
       pushed.current = false
       window.history.back()

@@ -69,7 +69,18 @@ test('matchesRankingQuery matches the pack name for all lists and a list name fo
   assert.deepEqual(matchesRankingQuery(item, 'zzz'), [])
 })
 
+test('matchesRankingQuery also matches the level name shown on grouped rows', () => {
+  const [item] = packRankings([pack('p', 'Linux')], rank([list('a', 'p', [], { name: 'Files', levels: ['Easy', 'Short'] }), list('b', 'p', [], { name: 'Network' })]))
+  assert.deepEqual(matchesRankingQuery(item, 'short'), ['a'])
+  assert.deepEqual(matchesRankingQuery(item, 'network'), ['b'])
+})
+
 test('packRecordOptions lists only packs with records, in saved order, counting their records', () => {
   const options = packRecordOptions([pack('q', 'Q'), pack('empty'), pack('p', 'P')], lists)
   assert.deepEqual(options, [{ value: 'q', label: 'Q', count: 2 }, { value: 'p', label: 'P', count: 2 }])
+})
+
+test('packRecordOptions keeps the selected pack even without records', () => {
+  const options = packRecordOptions([pack('q', 'Q'), pack('empty', 'E')], lists, 'empty')
+  assert.deepEqual(options, [{ value: 'q', label: 'Q', count: 2 }, { value: 'empty', label: 'E', count: 0 }])
 })

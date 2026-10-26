@@ -15,7 +15,8 @@ import { RecordTime } from '@/components/Records/RecordRow'
 
 const menuItem = 'relative flex cursor-pointer items-center gap-2 rounded-md py-2 pr-3 pl-8 text-sm outline-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground'
 
-// Every list stays reachable: packs without a (matching) record are grouped below, so their lists can still be opened and practised.
+// Packs without a (matching) record are grouped below, so they can still be opened and practised: a pack of one list shows that list,
+// a pack of several collapses to one button that opens its first list.
 // `packs` arrive sorted, so the page can open the first list shown here.
 export default function RankingList({ packs, selectedId, filtered, sort, onSort, now, onChoose }: {
   packs: PackRanking[]
@@ -60,7 +61,7 @@ export default function RankingList({ packs, selectedId, filtered, sort, onSort,
         </li>)}
     </ul>}
     {unpractised.length > 0 && <div className={cn('p-1.5', practised.length > 0 && 'border-t')}>
-      <h2 className="px-2.5 pt-1.5 pb-1 text-xs font-medium text-muted-foreground">{t(filtered ? 'noDeviceRecords' : 'noRecords', { count: unpractised.length })}</h2>
+      <h2 className="px-2.5 pt-1.5 pb-1 text-xs font-medium text-muted-foreground">{t(filtered ? 'noDeviceRecords' : 'noRecords', { count: unpractised.reduce((total, { rows }) => total + rows.length, 0) })}</h2>
       <ul className="space-y-0.5">{unpractised.map(({ item, rows }) => <UnpractisedRow key={item.pack.id} item={item} rows={rows} selectedId={selectedId} onChoose={onChoose} />)}</ul>
     </div>}
     {!matches.length && <div className="px-4 py-8 text-center text-sm text-muted-foreground">

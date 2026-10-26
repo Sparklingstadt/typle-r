@@ -42,7 +42,7 @@
       "count": "Nombre de résultats"
     },
     "packPracticed": "{practiced}/{lists} entraînées",
-    "packImproved": "{count} records",
+    "packImproved": "{count, plural, one {# record} other {# records}}",
     "packJoin": " · ",
     "packLists": "{pack} · {count, plural, one {# liste} other {# listes}}"
   },

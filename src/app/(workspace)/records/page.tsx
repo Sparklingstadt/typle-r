@@ -93,20 +93,25 @@ function RecordHistory({ lists, packs, saving, update }: {
   const format = useFormat()
   const notify = useSaveNotification()
   const nameOf = usePracticeName()
-  const [filter, setFilter] = useFilter()
+  const [requested, setFilter] = useFilter()
   const [now] = useState(() => new Date())
   const dayHeading = useDayHeading(now)
   const [shown, setShown] = useState(PAGE_SIZE)
   const [deleting, setDeleting] = useState<{ open: boolean; row: Row | null; position: number }>({ open: false, row: null, position: 0 })
   const deleted = useRef(false)
   const all = useMemo(() => recordRows(lists), [lists])
-  const packOptions = useMemo<FilterOption[]>(() => packRecordOptions(packs, lists), [packs, lists])
+  // An unknown pack is no filter, and a list outside the chosen pack is dropped, so the URL cannot name an empty combination.
+  const requestedList = lists.find(list => list.id === requested.list)
+  const pack = packs.some(item => item.id === requested.pack) ? requested.pack : null
+  const filter = useMemo<RecordFilter>(() => ({ pack, list: pack && requestedList && requestedList.packId !== pack ? null : requested.list, device: requested.device }),
+    [pack, requestedList, requested.list, requested.device])
+  const packOptions = useMemo<FilterOption[]>(() => packRecordOptions(packs, lists, filter.pack), [packs, lists, filter.pack])
   // With a pack chosen the lists are only its lists, named by their level since the pack is already named in the filter.
   const listOptions = useMemo<FilterOption[]>(() => lists.filter(list => !filter.pack || list.packId === filter.pack)
     .map(list => ({ value: list.id, label: filter.pack ? levelName(list) : nameOf(list), count: list.records.length })), [lists, filter.pack, nameOf])
   const devicesOptions = useMemo<FilterOption[]>(() => deviceOptions(all.map(row => row.record)).map(({ value, device, count }) =>
     ({ value, count, label: format.recordDevice(device) })), [all, format])
-  const selectedList = lists.find(list => list.id === filter.list)
+  const selectedList = filter.list ? requestedList : undefined
   const { pack: packId, list: listId, device: deviceId } = filter
   const rows = useMemo(() => filterRows(all, { pack: packId, list: listId, device: deviceId }), [all, packId, listId, deviceId])
   const groups = groupByDay(rows.slice(0, shown))

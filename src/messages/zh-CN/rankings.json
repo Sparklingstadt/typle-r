@@ -44,7 +44,7 @@
     "packPracticed": "已练习 {practiced}/{lists}",
     "packImproved": "刷新 {count}",
     "packJoin": "・",
-    "packLists": "{pack} · {count} 个列表"
+    "packLists": "{pack}・{count} 个列表"
   },
   "detail": {
     "back": "列表一览",

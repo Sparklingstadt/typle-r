@@ -129,7 +129,7 @@
     },
     "best": {
       "title": "Best records",
-      "p1": "Choose a list in <rankings>Best records</rankings> to see your personal best, the average of your last 5 runs, how your time has changed, and your top records. The best-records screen groups lists by pack. Each pack shows its practice count, how many lists you have practiced (Practiced n/m), when you last practiced, and how many lists set a new best in the last 7 days. Sorting applies to packs, and the lists inside a pack stay in difficulty order.",
+      "p1": "Choose a list in <rankings>Best records</rankings> to see your personal best, the average of your last 5 runs, how your time has changed, and your top records. The best-records screen groups lists by pack. Each pack shows its practice count, how many lists you have practiced (n/m practiced), when you last practiced, and how many lists set a new best in the last 7 days. Sorting applies to packs, and the lists inside a pack stay in difficulty order.",
       "p2": "You can switch the ranking between “Accuracy first” (highest accuracy first, then fastest) and “Speed first”, and filter it by device. The selected list and options are kept in the URL.",
       "p3": "The practice screen also shows the top 5 records for the selected list and highlights your latest one."
     },

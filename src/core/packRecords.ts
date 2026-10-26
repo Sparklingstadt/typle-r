@@ -1,4 +1,5 @@
 import type { ListRanking, ListSort } from './rankings'
+import { levelName } from './listOverview'
 import type { SavedWordList } from './wordLists'
 import type { WordPack } from './wordPacks'
 
@@ -38,18 +39,18 @@ export function sortPackRankings(items: PackRanking[], sort: ListSort, locale = 
       : recent)
 }
 
-/** Matches the pack name or a list name, ignoring case. Returns the ids of the lists that match; a pack name matches every list. */
+/** Matches the pack name, a list name or the level name shown on the grouped rows, ignoring case. Returns the ids of the lists that match; a pack name matches every list. */
 export function matchesRankingQuery(item: PackRanking, query: string): string[] {
   const needle = query.trim().toLocaleLowerCase()
   const has = (name: string) => name.toLocaleLowerCase().includes(needle)
   if (has(item.pack.name)) return item.items.map(ranking => ranking.list.id)
-  return item.items.filter(ranking => has(ranking.list.name)).map(ranking => ranking.list.id)
+  return item.items.filter(ranking => has(ranking.list.name) || has(levelName(ranking.list))).map(ranking => ranking.list.id)
 }
 
-/** The choices of the pack filter on the records screen: packs with records only, in saved order, counting their records. */
-export function packRecordOptions(packs: WordPack[], lists: SavedWordList[]) {
+/** The choices of the pack filter on the records screen: packs with records only, in saved order, counting their records. `selected` stays even without records, like the chosen list does. */
+export function packRecordOptions(packs: WordPack[], lists: SavedWordList[], selected?: string | null) {
   return packs.flatMap(pack => {
     const count = lists.filter(list => list.packId === pack.id).reduce((total, list) => total + list.records.length, 0)
-    return count ? [{ value: pack.id, label: pack.name, count }] : []
+    return count || pack.id === selected ? [{ value: pack.id, label: pack.name, count }] : []
   })
 }
