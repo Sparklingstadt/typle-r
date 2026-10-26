@@ -25,7 +25,8 @@
     "countFiltered": "{shown} of {total}",
     "count": "{total, plural, one {# pack} other {# packs}}",
     "noMatch": "No packs match “{query}”. Searches pack names, list names, categories, tags and words.",
-    "csvNote": "CSV export saves the words, what to type, and notes (practice history is not included). Use it with “Import CSV/TSV” on the create and edit screens."
+    "csvNote": "CSV export saves the words, what to type, and notes (practice history is not included). Use it with “Import CSV/TSV” on the create and edit screens.",
+    "importFile": "Import from file"
   },
   "delete": {
     "title": "Delete “{name}”?",
@@ -105,7 +106,9 @@
     "moreFor": "Actions for pack {name}",
     "edit": "Edit pack",
     "addList": "Add a list",
-    "delete": "Delete"
+    "delete": "Delete",
+    "copy": "Duplicate",
+    "export": "Export"
   },
   "wordRow": {
     "label": "Word {n}",

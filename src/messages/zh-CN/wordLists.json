@@ -25,7 +25,8 @@
     "countFiltered": "{shown} 个 / 共 {total} 个",
     "count": "{total} 个",
     "noMatch": "没有与“{query}”匹配的包。将从包名称、列表名称、分类、标签和单词中查找。",
-    "csvNote": "CSV 导出会保存显示的单词、输入的文字和备注（不含练习记录）。可在创建、编辑界面的“导入 CSV/TSV”中使用。"
+    "csvNote": "CSV 导出会保存显示的单词、输入的文字和备注（不含练习记录）。可在创建、编辑界面的“导入 CSV/TSV”中使用。",
+    "importFile": "从文件导入"
   },
   "delete": {
     "title": "要删除“{name}”吗？",
@@ -105,7 +106,9 @@
     "moreFor": "{name} 包的操作",
     "edit": "编辑包",
     "addList": "添加列表",
-    "delete": "删除"
+    "delete": "删除",
+    "copy": "复制",
+    "export": "导出"
   },
   "wordRow": {
     "label": "单词 {n}",

@@ -25,7 +25,8 @@
     "countFiltered": "{shown} sur {total}",
     "count": "{total, plural, one {# pack} other {# packs}}",
     "noMatch": "Aucun pack ne correspond à « {query} ». La recherche porte sur les noms de packs et de listes, catégories, étiquettes et mots.",
-    "csvNote": "L’export CSV enregistre les mots affichés, le texte à saisir et les notes (l’historique n’est pas inclus). Vous pouvez le réimporter avec « Importer un CSV/TSV » sur l’écran de création ou de modification."
+    "csvNote": "L’export CSV enregistre les mots affichés, le texte à saisir et les notes (l’historique n’est pas inclus). Vous pouvez le réimporter avec « Importer un CSV/TSV » sur l’écran de création ou de modification.",
+    "importFile": "Importer depuis un fichier"
   },
   "delete": {
     "title": "Supprimer « {name} » ?",
@@ -105,7 +106,9 @@
     "moreFor": "Actions du pack {name}",
     "edit": "Modifier le pack",
     "addList": "Ajouter une liste",
-    "delete": "Supprimer"
+    "delete": "Supprimer",
+    "copy": "Dupliquer",
+    "export": "Exporter"
   },
   "wordRow": {
     "label": "Mot {n}",

@@ -721,3 +721,51 @@ test('deleting the last record of the chosen pack keeps the pack in the filter w
   await page.getByRole('button', { name: /^パックで絞り込む/ }).click()
   await expect(page.getByRole('menuitemradio', { name: /^単独/ })).toBeVisible()
 })
+
+test('a pack is duplicated right after the original, without records, and opened', async ({ page }) => {
+  await page.goto('/edit')
+  await page.locator('li[data-pack-id="shell"]').getByRole('button', { name: 'Shell のパックの操作' }).click()
+  await page.getByRole('menuitem', { name: '複製' }).click()
+  await expect(page.getByText('「Shell（コピー）」を作成しました。')).toBeVisible()
+  const workspace = await saved(page)
+  expect(workspace.packs.map((pack: { name: string }) => pack.name)).toEqual(['Shell', 'Shell（コピー）', '果物', '単独', 'Plain'])
+  const copy = workspace.packs[1]
+  expect(copy).toMatchObject({ category: 'CLI', tags: ['unix'] })
+  expect(copy).not.toHaveProperty('origin')
+  const lists = workspace.lists.filter((item: { packId: string }) => item.packId === copy.id)
+  expect(lists.map((item: { name: string }) => item.name)).toEqual(['基本', '応用'])
+  expect(lists.every((item: { records: unknown[] }) => item.records.length === 0)).toBe(true)
+  const row = page.locator(`li[data-pack-id="${copy.id}"]`)
+  await expect(row.getByRole('button', { name: 'Shell（コピー）', exact: true })).toHaveAttribute('aria-expanded', 'true')
+})
+
+test('a pack is exported as a file without records, and the file imports as a new pack', async ({ page }) => {
+  await page.goto('/edit')
+  await page.locator('li[data-pack-id="shell"]').getByRole('button', { name: 'Shell のパックの操作' }).click()
+  const download = page.waitForEvent('download')
+  await page.getByRole('menuitem', { name: '書き出す' }).click()
+  const file = await download
+  expect(file.suggestedFilename()).toBe('Shell.typle-pack.json')
+  const path = await file.path()
+  const text = (await import('node:fs')).readFileSync(path, 'utf8')
+  const json = JSON.parse(text)
+  expect(json.format).toBe('typle-pack')
+  expect(json.lists.map((item: { name: string }) => item.name)).toEqual(['基本', '応用'])
+  expect(json.lists[0].words.map((word: { input: string }) => word.input)).toEqual(['ls', 'cd'])
+  expect(text).not.toContain('records')
+
+  await page.locator('input[type="file"][accept*=".json"]').setInputFiles(path)
+  await expect(page.locator('li[data-pack-id]', { hasText: 'Shell（2）' })).toBeVisible()
+  const workspace = await saved(page)
+  const imported = workspace.packs.at(-1)
+  expect(imported).toMatchObject({ name: 'Shell（2）', category: 'CLI' })
+  expect(workspace.lists.filter((item: { packId: string }) => item.packId === imported.id)).toHaveLength(2)
+})
+
+test('a broken file is refused with a message and nothing is added', async ({ page }) => {
+  await page.goto('/edit')
+  await page.locator('input[type="file"][accept*=".json"]').setInputFiles({ name: 'broken.json', mimeType: 'application/json', buffer: Buffer.from('{"format":"nope"') })
+  await expect(page.getByText('単語パックのファイルとして読み込めませんでした')).toBeVisible()
+  await expect(page.locator('li[data-pack-id]')).toHaveCount(4)
+  expect((await saved(page)).packs).toHaveLength(4)
+})

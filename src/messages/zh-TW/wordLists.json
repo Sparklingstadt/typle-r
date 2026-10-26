@@ -25,7 +25,8 @@
     "countFiltered": "{shown} 個 / 共 {total} 個",
     "count": "{total} 個",
     "noMatch": "沒有符合「{query}」的包。會從包名稱、清單名稱、分類、標籤和單字中搜尋。",
-    "csvNote": "CSV 匯出會儲存顯示的單字、輸入的文字和補充說明（不含練習紀錄）。可在建立、編輯畫面的「匯入 CSV/TSV」中使用。"
+    "csvNote": "CSV 匯出會儲存顯示的單字、輸入的文字和補充說明（不含練習紀錄）。可在建立、編輯畫面的「匯入 CSV/TSV」中使用。",
+    "importFile": "從檔案匯入"
   },
   "delete": {
     "title": "要刪除「{name}」嗎？",
@@ -105,7 +106,9 @@
     "moreFor": "{name} 包的操作",
     "edit": "編輯包",
     "addList": "新增清單",
-    "delete": "刪除"
+    "delete": "刪除",
+    "copy": "複製",
+    "export": "匯出"
   },
   "wordRow": {
     "label": "單字 {n}",
