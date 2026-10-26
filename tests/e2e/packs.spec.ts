@@ -721,3 +721,169 @@ test('deleting the last record of the chosen pack keeps the pack in the filter w
   await page.getByRole('button', { name: /^パックで絞り込む/ }).click()
   await expect(page.getByRole('menuitemradio', { name: /^単独/ })).toBeVisible()
 })
+
+test('a pack is duplicated right after the original, without records, and opened', async ({ page }) => {
+  await page.goto('/edit')
+  await page.locator('li[data-pack-id="shell"]').getByRole('button', { name: 'Shell のパックの操作' }).click()
+  await page.getByRole('menuitem', { name: '複製' }).click()
+  await expect(page.getByText('「Shell（コピー）」を作成しました。')).toBeVisible()
+  const workspace = await saved(page)
+  expect(workspace.packs.map((pack: { name: string }) => pack.name)).toEqual(['Shell', 'Shell（コピー）', '果物', '単独', 'Plain'])
+  const copy = workspace.packs[1]
+  expect(copy).toMatchObject({ category: 'CLI', tags: ['unix'] })
+  expect(copy).not.toHaveProperty('origin')
+  const lists = workspace.lists.filter((item: { packId: string }) => item.packId === copy.id)
+  expect(lists.map((item: { name: string }) => item.name)).toEqual(['基本', '応用'])
+  expect(lists.every((item: { records: unknown[] }) => item.records.length === 0)).toBe(true)
+  const row = page.locator(`li[data-pack-id="${copy.id}"]`)
+  await expect(row.getByRole('button', { name: 'Shell（コピー）', exact: true })).toHaveAttribute('aria-expanded', 'true')
+})
+
+test('a pack is exported as a file without records, and the file imports as a new pack', async ({ page }) => {
+  await page.goto('/edit')
+  await page.locator('li[data-pack-id="shell"]').getByRole('button', { name: 'Shell のパックの操作' }).click()
+  const download = page.waitForEvent('download')
+  await page.getByRole('menuitem', { name: '書き出す' }).click()
+  const file = await download
+  expect(file.suggestedFilename()).toBe('Shell.typle-pack.json')
+  const path = await file.path()
+  const text = (await import('node:fs')).readFileSync(path, 'utf8')
+  const json = JSON.parse(text)
+  expect(json.format).toBe('typle-pack')
+  expect(json.lists.map((item: { name: string }) => item.name)).toEqual(['基本', '応用'])
+  expect(json.lists[0].words.map((word: { input: string }) => word.input)).toEqual(['ls', 'cd'])
+  expect(text).not.toContain('records')
+
+  await page.locator('input[type="file"][accept*=".json"]').setInputFiles(path)
+  await expect(page.locator('li[data-pack-id]', { hasText: 'Shell（2）' })).toBeVisible()
+  const workspace = await saved(page)
+  const imported = workspace.packs.at(-1)
+  expect(imported).toMatchObject({ name: 'Shell（2）', category: 'CLI' })
+  expect(workspace.lists.filter((item: { packId: string }) => item.packId === imported.id)).toHaveLength(2)
+})
+
+test('a broken file is refused with a message and nothing is added', async ({ page }) => {
+  await page.goto('/edit')
+  await page.locator('input[type="file"][accept*=".json"]').setInputFiles({ name: 'broken.json', mimeType: 'application/json', buffer: Buffer.from('{"format":"nope"') })
+  await expect(page.getByText('単語パックのファイルとして読み込めませんでした')).toBeVisible()
+  await expect(page.locator('li[data-pack-id]')).toHaveCount(4)
+  expect((await saved(page)).packs).toHaveLength(4)
+})
+
+test('a pack file is imported from the empty state', async ({ page }) => {
+  await page.addInitScript(k => localStorage.setItem(k, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 2, packs: [], lists: [], devices: [] })), key)
+  await page.goto('/edit')
+  await expect(page.getByRole('heading', { name: '単語パックはまだありません' })).toBeVisible()
+  const file = { format: 'typle-pack', version: 1, pack: { name: '復元' }, lists: [{ name: '一', words: [{ display: 'a', input: 'a', annotation: '' }] }] }
+  await page.locator('input[type="file"][accept*=".json"]').setInputFiles({ name: 'p.typle-pack.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(file)) })
+  await expect(page.locator('li[data-pack-id]', { hasText: '復元' })).toBeVisible()
+  const workspace = await saved(page)
+  expect(workspace.packs.map((pack: { name: string }) => pack.name)).toEqual(['復元'])
+  expect(workspace.lists).toHaveLength(1)
+})
+
+test('a file over 1 MiB is refused as too large and nothing is added', async ({ page }) => {
+  await page.goto('/edit')
+  await page.locator('input[type="file"][accept*=".json"]').setInputFiles({ name: 'big.json', mimeType: 'application/json', buffer: Buffer.alloc(1024 * 1024 + 1, 32) })
+  await expect(page.getByText('ファイルは1 MiB以内にしてください。')).toBeVisible()
+  expect((await saved(page)).packs).toHaveLength(4)
+})
+
+test('a file that breaks a save rule is refused on the import line from the empty state, which stays', async ({ page }) => {
+  await page.addInitScript(k => localStorage.setItem(k, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 2, packs: [], lists: [], devices: [] })), key)
+  await page.goto('/edit')
+  await expect(page.getByRole('heading', { name: '単語パックはまだありません' })).toBeVisible()
+  const word = [{ display: 'a', input: 'a', annotation: '' }]
+  const file = { format: 'typle-pack', version: 1, pack: { name: '重複' }, lists: [{ name: '同じ', words: word }, { name: '同じ', words: word }] }
+  await page.locator('input[type="file"][accept*=".json"]').setInputFiles({ name: 'dup.typle-pack.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(file)) })
+  await expect(page.getByText('同じ名前の単語リストがあります')).toBeVisible()
+  await expect(page.getByRole('button', { name: '再読み込み' })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: '単語パックはまだありません' })).toBeVisible()
+  await expect(page.locator('input[type="file"][accept*=".json"]')).toBeAttached()
+  const workspace = await saved(page)
+  expect(workspace.packs).toEqual([])
+  expect(workspace.lists).toEqual([])
+})
+
+test('a file over a limit is refused with the message for limits and nothing is added', async ({ page }) => {
+  await page.goto('/edit')
+  const file = { format: 'typle-pack', version: 1, pack: { name: 'x'.repeat(201) }, lists: [{ name: '一', words: [{ display: 'a', input: 'a', annotation: '' }] }] }
+  await page.locator('input[type="file"][accept*=".json"]').setInputFiles({ name: 'long.typle-pack.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(file)) })
+  await expect(page.getByText('このファイルの中に、保存できる上限を超える項目があります')).toBeVisible()
+  await expect(page.locator('li[data-pack-id]')).toHaveCount(4)
+  expect((await saved(page)).packs).toHaveLength(4)
+})
+
+// The catalog tests start from the guest's initial data (the official packs), not the seeded workspace.
+async function startFresh(page: Page) {
+  await page.addInitScript(k => {
+    if (sessionStorage.getItem('fresh')) return
+    sessionStorage.setItem('fresh', '1')
+    localStorage.removeItem(k)
+  }, key)
+}
+
+test('the catalog shows every official pack as added for a guest with the initial data', async ({ page }) => {
+  await startFresh(page)
+  await page.goto('/edit')
+  await page.getByRole('link', { name: '公式パック' }).click()
+  await expect(page).toHaveURL(/\/packs\/catalog$/)
+  await expect(page.getByRole('heading', { name: '公式パック', level: 1 })).toBeVisible()
+  const entries = page.locator('li[data-catalog-id]')
+  expect(await entries.count()).toBeGreaterThan(0)
+  await expect(entries.first()).toContainText('リスト')
+  await expect(entries.first()).toContainText('語')
+  for (const entry of await entries.all()) {
+    await expect(entry.getByRole('button', { name: '追加済み' })).toBeDisabled()
+    await expect(entry.getByRole('link', { name: /開く/ })).toBeVisible()
+  }
+  await expect(page.getByRole('button', { name: /^.* を追加$/ })).toHaveCount(0)
+})
+
+test('a deleted official pack is added again from the catalog and opened on /edit', async ({ page }) => {
+  await startFresh(page)
+  await page.goto('/edit')
+  const first = page.locator('li[data-pack-id]').first()
+  const name = (await first.locator('h3 button').first().innerText()).trim()
+  await first.getByRole('button', { name: /のパックの操作$/ }).click()
+  await page.getByRole('menuitem', { name: '削除' }).click()
+  await page.getByRole('alertdialog').getByRole('button', { name: '削除' }).click()
+  await expect(page.getByText(`パック「${name}」を削除しました。`)).toBeVisible()
+
+  await page.getByRole('link', { name: '公式パック' }).click()
+  const entry = page.locator('li[data-catalog-id]', { has: page.getByRole('heading', { name, exact: true }) })
+  await expect(entry.getByRole('link', { name: /開く/ })).toHaveCount(0)
+  await entry.getByRole('button', { name: `${name} を追加`, exact: true }).click()
+  await expect(page).toHaveURL(/\/edit\?pack=/)
+  await expect(page.getByText(`${name} を追加しました。`)).toBeVisible()
+  await expect(page.locator('li[data-pack-id]', { has: page.getByRole('button', { name, exact: true }) })).toBeVisible()
+
+  await page.getByRole('link', { name: '公式パック' }).click()
+  await expect(entry.getByRole('button', { name: '追加済み' })).toBeDisabled()
+  await expect(entry.getByRole('link', { name: /開く/ })).toBeVisible()
+})
+
+test('an official pack added next to a pack of the same name is numbered 「名前（2）」', async ({ page }) => {
+  await startFresh(page)
+  await page.goto('/edit')
+  const first = page.locator('li[data-pack-id]').first()
+  const name = (await first.locator('h3 button').first().innerText()).trim()
+  await first.getByRole('button', { name: /のパックの操作$/ }).click()
+  await page.getByRole('menuitem', { name: '削除' }).click()
+  await page.getByRole('alertdialog').getByRole('button', { name: '削除' }).click()
+  await expect(page.getByText(`パック「${name}」を削除しました。`)).toBeVisible()
+
+  // A pack of the user's own with that name takes its place.
+  await page.evaluate(([k, name]) => {
+    const data = JSON.parse(localStorage.getItem(k)!)
+    data.packs.push({ id: 'mine', name, createdAt: '2026-09-01' })
+    data.lists.push({ id: 'mine-list', packId: 'mine', name: '自作', createdAt: '2026-09-01', words: [{ display: 'a', input: 'a', annotation: '' }], records: [] })
+    localStorage.setItem(k, JSON.stringify(data))
+  }, [key, name])
+  await page.reload()
+  await page.getByRole('link', { name: '公式パック' }).click()
+  await page.locator('li[data-catalog-id]', { has: page.getByRole('heading', { name, exact: true }) })
+    .getByRole('button', { name: `${name} を追加`, exact: true }).click()
+  await expect(page).toHaveURL(/\/edit\?pack=/)
+  await expect(page.getByRole('button', { name: `${name}（2）`, exact: true })).toBeVisible()
+})

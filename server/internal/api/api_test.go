@@ -129,9 +129,9 @@ func TestLists(t *testing.T) {
 }
 
 const (
-	l1Summary = `{"id":"l1","name":"英単語","packId":"pack-l1","category":null,"tags":[],"wordCount":2,"recordCount":3,"createdAt":"2026-10-10T01:23:45.000Z",
+	l1Summary = `{"id":"l1","name":"英単語","packId":"pack-l1","category":null,"tags":[],"levels":[],"wordCount":2,"recordCount":3,"createdAt":"2026-10-10T01:23:45.000Z",
 	  "practiceCount":3,"lastPracticed":"2026-10-03T00:00:00.000Z","currentRecordCount":1}`
-	l2Summary = `{"id":"l2","name":"空","packId":"pack-l2","category":null,"tags":[],"wordCount":1,"recordCount":0,"createdAt":"2026-10-11T00:00:00.000Z",
+	l2Summary = `{"id":"l2","name":"空","packId":"pack-l2","category":null,"tags":[],"levels":[],"wordCount":1,"recordCount":0,"createdAt":"2026-10-11T00:00:00.000Z",
 	  "practiceCount":0,"lastPracticed":null,"currentRecordCount":0}`
 )
 
@@ -146,7 +146,7 @@ func TestListsSortAndSearch(t *testing.T) {
 }
 
 func TestList(t *testing.T) {
-	expect(t, serve(t, "GET", "/api/v1/lists/l1"), 200, `{"list":{"id":"l1","name":"英単語","packId":"pack-l1","category":null,"tags":[],"wordCount":2,"recordCount":3,
+	expect(t, serve(t, "GET", "/api/v1/lists/l1"), 200, `{"list":{"id":"l1","name":"英単語","packId":"pack-l1","category":null,"tags":[],"levels":[],"wordCount":2,"recordCount":3,
 	  "createdAt":"2026-10-10T01:23:45.000Z","practiceCount":3,"lastPracticed":"2026-10-03T00:00:00.000Z","currentRecordCount":1,"words":[{"display":"apple","input":"apple","annotation":"りんご"},
 	  {"display":"pear","input":"pear","annotation":""}]}}`)
 	expect(t, serve(t, "GET", "/api/v1/lists/missing"), 404, `{"error":"listNotFound"}`)
@@ -163,7 +163,7 @@ func TestListsShowPacks(t *testing.T) {
 	}
 	s := &source{workspace: w}
 	summary := func(id, name, created string) string {
-		return `{"id":"` + id + `","name":"` + name + `","packId":"p","category":"プログラミング","tags":["シェル"],"wordCount":1,"recordCount":0,` +
+		return `{"id":"` + id + `","name":"` + name + `","packId":"p","category":"プログラミング","tags":["シェル"],"levels":[],"wordCount":1,"recordCount":0,` +
 			`"createdAt":"` + created + `","practiceCount":0,"lastPracticed":null,"currentRecordCount":0}`
 	}
 	expect(t, serveFrom(s, "GET", "/api/v1/lists"), 200, `{"lists":[`+summary("a", "基本", "2026-10-10T00:00:00.000Z")+`,`+

@@ -99,6 +99,14 @@ export default async function Guide() {
               <li>{t("lists.packs.p4")}</li>
             </Points>
           </Topic>
+          <Topic title={t("lists.files.title")}>
+            <Points>
+              <li>{t("lists.files.p1")}</li>
+              <li>{t("lists.files.p2")}</li>
+              <li>{t("lists.files.p3")}</li>
+              <li>{t("lists.files.p4")}</li>
+            </Points>
+          </Topic>
           <Topic title={t("lists.input.title")}>
             <Points>
               <li>{t("lists.input.p1")}</li>

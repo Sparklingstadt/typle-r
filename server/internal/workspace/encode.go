@@ -23,6 +23,9 @@ const (
 	// The limit of the group a list saved by an app that does not know packs may have (MAX_GROUP in
 	// src/core/wordLists.ts): it becomes the name of a pack when the lists are read.
 	MaxGroup = 200
+	// The limits of a list's levels (MAX_LEVELS and MAX_LEVEL in src/core/wordLists.ts).
+	MaxLevels = 5
+	MaxLevel  = 50
 	// The app saves the lists with its devices, revision and account in one request of at most 1 MiB
 	// (MAX_WORKSPACE_BYTES), so the lists written here leave 128 KiB for the rest.
 	MaxListsBytes = 896 << 10
@@ -41,15 +44,16 @@ func (e *Error) Error() string { return e.Key }
 // The category and tags belong to the list's pack, so Encode leaves them out (see EncodePacks); only EncodeWithLabels
 // writes them, and the group.
 type storedList struct {
-	ID        string   `json:"id"`
-	Name      string   `json:"name"`
-	PackID    string   `json:"packId,omitempty"`
-	Group     string   `json:"group,omitempty"`
-	Category  string   `json:"category,omitempty"`
-	Tags      []string `json:"tags,omitempty"`
-	CreatedAt string   `json:"createdAt"`
-	Words     []Word   `json:"words"`
-	Records   []Record `json:"records"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	PackID    string    `json:"packId,omitempty"`
+	Levels    *[]string `json:"levels,omitempty"`
+	Group     string    `json:"group,omitempty"`
+	Category  string    `json:"category,omitempty"`
+	Tags      []string  `json:"tags,omitempty"`
+	CreatedAt string    `json:"createdAt"`
+	Words     []Word    `json:"words"`
+	Records   []Record  `json:"records"`
 	extra     string
 }
 
@@ -82,6 +86,9 @@ func encodeLists(lists []List, labels bool) ([]byte, error) {
 		}
 		item := storedList{ID: list.ID, Name: list.Name, PackID: list.PackID, CreatedAt: list.CreatedAt, Words: words, Records: records,
 			extra: list.Extra}
+		if list.Levels != nil {
+			item.Levels = &list.Levels
+		}
 		if labels {
 			item.Group, item.Category, item.Tags = list.Group, list.Category, list.Tags
 		}
@@ -113,7 +120,8 @@ func CheckLimits(lists []List) error {
 	for _, list := range lists {
 		if len(list.Words) > MaxWords || len(list.Records) > MaxRecords || length(list.Name) > MaxListName ||
 			length(list.Category) > MaxCategory || len(list.Tags) > MaxTags || length(list.Group) > MaxGroup ||
-			slices.ContainsFunc(list.Tags, func(tag string) bool { return length(tag) > MaxTag }) {
+			slices.ContainsFunc(list.Tags, func(tag string) bool { return length(tag) > MaxTag }) || len(list.Levels) > MaxLevels ||
+			slices.ContainsFunc(list.Levels, func(level string) bool { return length(level) > MaxLevel }) {
 			return &Error{Key: "invalidWorkspace"}
 		}
 		for _, word := range list.Words {

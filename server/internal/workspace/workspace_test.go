@@ -75,13 +75,14 @@ func TestInitial(t *testing.T) {
 	}
 	for _, list := range w.Lists {
 		// The lists the account made itself, and those it keeps whole beside their parts, have no labels.
-		if list.Category == "" && len(list.Tags) == 0 && list.Extra == "" {
+		if list.Extra != "" {
+			t.Fatalf("%s: extra %s", list.ID, list.Extra)
+		}
+		if list.Category == "" && len(list.Tags) == 0 && len(list.Levels) == 0 {
 			continue
 		}
-		// The levels (v0.79.0) are a field Go keeps without reading it.
-		if (list.Category != "プログラミング" && list.Category != "語学") || len(list.Tags) == 0 ||
-			(list.Extra != "" && !strings.HasPrefix(list.Extra, `{"levels":`)) {
-			t.Fatalf("%s: category %q, tags %v, extra %s", list.ID, list.Category, list.Tags, list.Extra)
+		if (list.Category != "プログラミング" && list.Category != "語学") || len(list.Tags) == 0 {
+			t.Fatalf("%s: category %q, tags %v, levels %v", list.ID, list.Category, list.Tags, list.Levels)
 		}
 	}
 	// The lists are in the packs of initialLibrary: one for each group, and one for each list without a group.

@@ -163,9 +163,9 @@ func TestDecodeViewsPackLabels(t *testing.T) {
 	if w.Packs[0].Tags[0] != "Linux" || w.Lists[1].Tags[0] != "Linux" {
 		t.Fatalf("packs = %+v, lists = %+v", w.Packs, w.Lists)
 	}
-	// levels is a field Go keeps without reading it.
-	if a.Extra != `{"levels":["基本"]}` {
-		t.Fatalf("extra = %s", a.Extra)
+	// levels is read as the list's own.
+	if !slices.Equal(a.Levels, []string{"基本"}) || a.Extra != "" {
+		t.Fatalf("levels = %v, extra = %s", a.Levels, a.Extra)
 	}
 }
 

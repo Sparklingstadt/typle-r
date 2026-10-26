@@ -12,7 +12,8 @@
     "deleted": "已删除“{name}”。",
     "packDeleted": "已删除包“{name}”。",
     "exportFailed": "无法导出“{name}”。请重试。",
-    "copySuffix": "{n, plural, =1 {（副本）} other {（副本{n}）}}"
+    "copySuffix": "{n, plural, =1 {（副本）} other {（副本{n}）}}",
+    "catalog": "官方包"
   },
   "manager": {
     "heading": "已保存的包",
@@ -25,7 +26,8 @@
     "countFiltered": "{shown} 个 / 共 {total} 个",
     "count": "{total} 个",
     "noMatch": "没有与“{query}”匹配的包。将从包名称、列表名称、分类、标签和单词中查找。",
-    "csvNote": "CSV 导出会保存显示的单词、输入的文字和备注（不含练习记录）。可在创建、编辑界面的“导入 CSV/TSV”中使用。"
+    "csvNote": "CSV 导出会保存显示的单词、输入的文字和备注（不含练习记录）。可在创建、编辑界面的“导入 CSV/TSV”中使用。",
+    "importFile": "从文件导入"
   },
   "delete": {
     "title": "要删除“{name}”吗？",
@@ -105,7 +107,9 @@
     "moreFor": "{name} 包的操作",
     "edit": "编辑包",
     "addList": "添加列表",
-    "delete": "删除"
+    "delete": "删除",
+    "copy": "复制",
+    "export": "导出"
   },
   "wordRow": {
     "label": "单词 {n}",
@@ -273,5 +277,16 @@
     "wordCount": "{count, plural, other {#个单词}}",
     "created": "已创建包“{name}”。",
     "updated": "已更新包“{name}”。"
+  },
+  "catalog": {
+    "title": "官方包",
+    "description": "预先准备好的包。添加后即成为你自己的包，可以随意编辑。",
+    "back": "返回包列表",
+    "open": "打开",
+    "add": "添加",
+    "addPack": "添加 {name}",
+    "addedState": "已添加",
+    "added": "已添加“{name}”。",
+    "full": "词表已达上限（{max} 个），无法添加。请删除不用的词表。"
   }
 }

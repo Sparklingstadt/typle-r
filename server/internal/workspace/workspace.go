@@ -55,6 +55,9 @@ type Record struct {
 type List struct {
 	ID   string
 	Name string
+	// Levels pick the list within its pack on the practice screen (nil when it has none; an empty array as stored stays
+	// empty). See levelPath.
+	Levels []string
 	// PackID is the word pack the list belongs to. Every list Decode returns has one.
 	PackID string
 	// Group is the group of a list saved before packs existed, which Decode makes a pack of. Encode never writes it; only
@@ -113,6 +116,7 @@ type rawList struct {
 	Tags      []*string    `json:"tags"`
 	Group     *string      `json:"group"`
 	PackID    *string      `json:"packId"`
+	Levels    []*string    `json:"levels"`
 	CreatedAt *string      `json:"createdAt"`
 	Words     []*rawWord   `json:"words"`
 	Records   []*rawRecord `json:"records"`
@@ -210,6 +214,17 @@ func decodeList(raw *rawList) (List, error) {
 		}
 		tags = append(tags, *tag)
 	}
+	// levels is optional too: strings, kept as they are.
+	var levels []string
+	if raw.Levels != nil {
+		levels = make([]string, 0, len(raw.Levels))
+	}
+	for _, level := range raw.Levels {
+		if level == nil {
+			return List{}, errors.New("levels must be strings")
+		}
+		levels = append(levels, *level)
+	}
 	records := make([]Record, 0, len(raw.Records))
 	for index, item := range raw.Records {
 		record, err := decodeRecord(item)
@@ -225,7 +240,7 @@ func decodeList(raw *rawList) (List, error) {
 	if raw.PackID != nil {
 		packID = *raw.PackID
 	}
-	return List{ID: *raw.ID, Name: *raw.Name, PackID: packID, Group: group, Category: category, Tags: tags, Words: words, Records: records,
+	return List{ID: *raw.ID, Name: *raw.Name, Levels: levels, PackID: packID, Group: group, Category: category, Tags: tags, Words: words, Records: records,
 		CreatedAt: *raw.CreatedAt, Extra: raw.extra}, nil
 }
 
@@ -311,8 +326,8 @@ func (r *rawRecord) UnmarshalJSON(data []byte) (err error) {
 func (r *rawList) UnmarshalJSON(data []byte) (err error) {
 	type plain rawList
 	if err = json.Unmarshal(data, (*plain)(r)); err == nil {
-		r.extra, err = unknown(data, "id", "name", "category", "tags", "group", "packId", "createdAt", "words", "records", "shared",
-			"shareId")
+		r.extra, err = unknown(data, "id", "name", "category", "tags", "group", "packId", "levels", "createdAt", "words", "records",
+			"shared", "shareId")
 	}
 	return err
 }

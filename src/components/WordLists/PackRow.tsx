@@ -3,7 +3,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import { DropdownMenu } from 'radix-ui'
-import { ChevronRight, History, Keyboard, ListPlus, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import { ChevronRight, Copy, Download, History, Keyboard, ListPlus, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { PackOverview } from '@/core/packEditing'
 import { cn } from '@/lib/utils'
@@ -14,8 +14,8 @@ const menuItem = 'flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-
 
 // The lists of a pack as one row, such as Linuxコマンド with its 11 lists, which opens to show each of them with its
 // own actions. A pack of one list is a row too. 練習 opens the list of the pack practised last, or its first.
-// `onAddList` is left out when no more lists can be saved.
-export default function PackRow({ item, now, open, onToggle, highlight, disabled, onEditPack, onAddList, onDeletePack, children }: {
+// `onAddList` and `onCopy` are left out when no more lists can be saved.
+export default function PackRow({ item, now, open, onToggle, highlight, disabled, onEditPack, onAddList, onCopy, onExport, onDeletePack, children }: {
   item: PackOverview
   now: Date
   open: boolean
@@ -24,6 +24,8 @@ export default function PackRow({ item, now, open, onToggle, highlight, disabled
   disabled: boolean
   onEditPack: () => void
   onAddList?: () => void
+  onCopy?: () => void
+  onExport: () => void
   onDeletePack: () => void
   children: ReactNode
 }) {
@@ -75,6 +77,8 @@ export default function PackRow({ item, now, open, onToggle, highlight, disabled
               </DropdownMenu.Item>}
               <DropdownMenu.Item className={menuItem} disabled={disabled} onSelect={onEditPack}><Pencil aria-hidden="true" />{t('edit')}</DropdownMenu.Item>
               {onAddList && <DropdownMenu.Item className={menuItem} disabled={disabled} onSelect={onAddList}><ListPlus aria-hidden="true" />{t('addList')}</DropdownMenu.Item>}
+              {onCopy && <DropdownMenu.Item className={menuItem} disabled={disabled} onSelect={onCopy}><Copy aria-hidden="true" />{t('copy')}</DropdownMenu.Item>}
+              <DropdownMenu.Item className={menuItem} onSelect={onExport}><Download aria-hidden="true" />{t('export')}</DropdownMenu.Item>
               <DropdownMenu.Separator className="my-1 h-px bg-border" />
               <DropdownMenu.Item className={cn(menuItem, 'text-destructive data-[highlighted]:text-destructive [&_svg]:text-destructive')} disabled={disabled} onSelect={onDeletePack}>
                 <Trash2 aria-hidden="true" />{t('delete')}

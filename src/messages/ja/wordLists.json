@@ -12,7 +12,8 @@
     "deleted": "「{name}」を削除しました。",
     "packDeleted": "パック「{name}」を削除しました。",
     "exportFailed": "「{name}」をエクスポートできませんでした。もう一度お試しください。",
-    "copySuffix": "{n, plural, =1 {（コピー）} other {（コピー{n}）}}"
+    "copySuffix": "{n, plural, =1 {（コピー）} other {（コピー{n}）}}",
+    "catalog": "公式パック"
   },
   "manager": {
     "heading": "保存済みのパック",
@@ -25,7 +26,8 @@
     "countFiltered": "{shown}パック / 全{total}パック",
     "count": "{total}パック",
     "noMatch": "「{query}」に一致するパックはありません。パック名・リスト名・カテゴリ・タグ・単語から探します。",
-    "csvNote": "CSVエクスポートは表示する単語・入力する文字・補足を保存します（練習記録は含みません）。作成・編集画面の「CSV・TSVを読み込む」で使えます。"
+    "csvNote": "CSVエクスポートは表示する単語・入力する文字・補足を保存します（練習記録は含みません）。作成・編集画面の「CSV・TSVを読み込む」で使えます。",
+    "importFile": "ファイルから取り込む"
   },
   "delete": {
     "title": "「{name}」を削除しますか？",
@@ -105,7 +107,9 @@
     "moreFor": "{name} のパックの操作",
     "edit": "パックを編集",
     "addList": "リストを追加",
-    "delete": "削除"
+    "delete": "削除",
+    "copy": "複製",
+    "export": "書き出す"
   },
   "wordRow": {
     "label": "単語 {n}",
@@ -273,5 +277,16 @@
     "wordCount": "{count, plural, other {#語}}",
     "created": "パック「{name}」を作成しました。",
     "updated": "パック「{name}」を更新しました。"
+  },
+  "catalog": {
+    "title": "公式パック",
+    "description": "あらかじめ用意されたパックです。追加すると自分のパックとして使え、中身も自由に編集できます。",
+    "back": "パックの一覧へ",
+    "open": "開く",
+    "add": "追加",
+    "addPack": "{name} を追加",
+    "addedState": "追加済み",
+    "added": "{name} を追加しました。",
+    "full": "リストが上限（{max}件）のため追加できません。使わないリストを削除してください。"
   }
 }

@@ -19,7 +19,8 @@ var (
 )
 
 // Initial is the workspace before anything is saved: the lists of initialLists in src/plugins/packs/index.ts, in the
-// packs of initialLibrary (turned into packs as lists saved before packs existed are), and no registered devices.
+// packs of initialLibrary (turned into packs as lists saved before packs existed are), and no registered devices. Each
+// pack is an official pack, as initialLibrary has it: its catalog id is its own id, at version 1.
 func Initial() (*Workspace, error) {
 	var samples []*rawList
 	var countries []*rawList
@@ -44,6 +45,9 @@ func Initial() (*Workspace, error) {
 	}
 	w := &Workspace{Devices: []Device{}}
 	w.Packs, w.Lists = convertLibrary(lists)
+	for i := range w.Packs {
+		w.Packs[i].Origin = &Origin{CatalogID: w.Packs[i].ID, Version: 1}
+	}
 	viewLists(w)
 	return w, nil
 }

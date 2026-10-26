@@ -12,7 +12,8 @@
     "deleted": "“{name}” deleted.",
     "packDeleted": "Pack “{name}” deleted.",
     "exportFailed": "Could not export “{name}”. Please try again.",
-    "copySuffix": "{n, plural, =1 { (copy)} other { (copy {n})}}"
+    "copySuffix": "{n, plural, =1 { (copy)} other { (copy {n})}}",
+    "catalog": "Official packs"
   },
   "manager": {
     "heading": "Saved packs",
@@ -25,7 +26,8 @@
     "countFiltered": "{shown} of {total}",
     "count": "{total, plural, one {# pack} other {# packs}}",
     "noMatch": "No packs match “{query}”. Searches pack names, list names, categories, tags and words.",
-    "csvNote": "CSV export saves the words, what to type, and notes (practice history is not included). Use it with “Import CSV/TSV” on the create and edit screens."
+    "csvNote": "CSV export saves the words, what to type, and notes (practice history is not included). Use it with “Import CSV/TSV” on the create and edit screens.",
+    "importFile": "Import from file"
   },
   "delete": {
     "title": "Delete “{name}”?",
@@ -105,7 +107,9 @@
     "moreFor": "Actions for pack {name}",
     "edit": "Edit pack",
     "addList": "Add a list",
-    "delete": "Delete"
+    "delete": "Delete",
+    "copy": "Duplicate",
+    "export": "Export"
   },
   "wordRow": {
     "label": "Word {n}",
@@ -273,5 +277,16 @@
     "wordCount": "{count, plural, one {# word} other {# words}}",
     "created": "Pack “{name}” created.",
     "updated": "Pack “{name}” updated."
+  },
+  "catalog": {
+    "title": "Official packs",
+    "description": "Ready-made packs. Add one to make it your own pack, and edit it freely.",
+    "back": "Back to packs",
+    "open": "Open",
+    "add": "Add",
+    "addPack": "Add {name}",
+    "addedState": "Added",
+    "added": "“{name}” added.",
+    "full": "Cannot add: you have reached the limit of {max} lists. Delete lists you no longer use."
   }
 }

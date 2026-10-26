@@ -24,8 +24,7 @@ var errTrailing = errors.New("more than one JSON value")
 // a body over 1 MiB, and 400 invalidJson for anything else that is not exactly one object of T's fields. Only the
 // media type before ";" is looked at, as the /api/workspace handler does.
 func decode[T any](w http.ResponseWriter, r *http.Request) (*T, bool) {
-	mediaType, _, _ := strings.Cut(r.Header.Get("Content-Type"), ";")
-	if !strings.EqualFold(strings.TrimSpace(mediaType), "application/json") {
+	if !jsonContent(r) {
 		failure(w, http.StatusUnsupportedMediaType, "unsupportedContentType")
 		return nil, false
 	}
@@ -50,6 +49,12 @@ func decode[T any](w http.ResponseWriter, r *http.Request) (*T, bool) {
 		return nil, false
 	}
 	return value, true
+}
+
+// jsonContent tells whether the request's media type, before ";", is application/json.
+func jsonContent(r *http.Request) bool {
+	mediaType, _, _ := strings.Cut(r.Header.Get("Content-Type"), ";")
+	return strings.EqualFold(strings.TrimSpace(mediaType), "application/json")
 }
 
 // exactKeys tells whether every object in data names its fields exactly as t's JSON tags do. encoding/json also
@@ -144,10 +149,11 @@ func (s *server) modifyList(w http.ResponseWriter, r *http.Request, owner string
 func refuse(w http.ResponseWriter, r *http.Request, refused *workspace.Error) {
 	status := http.StatusBadRequest
 	switch {
-	// A list, device or record named in the path is a resource that is not there; a deviceId given in a record's body
-	// is a value of the request, and so a bad request.
+	// A list, pack, device or record named in the path is a resource that is not there; a deviceId given in a record's
+	// body, or a packId given in a list's body or query, is a value of the request, and so a bad request.
 	case refused.Key == "listNotFound", refused.Key == "recordNotFound",
-		refused.Key == "deviceNotFound" && r.PathValue("deviceId") != "":
+		refused.Key == "deviceNotFound" && r.PathValue("deviceId") != "",
+		refused.Key == "packNotFound" && r.PathValue("packId") != "":
 		status = http.StatusNotFound
 	case refused.Key == "workspaceTooLarge", refused.Key == "importTooLarge":
 		status = http.StatusRequestEntityTooLarge
@@ -175,7 +181,7 @@ func (s *server) updateList(w http.ResponseWriter, r *http.Request, owner string
 	if !ok {
 		return
 	}
-	if input.Name == nil && input.Category == nil && input.Tags == nil && input.Words == nil {
+	if input.Name == nil && input.PackID == nil && input.Category == nil && input.Tags == nil && input.Levels == nil && input.Words == nil {
 		failure(w, http.StatusBadRequest, "invalidJson")
 		return
 	}
@@ -300,7 +306,8 @@ func (s *server) deleteRecord(w http.ResponseWriter, r *http.Request, owner stri
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// copyList takes an optional body: none copies with the generated name, { "name" } names the copy.
+// copyList takes an optional body: none copies with the generated name, { "name" } names the copy. The copy goes in
+// its source's pack.
 func (s *server) copyList(w http.ResponseWriter, r *http.Request, owner string) {
 	var name *string
 	if r.ContentLength != 0 {
@@ -321,7 +328,8 @@ func (s *server) copyList(w http.ResponseWriter, r *http.Request, owner string) 
 // importFormats are the word files a list is imported from, by the format query, as src/plugins/formats.
 var importFormats = map[string]rune{"csv": ',', "tsv": '\t'}
 
-// importList makes a list from a CSV or TSV file sent as the body, named by the name query.
+// importList makes a list from a CSV or TSV file sent as the body, named by the name query, in the pack the packId
+// query names or in a pack of its own.
 func (s *server) importList(w http.ResponseWriter, r *http.Request, owner string) {
 	mediaType, _, _ := strings.Cut(r.Header.Get("Content-Type"), ";")
 	switch strings.ToLower(strings.TrimSpace(mediaType)) {
@@ -361,8 +369,13 @@ func (s *server) importList(w http.ResponseWriter, r *http.Request, owner string
 		value := query.Get("name")
 		name = &value
 	}
+	var packID *string
+	if query.Has("packId") {
+		value := query.Get("packId")
+		packID = &value
+	}
 	id, now := workspace.NewID(), time.Now()
 	s.modifyList(w, r, owner, http.StatusCreated, func(ws *workspace.Workspace) (*workspace.List, error) {
-		return workspace.CreateList(ws, workspace.ListInput{Name: name, Words: words}, id, now)
+		return workspace.CreateList(ws, workspace.ListInput{Name: name, PackID: packID, Words: words}, id, now)
 	})
 }

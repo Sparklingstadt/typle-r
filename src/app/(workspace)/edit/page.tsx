@@ -1,10 +1,10 @@
 "use client"
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { Suspense, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
 import { DropdownMenu } from "radix-ui"
-import { Check, ChevronDown, CircleAlert, Download, ListPlus, Plus, RotateCw, Search, X } from "lucide-react"
+import { Check, ChevronDown, CircleAlert, Download, Library as LibraryIcon, ListPlus, Plus, Upload, RotateCw, Search, X } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -12,16 +12,21 @@ import { Skeleton } from "@/components/ui/skeleton"
 import DeleteConfirmation from "@/components/DeleteConfirmation"
 import { useSaveNotification } from "@/components/SaveNotification"
 import WordListEditor from "@/components/WordListEditor"
-import { downloadWordCsv } from "@/components/WordListExport"
+import { downloadPackFile, downloadWordCsv } from "@/components/WordListExport"
 import ListRow, { usePracticeText } from "@/components/WordLists/ListRow"
 import LabelFilter from "@/components/WordLists/LabelFilter"
 import PackRow from "@/components/WordLists/PackRow"
 import { useWordLists } from "@/lib/useWordLists"
+import { useErrorText } from "@/i18n/useErrorText"
+import { AppError } from "@/core/appError"
+import { MAX_IMPORT_BYTES } from "@/core/wordFormat"
+import { copyPack, decodePackFile, encodePackFile, importPackFile } from "@/core/packFile"
 import { useFormat } from "@/i18n/useFormat"
 import { randomId } from "@/core/randomId"
 import { duplicateList, isFiltered, LIST_ORDERS, listLabels, listOverviews, matchesFilter, MAX_LISTS, NO_FILTER, type ListFilter, type ListOrder, type ListOverview } from "@/core/listOverview"
 import { deletePack, matchesPackQuery, matchingListIds, packOverviews, saveListInPack, type PackOverview } from "@/core/packEditing"
 import type { SavedWordList } from "@/core/wordLists"
+import type { Library } from "@/core/wordPacks"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
 
@@ -42,7 +47,10 @@ function Header({ storage }: { storage?: WorkspaceLocation }) {
       <h1 className="text-2xl font-bold">{t('title')}</h1>
       <p className="text-sm text-muted-foreground">{t('description')}</p>
     </div>
-    <PageStorageBadge storage={storage} />
+    <div className="flex items-center gap-2">
+      <Button asChild variant="outline"><Link href="/packs/catalog"><LibraryIcon aria-hidden="true" />{t('catalog')}</Link></Button>
+      <PageStorageBadge storage={storage} />
+    </div>
   </header>
 }
 
@@ -192,6 +200,7 @@ function WordLists({ workspace }: { workspace: Workspace }) {
     {/* After a failed load the lists are unknown; "no lists yet" would be wrong. */}
     {!(error && !lists.length) && <ListManager lists={lists} packs={packs} saving={saving} highlight={highlight} highlightPack={highlightPack}
       update={update} updateLibrary={updateLibrary} notify={notify}
+      onShowPack={id => { setHighlightPack(id); setOpenPacks(current => new Set([...current, id])) }}
       openPacks={openPacks} onOpenPacksChange={setOpenPacks} onEdit={open} onHighlight={setHighlight} />}
   </>
 }
@@ -207,7 +216,7 @@ function sortPacks(items: PackOverview[], order: ListOrder, locale: string) {
   })
 }
 
-function ListManager({ lists, packs, saving, highlight, highlightPack, update, updateLibrary, notify, openPacks, onOpenPacksChange, onEdit, onHighlight }: {
+function ListManager({ lists, packs, saving, highlight, highlightPack, update, updateLibrary, notify, onShowPack, openPacks, onOpenPacksChange, onEdit, onHighlight }: {
   lists: SavedWordList[]
   packs: Workspace['packs']
   saving: boolean
@@ -218,12 +227,16 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
   update: Workspace['update']
   updateLibrary: Workspace['updateLibrary']
   notify: (message: string) => void
+  /** Opens the pack and points at its row. */
+  onShowPack: (id: string) => void
   onEdit: (list: SavedWordList) => void
   onHighlight: (id: string) => void
 }) {
   const t = useTranslations('wordLists')
   const locale = useLocale()
   const router = useRouter()
+  const errorText = useErrorText()
+  const fileInput = useRef<HTMLInputElement>(null)
   const [now] = useState(() => new Date())
   const [query, setQuery] = useState('')
   const [order, setOrder] = useState<ListOrder>('added')
@@ -243,6 +256,49 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
 
   function exportCsv(list: SavedWordList) {
     setExportError(downloadWordCsv(list) ? '' : t('page.exportFailed', { name: list.name }))
+  }
+
+  function exportPack(item: PackOverview) {
+    const library = { packs, lists }
+    setExportError(downloadPackFile(item.pack.name, encodePackFile(library, item.pack.id)) ? '' : t('page.exportFailed', { name: item.pack.name }))
+  }
+
+  // The new pack is the one the change added; its name is read back from the saved library.
+  async function savePack(change: (library: Library, ids: { pack: string; lists: string[] }) => Library, listCount: number,
+    ids = { pack: randomId(), lists: Array.from({ length: listCount }, () => randomId()) }) {
+    let name = ''
+    const saved = await updateLibrary(library => {
+      const next = change(library, ids)
+      name = next.packs.find(pack => pack.id === ids.pack)?.name ?? ''
+      return next
+    })
+    if (saved) {
+      // Clear the search so the new pack is in view, then open it.
+      setQuery('')
+      setFilter(NO_FILTER)
+      onShowPack(ids.pack)
+      notify(t('page.created', { name }))
+    }
+  }
+
+  function copyPackOf(item: PackOverview) {
+    return savePack((library, ids) => copyPack(library, item.pack.id, ids, n => t('page.copySuffix', { n })), item.lists.length)
+  }
+
+  // A file that cannot be read, or is too large, is refused here and nothing is saved.
+  async function importFile(file: File) {
+    setExportError('')
+    try {
+      if (file.size > MAX_IMPORT_BYTES) throw new AppError('importTooLarge')
+      const decoded = decodePackFile(await file.text())
+      // A file that breaks a save rule is refused here too, on this line, with nothing saved. The screens' lists carry
+      // their pack's labels, which a library in the saved shape does not.
+      const ids = { pack: randomId(), lists: decoded.lists.map(() => randomId()) }
+      importPackFile({ packs, lists: lists.map(({ group: _group, category: _category, tags: _tags, ...rest }) => rest) }, decoded, ids)
+      await savePack((library, same) => importPackFile(library, decoded, same), decoded.lists.length, ids)
+    } catch (reason) {
+      setExportError(errorText(reason, t('import.readFailed')))
+    }
   }
 
   async function copy(list: SavedWordList) {
@@ -294,14 +350,25 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
   const deletingPackName = deleting.item && lists.filter(list => list.packId === deleting.item!.list.packId).length === 1
     ? packs.find(pack => pack.id === deleting.item!.list.packId)?.name : undefined
 
-  if (!lists.length) return <EmptyState />
+  // Restoring a pack from a file is the way to start again, so the empty state offers it too.
+  if (!lists.length) return <>
+    <EmptyState actions={<>
+      <input ref={fileInput} type="file" accept=".json,application/json" hidden tabIndex={-1} aria-hidden="true"
+        onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void importFile(file) }} />
+      <Button variant="outline" disabled={saving} onClick={() => fileInput.current?.click()}><Upload aria-hidden="true" />{t('manager.importFile')}</Button>
+    </>} />
+    {exportError && <p role="alert" className="mt-3 flex items-center gap-1.5 text-sm text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{exportError}</p>}
+  </>
 
   return <section aria-labelledby="list-heading" className="space-y-3">
     <div className="flex min-h-11 flex-wrap items-center gap-x-2 gap-y-2">
       <h2 id="list-heading" tabIndex={-1} className="text-base font-bold outline-none">{t('manager.heading')}</h2>
       <Badge variant="secondary" className="tabular-nums" title={t('manager.limitTitle', { max: MAX_LISTS })}>{lists.length} / {MAX_LISTS}</Badge>
-      {full ? <Button className="ml-auto" disabled><Plus aria-hidden="true" />{t('manager.createPack')}</Button>
-        : <Button asChild className="ml-auto"><Link href="/packs/create"><Plus aria-hidden="true" />{t('manager.createPack')}</Link></Button>}
+      <input ref={fileInput} type="file" accept=".json,application/json" hidden tabIndex={-1} aria-hidden="true"
+        onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void importFile(file) }} />
+      <Button variant="outline" className="ml-auto" disabled={full || saving} onClick={() => fileInput.current?.click()}><Upload aria-hidden="true" />{t('manager.importFile')}</Button>
+      {full ? <Button disabled><Plus aria-hidden="true" />{t('manager.createPack')}</Button>
+        : <Button asChild><Link href="/packs/create"><Plus aria-hidden="true" />{t('manager.createPack')}</Link></Button>}
     </div>
     {full && <p className="text-sm text-muted-foreground">{t('manager.full', { max: MAX_LISTS })}</p>}
     {exportError && <p role="alert" className="flex items-center gap-1.5 text-sm text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{exportError}</p>}
@@ -341,6 +408,7 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
           }}
           onEditPack={() => router.push(`/packs/edit?pack=${encodeURIComponent(pack.id)}`)}
           onAddList={full ? undefined : () => router.push(`/create?pack=${encodeURIComponent(pack.id)}`)}
+          onCopy={lists.length + item.lists.length > MAX_LISTS ? undefined : () => copyPackOf(item)} onExport={() => exportPack(item)}
           onDeletePack={() => { packDeleted.current = false; setDeletingPack({ open: true, item, position: shown.indexOf(item) }) }}>
           {rows.map(row => <ListRow key={row.list.id} item={row} now={now} highlight={highlight === row.list.id} disabled={saving} canCopy={!full}
             onEdit={() => onEdit(row.list)} onExport={() => exportCsv(row.list)} onCopy={() => copy(row.list)}
@@ -428,7 +496,7 @@ function OrderMenu({ value, onChange }: { value: ListOrder; onChange: (value: Li
   </DropdownMenu.Root>
 }
 
-function EmptyState() {
+function EmptyState({ actions }: { actions?: ReactNode }) {
   const t = useTranslations('wordLists')
   return <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed bg-card px-6 py-10 text-center sm:py-14">
     <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground"><ListPlus className="size-6" aria-hidden="true" /></span>
@@ -436,6 +504,9 @@ function EmptyState() {
       <h2 className="font-bold">{t('empty.packTitle')}</h2>
       <p className="max-w-md text-sm text-balance text-muted-foreground">{t('empty.description')}</p>
     </div>
-    <Button asChild><Link href="/packs/create"><Plus aria-hidden="true" />{t('manager.createPack')}</Link></Button>
+    <div className="flex flex-wrap justify-center gap-2">
+      <Button asChild><Link href="/packs/create"><Plus aria-hidden="true" />{t('manager.createPack')}</Link></Button>
+      {actions}
+    </div>
   </div>
 }

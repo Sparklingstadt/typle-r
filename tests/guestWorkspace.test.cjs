@@ -108,5 +108,6 @@ test('a save from a screen without packs keeps the saved packs, and lists that d
 
 test('the initial library is the initial lists converted', () => {
   const { initialLists, initialLibrary } = require('../src/plugins/packs/index.ts')
-  assert.deepEqual(initialLibrary, normalizeLibrary(initialLists, null))
+  const converted = normalizeLibrary(initialLists, null)
+  assert.deepEqual(initialLibrary, { ...converted, packs: converted.packs.map(pack => ({ ...pack, origin: { catalogId: pack.id, version: 1 } })) })
 })

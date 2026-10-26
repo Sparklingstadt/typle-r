@@ -54,28 +54,32 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 
 ## 共通事項
 
-- 本文はJSON（`Content-Type: application/json; charset=utf-8`）、`Cache-Control: no-store` です。`GET /api/v1/lists/{l}/words.csv` だけは CSV ファイルを返します。
+- 本文はJSON（`Content-Type: application/json; charset=utf-8`）、`Cache-Control: no-store` です。`GET /api/v1/lists/{l}/words.csv` は CSV ファイル、`GET /api/v1/packs/{p}/export` はパックのファイル（JSON）を、`Content-Disposition: attachment` を付けて返します。
 - CORSヘッダーは付けないため、ブラウザーの他サイトからは呼べません。サーバーやスクリプトから利用してください。
 - エラーは `{ "error": "<キー>" }` です。CSV・TSV の取り込みで行の分かる誤りには、`{ "error": "importQuote", "line": 3 }` のように `line`（1から数える行番号）が付きます。
 
 | ステータス | キー | 状況 |
 |---|---|---|
 | 400 | `invalidQuery` | クエリの値が不正（`since`・`limit`・`tz`・`sort`・`order` など） |
-| 400 | `invalidJson` | 本文がJSONの1つのオブジェクトでない、型が違う、未知の項目がある（項目名は大文字小文字まで一致が必要）、`PATCH` で `name`・`words` のどちらもない |
-| 400 | `listNameRequired`・`listNameDuplicate`・`wordsRequired`・`wordFieldsRequired`・`invalidList`・`listLimit` | リストの内容が不正（下の「リストの検証」） |
+| 400 | `invalidJson` | 本文がJSONの1つのオブジェクトでない、型が違う、未知の項目がある（項目名は大文字小文字まで一致が必要）、`PATCH` で変える項目が1つもない |
+| 400 | `listNameRequired`・`listNameDuplicate`・`wordsRequired`・`wordFieldsRequired`・`invalidList`・`listLimit`・`levelsConflict` | リストの内容が不正（下の「リストの検証」） |
+| 400 | `packNameRequired`・`packNameDuplicate`・`invalidPack` | パックの内容が不正（下の「パックの検証」。v0.95.0 から） |
+| 400 | `packNotFound` | 本文やクエリの `packId` のパックがない（v0.95.0 から） |
+| 400 | `packFileUnreadable` | 取り込むパックのファイルが読めない（下の「パックのファイルの取り込み」。v0.95.0 から） |
 | 400 | `invalidRecord`・`recordLimit`・`deviceNotFound` | 記録の内容が不正（下の「記録の検証」） |
 | 400 | `deviceNameRequired`・`deviceNameTooLong`・`deviceLayoutTooLong`・`deviceNameDuplicate`・`deviceLimit`・`invalidDevice` | 端末の内容が不正（下の「端末の検証」） |
 | 400 | `importFileEncoding`・`importQuote`・`importHeaderRequired`・`importHeaderDuplicate`・`importHeaderUnknown`・`importNoRows`・`importTooManyRows`・`importColumnCount`・`importFieldRequired`・`importFieldTooLong` | 取り込むファイルが不正（下の「CSV・TSV の取り込み」） |
 | 401 | `invalidToken` | トークンがない、形式が違う、または GitHub が受け付けない |
 | 404 | `listNotFound` | 指定したIDのリストがない |
+| 404 | `packNotFound` | パスで指定したIDのパックがない（v0.95.0 から） |
 | 404 | `deviceNotFound` | パスで指定したIDの端末がない（組み込みの `default` も） |
 | 404 | `recordNotFound` | パスで指定したIDの記録がない（IDのない古い記録も） |
 | 404 | `notFound` | 未知のパス |
 | 405 | `methodNotAllowed` | そのパスで使えないメソッド（`-writable` でない書き込みを含む）。`Allow` に使えるメソッドを付ける |
 | 413 | `requestTooLarge` | 本文が 1MiB を超える |
-| 413 | `importTooLarge` | 取り込むファイルが 1MiB を超える |
+| 413 | `importTooLarge` | 取り込むファイル（CSV・TSV・パックのファイル）が 1MiB を超える |
 | 413 | `workspaceTooLarge` | 保存後のリスト全体が 896KiB を超える |
-| 415 | `unsupportedContentType` | 書き込みの `Content-Type` の `;` より前が `application/json` でない（取り込みでは `text/csv`・`text/tab-separated-values`・`text/plain` のどれでもない） |
+| 415 | `unsupportedContentType` | 書き込みの `Content-Type` の `;` より前が `application/json` でない（CSV・TSV の取り込みでは `text/csv`・`text/tab-separated-values`・`text/plain` のどれでもない） |
 | 503 | `githubUnavailable` | GitHub でトークンを確かめられない。しばらくしてからやり直す |
 | 503 | `databaseUnavailable` | DBの障害、または保存済みのデータが読めない。しばらくしてからやり直す |
 
@@ -109,7 +113,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 | `category` | そのカテゴリのリストだけ（大文字小文字を区別しない）。`category=`（空）ならカテゴリのないリストだけ（v0.78.0 から） |
 | `tag` | そのタグを持つリストだけ。`tag=Go&tag=CLI` のように複数並べると、すべてを持つリストだけ（大文字小文字を区別しない。v0.78.0 から） |
 
-`packId`（そのリストが入っている単語パックの ID）は v0.91.0 からで、`GET /api/v1/lists/{l}` と作成・更新の応答の `list` にもあります。`category`・`tags` はリストではなくパックの値です（同じパックのリストは同じ値になります）。`POST /api/v1/lists` は `packId` を受け取らず、1リストだけのパックを作ります。そのとき `category`・`tags` を送るとそのパックの値になります。`PATCH` の `category`・`tags` もパックの値を変えます。`packId` の指定やパックのエンドポイントは今後の版で足します。
+`packId`（そのリストが入っている単語パックの ID）は v0.91.0 からで、`GET /api/v1/lists/{l}` と作成・更新の応答の `list` にもあります。`category`・`tags` はリストではなくパックの値です（同じパックのリストは同じ値になります）。`levels`（練習画面でパックの中のリストを選ぶ難易度。ないときは `[]`）は v0.95.0 からです。パックそのものは `GET /api/v1/packs` で読めます。作成・変更での `packId`・`levels` は「書き込み」を見てください。
 
 並べ方と検索はアプリの「単語リスト」画面と同じです。名前順は Go の照合表（CLDR 23）を使うため、半角カナ・ギリシャ文字・記号で始まる名前は、ブラウザーと順序が違うことがあります。
 
@@ -123,6 +127,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
     "name": "英単語",
     "category": "語学",
     "tags": ["英語"],
+    "levels": [],
     "wordCount": 120,
     "recordCount": 8,
     "createdAt": "2026-10-10T01:23:45.000Z"
@@ -139,8 +144,10 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
   "list": {
     "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
     "name": "英単語",
+    "packId": "pack-7c9e6679-7425-40de-944b-e07fc1f90ae7",
     "category": "語学",
     "tags": ["英語"],
+    "levels": [],
     "wordCount": 1,
     "recordCount": 8,
     "createdAt": "2026-10-10T01:23:45.000Z",
@@ -152,6 +159,55 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 ### `GET /api/v1/lists/{l}/words.csv`
 
 リストの単語を、アプリの「CSV書き出し」と同じ CSV で返します（v0.48.0 から）。BOM 付き、見出し `input,display,annotation`、すべての項目を `"` で囲み、改行は CRLF です。`Content-Type: text/csv; charset=utf-8`、`Content-Disposition` にリスト名から作ったファイル名（アプリと同じ規則）を付けます。
+
+### `GET /api/v1/packs`
+
+単語パックの一覧を保存順で返します（v0.95.0 から）。中のリストは含みません。
+
+| クエリ | 内容 |
+|---|---|
+| `q` | パックの名前か、中のいずれかのリストの名前・カテゴリ・タグ・単語の `display`・`input` に含まれるパックだけ（大文字小文字を区別しない。アプリの「単語パック」画面の検索と同じ）。空なら全部 |
+| `category` | そのカテゴリのパックだけ（大文字小文字を区別しない）。`category=`（空）ならカテゴリのないパックだけ |
+| `tag` | そのタグを持つパックだけ。複数並べると、すべてを持つパックだけ（大文字小文字を区別しない） |
+
+```json
+{
+  "packs": [{
+    "id": "pack-7c9e6679-7425-40de-944b-e07fc1f90ae7",
+    "name": "Linux",
+    "description": "よく使うコマンド",
+    "category": "プログラミング",
+    "tags": ["シェル"],
+    "origin": { "catalogId": "pack-7c9e6679-7425-40de-944b-e07fc1f90ae7", "version": 1 },
+    "createdAt": "2026-10-10T01:23:45.000Z",
+    "listCount": 2,
+    "wordCount": 120,
+    "practiceCount": 8,
+    "practicedListCount": 1,
+    "lastPracticed": "2026-10-20T02:00:00.000Z"
+  }]
+}
+```
+
+- `description`・`category` はないとき `null`、`tags` は `[]`。`origin` は公式パックのカタログから追加したパック（と最初のパック）の出どころで、ほかは `null`。
+- `listCount`・`wordCount` は中のリストと単語の数、`practiceCount` は中のリストの記録の合計、`practicedListCount` は記録のあるリストの数、`lastPracticed` は中のリストで最も新しい記録の日時（なければ `null`）です。
+
+### `GET /api/v1/packs/{p}`
+
+パック1つです（`{ "pack": { …, "lists": [...] } }`）。`GET /api/v1/packs` の各項目に、中のリストを保存順で並べた `lists`（`GET /api/v1/lists` の各項目と同じ形）を足したものです。ないパックは `404 packNotFound`。
+
+### `GET /api/v1/packs/{p}/export`
+
+パックを、アプリの「ファイルに書き出す」と同じパックのファイルで返します（`Content-Type: application/json; charset=utf-8`）。`Content-Disposition` のファイル名は `<パック名>.typle-pack.json` で、パック名は `words.csv` のリスト名と同じ規則で扱います。中身は記録・ID・作成日時・`origin` を含まない次の形で、2スペースのインデントと末尾の改行で書きます。空の任意項目は書きません。
+
+```json
+{
+  "format": "typle-pack",
+  "version": 1,
+  "pack": { "name": "Linux", "description": "よく使うコマンド", "category": "プログラミング", "tags": ["シェル"] },
+  "lists": [{ "name": "基本", "levels": ["初級"], "words": [{ "display": "ls", "input": "ls", "annotation": "一覧" }] }]
+}
+```
 
 ### `GET /api/v1/lists/{l}/records`
 
@@ -269,21 +325,26 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 
 ## 書き込み（`-writable` のとき）
 
-本文は `Content-Type: application/json` のJSONオブジェクトで、1MiB までです（本文のない `DELETE` と複製を除く）。応答の `list` は `GET /api/v1/lists/{l}` と同じ形です。
+本文は `Content-Type: application/json` のJSONオブジェクトで、1MiB までです（本文のない `DELETE` と複製を除く）。応答の `list` は `GET /api/v1/lists/{l}` と、`pack` は `GET /api/v1/packs/{p}` と同じ形です。
 
 | メソッドとパス | 本文 | 応答 |
 |---|---|---|
-| `POST /api/v1/lists` | `{ "name", "category"?, "tags"?, "words": [{ "display", "input", "annotation"? }] }` | `201 { "list" }`。IDはサーバーが UUID で決め、`createdAt` は今の時刻。最後に追加する |
-| `PATCH /api/v1/lists/{l}` | `{ "name"?, "category"?, "tags"?, "words"? }`（少なくとも1つ） | `200 { "list" }`。`words`・`tags` は全体を置き換える。`""` のカテゴリ・空の `tags` で外す。記録・`createdAt`・並び順は残る |
+| `POST /api/v1/lists` | `{ "name", "packId"?, "category"?, "tags"?, "levels"?, "words": [{ "display", "input", "annotation"? }] }` | `201 { "list" }`。IDはサーバーが UUID で決め、`createdAt` は今の時刻。最後に追加する。`packId` を省略するとリスト名で1リストのパックを作り、`category`・`tags` をそのパックに付ける。`packId` を指定するとそのパックの最後のリストになる（v0.95.0 から） |
+| `PATCH /api/v1/lists/{l}` | `{ "name"?, "packId"?, "category"?, "tags"?, "levels"?, "words"? }`（少なくとも1つ） | `200 { "list" }`。`words`・`tags`・`levels` は全体を置き換える。`""` のカテゴリ・空の `tags`・空の `levels` で外す。`category`・`tags` はリストの入っているパック（`packId` を指定したら移した先）の値を変える。`packId` で別のパックに移すと、そのパックの最後のリストの後ろに入り、空になった元のパックは消える（v0.95.0 から）。記録・`createdAt`・並び順（移さないとき）は残る |
 | `DELETE /api/v1/lists/{l}` | なし | `204`（本文なし）。記録も一緒に消える |
-| `POST /api/v1/lists/{l}/copy` | なし、または `{ "name"? }` | `201 { "list" }`。単語とカテゴリ・タグをコピーし、記録はコピーしない。名前を省略すると「元の名前（コピー）」、使われていれば「（コピー2）」…（200文字に収まるよう元の名前を切る）。最後に追加する（v0.47.0 から） |
-| `POST /api/v1/lists/import?name=…&format=csv\|tsv` | CSV・TSV のファイルそのもの（`Content-Type` は `text/csv`・`text/tab-separated-values`・`text/plain`。1MiB まで） | `201 { "list" }`。アプリの「CSV・TSVファイルから追加」と同じ読み方で単語を読み、`name` の名前のリストを作る（v0.48.0 から） |
+| `POST /api/v1/lists/{l}/copy` | なし、または `{ "name"? }` | `201 { "list" }`。元のリストと同じパックの最後に入る（v0.95.0 から。それまでは1リストの新しいパック）。単語をコピーし、難易度・記録はコピーしない。名前を省略すると「元の名前（コピー）」、同じパックで使われていれば「（コピー2）」…（200文字に収まるよう元の名前を切る）。名前は同じパックのリストと違えばよい（v0.47.0 から） |
+| `POST /api/v1/lists/import?name=…&format=csv\|tsv&packId=…` | CSV・TSV のファイルそのもの（`Content-Type` は `text/csv`・`text/tab-separated-values`・`text/plain`。1MiB まで） | `201 { "list" }`。アプリの「CSV・TSVファイルから追加」と同じ読み方で単語を読み、`name` の名前のリストを作る（v0.48.0 から）。`packId` を指定するとそのパックの最後のリストになり、省略すると新しいパックを作る（v0.95.0 から） |
 | `POST /api/v1/lists/{l}/records` | `{ "id"?, "time", "date", "mistakes", "accuracy", "wordCount"?, "deviceId"? }` | 追加したら `201 { "record" }`。同じリストに同じ `id` の記録があれば追加せず、保存済みの記録を `200 { "record" }` で返す |
 | `POST /api/v1/devices` | `{ "name", "layout"? }` | `201 { "device" }`。IDはサーバーが UUID で決める。最後に追加する |
 | `PATCH /api/v1/devices/{d}` | `{ "name"?, "layout"? }`（少なくとも一方） | `200 { "device" }` |
 | `PATCH /api/v1/lists/{l}/records/{r}` | `{ "time"?, "date"?, "mistakes"?, "accuracy"?, "wordCount"?, "deviceId"? }`（少なくとも1つ） | `200 { "record" }`。送らなかった項目とTypleの知らない項目は残る。`id` は変えられない |
 | `DELETE /api/v1/lists/{l}/records/{r}` | なし | `204`（本文なし） |
 | `DELETE /api/v1/devices/{d}` | なし | `204`（本文なし） |
+| `POST /api/v1/packs` | `{ "name", "description"?, "category"?, "tags"?, "lists": [{ "name", "levels"?, "words": [{ "display", "input", "annotation"? }] }] }`（リスト1つ以上） | `201 { "pack" }`。パック・リストのIDはサーバーが UUID で決め、`createdAt` は今の時刻。パックは最後に、リストはすべてのリストの後ろに追加する（v0.95.0 から） |
+| `PATCH /api/v1/packs/{p}` | `{ "name"?, "description"?, "category"?, "tags"?, "listOrder"? }`（少なくとも1つ） | `200 { "pack" }`。`tags` は全体を置き換え、`""` の説明・カテゴリ・空の `tags` で外す。カテゴリ・タグは中のリストの値にもなる。`listOrder` は中のリストのIDを新しい順に並べたもの: パックにないIDは無視し、並べなかったリストは今の順で後ろに続く（v0.95.0 から） |
+| `DELETE /api/v1/packs/{p}` | なし | `204`（本文なし）。中のリストと記録も一緒に消える（v0.95.0 から） |
+| `POST /api/v1/packs/{p}/copy` | なし、または `{ "name"? }` | `201 { "pack" }`。元のパックの直後に入る。説明・カテゴリ・タグと、リストの名前・難易度・単語をコピーし、記録・`origin` はコピーしない。名前を省略すると「元の名前（コピー）」、使われていれば「（コピー2）」…（v0.95.0 から） |
+| `POST /api/v1/packs/import` | パックのファイルそのもの（`Content-Type: application/json`。1MiB まで） | `201 { "pack" }`。アプリの「ファイルから追加」と同じ読み方でパックを最後に追加する（下の「パックのファイルの取り込み」。v0.95.0 から） |
 
 記録には練習したときの端末のコピーが入っているため、端末の名前を変えても削除しても、過去の記録の端末はそのままです（アプリと同じ）。組み込みの `default` は変更・削除できません（`404 deviceNotFound`）。
 
@@ -294,8 +355,27 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 - `name`: 前後の空白を除いて1文字以上（`listNameRequired`）、ほかのリストと同じ名前は不可（前後の空白を除き、大文字小文字を区別しない。比べ方はアプリと同じJavaScriptの `toLowerCase` で、語末の `Σ` は `ς`、`İ` は `i̇` になる。`listNameDuplicate`）。前後の空白を除いて保存する。
 - `words`: 1件以上（`wordsRequired`）。`display`・`input` は空白だけでない文字列（`wordFieldsRequired`）。`annotation` は省略すると `""`。単語の前後の空白はそのまま保存する。
 - `category`・`tags`（v0.78.0 から。省略できる）: 前後の空白を除いて保存し、空のタグと、大文字小文字だけ違う同じタグは除く。空になれば保存しない。
-- 長さ（UTF-16の文字数）: 名前200、単語1000件、`display`・`input` 1000、`annotation` 2000、カテゴリ50、タグ1つ50・20個まで。超えると `invalidList`。NUL文字（`\u0000`）はDBに保存できないため、名前・単語のどこにあっても `invalidList`。
-- リストが100件あるときの作成は `listLimit`。
+- 長さ（UTF-16の文字数）: 名前200、単語1000件、`display`・`input` 1000、`annotation` 2000、カテゴリ50、タグ1つ50・20個まで、難易度1つ50・5個まで。超えると `invalidList`。NUL文字（`\u0000`）はDBに保存できないため、名前・単語・難易度のどこにあっても `invalidList`。
+- リストが150件あるときの作成・複製は `listLimit`。
+- `packId`（v0.95.0 から）: 名前はそのパックのほかのリストと違えばよい（`packId` を省略した作成ではすべてのリストと比べる）。ないパックは `400 packNotFound`。作成で `packId` と `category`・`tags` を一緒に送ると `invalidList`（パックの値を使うため）。リストと同じ名前の1リストだけのパックは、リストの名前を変えるとパックの名前も変わるため、そのリストをほかのパックと同じ名前にはできない（`listNameDuplicate`）。
+- `levels`（v0.95.0 から）: 前後の空白を除いて保存し、空の難易度は除く。空になれば保存しない。練習画面は難易度の並び（ないときはリスト名1つ）でパックの中のリストを選ぶため、同じパックのほかのリストと並びが同じ、または一方が他方の先頭と同じになると選べないリストができるので `levelsConflict`（例: `["基本"]` と `["基本", "1"]`）。
+
+### パックの検証
+
+アプリでパックを保存するときと同じです（v0.95.0 から）。
+
+- `name`: 前後の空白を除いて1文字以上（`packNameRequired`）、ほかのパックと同じ名前は不可（比べ方はリスト名と同じ。`packNameDuplicate`）。前後の空白を除いて保存する。
+- `description`: 前後の空白を除いて保存する。`category`・`tags`: リストと同じ規則で整える。
+- 長さ（UTF-16の文字数）: 名前200、説明500、カテゴリ50、タグ1つ50・20個まで。超えるか NUL文字（`\u0000`）があると `invalidPack`。作成で `lists` がない・空のときも `invalidPack`。
+- 作成の `lists` はそれぞれ「リストの検証」と同じ規則で、前のリストと比べて確かめる（名前の重なりは `listNameDuplicate`、難易度の重なりは `levelsConflict`）。全体のリストが150件を超える作成・複製・取り込みは `listLimit`。
+
+### パックのファイルの取り込み
+
+アプリで「ファイルから追加」するときと同じです（v0.95.0 から）。
+
+- 先頭の BOM は読み飛ばす。JSONでない、`format` が `typle-pack` でない、`version` が `1` でない、形が違う（`pack.name`・`lists`・各リストの `name`・`words`、各単語の `display`・`input`・`annotation` が文字列でないなど）、リストが1つもないファイルは `400 packFileUnreadable`。Typleの知らない項目は読み飛ばす。
+- 中身は作成と同じ規則で確かめる（`packNameRequired`・`invalidPack`、リストの各キー、`levelsConflict`、`listLimit`）。パック名がほかのパックと同じなら「名前（2）」「名前（3）」…にする。
+- パック・リストのIDは新しく作り、作成日時は今の時刻、記録は空です。1MiB を超えると `413 importTooLarge`。
 
 ### CSV・TSV の取り込み
 
@@ -378,6 +458,7 @@ DBのテスト（読み取りと書き込み）は、`npm run db:migrate` 済み
 
 - GitHub 以外の認証、ブラウザーでのログイン画面、許可するユーザーの制限
 - ローカルの開発用ログインのアカウント（`github:0`）。GitHub のトークンでは名乗れない
-- `id` のない記録の変更・削除、記録の別のリストへの移動、リストや端末の並べ替え、単語単位の追加・削除
+- `id` のない記録の変更・削除、記録の別のリストへの移動、パック・端末の並べ替え、単語単位の追加・削除（リストはパックの中で `listOrder` で並べ替えられる）
+- 公式パックのカタログからの追加、リンクでの共有
 - トークンごとの読み取り・書き込みの区別（書き込みはサーバーの `-writable` で決める）
 - ブラウザー保存のデータ
