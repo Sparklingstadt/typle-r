@@ -177,6 +177,7 @@ export function applyListChange(previous: Library, lists: SavedWordList[]): Libr
     }
     return next
   })
-  // 3. Lists without a pack, empty packs, repeated names and stray labels are repaired.
-  return repairLibrary({ packs, lists })
+  // 3. Labels of lists in an existing pack were settled in 1, so they are dropped; only a list without a pack keeps them for repair to move.
+  const known = new Set(packs.map(pack => pack.id))
+  return repairLibrary({ packs, lists: lists.map(list => list.packId !== undefined && known.has(list.packId) ? withoutLabels(list) : list) })
 }

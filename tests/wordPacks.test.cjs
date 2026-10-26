@@ -105,3 +105,9 @@ test('applyListChange leaves an unchanged view as it was, and clears labels the 
   const next = applyListChange(library, viewLists(library).filter(list => list.id !== 'b').map(list => list.id === 'a' ? { ...list, category: ' ', tags: [] } : list))
   assert.equal('category' in next.packs[0] || 'tags' in next.packs[0], false)
 })
+
+test('applyListChange: clearing the labels of one list in a pack clears the pack', () => {
+  const next = applyListChange(library, viewLists(library).map(list => list.id === 'b' ? { ...list, category: undefined, tags: undefined } : list))
+  assert.equal('category' in next.packs[0] || 'tags' in next.packs[0], false)
+  validateLibrary(next)
+})
