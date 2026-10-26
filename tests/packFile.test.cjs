@@ -119,8 +119,8 @@ test('importPackFile refuses a file against the rules of a save, and changes not
   assert.throws(() => run([{ name: 'L', words: [{ display: 'a', input: ' ', annotation: '' }] }]), { key: 'wordFieldsRequired' })
   assert.throws(() => run([{ name: 'L', words: words('a') }], { name: ' ' }), { key: 'packNameRequired' })
   assert.throws(() => run([]), { key: 'packFileUnreadable' })
-  assert.throws(() => run([{ name: 'L', words: words('a') }], { name: 'x'.repeat(201) }), { message: 'Invalid packs' })
-  assert.throws(() => run([{ name: 'L', levels: ['1', '2', '3', '4', '5', '6'], words: words('a') }]), { message: 'Invalid packs' })
+  assert.throws(() => run([{ name: 'L', words: words('a') }], { name: 'x'.repeat(201) }), { key: 'invalidPackFile' })
+  assert.throws(() => run([{ name: 'L', levels: ['1', '2', '3', '4', '5', '6'], words: words('a') }]), { key: 'invalidPackFile' })
   assert.equal(JSON.stringify(lib), before)
   const two = [{ name: 'A', words: words('a') }, { name: 'B', words: words('b') }]
   assert.throws(() => importPackFile(full(1), file(two), { pack: 'n', lists: ['n1', 'n2'] }, now), { key: 'listLimit', values: { max: MAX_LISTS } })
@@ -154,3 +154,35 @@ test('a long name keeps the copy and number marks within 200 characters', () => 
   assert.equal(copyPack(lib, 'p', { pack: 'c', lists: ['c1'] }, suffix, now).packs[1].name, 'x'.repeat(195) + '（コピー）')
   assert.equal(importPackFile(lib, file([{ name: 'A', words: words('a') }], { name: long }), { pack: 'n', lists: ['n1'] }, now).packs[1].name, 'x'.repeat(197) + '（2）')
 })
+
+// Limits a save enforces are refused on the file itself, with one key, before anything is saved.
+{
+  const w = (n = 1) => Array.from({ length: n }, () => ({ display: 'a', input: 'a', annotation: '' }))
+  const one = (over = {}) => ({ name: 'L', words: w(), ...over })
+  const cases = [
+    ['a pack name over 200', file([one()], { name: 'x'.repeat(201) })],
+    ['a description over 500', file([one()], { name: 'P', description: 'x'.repeat(501) })],
+    ['a category over 50', file([one()], { name: 'P', category: 'x'.repeat(51) })],
+    ['more than 20 tags', file([one()], { name: 'P', tags: Array.from({ length: 21 }, (_, n) => `t${n}`) })],
+    ['a tag over 50', file([one()], { name: 'P', tags: ['x'.repeat(51)] })],
+    ['a list name over 200', file([one({ name: 'x'.repeat(201) })])],
+    ['more than 1000 words', file([one({ words: w(1001) })])],
+    ['an input over 1000', file([one({ words: [{ display: 'a', input: 'x'.repeat(1001), annotation: '' }] })])],
+    ['a display over 1000', file([one({ words: [{ display: 'x'.repeat(1001), input: 'a', annotation: '' }] })])],
+    ['an annotation over 2000', file([one({ words: [{ display: 'a', input: 'a', annotation: 'x'.repeat(2001) }] })])],
+    ['more than 5 levels', file([one({ levels: ['1', '2', '3', '4', '5', '6'] })])],
+    ['a level over 50', file([one({ levels: ['x'.repeat(51)] })])],
+  ]
+  for (const [name, bad] of cases) {
+    test(`importPackFile refuses ${name} as invalidPackFile`, () => {
+      const lib = library()
+      assert.throws(() => importPackFile(lib, bad, { pack: 'n', lists: bad.lists.map((_, n) => `n${n}`) }, now), { key: 'invalidPackFile' })
+    })
+  }
+
+  test('importPackFile accepts the limits themselves', () => {
+    const ok = file([one({ name: 'x'.repeat(200), words: [...w(999), { display: 'x'.repeat(1000), input: 'x'.repeat(1000), annotation: 'x'.repeat(2000) }], levels: ['x'.repeat(50), '2', '3', '4', '5'] })],
+      { name: 'x'.repeat(200), description: 'x'.repeat(500), category: 'x'.repeat(50), tags: Array.from({ length: 20 }, (_, n) => `t${n}`) })
+    validateLibrary(importPackFile(library(), ok, { pack: 'n', lists: ['n0'] }, now))
+  })
+}

@@ -1,8 +1,8 @@
 import { AppError } from './appError'
-import { copyName, MAX_LISTS } from './listOverview'
+import { copyName, MAX_LISTS, MAX_LIST_NAME } from './listOverview'
 import { levelPath, pathsOverlap, settle, tidyLevels } from './packEditing'
-import { normalizeLabels, validateList, type SavedWordList } from './wordLists'
-import { nameKey, type Library, type WordPack } from './wordPacks'
+import { MAX_CATEGORY, MAX_LEVEL, MAX_LEVELS, MAX_TAG, MAX_TAGS, normalizeLabels, validateList, type SavedWordList } from './wordLists'
+import { MAX_PACK_DESCRIPTION, MAX_PACK_NAME, nameKey, type Library, type WordPack } from './wordPacks'
 import { fit, unique } from './workspaceDocument'
 
 /**
@@ -88,6 +88,25 @@ function checkRoom(library: Library, count: number) {
   if (library.lists.length + count > MAX_LISTS) throw new AppError('listLimit', { max: MAX_LISTS })
 }
 
+// The limits a save enforces on sizes (see validateLibrary and validateLists), checked on the file as it was read.
+const MAX_WORDS = 1000
+const MAX_INPUT = 1000
+const MAX_DISPLAY = 1000
+const MAX_ANNOTATION = 2000
+
+function checkSizes(file: PackFile) {
+  const { name, description, category, tags } = file.pack
+  const labels = normalizeLabels({ category, tags })
+  const tooLarge = name.length > MAX_PACK_NAME || (description?.trim().length ?? 0) > MAX_PACK_DESCRIPTION ||
+    (labels.category?.length ?? 0) > MAX_CATEGORY || (labels.tags?.length ?? 0) > MAX_TAGS || !!labels.tags?.some(tag => tag.length > MAX_TAG) ||
+    file.lists.some(item => {
+      const levels = (item.levels ?? []).map(level => level.trim()).filter(Boolean)
+      return item.name.length > MAX_LIST_NAME || item.words.length > MAX_WORDS || levels.length > MAX_LEVELS || levels.some(level => level.length > MAX_LEVEL) ||
+        item.words.some(word => word.input.length > MAX_INPUT || word.display.length > MAX_DISPLAY || word.annotation.length > MAX_ANNOTATION)
+    })
+  if (tooLarge) throw new AppError('invalidPackFile')
+}
+
 function checkIds(ids: NewPackIds, count: number) {
   if (ids.lists.length !== count) throw new Error('One list id is needed for each list')
 }
@@ -102,6 +121,7 @@ export function addPackFile(library: Library, file: PackFile, ids: NewPackIds, n
   const wanted = file.pack.name.trim()
   if (!wanted) throw new AppError('packNameRequired')
   checkRoom(library, file.lists.length)
+  checkSizes(file)
   const createdAt = now.toISOString()
   const lists: SavedWordList[] = []
   file.lists.forEach((item, n) => {

@@ -264,8 +264,8 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
   }
 
   // The new pack is the one the change added; its name is read back from the saved library.
-  async function savePack(change: (library: Library, ids: { pack: string; lists: string[] }) => Library, listCount: number) {
-    const ids = { pack: randomId(), lists: Array.from({ length: listCount }, () => randomId()) }
+  async function savePack(change: (library: Library, ids: { pack: string; lists: string[] }) => Library, listCount: number,
+    ids = { pack: randomId(), lists: Array.from({ length: listCount }, () => randomId()) }) {
     let name = ''
     const saved = await updateLibrary(library => {
       const next = change(library, ids)
@@ -291,7 +291,11 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
     try {
       if (file.size > MAX_IMPORT_BYTES) throw new AppError('importTooLarge')
       const decoded = decodePackFile(await file.text())
-      await savePack((library, ids) => importPackFile(library, decoded, ids), decoded.lists.length)
+      // A file that breaks a save rule is refused here too, on this line, with nothing saved. The screens' lists carry
+      // their pack's labels, which a library in the saved shape does not.
+      const ids = { pack: randomId(), lists: decoded.lists.map(() => randomId()) }
+      importPackFile({ packs, lists: lists.map(({ group: _group, category: _category, tags: _tags, ...rest }) => rest) }, decoded, ids)
+      await savePack((library, same) => importPackFile(library, decoded, same), decoded.lists.length, ids)
     } catch (reason) {
       setExportError(errorText(reason, t('import.readFailed')))
     }

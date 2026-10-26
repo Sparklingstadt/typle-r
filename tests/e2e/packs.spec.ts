@@ -789,6 +789,31 @@ test('a file over 1 MiB is refused as too large and nothing is added', async ({ 
   expect((await saved(page)).packs).toHaveLength(4)
 })
 
+test('a file that breaks a save rule is refused on the import line from the empty state, which stays', async ({ page }) => {
+  await page.addInitScript(k => localStorage.setItem(k, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 2, packs: [], lists: [], devices: [] })), key)
+  await page.goto('/edit')
+  await expect(page.getByRole('heading', { name: '単語パックはまだありません' })).toBeVisible()
+  const word = [{ display: 'a', input: 'a', annotation: '' }]
+  const file = { format: 'typle-pack', version: 1, pack: { name: '重複' }, lists: [{ name: '同じ', words: word }, { name: '同じ', words: word }] }
+  await page.locator('input[type="file"][accept*=".json"]').setInputFiles({ name: 'dup.typle-pack.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(file)) })
+  await expect(page.getByText('同じ名前の単語リストがあります')).toBeVisible()
+  await expect(page.getByRole('button', { name: '再読み込み' })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: '単語パックはまだありません' })).toBeVisible()
+  await expect(page.locator('input[type="file"][accept*=".json"]')).toBeAttached()
+  const workspace = await saved(page)
+  expect(workspace.packs).toEqual([])
+  expect(workspace.lists).toEqual([])
+})
+
+test('a file over a limit is refused with the message for limits and nothing is added', async ({ page }) => {
+  await page.goto('/edit')
+  const file = { format: 'typle-pack', version: 1, pack: { name: 'x'.repeat(201) }, lists: [{ name: '一', words: [{ display: 'a', input: 'a', annotation: '' }] }] }
+  await page.locator('input[type="file"][accept*=".json"]').setInputFiles({ name: 'long.typle-pack.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(file)) })
+  await expect(page.getByText('このファイルの中に、保存できる上限を超える項目があります')).toBeVisible()
+  await expect(page.locator('li[data-pack-id]')).toHaveCount(4)
+  expect((await saved(page)).packs).toHaveLength(4)
+})
+
 // The catalog tests start from the guest's initial data (the official packs), not the seeded workspace.
 async function startFresh(page: Page) {
   await page.addInitScript(k => {
