@@ -141,3 +141,42 @@ export function validateLibrary({ packs, lists }: Library) {
   }
   if (ids.size !== listNames.size) throw invalid()
 }
+
+/** What screens see: each list carries its pack's category and tags, and a group (the pack name) when the pack holds two or more lists. */
+export function viewLists({ packs, lists }: Library): SavedWordList[] {
+  const byId = new Map(packs.map(pack => [pack.id, pack]))
+  const counts = new Map<string, number>()
+  for (const list of lists) counts.set(list.packId!, (counts.get(list.packId!) ?? 0) + 1)
+  return lists.map(list => {
+    const pack = byId.get(list.packId!)
+    if (!pack) return { ...list }
+    return {
+      ...list,
+      ...((counts.get(pack.id) ?? 0) >= 2 ? { group: pack.name } : {}),
+      ...(pack.category ? { category: pack.category } : {}),
+      ...(pack.tags ? { tags: [...pack.tags] } : {}),
+    }
+  })
+}
+
+/** Puts a change a screen made to the lists of `viewLists` back into the saved shape. */
+export function applyListChange(previous: Library, lists: SavedWordList[]): Library {
+  const before = new Map(previous.lists.map(list => [list.id, list]))
+  const packs = previous.packs.map(pack => {
+    const mine = lists.filter(list => list.packId === pack.id)
+    // 1. The first list whose labels differ from the pack's gives the pack its new labels.
+    const was = labelsOf(pack.category, pack.tags ?? [])
+    const changed = mine.map(list => labelsOf(list.category, list.tags ?? []))
+      .find(labels => JSON.stringify(labels) !== JSON.stringify(was))
+    const { category: _category, tags: _tags, ...rest } = pack
+    let next: WordPack = changed ? { ...rest, ...changed } : pack
+    // 2. A pack of one list follows that list's rename.
+    const only = previous.lists.filter(list => list.packId === pack.id)
+    if (only.length === 1 && mine.length === 1 && mine[0].id === only[0].id && nameKey(pack.name) === nameKey(before.get(mine[0].id)!.name)) {
+      next = { ...next, name: mine[0].name }
+    }
+    return next
+  })
+  // 3. Lists without a pack, empty packs, repeated names and stray labels are repaired.
+  return repairLibrary({ packs, lists })
+}

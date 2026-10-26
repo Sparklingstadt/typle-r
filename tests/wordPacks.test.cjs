@@ -3,7 +3,7 @@ const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
-const { normalizeLibrary, decodePacks, validateLibrary } = require('../src/core/wordPacks.ts')
+const { normalizeLibrary, decodePacks, validateLibrary, viewLists, applyListChange } = require('../src/core/wordPacks.ts')
 const { decodeLists, saveList } = require('../src/core/wordLists.ts')
 
 const dir = path.join(__dirname, 'fixtures/packs')
@@ -60,4 +60,48 @@ test('lists keep a packId and refuse one that is not a string', () => {
   assert.equal(decodeLists(JSON.stringify({ version: 1, lists: [list] }))[0].packId, 'p')
   assert.throws(() => decodeLists(JSON.stringify({ version: 1, lists: [{ ...list, packId: 1 }] })), { key: 'savedDataCorrupted' })
   assert.equal(saveList([list], { ...list, name: 'b' }, true)[0].packId, 'p')
+})
+
+const w = [{ display: 'ls', input: 'ls', annotation: '' }]
+const at = '2026-10-01T00:00:00.000Z'
+const library = {
+  packs: [{ id: 'p', name: 'Linux', category: 'プログラミング', tags: ['Linux'], createdAt: at }, { id: 'q', name: 'Solo', createdAt: at }],
+  lists: [{ id: 'a', name: 'a', packId: 'p', levels: ['基本'], words: w, records: [], createdAt: at },
+          { id: 'b', name: 'b', packId: 'p', words: w, records: [], createdAt: at },
+          { id: 's', name: 'Solo', packId: 'q', words: w, records: [], createdAt: at }],
+}
+
+test('viewLists gives each list its pack labels, and a group only in a pack of two or more', () => {
+  const [a, , s] = viewLists(library)
+  assert.deepEqual([a.group, a.category, a.tags, a.packId], ['Linux', 'プログラミング', ['Linux'], 'p'])
+  assert.equal('group' in s, false)
+  assert.equal('category' in s || 'tags' in s, false)
+  assert.equal('group' in library.lists[0], false)
+})
+
+test('applyListChange puts edits back into the packs', () => {
+  const view = viewLists(library)
+  // ラベルの変更はパックへ。
+  let next = applyListChange(library, view.map(list => list.id === 'b' ? { ...list, tags: ['Linux', 'zsh'] } : list))
+  assert.deepEqual(next.packs[0].tags, ['Linux', 'zsh'])
+  assert.equal(next.lists.some(list => 'tags' in list || 'group' in list || 'category' in list), false)
+  // packId のない新しいリストは1リストのパックになる。
+  next = applyListChange(library, [...view, { id: 'n', name: 'New', category: 'X', words: w, records: [], createdAt: at }])
+  assert.deepEqual(next.packs.at(-1), { id: 'pack-n', name: 'New', category: 'X', createdAt: at })
+  // 1リストだけのパックは、リストの改名についていく。
+  next = applyListChange(library, view.map(list => list.id === 's' ? { ...list, name: 'Renamed' } : list))
+  assert.equal(next.packs[1].name, 'Renamed')
+  next = applyListChange(library, view.map(list => list.id === 'a' ? { ...list, name: 'a2' } : list))
+  assert.equal(next.packs[0].name, 'Linux')
+  // 最後のリストを消すとパックも消える。
+  next = applyListChange(library, view.filter(list => list.id !== 's'))
+  assert.deepEqual(next.packs.map(pack => pack.id), ['p'])
+  validateLibrary(next)
+})
+
+test('applyListChange leaves an unchanged view as it was, and clears labels the view dropped', () => {
+  assert.deepEqual(applyListChange(library, viewLists(library)), library)
+  // With one list left in the pack, clearing its labels clears the pack's.
+  const next = applyListChange(library, viewLists(library).filter(list => list.id !== 'b').map(list => list.id === 'a' ? { ...list, category: ' ', tags: [] } : list))
+  assert.equal('category' in next.packs[0] || 'tags' in next.packs[0], false)
 })
