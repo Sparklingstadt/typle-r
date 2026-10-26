@@ -51,6 +51,7 @@
   "packNameRequired": "請輸入包名稱。",
   "packNameDuplicate": "已有同名的包。",
   "packDeleted": "此包已被刪除。",
+  "packFollowed": "官方包無法編輯。複製後即可作為自己的包進行編輯。",
   "levelsConflict": "同一個包中已有難度（沒有難度的清單為名稱）相同的清單。",
   "tooManyLevels": "一個清單只能有一個難度。",
   "packFileUnreadable": "無法將此檔案作為單字包讀取。",
