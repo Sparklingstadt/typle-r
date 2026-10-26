@@ -15,12 +15,22 @@ func copyMark(n int) string {
 	return fmt.Sprintf("（コピー%d）", n)
 }
 
-// copyName follows copyName (src/core/listOverview.ts): the name with the first mark that no list uses, cut so that
-// the whole stays within MaxListName. A character of two UTF-16 units is never cut in half.
+// copyName follows copyName (src/core/listOverview.ts) among the lists of w.
 func copyName(w *Workspace, name string) string {
-	taken := map[string]bool{}
+	names := make([]string, 0, len(w.Lists))
 	for _, list := range w.Lists {
-		taken[lowerCase(trimJS(list.Name))] = true
+		names = append(names, list.Name)
+	}
+	return copyNameAmong(names, name)
+}
+
+// copyNameAmong follows copyName (src/core/listOverview.ts): the name with the first mark that none of names uses, cut
+// so that the whole stays within MaxListName (which is also MaxPackName). A character of two UTF-16 units is never cut
+// in half.
+func copyNameAmong(names []string, name string) string {
+	taken := map[string]bool{}
+	for _, other := range names {
+		taken[lowerCase(trimJS(other))] = true
 	}
 	base := utf16.Encode([]rune(trimJS(name)))
 	for n := 1; ; n++ {

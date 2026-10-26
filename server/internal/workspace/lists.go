@@ -7,11 +7,14 @@ import (
 )
 
 // ListInput is a list as a request gives it. A field left out (nil) is not changed; an empty words array is given and
-// refused. An empty category or tags array removes them.
+// refused. An empty category or tags array removes them, as an empty levels array removes the levels. PackID puts a new
+// list in that pack, or moves a list there; a new list without one starts a pack of its own.
 type ListInput struct {
 	Name     *string   `json:"name"`
+	PackID   *string   `json:"packId"`
 	Category *string   `json:"category"`
 	Tags     *[]string `json:"tags"`
+	Levels   *[]string `json:"levels"`
 	Words    []Word    `json:"words"`
 }
 
@@ -22,15 +25,16 @@ func index(w *Workspace, id string) int {
 }
 
 // checkName follows validateList and saveList (src/core/wordLists.ts): a name, not used by another list in any case.
-// It returns the name to save, without the spaces around it.
-func checkName(w *Workspace, name *string, self string) (string, error) {
+// Names only have to differ within the pack packID; with no pack ("", a list not in one yet) they differ from every
+// list's. It returns the name to save, without the spaces around it.
+func checkName(w *Workspace, name *string, self, packID string) (string, error) {
 	if name == nil || trimJS(*name) == "" {
 		return "", &Error{Key: "listNameRequired"}
 	}
 	trimmed := trimJS(*name)
 	folded := lowerCase(trimmed)
 	for _, other := range w.Lists {
-		if other.ID != self && lowerCase(trimJS(other.Name)) == folded {
+		if other.ID != self && (packID == "" || other.PackID == packID) && lowerCase(trimJS(other.Name)) == folded {
 			return "", &Error{Key: "listNameDuplicate"}
 		}
 	}
@@ -84,12 +88,26 @@ func checkLabels(category string, tags []string) (string, []string, error) {
 	return category, kept, nil
 }
 
-// CreateList adds a list with no records after the others.
+// CreateList adds a list with no records after the others. With a PackID it joins that pack, whose labels it shows,
+// so it may not be given a category or tags; without one it starts a pack of its own, which ApplyListChange makes.
 func CreateList(w *Workspace, input ListInput, id string, now time.Time) (*List, error) {
+	var pack *Pack
+	if input.PackID != nil {
+		if input.Category != nil || input.Tags != nil {
+			return nil, &Error{Key: "invalidList"}
+		}
+		if pack = findPack(w, *input.PackID); pack == nil {
+			return nil, packMissing()
+		}
+	}
 	if len(w.Lists) >= MaxLists {
 		return nil, &Error{Key: "listLimit"}
 	}
-	name, err := checkName(w, input.Name, "")
+	packID := ""
+	if pack != nil {
+		packID = pack.ID
+	}
+	name, err := checkName(w, input.Name, "", packID)
 	if err != nil {
 		return nil, err
 	}
@@ -98,38 +116,70 @@ func CreateList(w *Workspace, input ListInput, id string, now time.Time) (*List,
 	}
 	var category string
 	var tags []string
-	if input.Category != nil {
-		category = *input.Category
+	if pack != nil {
+		category, tags = pack.Category, slices.Clone(pack.Tags)
+	} else {
+		if input.Category != nil {
+			category = *input.Category
+		}
+		if input.Tags != nil {
+			tags = *input.Tags
+		}
+		if category, tags, err = checkLabels(category, tags); err != nil {
+			return nil, err
+		}
 	}
-	if input.Tags != nil {
-		tags = *input.Tags
+	var levels []string
+	if input.Levels != nil {
+		if levels, err = tidyLevels(*input.Levels); err != nil {
+			return nil, err
+		}
 	}
-	category, tags, err = checkLabels(category, tags)
-	if err != nil {
-		return nil, err
+	if pack != nil {
+		if err := checkReach(w, pack.ID, "", name, levels); err != nil {
+			return nil, err
+		}
 	}
-	w.Lists = append(w.Lists, List{ID: id, Name: name, Category: category, Tags: tags, Words: input.Words, Records: []Record{},
-		CreatedAt: FormatTime(now)})
+	w.Lists = append(w.Lists, List{ID: id, Name: name, Levels: levels, PackID: packID, Category: category, Tags: tags, Words: input.Words,
+		Records: []Record{}, CreatedAt: FormatTime(now)})
 	return &w.Lists[len(w.Lists)-1], nil
 }
 
-// UpdateList renames a list, changes its category or tags, or replaces its words. Its records, creation time and place
-// stay.
+// UpdateList renames a list, changes its levels, its category or tags (those of its pack), or its words, or moves it to
+// the pack PackID, as saveListInPack (src/core/packEditing.ts) does. Its records and creation time stay, and its place
+// while it stays in its pack; a list that moves goes right after the last list of the pack it joins, and shows that
+// pack's labels. A pack it leaves empty is removed.
 func UpdateList(w *Workspace, id string, input ListInput) (*List, error) {
 	at := index(w, id)
 	if at < 0 {
 		return nil, missing()
 	}
-	list := &w.Lists[at]
+	list := w.Lists[at]
+	target := list.PackID
+	var pack *Pack
+	if input.PackID != nil {
+		if pack = findPack(w, *input.PackID); pack == nil {
+			return nil, packMissing()
+		}
+		target = pack.ID
+	}
+	moving := target != list.PackID
 	name := list.Name
-	if input.Name != nil {
-		checked, err := checkName(w, input.Name, id)
+	if input.Name != nil || moving {
+		given := input.Name
+		if given == nil {
+			given = &list.Name
+		}
+		checked, err := checkName(w, given, id, target)
 		if err != nil {
 			return nil, err
 		}
 		name = checked
 	}
 	category, tags := list.Category, list.Tags
+	if moving {
+		category, tags = pack.Category, pack.Tags
+	}
 	if input.Category != nil {
 		category = *input.Category
 	}
@@ -146,8 +196,36 @@ func UpdateList(w *Workspace, id string, input ListInput) (*List, error) {
 		}
 		list.Words = input.Words
 	}
-	list.Name, list.Category, list.Tags = name, category, tags
-	return list, nil
+	levels := list.Levels
+	if input.Levels != nil {
+		if levels, err = tidyLevels(*input.Levels); err != nil {
+			return nil, err
+		}
+	}
+	// Only a new name, new levels or a move can leave a list of the pack out of reach.
+	if target != "" && (input.Name != nil || input.Levels != nil || moving) {
+		if err := checkReach(w, target, id, name, levels); err != nil {
+			return nil, err
+		}
+	}
+	source := list.PackID
+	list.Name, list.Levels, list.PackID, list.Category, list.Tags = name, levels, target, category, tags
+	if !moving {
+		w.Lists[at] = list
+		return &w.Lists[at], nil
+	}
+	others := slices.Delete(slices.Clone(w.Lists), at, at+1)
+	end := -1
+	for i, other := range others {
+		if other.PackID == target {
+			end = i
+		}
+	}
+	w.Lists = slices.Insert(others, end+1, list)
+	if !slices.ContainsFunc(w.Lists, func(other List) bool { return other.PackID == source }) {
+		w.Packs = slices.DeleteFunc(w.Packs, func(other Pack) bool { return other.ID == source })
+	}
+	return &w.Lists[end+1], nil
 }
 
 // DeleteList removes a list with its records.

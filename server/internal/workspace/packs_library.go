@@ -316,13 +316,20 @@ func viewLists(w *Workspace) {
 
 // ApplyListChange follows applyListChange (src/core/wordPacks.ts): it puts a change made to the lists of previous (the
 // workspace as Decode read it) back into the packs. The lists then carry their packs' labels again.
+//
+// The packs are those of w, which the functions of packs_edit.go change themselves (keeping the lists' labels those of
+// their packs); the list functions leave them as previous had them, as applyListChange takes them.
 func (w *Workspace) ApplyListChange(previous *Workspace) {
 	before := map[string]List{}
 	for _, list := range previous.Lists {
 		before[list.ID] = list
 	}
-	packs := make([]Pack, 0, len(previous.Packs))
+	names := map[string]string{}
 	for _, pack := range previous.Packs {
+		names[pack.ID] = pack.Name
+	}
+	packs := make([]Pack, 0, len(w.Packs))
+	for _, pack := range w.Packs {
 		var mine, only []List
 		for _, list := range w.Lists {
 			if list.PackID == pack.ID {
@@ -345,8 +352,9 @@ func (w *Workspace) ApplyListChange(previous *Workspace) {
 				break
 			}
 		}
-		// 2. A pack of one list follows that list's rename.
-		if len(only) == 1 && len(mine) == 1 && mine[0].ID == only[0].ID && nameKey(pack.Name) == nameKey(before[mine[0].ID].Name) {
+		// 2. A pack of one list follows that list's rename, unless the change renamed the pack itself.
+		if name, found := names[pack.ID]; found && name == pack.Name && len(only) == 1 && len(mine) == 1 && mine[0].ID == only[0].ID &&
+			nameKey(pack.Name) == nameKey(before[mine[0].ID].Name) {
 			next.Name = mine[0].Name
 		}
 		packs = append(packs, next)
