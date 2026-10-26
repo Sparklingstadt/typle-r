@@ -279,7 +279,7 @@ func TestCheckPacks(t *testing.T) {
 		}
 		return packs, lists
 	}
-	tooManyPacks, tooManyLists := many(151)
+	manyPacks, manyLists := many(MaxLists + 1)
 	tags := make([]string, 21)
 	for i := range tags {
 		tags[i] = fmt.Sprintf("t%d", i)
@@ -305,7 +305,6 @@ func TestCheckPacks(t *testing.T) {
 		"a list with a group":            {[]Pack{pack}, []List{with(list, func(l *List) { l.Group = "g" })}},
 		"a list with a category":         {[]Pack{pack}, []List{with(list, func(l *List) { l.Category = "c" })}},
 		"a list with tags":               {[]Pack{pack}, []List{with(list, func(l *List) { l.Tags = []string{"t"} })}},
-		"more packs than the limit":      {tooManyPacks, tooManyLists},
 	}
 	for reason, c := range cases {
 		var e *Error
@@ -313,8 +312,8 @@ func TestCheckPacks(t *testing.T) {
 			t.Errorf("%s: err = %v", reason, err)
 		}
 	}
-	// The same packs without the limit's excess are fine.
-	if err := CheckPacks(tooManyPacks[:150], tooManyLists[:150]); err != nil {
+	// Packs have no limit of their own: every pack has a list, so the list limit bounds them.
+	if err := CheckPacks(manyPacks, manyLists); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -386,5 +385,22 @@ func TestListsWithLabelsRoundTrip(t *testing.T) {
 		if _, err := DecodeLists([]byte(bad)); err == nil {
 			t.Errorf("DecodeLists(%s) succeeded", bad)
 		}
+	}
+}
+
+// Accounts merged from removed profiles may hold more than MaxLists lists; converting them makes a one-list pack of
+// each, and CheckPacks lets them be saved.
+func TestCheckPacksAcceptsConvertedListsOverTheListLimit(t *testing.T) {
+	var lists []List
+	for i := range MaxLists + 1 {
+		lists = append(lists, List{ID: fmt.Sprintf("l%d", i), Name: fmt.Sprintf("l%d", i),
+			Words: []Word{{Display: "ls", Input: "ls"}}, CreatedAt: "2026-10-01T00:00:00.000Z"})
+	}
+	packs, converted := convertLibrary(lists)
+	if len(packs) != MaxLists+1 {
+		t.Fatalf("packs = %d", len(packs))
+	}
+	if err := CheckPacks(packs, converted); err != nil {
+		t.Fatal(err)
 	}
 }

@@ -47,12 +47,18 @@ test('validateLibrary refuses what a save must not contain', () => {
     'a list with a group': { packs: [pack], lists: [{ ...list, group: 'g' }] },
     'a list with a category': { packs: [pack], lists: [{ ...list, category: 'c' }] },
     'a list with tags': { packs: [pack], lists: [{ ...list, tags: ['t'] }] },
-    'more packs than the limit': { packs: many.map(i => ({ ...pack, id: `p${i}`, name: `P${i}` })), lists: many.map(i => ({ ...list, id: `l${i}`, name: `l${i}`, packId: `p${i}` })) },
   }
   for (const [reason, library] of Object.entries(cases)) assert.throws(() => validateLibrary(library), { message: 'Invalid packs' }, reason)
-  // The same packs without the limit's excess are fine.
-  const ok = many.slice(0, 150)
-  validateLibrary({ packs: ok.map(i => ({ ...pack, id: `p${i}`, name: `P${i}` })), lists: ok.map(i => ({ ...list, id: `l${i}`, name: `l${i}`, packId: `p${i}` })) })
+  // Packs have no limit of their own: every pack has a list, so the list limit bounds them.
+  validateLibrary({ packs: many.map(i => ({ ...pack, id: `p${i}`, name: `P${i}` })), lists: many.map(i => ({ ...list, id: `l${i}`, name: `l${i}`, packId: `p${i}` })) })
+})
+
+test('a library of more lists than MAX_LISTS, all without a group, converts and passes validateLibrary', () => {
+  // Accounts merged from removed profiles may hold more than 150 lists; each becomes a one-list pack.
+  const lists = Array.from({ length: 151 }, (_, i) => ({ id: `l${i}`, name: `l${i}`, words: [{ display: 'ls', input: 'ls', annotation: '' }], records: [], createdAt: '2026-10-01T00:00:00.000Z' }))
+  const library = normalizeLibrary(lists, null)
+  assert.equal(library.packs.length, 151)
+  validateLibrary(library)
 })
 
 test('lists keep a packId and refuse one that is not a string', () => {
@@ -77,6 +83,16 @@ test('viewLists gives each list its pack labels, and a group only in a pack of t
   assert.equal('group' in s, false)
   assert.equal('category' in s || 'tags' in s, false)
   assert.equal('group' in library.lists[0], false)
+})
+
+test('viewLists gives a list with levels its group even when it is alone in its pack', () => {
+  const solo = { packs: [{ id: 'p', name: 'Linux', createdAt: at }, { id: 'q', name: 'Plain', createdAt: at }],
+    lists: [{ id: 'a', name: 'a', packId: 'p', levels: ['基本'], words: w, records: [], createdAt: at },
+            { id: 'b', name: 'b', packId: 'q', words: w, records: [], createdAt: at }] }
+  const [a, b] = viewLists(solo)
+  assert.equal(a.group, 'Linux')
+  assert.equal('group' in b, false)
+  assert.deepEqual(applyListChange(solo, viewLists(solo)), solo)
 })
 
 test('applyListChange puts edits back into the packs', () => {

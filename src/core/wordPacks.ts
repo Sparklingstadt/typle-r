@@ -1,5 +1,4 @@
 import { AppError } from './appError'
-import { MAX_LISTS } from './listOverview'
 import { MAX_CATEGORY, MAX_TAG, MAX_TAGS, normalizeLabels, type SavedWordList } from './wordLists'
 import { fit, unique } from './workspaceDocument'
 
@@ -116,7 +115,6 @@ export function normalizeLibrary(lists: SavedWordList[], packs: WordPack[] | nul
 /** Refuses a library that is not in the saved shape. */
 export function validateLibrary({ packs, lists }: Library) {
   const invalid = () => new Error('Invalid packs')
-  if (packs.length > MAX_LISTS) throw invalid()
   const ids = new Set<string>()
   const names = new Set<string>()
   for (const pack of packs) {
@@ -142,7 +140,10 @@ export function validateLibrary({ packs, lists }: Library) {
   if (ids.size !== listNames.size) throw invalid()
 }
 
-/** What screens see: each list carries its pack's category and tags, and a group (the pack name) when the pack holds two or more lists. */
+/**
+ * What screens see: each list carries its pack's category and tags, and a group (the pack name) when the pack holds two
+ * or more lists or the list has levels (so a list with levels alone in its group still shows "group › level").
+ */
 export function viewLists({ packs, lists }: Library): SavedWordList[] {
   const byId = new Map(packs.map(pack => [pack.id, pack]))
   const counts = new Map<string, number>()
@@ -152,7 +153,7 @@ export function viewLists({ packs, lists }: Library): SavedWordList[] {
     if (!pack) return { ...list }
     return {
       ...list,
-      ...((counts.get(pack.id) ?? 0) >= 2 ? { group: pack.name } : {}),
+      ...((counts.get(pack.id) ?? 0) >= 2 || list.levels !== undefined ? { group: pack.name } : {}),
       ...(pack.category ? { category: pack.category } : {}),
       ...(pack.tags ? { tags: [...pack.tags] } : {}),
     }

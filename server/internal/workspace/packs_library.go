@@ -372,9 +372,6 @@ func (w *Workspace) ApplyListChange(previous *Workspace) {
 // shape, with invalidWorkspace.
 func CheckPacks(packs []Pack, lists []List) error {
 	invalid := &Error{Key: "invalidWorkspace"}
-	if len(packs) > MaxLists {
-		return invalid
-	}
 	ids := map[string]bool{}
 	names := map[string]bool{}
 	for _, pack := range packs {
