@@ -114,6 +114,7 @@ test('importPackFile refuses a file against the rules of a save, and changes not
   assert.throws(() => run([{ name: 'L', words: words('a') }, { name: ' l ', words: words('b') }]), { key: 'listNameDuplicate' })
   assert.throws(() => run([{ name: 'A', levels: ['初級'], words: words('a') }, { name: 'B', levels: ['初級', '1'], words: words('b') }]), { key: 'levelsConflict' })
   assert.throws(() => run([{ name: 'A', words: words('a') }, { name: 'B', levels: ['A'], words: words('b') }]), { key: 'levelsConflict' })
+  assert.throws(() => run([{ name: 'A', levels: ['基本', ' 基本 '], words: words('a') }]), { key: 'levelDuplicate' })
   assert.throws(() => run([{ name: ' ', words: words('a') }]), { key: 'listNameRequired' })
   assert.throws(() => run([{ name: 'L', words: [] }]), { key: 'wordsRequired' })
   assert.throws(() => run([{ name: 'L', words: [{ display: 'a', input: ' ', annotation: '' }] }]), { key: 'wordFieldsRequired' })

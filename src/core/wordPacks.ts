@@ -34,26 +34,45 @@ export function pathsOverlap(a: string[], b: string[]) {
   return short.every((level, n) => level === long[n])
 }
 
+// A level given twice in one list (which an older app let through) gets the smallest （n） from 2 that the list's levels
+// do not hold yet, so that each level of the list can be told apart.
+function distinctLevels(list: SavedWordList): SavedWordList {
+  if (!list.levels || new Set(list.levels).size === list.levels.length) return list
+  const levels = [...list.levels]
+  levels.forEach((level, at) => {
+    if (!levels.slice(0, at).includes(level)) return
+    let count = 2
+    while (levels.includes(fit(level, `（${count}）`, MAX_LEVEL))) count++
+    levels[at] = fit(level, `（${count}）`, MAX_LEVEL)
+  })
+  return { ...list, levels }
+}
+
 /**
  * Brings back in reach the lists an older app let overlap (see pathsOverlap): a list whose path overlaps that of an
  * earlier list of its pack gets （2）, （3）… on the level where they meet, or on its name when it has no levels (a name
- * another list of the pack does not use). Earlier lists, and data without overlaps, stay as they are.
+ * another list of the pack does not use, or a level the list does not hold). A level given twice in a list is told
+ * apart first (distinctLevels). Earlier lists, and data without overlaps, stay as they are.
  */
 export function separateLevels(library: Library): Library {
+  const lists = library.lists.map(distinctLevels)
   const names = new Map<string, Set<string>>()
-  for (const list of library.lists) (names.get(list.packId!) ?? names.set(list.packId!, new Set()).get(list.packId!)!).add(nameKey(list.name))
+  for (const list of lists) (names.get(list.packId!) ?? names.set(list.packId!, new Set()).get(list.packId!)!).add(nameKey(list.name))
   const accepted = new Map<string, string[][]>()
-  return { ...library, lists: library.lists.map(list => {
+  return { ...library, lists: lists.map(list => {
     const paths = accepted.get(list.packId!) ?? accepted.set(list.packId!, []).get(list.packId!)!
     const taken = names.get(list.packId!)!
     const hasLevels = Boolean(list.levels?.length)
     const base = levelPath(list)
     const path = [...base]
     const nameTaken = () => !hasLevels && nameKey(path[0]) !== nameKey(list.name) && taken.has(nameKey(path[0]))
+    // The level just given a （n） may not be one the list holds at another step.
+    let at = -1
+    const repeated = () => at >= 0 && path.some((level, n) => n !== at && level === path[at])
     for (let count = 2; ; count++) {
       const other = paths.find(q => pathsOverlap(q, path))
-      if (!other && !nameTaken()) break
-      const at = other ? Math.min(path.length, other.length) - 1 : 0
+      if (!other && !nameTaken() && !repeated()) break
+      if (!repeated()) at = other ? Math.min(path.length, other.length) - 1 : 0
       path[at] = fit(base[at], `（${count}）`, hasLevels ? MAX_LEVEL : MAX_LIST_NAME)
     }
     paths.push(path)
@@ -153,7 +172,10 @@ export function normalizeLibrary(lists: SavedWordList[], packs: WordPack[] | nul
   return packs === null ? convertLibrary(lists) : repairLibrary({ packs, lists })
 }
 
-/** Refuses a library that is not in the saved shape, or with lists out of reach on the practice screen (levelsConflict). */
+/**
+ * Refuses a library that is not in the saved shape, with lists out of reach on the practice screen (levelsConflict), or
+ * with a level given twice in a list (levelDuplicate).
+ */
 export function validateLibrary({ packs, lists }: Library) {
   const invalid = () => new Error('Invalid packs')
   const ids = new Set<string>()
@@ -179,9 +201,11 @@ export function validateLibrary({ packs, lists }: Library) {
     taken.add(name)
   }
   if (ids.size !== listNames.size) throw invalid()
-  // Lists of a pack whose paths overlap are refused as packEditing refuses them; separateLevels repairs saved ones.
+  // Lists of a pack whose paths overlap, or with a level given twice, are refused as packEditing refuses them;
+  // separateLevels repairs saved ones.
   const paths = new Map<string, string[][]>()
   for (const list of lists) {
+    if (list.levels && new Set(list.levels).size !== list.levels.length) throw new AppError('levelDuplicate')
     const mine = paths.get(list.packId!) ?? paths.set(list.packId!, []).get(list.packId!)!
     if (mine.some(path => pathsOverlap(path, levelPath(list)))) throw new AppError('levelsConflict')
     mine.push(levelPath(list))

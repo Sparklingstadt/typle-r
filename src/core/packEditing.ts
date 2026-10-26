@@ -60,10 +60,12 @@ function packFields(library: Library, fields: PackInput, selfId?: string) {
   return { name, ...(description ? { description } : {}), ...normalizeLabels(fields) }
 }
 
-// Levels as normalizeGroup keeps them: trimmed, without empty ones, and left out when none is left.
+// Levels as normalizeGroup keeps them: trimmed, without empty ones, and left out when none is left. A level given twice
+// could not be told apart on the practice screen (levelDuplicate).
 export function tidyLevels(levels: string[] | undefined) {
   const kept = (levels ?? []).map(level => level.trim()).filter(Boolean)
   if (kept.length > MAX_LEVELS || kept.some(level => level.length > MAX_LEVEL)) throw invalid()
+  if (new Set(kept).size !== kept.length) throw new AppError('levelDuplicate')
   return kept.length ? { levels: kept } : {}
 }
 
