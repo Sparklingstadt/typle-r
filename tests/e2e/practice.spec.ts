@@ -556,7 +556,7 @@ test('CSV import preserves existing records and exact strings after a failed sav
   await expect(page.getByRole('button', { name: 'CSV Chinese を編集', exact: true })).toBeVisible()
   const lists = (await saved(page)).lists
   expect(lists).toHaveLength(2)
-  expect(lists[0]).toEqual(existing)
+  expect(lists[0]).toEqual({ ...existing, packId: `pack-${existing.id}` })
   expect(lists[1].words).toEqual([
     { display: ' 字 ', input: 'zi', annotation: '意味,補足\r\n"引用"' },
     { display: '字', input: 'zi', annotation: '' },
@@ -595,7 +595,7 @@ for (const width of [390, 1440]) {
     await page.getByRole('button', { name: '保存', exact: true }).click()
     await expect(page).toHaveURL(/\/edit$/)
     const lists = (await saved(page)).lists
-    expect(lists[0]).toEqual(list)
+    expect(lists[0]).toEqual({ ...list, packId: `pack-${list.id}` })
     expect(lists[1].words).toEqual(words)
     expect(lists[1].records).toEqual([])
   })
