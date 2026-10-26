@@ -140,17 +140,72 @@ func unique(taken map[string]bool, wanted string, variant func(count int) string
 	return value
 }
 
-// numbered gives the variants 名前（2）, 名前（3）… and, as fit in src/core/workspaceDocument.ts does, cuts the name so
-// that the whole stays within MaxListName.
-func numbered(name string) func(count int) string {
-	return func(count int) string {
-		suffix := fmt.Sprintf("（%d）", count)
-		units := utf16.Encode([]rune(name))
-		if keep := MaxListName - length(suffix); len(units) > keep {
-			units = units[:max(keep, 0)]
+// fit follows fit (src/core/workspaceDocument.ts): name with suffix after it, the name cut so that the whole stays
+// within limit UTF-16 code units, without the spaces the cut leaves at its end. A character of two code units is not
+// split.
+func fit(name, suffix string, limit int) string {
+	units := utf16.Encode([]rune(name))
+	if keep := limit - length(suffix); len(units) > keep {
+		units = units[:max(keep, 0)]
+		if n := len(units); n > 0 && units[n-1] >= 0xD800 && units[n-1] <= 0xDBFF {
+			units = units[:n-1]
 		}
-		return trimEndJS(string(utf16.Decode(units))) + suffix
 	}
+	return trimEndJS(string(utf16.Decode(units))) + suffix
+}
+
+// numbered gives the variants 名前（2）, 名前（3）…, cut to stay within MaxListName.
+func numbered(name string) func(count int) string {
+	return func(count int) string { return fit(name, fmt.Sprintf("（%d）", count), MaxListName) }
+}
+
+// separateLevels follows separateLevels (src/core/wordPacks.ts), which brings back in reach the lists an older app let
+// overlap (see pathsOverlap): a list whose path overlaps that of an earlier list of its pack gets （2）, （3）… on the
+// level where they meet, or on its name when it has no levels (a name another list of the pack does not use). Earlier
+// lists, and data without overlaps, stay as they are.
+func separateLevels(lists []List) []List {
+	names := map[string]map[string]bool{}
+	for _, list := range lists {
+		if names[list.PackID] == nil {
+			names[list.PackID] = map[string]bool{}
+		}
+		names[list.PackID][nameKey(list.Name)] = true
+	}
+	accepted := map[string][][]string{}
+	separated := slices.Clone(lists)
+	for i, list := range separated {
+		taken := names[list.PackID]
+		hasLevels := len(list.Levels) > 0
+		limit := MaxListName
+		if hasLevels {
+			limit = MaxLevel
+		}
+		base := levelPath(list.Name, list.Levels)
+		path := slices.Clone(base)
+		nameTaken := func() bool { return !hasLevels && nameKey(path[0]) != nameKey(list.Name) && taken[nameKey(path[0])] }
+		for count := 2; ; count++ {
+			other := slices.IndexFunc(accepted[list.PackID], func(q []string) bool { return pathsOverlap(q, path) })
+			if other < 0 && !nameTaken() {
+				break
+			}
+			at := 0
+			if other >= 0 {
+				at = min(len(path), len(accepted[list.PackID][other])) - 1
+			}
+			path[at] = fit(base[at], fmt.Sprintf("（%d）", count), limit)
+		}
+		accepted[list.PackID] = append(accepted[list.PackID], path)
+		if slices.Equal(path, base) {
+			continue
+		}
+		if hasLevels {
+			separated[i].Levels = path
+		} else {
+			separated[i].Name = path[0]
+			taken[nameKey(path[0])] = true
+		}
+	}
+	return separated
 }
 
 // normalizeLabels follows normalizeLabels (src/core/wordLists.ts): the category and tags trimmed, without empty ones or
@@ -242,7 +297,7 @@ func convertLibrary(lists []List) ([]Pack, []List) {
 		list.PackID = packs[at].ID
 		converted = append(converted, list)
 	}
-	return packs, converted
+	return packs, separateLevels(converted)
 }
 
 // repairLibrary follows repairLibrary (src/core/wordPacks.ts), which keeps the rules of ownership for data an older app
@@ -297,7 +352,7 @@ func repairLibrary(saved []Pack, lists []List) ([]Pack, []List) {
 		name := trimJS(list.Name)
 		placed[i].Name = unique(taken, name, numbered(name))
 	}
-	return kept, placed
+	return kept, separateLevels(placed)
 }
 
 // viewLists follows viewLists (src/core/wordPacks.ts): each list carries its pack's category and tags, so the code that
@@ -377,7 +432,7 @@ func (w *Workspace) ApplyListChange(previous *Workspace) {
 }
 
 // CheckPacks follows validateLibrary (src/core/wordPacks.ts): it refuses packs and lists that are not in the saved
-// shape, with invalidWorkspace.
+// shape, with invalidWorkspace, and lists of a pack whose paths overlap, with levelsConflict.
 func CheckPacks(packs []Pack, lists []List) error {
 	invalid := &Error{Key: "invalidWorkspace"}
 	ids := map[string]bool{}
@@ -408,13 +463,22 @@ func CheckPacks(packs []Pack, lists []List) error {
 	if len(ids) != len(listNames) {
 		return invalid
 	}
+	// Lists of a pack whose paths overlap are refused as checkReach refuses them; separateLevels repairs saved ones.
+	paths := map[string][][]string{}
+	for _, list := range lists {
+		path := levelPath(list.Name, list.Levels)
+		if slices.ContainsFunc(paths[list.PackID], func(other []string) bool { return pathsOverlap(other, path) }) {
+			return &Error{Key: "levelsConflict"}
+		}
+		paths[list.PackID] = append(paths[list.PackID], path)
+	}
 	return nil
 }
 
 // CheckLibrary follows validateLibrary (src/core/wordPacks.ts) for a save that sends lists and packs. It reads them as
 // they were sent, before Decode repairs them: a list may not have a group, category or tags at all, not even "" or [],
 // and a pack's description, category, tags and origin may be left out but not null, as decodePacks requires. Anything
-// refused is invalidWorkspace.
+// refused is invalidWorkspace, but for lists whose levels overlap (levelsConflict, see CheckPacks).
 func CheckLibrary(lists, packs []byte) error {
 	invalid := &Error{Key: "invalidWorkspace"}
 	decoded, err := DecodeLists(lists)

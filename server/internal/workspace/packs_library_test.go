@@ -318,6 +318,66 @@ func TestCheckPacks(t *testing.T) {
 	}
 }
 
+// The cases of levelsConflict in tests/wordPacks.test.cjs: lists of a pack whose paths overlap are refused, but paths
+// are compared as they are, and only within a pack.
+func TestCheckPacksLevels(t *testing.T) {
+	list := List{ID: "a", Name: "a", PackID: "p", Words: []Word{{Display: "ls", Input: "ls"}}, Records: []Record{}, CreatedAt: "2026-10-01T00:00:00.000Z"}
+	packs := []Pack{{ID: "p", Name: "P", CreatedAt: list.CreatedAt}, {ID: "q", Name: "Q", CreatedAt: list.CreatedAt}}
+	with := func(id string, f func(*List)) List {
+		l := list
+		l.ID, l.Name = id, id
+		f(&l)
+		return l
+	}
+	inQ := with("z", func(l *List) { l.PackID = "q" })
+	cases := map[string][]List{
+		"equal levels": {with("a", func(l *List) { l.Levels = []string{"初級"} }), with("b", func(l *List) { l.Levels = []string{"初級"} })},
+		"one the start of the other": {with("a", func(l *List) { l.Levels = []string{"中級1", "A"} }),
+			with("b", func(l *List) { l.Levels = []string{"中級1"} })},
+		"a name equal to a level": {with("a", func(l *List) { l.Name = "初級" }), with("b", func(l *List) { l.Levels = []string{"初級"} })},
+	}
+	for reason, lists := range cases {
+		var e *Error
+		if err := CheckPacks(packs, append(lists, inQ)); !errors.As(err, &e) || e.Key != "levelsConflict" {
+			t.Errorf("%s: err = %v", reason, err)
+		}
+	}
+	if err := CheckPacks(packs, []List{with("a", func(l *List) { l.Levels = []string{"初級"} }), with("b", func(l *List) { l.Levels = []string{"初級 "} }),
+		with("c", func(l *List) { l.Levels = []string{"中級", "A"} }), with("d", func(l *List) { l.Levels = []string{"中級", "B"} }),
+		with("e", func(l *List) { l.PackID, l.Levels = "q", []string{"初級"} })}); err != nil {
+		t.Fatal(err)
+	}
+	// CheckLibrary keeps the key, so a save is refused with it.
+	sent := `[{"id":"a","name":"a","packId":"p","levels":["初級"],"createdAt":"2026-10-01","words":[{"display":"ls","input":"ls","annotation":""}],"records":[]},` +
+		`{"id":"b","name":"b","packId":"p","levels":["初級","A"],"createdAt":"2026-10-01","words":[{"display":"ls","input":"ls","annotation":""}],"records":[]}]`
+	var e *Error
+	if err := CheckLibrary([]byte(sent), []byte(`[{"id":"p","name":"P","createdAt":"2026-10-01"}]`)); !errors.As(err, &e) || e.Key != "levelsConflict" {
+		t.Fatalf("err = %v", err)
+	}
+}
+
+// A level or name with （n） stays within its limit, counted in UTF-16 code units.
+func TestSeparateLevelsLimit(t *testing.T) {
+	var lists []List
+	for i := range 12 {
+		lists = append(lists, List{ID: fmt.Sprintf("l%d", i), Name: fmt.Sprintf("l%d", i), PackID: "p", Levels: []string{strings.Repeat("a", MaxLevel)}})
+	}
+	lists = append(lists, List{ID: "m", Name: strings.Repeat("😀", 25), PackID: "q"}, List{ID: "n", Name: "n", PackID: "q", Levels: []string{strings.Repeat("😀", 25)}})
+	separated := separateLevels(lists)
+	if got := separated[11].Levels[0]; got != strings.Repeat("a", 46)+"（12）" {
+		t.Fatalf("level = %q", got)
+	}
+	for _, list := range separated {
+		if length(list.Name) > MaxListName || slices.ContainsFunc(list.Levels, func(level string) bool { return length(level) > MaxLevel }) {
+			t.Fatalf("%s is over the limit: %q %q", list.ID, list.Name, list.Levels)
+		}
+	}
+	// A character of two code units is not split by the cut.
+	if got := separated[13].Levels[0]; got != strings.Repeat("😀", 23)+"（2）" {
+		t.Fatalf("level = %q", got)
+	}
+}
+
 // CheckLibrary reads a save as it was sent, so a label left on a list is refused even when it is empty, and a pack's
 // optional field may be left out but not null, as validateLibrary and decodePacks do.
 func TestCheckLibrary(t *testing.T) {
