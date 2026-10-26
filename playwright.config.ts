@@ -13,7 +13,8 @@ const backend = process.env.TYPLE_BACKEND === 'kotlin'
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
-  workers: 2,
+  // CI keeps 2 workers; locally Playwright's default uses half of the machine's cores.
+  workers: process.env.CI ? 2 : undefined,
   timeout: 60000,
   expect: { timeout: 15000 },
   retries: process.env.CI ? 1 : 0,
