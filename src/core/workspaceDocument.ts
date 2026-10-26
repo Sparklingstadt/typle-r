@@ -1,13 +1,14 @@
 import { AppError } from './appError'
 import { decodeDevices, type PracticeDevice } from './devices'
+import { decodeInterests } from './interests'
 import { MAX_LISTS } from './listOverview'
 import { decodeLists, type SavedWordList } from './wordLists'
 import { decodePacks, normalizeLibrary, repairLibrary, type Library, type WordPack } from './wordPacks'
 
 /** `lists` are in the saved shape: each has a packId and no group, category or tags. */
-export type WorkspaceDocument = Library & { devices: PracticeDevice[] }
+export type WorkspaceDocument = Library & { devices: PracticeDevice[]; interests: string[] }
 /** Omitted parts stay as they are. */
-export type WorkspaceChange = { lists?: SavedWordList[]; packs?: WordPack[]; devices?: PracticeDevice[] }
+export type WorkspaceChange = { lists?: SavedWordList[]; packs?: WordPack[]; devices?: PracticeDevice[]; interests?: string[] }
 
 // Workspaces could once hold several profiles, each with its own lists. The first profile's lists were always in
 // `lists` and the others in `profiles`; reading such data moves the others' lists after the first one's. Accounts were
@@ -58,14 +59,15 @@ export function mergeProfiles(lists: SavedWordList[], profiles: LegacyProfile[])
 }
 
 /** `packs` missing or null means the data was saved before packs existed. */
-export function decodeDocument(value: { lists: unknown; packs?: unknown; devices: unknown; profiles?: unknown }): DecodedDocument {
+export function decodeDocument(value: { lists: unknown; packs?: unknown; devices: unknown; interests?: unknown; profiles?: unknown }): DecodedDocument {
   const lists = decodeLists(JSON.stringify({ version: 1, lists: value.lists }))
   const devices = decodeDevices(value.devices ?? [])
+  const interests = decodeInterests(value.interests)
   const profiles = decodeLegacyProfiles(value.profiles ?? [])
   // An empty array, or only the first profile, means there is nothing to merge.
   const legacy = Array.isArray(value.profiles) && value.profiles.length > 0
   const packs = value.packs === undefined || value.packs === null ? null : decodePacks(value.packs)
-  return { ...normalizeLibrary(mergeProfiles(lists, profiles), packs), devices, legacy }
+  return { ...normalizeLibrary(mergeProfiles(lists, profiles), packs), devices, interests, legacy }
 }
 
 /** Lists merged from removed profiles may be more than MAX_LISTS; a change may keep or lower that number, never raise it. */
@@ -75,5 +77,5 @@ export function applyChange(document: WorkspaceDocument, change: WorkspaceChange
   }
   // A save from a screen that does not know packs has lists only; the saved packs stay and repair settles the rest.
   const library = repairLibrary({ lists: change.lists ?? document.lists, packs: change.packs ?? document.packs })
-  return { ...library, devices: change.devices ?? document.devices }
+  return { ...library, devices: change.devices ?? document.devices, interests: change.interests ?? document.interests }
 }

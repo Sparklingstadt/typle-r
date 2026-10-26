@@ -109,3 +109,24 @@ test('a change of lists keeps the saved packs and drops those left without lists
   assert.equal(rest.packs.some(pack => gone.has(pack.id)), false)
   assert.equal(rest.packs.length, expected.packs.length - gone.size)
 })
+
+test('interests missing or null read as empty, and a change without them keeps the saved ones', () => {
+  for (const interests of [undefined, null]) assert.deepEqual(decodeDocument({ lists: [], devices: [], interests }).interests, [])
+  const document = decodeDocument({ lists: [], devices: [], interests: ['language', 'language/zh'] })
+  assert.deepEqual(document.interests, ['language', 'language/zh'])
+  assert.deepEqual(applyChange(document, { devices: [] }).interests, ['language', 'language/zh'])
+  assert.deepEqual(applyChange(document, { lists: [] }).interests, ['language', 'language/zh'])
+  assert.deepEqual(applyChange(document, { interests: ['programming'] }).interests, ['programming'])
+  assert.deepEqual(applyChange(document, { interests: [] }).interests, [])
+  assert.throws(() => decodeDocument({ lists: [], devices: [], interests: 'language' }), { key: 'savedDataCorrupted' })
+  assert.throws(() => decodeDocument({ lists: [], devices: [], interests: ['a', 'a'] }), { key: 'savedDataCorrupted' })
+})
+
+test('a request with invalid interests is refused, and without them carries none', () => {
+  const { validateWorkspaceRequest } = require('../src/core/workspaceRequest.ts')
+  assert.deepEqual(validateWorkspaceRequest({ revision: 1, interests: ['language'] }), { revision: 1, interests: ['language'] })
+  assert.equal('interests' in validateWorkspaceRequest({ revision: 1, devices: [] }), false)
+  for (const interests of ['language', [''], ['a', 'a'], [1], ['x'.repeat(51)], Array.from({ length: 51 }, (_, n) => `i${n}`)]) {
+    assert.throws(() => validateWorkspaceRequest({ revision: 1, interests }))
+  }
+})

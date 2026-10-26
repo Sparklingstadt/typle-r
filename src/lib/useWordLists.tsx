@@ -26,6 +26,7 @@ function useWorkspace() {
   const [devices, setDevices] = useState<PracticeDevice[]>([])
   const [lists, setLists] = useState<SavedWordList[]>([])
   const [packs, setPacks] = useState<WordPack[]>([])
+  const [interests, setInterests] = useState<string[]>([])
   const [ready, setReady] = useState(false)
   const [failure, setFailure] = useState<Failure>(null)
   const t = useTranslations('errors')
@@ -38,6 +39,7 @@ function useWorkspace() {
     setSaving(false)
     setLists([])
     setPacks([])
+    setInterests([])
     setDevices([])
     setReady(false)
     setFailure(null)
@@ -48,7 +50,7 @@ function useWorkspace() {
     if (!accountId) return
     const current = createWorkspaceSession({
       store: workspaceStore(accountId), accountId, initialLibrary, saving: setSaving,
-      show: shown => { setLists(shown.lists); setPacks(shown.packs); setDevices(shown.devices) },
+      show: shown => { setLists(shown.lists); setPacks(shown.packs); setDevices(shown.devices); setInterests(shown.interests) },
     })
     workspace.current = current
     let active = true
@@ -93,11 +95,13 @@ function useWorkspace() {
   /** Which error is shown, for screens that place some errors next to a field. */
   const errorKey = failure?.reason instanceof AppError ? failure.reason.key : null
   return {
-    lists, packs, devices, accountId,
+    lists, packs, devices, interests, accountId,
     /** Where this workspace is saved; undefined until the login is known. */
     storage: accountId ? workspaceStore(accountId).location : undefined,
     updateDevices: (change: (current: PracticeDevice[]) => PracticeDevice[]) => save(current => current.update(lists => lists, true, change)),
     update: (change: (current: SavedWordList[]) => SavedWordList[], useDefaults?: boolean) => save(current => current.update(change, useDefaults)),
+    /** Replaces the interests; only they are saved. */
+    updateInterests: (change: (current: string[]) => string[]) => save(current => current.updateInterests(change)),
     /** Replaces the library in its saved shape; for pack edits. */
     updateLibrary: (change: (current: Library) => Library, useDefaults?: boolean) => save(current => current.updateLibrary(change, useDefaults)),
     ready: loaded, error, errorKey, saving,

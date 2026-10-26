@@ -7,7 +7,7 @@ import { WorkspaceError, type WorkspaceState, type WorkspaceStore, type Workspac
 type Change = Omit<WorkspaceWrite, 'revision' | 'accountId'>
 
 /** What the screens show of the workspace. */
-export type WorkspaceShown = { lists: SavedWordList[]; packs: WordPack[]; devices: PracticeDevice[] }
+export type WorkspaceShown = { lists: SavedWordList[]; packs: WordPack[]; devices: PracticeDevice[]; interests: string[] }
 
 export type WorkspaceSessionOptions = {
   store: WorkspaceStore
@@ -31,7 +31,7 @@ export function createWorkspaceSession({ store, accountId, initialLibrary, show,
   function display(data: WorkspaceState) {
     state = data
     const library = data.revision === 0 ? initialLibrary : data
-    show({ lists: viewLists(library), packs: library.packs, devices: data.devices })
+    show({ lists: viewLists(library), packs: library.packs, devices: data.devices, interests: data.interests })
   }
 
   async function load(): Promise<WorkspaceState> {
@@ -84,6 +84,10 @@ export function createWorkspaceSession({ store, accountId, initialLibrary, show,
         const { lists, packs } = repairLibrary(change(currentLibrary()))
         return { lists, packs }
       }, useDefaults)
+    },
+    /** Replaces the interests. Only they are sent, so lists, packs and devices stay as saved, also before the first save. */
+    updateInterests(change: (current: string[]) => string[]) {
+      return save(previous => ({ interests: change(previous.interests) }), false)
     },
     /** Stops showing results; the account changed. */
     close() { closed = true },

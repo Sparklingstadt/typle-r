@@ -12,8 +12,8 @@ async function requestWorkspace(url: string, init?: RequestInit): Promise<Worksp
   // A server from before profiles were removed (e.g. while a deployment is switching over) answers with the first
   // profile's lists, which is what it saves when no profile is named.
   // Missing or null `packs` means the account's data was saved before packs; decodeDocument converts it.
-  const { lists, packs, devices } = decodeDocument({ lists: data.lists, packs: data.packs, devices: data.devices })
-  return { accountId: data.accountId, revision: data.revision, lists, packs, devices }
+  const { lists, packs, devices, interests } = decodeDocument({ lists: data.lists, packs: data.packs, devices: data.devices, interests: data.interests })
+  return { accountId: data.accountId, revision: data.revision, lists, packs, devices, interests }
 }
 
 export function readWorkspace() {
