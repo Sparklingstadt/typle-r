@@ -59,8 +59,8 @@ test('createPack adds a pack and its first list at the end', () => {
 })
 
 test('createPack keeps the first list\'s levels, tidied', () => {
-  const next = createPack(library(), { name: 'New' }, input('n', 'First', { levels: [' 基本 ', '', '  ', '初級'] }), 'pn')
-  assert.deepEqual(next.lists.at(-1).levels, ['基本', '初級'])
+  const next = createPack(library(), { name: 'New' }, input('n', 'First', { levels: [' 基本 ', '', '  '] }), 'pn')
+  assert.deepEqual(next.lists.at(-1).levels, ['基本'])
   const none = createPack(library(), { name: 'New' }, input('n', 'First', { levels: [' ', ''] }), 'pn')
   assert.equal('levels' in none.lists.at(-1), false)
 })
@@ -130,14 +130,14 @@ test('saveListInPack puts a moved list right after the last list of the target p
 })
 
 test('saveListInPack with no pack makes a pack named after the list, and tidies levels', () => {
-  const next = saveListInPack(library(), input('n', ' Rust ', { levels: [' 基本 ', '', '初級'] }), null, false)
+  const next = saveListInPack(library(), input('n', ' Rust ', { levels: ['', ' 初級 '] }), null, false)
   validateLibrary(next)
   assert.equal(next.packs.at(-1).id, 'pack-n')
   assert.equal(next.packs.at(-1).name, 'Rust')
-  assert.deepEqual(next.lists.at(-1).levels, ['基本', '初級'])
+  assert.deepEqual(next.lists.at(-1).levels, ['初級'])
   assert.equal('levels' in saveListInPack(library(), input('n', 'Rust', { levels: [' '] }), null, false).lists.at(-1), false)
   assert.throws(() => saveListInPack(library(), input('n', 'Rust', { levels: ['x'.repeat(51)] }), null, false), { message: 'Invalid packs' })
-  assert.throws(() => saveListInPack(library(), input('n', 'Rust', { levels: ['1', '2', '3', '4', '5', '6'] }), null, false), { message: 'Invalid packs' })
+  assert.throws(() => saveListInPack(library(), input('n', 'Rust', { levels: ['1', '2'] }), null, false), { key: 'tooManyLevels' })
 })
 
 test('duplicateList copies into the same pack and avoids names only within it', () => {
@@ -160,37 +160,37 @@ test('saveList checks the name only among lists of the same pack', () => {
 })
 
 test('saveListInPack refuses levels that leave a list of the pack out of reach', () => {
-  const lib = { packs: library().packs, lists: [list('a', 'A', 'p', { levels: ['基本', '初級'] }), list('b', '応用', 'p'), list('g', 'G', 'q', { levels: ['基本'] })] }
-  // Equal paths.
-  assert.throws(() => saveListInPack(lib, input('n', 'N', { levels: [' 基本 ', '初級'] }), 'p', false), { key: 'levelsConflict' })
-  // One path the start of the other, either way round.
-  assert.throws(() => saveListInPack(lib, input('n', 'N', { levels: ['基本'] }), 'p', false), { key: 'levelsConflict' })
-  assert.throws(() => saveListInPack(lib, input('n', 'N', { levels: ['基本', '初級', '1'] }), 'p', false), { key: 'levelsConflict' })
-  // A list without levels is chosen by its name, which must not be another list's first level.
+  const lib = { packs: library().packs, lists: [list('a', 'A', 'p', { levels: ['基本'] }), list('b', '応用', 'p'), list('g', 'G', 'q', { levels: ['初級'] })] }
+  // Equal levels, compared trimmed.
+  assert.throws(() => saveListInPack(lib, input('n', 'N', { levels: [' 基本 '] }), 'p', false), { key: 'levelsConflict' })
+  // A list without levels is chosen by its name, which must not be another list's level.
   assert.throws(() => saveListInPack(lib, input('n', '基本'), 'p', false), { key: 'levelsConflict' })
-  assert.throws(() => saveListInPack(lib, input('n', 'N', { levels: ['応用', '上級'] }), 'p', false), { key: 'levelsConflict' })
+  assert.throws(() => saveListInPack(lib, input('n', 'N', { levels: ['応用'] }), 'p', false), { key: 'levelsConflict' })
   // Moving a list into a pack is checked against that pack; editing a list is not checked against itself.
   assert.throws(() => saveListInPack(lib, input('g', 'G', { levels: ['基本'] }), 'p', true), { key: 'levelsConflict' })
-  assert.deepEqual(saveListInPack(lib, input('a', 'A', { levels: ['基本', '初級'] }), 'p', true).lists[0].levels, ['基本', '初級'])
-  // Paths that part somewhere are fine, as are the same levels in another pack and a list that starts its own pack.
-  assert.deepEqual(saveListInPack(lib, input('n', 'N', { levels: ['基本', '中級'] }), 'p', false).lists.at(-1).levels, ['基本', '中級'])
-  assert.equal(saveListInPack(lib, input('n', 'N', { levels: ['応用', '上級'] }), 'q', false).lists.length, 4)
+  assert.deepEqual(saveListInPack(lib, input('a', 'A', { levels: ['基本'] }), 'p', true).lists[0].levels, ['基本'])
+  // Other levels are fine, as are the same levels in another pack and a list that starts its own pack.
+  assert.deepEqual(saveListInPack(lib, input('n', 'N', { levels: ['中級'] }), 'p', false).lists.at(-1).levels, ['中級'])
+  assert.equal(saveListInPack(lib, input('n', 'N', { levels: ['初級 '] }), 'p', false).lists.length, 4)
+  assert.equal(saveListInPack(lib, input('n', 'N', { levels: ['応用'] }), 'q', false).lists.length, 4)
   assert.equal(saveListInPack(lib, input('n', '応用', { levels: ['基本'] }), null, false).lists.length, 4)
 })
 
-test('tidyLevels and saveListInPack refuse a level given twice in one list, as levelDuplicate', () => {
+test('tidyLevels, saveListInPack and createPack refuse more than one level, as tooManyLevels', () => {
   const { tidyLevels } = require('../src/core/packEditing.ts')
-  assert.throws(() => tidyLevels(['基本', '基本']), { key: 'levelDuplicate' })
-  // Compared after trimming and dropping empty levels, exactly as paths are compared.
-  assert.throws(() => tidyLevels([' 中級1', '', '中級1 ']), { key: 'levelDuplicate' })
-  assert.throws(() => tidyLevels(['A', 'B', 'A']), { key: 'levelDuplicate' })
-  assert.deepEqual(tidyLevels(['基本', '基本1', 'a', 'A']), { levels: ['基本', '基本1', 'a', 'A'] })
+  assert.throws(() => tidyLevels(['基本', '初級']), { key: 'tooManyLevels' })
+  assert.throws(() => tidyLevels(['基本', '基本']), { key: 'tooManyLevels' })
+  assert.throws(() => tidyLevels(['1', '2', '3', '4', '5', '6']), { key: 'tooManyLevels' })
+  // Counted after dropping empty levels.
+  assert.deepEqual(tidyLevels([' ', ' 基本 ', '']), { levels: ['基本'] })
+  assert.deepEqual(tidyLevels(['', ' ']), {})
+  assert.throws(() => tidyLevels(['x'.repeat(51)]), { message: 'Invalid packs' })
   const lib = library()
   const before = JSON.stringify(lib)
-  assert.throws(() => saveListInPack(lib, input('n', 'N', { levels: ['基本', '基本'] }), 'p', false), { key: 'levelDuplicate' })
-  assert.throws(() => saveListInPack(lib, input('a', '基本', { levels: ['中級1', '中級1'] }), 'p', true), { key: 'levelDuplicate' })
-  assert.throws(() => saveListInPack(lib, input('n', 'N', { levels: ['基本', ' 基本'] }), null, false), { key: 'levelDuplicate' })
-  assert.throws(() => createPack(lib, { name: 'New' }, list('n', 'N', undefined, { levels: ['基本', '基本'] }), 'n'), { key: 'levelDuplicate' })
+  assert.throws(() => saveListInPack(lib, input('n', 'N', { levels: ['基本', '初級'] }), 'p', false), { key: 'tooManyLevels' })
+  assert.throws(() => saveListInPack(lib, input('a', '基本', { levels: ['中級1', 'A'] }), 'p', true), { key: 'tooManyLevels' })
+  assert.throws(() => saveListInPack(lib, input('n', 'N', { levels: ['基本', '初級'] }), null, false), { key: 'tooManyLevels' })
+  assert.throws(() => createPack(lib, { name: 'New' }, list('n', 'N', undefined, { levels: ['基本', '初級'] }), 'n'), { key: 'tooManyLevels' })
   assert.equal(JSON.stringify(lib), before)
 })
 

@@ -53,6 +53,8 @@ test('a guest workspace saved by v0.90.0 shows the same and is saved as packs wh
   }
   const shell = workspace.packs.find((pack: { id: string }) => pack.id === 'pack-basic-1')
   expect(shell).toMatchObject({ name: 'Shell', category: 'CLI', tags: ['unix'] })
+  // A list has one level at most: the two levels of each old list were joined into one.
+  expect(workspace.lists.map((list: { levels: string[] }) => list.levels)).toEqual([['基本・初級'], ['基本・上級'], undefined])
 
   await page.reload()
   group = await expectGroupedView(page)

@@ -116,11 +116,11 @@ export default function WordListEditor({ title, description, storage, initial, p
   // The duplicate-name check runs while saving; show it on the name field until the name changes.
   const [failure, setFailure] = useState<{ count: number; name: string; pack: string | null; levels: string }>({ count: 0, name: "", pack: null, levels: "" })
   const duplicate = errorKey === "listNameDuplicate" && failure.name === name && failure.pack === chosenPack
-  // Levels that clash with another list of the pack are shown under the levels until the levels, name or pack change.
-  // A level given twice is shown there by LevelFields, which announces it again for each refused save.
-  const levelsConflict = errorKey === "levelsConflict" && failure.name === name && failure.pack === chosenPack && failure.levels === JSON.stringify(levels)
+  // A level that clashes with another list of the pack (or more than one level, which the editor never sends) is shown
+  // under the level until the level, name or pack change.
+  const levelError = (errorKey === "levelsConflict" || errorKey === "tooManyLevels") && failure.name === name && failure.pack === chosenPack && failure.levels === JSON.stringify(levels)
   // A pack's name is shown on its own field by whoever passes `packFields`.
-  const serverError = error && errorKey !== "listNameDuplicate" && errorKey !== "levelsConflict" && errorKey !== "levelDuplicate" &&
+  const serverError = error && errorKey !== "listNameDuplicate" && errorKey !== "levelsConflict" && errorKey !== "tooManyLevels" &&
     errorKey !== "packNameRequired" && errorKey !== "packNameDuplicate" ? error : ""
   const nameError = errorFor(nameId) ?? (duplicate ? error : undefined)
   const handledFailure = useRef(0)
@@ -253,8 +253,7 @@ export default function WordListEditor({ title, description, storage, initial, p
         {nameError ? <FieldError id={`${nameId}-error`} message={nameError} alert={duplicate && !errorFor(nameId)} />
           : null}
         <p id={`${nameId}-help`} className="text-xs text-muted-foreground">{t("nameHelp")}</p>
-        <LevelFields value={levels} onChange={setLevels} refusals={errorKey === "levelDuplicate" ? failure.count : 0} />
-        {levelsConflict && <FieldError id={`${baseId}-levels-error`} message={error ?? ""} alert />}
+        <LevelFields value={levels} onChange={setLevels} error={levelError ? error ?? "" : undefined} refusals={failure.count} />
       </section>
 
       <section aria-labelledby={`${baseId}-words`} className="md:overflow-hidden md:rounded-xl md:border md:bg-card">

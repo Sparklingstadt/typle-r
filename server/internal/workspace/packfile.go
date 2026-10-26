@@ -204,8 +204,8 @@ func DecodePackFile(data []byte) (*PackFile, error) {
 
 // ImportPack follows importPackFile and addPackFile (src/core/packFile.ts): the file's pack goes after the others as a
 // new pack without records, created now, and its lists after every list. Its lists are checked in order as a save
-// checks them, each against those before it, but for levels that repeat or overlap, which are told apart
-// (separateLevels); its name gets （2）, （3）… when a pack has it. listIDs has an id for each list of the file.
+// checks them, each against those before it, but for levels: several levels of a list are joined into one, and levels
+// that overlap are told apart (separateLevels); its name gets （2）, （3）… when a pack has it. listIDs has an id for each list of the file.
 func ImportPack(w *Workspace, file *PackFile, packID string, listIDs []string, now time.Time) (*Pack, error) {
 	if len(file.Lists) == 0 {
 		return nil, &Error{Key: "packFileUnreadable"}

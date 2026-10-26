@@ -331,9 +331,7 @@ func TestCheckPacksLevels(t *testing.T) {
 	}
 	inQ := with("z", func(l *List) { l.PackID = "q" })
 	cases := map[string][]List{
-		"equal levels": {with("a", func(l *List) { l.Levels = []string{"初級"} }), with("b", func(l *List) { l.Levels = []string{"初級"} })},
-		"one the start of the other": {with("a", func(l *List) { l.Levels = []string{"中級1", "A"} }),
-			with("b", func(l *List) { l.Levels = []string{"中級1"} })},
+		"equal levels":            {with("a", func(l *List) { l.Levels = []string{"初級"} }), with("b", func(l *List) { l.Levels = []string{"初級"} })},
 		"a name equal to a level": {with("a", func(l *List) { l.Name = "初級" }), with("b", func(l *List) { l.Levels = []string{"初級"} })},
 	}
 	for reason, lists := range cases {
@@ -343,26 +341,20 @@ func TestCheckPacksLevels(t *testing.T) {
 		}
 	}
 	if err := CheckPacks(packs, []List{with("a", func(l *List) { l.Levels = []string{"初級"} }), with("b", func(l *List) { l.Levels = []string{"初級 "} }),
-		with("c", func(l *List) { l.Levels = []string{"中級", "A"} }), with("d", func(l *List) { l.Levels = []string{"中級", "B"} }),
+		with("c", func(l *List) { l.Levels = []string{"中級"} }),
 		with("e", func(l *List) { l.PackID, l.Levels = "q", []string{"初級"} })}); err != nil {
 		t.Fatal(err)
 	}
-	// A level given twice in one list is refused with levelDuplicate; levels are compared trimmed.
-	var duplicate *Error
-	if err := CheckPacks(packs, []List{with("a", func(l *List) { l.Levels = []string{"中級1", "A", "中級1"} }), inQ}); !errors.As(err, &duplicate) ||
-		duplicate.Key != "levelDuplicate" {
-		t.Errorf("repeated level: err = %v", err)
-	}
-	if err := CheckPacks(packs, []List{with("a", func(l *List) { l.Levels = []string{" 基本", "基本"} }), inQ}); !errors.As(err, &duplicate) ||
-		duplicate.Key != "levelDuplicate" {
-		t.Errorf("repeated trimmed level: err = %v", err)
-	}
-	if err := CheckPacks(packs, []List{with("a", func(l *List) { l.Levels = []string{"基本", "基本1", "基本（2）"} }), inQ}); err != nil {
+	// A list with several levels, sent by an app before v0.97.0, is taken, and not checked for overlaps: it is stored
+	// joined into one level and told apart.
+	several := []List{with("a", func(l *List) { l.Levels = []string{"基本", "初級"} }), with("b", func(l *List) { l.Levels = []string{"基本"} }),
+		with("c", func(l *List) { l.Levels = []string{"基本", "初級"} }), inQ}
+	if err := CheckPacks(packs, several); err != nil {
 		t.Fatal(err)
 	}
 	// CheckLibrary keeps the key, so a save is refused with it.
 	sent := `[{"id":"a","name":"a","packId":"p","levels":["初級"],"createdAt":"2026-10-01","words":[{"display":"ls","input":"ls","annotation":""}],"records":[]},` +
-		`{"id":"b","name":"b","packId":"p","levels":["初級","A"],"createdAt":"2026-10-01","words":[{"display":"ls","input":"ls","annotation":""}],"records":[]}]`
+		`{"id":"b","name":"b","packId":"p","levels":["初級"],"createdAt":"2026-10-01","words":[{"display":"ls","input":"ls","annotation":""}],"records":[]}]`
 	var e *Error
 	if err := CheckLibrary([]byte(sent), []byte(`[{"id":"p","name":"P","createdAt":"2026-10-01"}]`)); !errors.As(err, &e) || e.Key != "levelsConflict" {
 		t.Fatalf("err = %v", err)
@@ -391,19 +383,30 @@ func TestSeparateLevelsLimit(t *testing.T) {
 	}
 }
 
-// The cases of a repeated level in tests/wordPacks.test.cjs: it gets the smallest （n） its list does not hold, within
-// MaxLevel UTF-16 code units, and a character of two code units is not split.
-func TestDistinctLevels(t *testing.T) {
+// The cases of several levels in tests/wordPacks.test.cjs: they are joined with ・ into one, trimmed and without empty
+// ones and without ・ at their ends, cut to MaxLevel UTF-16 code units without splitting a character of two or leaving a
+// ・ at the end; one level stays as it was saved.
+func TestCollapseLevels(t *testing.T) {
 	cases := []struct{ levels, want []string }{
-		{[]string{"基本", "基本", "基本"}, []string{"基本", "基本（2）", "基本（3）"}},
-		{[]string{"基本", "基本", "基本（2）"}, []string{"基本", "基本（3）", "基本（2）"}},
-		{[]string{strings.Repeat("a", 50), strings.Repeat("a", 50)}, []string{strings.Repeat("a", 50), strings.Repeat("a", 47) + "（2）"}},
-		{[]string{strings.Repeat("😀", 25), strings.Repeat("😀", 25)}, []string{strings.Repeat("😀", 25), strings.Repeat("😀", 23) + "（2）"}},
+		{[]string{"基本", "初級"}, []string{"基本・初級"}},
+		{[]string{" 基本 ", "", "基本"}, []string{"基本・基本"}},
+		{[]string{" ", ""}, nil},
+		{[]string{strings.Repeat("a", 50), "b"}, []string{strings.Repeat("a", 50)}},
+		{[]string{strings.Repeat("a", 48), " b c "}, []string{strings.Repeat("a", 48) + "・b"}},
+		{[]string{strings.Repeat("a", 48), "😀"}, []string{strings.Repeat("a", 48)}},
+		{[]string{"・基本・ ", " ・ ", "初級・"}, []string{"基本・初級"}},
+		{[]string{"・", " "}, nil},
+		{[]string{" 基本 "}, []string{" 基本 "}},
 	}
 	for _, c := range cases {
-		if got := separateLevels([]List{{ID: "a", Name: "a", PackID: "p", Levels: c.levels}})[0].Levels; !slices.Equal(got, c.want) {
+		if got := separateLevels([]List{{ID: "a", Name: "a", PackID: "p", Levels: c.levels}})[0].Levels; !slices.Equal(got, c.want) || (c.want == nil) != (got == nil) {
 			t.Errorf("%q: levels = %q; want %q", c.levels, got, c.want)
 		}
+	}
+	// A joined level that another list of the pack holds is told apart afterwards.
+	got := separateLevels([]List{{ID: "a", Name: "a", PackID: "p", Levels: []string{"基本・初級"}}, {ID: "b", Name: "b", PackID: "p", Levels: []string{"基本", "初級"}}})
+	if !slices.Equal(got[1].Levels, []string{"基本・初級（2）"}) {
+		t.Errorf("levels = %q", got[1].Levels)
 	}
 }
 

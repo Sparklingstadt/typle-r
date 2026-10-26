@@ -68,7 +68,7 @@
     },
     "choose": {
       "title": "Choisir le pack, la liste et l’appareil",
-      "p1": "Cliquez sur « Pack › Liste » en haut pour choisir un pack et changer de liste. Les packs sont triés par entraînement le plus récent et se recherchent par nom de pack, catégorie, tag, nom de liste ou mot. Un pack d’une seule liste sélectionne cette liste aussitôt. Dans un pack de plusieurs listes, les listes avec niveaux se choisissent étape par étape selon le niveau, et celles sans niveaux avec des boutons portant leur nom. Vous pouvez aussi choisir dans la liste de droite (en bas sur smartphone).",
+      "p1": "Cliquez sur « Pack › Liste » en haut pour choisir un pack et changer de liste. Les packs sont triés par entraînement le plus récent et se recherchent par nom de pack, catégorie, tag, nom de liste ou mot. Un pack d’une seule liste sélectionne cette liste aussitôt. Dans un pack de plusieurs listes, les listes avec une difficulté se choisissent avec des boutons de difficulté, et celles sans difficulté avec des boutons portant leur nom. Vous pouvez aussi choisir dans la liste de droite (en bas sur smartphone).",
       "p2": "Si vous choisissez une autre liste en cours d’entraînement, une confirmation vous est demandée avant l’interruption. Un entraînement inachevé n’est pas enregistré.",
       "p3": "« Recommencer » ou <keys>Esc</keys> relance la même liste depuis le début.",
       "p4": "Avant de taper le premier caractère, choisissez l’appareil utilisé avec « Appareil » en haut (<devicesSection>Enregistrer des appareils</devicesSection>)."
@@ -81,7 +81,7 @@
       "p1": "Les listes de mots sont regroupées en « packs ». Pour créer un pack, saisissez son nom et sa première liste.",
       "p2": "« Ajouter une liste », dans le menu « … » d’un pack, ajoute une liste à un pack enregistré.",
       "p3": "« Modifier le pack », dans le menu « … » d’un pack, permet de changer son nom, sa description, sa catégorie et ses tags, ou de réorganiser les listes qu’il contient.",
-      "p4": "Dans l’éditeur de liste, vous pouvez choisir le pack de la liste (ce qui la déplace vers un autre pack). Vous pouvez aussi saisir une difficulté (noms des niveaux)."
+      "p4": "Dans l’éditeur de liste, vous pouvez choisir le pack de la liste (ce qui la déplace vers un autre pack). Vous pouvez aussi saisir une difficulté."
     },
     "files": {
       "title": "Copie de packs, fichiers de pack et packs officiels",

@@ -187,11 +187,8 @@
     "packHelp": "此列表所属的包。选择其他包会将列表移到该包。",
     "packWillBeDeleted": "包“{name}”将被删除。",
     "levels": "难度（可选）",
-    "levelLabel": "难度 {n}",
-    "levelPlaceholder": "基础、初级等",
-    "addLevel": "添加难度",
-    "removeLevel": "删除难度 {n}",
-    "levelsHelp": "在练习界面中用于逐级选择包内的列表，例如：基础 › 初级（最多 {max} 级）。"
+    "levelPlaceholder": "例如：初级",
+    "levelsHelp": "在练习界面中用于选择包内的列表，例如：初级。"
   },
   "import": {
     "open": "导入 CSV/TSV",

@@ -161,9 +161,9 @@ func (s *server) writeWorkspace(w http.ResponseWriter, r *http.Request) {
 		refuse(w, http.StatusConflict, "conflict")
 		return
 	}
-	// Lists sent with their packs whose levels overlap or repeat (workspace.CheckPacks) are told so; anything else is
-	// invalid.
-	if errors.As(err, &refused) && (refused.Key == "levelsConflict" || refused.Key == "levelDuplicate") {
+	// Lists sent with their packs whose levels overlap (workspace.CheckPacks) are told so; anything else is invalid.
+	// Several levels of a list are not refused: the change stores the lists as Decode repairs them, joined into one.
+	if errors.As(err, &refused) && refused.Key == "levelsConflict" {
 		refuse(w, http.StatusBadRequest, refused.Key)
 		return
 	}

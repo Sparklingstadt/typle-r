@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"strings"
 	"unicode/utf16"
 )
 
@@ -159,49 +160,48 @@ func numbered(name string) func(count int) string {
 	return func(count int) string { return fit(name, fmt.Sprintf("（%d）", count), MaxListName) }
 }
 
-// distinctLevels follows distinctLevels (src/core/wordPacks.ts): a level given twice in one list gets the smallest
-// （n） from 2 that the list's levels do not hold yet. Levels are compared trimmed.
-func distinctLevels(list List) List {
-	if !repeatsLevel(list.Levels) {
+// bare follows bare (src/core/wordPacks.ts): a level without the spaces and ・ at its ends.
+func bare(level string) string {
+	return strings.TrimFunc(level, func(r rune) bool { return r == '・' || spaceJS(r) })
+}
+
+// collapseLevels follows collapseLevels (src/core/wordPacks.ts): a list holds one level at most since v0.97.0, so
+// several levels saved by an older app become one: the levels made bare, without empty ones, joined with ・, cut to
+// MaxLevel and made bare again; no level at all when none is left.
+func collapseLevels(list List) List {
+	if len(list.Levels) <= 1 {
 		return list
 	}
-	levels := slices.Clone(list.Levels)
-	held := func(value string) bool {
-		return slices.ContainsFunc(levels, func(level string) bool { return trimJS(level) == trimJS(value) })
-	}
-	for at, level := range levels {
-		if !heldBefore(levels, at) {
-			continue
+	var kept []string
+	for _, level := range list.Levels {
+		if level = bare(level); level != "" {
+			kept = append(kept, level)
 		}
-		count := 2
-		for held(fit(level, fmt.Sprintf("（%d）", count), MaxLevel)) {
-			count++
-		}
-		levels[at] = fit(level, fmt.Sprintf("（%d）", count), MaxLevel)
 	}
-	list.Levels = levels
+	list.Levels = nil
+	if joined := bare(fit(strings.Join(kept, "・"), "", MaxLevel)); joined != "" {
+		list.Levels = []string{joined}
+	}
 	return list
 }
 
 // separateLevels follows separateLevels (src/core/wordPacks.ts), which brings back in reach the lists an older app let
-// overlap (see pathsOverlap): a list whose path overlaps that of an earlier list of its pack gets （2）, （3）… on the
-// level where they meet, or on its name when it has no levels (a name another list of the pack does not use, or a
-// level the list does not hold). A level given twice in a list is told apart first (distinctLevels). Earlier lists,
-// and data without overlaps, stay as they are.
+// overlap (see pathsOverlap): a list whose path equals that of an earlier list of its pack gets （2）, （3）… on its
+// level, or on its name when it has no levels (a name another list of the pack does not use). Several levels of a list
+// are joined into one first (collapseLevels). Earlier lists, and data without overlaps, stay as they are.
 func separateLevels(lists []List) []List {
-	lists = slices.Clone(lists)
-	for i := range lists {
-		lists[i] = distinctLevels(lists[i])
+	separated := make([]List, len(lists))
+	for i, list := range lists {
+		separated[i] = collapseLevels(list)
 	}
 	names := map[string]map[string]bool{}
-	for _, list := range lists {
+	for _, list := range separated {
 		if names[list.PackID] == nil {
 			names[list.PackID] = map[string]bool{}
 		}
 		names[list.PackID][nameKey(list.Name)] = true
 	}
 	accepted := map[string][][]string{}
-	separated := slices.Clone(lists)
 	for i, list := range separated {
 		taken := names[list.PackID]
 		hasLevels := len(list.Levels) > 0
@@ -212,31 +212,14 @@ func separateLevels(lists []List) []List {
 		base := levelPath(list.Name, list.Levels)
 		path := slices.Clone(base)
 		nameTaken := func() bool { return !hasLevels && nameKey(path[0]) != nameKey(list.Name) && taken[nameKey(path[0])] }
-		// The level just given a （n） may not be one the list holds at another step.
-		at := -1
-		repeated := func() bool {
-			for n, level := range path {
-				if at >= 0 && n != at && trimJS(level) == trimJS(path[at]) {
-					return true
-				}
-			}
-			return false
+		overlaps := func() bool {
+			return slices.ContainsFunc(accepted[list.PackID], func(q []string) bool { return pathsOverlap(q, path) })
 		}
-		for count := 2; ; count++ {
-			other := slices.IndexFunc(accepted[list.PackID], func(q []string) bool { return pathsOverlap(q, path) })
-			if other < 0 && !nameTaken() && !repeated() {
-				break
-			}
-			if !repeated() {
-				at = 0
-				if other >= 0 {
-					at = min(len(path), len(accepted[list.PackID][other])) - 1
-				}
-			}
-			path[at] = fit(base[at], fmt.Sprintf("（%d）", count), limit)
+		for count := 2; overlaps() || nameTaken(); count++ {
+			path[0] = fit(base[0], fmt.Sprintf("（%d）", count), limit)
 		}
 		accepted[list.PackID] = append(accepted[list.PackID], path)
-		if slices.Equal(path, base) {
+		if path[0] == base[0] {
 			continue
 		}
 		if hasLevels {
@@ -473,8 +456,11 @@ func (w *Workspace) ApplyListChange(previous *Workspace) {
 }
 
 // CheckPacks follows validateLibrary (src/core/wordPacks.ts): it refuses packs and lists that are not in the saved
-// shape, with invalidWorkspace, lists of a pack whose paths overlap, with levelsConflict, and a list with a level given
-// twice, with levelDuplicate.
+// shape, with invalidWorkspace, and lists of a pack whose paths overlap, with levelsConflict. Unlike validateLibrary it
+// takes a list with several levels (up to MaxSavedLevels, see CheckLimits): apps before v0.97.0, which may still be
+// open or not yet updated, send them with their packs, and a save they cannot change must not fail. Such a list is
+// stored as Decode repairs it, joined into one level (collapseLevels) and told apart (separateLevels), so it is not
+// checked for overlaps here.
 func CheckPacks(packs []Pack, lists []List) error {
 	invalid := &Error{Key: "invalidWorkspace"}
 	ids := map[string]bool{}
@@ -497,7 +483,9 @@ func CheckPacks(packs []Pack, lists []List) error {
 			listNames[list.PackID] = taken
 		}
 		name := nameKey(list.Name)
-		if list.PackID == "" || !ids[list.PackID] || taken[name] || list.Group != "" || list.Category != "" || list.Tags != nil {
+		// CheckLimits sees the lists as Decode joined their levels, so the number sent is checked here.
+		if list.PackID == "" || !ids[list.PackID] || taken[name] || list.Group != "" || list.Category != "" || list.Tags != nil ||
+			len(list.Levels) > MaxSavedLevels {
 			return invalid
 		}
 		taken[name] = true
@@ -505,12 +493,11 @@ func CheckPacks(packs []Pack, lists []List) error {
 	if len(ids) != len(listNames) {
 		return invalid
 	}
-	// Lists of a pack whose paths overlap, or with a level given twice, are refused as checkReach and tidyLevels refuse
-	// them; separateLevels repairs saved ones.
+	// Lists of a pack whose paths overlap are refused as checkReach refuses them; separateLevels repairs saved ones.
 	paths := map[string][][]string{}
 	for _, list := range lists {
-		if repeatsLevel(list.Levels) {
-			return &Error{Key: "levelDuplicate"}
+		if len(list.Levels) > MaxLevels {
+			continue
 		}
 		path := levelPath(list.Name, list.Levels)
 		if slices.ContainsFunc(paths[list.PackID], func(other []string) bool { return pathsOverlap(other, path) }) {
@@ -524,8 +511,7 @@ func CheckPacks(packs []Pack, lists []List) error {
 // CheckLibrary follows validateLibrary (src/core/wordPacks.ts) for a save that sends lists and packs. It reads them as
 // they were sent, before Decode repairs them: a list may not have a group, category or tags at all, not even "" or [],
 // and a pack's description, category, tags and origin may be left out but not null, as decodePacks requires. Anything
-// refused is invalidWorkspace, but for lists whose levels overlap or repeat (levelsConflict and levelDuplicate, see
-// CheckPacks).
+// refused is invalidWorkspace, but for lists whose levels overlap (levelsConflict, see CheckPacks).
 func CheckLibrary(lists, packs []byte) error {
 	invalid := &Error{Key: "invalidWorkspace"}
 	decoded, err := DecodeLists(lists)

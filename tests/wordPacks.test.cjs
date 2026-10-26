@@ -3,7 +3,7 @@ const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
-const { normalizeLibrary, decodePacks, validateLibrary, viewLists, applyListChange } = require('../src/core/wordPacks.ts')
+const { normalizeLibrary, decodePacks, validateLibrary, viewLists, applyListChange, importedLevel } = require('../src/core/wordPacks.ts')
 const { decodeLists, saveList } = require('../src/core/wordLists.ts')
 const { levelSteps, listAtLevels } = require('../src/core/listOverview.ts')
 
@@ -59,36 +59,42 @@ test('validateLibrary refuses lists of a pack whose levels overlap, as levelsCon
   const packs = [{ id: 'p', name: 'P', createdAt: '2026-10-01T00:00:00.000Z' }, { id: 'q', name: 'Q', createdAt: '2026-10-01T00:00:00.000Z' }]
   const cases = {
     'equal levels': [{ ...list, levels: ['初級'] }, { ...list, id: 'b', name: 'b', levels: ['初級'] }],
-    'one the start of the other': [{ ...list, levels: ['中級1', 'A'] }, { ...list, id: 'b', name: 'b', levels: ['中級1'] }],
     'a name equal to a level': [{ ...list, name: '初級' }, { ...list, id: 'b', name: 'b', levels: ['初級'] }],
   }
   for (const [reason, lists] of Object.entries(cases)) {
     assert.throws(() => validateLibrary({ packs, lists: [...lists, { ...list, id: 'z', name: 'z', packId: 'q' }] }), { key: 'levelsConflict' }, reason)
   }
   // Paths are compared as they are, and only within a pack.
-  validateLibrary({ packs, lists: [{ ...list, levels: ['初級'] }, { ...list, id: 'b', name: 'b', levels: ['初級 '] }, { ...list, id: 'c', name: 'c', levels: ['中級', 'A'] },
-    { ...list, id: 'd', name: 'd', levels: ['中級', 'B'] }, { ...list, id: 'e', name: 'e', packId: 'q', levels: ['初級'] }] })
+  validateLibrary({ packs, lists: [{ ...list, levels: ['初級'] }, { ...list, id: 'b', name: 'b', levels: ['初級 '] }, { ...list, id: 'c', name: 'c', levels: ['中級'] },
+    { ...list, id: 'e', name: 'e', packId: 'q', levels: ['初級'] }] })
 })
 
-test('validateLibrary refuses a level given twice in one list, as levelDuplicate', () => {
+test('validateLibrary refuses a list with more than one level, as tooManyLevels', () => {
   const list = { id: 'a', name: 'a', packId: 'p', words: [{ display: 'ls', input: 'ls', annotation: '' }], records: [], createdAt: '2026-10-01T00:00:00.000Z' }
   const packs = [{ id: 'p', name: 'P', createdAt: '2026-10-01T00:00:00.000Z' }]
-  assert.throws(() => validateLibrary({ packs, lists: [{ ...list, levels: ['基本', '基本'] }] }), { key: 'levelDuplicate' })
-  assert.throws(() => validateLibrary({ packs, lists: [{ ...list, levels: ['中級1', 'A', '中級1'] }] }), { key: 'levelDuplicate' })
-  // Levels are compared trimmed, as tidyLevels compares them.
-  assert.throws(() => validateLibrary({ packs, lists: [{ ...list, levels: [' 基本', '基本'] }] }), { key: 'levelDuplicate' })
-  validateLibrary({ packs, lists: [{ ...list, levels: ['基本', '基本1', '基本（2）'] }] })
+  assert.throws(() => validateLibrary({ packs, lists: [{ ...list, levels: ['基本', '初級'] }] }), { key: 'tooManyLevels' })
+  assert.throws(() => validateLibrary({ packs, lists: [{ ...list, levels: ['基本', '基本'] }] }), { key: 'tooManyLevels' })
+  validateLibrary({ packs, lists: [{ ...list, levels: ['基本・初級'] }] })
 })
 
-test('a repeated level gets the smallest （n） its list does not use, within the limit', () => {
+test('several levels saved by an older app are joined into one, within the limit', () => {
   const at = '2026-10-01T00:00:00.000Z'
   const list = (id, levels) => ({ id, name: id, words: [{ display: 'ls', input: 'ls', annotation: '' }], records: [], createdAt: at, packId: 'p', levels })
   const packs = [{ id: 'p', name: 'P', createdAt: at }]
   const levels = (...items) => normalizeLibrary(items, packs).lists.map(item => item.levels)
-  assert.deepEqual(levels(list('a', ['基本', '基本', '基本'])), [['基本', '基本（2）', '基本（3）']])
-  assert.deepEqual(levels(list('a', ['基本', '基本', '基本（2）'])), [['基本', '基本（3）', '基本（2）']])
-  assert.deepEqual(levels(list('a', ['a'.repeat(50), 'a'.repeat(50)])), [['a'.repeat(50), `${'a'.repeat(47)}（2）`]])
-  assert.deepEqual(levels(list('a', ['😀'.repeat(25), '😀'.repeat(25)])), [['😀'.repeat(25), `${'😀'.repeat(23)}（2）`]])
+  assert.deepEqual(levels(list('a', ['基本', '初級'])), [['基本・初級']])
+  assert.deepEqual(levels(list('a', [' 基本 ', '', '基本'])), [['基本・基本']])
+  assert.deepEqual(levels(list('a', [' ', ''])), [undefined])
+  assert.deepEqual(levels(list('a', ['a'.repeat(50), 'b'])), [['a'.repeat(50)]])
+  assert.deepEqual(levels(list('a', ['a'.repeat(48), ' b c '])), [[`${'a'.repeat(48)}・b`]])
+  // No ・ is left at the ends or doubled by a level that is only ・, and none is left where the cut falls.
+  assert.deepEqual(levels(list('a', ['a'.repeat(48), '😀'])), [['a'.repeat(48)]])
+  assert.deepEqual(levels(list('a', ['・基本・ ', ' ・ ', '初級・'])), [['基本・初級']])
+  assert.deepEqual(levels(list('a', ['・', ' '])), [undefined])
+  // One level stays as it was saved.
+  assert.deepEqual(levels(list('a', [' 基本 '])), [[' 基本 ']])
+  // A joined level that another list of the pack holds is told apart afterwards.
+  assert.deepEqual(levels(list('a', ['基本・初級']), list('b', ['基本', '初級'])), [['基本・初級'], ['基本・初級（2）']])
 })
 
 test('every list of a pack whose levels were separated can be picked on the practice screen', () => {
@@ -122,6 +128,13 @@ test('a library of more lists than MAX_LISTS, all without a group, converts and 
   const library = normalizeLibrary(lists, null)
   assert.equal(library.packs.length, 151)
   validateLibrary(library)
+})
+
+test('importedLevel shows the level a list of a pack file gets when it is imported', () => {
+  assert.equal(importedLevel(['基本', ' 初級 ']), '基本・初級')
+  assert.equal(importedLevel([' ・基本 ', '']), '・基本')
+  assert.equal(importedLevel(['', ' ']), undefined)
+  assert.equal(importedLevel(undefined), undefined)
 })
 
 test('lists keep a packId and refuse one that is not a string', () => {

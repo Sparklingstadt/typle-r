@@ -112,11 +112,9 @@
     "groupSelected": "{level} · {summary}",
     "groupLists": "{count, plural, one {# liste} other {# listes}} · choisir un niveau",
     "levels": "Niveaux de {name}",
-    "step": "Niveau, étape {n}",
-    "chooseLevel": "Choisissez maintenant le niveau suivant.",
+    "chooseLevel": "Choisissez une difficulté.",
     "groupListsPlain": "{count, plural, one {# liste} other {# listes}} · choisir une liste",
     "listsOf": "Listes de {name}",
-    "stepPlain": "Étape {n}",
     "chooseList": "Choisissez une liste.",
     "match": "Correspond à la recherche"
   }

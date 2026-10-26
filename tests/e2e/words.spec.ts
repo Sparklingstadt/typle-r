@@ -63,8 +63,8 @@ test('the sidebar opens the words of a list, and another list or a level of a gr
 
   const group = aside.locator('li[data-pack-id="pack-basic-1"]')
   await group.getByRole('button', { expanded: false }).click()
-  await group.getByRole('button', { name: '基本', exact: true }).click()
-  await group.getByRole('button', { name: '上級', exact: true }).click()
+  // Its two levels, saved by an older app, were joined into one when read.
+  await group.getByRole('button', { name: '基本・上級', exact: true }).click()
   await expect(page).toHaveURL(/\/words\?list=basic-2$/)
   await expect(page.getByRole('heading', { level: 2, name: 'Shell › 基本・上級' })).toBeVisible()
   await expect(page.getByText('1語', { exact: true })).toBeVisible()

@@ -68,7 +68,7 @@
     },
     "choose": {
       "title": "Choosing a pack, list and device",
-      "p1": "Click “Pack › List” at the top to choose a pack and switch the list you practice. Packs are ordered by most recent practice and can be searched by pack name, category, tag, list name or word. A pack with one list selects that list right away. In a pack with several lists, lists with levels are chosen step by step by level, and lists without levels are chosen with name buttons. You can also pick one from the list on the right (below on smartphones).",
+      "p1": "Click “Pack › List” at the top to choose a pack and switch the list you practice. Packs are ordered by most recent practice and can be searched by pack name, category, tag, list name or word. A pack with one list selects that list right away. In a pack with several lists, lists with a difficulty are chosen with difficulty buttons, and lists without one with name buttons. You can also pick one from the list on the right (below on smartphones).",
       "p2": "If you choose another list in the middle of a practice, you are asked to confirm before stopping. An unfinished practice is not recorded.",
       "p3": "“Start over” or <keys>Esc</keys> starts the same list over from the beginning.",
       "p4": "Use “Device” at the top to choose the device you are practicing on before typing the first character (<devicesSection>Register devices</devicesSection>)."
@@ -81,7 +81,7 @@
       "p1": "Word lists are organized into packs. When you create a pack, you enter the pack’s name and its first list.",
       "p2": "Use “Add a list” in a pack’s “…” menu to add a list to a saved pack.",
       "p3": "Use “Edit pack” in a pack’s “…” menu to change its name, description, category, and tags, or to reorder the lists inside it.",
-      "p4": "In the list editor, you can choose which pack the list belongs to (this moves it to another pack). You can also enter a difficulty (level names) for the words."
+      "p4": "In the list editor, you can choose which pack the list belongs to (this moves it to another pack). You can also enter one difficulty for the words."
     },
     "files": {
       "title": "Copying packs, pack files, and official packs",

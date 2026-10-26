@@ -12,7 +12,8 @@ import (
 // as Decode gives them (see viewLists), so that ApplyListChange keeps the packs as they were made.
 //
 // Where the app refuses with a plain error (validateLibrary's "Invalid packs", or tidyLevels), the API needs a key: a
-// pack's fields past their limits are invalidPack, and a list's levels past theirs invalidList, as its other fields are.
+// pack's fields past their limits are invalidPack, and a list's levels past theirs invalidList, as its other fields are,
+// but for more than one level, which is tooManyLevels as in the app.
 
 // PackListInput is a list of a pack as a request gives it.
 type PackListInput struct {
@@ -46,18 +47,17 @@ func findPack(w *Workspace, id string) *Pack {
 	return nil
 }
 
-// tidyLevels follows tidyLevels (src/core/packEditing.ts): the levels as trimLevels keeps them, and a level given twice
-// is levelDuplicate.
+// tidyLevels follows tidyLevels (src/core/packEditing.ts): the levels as trimLevels keeps them, one at most
+// (tooManyLevels).
 func tidyLevels(levels []string) ([]string, error) {
-	kept, err := trimLevels(levels)
-	if err == nil && repeatsLevel(kept) {
-		return nil, &Error{Key: "levelDuplicate"}
+	if len(slices.DeleteFunc(slices.Clone(levels), func(level string) bool { return trimJS(level) == "" })) > MaxLevels {
+		return nil, &Error{Key: "tooManyLevels"}
 	}
-	return kept, err
+	return trimLevels(levels)
 }
 
 // trimLevels follows trimLevels (src/core/packEditing.ts): the levels trimmed, without empty ones, and nil when none is
-// left. More than MaxLevels or one longer than MaxLevel is invalidList, as is U+0000.
+// left. More than MaxSavedLevels or one longer than MaxLevel is invalidList, as is U+0000.
 func trimLevels(levels []string) ([]string, error) {
 	var kept []string
 	for _, level := range levels {
@@ -65,26 +65,11 @@ func trimLevels(levels []string) ([]string, error) {
 			kept = append(kept, level)
 		}
 	}
-	if len(kept) > MaxLevels ||
+	if len(kept) > MaxSavedLevels ||
 		slices.ContainsFunc(kept, func(level string) bool { return length(level) > MaxLevel || strings.ContainsRune(level, 0) }) {
 		return nil, &Error{Key: "invalidList"}
 	}
 	return kept, nil
-}
-
-// repeatsLevel follows repeatsLevel (src/core/wordPacks.ts): whether levels hold one level twice, compared trimmed.
-func repeatsLevel(levels []string) bool {
-	for i := range levels {
-		if heldBefore(levels, i) {
-			return true
-		}
-	}
-	return false
-}
-
-// heldBefore reports whether a level before levels[at] is the same, compared trimmed.
-func heldBefore(levels []string, at int) bool {
-	return slices.ContainsFunc(levels[:at], func(level string) bool { return trimJS(level) == trimJS(levels[at]) })
 }
 
 // levelPath follows levelPath (src/core/packEditing.ts): the levels the practice screen picks a list of a pack by, or
@@ -144,8 +129,8 @@ func checkPack(pack Pack) error {
 
 // newLists checks the lists of a new pack packID as createPack does, each against those before it, and returns them as
 // they are saved: names trimmed, levels tidied, words as given but without fields Typle does not know, no records, and
-// created now. With separate (a file, as addPackFile reads it), levels that repeat or overlap are told apart
-// (separateLevels) instead of refused.
+// created now. With separate (a file, as addPackFile reads it), several levels of a list are joined into one and
+// levels that overlap are told apart (separateLevels) instead of refused.
 func newLists(packID string, inputs []PackListInput, ids []string, now time.Time, separate bool) ([]List, error) {
 	if len(ids) != len(inputs) {
 		return nil, errors.New("one list id is needed for each list")

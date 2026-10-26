@@ -112,11 +112,9 @@
     "groupSelected": "{level} · {summary}",
     "groupLists": "{count, plural, one {# список} few {# списка} many {# списков} other {# списка}} · выберите уровень",
     "levels": "Уровни: {name}",
-    "step": "Уровень, шаг {n}",
-    "chooseLevel": "Теперь выберите следующий уровень.",
+    "chooseLevel": "Выберите сложность.",
     "groupListsPlain": "{count, plural, one {# список} few {# списка} many {# списков} other {# списка}} · выберите список",
     "listsOf": "Списки: {name}",
-    "stepPlain": "Шаг {n}",
     "chooseList": "Выберите список.",
     "match": "Совпадает с поиском"
   }

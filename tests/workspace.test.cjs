@@ -48,11 +48,13 @@ test('request validation takes packs only together with lists', () => {
   assert.throws(() => validateWorkspaceRequest({ revision: 0, lists: [saved], packs: [pack, { ...pack, id: 'q' }] }), { message: 'Invalid packs' })
   assert.throws(() => validateWorkspaceRequest({ revision: 0, lists: [saved], packs: {} }), { key: 'savedDataCorrupted' })
   // Lists of a pack whose levels overlap are refused; lists sent without packs are separated when they are read.
-  const overlapping = [{ ...saved, levels: ['初級'] }, { ...saved, id: 'b', name: 'b', levels: ['初級', 'A'] }]
+  const overlapping = [{ ...saved, levels: ['初級'] }, { ...saved, id: 'b', name: 'b', levels: ['初級'] }]
   assert.throws(() => validateWorkspaceRequest({ revision: 0, lists: overlapping, packs: [pack] }), { key: 'levelsConflict' })
   assert.equal(validateWorkspaceRequest({ revision: 0, lists: overlapping }).lists.length, 2)
-  // A level given twice in one list is refused the same way.
-  const repeated = [{ ...saved, levels: ['基本', '基本'] }]
-  assert.throws(() => validateWorkspaceRequest({ revision: 0, lists: repeated, packs: [pack] }), { key: 'levelDuplicate' })
-  assert.equal(validateWorkspaceRequest({ revision: 0, lists: repeated }).lists.length, 1)
+  // A list with more than one level is refused with packs; an app before v0.97.0 sends up to 5 without packs, which are
+  // joined when they are read.
+  const leveled = [{ ...saved, levels: ['基本', '初級'] }]
+  assert.throws(() => validateWorkspaceRequest({ revision: 0, lists: leveled, packs: [pack] }), { key: 'tooManyLevels' })
+  assert.equal(validateWorkspaceRequest({ revision: 0, lists: [{ ...saved, levels: ['1', '2', '3', '4', '5'] }] }).lists.length, 1)
+  assert.throws(() => validateWorkspaceRequest({ revision: 0, lists: [{ ...saved, levels: ['1', '2', '3', '4', '5', '6'] }] }), { message: 'Workspace too large' })
 })

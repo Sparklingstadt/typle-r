@@ -187,11 +187,8 @@
     "packHelp": "リストを入れるパックです。ほかのパックを選ぶと、リストはそのパックに移ります。",
     "packWillBeDeleted": "パック「{name}」は削除されます。",
     "levels": "難易度（任意）",
-    "levelLabel": "難易度 {n}",
-    "levelPlaceholder": "基本、初級など",
-    "addLevel": "難易度を追加",
-    "removeLevel": "難易度 {n} を削除",
-    "levelsHelp": "練習画面で、パックの中のリストを段階的に選ぶのに使います。例：基本 › 初級（{max}段まで）。"
+    "levelPlaceholder": "初級など",
+    "levelsHelp": "練習画面で、パックの中のリストを選ぶのに使います。例：初級"
   },
   "import": {
     "open": "CSV・TSVを読み込む",

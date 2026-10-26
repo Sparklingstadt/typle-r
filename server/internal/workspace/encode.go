@@ -23,9 +23,12 @@ const (
 	// The limit of the group a list saved by an app that does not know packs may have (MAX_GROUP in
 	// src/core/wordLists.ts): it becomes the name of a pack when the lists are read.
 	MaxGroup = 200
-	// The limits of a list's levels (MAX_LEVELS and MAX_LEVEL in src/core/wordLists.ts).
-	MaxLevels = 5
-	MaxLevel  = 50
+	// The limits of a list's levels (MAX_LEVELS, MAX_SAVED_LEVELS and MAX_LEVEL in src/core/wordLists.ts). A list has one
+	// level at most; an app before v0.97.0 let it have up to MaxSavedLevels, which are still read and joined into one
+	// (collapseLevels).
+	MaxLevels      = 1
+	MaxSavedLevels = 5
+	MaxLevel       = 50
 	// The app saves the lists with its devices, revision and account in one request of at most 1 MiB
 	// (MAX_WORKSPACE_BYTES), so the lists written here leave 128 KiB for the rest.
 	MaxListsBytes = 896 << 10
@@ -120,7 +123,7 @@ func CheckLimits(lists []List) error {
 	for _, list := range lists {
 		if len(list.Words) > MaxWords || len(list.Records) > MaxRecords || length(list.Name) > MaxListName ||
 			length(list.Category) > MaxCategory || len(list.Tags) > MaxTags || length(list.Group) > MaxGroup ||
-			slices.ContainsFunc(list.Tags, func(tag string) bool { return length(tag) > MaxTag }) || len(list.Levels) > MaxLevels ||
+			slices.ContainsFunc(list.Tags, func(tag string) bool { return length(tag) > MaxTag }) || len(list.Levels) > MaxSavedLevels ||
 			slices.ContainsFunc(list.Levels, func(level string) bool { return length(level) > MaxLevel }) {
 			return &Error{Key: "invalidWorkspace"}
 		}

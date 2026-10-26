@@ -107,16 +107,18 @@ test('importPackFile adds the pack and its lists at the end, tidied as a save wo
   assert.equal(importPackFile(library(), file([{ name: 'L', words: words('a') }], { name: ' linux ' }), { pack: 'n', lists: ['n1'] }, now).packs.at(-1).name, 'linux（2）')
 })
 
-// A file written before v0.96.3 (or a share made then) may repeat a level in a list, or overlap levels of its lists; the
-// import tells them apart as reading saved data does, since the one who imports cannot change the file.
-test('importPackFile tells apart repeated and overlapping levels of a file, as reading saved data does', () => {
+// A file written before v0.97.0 (or a share made then) may give a list several levels, or overlap levels of its lists;
+// the import repairs them as reading saved data does, since the one who imports cannot change the file.
+test('importPackFile joins several levels of a list and tells apart overlapping levels, as reading saved data does', () => {
   const next = importPackFile(library(), file([
     { name: 'A', levels: ['基本', ' 基本 '], words: words('a') },
-    { name: 'B', levels: ['基本', '基本（2）'], words: words('b') },
+    { name: 'B', levels: ['基本', '', '初級'], words: words('b') },
     { name: 'C', words: words('c') },
     { name: 'D', levels: ['C'], words: words('d') },
-  ]), { pack: 'n', lists: ['n1', 'n2', 'n3', 'n4'] }, now)
-  assert.deepEqual(next.lists.slice(-4).map(item => item.levels), [['基本', '基本（2）'], ['基本', '基本（2）（2）'], undefined, ['C（2）']])
+    { name: 'E', levels: [' 基本・初級 '], words: words('e') },
+  ]), { pack: 'n', lists: ['n1', 'n2', 'n3', 'n4', 'n5'] }, now)
+  assert.deepEqual(next.lists.slice(-5).map(item => item.levels), [['基本・基本'], ['基本・初級'], undefined, ['C（2）'], ['基本・初級（2）']])
+  validateLibrary(next)
 })
 
 test('importPackFile refuses a file against the rules of a save, and changes nothing', () => {
@@ -180,7 +182,7 @@ test('a long name keeps the copy and number marks within 200 characters', () => 
     ['an input over 1000', file([one({ words: [{ display: 'a', input: 'x'.repeat(1001), annotation: '' }] })])],
     ['a display over 1000', file([one({ words: [{ display: 'x'.repeat(1001), input: 'a', annotation: '' }] })])],
     ['an annotation over 2000', file([one({ words: [{ display: 'a', input: 'a', annotation: 'x'.repeat(2001) }] })])],
-    ['more than 5 levels', file([one({ levels: ['1', '2', '3', '4', '5', '6'] })])],
+    ['more than 5 levels, more than an older app saved', file([one({ levels: ['1', '2', '3', '4', '5', '6'] })])],
     ['a level over 50', file([one({ levels: ['x'.repeat(51)] })])],
   ]
   for (const [name, bad] of cases) {
