@@ -1,5 +1,5 @@
 "use client"
-import { Suspense, useEffect, useRef, useState } from "react"
+import { Suspense, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
@@ -15,8 +15,11 @@ import WordListOptions from "@/components/Practice/WordListOptions"
 import ListLabels from "@/components/WordLists/ListLabels"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import { useWordLists } from "@/lib/useWordLists"
-import { byRecentPractice } from "@/core/records"
-import { levelName, listLabels, matchesFilter } from "@/core/listOverview"
+import { matchesPackQuery, packOverviews, type PackOverview } from "@/core/packEditing"
+import { packsByRecentPractice } from "@/core/packPractice"
+import type { WordPack } from "@/core/wordPacks"
+import { listLabels, matchesFilter } from "@/core/listOverview"
+import PracticeName, { usePracticeName } from "@/components/PracticeName"
 import type { SavedWordList } from "@/core/wordLists"
 
 export default function Words() {
@@ -39,7 +42,7 @@ export default function Words() {
       </AlertDescription>
     </Alert>}
     {!workspace.ready ? <LoadingState />
-      : workspace.lists.length ? <Suspense fallback={<LoadingState />}><WordsView key={workspace.accountId} lists={workspace.lists} /></Suspense>
+      : workspace.lists.length ? <Suspense fallback={<LoadingState />}><WordsView key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} /></Suspense>
         // After a failed load the lists are unknown; "no lists yet" would be wrong.
         : !workspace.error && <EmptyState />}
   </main>
@@ -47,8 +50,14 @@ export default function Words() {
 
 // `?list=<id>` keeps the chosen list in the URL, so it can be reloaded or opened from elsewhere. Without it the first
 // list is shown, as on the practice screen.
-function WordsView({ lists }: { lists: SavedWordList[] }) {
+// The packs of `category` (null for every category) that `query` finds, in the order given.
+function matchingPacks(items: PackOverview[], category: string | null, query: string) {
+  return items.filter(item => matchesFilter(item.pack, { category, tags: [] }) && matchesPackQuery(item, query))
+}
+
+function WordsView({ lists, packs }: { lists: SavedWordList[]; packs: WordPack[] }) {
   const t = useTranslations('wordLists.words')
+  const practiceName = usePracticeName()
   const page = useTranslations('wordLists.page')
   const locale = useLocale()
   const params = useSearchParams()
@@ -77,16 +86,11 @@ function WordsView({ lists }: { lists: SavedWordList[] }) {
     window.history.replaceState(null, '', `${window.location.pathname}?list=${encodeURIComponent(id)}`)
   }
 
-  // Recently practised lists come first (a group at its latest list), narrowed down by name, group, category and tag.
-  const ordered = byRecentPractice(lists)
-  const labels = listLabels(lists, locale)
-  const matching = (text: string) => {
-    const needle = text.trim().toLowerCase()
-    return ordered.filter(item => matchesFilter(item, { category, tags: [] }) && (item.name.toLowerCase().includes(needle) ||
-      !!item.group?.toLowerCase().includes(needle) || !!item.category?.toLowerCase().includes(needle) || !!item.tags?.some(tag => tag.toLowerCase().includes(needle))))
-  }
-  const asideFiltered = matching(query)
-  const pickerFiltered = matching(pickerQuery)
+  // Recently practised packs come first, narrowed down by category and by what the pack, its lists and its words say.
+  const overviews = useMemo(() => packsByRecentPractice(packOverviews({ packs, lists })), [packs, lists])
+  const labels = useMemo(() => listLabels(packs, locale), [packs, locale])
+  const asideFiltered = useMemo(() => matchingPacks(overviews, category, query), [overviews, category, query])
+  const pickerFiltered = useMemo(() => matchingPacks(overviews, category, pickerQuery), [overviews, category, pickerQuery])
 
   return <div className="space-y-4">
     {requestedId && !requested && <Alert>
@@ -103,7 +107,7 @@ function WordsView({ lists }: { lists: SavedWordList[] }) {
           <SearchField value={query} onChange={setQuery} className="mx-1 mt-1 mb-1 h-9 shrink-0" />
           <div className="mx-1 mb-1"><CategorySelect labels={labels} value={category} onChange={setCategory} /></div>
           <div ref={asideLists} className="max-h-[36rem] min-h-0 overflow-y-auto overscroll-contain">
-            {asideFiltered.length ? <WordListOptions label={t('lists')} lists={asideFiltered} saved={lists} selectedId={list.id} onSelect={id => { setQuery(''); choose(id) }} />
+            {asideFiltered.length ? <WordListOptions label={t('lists')} packs={asideFiltered} selectedId={list.id} query={query} onSelect={id => { setQuery(''); choose(id) }} />
               : <p className="px-2 py-2 text-sm text-muted-foreground">{t('noMatch')}</p>}
           </div>
         </Card>
@@ -111,16 +115,16 @@ function WordsView({ lists }: { lists: SavedWordList[] }) {
       <Card className="min-w-0 gap-0 py-0 text-base">
         <div className="flex flex-wrap items-start gap-x-4 gap-y-3 border-b px-4 py-4 sm:px-6">
           <div className="grid min-w-0 flex-1 basis-60 gap-1">
-            <h2 id="words-title" className="text-lg font-bold [overflow-wrap:anywhere]">{list.name}</h2>
+            <h2 id="words-title" className="text-lg font-bold [overflow-wrap:anywhere]"><PracticeName list={list} /></h2>
             <ListLabels list={list} />
             <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">
-              {list.group ? t('groupSummary', { group: list.group, level: levelName(list), count: list.words.length }) : t('wordCount', { count: list.words.length })}
+              {t('wordCount', { count: list.words.length })}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Dialog open={pickerOpen} onOpenChange={open => { setPickerOpen(open); if (!open) setPickerQuery('') }}>
               <DialogTrigger asChild>
-                <Button variant="outline" size="lg" className="lg:hidden" aria-label={t('switchList', { name: list.name })}>
+                <Button variant="outline" size="lg" className="lg:hidden" aria-label={t('switchList', { name: practiceName(list) })}>
                   <ChevronsUpDown aria-hidden="true" />{t('switch')}
                 </Button>
               </DialogTrigger>
@@ -132,13 +136,13 @@ function WordsView({ lists }: { lists: SavedWordList[] }) {
                 <SearchField value={pickerQuery} onChange={setPickerQuery} className="h-10" />
                 <CategorySelect labels={labels} value={category} onChange={setCategory} className="h-10 w-full min-w-0 rounded-lg border bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30" />
                 <div className="-mx-1 max-h-[min(28rem,calc(100dvh-18rem))] overflow-y-auto overscroll-contain px-1">
-                  {pickerFiltered.length ? <WordListOptions label={t('candidates')} lists={pickerFiltered} saved={lists} selectedId={list.id} onSelect={choose} />
+                  {pickerFiltered.length ? <WordListOptions label={t('candidates')} packs={pickerFiltered} selectedId={list.id} query={pickerQuery} onSelect={choose} />
                     : <p className="px-1 py-2 text-sm text-muted-foreground">{t('noMatch')}</p>}
                 </div>
               </DialogContent>
             </Dialog>
-            <Button size="lg" asChild><Link href={`/play?list=${encodeURIComponent(list.id)}`} aria-label={t('practiceList', { name: list.name })}><Keyboard aria-hidden="true" />{t('practice')}</Link></Button>
-            <Button variant="outline" size="lg" asChild><Link href={`/edit?list=${encodeURIComponent(list.id)}`} aria-label={t('editList', { name: list.name })}><Pencil aria-hidden="true" />{t('edit')}</Link></Button>
+            <Button size="lg" asChild><Link href={`/play?list=${encodeURIComponent(list.id)}`} aria-label={t('practiceList', { name: practiceName(list) })}><Keyboard aria-hidden="true" />{t('practice')}</Link></Button>
+            <Button variant="outline" size="lg" asChild><Link href={`/edit?list=${encodeURIComponent(list.id)}`} aria-label={t('editList', { name: practiceName(list) })}><Pencil aria-hidden="true" />{t('edit')}</Link></Button>
           </div>
         </div>
         <WordTable list={list} />

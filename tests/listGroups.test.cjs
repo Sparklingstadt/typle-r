@@ -2,22 +2,13 @@ require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { saveList, encodeLists, decodeLists } = require('../src/core/wordLists.ts')
-const { duplicateList, groupEntries, levelName, levelSteps, listAtLevels, matchesQuery } = require('../src/core/listOverview.ts')
+const { duplicateList, levelName, levelSteps, listAtLevels, matchesQuery } = require('../src/core/listOverview.ts')
 const { validateLists } = require('../src/core/workspaceRequest.ts')
 const { initialLists } = require('../src/plugins/packs/index.ts')
 
 const words = [{ display: 'ls', input: 'ls', annotation: '' }]
 const list = (id, group, levels) => ({ id, name: id, ...(group ? { group } : {}), ...(levels ? { levels } : {}), words, records: [], createdAt: '2026-10-24T00:00:00.000Z' })
 const linux = [list('b1', 'Linux', ['基本', '初級']), list('b2', 'Linux', ['基本', '上級']), list('o1', 'Linux', ['オプション', '初級1']), list('o2', 'Linux', ['オプション', '初級2'])]
-
-test('the lists of a group are one entry, at the place of the first of them', () => {
-  const items = [list('a'), linux[2], list('go1', 'Go', ['初級']), linux[0], list('one', 'Alone', ['初級']), linux[1]]
-  assert.deepEqual(groupEntries(items, item => item).map(entry => [entry.group, entry.items.map(item => item.id)]), [
-    [null, ['a']], ['Linux', ['o1', 'b1', 'b2']], [null, ['go1']], [null, ['one']],
-  ])
-  // A search that finds one list of a group still shows it in its group.
-  assert.deepEqual(groupEntries([linux[1]], item => item, linux).map(entry => entry.group), ['Linux'])
-})
 
 test('the levels of a group are chosen one step after another', () => {
   assert.deepEqual(levelSteps(linux, []), [{ options: ['基本', 'オプション'], chosen: null }])
@@ -47,7 +38,14 @@ test('the group and levels are saved trimmed, kept when read, refused past their
 })
 
 test('the initial lists split into levels are put in groups, each list with levels of its own', () => {
-  const entries = groupEntries(initialLists, item => item)
+  // A group is the lists sharing a `group` (two or more of them); every other list stands alone.
+  const byGroup = new Map()
+  for (const item of initialLists) if (item.group) byGroup.set(item.group, [...byGroup.get(item.group) ?? [], item])
+  const entries = initialLists.flatMap(item => {
+    const members = item.group ? byGroup.get(item.group) : undefined
+    if (!members || members.length < 2) return [{ group: null, items: [item] }]
+    return members[0] === item ? [{ group: item.group, items: members }] : []
+  })
   assert.equal(entries.length, 30)
   const groups = entries.filter(entry => entry.group)
   assert.equal(groups.length, 17)

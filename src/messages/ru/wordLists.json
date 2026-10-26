@@ -240,7 +240,6 @@
     "switch": "Выбрать список",
     "switchList": "Выбрать список слов (сейчас: {name})",
     "wordCount": "{count, plural, one {# слово} few {# слова} many {# слов} other {# слова}}",
-    "groupSummary": "{group}: {level} · {count, plural, one {# слово} few {# слова} many {# слов} other {# слова}}",
     "practice": "Тренироваться",
     "practiceList": "Тренироваться: {name}",
     "edit": "Изменить",

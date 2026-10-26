@@ -1,5 +1,5 @@
 "use client"
-import { Suspense, useEffect, useLayoutEffect, useRef, useState } from "react"
+import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
@@ -17,8 +17,11 @@ import { useWordLists, type WorkspaceUpdate } from "@/lib/useWordLists"
 import type { SavedWordList } from "@/core/wordLists"
 import { usePractice } from "@/lib/usePractice"
 import { compareInput, elapsedTime, typingSpeed, type TypingSession } from "@/core/typing"
-import { byRecentPractice, comparableRecords } from "@/core/records"
+import { comparableRecords } from "@/core/records"
 import { listLabels, matchesFilter } from "@/core/listOverview"
+import { matchesPackQuery, packOverviews, type PackOverview } from "@/core/packEditing"
+import { packsByRecentPractice } from "@/core/packPractice"
+import type { WordPack } from "@/core/wordPacks"
 import { cn } from "@/lib/utils"
 import Page from "@/components/Page/Page"
 import PageContainer from "@/components/PageContainer/PageContainer"
@@ -28,7 +31,13 @@ import DeviceMenu from "@/components/Practice/DeviceMenu"
 import WordListOptions from "@/components/Practice/WordListOptions"
 import CategorySelect from "@/components/Practice/CategorySelect"
 import PracticeBestRecords from "@/components/Practice/PracticeBestRecords"
+import PracticeName, { usePracticeName } from "@/components/PracticeName"
 import PracticeResult from "@/components/Practice/PracticeResult"
+
+// The packs of `category` (null for every category) that `query` finds, in the order given.
+function matchingPacks(items: PackOverview[], category: string | null, query: string) {
+  return items.filter(item => matchesFilter(item.pack, { category, tags: [] }) && matchesPackQuery(item, query))
+}
 
 function Loading() {
   const common = useTranslations('common')
@@ -42,9 +51,9 @@ export default function Play() {
 
 function PlayWorkspace() {
   const listId = useSearchParams().get('list')
-  const { lists, devices, accountId, ready, error, update } = useWordLists()
+  const { lists, packs, devices, accountId, ready, error, update } = useWordLists()
   if (!ready) return <Loading />
-  return <Practice key={accountId} accountId={accountId ?? ""} devices={devices} wordLists={lists} listId={listId} error={error} update={update} />
+  return <Practice key={accountId} accountId={accountId ?? ""} devices={devices} wordLists={lists} packs={packs} listId={listId} error={error} update={update} />
 }
 
 // Ticks only while a session is running, for the live elapsed time and speed.
@@ -113,15 +122,17 @@ function useWrappedLines(text: string | undefined) {
   return [setElement, lines] as const
 }
 
-function Practice({ wordLists, listId, error, update, devices, accountId }: {
+function Practice({ wordLists, packs, listId, error, update, devices, accountId }: {
   devices: PracticeDevice[]
   accountId: string
   wordLists: SavedWordList[]
+  packs: WordPack[]
   listId: string | null
   error: string
   update: WorkspaceUpdate
 }) {
   const t = useTranslations('practice')
+  const practiceName = usePracticeName()
   const [device, chooseDevice] = useChosenDevice(accountId, devices)
   const [statsVisible, setStatsVisible] = useLiveStatsVisible()
   const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave, pause, resume } = usePractice(wordLists, update, device, listId)
@@ -133,6 +144,8 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
   const locale = useLocale()
   const asideLists = useRef<HTMLDivElement>(null)
   const [pendingSwitch, setPendingSwitch] = useState<number | null>(null)
+  // Counts the switches given up on, so the choosers let go of the levels chosen for them.
+  const [switchCancels, setSwitchCancels] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
   // All the words of the list start shown, so a list can be previewed right after choosing it.
   const [showAll, setShowAll] = useState(true)
@@ -210,17 +223,12 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
     if (!running) switchTo(index)
     else if (index !== selected) setPendingSwitch(index)
   }
-  // Recently practised lists come first (a group at its latest list), and both list choosers can be narrowed down by name,
-  // group, category and tag.
-  const ordered = byRecentPractice(wordLists)
-  const labels = listLabels(wordLists, locale)
-  const matching = (text: string) => {
-    const needle = text.trim().toLowerCase()
-    return ordered.filter(item => matchesFilter(item, { category, tags: [] }) && (item.name.toLowerCase().includes(needle) ||
-      !!item.group?.toLowerCase().includes(needle) || !!item.category?.toLowerCase().includes(needle) || !!item.tags?.some(tag => tag.toLowerCase().includes(needle))))
-  }
-  const filteredLists = matching(query)
-  const asideFiltered = matching(asideQuery)
+  // Recently practised packs come first, and both choosers can be narrowed down by category and by what the pack, its lists
+  // and its words say.
+  const overviews = useMemo(() => packsByRecentPractice(packOverviews({ packs, lists: wordLists })), [packs, wordLists])
+  const labels = useMemo(() => listLabels(packs, locale), [packs, locale])
+  const filteredPacks = useMemo(() => matchingPacks(overviews, category, query), [overviews, category, query])
+  const asidePacks = useMemo(() => matchingPacks(overviews, category, asideQuery), [overviews, category, asideQuery])
   const next = words.slice(session.index + 1, session.index + 4)
   const remaining = words.length - session.index - 1 - next.length
   const progressText = t('progress.value', { current: finished ? words.length : session.index + 1, total: words.length })
@@ -235,10 +243,10 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
     <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <Card className="min-w-0 gap-0 py-0 text-base">
         <div className="flex h-14 items-center gap-1.5 border-b px-2 sm:h-16 sm:gap-3 sm:px-3">
-          <button type="button" onClick={openPicker} aria-haspopup="dialog" aria-label={t('header.switchList', { name: list.name })}
+          <button type="button" onClick={openPicker} aria-haspopup="dialog" aria-label={t('header.switchList', { name: practiceName(list) })}
             className="flex h-10 min-w-0 items-center gap-2 rounded-lg px-1.5 text-muted-foreground outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 sm:px-2.5">
             <List className="hidden size-4 shrink-0 sm:block" aria-hidden="true" />
-            <span className="truncate text-[15px] font-bold text-foreground sm:text-base">{list.name}</span>
+            <span className="truncate text-[15px] font-bold text-foreground sm:text-base"><PracticeName list={list} /></span>
             <span className="hidden shrink-0 text-[13px] sm:inline">{t('header.wordCount', { count: words.length })}</span>
             <ChevronsUpDown className="size-4 shrink-0" aria-hidden="true" />
           </button>
@@ -331,7 +339,8 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
           <div className="mx-1 mb-1"><CategorySelect labels={labels} value={category} onChange={setCategory} /></div>
           {/* Its own scroll area, so a long collection never pushes the page far below the practice card. */}
           <div ref={asideLists} className="max-h-96 overflow-y-auto overscroll-contain lg:max-h-[min(36rem,calc(100dvh-14rem))]">
-            {asideFiltered.length ? <WordListOptions label={t('aside.lists')} lists={asideFiltered} saved={wordLists} selectedId={list.id} onSelect={id => { setAsideQuery(''); requestSwitch(id) }} />
+            {asidePacks.length ? <WordListOptions label={t('aside.lists')} packs={asidePacks} selectedId={list.id} query={asideQuery} resetKey={switchCancels}
+              onSelect={id => { setAsideQuery(''); requestSwitch(id) }} />
               : <p className="px-2 py-2 text-sm text-muted-foreground">{t('picker.noMatch')}</p>}
           </div>
         </Card>
@@ -358,16 +367,16 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
             className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" />
         </label>
         <CategorySelect labels={labels} value={category} onChange={setCategory} className="h-10 w-full min-w-0 rounded-lg border bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30" />
-        {filteredLists.length ? <WordListOptions label={t('picker.candidates')} lists={filteredLists} saved={wordLists} selectedId={list?.id} onSelect={requestSwitch} />
+        {filteredPacks.length ? <WordListOptions label={t('picker.candidates')} packs={filteredPacks} selectedId={list?.id} query={query} resetKey={switchCancels} onSelect={requestSwitch} />
           : <p className="px-1 py-2 text-sm text-muted-foreground">{t('picker.noMatch')}</p>}
       </DialogContent>
     </Dialog>
-    <AlertDialog open={pendingSwitch !== null} onOpenChange={open => { if (!open) setPendingSwitch(null) }}>
+    <AlertDialog open={pendingSwitch !== null} onOpenChange={open => { if (!open) { setPendingSwitch(null); setSwitchCancels(count => count + 1) } }}>
       <AlertDialogContent onCloseAutoFocus={focusPractice}>
         <AlertDialogHeader>
           <AlertDialogTitle>{t('switch.title')}</AlertDialogTitle>
           <AlertDialogDescription>
-            {t('switch.description', { list: list?.name ?? '', done: session.index, total: words.length, next: pendingSwitch === null ? '' : wordLists[pendingSwitch]?.name ?? '' })}
+            {t('switch.description', { list: list ? practiceName(list) : '', done: session.index, total: words.length, next: pendingSwitch === null || !wordLists[pendingSwitch] ? '' : practiceName(wordLists[pendingSwitch]) })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

@@ -67,8 +67,8 @@
       "p5": "Le bouton en forme d’œil, en haut, affiche ou masque les statistiques en direct (temps écoulé, vitesse, précision et erreurs). Votre choix est enregistré dans ce navigateur. Les masquer ne change ni le chronométrage ni l’enregistrement, et l’écran de résultat affiche toujours les chiffres."
     },
     "choose": {
-      "title": "Choisir la liste et l’appareil",
-      "p1": "Cliquez sur le nom de la liste en haut pour rechercher et changer de liste. Vous pouvez aussi la choisir dans la liste de droite (en bas sur smartphone).",
+      "title": "Choisir le pack, la liste et l’appareil",
+      "p1": "Cliquez sur « Pack › Liste » en haut pour choisir un pack et changer de liste. Les packs sont triés par entraînement le plus récent et se recherchent par nom de pack, catégorie, tag, nom de liste ou mot. Un pack d’une seule liste sélectionne cette liste aussitôt. Dans un pack de plusieurs listes, les listes avec niveaux se choisissent étape par étape selon le niveau, et celles sans niveaux avec des boutons portant leur nom. Vous pouvez aussi choisir dans la liste de droite (en bas sur smartphone).",
       "p2": "Si vous choisissez une autre liste en cours d’entraînement, une confirmation vous est demandée avant l’interruption. Un entraînement inachevé n’est pas enregistré.",
       "p3": "« Recommencer » ou <keys>Esc</keys> relance la même liste depuis le début.",
       "p4": "Avant de taper le premier caractère, choisissez l’appareil utilisé avec « Appareil » en haut (<devicesSection>Enregistrer des appareils</devicesSection>)."

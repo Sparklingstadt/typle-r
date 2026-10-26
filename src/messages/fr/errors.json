@@ -50,5 +50,6 @@
   "recordListDeleted": "La liste de mots a été supprimée ; le résultat ne peut pas être enregistré.",
   "packNameRequired": "Saisissez un nom de pack.",
   "packNameDuplicate": "Un pack porte déjà ce nom.",
-  "packDeleted": "Ce pack a été supprimé."
+  "packDeleted": "Ce pack a été supprimé.",
+  "levelsConflict": "Ce pack contient déjà une liste avec les mêmes niveaux, ou avec des niveaux identiques jusqu’à une étape."
 }

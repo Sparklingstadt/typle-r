@@ -133,11 +133,22 @@ export function saveListInPack(library: Library,
   const saved: SavedWordList = { records: [], ...kept, ...fields, createdAt: existing?.createdAt ?? createdAt, name: list.name.trim(), ...tidyLevels(levels), packId: target }
   const packs = packId === null ? [...library.packs, { id: target, name: saved.name, createdAt: saved.createdAt }] : library.packs
   const others = library.lists.filter(item => item.id !== list.id)
+  if (packId !== null && others.some(item => item.packId === target && pathsOverlap(levelPath(item), levelPath(saved)))) throw new AppError('levelsConflict')
   if (!editing) return settle({ packs, lists: [...others, saved] })
   // Staying in the pack keeps the place; moving puts the list right after the last list of the pack it joins.
   if (existing!.packId === target) return settle({ packs, lists: library.lists.map(item => item.id === list.id ? saved : item) })
   const end = others.map(item => item.packId).lastIndexOf(target)
   return settle({ packs, lists: [...others.slice(0, end + 1), saved, ...others.slice(end + 1)] })
+}
+
+// The levels the practice screen picks a list of a pack by: its levels, or its name when it has none.
+const levelPath = (list: Pick<SavedWordList, 'name' | 'levels'>) => list.levels?.length ? list.levels : [list.name]
+
+// Two lists of a pack whose paths are equal, or one the start of the other, leave one of them out of reach on the
+// practice screen: picking the shorter path picks its list, or asks for a further level, but never both.
+function pathsOverlap(a: string[], b: string[]) {
+  const [short, long] = a.length <= b.length ? [a, b] : [b, a]
+  return short.every((level, n) => level === long[n])
 }
 
 function newPackId(library: Library, listId: string) {

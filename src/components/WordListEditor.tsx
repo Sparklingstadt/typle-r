@@ -119,10 +119,12 @@ export default function WordListEditor({ title, description, storage, initial, p
   const errorFor = (id: string) => shown.find(problem => problem.id === id)?.message
 
   // The duplicate-name check runs while saving; show it on the name field until the name changes.
-  const [failure, setFailure] = useState<{ count: number; name: string; pack: string | null }>({ count: 0, name: "", pack: null })
+  const [failure, setFailure] = useState<{ count: number; name: string; pack: string | null; levels: string }>({ count: 0, name: "", pack: null, levels: "" })
   const duplicate = errorKey === "listNameDuplicate" && failure.name === name && failure.pack === chosenPack
+  // Levels that clash with another list of the pack are shown under the levels until the levels, name or pack change.
+  const levelsConflict = errorKey === "levelsConflict" && failure.name === name && failure.pack === chosenPack && failure.levels === JSON.stringify(levels)
   // A pack's name is shown on its own field by whoever passes `packFields`.
-  const serverError = error && errorKey !== "listNameDuplicate" && errorKey !== "packNameRequired" && errorKey !== "packNameDuplicate" ? error : ""
+  const serverError = error && errorKey !== "listNameDuplicate" && errorKey !== "levelsConflict" && errorKey !== "packNameRequired" && errorKey !== "packNameDuplicate" ? error : ""
   const nameError = errorFor(nameId) ?? (duplicate ? error : undefined)
   const handledFailure = useRef(0)
   useEffect(() => {
@@ -221,7 +223,7 @@ export default function WordListEditor({ title, description, storage, initial, p
       const saved = await onSave({ id: draftId.current, name, levels, packId: initial?.packId,
         words: words.map(({ key, ...word }) => ({ ...word, input: word.input || word.display })),
         records: initial?.records ?? [], createdAt: initial?.createdAt ?? new Date().toISOString() }, packFields ? null : chosenPack)
-      if (!saved) setFailure(current => ({ count: current.count + 1, name, pack: chosenPack }))
+      if (!saved) setFailure(current => ({ count: current.count + 1, name, pack: chosenPack, levels: JSON.stringify(levels) }))
     } finally { setSaving(false) }
   }}>
     <Button variant="ghost" size="lg" className="-ml-2.5 mb-2 text-muted-foreground" onClick={cancel}><ChevronLeft aria-hidden="true" />{t("back")}</Button>
@@ -255,6 +257,7 @@ export default function WordListEditor({ title, description, storage, initial, p
           : null}
         <p id={`${nameId}-help`} className="text-xs text-muted-foreground">{t("nameHelp")}</p>
         <LevelFields value={levels} onChange={setLevels} />
+        {levelsConflict && <FieldError id={`${baseId}-levels-error`} message={error ?? ""} alert />}
       </section>
 
       <section aria-labelledby={`${baseId}-words`} className="md:overflow-hidden md:rounded-xl md:border md:bg-card">

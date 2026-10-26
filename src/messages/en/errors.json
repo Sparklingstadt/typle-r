@@ -50,5 +50,6 @@
   "recordListDeleted": "The word list has been deleted, so the record cannot be saved.",
   "packNameRequired": "Enter a pack name.",
   "packNameDuplicate": "A pack with the same name already exists.",
-  "packDeleted": "This pack has been deleted."
+  "packDeleted": "This pack has been deleted.",
+  "levelsConflict": "This pack already has a list with the same levels, or with the same levels up to a step."
 }

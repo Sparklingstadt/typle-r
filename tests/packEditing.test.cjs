@@ -158,3 +158,33 @@ test('saveList checks the name only among lists of the same pack', () => {
   assert.throws(() => saveList(lists, list('n', '基本', 'q'), false), { key: 'listNameDuplicate' })
   assert.throws(() => saveList(lists, { ...list('n', '基本'), packId: undefined }, false), { key: 'listNameDuplicate' })
 })
+
+test('saveListInPack refuses levels that leave a list of the pack out of reach', () => {
+  const lib = { packs: library().packs, lists: [list('a', 'A', 'p', { levels: ['基本', '初級'] }), list('b', '応用', 'p'), list('g', 'G', 'q', { levels: ['基本'] })] }
+  // Equal paths.
+  assert.throws(() => saveListInPack(lib, input('n', 'N', { levels: [' 基本 ', '初級'] }), 'p', false), { key: 'levelsConflict' })
+  // One path the start of the other, either way round.
+  assert.throws(() => saveListInPack(lib, input('n', 'N', { levels: ['基本'] }), 'p', false), { key: 'levelsConflict' })
+  assert.throws(() => saveListInPack(lib, input('n', 'N', { levels: ['基本', '初級', '1'] }), 'p', false), { key: 'levelsConflict' })
+  // A list without levels is chosen by its name, which must not be another list's first level.
+  assert.throws(() => saveListInPack(lib, input('n', '基本'), 'p', false), { key: 'levelsConflict' })
+  assert.throws(() => saveListInPack(lib, input('n', 'N', { levels: ['応用', '上級'] }), 'p', false), { key: 'levelsConflict' })
+  // Moving a list into a pack is checked against that pack; editing a list is not checked against itself.
+  assert.throws(() => saveListInPack(lib, input('g', 'G', { levels: ['基本'] }), 'p', true), { key: 'levelsConflict' })
+  assert.deepEqual(saveListInPack(lib, input('a', 'A', { levels: ['基本', '初級'] }), 'p', true).lists[0].levels, ['基本', '初級'])
+  // Paths that part somewhere are fine, as are the same levels in another pack and a list that starts its own pack.
+  assert.deepEqual(saveListInPack(lib, input('n', 'N', { levels: ['基本', '中級'] }), 'p', false).lists.at(-1).levels, ['基本', '中級'])
+  assert.equal(saveListInPack(lib, input('n', 'N', { levels: ['応用', '上級'] }), 'q', false).lists.length, 4)
+  assert.equal(saveListInPack(lib, input('n', '応用', { levels: ['基本'] }), null, false).lists.length, 4)
+})
+
+test('the initial library has no lists out of reach in its packs', () => {
+  const { initialLibrary } = require('../src/plugins/packs/index.ts')
+  const path = item => item.levels?.length ? item.levels : [item.name]
+  for (const pack of initialLibrary.packs) {
+    const paths = initialLibrary.lists.filter(item => item.packId === pack.id).map(path)
+    paths.forEach((a, i) => paths.forEach((b, j) => {
+      if (i !== j && a.length <= b.length) assert.ok(a.some((level, n) => level !== b[n]), `${pack.name}: ${a} / ${b}`)
+    }))
+  }
+})
