@@ -1,6 +1,7 @@
 import { AppError } from './appError'
 import type { PracticeDevice } from './devices'
 import type { SavedWordList } from './wordLists'
+import { applyListChange, viewLists, type Library } from './wordPacks'
 import { WorkspaceError, type WorkspaceState, type WorkspaceStore, type WorkspaceWrite } from './workspaceStore'
 
 type Change = Omit<WorkspaceWrite, 'revision' | 'accountId'>
@@ -11,8 +12,8 @@ export type WorkspaceShown = { lists: SavedWordList[]; devices: PracticeDevice[]
 export type WorkspaceSessionOptions = {
   store: WorkspaceStore
   accountId: string
-  /** Shown until the first save, which keeps them as the account's own lists. */
-  initialLists: SavedWordList[]
+  /** Shown until the first save, which keeps them as the account's own lists and packs. */
+  initialLibrary: Library
   show(shown: WorkspaceShown): void
   /** Whether a save is in progress. Not called after `close`. */
   saving(value: boolean): void
@@ -22,14 +23,14 @@ export type WorkspaceSessionOptions = {
  * Loads and saves one account's workspace. Results that arrive after `close` (the account changed) are never shown,
  * and only one save runs at a time.
  */
-export function createWorkspaceSession({ store, accountId, initialLists, show, saving }: WorkspaceSessionOptions) {
+export function createWorkspaceSession({ store, accountId, initialLibrary, show, saving }: WorkspaceSessionOptions) {
   let state: WorkspaceState | null = null
   let busy = false
   let closed = false
 
   function display(data: WorkspaceState) {
     state = data
-    show({ lists: data.revision === 0 ? initialLists : data.lists, devices: data.devices })
+    show({ lists: viewLists(data.revision === 0 ? initialLibrary : data), devices: data.devices })
   }
 
   async function load(): Promise<WorkspaceState> {
@@ -42,14 +43,14 @@ export function createWorkspaceSession({ store, accountId, initialLists, show, s
   }
 
   /** Resolves false when nothing was saved without an error: nothing is loaded yet, a save is running, or the session closed. */
-  async function save(change: (previous: WorkspaceState, currentLists: () => SavedWordList[]) => Change, useDefaults = true): Promise<boolean> {
+  async function save(change: (previous: WorkspaceState, currentLibrary: () => Library) => Change, useDefaults = true): Promise<boolean> {
     const previous = state
     if (closed || busy || !previous) return false
     busy = true
     saving(true)
     try {
       // The initial lists shown before the first save become real lists when anything is saved.
-      const request = change(previous, () => previous.revision === 0 && useDefaults ? initialLists : previous.lists)
+      const request = change(previous, () => previous.revision === 0 && useDefaults ? initialLibrary : previous)
       const data = await store.write({ ...request, revision: previous.revision, accountId })
       if (closed || data.accountId !== accountId) throw new AppError('accountChanged')
       display(data)
@@ -68,10 +69,13 @@ export function createWorkspaceSession({ store, accountId, initialLists, show, s
     load,
     save,
     get busy() { return busy },
-    /** Replaces the lists, and optionally the devices. */
+    /** Replaces the lists (as screens see them, see `viewLists`), and optionally the devices. Packs follow the lists. */
     update(change: (current: SavedWordList[]) => SavedWordList[], useDefaults = true, changeDevices?: (current: PracticeDevice[]) => PracticeDevice[]) {
-      return save((previous, currentLists) => ({ lists: change(currentLists()),
-        ...(changeDevices ? { devices: changeDevices(previous.devices) } : {}) }), useDefaults)
+      return save((previous, currentLibrary) => {
+        const library = currentLibrary()
+        const { lists, packs } = applyListChange(library, change(viewLists(library)))
+        return { lists, packs, ...(changeDevices ? { devices: changeDevices(previous.devices) } : {}) }
+      }, useDefaults)
     },
     /** Stops showing results; the account changed. */
     close() { closed = true },

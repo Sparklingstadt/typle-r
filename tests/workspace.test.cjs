@@ -35,3 +35,16 @@ test('request validation rejects invalid revisions and oversized fields', () => 
   const many = Array.from({ length: 101 }, (_, index) => ({ ...list, id: 'l' + index, name: 'L' + index }))
   assert.equal(validateWorkspaceRequest({ revision: 1, lists: many }).lists.length, 101)
 })
+
+test('request validation takes packs only together with lists', () => {
+  const pack = { id: 'p', name: 'P', createdAt: '2026-09-06' }
+  const saved = { ...list, packId: 'p' }
+  assert.throws(() => validateWorkspaceRequest({ revision: 0, packs: [pack] }), { message: 'Invalid request' })
+  assert.deepEqual(validateWorkspaceRequest({ revision: 0, lists: [saved], packs: [pack] }), { revision: 0, lists: [saved], packs: [pack] })
+  // A save from a screen that does not know packs has no packs, and may still carry labels on its lists.
+  assert.equal(validateWorkspaceRequest({ revision: 0, lists: [{ ...list, group: 'G', category: 'C', tags: ['t'] }] }).packs, undefined)
+  assert.throws(() => validateWorkspaceRequest({ revision: 0, lists: [{ ...saved, packId: 'missing' }], packs: [pack] }), { message: 'Invalid packs' })
+  assert.throws(() => validateWorkspaceRequest({ revision: 0, lists: [{ ...saved, group: 'G' }], packs: [pack] }), { message: 'Invalid packs' })
+  assert.throws(() => validateWorkspaceRequest({ revision: 0, lists: [saved], packs: [pack, { ...pack, id: 'q' }] }), { message: 'Invalid packs' })
+  assert.throws(() => validateWorkspaceRequest({ revision: 0, lists: [saved], packs: {} }), { key: 'savedDataCorrupted' })
+})

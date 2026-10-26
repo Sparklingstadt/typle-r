@@ -1,6 +1,5 @@
 import { AppError, type ErrorKey } from '../../../core/appError'
-import { decodeDevices } from '../../../core/devices'
-import { decodeLists } from '../../../core/wordLists'
+import { decodeDocument } from '../../../core/workspaceDocument'
 import { WorkspaceError, type WorkspaceState, type WorkspaceStore, type WorkspaceWrite } from '../../../core/workspaceStore'
 
 async function requestWorkspace(url: string, init?: RequestInit): Promise<WorkspaceState> {
@@ -12,8 +11,9 @@ async function requestWorkspace(url: string, init?: RequestInit): Promise<Worksp
   }
   // A server from before profiles were removed (e.g. while a deployment is switching over) answers with the first
   // profile's lists, which is what it saves when no profile is named.
-  const lists = decodeLists(JSON.stringify({ version: 1, lists: data.lists }))
-  return { accountId: data.accountId, revision: data.revision, devices: decodeDevices(data.devices ?? []), lists }
+  // Missing or null `packs` means the account's data was saved before packs; decodeDocument converts it.
+  const { lists, packs, devices } = decodeDocument({ lists: data.lists, packs: data.packs, devices: data.devices })
+  return { accountId: data.accountId, revision: data.revision, lists, packs, devices }
 }
 
 export function readWorkspace() {
