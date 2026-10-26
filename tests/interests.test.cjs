@@ -38,7 +38,6 @@ test('matchesInterests: any parent may match; empty or unknown matches nothing',
 test('toggleInterest', () => {
   assert.deepEqual(toggleInterest([], 'language'), ['language'])
   assert.deepEqual(toggleInterest(['language'], 'language/ru'), ['language', 'language/ru'])
-  assert.deepEqual(toggleInterest(['language'], 'language/ru').concat(), ['language', 'language/ru'])
   assert.deepEqual(toggleInterest(['language', 'language/ru'], 'language/ru'), ['language'])
   assert.deepEqual(toggleInterest(['language'], 'language'), [])
   assert.deepEqual(toggleInterest(['language', 'language/ru', 'programming'], 'language'), ['programming'])
@@ -61,7 +60,7 @@ test('decodeInterests', () => {
   assert.deepEqual(decodeInterests(undefined), [])
   assert.deepEqual(decodeInterests(null), [])
   assert.deepEqual(decodeInterests(['language', 'x']), ['language', 'x'])
-  assert.deepEqual(decodeInterests(Array.from({ length: 50 }, (_, n) => `i${n}`)).length, 50)
+  assert.equal(decodeInterests(Array.from({ length: 50 }, (_, n) => `i${n}`)).length, 50)
   assert.deepEqual(decodeInterests(['a'.repeat(50)]), ['a'.repeat(50)])
   for (const bad of [['a', 1], Array.from({ length: 51 }, (_, n) => `i${n}`), ['a'.repeat(51)], ['a', 'a'], [''], 'language', {}, 1]) {
     assert.throws(() => decodeInterests(bad), corrupted)

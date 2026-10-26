@@ -1,5 +1,5 @@
 import { AppError } from './appError'
-import type { WordPack } from './wordPacks'
+import { nameKey, type WordPack } from './wordPacks'
 
 export type InterestOption = { id: string; category: string; children: { id: string; tag: string }[] }
 
@@ -30,6 +30,7 @@ export const MAX_INTERESTS = 50
 export const MAX_INTEREST_LENGTH = 50
 
 const known = INTEREST_OPTIONS.flatMap(option => [option.id, ...option.children.map(item => item.id)])
+const knownIds = new Set(known)
 
 /** Reads saved interests: absent is empty; anything but a list of distinct, non-empty, short strings is corrupted. */
 export function decodeInterests(value: unknown): string[] {
@@ -44,8 +45,7 @@ export function decodeInterests(value: unknown): string[] {
 /** Known ids in the order of the options, then unknown ids in their own order; each once. */
 export function normalizeInterests(interests: string[]): string[] {
   const chosen = new Set(interests)
-  const unknown = interests.filter((id, n) => !known.includes(id) && interests.indexOf(id) === n)
-  return [...known.filter(id => chosen.has(id)), ...unknown]
+  return [...known.filter(id => chosen.has(id)), ...[...chosen].filter(id => !knownIds.has(id))]
 }
 
 /** Picks or drops an interest. Dropping a parent drops its children; a child can be picked only under a picked parent. */
@@ -61,15 +61,13 @@ export function toggleInterest(interests: string[], id: string): string[] {
   return normalizeInterests(interests.includes(id) ? interests.filter(item => item !== id) : [...interests, id])
 }
 
-const fold = (text: string) => text.trim().toLocaleLowerCase()
-
 /** Whether a pack fits the interests. Empty interests fit no pack. */
 export function matchesInterests(pack: Pick<WordPack, 'category' | 'tags'>, interests: string[]): boolean {
-  const category = fold(pack.category ?? '')
-  const tags = new Set((pack.tags ?? []).map(fold))
+  const category = nameKey(pack.category ?? '')
+  const tags = new Set((pack.tags ?? []).map(nameKey))
   return INTEREST_OPTIONS.some(option => {
-    if (!interests.includes(option.id) || fold(option.category) !== category) return false
+    if (!interests.includes(option.id) || nameKey(option.category) !== category) return false
     const chosen = option.children.filter(item => interests.includes(item.id))
-    return !chosen.length || chosen.some(item => tags.has(fold(item.tag)))
+    return !chosen.length || chosen.some(item => tags.has(nameKey(item.tag)))
   })
 }
