@@ -13,6 +13,7 @@
 ## spec からの変更（この計画で決めたこと）
 
 - **初期リストのファイル（`src/plugins/packs/*.json`）は変えない。** typle-ipad・typle-w・typle-a のテストは写しが typle-r のファイルと同じことを確かめるため、`packId` を足すとそれらが失敗する。初期のパックは `initialLists` に1節の変換をかけて作る（`initialLibrary`）。`packs.json`・`catalogId`・`origin` は PR 5（カタログ）で入れる。Go の `packs/` の写しと `TestPacksMatchApp` も変えない。
+- **`GET /api/workspace` は保存した `packs` をそのまま返す（未変換の行は `null`）。** spec 6節の「`NULL` なら変換した結果」ではなく、サーバーはこのエンドポイントで変換せず、`null` を受け取ったアプリが1節の変換をする。
 - **リスト API（`/api/v1/lists`）の `packId` 指定・`levels`・パックのエンドポイントは PR 5。** PR 1 ではリストの応答に `packId` を足すだけで、作成は `packId` なし（1リストのパックができる）、`category`・`tags` の作成・変更はパックの値を変える。
 
 ## Global Constraints
@@ -20,7 +21,7 @@
 - パック名: 前後の空白を除いて1文字以上、200文字まで（`MAX_PACK_NAME = 200`）。ほかのパックと同じ名前は不可（前後の空白を除き `toLocaleLowerCase` で比べる）。
 - 説明: 500文字まで（`MAX_PACK_DESCRIPTION = 500`）。空なら保存しない。
 - パックのカテゴリ・タグ: `normalizeLabels` と `MAX_CATEGORY`（50）・`MAX_TAG`（50）・`MAX_TAGS`（20）。
-- パックの数の上限は `MAX_LISTS`（150）。パックには1つ以上のリストがある。
+- パックの数には別の上限を設けない。パックには必ず1つ以上のリストがあるので、リストの数の上限（`MAX_LISTS`、150）がパックの数も抑える（削除したプロファイルから統合したアカウントは150を超えるリストを持てるため、パックに別の上限を置くと保存できなくなる）。
 - リスト名は同じパックの中だけで重複不可。保存するリストは `packId` を持ち、`group`・`category`・`tags` を持たない。
 - 変換した ID: `group` のパックは `pack-<そのgroupの最初のリストのid>`、それ以外は `pack-<リストのid>`。
 - 名前の重なりの付け方: 「名前（2）」「名前（3）」…（全角括弧）。200文字を超えるときは `fit`（`src/core/workspaceDocument.ts`）と同じく元の名前を切る。
@@ -158,7 +159,7 @@ Expected: FAIL（`Cannot find module '../src/core/wordPacks.ts'`）
 
 `convertLibrary` は spec 1節「変換」の1〜6をそのまま実装する（タグの和集合は `normalizeLabels` に全リストのタグを順に渡すと得られる）。`repairLibrary` は spec 1節「読み込み時の補正」の4項目を、この順で行う: ① `packId` のない・存在しないパックを指すリストに1リストのパック（`pack-<id>` が既にあればそれに入れる。新しいパックは `packs` の最後に、リストの順で）② リストに残った `category`・`tags` を、パックにどちらもないときだけパックへ移し、リストから `category`・`tags`・`group` を外す ③ 空のパックを捨てる ④ パック内の重なったリスト名と、重なったパック名を「（2）」…にする。`normalizeLibrary(lists, null)` は `convertLibrary`、それ以外は `repairLibrary`。名前の重なりの付け方は `workspaceDocument.ts` の `unique`・`fit` を export して使う。
 
-`validateLibrary` は Global Constraints のパックの規則・パックの数・`packId` の参照・空のパック・パック内のリスト名の重なり・リストに `group`・`category`・`tags` がないことを確かめ、違反で `Error('Invalid packs')` を投げる。
+`validateLibrary` は Global Constraints のパックの規則・`packId` の参照・空のパック・パック内のリスト名の重なり・リストに `group`・`category`・`tags` がないことを確かめ、違反で `Error('Invalid packs')` を投げる。
 
 - [ ] **Step 5: 通ることを確かめる**
 
