@@ -769,3 +769,22 @@ test('a broken file is refused with a message and nothing is added', async ({ pa
   await expect(page.locator('li[data-pack-id]')).toHaveCount(4)
   expect((await saved(page)).packs).toHaveLength(4)
 })
+
+test('a pack file is imported from the empty state', async ({ page }) => {
+  await page.addInitScript(k => localStorage.setItem(k, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 2, packs: [], lists: [], devices: [] })), key)
+  await page.goto('/edit')
+  await expect(page.getByRole('heading', { name: '単語パックはまだありません' })).toBeVisible()
+  const file = { format: 'typle-pack', version: 1, pack: { name: '復元' }, lists: [{ name: '一', words: [{ display: 'a', input: 'a', annotation: '' }] }] }
+  await page.locator('input[type="file"][accept*=".json"]').setInputFiles({ name: 'p.typle-pack.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(file)) })
+  await expect(page.locator('li[data-pack-id]', { hasText: '復元' })).toBeVisible()
+  const workspace = await saved(page)
+  expect(workspace.packs.map((pack: { name: string }) => pack.name)).toEqual(['復元'])
+  expect(workspace.lists).toHaveLength(1)
+})
+
+test('a file over 1 MiB is refused as too large and nothing is added', async ({ page }) => {
+  await page.goto('/edit')
+  await page.locator('input[type="file"][accept*=".json"]').setInputFiles({ name: 'big.json', mimeType: 'application/json', buffer: Buffer.alloc(1024 * 1024 + 1, 32) })
+  await expect(page.getByText('ファイルは1 MiB以内にしてください。')).toBeVisible()
+  expect((await saved(page)).packs).toHaveLength(4)
+})

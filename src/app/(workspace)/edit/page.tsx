@@ -1,5 +1,5 @@
 "use client"
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { Suspense, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
@@ -343,7 +343,15 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
   const deletingPackName = deleting.item && lists.filter(list => list.packId === deleting.item!.list.packId).length === 1
     ? packs.find(pack => pack.id === deleting.item!.list.packId)?.name : undefined
 
-  if (!lists.length) return <EmptyState />
+  // Restoring a pack from a file is the way to start again, so the empty state offers it too.
+  if (!lists.length) return <>
+    <EmptyState actions={<>
+      <input ref={fileInput} type="file" accept=".json,application/json" hidden tabIndex={-1} aria-hidden="true"
+        onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void importFile(file) }} />
+      <Button variant="outline" disabled={saving} onClick={() => fileInput.current?.click()}><Upload aria-hidden="true" />{t('manager.importFile')}</Button>
+    </>} />
+    {exportError && <p role="alert" className="mt-3 flex items-center gap-1.5 text-sm text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{exportError}</p>}
+  </>
 
   return <section aria-labelledby="list-heading" className="space-y-3">
     <div className="flex min-h-11 flex-wrap items-center gap-x-2 gap-y-2">
@@ -481,7 +489,7 @@ function OrderMenu({ value, onChange }: { value: ListOrder; onChange: (value: Li
   </DropdownMenu.Root>
 }
 
-function EmptyState() {
+function EmptyState({ actions }: { actions?: ReactNode }) {
   const t = useTranslations('wordLists')
   return <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed bg-card px-6 py-10 text-center sm:py-14">
     <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground"><ListPlus className="size-6" aria-hidden="true" /></span>
@@ -489,6 +497,9 @@ function EmptyState() {
       <h2 className="font-bold">{t('empty.packTitle')}</h2>
       <p className="max-w-md text-sm text-balance text-muted-foreground">{t('empty.description')}</p>
     </div>
-    <Button asChild><Link href="/packs/create"><Plus aria-hidden="true" />{t('manager.createPack')}</Link></Button>
+    <div className="flex flex-wrap justify-center gap-2">
+      <Button asChild><Link href="/packs/create"><Plus aria-hidden="true" />{t('manager.createPack')}</Link></Button>
+      {actions}
+    </div>
   </div>
 }
