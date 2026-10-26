@@ -266,8 +266,9 @@ func (s *Store) ReadRevision(ctx context.Context, owner string) (*Saved, error) 
 // change that Decode would refuse is never written: the account would no longer load, here or in the app. All of this,
 // apart from the conflict and the saved number of lists, is checked before the database is touched.
 //
-// What is saved is not read back through Decode: only the saved revision and number of lists are read, a part left
-// out is kept by the UPDATE itself, and the result is the row's JSON as stored. When packs are saved, the links to packs
+// What is saved is not read back through Decode, except lists saved without packs (to find the packs they leave): only
+// the saved revision and number of lists are read, a part left out is kept by the UPDATE itself, and the result is the
+// row's JSON as stored. When packs are saved, the links to packs
 // no longer among them are deleted in the same transaction. So are those of lists saved without packs, against the packs
 // the row then has (derived from the lists when it has none); devices alone leave the links as they are.
 func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, change Change) (*Saved, error) {

@@ -308,6 +308,9 @@ func TestSharedHeadAndMethod(t *testing.T) {
 	if post.Code != http.StatusMethodNotAllowed || post.Header().Get("Allow") != "GET, HEAD" {
 		t.Fatalf("POST = %d %v", post.Code, post.Header())
 	}
+	if post.Header().Get("X-Robots-Tag") != "noindex" {
+		t.Fatalf("POST: X-Robots-Tag = %q", post.Header().Get("X-Robots-Tag"))
+	}
 }
 
 func TestSharedDown(t *testing.T) {
@@ -315,7 +318,11 @@ func TestSharedDown(t *testing.T) {
 	handler := Shared(&fakeShares{fakeStore: fakeStore{err: errors.New("down")}}, func(_ *http.Request, _ error, operation string) {
 		reported = append(reported, operation)
 	})
-	expectError(t, getShared(t, handler, http.MethodGet, "/api/shared?id="+aSharedID), http.StatusServiceUnavailable, "databaseUnavailable")
+	down := getShared(t, handler, http.MethodGet, "/api/shared?id="+aSharedID)
+	expectError(t, down, http.StatusServiceUnavailable, "databaseUnavailable")
+	if down.Header().Get("X-Robots-Tag") != "noindex" {
+		t.Fatalf("503: X-Robots-Tag = %q", down.Header().Get("X-Robots-Tag"))
+	}
 	if len(reported) != 1 || reported[0] != "shared.read" {
 		t.Fatalf("reported = %v", reported)
 	}
