@@ -136,7 +136,10 @@ export function duplicateList(lists: SavedWordList[], id: string, copyId: string
   const source = lists.find(list => list.id === id)
   if (!source) throw new AppError('listDeleted')
   if (lists.length >= MAX_LISTS) throw new AppError('listLimit', { max: MAX_LISTS })
-  const copy: SavedWordList = { id: copyId, name: copyName(lists.filter(list => list.packId === source.packId), source.name, suffix),
+  // The copy has no levels, so it is picked by its name: a first level of the pack is taken as a name is, or the copy
+  // would overlap that list (see pathsOverlap) and be renamed when it is saved.
+  const taken = lists.filter(list => list.packId === source.packId).flatMap(list => list.levels?.length ? [list, { name: list.levels[0] }] : [list])
+  const copy: SavedWordList = { id: copyId, name: copyName(taken, source.name, suffix),
     createdAt: now.toISOString(), ...(source.packId === undefined ? {} : { packId: source.packId }),
     ...(source.category === undefined ? {} : { category: source.category }), ...(source.tags ? { tags: [...source.tags] } : {}),
     words: source.words.map(word => ({ ...word })), records: [] }
