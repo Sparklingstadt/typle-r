@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -92,3 +93,12 @@ func TestHealthAlone(t *testing.T) {
 		t.Fatalf("response = %d %s", response.Code, response.Body)
 	}
 }
+
+// Nor links.
+func (f fakeStore) PutShare(context.Context, string, string) (*store.Share, error) { return nil, f.err }
+
+func (f fakeStore) DeleteShare(context.Context, string, string) error { return f.err }
+
+func (f fakeStore) ListShares(context.Context, string) ([]store.Share, error) { return nil, f.err }
+
+func (f fakeStore) SharedPack(context.Context, string) (json.RawMessage, error) { return nil, f.err }

@@ -19,6 +19,10 @@ type Store interface {
 	Ping(ctx context.Context) error
 	ReadRevision(ctx context.Context, owner string) (*store.Saved, error)
 	WriteRevision(ctx context.Context, owner string, revision int, change store.Change) (*store.Saved, error)
+	PutShare(ctx context.Context, owner, packID string) (*store.Share, error)
+	DeleteShare(ctx context.Context, owner, packID string) error
+	ListShares(ctx context.Context, owner string) ([]store.Share, error)
+	SharedPack(ctx context.Context, id string) (json.RawMessage, error)
 }
 
 // OAuthClient is the GitHub OAuth App the login goes through (auth.OAuth).
@@ -61,6 +65,8 @@ func New(c Config) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/health", s.health)
 	mux.HandleFunc("/api/workspace", s.workspace)
+	mux.HandleFunc("/api/shares", s.shares)
+	mux.HandleFunc("/api/shared", s.shared)
 	mux.HandleFunc("/api/auth/signin", s.signin)
 	mux.HandleFunc("/api/auth/callback/github", s.callback)
 	mux.HandleFunc("/api/auth/session", s.session)

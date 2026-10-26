@@ -21,14 +21,15 @@ import (
 //   - /api/auth/*: needs the login settings only (web.FromEnv). Its handlers do not use the database, so the session
 //     keeps being answered, and a signed-in user stays signed in, while the database is down.
 //   - /api/health: needs the database only, so that it tells the database's state whatever the login settings are.
-//   - everything else (/api/workspace): needs the login settings to read the session cookie, and the database.
+//   - /api/shared: needs the database only too: a shared pack is read by anyone with the link, signed in or not.
+//   - everything else (/api/workspace, /api/shares): needs the login settings to read the session cookie, and the database.
 //
 // Each part is built on first use and then found with one atomic load, without the lock.
 type Backend struct {
 	local bool
 
-	// login, health and ready are the finished handlers of the parts.
-	login, health, ready atomic.Pointer[http.Handler]
+	// login, health, public and ready are the finished handlers of the parts.
+	login, health, public, ready atomic.Pointer[http.Handler]
 	// settings is the web.Config that web.FromEnv built, kept so that it is read (and its warnings logged) once.
 	settings atomic.Pointer[web.Config]
 	// source is the database, once it is open.
@@ -84,13 +85,16 @@ var (
 // Handler returns the handler of the Vercel functions: the Backend of this process.
 func Handler() http.Handler { return shared }
 
-// ServeHTTP serves /api/auth/* from the login part, /api/health from the database part and any other path from both.
+// ServeHTTP serves /api/auth/* from the login part, /api/health and /api/shared from the database part and any other
+// path from both.
 func (b *Backend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case strings.HasPrefix(r.URL.Path, "/api/auth/"):
 		b.authHandler().ServeHTTP(w, r)
 	case r.URL.Path == "/api/health":
 		b.healthHandler().ServeHTTP(w, r)
+	case r.URL.Path == "/api/shared":
+		b.sharedHandler().ServeHTTP(w, r)
 	default:
 		b.databaseHandler().ServeHTTP(w, r)
 	}
@@ -164,7 +168,23 @@ func (b *Backend) healthHandler() http.Handler {
 	return *b.health.Load()
 }
 
-// databaseHandler serves /api/workspace and any other path outside /api/auth/ and /api/health. When it cannot be built
+// sharedHandler serves /api/shared from the database alone, as healthHandler serves /api/health. A failure is reported
+// to the error tracker when SENTRY_DSN is set, which needs no login settings either.
+func (b *Backend) sharedHandler() http.Handler {
+	if built := b.public.Load(); built != nil {
+		return *built
+	}
+	source := b.database()
+	if source == nil {
+		return databaseUnavailable
+	}
+	handler := web.Shared(source, web.NewReporter(os.Getenv))
+	b.public.CompareAndSwap(nil, &handler)
+	return *b.public.Load()
+}
+
+// databaseHandler serves /api/workspace, /api/shares and any other path outside /api/auth/, /api/health and
+// /api/shared. When it cannot be built
 // the request gets a 503, the reason is logged, and nothing is kept, so a later request tries again:
 //
 //   - the login settings are missing or invalid: authUnavailable. The database is not opened.
