@@ -113,6 +113,11 @@
     "groupLists": "{count, plural, other {#リスト}} · 難易度を選ぶ",
     "levels": "{name} の難易度",
     "step": "難易度の{n}段目",
-    "chooseLevel": "続けて難易度を選んでください。"
+    "chooseLevel": "続けて難易度を選んでください。",
+    "groupListsPlain": "{count, plural, other {#リスト}} · リストを選ぶ",
+    "listsOf": "{name} のリスト",
+    "stepPlain": "{n}段目",
+    "chooseList": "リストを選んでください。",
+    "match": "検索に一致"
   }
 }

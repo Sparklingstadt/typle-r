@@ -1,5 +1,5 @@
 "use client"
-import { Suspense, useEffect, useRef, useState } from "react"
+import { Suspense, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
@@ -15,7 +15,7 @@ import WordListOptions from "@/components/Practice/WordListOptions"
 import ListLabels from "@/components/WordLists/ListLabels"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import { useWordLists } from "@/lib/useWordLists"
-import { matchesPackQuery, packOverviews } from "@/core/packEditing"
+import { matchesPackQuery, packOverviews, type PackOverview } from "@/core/packEditing"
 import { packsByRecentPractice } from "@/core/packPractice"
 import type { WordPack } from "@/core/wordPacks"
 import { listLabels, matchesFilter } from "@/core/listOverview"
@@ -50,6 +50,11 @@ export default function Words() {
 
 // `?list=<id>` keeps the chosen list in the URL, so it can be reloaded or opened from elsewhere. Without it the first
 // list is shown, as on the practice screen.
+// The packs of `category` (null for every category) that `query` finds, in the order given.
+function matchingPacks(items: PackOverview[], category: string | null, query: string) {
+  return items.filter(item => matchesFilter(item.pack, { category, tags: [] }) && matchesPackQuery(item, query))
+}
+
 function WordsView({ lists, packs }: { lists: SavedWordList[]; packs: WordPack[] }) {
   const t = useTranslations('wordLists.words')
   const practiceName = usePracticeName()
@@ -82,11 +87,10 @@ function WordsView({ lists, packs }: { lists: SavedWordList[]; packs: WordPack[]
   }
 
   // Recently practised packs come first, narrowed down by category and by what the pack, its lists and its words say.
-  const overviews = packsByRecentPractice(packOverviews({ packs, lists }))
-  const labels = listLabels(packs, locale)
-  const matching = (text: string) => overviews.filter(item => matchesFilter(item.pack, { category, tags: [] }) && matchesPackQuery(item, text))
-  const asideFiltered = matching(query)
-  const pickerFiltered = matching(pickerQuery)
+  const overviews = useMemo(() => packsByRecentPractice(packOverviews({ packs, lists })), [packs, lists])
+  const labels = useMemo(() => listLabels(packs, locale), [packs, locale])
+  const asideFiltered = useMemo(() => matchingPacks(overviews, category, query), [overviews, category, query])
+  const pickerFiltered = useMemo(() => matchingPacks(overviews, category, pickerQuery), [overviews, category, pickerQuery])
 
   return <div className="space-y-4">
     {requestedId && !requested && <Alert>
@@ -103,7 +107,7 @@ function WordsView({ lists, packs }: { lists: SavedWordList[]; packs: WordPack[]
           <SearchField value={query} onChange={setQuery} className="mx-1 mt-1 mb-1 h-9 shrink-0" />
           <div className="mx-1 mb-1"><CategorySelect labels={labels} value={category} onChange={setCategory} /></div>
           <div ref={asideLists} className="max-h-[36rem] min-h-0 overflow-y-auto overscroll-contain">
-            {asideFiltered.length ? <WordListOptions label={t('lists')} packs={asideFiltered} selectedId={list.id} onSelect={id => { setQuery(''); choose(id) }} />
+            {asideFiltered.length ? <WordListOptions label={t('lists')} packs={asideFiltered} selectedId={list.id} query={query} onSelect={id => { setQuery(''); choose(id) }} />
               : <p className="px-2 py-2 text-sm text-muted-foreground">{t('noMatch')}</p>}
           </div>
         </Card>
@@ -132,7 +136,7 @@ function WordsView({ lists, packs }: { lists: SavedWordList[]; packs: WordPack[]
                 <SearchField value={pickerQuery} onChange={setPickerQuery} className="h-10" />
                 <CategorySelect labels={labels} value={category} onChange={setCategory} className="h-10 w-full min-w-0 rounded-lg border bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30" />
                 <div className="-mx-1 max-h-[min(28rem,calc(100dvh-18rem))] overflow-y-auto overscroll-contain px-1">
-                  {pickerFiltered.length ? <WordListOptions label={t('candidates')} packs={pickerFiltered} selectedId={list.id} onSelect={choose} />
+                  {pickerFiltered.length ? <WordListOptions label={t('candidates')} packs={pickerFiltered} selectedId={list.id} query={pickerQuery} onSelect={choose} />
                     : <p className="px-1 py-2 text-sm text-muted-foreground">{t('noMatch')}</p>}
                 </div>
               </DialogContent>

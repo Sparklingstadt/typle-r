@@ -440,7 +440,9 @@ test('a pack opens to its lists with levels first and then the lists without, an
   const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
   const study = aside.locator('li[data-pack-id="study"]')
   await study.getByRole('button', { expanded: false }).click()
-  await expect(study.getByRole('group', { name: '難易度の1段目' }).getByRole('button')).toHaveText(['基本', '応用'])
+  // A pack of lists with and without levels names its first step neutrally.
+  await expect(study.getByRole('group', { name: '1段目', exact: true }).getByRole('button')).toHaveText(['基本', '応用'])
+  await expect(study.getByRole('group', { name: 'Study の難易度' })).toBeVisible()
   await study.getByRole('button', { name: '基本', exact: true }).click()
   await study.getByRole('button', { name: '初級', exact: true }).click()
   await expect(page.getByRole('button', { name: '単語リストを切り替える（現在: Study › 基本・初級）' })).toBeVisible()
@@ -459,6 +461,23 @@ test('choosing a list of another pack while practising asks before stopping', as
   await expect(page.getByRole('alertdialog')).toContainText('練習を中断しますか？')
   await page.getByRole('button', { name: '中断して切り替える' }).click()
   await expect(page.locator('#wordDisplay')).toHaveText('extra')
+})
+
+test('keeping on practising after choosing a list of another pack leaves none of its levels chosen', async ({ page }) => {
+  await seedLevels(page)
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/play?list=single-list')
+  await page.getByRole('textbox', { name: '表示された文字を入力', exact: true }).pressSequentially('s')
+  const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
+  const study = aside.locator('li[data-pack-id="study"]')
+  await study.getByRole('button', { expanded: false }).click()
+  await study.getByRole('button', { name: '基本', exact: true }).click()
+  await study.getByRole('button', { name: '初級', exact: true }).click()
+  await expect(page.getByRole('alertdialog')).toContainText('「単独リスト」の進捗（0 / 2 語）は記録されません。「Study › 基本・初級」に切り替えます。')
+  await page.getByRole('button', { name: '練習を続ける' }).click()
+  await expect(study.locator('[aria-pressed="true"]')).toHaveCount(0)
+  await expect(study.getByRole('button', { name: '基本', exact: true })).toBeVisible()
+  await expect(page.locator('#wordDisplay')).toHaveText('solo')
 })
 
 test('a search by pack name leaves only that pack on the practice screen', async ({ page }) => {
@@ -498,5 +517,53 @@ test('the words screen names the list once in its heading, and the line below on
 test('the home screen names the next lists 「pack › list」', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('link', { name: 'Shell › 応用 を練習する' })).toBeVisible()
-  await expect(page.getByText('Shell › 応用')).toBeVisible()
+  await expect(page.getByRole('region', { name: '次に練習するリスト', exact: true }).getByText('Shell › 応用')).toBeVisible()
+})
+
+test('a pack whose lists have no levels is chosen from by list', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/play?list=solo-list')
+  const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
+  const shell = aside.locator('li[data-pack-id="shell"]')
+  await expect(shell).toContainText('2リスト · リストを選ぶ')
+  await expect(shell).not.toContainText('難易度')
+  await shell.getByRole('button', { expanded: false }).click()
+  const choices = shell.getByRole('group', { name: 'Shell のリスト' })
+  await expect(choices.getByRole('group', { name: '1段目', exact: true }).getByRole('button')).toHaveText(['基本', '応用'])
+  await expect(shell).toContainText('リストを選んでください。')
+  await expect(shell).not.toContainText('難易度')
+})
+
+test('a search that finds a list of a pack opens the pack and marks that list', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/play?list=solo-list')
+  const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
+  await aside.getByRole('searchbox').fill('応用')
+  const shell = aside.locator('li[data-pack-id="shell"]')
+  await expect(shell.getByRole('button', { name: /^Shell/ })).toHaveAttribute('aria-expanded', 'true')
+  await expect(shell.getByRole('button', { name: '応用', exact: true })).toBeVisible()
+  await expect(shell.getByRole('button', { name: '応用', exact: true })).toHaveAccessibleDescription('検索に一致')
+  await expect(shell.getByRole('button', { name: '基本', exact: true })).not.toHaveAttribute('data-match', /.*/)
+
+  // A word finds its list in the same way on the words screen.
+  await page.goto('/words?list=solo-list')
+  const words = page.getByRole('complementary', { name: '単語リスト' })
+  await words.getByRole('searchbox').fill('tar')
+  const pack = words.locator('li[data-pack-id="shell"]')
+  await expect(pack.getByRole('button', { name: /^Shell/ })).toHaveAttribute('aria-expanded', 'true')
+  await expect(pack.getByRole('button', { name: '応用', exact: true })).toHaveAccessibleDescription('検索に一致')
+})
+
+test('levels that would hide another list of the pack are refused under the levels', async ({ page }) => {
+  await page.goto('/edit?list=adv')
+  await page.getByRole('button', { name: '難易度を追加' }).click()
+  await page.getByRole('textbox', { name: '難易度 1', exact: true }).fill('基本')
+  await saveButton(page).click()
+  await expect(page.getByText('同じパックに、同じ難易度か、その途中までが同じ難易度のリストがあります')).toBeVisible()
+  expect((await saved(page)).lists.find((item: { id: string }) => item.id === 'adv').levels).toBeUndefined()
+  // Changing the levels lets the message go, and levels that part from the other list's are saved.
+  await page.getByRole('textbox', { name: '難易度 1', exact: true }).fill('応用')
+  await expect(page.getByText('同じパックに、同じ難易度か、その途中までが同じ難易度のリストがあります')).toHaveCount(0)
+  await saveButton(page).click()
+  await expect(page.getByText('「応用」を更新しました。')).toBeVisible()
 })

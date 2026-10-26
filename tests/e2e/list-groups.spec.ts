@@ -103,7 +103,8 @@ test('the initial Kotlin syntax lists are one list with 初級1 to 上級2', asy
   await page.goto('/play?list=arch-linux')
   const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
   await aside.getByRole('searchbox').fill('Kotlin構文')
-  await aside.getByRole('button', { name: /^Kotlin構文/ }).click()
+  // Its lists' names hold the search, so the pack is already open at them.
+  await expect(aside.getByRole('button', { name: /^Kotlin構文/ })).toHaveAttribute('aria-expanded', 'true')
   const levels = aside.getByRole('group', { name: 'Kotlin構文 の難易度' })
   await expect(levels.getByRole('group', { name: '難易度の1段目' }).getByRole('button')).toHaveText(['初級1', '初級2', '中級', '上級1', '上級2'])
   await levels.getByRole('button', { name: '中級' }).click()

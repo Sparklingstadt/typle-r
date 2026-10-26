@@ -113,6 +113,11 @@
     "groupLists": "{count, plural, one {# list} other {# lists}} · choose a level",
     "levels": "Levels of {name}",
     "step": "Level step {n}",
-    "chooseLevel": "Now choose the next level."
+    "chooseLevel": "Now choose the next level.",
+    "groupListsPlain": "{count, plural, one {# list} other {# lists}} · choose a list",
+    "listsOf": "Lists of {name}",
+    "stepPlain": "Step {n}",
+    "chooseList": "Choose a list.",
+    "match": "Matches the search"
   }
 }

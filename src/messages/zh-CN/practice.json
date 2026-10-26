@@ -113,6 +113,11 @@
     "groupLists": "{count, plural, other {#个列表}} · 选择难度",
     "levels": "{name} 的难度",
     "step": "难度第{n}步",
-    "chooseLevel": "请继续选择难度。"
+    "chooseLevel": "请继续选择难度。",
+    "groupListsPlain": "{count, plural, other {#个列表}} · 选择列表",
+    "listsOf": "{name} 的列表",
+    "stepPlain": "第{n}步",
+    "chooseList": "请选择列表。",
+    "match": "符合搜索"
   }
 }
