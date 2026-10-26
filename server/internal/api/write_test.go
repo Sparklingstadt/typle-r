@@ -157,6 +157,42 @@ func TestUpdateList(t *testing.T) {
 	  {"display":"pear","input":"pear","annotation":""}]}}`)
 }
 
+// A list alone in its pack names the pack, so it may not take another pack's name; within a pack of several, names only
+// differ from the pack's other lists.
+func TestUpdateListRenameAgainstPacks(t *testing.T) {
+	w := writable(t)
+	encode := func() string {
+		lists, err := workspace.Encode(w.workspace.Lists)
+		if err != nil {
+			t.Fatal(err)
+		}
+		packs, err := workspace.EncodePacks(w.workspace.Packs)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return string(lists) + string(packs)
+	}
+	before := encode()
+	expect(t, send(w, "PATCH", "/api/v1/lists/l1", `{"name":"空"}`), 400, `{"error":"listNameDuplicate"}`)
+	if after := encode(); after != before {
+		t.Fatalf("workspace changed: %s", after)
+	}
+	if response := send(w, "POST", "/api/v1/lists", `{"name":"X","packId":"pack-l2","words":[{"display":"a","input":"a"}]}`); response.Code != 201 {
+		t.Fatalf("%d %s", response.Code, body(t, response))
+	}
+	id := w.workspace.Lists[len(w.workspace.Lists)-1].ID
+	if response := send(w, "PATCH", "/api/v1/lists/"+id, `{"name":"英単語"}`); response.Code != 200 {
+		t.Fatalf("%d %s", response.Code, body(t, response))
+	}
+	var names []string
+	for _, pack := range w.workspace.Packs {
+		names = append(names, pack.Name)
+	}
+	if strings.Join(names, ",") != "英単語,空" {
+		t.Fatalf("packs = %v", names)
+	}
+}
+
 func TestDeleteList(t *testing.T) {
 	w := writable(t)
 	response := send(w, "DELETE", "/api/v1/lists/l2", "")

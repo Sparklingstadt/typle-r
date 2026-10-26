@@ -176,9 +176,18 @@ func UpdateList(w *Workspace, id string, input ListInput) (*List, error) {
 		}
 		name = checked
 	}
+	if input.Name != nil && !moving && followsRename(w, list) {
+		// ApplyListChange renames a pack of one list after it, so the new name may not be another pack's either: repair
+		// would otherwise rename that pack. The list's name is what the request asked for, so it is the one refused.
+		for _, other := range w.Packs {
+			if other.ID != list.PackID && nameKey(other.Name) == nameKey(name) {
+				return nil, &Error{Key: "listNameDuplicate"}
+			}
+		}
+	}
 	category, tags := list.Category, list.Tags
 	if moving {
-		category, tags = pack.Category, pack.Tags
+		category, tags = pack.Category, slices.Clone(pack.Tags)
 	}
 	if input.Category != nil {
 		category = *input.Category
@@ -226,6 +235,16 @@ func UpdateList(w *Workspace, id string, input ListInput) (*List, error) {
 		w.Packs = slices.DeleteFunc(w.Packs, func(other Pack) bool { return other.ID == source })
 	}
 	return &w.Lists[end+1], nil
+}
+
+// followsRename tells whether ApplyListChange makes the pack of list follow a rename of it: the list is alone in its
+// pack, which has its name.
+func followsRename(w *Workspace, list List) bool {
+	pack := findPack(w, list.PackID)
+	if pack == nil || nameKey(pack.Name) != nameKey(list.Name) {
+		return false
+	}
+	return !slices.ContainsFunc(w.Lists, func(other List) bool { return other.PackID == list.PackID && other.ID != list.ID })
 }
 
 // DeleteList removes a list with its records.

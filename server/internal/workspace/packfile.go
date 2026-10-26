@@ -131,10 +131,11 @@ func absent(raw json.RawMessage) bool {
 
 // DecodePackFile follows decodePackFile (src/core/packFile.ts): only the shape is checked, and anything else is
 // packFileUnreadable. Fields Typle does not know are dropped; an optional field that is null is read as left out. A
-// file without lists is unreadable, as no pack can be empty.
+// file without lists is unreadable, as no pack can be empty. One byte order mark at the start is dropped.
 func DecodePackFile(data []byte) (*PackFile, error) {
 	unreadable := &Error{Key: "packFileUnreadable"}
-	top, ok := readObject(data)
+	// The app reads the file with Blob.text(), which drops a byte order mark at the start.
+	top, ok := readObject(bytes.TrimPrefix(data, []byte("\uFEFF")))
 	if !ok {
 		return nil, unreadable
 	}

@@ -605,3 +605,65 @@ func TestApplyListChangeKeepsPackChanges(t *testing.T) {
 		t.Fatalf("packs = %+v, lists = %+v", joined.Packs, joined.Lists)
 	}
 }
+
+// ApplyListChange renames a pack of one list after its list, so a rename that would make it take another pack's name is
+// refused; a list in a pack of several only has to differ from the lists of its pack.
+func TestUpdateListRenameDoesNotTakeAnotherPacksName(t *testing.T) {
+	library := func() *Workspace {
+		w := &Workspace{Packs: []Pack{{ID: "pa", Name: "A"}, {ID: "pb", Name: "B"}, {ID: "pc", Name: "C"}}, Lists: []List{
+			{ID: "a", Name: "A", PackID: "pa", Words: packWordsOf("x"), Records: []Record{}},
+			{ID: "b", Name: "B", PackID: "pb", Words: packWordsOf("x"), Records: []Record{}},
+			{ID: "c1", Name: "C1", PackID: "pc", Words: packWordsOf("x"), Records: []Record{}},
+			{ID: "c2", Name: "C2", PackID: "pc", Words: packWordsOf("x"), Records: []Record{}},
+		}}
+		viewLists(w)
+		return w
+	}
+	w := library()
+	_, err := UpdateList(w, "a", ListInput{Name: text(" b ")})
+	wantKey(t, err, "listNameDuplicate")
+	unchanged(t, w, library())
+	// Allowed: a list in a pack of several, a pack not named after its list, and the list's own pack name.
+	for _, c := range []struct{ id, name string }{{"c1", "B"}, {"a", "a"}} {
+		w := library()
+		previous := &Workspace{Lists: slices.Clone(w.Lists), Packs: slices.Clone(w.Packs)}
+		if _, err := UpdateList(w, c.id, ListInput{Name: text(c.name)}); err != nil {
+			t.Fatalf("%s → %s: %v", c.id, c.name, err)
+		}
+		w.ApplyListChange(previous)
+		valid(t, w)
+		var names []string
+		for _, pack := range w.Packs {
+			names = append(names, pack.Name)
+		}
+		if !slices.Contains(names, "B") || slices.Contains(names, "B（2）") {
+			t.Fatalf("packs = %v", names)
+		}
+	}
+	w = library()
+	w.Packs[0].Name = "Own"
+	if _, err := UpdateList(w, "a", ListInput{Name: text("B")}); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestDecodePackFileDropsAByteOrderMark(t *testing.T) {
+	text := packFileText(`[{"name":"L","words":[{"display":"a","input":"a","annotation":""}]}]`, `{"name":"P"}`)
+	if file, err := DecodePackFile([]byte("\uFEFF" + text)); err != nil || file.Pack.Name != "P" {
+		t.Fatalf("file = %+v, %v", file, err)
+	}
+	_, err := DecodePackFile([]byte("\uFEFF\uFEFF" + text))
+	wantKey(t, err, "packFileUnreadable")
+}
+
+func TestUpdateListMovedTagsAreTheirOwn(t *testing.T) {
+	w := editLibrary()
+	list, err := UpdateList(w, "g", ListInput{PackID: text("p")})
+	if err != nil {
+		t.Fatal(err)
+	}
+	list.Tags[0] = "changed"
+	if w.Packs[0].Tags[0] != "t" {
+		t.Fatalf("pack tags = %v", w.Packs[0].Tags)
+	}
+}
