@@ -71,3 +71,20 @@ test('a followed pack opened on its edit page has no form, only duplicate and un
   await expect(page.getByRole('button', { name: 'Go構文', exact: true })).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Go構文（コピー）', exact: true })).toBeVisible()
 })
+
+test('a followed list opened by URL shows the notice, and /create does not offer the followed pack', async ({ page }) => {
+  await page.goto('/packs/catalog')
+  await page.getByRole('button', { name: 'Go構文 をフォローする', exact: true }).click()
+  await expect(page).toHaveURL(/\/edit\?pack=/)
+  const packId = new URL(page.url()).searchParams.get('pack')!
+  const listId = await page.locator('li[data-list-id]').first().getAttribute('data-list-id')
+  await page.goto(`/edit?list=${encodeURIComponent(listId!)}`)
+  await expect(page.getByText('公式パックは編集できません')).toBeVisible()
+  await expect(page.getByRole('textbox')).toHaveCount(0)
+
+  await page.goto(`/create?pack=${encodeURIComponent(packId)}`)
+  const select = page.locator('select')
+  await expect(page.getByRole('textbox').first()).toBeVisible()
+  if (await select.count()) await expect(select.locator('option', { hasText: 'Go構文' })).toHaveCount(0)
+  await expect(select).not.toHaveValue(packId)
+})

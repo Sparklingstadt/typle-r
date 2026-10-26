@@ -79,6 +79,7 @@ function LoadingState() {
 function WordLists({ workspace }: { workspace: Workspace }) {
   const { lists, packs, error, errorKey, saving, update, updateLibrary, storage } = workspace
   const t = useTranslations('wordLists.page')
+  const errors = useTranslations('errors')
   const practiceText = usePracticeText()
   const notify = useSaveNotification()
   const params = useSearchParams()
@@ -169,7 +170,16 @@ function WordLists({ workspace }: { workspace: Workspace }) {
 
   // Moving the only list of a pack to another pack deletes that pack, which the editor says when another pack is chosen.
   const lonePack = editing && lists.filter(list => list.packId === editing.packId).length === 1 ? packs.find(pack => pack.id === editing.packId) : undefined
-  if (openId && editing) return <WordListEditor key={editing.id} title={t('editTitle')} initial={editing} packs={packs} packId={editing.packId ?? null} error={error} errorKey={errorKey}
+  const editingPack = editing ? packs.find(pack => pack.id === editing.packId) : undefined
+  // The lists of a followed pack are not edited: the notice replaces the editor, with the way back.
+  if (openId && editing && editingPack && isFollowed(editingPack)) return <Alert>
+    <CircleAlert aria-hidden="true" />
+    <AlertDescription className="flex flex-wrap items-center gap-x-3">
+      <span>{errors('packFollowed')}</span>
+      <Link href={`/edit?pack=${encodeURIComponent(editingPack.id)}`} className="underline underline-offset-4">{t('title')}</Link>
+    </AlertDescription>
+  </Alert>
+  if (openId && editing) return <WordListEditor key={editing.id} title={t('editTitle')} initial={editing} packs={packs.filter(pack => !isFollowed(pack))} packId={editing.packId ?? null} error={error} errorKey={errorKey}
     lonePackName={lonePack?.name}
     description={t('editDescription', { count: editing.words.length, practice: practiceText(listOverviews([editing])[0], new Date()) })}
     storage={storage} onDirtyChange={trackDirty} cancelRequest={cancelRequest}
