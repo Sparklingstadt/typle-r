@@ -40,7 +40,11 @@
       "recent": "Недавние тренировки",
       "name": "По названию",
       "count": "Больше результатов"
-    }
+    },
+    "packPracticed": "тренировано {practiced}/{lists}",
+    "packImproved": "рекордов: {count}",
+    "packJoin": " · ",
+    "packLists": "{pack} · {count, plural, one {# список} few {# списка} many {# списков} other {# списка}}"
   },
   "detail": {
     "back": "Все списки",

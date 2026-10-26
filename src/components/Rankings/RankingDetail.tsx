@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import TrendChart from '@/components/Dashboard/TrendChart'
 import { RecordTime } from '@/components/Records/RecordRow'
 import TopRecords from '@/components/Rankings/TopRecords'
+import PracticeName, { usePracticeName } from '@/components/PracticeName'
 import { useFormat } from '@/i18n/useFormat'
 import type { PracticeDevice } from '@/core/devices'
 import { speedScale } from '@/core/dashboard'
@@ -39,7 +40,7 @@ export default function RankingDetail({ list, devices, device, deviceName, order
     <Button variant="ghost" size="sm" className="-ml-2 self-start xl:hidden" onClick={onBack}><ArrowLeft aria-hidden="true" />{t('detail.back')}</Button>
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div className="min-w-0 space-y-1">
-        <h2 id="ranking-title" tabIndex={-1} className="text-xl font-bold outline-none [overflow-wrap:anywhere]">{list.name}</h2>
+        <h2 id="ranking-title" tabIndex={-1} className="text-xl font-bold outline-none [overflow-wrap:anywhere]"><PracticeName list={list} /></h2>
         <p className="flex flex-wrap items-center gap-x-2 text-[13px] text-muted-foreground tabular-nums">
           <span>{t('detail.words', { count: list.words.length })}</span><span aria-hidden="true">·</span><span>{t('detail.records', { count: list.records.length })}</span>
           {lastPracticed > 0 && <><span aria-hidden="true">·</span><span>{t('detail.lastPracticed', { day: format.day(new Date(lastPracticed), now) })}</span></>}
@@ -116,12 +117,13 @@ function Tile({ term, value, note, highlight }: { term: string; value: ReactNode
 
 function Trend({ list, ranked }: { list: SavedWordList; ranked: SavedWordList['records'] }) {
   const t = useTranslations('rankings.detail.trend')
+  const practiceName = usePracticeName()
   const format = useFormat()
   const { points } = rankingStats(ranked)
   return <div className="space-y-2">
     <h3 className="text-sm font-bold">{t('title')} <span className="font-normal text-muted-foreground">{t('recent', { count: points.length })}</span></h3>
     {points.length > 1
-      ? <TrendChart label={t('label', { name: list.name })} points={points} scale={speedScale(points.map(point => point.value))} format={format.recordTime} />
+      ? <TrendChart label={t('label', { name: practiceName(list) })} points={points} scale={speedScale(points.map(point => point.value))} format={format.recordTime} />
       : <p className="rounded-lg bg-muted/50 px-3 py-4 text-sm text-muted-foreground">{t('needTwo')}</p>}
   </div>
 }

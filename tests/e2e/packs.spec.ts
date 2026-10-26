@@ -567,3 +567,64 @@ test('levels that would hide another list of the pack are refused under the leve
   await saveButton(page).click()
   await expect(page.getByText('「応用」を更新しました。')).toBeVisible()
 })
+
+// The best-records screen groups the lists by pack and totals each pack's records.
+const device = { id: 'mac', name: 'MacBook Air', layout: 'JIS' }
+const onDevice = { ...record, device }
+
+function seedRankings(page: Page) {
+  const data = workspace()
+  data.devices = [device] as never
+  const basic = data.lists.find(item => item.id === 'basic')!
+  basic.records = [onDevice, record]
+  return page.evaluate(([k, raw]) => localStorage.setItem(k, raw), [key, JSON.stringify(data)])
+}
+
+test('the ranking list groups lists under a pack heading with its totals, and a pack of one list is a single row', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  await page.goto('/rankings')
+  const lists = page.getByRole('region', { name: '単語リスト', exact: true })
+  const shell = lists.locator('li[data-pack-id="shell"]')
+  await expect(shell.getByRole('heading', { name: 'Shell', exact: true })).toBeVisible()
+  await expect(shell).toContainText('2回')
+  await expect(shell).toContainText('練習済み 1/2')
+  // The lists sit under the heading in saved order; the one without records looks like an unpractised row.
+  await expect(shell.locator('[data-list-id]')).toHaveCount(2)
+  await expect(shell.locator('[data-list-id]').first()).toContainText('基本')
+  await expect(shell.locator('[data-list-id]').last()).toContainText('応用')
+  // A pack of one list has no heading, only its row.
+  await expect(lists.locator('li[data-pack-id]')).toHaveCount(1)
+  await expect(lists.locator('[data-list-id="solo-list"]')).toContainText('単独リスト')
+  // Packs without any record are listed once each in the "no records" group.
+  await expect(lists.getByRole('heading', { name: 'まだ記録のないリスト（2）' })).toBeVisible()
+  await expect(lists.locator('[data-list-id="apple"]')).toBeVisible()
+  expect(errors).toEqual([])
+})
+
+test('a device filter totals only that device, and a pack name finds all its lists', async ({ page }) => {
+  await page.goto('/rankings')
+  await seedRankings(page)
+  await page.goto('/rankings?device=mac')
+  const lists = page.getByRole('region', { name: '単語リスト', exact: true })
+  const shell = lists.locator('li[data-pack-id="shell"]')
+  await expect(shell).toContainText('1回')
+  await expect(shell).toContainText('練習済み 1/2')
+
+  await page.goto('/rankings')
+  // With a query typed, the clear button joins the label, so the name is not matched exactly.
+  const search = lists.getByRole('searchbox')
+  await search.fill('shell')
+  await expect(lists.locator('li[data-pack-id="shell"] [data-list-id]')).toHaveCount(2)
+  await expect(lists.locator('[data-list-id="solo-list"]')).toHaveCount(0)
+  await search.fill('応用')
+  await expect(lists.locator('li[data-pack-id="shell"] [data-list-id]')).toHaveCount(1)
+  await expect(lists.locator('li[data-pack-id="shell"]').getByRole('heading', { name: 'Shell' })).toBeVisible()
+})
+
+test('a list opened by its URL shows its pack in the heading and the labels', async ({ page }) => {
+  await page.goto('/rankings?list=basic')
+  await expect(page.getByRole('heading', { level: 2, name: 'Shell › 基本', exact: true })).toBeVisible()
+  await expect(page.getByRole('table', { name: 'Shell › 基本 の上位の記録', exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: '単語リスト', exact: true }).locator('[data-list-id="basic"]')).toHaveAttribute('aria-current', 'true')
+})

@@ -40,7 +40,11 @@
       "recent": "最近練習した順",
       "name": "名前順",
       "count": "記録が多い順"
-    }
+    },
+    "packPracticed": "練習済み {practiced}/{lists}",
+    "packImproved": "更新 {count}",
+    "packJoin": "・",
+    "packLists": "{pack} · {count}リスト"
   },
   "detail": {
     "back": "リスト一覧",

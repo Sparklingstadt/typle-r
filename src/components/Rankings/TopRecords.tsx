@@ -6,6 +6,7 @@ import { formatAccuracy } from '@/core/records'
 import type { SavedWordList } from '@/core/wordLists'
 import { cn } from '@/lib/utils'
 import { RecordTime } from '@/components/Records/RecordRow'
+import { usePracticeName } from '@/components/PracticeName'
 
 type StoredRecord = SavedWordList['records'][number]
 type Props = { records: StoredRecord[]; list: SavedWordList; devices: PracticeDevice[]; now: Date }
@@ -51,7 +52,8 @@ export default function TopRecords(props: Props) {
 function RecordTable({ records, list, devices, now }: Props) {
   const t = useTranslations('rankings.top')
   const cells = useCells(devices, now)
-  return <table className="hidden w-full table-fixed text-sm tabular-nums sm:table" aria-label={t('label', { name: list.name })}>
+  const practiceName = usePracticeName()
+  return <table className="hidden w-full table-fixed text-sm tabular-nums sm:table" aria-label={t('label', { name: practiceName(list) })}>
     <thead className="text-xs text-muted-foreground">
       <tr className="border-b">
         <th scope="col" className="w-12 py-2 pl-2 text-left font-medium">{t('rank')}</th>
@@ -85,7 +87,8 @@ function RecordTable({ records, list, devices, now }: Props) {
 function RecordCards({ records, list, devices, now }: Props) {
   const t = useTranslations('rankings.top')
   const cells = useCells(devices, now)
-  return <ol className="divide-y rounded-lg border sm:hidden" aria-label={t('label', { name: list.name })}>{records.map((record, index) => {
+  const practiceName = usePracticeName()
+  return <ol className="divide-y rounded-lg border sm:hidden" aria-label={t('label', { name: practiceName(list) })}>{records.map((record, index) => {
     const device = cells.device(record)
     const date = cells.date(record)
     return <li key={record.id ?? `${index}-${record.date}`} className={cn('grid grid-cols-[auto_minmax(0,1fr)_6.5rem] items-center gap-x-3 gap-y-0.5 px-3 py-2.5 tabular-nums', index === 0 && 'bg-amber-50/50 dark:bg-amber-950/20')}>
