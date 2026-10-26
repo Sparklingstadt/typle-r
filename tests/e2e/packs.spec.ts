@@ -788,3 +788,77 @@ test('a file over 1 MiB is refused as too large and nothing is added', async ({ 
   await expect(page.getByText('ファイルは1 MiB以内にしてください。')).toBeVisible()
   expect((await saved(page)).packs).toHaveLength(4)
 })
+
+// The catalog tests start from the guest's initial data (the official packs), not the seeded workspace.
+async function startFresh(page: Page) {
+  await page.addInitScript(k => {
+    if (sessionStorage.getItem('fresh')) return
+    sessionStorage.setItem('fresh', '1')
+    localStorage.removeItem(k)
+  }, key)
+}
+
+test('the catalog shows every official pack as added for a guest with the initial data', async ({ page }) => {
+  await startFresh(page)
+  await page.goto('/edit')
+  await page.getByRole('link', { name: '公式パック' }).click()
+  await expect(page).toHaveURL(/\/packs\/catalog$/)
+  await expect(page.getByRole('heading', { name: '公式パック', level: 1 })).toBeVisible()
+  const entries = page.locator('li[data-catalog-id]')
+  expect(await entries.count()).toBeGreaterThan(0)
+  await expect(entries.first()).toContainText('リスト')
+  await expect(entries.first()).toContainText('語')
+  for (const entry of await entries.all()) {
+    await expect(entry.getByRole('button', { name: '追加済み' })).toBeDisabled()
+    await expect(entry.getByRole('link', { name: /開く/ })).toBeVisible()
+  }
+  await expect(page.getByRole('button', { name: /^.* を追加$/ })).toHaveCount(0)
+})
+
+test('a deleted official pack is added again from the catalog and opened on /edit', async ({ page }) => {
+  await startFresh(page)
+  await page.goto('/edit')
+  const first = page.locator('li[data-pack-id]').first()
+  const name = (await first.locator('h3 button').first().innerText()).trim()
+  await first.getByRole('button', { name: /のパックの操作$/ }).click()
+  await page.getByRole('menuitem', { name: '削除' }).click()
+  await page.getByRole('alertdialog').getByRole('button', { name: '削除' }).click()
+  await expect(page.getByText(`パック「${name}」を削除しました。`)).toBeVisible()
+
+  await page.getByRole('link', { name: '公式パック' }).click()
+  const entry = page.locator('li[data-catalog-id]', { has: page.getByRole('heading', { name, exact: true }) })
+  await expect(entry.getByRole('link', { name: /開く/ })).toHaveCount(0)
+  await entry.getByRole('button', { name: `${name} を追加`, exact: true }).click()
+  await expect(page).toHaveURL(/\/edit\?pack=/)
+  await expect(page.getByText(`${name} を追加しました。`)).toBeVisible()
+  await expect(page.locator('li[data-pack-id]', { has: page.getByRole('button', { name, exact: true }) })).toBeVisible()
+
+  await page.getByRole('link', { name: '公式パック' }).click()
+  await expect(entry.getByRole('button', { name: '追加済み' })).toBeDisabled()
+  await expect(entry.getByRole('link', { name: /開く/ })).toBeVisible()
+})
+
+test('an official pack added next to a pack of the same name is numbered 「名前（2）」', async ({ page }) => {
+  await startFresh(page)
+  await page.goto('/edit')
+  const first = page.locator('li[data-pack-id]').first()
+  const name = (await first.locator('h3 button').first().innerText()).trim()
+  await first.getByRole('button', { name: /のパックの操作$/ }).click()
+  await page.getByRole('menuitem', { name: '削除' }).click()
+  await page.getByRole('alertdialog').getByRole('button', { name: '削除' }).click()
+  await expect(page.getByText(`パック「${name}」を削除しました。`)).toBeVisible()
+
+  // A pack of the user's own with that name takes its place.
+  await page.evaluate(([k, name]) => {
+    const data = JSON.parse(localStorage.getItem(k)!)
+    data.packs.push({ id: 'mine', name, createdAt: '2026-09-01' })
+    data.lists.push({ id: 'mine-list', packId: 'mine', name: '自作', createdAt: '2026-09-01', words: [{ display: 'a', input: 'a', annotation: '' }], records: [] })
+    localStorage.setItem(k, JSON.stringify(data))
+  }, [key, name])
+  await page.reload()
+  await page.getByRole('link', { name: '公式パック' }).click()
+  await page.locator('li[data-catalog-id]', { has: page.getByRole('heading', { name, exact: true }) })
+    .getByRole('button', { name: `${name} を追加`, exact: true }).click()
+  await expect(page).toHaveURL(/\/edit\?pack=/)
+  await expect(page.getByRole('button', { name: `${name}（2）`, exact: true })).toBeVisible()
+})

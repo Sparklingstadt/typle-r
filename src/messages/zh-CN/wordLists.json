@@ -12,7 +12,8 @@
     "deleted": "已删除“{name}”。",
     "packDeleted": "已删除包“{name}”。",
     "exportFailed": "无法导出“{name}”。请重试。",
-    "copySuffix": "{n, plural, =1 {（副本）} other {（副本{n}）}}"
+    "copySuffix": "{n, plural, =1 {（副本）} other {（副本{n}）}}",
+    "catalog": "官方包"
   },
   "manager": {
     "heading": "已保存的包",
@@ -276,5 +277,16 @@
     "wordCount": "{count, plural, other {#个单词}}",
     "created": "已创建包“{name}”。",
     "updated": "已更新包“{name}”。"
+  },
+  "catalog": {
+    "title": "官方包",
+    "description": "预先准备好的包。添加后即成为你自己的包，可以随意编辑。",
+    "back": "返回包列表",
+    "open": "打开",
+    "add": "添加",
+    "addPack": "添加 {name}",
+    "addedState": "已添加",
+    "added": "已添加“{name}”。",
+    "full": "词表已达上限（{max} 个），无法添加。请删除不用的词表。"
   }
 }

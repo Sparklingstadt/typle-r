@@ -12,7 +12,8 @@
     "deleted": "「{name}」を削除しました。",
     "packDeleted": "パック「{name}」を削除しました。",
     "exportFailed": "「{name}」をエクスポートできませんでした。もう一度お試しください。",
-    "copySuffix": "{n, plural, =1 {（コピー）} other {（コピー{n}）}}"
+    "copySuffix": "{n, plural, =1 {（コピー）} other {（コピー{n}）}}",
+    "catalog": "公式パック"
   },
   "manager": {
     "heading": "保存済みのパック",
@@ -276,5 +277,16 @@
     "wordCount": "{count, plural, other {#語}}",
     "created": "パック「{name}」を作成しました。",
     "updated": "パック「{name}」を更新しました。"
+  },
+  "catalog": {
+    "title": "公式パック",
+    "description": "あらかじめ用意されたパックです。追加すると自分のパックとして使え、中身も自由に編集できます。",
+    "back": "パックの一覧へ",
+    "open": "開く",
+    "add": "追加",
+    "addPack": "{name} を追加",
+    "addedState": "追加済み",
+    "added": "{name} を追加しました。",
+    "full": "リストが上限（{max}件）のため追加できません。使わないリストを削除してください。"
   }
 }

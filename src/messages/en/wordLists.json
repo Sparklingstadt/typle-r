@@ -12,7 +12,8 @@
     "deleted": "“{name}” deleted.",
     "packDeleted": "Pack “{name}” deleted.",
     "exportFailed": "Could not export “{name}”. Please try again.",
-    "copySuffix": "{n, plural, =1 { (copy)} other { (copy {n})}}"
+    "copySuffix": "{n, plural, =1 { (copy)} other { (copy {n})}}",
+    "catalog": "Official packs"
   },
   "manager": {
     "heading": "Saved packs",
@@ -276,5 +277,16 @@
     "wordCount": "{count, plural, one {# word} other {# words}}",
     "created": "Pack “{name}” created.",
     "updated": "Pack “{name}” updated."
+  },
+  "catalog": {
+    "title": "Official packs",
+    "description": "Ready-made packs. Add one to make it your own pack, and edit it freely.",
+    "back": "Back to packs",
+    "open": "Open",
+    "add": "Add",
+    "addPack": "Add {name}",
+    "addedState": "Added",
+    "added": "“{name}” added.",
+    "full": "Cannot add: you have reached the limit of {max} lists. Delete lists you no longer use."
   }
 }

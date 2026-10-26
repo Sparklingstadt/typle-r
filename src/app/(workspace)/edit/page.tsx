@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
 import { DropdownMenu } from "radix-ui"
-import { Check, ChevronDown, CircleAlert, Download, ListPlus, Plus, Upload, RotateCw, Search, X } from "lucide-react"
+import { Check, ChevronDown, CircleAlert, Download, Library as LibraryIcon, ListPlus, Plus, Upload, RotateCw, Search, X } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -47,7 +47,10 @@ function Header({ storage }: { storage?: WorkspaceLocation }) {
       <h1 className="text-2xl font-bold">{t('title')}</h1>
       <p className="text-sm text-muted-foreground">{t('description')}</p>
     </div>
-    <PageStorageBadge storage={storage} />
+    <div className="flex items-center gap-2">
+      <Button asChild variant="outline"><Link href="/packs/catalog"><LibraryIcon aria-hidden="true" />{t('catalog')}</Link></Button>
+      <PageStorageBadge storage={storage} />
+    </div>
   </header>
 }
 

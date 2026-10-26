@@ -12,7 +12,8 @@
     "deleted": "La liste « {name} » a été supprimée.",
     "packDeleted": "Le pack « {name} » a été supprimé.",
     "exportFailed": "Impossible d’exporter « {name} ». Veuillez réessayer.",
-    "copySuffix": "{n, plural, =1 { (copie)} other { (copie {n})}}"
+    "copySuffix": "{n, plural, =1 { (copie)} other { (copie {n})}}",
+    "catalog": "Packs officiels"
   },
   "manager": {
     "heading": "Packs enregistrés",
@@ -276,5 +277,16 @@
     "wordCount": "{count, plural, one {# mot} other {# mots}}",
     "created": "Pack « {name} » créé.",
     "updated": "Pack « {name} » mis à jour."
+  },
+  "catalog": {
+    "title": "Packs officiels",
+    "description": "Des packs prêts à l’emploi. Ajoutez-en un pour l’avoir parmi vos packs et le modifier librement.",
+    "back": "Retour aux packs",
+    "open": "Ouvrir",
+    "add": "Ajouter",
+    "addPack": "Ajouter {name}",
+    "addedState": "Ajouté",
+    "added": "« {name} » ajouté.",
+    "full": "Ajout impossible : la limite de {max} listes est atteinte. Supprimez les listes inutilisées."
   }
 }

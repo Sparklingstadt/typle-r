@@ -12,7 +12,8 @@
     "deleted": "已刪除「{name}」。",
     "packDeleted": "已刪除包「{name}」。",
     "exportFailed": "無法匯出「{name}」。請再試一次。",
-    "copySuffix": "{n, plural, =1 {（副本）} other {（副本{n}）}}"
+    "copySuffix": "{n, plural, =1 {（副本）} other {（副本{n}）}}",
+    "catalog": "官方包"
   },
   "manager": {
     "heading": "已儲存的包",
@@ -276,5 +277,16 @@
     "wordCount": "{count, plural, other {#個單字}}",
     "created": "已建立包「{name}」。",
     "updated": "已更新包「{name}」。"
+  },
+  "catalog": {
+    "title": "官方包",
+    "description": "預先準備好的包。加入後即成為你自己的包，可以隨意編輯。",
+    "back": "返回包列表",
+    "open": "開啟",
+    "add": "加入",
+    "addPack": "加入 {name}",
+    "addedState": "已加入",
+    "added": "已加入「{name}」。",
+    "full": "清單已達上限（{max} 個），無法加入。請刪除不用的清單。"
   }
 }
