@@ -1,14 +1,15 @@
 "use client"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { ArrowLeft, Check, CircleAlert, Plus, SquareArrowOutUpRight } from "lucide-react"
+import { ArrowLeft, Check, CircleAlert, Plus, SquareArrowOutUpRight, UserMinus } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useSaveNotification } from "@/components/SaveNotification"
 import ListLabels from "@/components/WordLists/ListLabels"
+import UnfollowDialog from "@/components/WordLists/UnfollowDialog"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import { useWordLists } from "@/lib/useWordLists"
 import { randomId } from "@/core/randomId"
@@ -19,9 +20,11 @@ export default function Catalog() {
   const { ready, packs, lists, error, updateLibrary, saving, storage } = useWordLists()
   const t = useTranslations("wordLists.catalog")
   const row = useTranslations("wordLists.pack")
+  const unfollow = useTranslations("wordLists.follow")
   const common = useTranslations("common")
   const router = useRouter()
   const notify = useSaveNotification()
+  const [unfollowing, setUnfollowing] = useState<{ id: string; name: string } | null>(null)
   const entries = useMemo(() => catalogEntries({ packs, lists }), [packs, lists])
 
   // The pack that came from an entry: the one with its origin, or the one with its id (see catalogEntries).
@@ -29,7 +32,7 @@ export default function Catalog() {
     return packs.find(pack => pack.origin?.catalogId === entry.catalogId) ?? packs.find(pack => pack.id === entry.catalogId)
   }
 
-  async function add(entry: CatalogEntry) {
+  async function follow(entry: CatalogEntry) {
     const ids = { pack: randomId(), lists: entry.lists.map(() => randomId()) }
     let name = ""
     const saved = await updateLibrary(library => {
@@ -38,7 +41,7 @@ export default function Catalog() {
       return next
     })
     if (saved) {
-      notify(t("added", { name }))
+      notify(t("followed", { name }))
       router.push(`/edit?pack=${encodeURIComponent(ids.pack)}`)
     }
   }
@@ -79,14 +82,19 @@ export default function Catalog() {
               {owned && <Button asChild variant="outline"><Link href={`/edit?pack=${encodeURIComponent(owned.id)}`}>
                 <SquareArrowOutUpRight aria-hidden="true" />{t("open")}<span className="sr-only"> {entry.pack.name}</span>
               </Link></Button>}
-              {entry.followed ? <Button disabled><Check aria-hidden="true" />{t("addedState")}</Button>
-                : <Button disabled={full || saving} aria-label={t("addPack", { name: entry.pack.name })} onClick={() => void add(entry)}>
-                  <Plus aria-hidden="true" />{t("add")}
+              {entry.followed ? <>
+                <Button disabled><Check aria-hidden="true" />{t("following")}</Button>
+                {owned && <Button variant="outline" disabled={saving} aria-label={t("unfollowPack", { name: entry.pack.name })} onClick={() => setUnfollowing({ id: owned.id, name: owned.name })}>
+                  <UserMinus aria-hidden="true" />{unfollow("unfollow")}
                 </Button>}
+              </> : <Button disabled={full || saving} aria-label={t("followPack", { name: entry.pack.name })} onClick={() => void follow(entry)}>
+                <Plus aria-hidden="true" />{t("follow")}
+              </Button>}
             </div>
           </li>
         })}
       </ul>
+      <UnfollowDialog pack={unfollowing} onOpenChange={open => { if (!open) setUnfollowing(null) }} updateLibrary={updateLibrary} onUnfollowed={() => setUnfollowing(null)} />
     </>}
   </main>
 }

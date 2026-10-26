@@ -75,7 +75,9 @@
   "empty": {
     "title": "No word lists yet",
     "packTitle": "No word packs yet",
-    "description": "Add the words you want to practice and the text to type as the answer. You can also import them from a CSV or TSV file."
+    "description": "Add the words you want to practice and the text to type as the answer. You can also import them from a CSV or TSV file.",
+    "packDescription": "No packs yet. Follow an official pack or create a new one.",
+    "catalogLink": "Follow an official pack"
   },
   "row": {
     "examples": "Example words:",
@@ -280,14 +282,15 @@
   },
   "catalog": {
     "title": "Official packs",
-    "description": "Ready-made packs. Add one to make it your own pack, and edit it freely.",
+    "description": "Ready-made packs. Follow one to use the official content as it is; it stays up to date. You cannot edit it, but you can duplicate it to make your own pack.",
     "back": "Back to packs",
     "open": "Open",
-    "add": "Add",
-    "addPack": "Add {name}",
-    "addedState": "Added",
-    "added": "“{name}” added.",
-    "full": "Cannot add: you have reached the limit of {max} lists. Delete lists you no longer use."
+    "full": "Cannot follow: you have reached the limit of {max} lists. Delete lists you no longer use.",
+    "follow": "Follow",
+    "followPack": "Follow {name}",
+    "followed": "Followed “{name}”.",
+    "following": "Following",
+    "unfollowPack": "Unfollow {name}"
   },
   "share": {
     "title": "Share “{name}”",
@@ -320,5 +323,15 @@
     "levels": "Difficulty: {levels}",
     "lists": "Lists",
     "addFailed": "Couldn’t add the pack. Please try again."
+  },
+  "follow": {
+    "badge": "Official",
+    "unfollow": "Unfollow",
+    "title": "Unfollow “{name}”?",
+    "description": "Unfollow “{name}”. The records of this pack will be deleted too.",
+    "confirm": "Unfollow",
+    "confirming": "Unfollowing…",
+    "done": "Unfollowed “{name}”.",
+    "notice": "This is an official pack, so it cannot be edited. Duplicate it to edit it as your own pack."
   }
 }

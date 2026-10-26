@@ -1,5 +1,5 @@
 {
-  "empty": "Aucun mot pour l’instant. <link>Créez un pack de mots</link> pour commencer.",
+  "empty": "Aucun pack pour l’instant. <catalog>Suivez un pack officiel</catalog> ou <create>créez-en un nouveau</create>.",
   "stats": {
     "label": "Session en cours",
     "elapsed": "Écoulé",

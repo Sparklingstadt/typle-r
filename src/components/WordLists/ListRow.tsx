@@ -20,12 +20,14 @@ export function usePracticeText() {
 }
 
 // One saved list: what it contains and how it has been used, with 編集 up front and everything else in the menu.
-export default function ListRow({ item, now, highlight, disabled, canCopy, onEdit, onExport, onCopy, onDelete }: {
+export default function ListRow({ item, now, highlight, disabled, canCopy, readOnly, onEdit, onExport, onCopy, onDelete }: {
   item: ListOverview
   now: Date
   highlight: boolean
   disabled: boolean
   canCopy: boolean
+  /** A list of a followed pack: it is practised and exported, not edited, copied or deleted. */
+  readOnly?: boolean
   onEdit: () => void
   onExport: () => void
   onCopy: () => void
@@ -58,9 +60,9 @@ export default function ListRow({ item, now, highlight, disabled, canCopy, onEdi
       <Button asChild variant="ghost" size="lg" className="hidden h-10 px-3 text-muted-foreground sm:inline-flex" title={t('practice')}>
         <Link href={`/play?list=${id}`} aria-label={t('practiceList', { name: list.name })}><Keyboard aria-hidden="true" />{t('practice')}</Link>
       </Button>
-      <Button data-edit variant="outline" size="lg" className="size-10 px-0 sm:w-auto sm:px-3" disabled={disabled} onClick={onEdit} aria-label={t('editList', { name: list.name })} title={t('edit')}>
+      {!readOnly && <Button data-edit variant="outline" size="lg" className="size-10 px-0 sm:w-auto sm:px-3" disabled={disabled} onClick={onEdit} aria-label={t('editList', { name: list.name })} title={t('edit')}>
         <Pencil aria-hidden="true" /><span className="hidden sm:inline">{t('edit')}</span>
-      </Button>
+      </Button>}
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
           <Button variant="ghost" size="icon-lg" className="size-10 text-muted-foreground" aria-label={t('moreFor', { name: list.name })} title={t('moreActions')}>
@@ -82,11 +84,13 @@ export default function ListRow({ item, now, highlight, disabled, canCopy, onEdi
             </>}
             <DropdownMenu.Separator className={cn('my-1 h-px bg-border', !practiceCount && 'sm:hidden')} />
             <DropdownMenu.Item className={menuItem} onSelect={onExport}><Download aria-hidden="true" />{t('export')}</DropdownMenu.Item>
-            <DropdownMenu.Item className={menuItem} disabled={disabled || !canCopy} onSelect={onCopy}><Copy aria-hidden="true" />{t('copy')}</DropdownMenu.Item>
-            <DropdownMenu.Separator className="my-1 h-px bg-border" />
-            <DropdownMenu.Item className={cn(menuItem, 'text-destructive data-[highlighted]:text-destructive [&_svg]:text-destructive')} disabled={disabled} onSelect={onDelete}>
-              <Trash2 aria-hidden="true" />{t('delete')}
-            </DropdownMenu.Item>
+            {!readOnly && <>
+              <DropdownMenu.Item className={menuItem} disabled={disabled || !canCopy} onSelect={onCopy}><Copy aria-hidden="true" />{t('copy')}</DropdownMenu.Item>
+              <DropdownMenu.Separator className="my-1 h-px bg-border" />
+              <DropdownMenu.Item className={cn(menuItem, 'text-destructive data-[highlighted]:text-destructive [&_svg]:text-destructive')} disabled={disabled} onSelect={onDelete}>
+                <Trash2 aria-hidden="true" />{t('delete')}
+              </DropdownMenu.Item>
+            </>}
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
       </DropdownMenu.Root>

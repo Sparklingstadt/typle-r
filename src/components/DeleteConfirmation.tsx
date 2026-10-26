@@ -8,7 +8,7 @@ import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader,
 
 // Uncontrolled by default with its own delete button. Pass `open` to control it from a page whose rows unmount on
 // deletion; `onCloseAutoFocus` then decides where focus goes, since the row that opened it may be gone.
-export default function DeleteConfirmation({ label, title, description, children, onConfirm, open: controlledOpen, onOpenChange, onCloseAutoFocus }: {
+export default function DeleteConfirmation({ label, title, description, children, onConfirm, open: controlledOpen, onOpenChange, onCloseAutoFocus, confirmLabel, busyLabel }: {
   /** Accessible name of the built-in delete button (uncontrolled use). */
   label?: string
   title?: string
@@ -19,6 +19,9 @@ export default function DeleteConfirmation({ label, title, description, children
   open?: boolean
   onOpenChange?: (open: boolean) => void
   onCloseAutoFocus?: (event: Event) => void
+  /** The confirm button's text and its text while working, for a deletion that has another name such as フォロー解除. */
+  confirmLabel?: string
+  busyLabel?: string
 }) {
   const t = useTranslations('common.delete')
   const form = useTranslations('common.form')
@@ -54,7 +57,7 @@ export default function DeleteConfirmation({ label, title, description, children
             else setError(t('failed'))
           } catch { setError(t('failed')) }
           finally { setBusy(false) }
-        }}>{busy ? t('deleting') : t('confirm')}</AlertDialogAction>
+        }}>{busy ? busyLabel ?? t('deleting') : confirmLabel ?? t('confirm')}</AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>
   </AlertDialog>

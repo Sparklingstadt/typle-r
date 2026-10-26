@@ -1,5 +1,5 @@
 {
-  "empty": "There are no words yet. <link>Create a word pack</link> to get started.",
+  "empty": "No packs yet. <catalog>Follow an official pack</catalog> or <create>create a new one</create>.",
   "stats": {
     "label": "Current run",
     "elapsed": "Elapsed",

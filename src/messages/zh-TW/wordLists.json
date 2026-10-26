@@ -75,7 +75,9 @@
   "empty": {
     "title": "還沒有單字清單",
     "packTitle": "還沒有單字包",
-    "description": "登錄想練習的單字，以及作為正確答案輸入的文字。也可以從 CSV、TSV 檔案匯入。"
+    "description": "登錄想練習的單字，以及作為正確答案輸入的文字。也可以從 CSV、TSV 檔案匯入。",
+    "packDescription": "還沒有單字包。請追蹤官方單字包，或建立新的單字包。",
+    "catalogLink": "追蹤官方單字包"
   },
   "row": {
     "examples": "單字範例",
@@ -280,14 +282,15 @@
   },
   "catalog": {
     "title": "官方包",
-    "description": "預先準備好的包。加入後即成為你自己的包，可以隨意編輯。",
+    "description": "預先準備好的單字包。追蹤後可直接使用官方內容，並自動隨官方更新。無法編輯，但可以複製成自己的單字包。",
     "back": "返回包列表",
     "open": "開啟",
-    "add": "加入",
-    "addPack": "加入 {name}",
-    "addedState": "已加入",
-    "added": "已加入「{name}」。",
-    "full": "清單已達上限（{max} 個），無法加入。請刪除不用的清單。"
+    "full": "清單已達上限（{max}個），無法追蹤。請刪除不用的清單。",
+    "follow": "追蹤",
+    "followPack": "追蹤 {name}",
+    "followed": "已追蹤「{name}」",
+    "following": "追蹤中",
+    "unfollowPack": "取消追蹤 {name}"
   },
   "share": {
     "title": "分享「{name}」",
@@ -320,5 +323,15 @@
     "levels": "難度：{levels}",
     "lists": "清單",
     "addFailed": "無法加入此包。請重試。"
+  },
+  "follow": {
+    "badge": "官方",
+    "unfollow": "取消追蹤",
+    "title": "要取消追蹤「{name}」嗎？",
+    "description": "將取消追蹤「{name}」。該單字包的紀錄也會被刪除。",
+    "confirm": "取消追蹤",
+    "confirming": "正在取消追蹤…",
+    "done": "已取消追蹤「{name}」",
+    "notice": "這是官方單字包，無法編輯。複製後即可作為自己的單字包進行編輯。"
   }
 }

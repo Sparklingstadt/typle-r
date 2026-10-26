@@ -18,6 +18,7 @@ import LabelFilter from "@/components/WordLists/LabelFilter"
 import PackRow from "@/components/WordLists/PackRow"
 import OrphanShares from "@/components/WordLists/OrphanShares"
 import ShareDialog from "@/components/WordLists/ShareDialog"
+import UnfollowDialog from "@/components/WordLists/UnfollowDialog"
 import { useShares } from "@/lib/useShares"
 import { useWordLists } from "@/lib/useWordLists"
 import { useErrorText } from "@/i18n/useErrorText"
@@ -27,6 +28,7 @@ import { copyPack, decodePackFile, encodePackFile, importPackFile } from "@/core
 import { useFormat } from "@/i18n/useFormat"
 import { randomId } from "@/core/randomId"
 import { duplicateList, isFiltered, LIST_ORDERS, listLabels, listOverviews, matchesFilter, MAX_LISTS, NO_FILTER, type ListFilter, type ListOrder, type ListOverview } from "@/core/listOverview"
+import { isFollowed } from "@/core/followedPacks"
 import { deletePack, matchesPackQuery, matchingListIds, packOverviews, saveListInPack, type PackOverview } from "@/core/packEditing"
 import type { SavedWordList } from "@/core/wordLists"
 import type { Library } from "@/core/wordPacks"
@@ -246,6 +248,7 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
   const [filter, setFilter] = useState<ListFilter>(NO_FILTER)
   const [exportError, setExportError] = useState('')
   const [deleting, setDeleting] = useState<{ open: boolean; item: ListOverview | null; position: number }>({ open: false, item: null, position: 0 })
+  const [unfollowing, setUnfollowing] = useState<{ id: string; name: string } | null>(null)
   const [deletingPack, setDeletingPack] = useState<{ open: boolean; item: PackOverview | null; position: number }>({ open: false, item: null, position: 0 })
   const { enabled: canShare, shares, orphans, share, stop } = useShares()
   const [sharing, setSharing] = useState<{ id: string; name: string } | null>(null)
@@ -416,8 +419,9 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
           onAddList={full ? undefined : () => router.push(`/create?pack=${encodeURIComponent(pack.id)}`)}
           onCopy={lists.length + item.lists.length > MAX_LISTS ? undefined : () => copyPackOf(item)} onExport={() => exportPack(item)}
           onShare={canShare ? () => setSharing({ id: pack.id, name: pack.name }) : undefined} shared={shares.has(pack.id)}
-          onDeletePack={() => { packDeleted.current = false; setDeletingPack({ open: true, item, position: shown.indexOf(item) }) }}>
-          {rows.map(row => <ListRow key={row.list.id} item={row} now={now} highlight={highlight === row.list.id} disabled={saving} canCopy={!full}
+          onDeletePack={() => { packDeleted.current = false; setDeletingPack({ open: true, item, position: shown.indexOf(item) }) }}
+          followed={isFollowed(pack)} onUnfollow={() => setUnfollowing({ id: pack.id, name: pack.name })}>
+          {rows.map(row => <ListRow key={row.list.id} item={row} now={now} highlight={highlight === row.list.id} disabled={saving} canCopy={!full} readOnly={isFollowed(pack)}
             onEdit={() => onEdit(row.list)} onExport={() => exportCsv(row.list)} onCopy={() => copy(row.list)}
             onDelete={() => { deleted.current = false; setDeleting({ open: true, item: row, position: rowPosition(row.list.id) }) }} />)}
         </PackRow>
@@ -461,6 +465,13 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
         }
         return saved
       }} />}
+
+    <UnfollowDialog pack={unfollowing} onOpenChange={open => { if (!open) setUnfollowing(null) }} updateLibrary={updateLibrary}
+      onUnfollowed={() => {
+        setUnfollowing(null)
+        // The dialog's row is gone: focus the heading, or the empty state's when no pack is left.
+        window.requestAnimationFrame(() => (document.getElementById('list-heading') ?? document.getElementById('empty-heading'))?.focus())
+      }} />
 
     <ShareDialog pack={sharing} share={sharing ? shares.get(sharing.id) : undefined} onShare={share} onStop={stop}
       onOpenChange={open => { if (!open) setSharing(null) }} />
@@ -514,10 +525,11 @@ function EmptyState({ actions }: { actions?: ReactNode }) {
     <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground"><ListPlus className="size-6" aria-hidden="true" /></span>
     <div className="space-y-1.5">
       <h2 id="empty-heading" tabIndex={-1} className="font-bold outline-none">{t('empty.packTitle')}</h2>
-      <p className="max-w-md text-sm text-balance text-muted-foreground">{t('empty.description')}</p>
+      <p className="max-w-md text-sm text-balance text-muted-foreground">{t('empty.packDescription')}</p>
     </div>
     <div className="flex flex-wrap justify-center gap-2">
-      <Button asChild><Link href="/packs/create"><Plus aria-hidden="true" />{t('manager.createPack')}</Link></Button>
+      <Button asChild><Link href="/packs/catalog"><LibraryIcon aria-hidden="true" />{t('empty.catalogLink')}</Link></Button>
+      <Button asChild variant="outline"><Link href="/packs/create"><Plus aria-hidden="true" />{t('manager.createPack')}</Link></Button>
       {actions}
     </div>
   </div>

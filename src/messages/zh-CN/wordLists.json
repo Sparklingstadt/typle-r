@@ -75,7 +75,9 @@
   "empty": {
     "title": "还没有单词列表",
     "packTitle": "还没有单词包",
-    "description": "登记想要练习的单词，以及作为正确答案输入的文字。也可以从 CSV、TSV 文件导入。"
+    "description": "登记想要练习的单词，以及作为正确答案输入的文字。也可以从 CSV、TSV 文件导入。",
+    "packDescription": "还没有单词包。请关注官方单词包，或创建新的单词包。",
+    "catalogLink": "关注官方单词包"
   },
   "row": {
     "examples": "单词示例",
@@ -280,14 +282,15 @@
   },
   "catalog": {
     "title": "官方包",
-    "description": "预先准备好的包。添加后即成为你自己的包，可以随意编辑。",
+    "description": "预先准备好的单词包。关注后可直接使用官方内容，并自动随官方更新。无法编辑，但可以复制成自己的单词包。",
     "back": "返回包列表",
     "open": "打开",
-    "add": "添加",
-    "addPack": "添加 {name}",
-    "addedState": "已添加",
-    "added": "已添加“{name}”。",
-    "full": "词表已达上限（{max} 个），无法添加。请删除不用的词表。"
+    "full": "列表已达上限（{max}个），无法关注。请删除不用的列表。",
+    "follow": "关注",
+    "followPack": "关注 {name}",
+    "followed": "已关注“{name}”",
+    "following": "已关注",
+    "unfollowPack": "取消关注 {name}"
   },
   "share": {
     "title": "共享“{name}”",
@@ -320,5 +323,15 @@
     "levels": "难度：{levels}",
     "lists": "列表",
     "addFailed": "无法添加此包。请重试。"
+  },
+  "follow": {
+    "badge": "官方",
+    "unfollow": "取消关注",
+    "title": "要取消关注“{name}”吗？",
+    "description": "将取消关注“{name}”。该单词包的记录也会被删除。",
+    "confirm": "取消关注",
+    "confirming": "正在取消关注…",
+    "done": "已取消关注“{name}”",
+    "notice": "这是官方单词包，无法编辑。复制后即可作为自己的单词包进行编辑。"
   }
 }
