@@ -8,16 +8,19 @@ export type { OfficialPack }
 /** `followed` when the library has a followed pack from this entry. */
 export type CatalogEntry = OfficialPack & { followed: boolean }
 
+// Built once: guest reads and writes follow the catalog every time. Callers only read it.
+const official: OfficialPack[] = officialLibrary.packs.map(pack => ({
+  catalogId: pack.origin!.catalogId, version: pack.origin!.version, pack,
+  lists: officialLibrary.lists.filter(list => list.packId === pack.id),
+}))
+
 export function officialPacks(): OfficialPack[] {
-  return officialLibrary.packs.map(pack => ({
-    catalogId: pack.origin!.catalogId, version: pack.origin!.version, pack,
-    lists: officialLibrary.lists.filter(list => list.packId === pack.id),
-  }))
+  return official
 }
 
 export function catalogEntries(library: Library): CatalogEntry[] {
   return officialPacks().map(entry => ({
-    ...entry, followed: library.packs.some(pack => isFollowed(pack) && pack.origin!.catalogId === entry.catalogId),
+    ...entry, followed: library.packs.some(pack => isFollowed(pack) && pack.origin?.catalogId === entry.catalogId),
   }))
 }
 

@@ -28,7 +28,8 @@ import { copyPack, decodePackFile, encodePackFile, importPackFile } from "@/core
 import { useFormat } from "@/i18n/useFormat"
 import { randomId } from "@/core/randomId"
 import { duplicateList, isFiltered, LIST_ORDERS, listLabels, listOverviews, matchesFilter, MAX_LISTS, NO_FILTER, type ListFilter, type ListOrder, type ListOverview } from "@/core/listOverview"
-import { isFollowed } from "@/core/followedPacks"
+import { isFollowed, ownPacks } from "@/core/followedPacks"
+import Notice from "@/components/WordLists/Notice"
 import { deletePack, matchesPackQuery, matchingListIds, packOverviews, saveListInPack, type PackOverview } from "@/core/packEditing"
 import type { SavedWordList } from "@/core/wordLists"
 import type { Library } from "@/core/wordPacks"
@@ -172,14 +173,10 @@ function WordLists({ workspace }: { workspace: Workspace }) {
   const lonePack = editing && lists.filter(list => list.packId === editing.packId).length === 1 ? packs.find(pack => pack.id === editing.packId) : undefined
   const editingPack = editing ? packs.find(pack => pack.id === editing.packId) : undefined
   // The lists of a followed pack are not edited: the notice replaces the editor, with the way back.
-  if (openId && editing && editingPack && isFollowed(editingPack)) return <Alert>
-    <CircleAlert aria-hidden="true" />
-    <AlertDescription className="flex flex-wrap items-center gap-x-3">
-      <span>{errors('packFollowed')}</span>
-      <Link href={`/edit?pack=${encodeURIComponent(editingPack.id)}`} className="underline underline-offset-4">{t('title')}</Link>
-    </AlertDescription>
-  </Alert>
-  if (openId && editing) return <WordListEditor key={editing.id} title={t('editTitle')} initial={editing} packs={packs.filter(pack => !isFollowed(pack))} packId={editing.packId ?? null} error={error} errorKey={errorKey}
+  if (openId && editing && editingPack && isFollowed(editingPack)) {
+    return <Notice link={{ href: `/edit?pack=${encodeURIComponent(editingPack.id)}`, label: t('title') }}>{errors('packFollowed')}</Notice>
+  }
+  if (openId && editing) return <WordListEditor key={editing.id} title={t('editTitle')} initial={editing} packs={ownPacks(packs)} packId={editing.packId ?? null} error={error} errorKey={errorKey}
     lonePackName={lonePack?.name}
     description={t('editDescription', { count: editing.words.length, practice: practiceText(listOverviews([editing])[0], new Date()) })}
     storage={storage} onDirtyChange={trackDirty} cancelRequest={cancelRequest}
@@ -412,6 +409,7 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
     {shown.length ? <ul className="divide-y overflow-hidden rounded-xl border bg-card">
       {shown.map(item => {
         const { pack } = item
+        const followed = isFollowed(pack)
         // A search or filter opens every pack that matched.
         const open = narrowed || openPacks.has(pack.id)
         // A search that found lists by their name or words shows those; one that found the pack by its name or labels shows all.
@@ -430,8 +428,8 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
           onCopy={lists.length + item.lists.length > MAX_LISTS ? undefined : () => copyPackOf(item)} onExport={() => exportPack(item)}
           onShare={canShare ? () => setSharing({ id: pack.id, name: pack.name }) : undefined} shared={shares.has(pack.id)}
           onDeletePack={() => { packDeleted.current = false; setDeletingPack({ open: true, item, position: shown.indexOf(item) }) }}
-          followed={isFollowed(pack)} onUnfollow={() => setUnfollowing({ id: pack.id, name: pack.name })}>
-          {rows.map(row => <ListRow key={row.list.id} item={row} now={now} highlight={highlight === row.list.id} disabled={saving} canCopy={!full} readOnly={isFollowed(pack)}
+          followed={followed} onUnfollow={() => setUnfollowing({ id: pack.id, name: pack.name })}>
+          {rows.map(row => <ListRow key={row.list.id} item={row} now={now} highlight={highlight === row.list.id} disabled={saving} canCopy={!full} readOnly={followed}
             onEdit={() => onEdit(row.list)} onExport={() => exportCsv(row.list)} onCopy={() => copy(row.list)}
             onDelete={() => { deleted.current = false; setDeleting({ open: true, item: row, position: rowPosition(row.list.id) }) }} />)}
         </PackRow>

@@ -53,14 +53,18 @@ func followOfficial(packs []Pack, lists []List, official []OfficialPack) ([]Pack
 		if pack.Origin == nil {
 			continue
 		}
+		var mine []List
+		for _, list := range lists {
+			if list.PackID == pack.ID {
+				mine = append(mine, list)
+			}
+		}
 		var items []List
 		for _, item := range entries[pack.Origin.CatalogID].Lists {
-			at := slices.IndexFunc(lists, func(list List) bool {
-				return list.PackID == pack.ID && list.Origin != nil && list.Origin.ListID == item.ID
-			})
+			at := slices.IndexFunc(mine, func(list List) bool { return list.Origin != nil && list.Origin.ListID == item.ID })
 			var list List
 			if at >= 0 {
-				list = lists[at]
+				list = mine[at]
 			} else {
 				// The id comes from the official list's, so that the app and Go make the same list.
 				list = List{ID: pack.ID + ":" + item.ID, PackID: pack.ID, Records: []Record{}, CreatedAt: item.CreatedAt,
