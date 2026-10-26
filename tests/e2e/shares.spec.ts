@@ -131,6 +131,8 @@ test('a guest opens a shared link, sees the pack without its owner, and adds it 
     await expect(table.getByRole('cell', { name: 'ls', exact: true }).first()).toBeVisible()
     await expect(table.getByRole('cell', { name: 'cd', exact: true }).first()).toBeVisible()
     await expect(view.getByText('E2E User')).toHaveCount(0)
+    await expect(view.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow')
+    await expect(view).toHaveTitle('共有されたパック | Typle')
 
     await view.getByRole('button', { name: '自分のパックに追加' }).click()
     await expect(view).toHaveURL(/\/edit\?pack=[^&]+$/)

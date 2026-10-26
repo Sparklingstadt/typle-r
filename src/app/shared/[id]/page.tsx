@@ -110,10 +110,10 @@ function Pack({ file }: { file: PackFile }) {
       </div> : null}
       <p className="max-w-2xl text-sm text-muted-foreground">{t('sharedPage.intro')}</p>
       <div className="flex flex-wrap items-center gap-3">
-        <Button disabled={!ready || adding || full} onClick={() => void add()}><Plus aria-hidden="true" />{t('sharedPage.add')}</Button>
+        <Button disabled={!ready || adding || full} aria-describedby={full ? 'shared-full' : undefined} onClick={() => void add()}><Plus aria-hidden="true" />{t('sharedPage.add')}</Button>
         <OpenPacks />
       </div>
-      {full ? <p className="text-sm text-muted-foreground">{t('catalog.full', { max: MAX_LISTS })}</p> : null}
+      {full ? <p id="shared-full" className="text-sm text-muted-foreground">{t('catalog.full', { max: MAX_LISTS })}</p> : null}
       {message ? <Alert variant="destructive"><CircleAlert aria-hidden="true" /><AlertDescription>{message}</AlertDescription></Alert> : null}
     </header>
 
