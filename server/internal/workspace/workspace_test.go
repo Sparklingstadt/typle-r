@@ -56,50 +56,18 @@ func TestDecodeEmptyRow(t *testing.T) {
 	}
 }
 
+// Since v0.98.0 a workspace starts empty: official packs are followed from the catalog (see OfficialPacks).
 func TestInitial(t *testing.T) {
 	w, err := Initial()
 	if err != nil {
 		t.Fatal(err)
 	}
-	ids := []string{}
-	for _, list := range w.Lists {
-		ids = append(ids, list.ID)
-		if len(list.Records) != 0 {
-			t.Fatalf("%s has records", list.ID)
-		}
+	if w.Packs == nil || w.Lists == nil || w.Devices == nil || len(w.Packs)+len(w.Lists)+len(w.Devices) != 0 {
+		t.Fatalf("initial = %+v", w)
 	}
-	// Since v0.85.0 the initial lists are the lists of the sparklingstadt account, in its order.
-	if len(ids) != 67 || strings.Join(ids[:2], ",") != "8f3cf116-1f9f-4579-a071-e600094b104d,ef974a4b-3c7a-4eeb-9979-6721a0a1c81a" ||
-		ids[9] != "arch-linux" || ids[len(ids)-1] != "sql-server-tsql-syntax-advanced" {
-		t.Fatalf("ids = %v", ids)
-	}
-	for _, list := range w.Lists {
-		// The lists the account made itself, and those it keeps whole beside their parts, have no labels.
-		if list.Extra != "" {
-			t.Fatalf("%s: extra %s", list.ID, list.Extra)
-		}
-		if list.Category == "" && len(list.Tags) == 0 && len(list.Levels) == 0 {
-			continue
-		}
-		if (list.Category != "プログラミング" && list.Category != "語学") || len(list.Tags) == 0 {
-			t.Fatalf("%s: category %q, tags %v, levels %v", list.ID, list.Category, list.Tags, list.Levels)
-		}
-	}
-	// The lists are in the packs of initialLibrary: one for each group, and one for each list without a group.
-	lists, err := Encode(w.Lists)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := CheckPacks(w.Packs, stored(t, lists)); err != nil {
-		t.Fatal(err)
-	}
-	// The group Arch Linuxコマンド is named after the list arch-linux, which comes first and has no group.
-	arch := w.Find("arch-linux-beginner")
-	at := slices.IndexFunc(w.Packs, func(p Pack) bool { return p.ID == arch.PackID })
-	if len(w.Packs) != 30 || at < 0 || w.Packs[at].Name != "Arch Linuxコマンド（2）" || w.Packs[at].Category != "プログラミング" ||
-		arch.Category != w.Packs[at].Category || !slices.Equal(arch.Tags, w.Packs[at].Tags) ||
-		w.Find("arch-linux-advanced").PackID != arch.PackID || w.Find("arch-linux").PackID == arch.PackID {
-		t.Fatalf("packs = %+v, list = %+v", w.Packs, arch)
+	lists, packs := encodeBoth(t, w)
+	if string(lists) != "[]" || string(packs) != "[]" {
+		t.Fatalf("lists = %s, packs = %s", lists, packs)
 	}
 }
 

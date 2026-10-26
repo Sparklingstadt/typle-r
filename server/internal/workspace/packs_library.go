@@ -19,10 +19,12 @@ const (
 	MaxPackDescription = 500
 )
 
-// Origin is set on a pack added from the official catalog.
+// Origin is set on a pack that came from the official catalog. Without Followed it is a copy from before v0.98.0, which
+// Decode removes (see followOfficial).
 type Origin struct {
 	CatalogID string  `json:"catalogId"`
 	Version   float64 `json:"version"`
+	Followed  bool    `json:"followed,omitempty"`
 }
 
 // Pack is a word pack. Description and Category are "" and Tags nil when it has none, which is how they are stored:
@@ -42,6 +44,7 @@ type Pack struct {
 type rawOrigin struct {
 	CatalogID *string  `json:"catalogId"`
 	Version   *float64 `json:"version"`
+	Followed  *bool    `json:"followed"`
 }
 
 type rawPack struct {
@@ -104,7 +107,8 @@ func decodePacks(data []byte) ([]Pack, error) {
 	ids := map[string]bool{}
 	for index, item := range raw {
 		if item == nil || item.ID == nil || *item.ID == "" || ids[*item.ID] || item.Name == nil || item.CreatedAt == nil ||
-			(item.Origin != nil && (item.Origin.CatalogID == nil || item.Origin.Version == nil)) {
+			(item.Origin != nil && (item.Origin.CatalogID == nil || item.Origin.Version == nil ||
+				(item.Origin.Followed != nil && !*item.Origin.Followed))) {
 			return nil, fmt.Errorf("pack %d is invalid", index+1)
 		}
 		ids[*item.ID] = true
@@ -122,7 +126,7 @@ func decodePacks(data []byte) ([]Pack, error) {
 			pack.Tags = append(pack.Tags, *tag)
 		}
 		if item.Origin != nil {
-			pack.Origin = &Origin{CatalogID: *item.Origin.CatalogID, Version: *item.Origin.Version}
+			pack.Origin = &Origin{CatalogID: *item.Origin.CatalogID, Version: *item.Origin.Version, Followed: item.Origin.Followed != nil}
 		}
 		packs = append(packs, pack)
 	}

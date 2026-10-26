@@ -76,6 +76,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 | 404 | `recordNotFound` | パスで指定したIDの記録がない（IDのない古い記録も） |
 | 404 | `notFound` | 未知のパス |
 | 405 | `methodNotAllowed` | そのパスで使えないメソッド（`-writable` でない書き込みを含む）。`Allow` に使えるメソッドを付ける |
+| 409 | `packFollowed` | フォロー中の公式パックやそのリストを変えようとした（下の「フォロー中の公式パック」。v0.98.0 から） |
 | 413 | `requestTooLarge` | 本文が 1MiB を超える |
 | 413 | `importTooLarge` | 取り込むファイル（CSV・TSV・パックのファイル）が 1MiB を超える |
 | 413 | `workspaceTooLarge` | 保存後のリスト全体が 896KiB を超える |
@@ -113,7 +114,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 | `category` | そのカテゴリのリストだけ（大文字小文字を区別しない）。`category=`（空）ならカテゴリのないリストだけ（v0.78.0 から） |
 | `tag` | そのタグを持つリストだけ。`tag=Go&tag=CLI` のように複数並べると、すべてを持つリストだけ（大文字小文字を区別しない。v0.78.0 から） |
 
-`packId`（そのリストが入っている単語パックの ID）は v0.91.0 からで、`GET /api/v1/lists/{l}` と作成・更新の応答の `list` にもあります。`category`・`tags` はリストではなくパックの値です（同じパックのリストは同じ値になります）。`levels`（練習画面でパックの中のリストを選ぶ難易度。ないときは `[]`。v0.97.0 から多くても 1 つ）は v0.95.0 からです。パックそのものは `GET /api/v1/packs` で読めます。作成・変更での `packId`・`levels` は「書き込み」を見てください。
+`packId`（そのリストが入っている単語パックの ID）は v0.91.0 からで、`GET /api/v1/lists/{l}` と作成・更新の応答の `list` にもあります。`category`・`tags` はリストではなくパックの値です（同じパックのリストは同じ値になります）。`levels`（練習画面でパックの中のリストを選ぶ難易度。ないときは `[]`。v0.97.0 から多くても 1 つ）は v0.95.0 からです。パックそのものは `GET /api/v1/packs` で読めます。作成・変更での `packId`・`levels` は「書き込み」を見てください。`origin` は、フォロー中の公式パックのリストだけが持つ元の公式リストの ID（`{ "listId": "…" }`）で、ほかのリストは `null` です（v0.98.0 から。下の「フォロー中の公式パック」）。
 
 並べ方と検索はアプリの「単語リスト」画面と同じです。名前順は Go の照合表（CLDR 23）を使うため、半角カナ・ギリシャ文字・記号で始まる名前は、ブラウザーと順序が違うことがあります。
 
@@ -130,7 +131,8 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
     "levels": [],
     "wordCount": 120,
     "recordCount": 8,
-    "createdAt": "2026-10-10T01:23:45.000Z"
+    "createdAt": "2026-10-10T01:23:45.000Z",
+    "origin": null
   }]
 }
 ```
@@ -178,7 +180,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
     "description": "よく使うコマンド",
     "category": "プログラミング",
     "tags": ["シェル"],
-    "origin": { "catalogId": "pack-7c9e6679-7425-40de-944b-e07fc1f90ae7", "version": 1 },
+    "origin": { "catalogId": "pack-7c9e6679-7425-40de-944b-e07fc1f90ae7", "version": 1, "followed": true },
     "createdAt": "2026-10-10T01:23:45.000Z",
     "listCount": 2,
     "wordCount": 120,
@@ -189,7 +191,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 }
 ```
 
-- `description`・`category` はないとき `null`、`tags` は `[]`。`origin` は公式パックのカタログから追加したパック（と最初のパック）の出どころで、ほかは `null`。
+- `description`・`category` はないとき `null`、`tags` は `[]`。`origin` はフォロー中の公式パックの出どころ（`catalogId`・`version`・`"followed": true`）で、ほかは `null`（v0.98.0 から。それまでは公式パックのカタログから追加したパックと最初のパックの出どころで、`followed` はなかった）。
 - `listCount`・`wordCount` は中のリストと単語の数、`practiceCount` は中のリストの記録の合計、`practicedListCount` は記録のあるリストの数、`lastPracticed` は中のリストで最も新しい記録の日時（なければ `null`）です。
 
 ### `GET /api/v1/packs/{p}`
@@ -343,8 +345,16 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 | `POST /api/v1/packs` | `{ "name", "description"?, "category"?, "tags"?, "lists": [{ "name", "levels"?, "words": [{ "display", "input", "annotation"? }] }] }`（リスト1つ以上） | `201 { "pack" }`。パック・リストのIDはサーバーが UUID で決め、`createdAt` は今の時刻。パックは最後に、リストはすべてのリストの後ろに追加する（v0.95.0 から） |
 | `PATCH /api/v1/packs/{p}` | `{ "name"?, "description"?, "category"?, "tags"?, "listOrder"? }`（少なくとも1つ） | `200 { "pack" }`。`tags` は全体を置き換え、`""` の説明・カテゴリ・空の `tags` で外す。カテゴリ・タグは中のリストの値にもなる。`listOrder` は中のリストのIDを新しい順に並べたもの: パックにないIDは無視し、並べなかったリストは今の順で後ろに続く（v0.95.0 から） |
 | `DELETE /api/v1/packs/{p}` | なし | `204`（本文なし）。中のリストと記録も一緒に消える（v0.95.0 から） |
-| `POST /api/v1/packs/{p}/copy` | なし、または `{ "name"? }` | `201 { "pack" }`。元のパックの直後に入る。説明・カテゴリ・タグと、リストの名前・難易度・単語をコピーし、記録・`origin` はコピーしない。名前を省略すると「元の名前（コピー）」、使われていれば「（コピー2）」…（v0.95.0 から） |
+| `POST /api/v1/packs/{p}/copy` | なし、または `{ "name"? }` | `201 { "pack" }`。元のパックの直後に入る。説明・カテゴリ・タグと、リストの名前・難易度・単語をコピーし、記録・`origin`（パックとリストの）はコピーしない。フォロー中の公式パックも複製でき、複製は自分のパックになる（v0.98.0 から）。名前を省略すると「元の名前（コピー）」、使われていれば「（コピー2）」…（v0.95.0 から） |
 | `POST /api/v1/packs/import` | パックのファイルそのもの（`Content-Type: application/json`。1MiB まで） | `201 { "pack" }`。アプリの「ファイルから追加」と同じ読み方でパックを最後に追加する（下の「パックのファイルの取り込み」。v0.95.0 から） |
+
+### フォロー中の公式パック
+
+アプリでフォローした公式パック（`origin.followed` が `true`）は、公式の内容のまま読み取り専用です（v0.98.0 から）。
+
+- 変える書き込みは `409 packFollowed` で、何も保存しません: `PATCH /api/v1/packs/{p}`（`listOrder` も）、`POST /api/v1/lists`（`packId` がフォロー中のパック）、`PATCH /api/v1/lists/{l}`（フォロー中のパックのリスト、または `packId` でフォロー中のパックへ移すとき）、`DELETE /api/v1/lists/{l}`、`POST /api/v1/lists/{l}/copy`、`POST /api/v1/lists/import`（`packId` がフォロー中のパック）。ないパック・リストは今までどおり `404`・`400` です。
+- できるもの: `DELETE /api/v1/packs/{p}`（フォロー解除。リストと記録も消える）、`POST /api/v1/packs/{p}/copy`（自分のパックになる）、記録の追加・変更・削除。
+- 保存データを読むたびに、アプリと同じ変換をします。v0.98.0 より前に公式パックから追加したパック（`followed` のない `origin` のパックと、`origin` がなく ID が公式パックの `catalogId` と同じパック）はリスト・記録ごと除き、フォロー中のパックは説明・カテゴリ・タグとリスト（名前・難易度・単語・並び）を公式に揃えます。リストの記録は `origin.listId` が同じリストに残り、公式で増えたリストは `<パックの ID>:<公式のリストの ID>` の ID で加わり、公式からなくなったリストとカタログからなくなったパックは記録ごと除きます。変換の結果は次の書き込みで保存されます。
 
 記録には練習したときの端末のコピーが入っているため、端末の名前を変えても削除しても、過去の記録の端末はそのままです（アプリと同じ）。組み込みの `default` は変更・削除できません（`404 deviceNotFound`）。
 
@@ -411,7 +421,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 書き込みは1つのトランザクションでアカウントの行をロックし、リストを変えて `revision` を1増やします。その間のアプリの保存は待ち、そのあとは「ほかで保存された」として読み込み直します（アプリで2つのブラウザーから保存したときと同じ）。読み込み直す前にアプリで行った変更は保存されないので、APIで書き込むときはアプリの編集を終えておいてください。
 
 - パックの共有リンク（`typle_shared_packs`、v0.96.0 から）は、書き込みでパックがなくなると（パックの削除、リストの移動で空になったパックを含む）、同じトランザクションで消えます。`/api/shares`・`/api/shared` は `/api/workspace` と同じアプリ自身のバックエンドで、`/api/v1` にはありません（[README の v0.96.0](../README.md#v0960--単語パックをリンクで共有できるようにしました)）。
-- まだ一度も保存していないアカウントは、最初の単語リストに変更を加えて保存します。
+- まだ一度も保存していないアカウントは、空のワークスペースに変更を加えて保存します（v0.98.0 から。それまでは最初の単語リスト）。読み取りでも、パック・リスト・端末は空です。
 - 同じ `id` の記録の送り直しなど、何も変わらないときは保存しません。
 - 保存後のリスト全体（JSON）が 896KiB を超える変更は `413 workspaceTooLarge` で、何も保存しません。アプリの保存（1MiB まで）に端末などの分を残すためです。すでに超えていても、小さくする変更（削除など）はできます。
 
@@ -454,13 +464,13 @@ go vet ./...
 TYPLE_TEST_DATABASE_URL=postgresql://typle:…@127.0.0.1:5432/typle go test ./...
 ```
 
-DBのテスト（読み取りと書き込み）は、`npm run db:migrate` 済みのテスト用DBを `TYPLE_TEST_DATABASE_URL` で指定したときだけ実行します（ランダムなアカウントIDの行を作って、終わったら消します。本番のDBは指定しないでください）。CIの `verify` は `db:migrate` の後に同じ確認をします。最初の単語リストは `src/plugins/packs` のコピーを `server/internal/workspace/packs` に埋め込んでいます。元を変えたら `go generate ./...` でコピーし直します（違うと `go test` が失敗します）。
+DBのテスト（読み取りと書き込み）は、`npm run db:migrate` 済みのテスト用DBを `TYPLE_TEST_DATABASE_URL` で指定したときだけ実行します（ランダムなアカウントIDの行を作って、終わったら消します。本番のDBは指定しないでください）。CIの `verify` は `db:migrate` の後に同じ確認をします。公式パックの単語リスト（v0.98.0 より前は最初の単語リスト）は `src/plugins/packs` のコピーを `server/internal/workspace/packs` に埋め込んでいます。元を変えたら `go generate ./...` でコピーし直します（違うと `go test` が失敗します）。
 
 ## 範囲外
 
 - GitHub 以外の認証、ブラウザーでのログイン画面、許可するユーザーの制限
 - ローカルの開発用ログインのアカウント（`github:0`）。GitHub のトークンでは名乗れない
 - `id` のない記録の変更・削除、記録の別のリストへの移動、パック・端末の並べ替え、単語単位の追加・削除（リストはパックの中で `listOrder` で並べ替えられる）
-- 公式パックのカタログからの追加、リンクでの共有
+- 公式パックのフォロー（カタログからの追加）、リンクでの共有
 - トークンごとの読み取り・書き込みの区別（書き込みはサーバーの `-writable` で決める）
 - ブラウザー保存のデータ

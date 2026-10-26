@@ -57,6 +57,10 @@ func CopyList(w *Workspace, sourceID string, name *string, id string, now time.T
 	if at < 0 {
 		return nil, missing()
 	}
+	// A list of a followed pack cannot be copied into it.
+	if err := refuseFollowed(w, w.Lists[at].PackID); err != nil {
+		return nil, err
+	}
 	if len(w.Lists) >= MaxLists {
 		return nil, &Error{Key: "listLimit"}
 	}

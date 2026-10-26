@@ -38,6 +38,16 @@ func packMissing() error { return &Error{Key: "packNotFound"} }
 
 func invalidPack() error { return &Error{Key: "invalidPack"} }
 
+// refuseFollowed follows refuseFollowed (src/core/packEditing.ts): a followed official pack is the catalog's to change,
+// so edits to it, or to a list in it, are refused. It can still be deleted (unfollowed) or copied, and its lists' records
+// added, changed and deleted.
+func refuseFollowed(w *Workspace, packID string) error {
+	if pack := findPack(w, packID); pack != nil && pack.Origin != nil && pack.Origin.Followed {
+		return &Error{Key: "packFollowed"}
+	}
+	return nil
+}
+
 func findPack(w *Workspace, id string) *Pack {
 	for i := range w.Packs {
 		if w.Packs[i].ID == id {
@@ -236,6 +246,9 @@ func UpdatePack(w *Workspace, id string, input PackInput) (*Pack, error) {
 	if at < 0 {
 		return nil, packMissing()
 	}
+	if err := refuseFollowed(w, id); err != nil {
+		return nil, err
+	}
 	pack := w.Packs[at]
 	if input.Lists != nil {
 		return nil, invalidPack()
@@ -309,9 +322,10 @@ func DeletePack(w *Workspace, id string) error {
 }
 
 // CopyPack follows copyPack (src/core/packFile.ts): a copy of the pack right after it, with its description, labels and
-// lists (their names, levels and words), but no records, origin or fields Typle does not know. Its lists come after
-// every other list. Without a name, the copy is named as copyName names a copied list: （コピー）, then （コピー2）…
-// among the packs. A name given is checked as CreatePack checks one.
+// lists (their names, levels and words), but no records, origins (of the pack or its lists) or fields Typle does not
+// know, so a copy of a followed pack is the account's own. Its lists come after every other list. Without a name, the
+// copy is named as copyName names a copied list: （コピー）, then （コピー2）… among the packs. A name given is checked
+// as CreatePack checks one.
 func CopyPack(w *Workspace, sourceID string, name *string, packID string, listIDs []string, now time.Time) (*Pack, error) {
 	at := slices.IndexFunc(w.Packs, func(pack Pack) bool { return pack.ID == sourceID })
 	if at < 0 {

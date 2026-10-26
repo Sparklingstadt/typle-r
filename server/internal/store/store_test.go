@@ -97,7 +97,8 @@ func TestReadSavedWorkspace(t *testing.T) {
 	}
 }
 
-func TestReadWithoutRowGivesInitialLists(t *testing.T) {
+// An account that has saved nothing starts empty (since v0.98.0), as in the app.
+func TestReadWithoutRowGivesInitialWorkspace(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	s, err := Open(ctx, connection, false)
@@ -105,12 +106,8 @@ func TestReadWithoutRowGivesInitialLists(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer s.Close()
-	initial, err := workspace.Initial()
-	if err != nil {
-		t.Fatal(err)
-	}
 	w, err := s.Read(ctx, owner(t, conn))
-	if err != nil || len(w.Lists) != len(initial.Lists) || w.Lists[0].ID != first {
+	if err != nil || w.Lists == nil || w.Packs == nil || len(w.Lists) != 0 || len(w.Packs) != 0 {
 		t.Fatalf("workspace = %+v, %v", w, err)
 	}
 }
@@ -181,13 +178,6 @@ func row(t *testing.T, conn *pgx.Conn, id string) (lists string, revision int, u
 	return lists, revision, updated
 }
 
-// The first of the initial lists (src/plugins/packs).
-const first = "8f3cf116-1f9f-4579-a071-e600094b104d"
-
-func deleteList(id string) func(*workspace.Workspace) (bool, error) {
-	return func(w *workspace.Workspace) (bool, error) { return true, workspace.DeleteList(w, id) }
-}
-
 func createList(name string) func(*workspace.Workspace) (bool, error) {
 	return func(w *workspace.Workspace) (bool, error) {
 		_, err := workspace.CreateList(w, workspace.ListInput{Name: &name, Words: []workspace.Word{{Display: "a", Input: "a"}}},
@@ -201,11 +191,7 @@ func TestModifyCreatesRow(t *testing.T) {
 	connection, conn := database(t)
 	id := owner(t, conn)
 	s := open(t, connection, true)
-	initial, err := workspace.Initial()
-	if err != nil {
-		t.Fatal(err)
-	}
-	w, err := s.Modify(ctx, id, deleteList(first))
+	w, err := s.Modify(ctx, id, createList("a"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -213,12 +199,13 @@ func TestModifyCreatesRow(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// The change is made to the empty initial workspace.
 	for _, got := range []*workspace.Workspace{w, read} {
-		if len(got.Lists) != len(initial.Lists)-1 || got.Lists[0].ID != "ef974a4b-3c7a-4eeb-9979-6721a0a1c81a" || got.Find(first) != nil {
+		if len(got.Lists) != 1 || got.Lists[0].Name != "a" || len(got.Packs) != 1 {
 			t.Fatalf("lists = %+v", got.Lists)
 		}
 	}
-	// Inserting the initial lists made revision 1; the change made 2.
+	// Inserting the initial workspace made revision 1; the change made 2.
 	if _, revision, _ := row(t, conn, id); revision != 2 {
 		t.Fatalf("revision = %d", revision)
 	}

@@ -54,6 +54,18 @@ func encodeBoth(t *testing.T, w *Workspace) ([]byte, []byte) {
 	return lists, packs
 }
 
+// normalizedOnly is Decode without following the catalog: the app's normalizeLibrary alone, as the tests that share
+// fixtures with this package read them (the fixtures of tests/fixtures/follow are read with followOfficial).
+func normalizedOnly(t *testing.T, lists, devices, packs []byte) *Workspace {
+	t.Helper()
+	w, err := normalized(lists, devices, packs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	viewLists(w)
+	return w
+}
+
 // The fixtures are shared with tests/wordPacks.test.cjs, so Go reads saved data into the same packs as the app.
 func TestPackFixtures(t *testing.T) {
 	files, err := filepath.Glob(filepath.Join("..", "..", "..", "tests", "fixtures", "packs", "*.json"))
@@ -77,10 +89,7 @@ func TestPackFixtures(t *testing.T) {
 			if string(fixture.Packs) != "null" {
 				packs = fixture.Packs
 			}
-			w, err := Decode(fixture.Lists, []byte("[]"), packs)
-			if err != nil {
-				t.Fatal(err)
-			}
+			w := normalizedOnly(t, fixture.Lists, []byte("[]"), packs)
 			lists, encodedPacks := encodeBoth(t, w)
 			sameJSON(t, "lists", lists, fixture.Expected.Lists)
 			sameJSON(t, "packs", encodedPacks, fixture.Expected.Packs)
@@ -88,11 +97,7 @@ func TestPackFixtures(t *testing.T) {
 				t.Fatalf("CheckPacks: %v", err)
 			}
 			// Reading the result again changes nothing.
-			again, err := Decode(lists, []byte("[]"), encodedPacks)
-			if err != nil {
-				t.Fatal(err)
-			}
-			againLists, againPacks := encodeBoth(t, again)
+			againLists, againPacks := encodeBoth(t, normalizedOnly(t, lists, []byte("[]"), encodedPacks))
 			sameJSON(t, "lists again", againLists, lists)
 			sameJSON(t, "packs again", againPacks, encodedPacks)
 		})

@@ -157,6 +157,9 @@ func refuse(w http.ResponseWriter, r *http.Request, refused *workspace.Error) {
 		status = http.StatusNotFound
 	case refused.Key == "workspaceTooLarge", refused.Key == "importTooLarge":
 		status = http.StatusRequestEntityTooLarge
+	// A followed official pack is in a state that does not take the change: the catalog keeps it.
+	case refused.Key == "packFollowed":
+		status = http.StatusConflict
 	}
 	body := map[string]any{"error": refused.Key}
 	if refused.Line != 0 {

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http/httptest"
 	"regexp"
+	"slices"
 	"strings"
 	"testing"
 
@@ -96,7 +97,7 @@ func TestCreateList(t *testing.T) {
 	}
 	created := strings.ReplaceAll(got, id, "x")
 	created = regexp.MustCompile(`"createdAt":"[^"]+"`).ReplaceAllString(created, `"createdAt":"t"`)
-	if created != `{"list":{"id":"x","name":"動物","packId":"pack-x","category":null,"tags":[],"levels":[],"wordCount":1,"recordCount":0,"createdAt":"t","practiceCount":0,"lastPracticed":null,"currentRecordCount":0,"words":[{"display":"cat","input":"cat","annotation":""}]}}` {
+	if created != `{"list":{"id":"x","name":"動物","packId":"pack-x","category":null,"tags":[],"levels":[],"wordCount":1,"recordCount":0,"createdAt":"t","practiceCount":0,"lastPracticed":null,"currentRecordCount":0,"origin":null,"words":[{"display":"cat","input":"cat","annotation":""}]}}` {
 		t.Fatalf("body = %s", created)
 	}
 	if response.Header().Get("Content-Type") != "application/json; charset=utf-8" || response.Header().Get("Cache-Control") != "no-store" {
@@ -153,7 +154,7 @@ func TestListLabels(t *testing.T) {
 func TestUpdateList(t *testing.T) {
 	w := writable(t)
 	expect(t, send(w, "PATCH", "/api/v1/lists/l1", `{"name":"English"}`), 200, `{"list":{"id":"l1","name":"English","packId":"pack-l1","category":null,"tags":[],"levels":[],"wordCount":2,
-	  "recordCount":3,"createdAt":"2026-10-10T01:23:45.000Z","practiceCount":3,"lastPracticed":"2026-10-03T00:00:00.000Z","currentRecordCount":1,"words":[{"display":"apple","input":"apple","annotation":"りんご"},
+	  "recordCount":3,"createdAt":"2026-10-10T01:23:45.000Z","practiceCount":3,"lastPracticed":"2026-10-03T00:00:00.000Z","currentRecordCount":1,"origin":null,"words":[{"display":"apple","input":"apple","annotation":"りんご"},
 	  {"display":"pear","input":"pear","annotation":""}]}}`)
 }
 
@@ -523,4 +524,70 @@ func TestExportCSV(t *testing.T) {
 		t.Fatalf("HEAD = %d", response.Code)
 	}
 	expect(t, serve(t, "GET", "/api/v1/lists/missing/words.csv"), 404, `{"error":"listNotFound"}`)
+}
+
+// followedWriter has the followed official pack f, kept equal to the catalog when it is read, and the pack q of its own.
+func followedWriter(t *testing.T) (*writer, workspace.OfficialPack) {
+	t.Helper()
+	official, err := workspace.OfficialPacks()
+	if err != nil {
+		t.Fatal(err)
+	}
+	first := official[0]
+	packs := `[{"id":"f","name":"公式","origin":{"catalogId":"` + first.CatalogID + `","version":1,"followed":true},"createdAt":"2026-10-01T00:00:00.000Z"},
+	  {"id":"q","name":"Mine","createdAt":"2026-10-01T00:00:00.000Z"}]`
+	lists := `[{"id":"fl","name":"x","packId":"f","origin":{"listId":"` + first.Lists[0].ID + `"},"createdAt":"2026-10-01T00:00:00.000Z",
+	    "words":[{"display":"a","input":"a","annotation":""}],"records":[]},
+	  {"id":"g","name":"G","packId":"q","createdAt":"2026-10-01T00:00:00.000Z","words":[{"display":"g","input":"g","annotation":""}],"records":[]}]`
+	ws, err := workspace.Decode([]byte(lists), []byte(`[]`), []byte(packs))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return &writer{t: t, workspace: ws}, first
+}
+
+func TestFollowedPacksRefuseEdits(t *testing.T) {
+	w, first := followedWriter(t)
+	before := len(w.workspace.Lists)
+	words := `"words":[{"display":"a","input":"a"}]`
+	for _, request := range [][3]string{
+		{"PATCH", "/api/v1/packs/f", `{"name":"New"}`},
+		{"PATCH", "/api/v1/packs/f", `{"listOrder":["fl"]}`},
+		{"PATCH", "/api/v1/lists/fl", `{"name":"New"}`},
+		{"PATCH", "/api/v1/lists/g", `{"packId":"f"}`},
+		{"DELETE", "/api/v1/lists/fl", ``},
+		{"POST", "/api/v1/lists/fl/copy", ``},
+		{"POST", "/api/v1/lists", `{"name":"New","packId":"f",` + words + `}`},
+	} {
+		expect(t, send(w, request[0], request[1], request[2]), 409, `{"error":"packFollowed"}`)
+	}
+	expect(t, sendAs(w, "Bearer alice", "POST", "/api/v1/lists/import?name=New&format=csv&packId=f", "text/csv", "input,display\na,a\n"),
+		409, `{"error":"packFollowed"}`)
+	if len(w.workspace.Lists) != before || w.workspace.Packs[0].Name != "公式" {
+		t.Fatalf("workspace changed: %+v", w.workspace)
+	}
+	// The pack and its lists show where they come from.
+	got := body(t, send(w, "GET", "/api/v1/packs/f", ""))
+	if !strings.Contains(got, `"origin":{"catalogId":"`+first.CatalogID+`","version":1,"followed":true}`) ||
+		!strings.Contains(got, `"id":"fl","name":"`+first.Lists[0].Name+`"`) || !strings.Contains(got, `"origin":{"listId":"`+first.Lists[0].ID+`"}`) {
+		t.Fatalf("pack = %s", got)
+	}
+	// Records are added to a followed pack's lists.
+	run := `{"id":"r1","time":3,"date":"2026-10-12T00:00:00Z","mistakes":0,"accuracy":100}`
+	if response := send(w, "POST", "/api/v1/lists/fl/records", run); response.Code != 201 {
+		t.Fatalf("%d %s", response.Code, response.Body)
+	}
+	// A copy is a pack of the account's own, without origins.
+	response := send(w, "POST", "/api/v1/packs/f/copy", "")
+	got = body(t, response)
+	if response.Code != 201 || !strings.Contains(got, `"name":"公式（コピー）"`) || strings.Contains(got, `"origin":{`) {
+		t.Fatalf("%d %s", response.Code, got)
+	}
+	// Deleting the pack stops following it.
+	if response := send(w, "DELETE", "/api/v1/packs/f", ""); response.Code != 204 {
+		t.Fatalf("%d %s", response.Code, response.Body)
+	}
+	if slices.ContainsFunc(w.workspace.Packs, func(pack workspace.Pack) bool { return pack.ID == "f" }) {
+		t.Fatalf("packs = %+v", w.workspace.Packs)
+	}
 }

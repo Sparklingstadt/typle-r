@@ -27,7 +27,8 @@ type Share struct {
 }
 
 // PutShare shares the owner's pack packID as it is saved, or copies it again when it is already shared, keeping the
-// link. An account that has saved nothing shares from the initial packs it is shown, and its row is not created.
+// link. An account that has saved nothing shares from the initial workspace it is shown, and its row is not created;
+// since v0.98.0 that workspace is empty, so it has no pack to share.
 //
 // A save that removes the pack at the same moment must delete the link: the row of the workspace is read FOR UPDATE,
 // and, for an account without one, the first save waits for the owner's lock (lockOwner) as this does. The save either

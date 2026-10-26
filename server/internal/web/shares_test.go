@@ -328,16 +328,21 @@ func TestSharedDown(t *testing.T) {
 	}
 }
 
-// With a real database: a pack of the initial workspace is shared, listed, read by anyone without the owner, and
-// unshared.
+// With a real database: a pack of the owner's is shared, listed, read by anyone without the owner, and unshared. The
+// owner starts empty, so the pack is made first.
 func TestSharesRealDatabase(t *testing.T) {
 	s, owner := realStore(t)
 	h := newHarness(t, s, testBase)
-	initial, err := workspace.Initial()
+	name := "動物"
+	saved, err := s.Modify(context.Background(), owner, func(w *workspace.Workspace) (bool, error) {
+		_, err := workspace.CreateList(w, workspace.ListInput{Name: &name, Words: []workspace.Word{{Display: "cat", Input: "cat"}}},
+			workspace.NewID(), time.Now())
+		return true, err
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	packID := initial.Packs[0].ID
+	packID := saved.Packs[0].ID
 	t.Cleanup(func() { _ = s.DeleteShare(context.Background(), owner, packID) })
 
 	expectError(t, h.shareRequest(http.MethodPut, "/api/shares", `{"packId":"nope"}`, owner), http.StatusNotFound, "packNotFound")
@@ -353,7 +358,7 @@ func TestSharesRealDatabase(t *testing.T) {
 		t.Fatalf("list = %s", list.Body)
 	}
 	read := getShared(t, h.handler, http.MethodGet, "/api/shared?id="+share.ID)
-	want, err := workspace.EncodePackFile(initial, packID)
+	want, err := workspace.EncodePackFile(saved, packID)
 	if err != nil {
 		t.Fatal(err)
 	}
