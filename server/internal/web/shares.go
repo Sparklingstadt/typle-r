@@ -20,11 +20,12 @@ const maxShareBodyBytes = 4 << 10
 type shareJSON struct {
 	ID        string `json:"id"`
 	PackID    string `json:"packId"`
+	Name      string `json:"name"`
 	UpdatedAt string `json:"updatedAt"`
 }
 
 func shareOf(share store.Share) shareJSON {
-	return shareJSON{share.ID, share.PackID, share.UpdatedAt.UTC().Format("2006-01-02T15:04:05.000Z07:00")}
+	return shareJSON{share.ID, share.PackID, share.Name, share.UpdatedAt.UTC().Format("2006-01-02T15:04:05.000Z07:00")}
 }
 
 // Shared serves /api/shared from the database alone, for a backend that has no login settings to build New with: a
@@ -151,6 +152,8 @@ func readPackID(r *http.Request) (string, bool) {
 // the same for every reader and needs no cookie, but it is not kept, so that a link that is stopped is gone at once.
 // HEAD is served as GET; net/http leaves the body out.
 func (s *server) shared(w http.ResponseWriter, r *http.Request) {
+	// A shared pack is for people with the link, not for search engines; every answer says so, errors included.
+	w.Header().Set("X-Robots-Tag", "noindex")
 	if !methods(w, r, http.MethodGet, http.MethodHead) {
 		return
 	}

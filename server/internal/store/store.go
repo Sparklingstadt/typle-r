@@ -268,7 +268,8 @@ func (s *Store) ReadRevision(ctx context.Context, owner string) (*Saved, error) 
 //
 // What is saved is not read back through Decode: only the saved revision and number of lists are read, a part left
 // out is kept by the UPDATE itself, and the result is the row's JSON as stored. When packs are saved, the links to packs
-// no longer among them are deleted in the same transaction; lists saved without packs leave the links as they are.
+// no longer among them are deleted in the same transaction. So are those of lists saved without packs, against the packs
+// the row then has (derived from the lists when it has none); devices alone leave the links as they are.
 func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, change Change) (*Saved, error) {
 	// nil is a part left out: NULL in the queries below.
 	var lists, packs, devices []byte
@@ -307,8 +308,16 @@ func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, c
 		if saved, err = writeRevision(ctx, tx, owner, revision, change, lists, packs, devices); err != nil {
 			return err
 		}
-		if change.HasPacks {
+		switch {
+		case change.HasPacks:
 			return deleteRemovedShares(ctx, tx, owner, change.Packs)
+		case change.HasLists:
+			// Lists without packs: the packs are the saved ones, or those derived from the saved lists.
+			w, err := workspace.Decode(saved.Lists, saved.Devices, saved.Packs)
+			if err != nil {
+				return fmt.Errorf("saved workspace of %s: %w", owner, err)
+			}
+			return deleteRemovedShares(ctx, tx, owner, w.Packs)
 		}
 		return nil
 	})

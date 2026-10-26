@@ -139,16 +139,26 @@ func TestSharesPutInvalid(t *testing.T) {
 }
 
 func TestSharesPut(t *testing.T) {
-	fake := &fakeShares{put: &store.Share{ID: "0b6f2c1e-3d4a-4f5b-8c9d-0e1f2a3b4c5d", PackID: "pk", UpdatedAt: sharedAt}}
+	fake := &fakeShares{put: &store.Share{ID: "0b6f2c1e-3d4a-4f5b-8c9d-0e1f2a3b4c5d", PackID: "pk", Name: "Pack K", UpdatedAt: sharedAt}}
 	h := newHarness(t, fake, testBase)
 	response := h.shareRequest(http.MethodPut, "/api/shares", `{"packId":"pk"}`, testOwner)
-	want := `{"id":"0b6f2c1e-3d4a-4f5b-8c9d-0e1f2a3b4c5d","packId":"pk","updatedAt":"2026-10-26T09:30:15.123Z"}`
+	want := `{"id":"0b6f2c1e-3d4a-4f5b-8c9d-0e1f2a3b4c5d","packId":"pk","name":"Pack K","updatedAt":"2026-10-26T09:30:15.123Z"}`
 	if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != want {
 		t.Fatalf("response = %d %s; want %s", response.Code, response.Body, want)
 	}
 	expectPrivate(t, response)
 	if fake.owner != testOwner || fake.packID != "pk" {
 		t.Fatalf("store got %s %s", fake.owner, fake.packID)
+	}
+}
+
+func TestDeleteShareWrongOrigin(t *testing.T) {
+	fake := &fakeShares{}
+	h := newHarness(t, fake, testBase)
+	other := func(r *http.Request) { r.Header.Set("Origin", "https://evil.example") }
+	expectError(t, h.shareRequest(http.MethodDelete, "/api/shares?pack=p", "", testOwner, other), http.StatusForbidden, "forbiddenRequest")
+	if len(fake.calls) != 0 {
+		t.Fatalf("calls = %v", fake.calls)
 	}
 }
 
@@ -199,12 +209,12 @@ func TestSharesList(t *testing.T) {
 	expectPrivate(t, response)
 
 	fake.shares = []store.Share{
-		{ID: "b", PackID: "two", UpdatedAt: sharedAt},
-		{ID: "a", PackID: "one", UpdatedAt: sharedAt.Add(-time.Hour)},
+		{ID: "b", PackID: "two", Name: "Two", UpdatedAt: sharedAt},
+		{ID: "a", PackID: "one", Name: "One", UpdatedAt: sharedAt.Add(-time.Hour)},
 	}
 	response = h.shareRequest(http.MethodGet, "/api/shares", "", testOwner)
-	want := `{"shares":[{"id":"b","packId":"two","updatedAt":"2026-10-26T09:30:15.123Z"},` +
-		`{"id":"a","packId":"one","updatedAt":"2026-10-26T08:30:15.123Z"}]}`
+	want := `{"shares":[{"id":"b","packId":"two","name":"Two","updatedAt":"2026-10-26T09:30:15.123Z"},` +
+		`{"id":"a","packId":"one","name":"One","updatedAt":"2026-10-26T08:30:15.123Z"}]}`
 	if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != want || fake.owner != testOwner {
 		t.Fatalf("response = %d %s (owner %s)", response.Code, response.Body, fake.owner)
 	}
@@ -239,7 +249,11 @@ func TestSharedNotFound(t *testing.T) {
 	fake := &fakeShares{}
 	h := newHarness(t, fake, testBase)
 	for _, target := range []string{"/api/shared", "/api/shared?id=", "/api/shared?id=nope", "/api/shared?id=" + aSharedID} {
-		expectError(t, getShared(t, h.handler, http.MethodGet, target), http.StatusNotFound, "sharedPackNotFound")
+		response := getShared(t, h.handler, http.MethodGet, target)
+		expectError(t, response, http.StatusNotFound, "sharedPackNotFound")
+		if response.Header().Get("X-Robots-Tag") != "noindex" {
+			t.Fatalf("%s: X-Robots-Tag = %q", target, response.Header().Get("X-Robots-Tag"))
+		}
 	}
 	// The store tells what is not a link (an id that is not a UUID included); the handler passes the id as it came.
 	if fake.sharedID != aSharedID {
@@ -264,6 +278,9 @@ func TestShared(t *testing.T) {
 			t.Fatalf("%s: headers = %v", name, header)
 		}
 		checkSecurityHeaders(t, name, header)
+		if header.Get("X-Robots-Tag") != "noindex" {
+			t.Fatalf("%s: X-Robots-Tag = %q", name, header.Get("X-Robots-Tag"))
+		}
 		if strings.Contains(response.Body.String(), "owner") {
 			t.Fatalf("%s: body has the owner: %s", name, response.Body)
 		}
