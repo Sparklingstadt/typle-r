@@ -51,15 +51,14 @@ test('the lists of a group are one row that opens to show each of them', async (
   await toggle.click()
   await expect(group.getByRole('list', { name: 'Shell のリスト' }).locator('li[data-list-id] h3')).toHaveText(['Shell：基本・初級', 'Shell：基本・上級', 'Shell：オプション・初級', 'Shell：オプション・上級'])
 
-  // A list of the group is edited as before, and keeps its group and levels.
+  // A list of the group is edited as before, and keeps its group; its two levels were joined into one when read.
   await group.getByRole('button', { name: 'Shell：基本・上級 を編集' }).click()
   await expect(page.getByRole('combobox', { name: 'パック', exact: true })).toHaveValue('pack-basic-1')
-  await expect(page.getByRole('textbox', { name: '難易度 1', exact: true })).toHaveValue('基本')
-  await expect(page.getByRole('textbox', { name: '難易度 2', exact: true })).toHaveValue('上級')
+  await expect(page.getByRole('textbox', { name: '難易度（任意）', exact: true })).toHaveValue('基本・上級')
   await page.getByRole('textbox', { name: '表示する単語 1', exact: true }).fill('find .')
   await page.getByRole('button', { name: '保存', exact: true }).click()
   await expect(page.getByText('「Shell：基本・上級」を更新しました。')).toBeVisible()
-  expect((await saved(page)).find((list: { id: string }) => list.id === 'basic-2')).toMatchObject({ group: 'Shell', levels: ['基本', '上級'], words: [{ display: 'find .' }] })
+  expect((await saved(page)).find((list: { id: string }) => list.id === 'basic-2')).toMatchObject({ group: 'Shell', levels: ['基本・上級'], words: [{ display: 'find .' }] })
   await expect(toggle).toHaveAttribute('aria-expanded', 'true')
 
   await toggle.click()
@@ -69,7 +68,7 @@ test('the lists of a group are one row that opens to show each of them', async (
   expect(errors).toEqual([])
 })
 
-test('a group is one choice on the practice screen, and its levels are chosen one after another', async ({ page }) => {
+test('a group is one choice on the practice screen, and its lists are chosen by their joined levels', async ({ page }) => {
   await seed(page)
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/play?list=plain')
@@ -79,21 +78,18 @@ test('a group is one choice on the practice screen, and its levels are chosen on
   await expect(shell).toContainText('4リスト · 難易度を選ぶ')
   await shell.click()
   const levels = aside.getByRole('group', { name: 'Shell の難易度' })
-  await expect(levels.getByRole('button')).toHaveText(['基本', 'オプション'])
-  await levels.getByRole('button', { name: 'オプション' }).click()
-  await expect(levels.getByRole('button', { name: 'オプション' })).toHaveAttribute('aria-pressed', 'true')
-  await expect(levels.getByRole('group', { name: '難易度の2段目' }).getByRole('button')).toHaveText(['初級', '上級'])
-  await levels.getByRole('button', { name: '上級' }).click()
+  // Levels saved in two steps by an older app were joined into one, so each list is one choice.
+  await expect(levels.getByRole('button')).toHaveText(['基本・初級', '基本・上級', 'オプション・初級', 'オプション・上級'])
+  await levels.getByRole('button', { name: 'オプション・上級' }).click()
   await expect(page.locator('#wordDisplay')).toHaveText('tar -xzf')
   await expect(page.getByRole('button', { name: '単語リストを切り替える（現在: Shell › オプション・上級）' })).toBeVisible()
   // The group of the list being practised stays open at its levels.
   await expect(aside.getByRole('button', { name: /^Shell/ })).toContainText('オプション・上級 · 1語 · 記録なし')
-  await expect(levels.getByRole('button', { name: '上級' })).toHaveAttribute('aria-pressed', 'true')
+  await expect(levels.getByRole('button', { name: 'オプション・上級' })).toHaveAttribute('aria-pressed', 'true')
 
   await page.getByRole('button', { name: '単語リストを切り替える（現在: Shell › オプション・上級）' }).click()
   const dialog = page.getByRole('dialog', { name: '単語リストを選ぶ' })
-  await dialog.getByRole('button', { name: '基本', exact: true }).click()
-  await dialog.getByRole('button', { name: '初級', exact: true }).click()
+  await dialog.getByRole('button', { name: '基本・初級', exact: true }).click()
   await expect(dialog).toBeHidden()
   await expect(page.locator('#wordDisplay')).toHaveText('ls')
 })

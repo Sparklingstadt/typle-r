@@ -352,34 +352,25 @@ test('moving a list to a pack that has a list of that name is refused on the nam
   expect(workspace.lists.find((item: { id: string }) => item.id === 'adv')).toMatchObject({ name: '基本', packId: 'plain-pack' })
 })
 
-test('levels are entered, limited to five, and make the lists of a pack a stepwise choice on the practice screen', async ({ page }) => {
+test('one level is entered in one input, and chooses the list of a pack on the practice screen', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/edit?list=basic')
-  const level = (n: number) => page.getByRole('textbox', { name: `難易度 ${n}`, exact: true })
-  await page.getByRole('button', { name: '難易度を追加' }).click()
-  await level(1).fill('基本')
-  await page.getByRole('button', { name: '難易度を追加' }).click()
-  await level(2).fill('初級')
-  for (let n = 3; n <= 5; n++) await page.getByRole('button', { name: '難易度を追加' }).click()
-  await expect(page.getByRole('button', { name: '難易度を追加' })).toBeDisabled()
-  await page.getByRole('button', { name: '難易度 5 を削除' }).click()
-  await expect(level(4)).toBeFocused()
-  await page.getByRole('button', { name: '難易度 3 を削除' }).click()
-  // The level that took the removed one's place is focused.
-  await expect(level(3)).toBeFocused()
-  await page.getByRole('button', { name: '難易度 3 を削除' }).click()
-  await expect(page.getByRole('textbox', { name: /^難易度 \d$/ })).toHaveCount(2)
+  const level = page.getByRole('textbox', { name: '難易度（任意）', exact: true })
+  // A list has one level at most: one input, with no buttons to add or remove levels.
+  await expect(page.getByRole('textbox', { name: /^難易度/ })).toHaveCount(1)
+  await expect(page.getByRole('button', { name: /難易度/ })).toHaveCount(0)
+  await expect(level).toHaveAccessibleDescription('練習画面で、パックの中のリストを選ぶのに使います。例：初級')
+  await level.fill(' 初級 ')
   await saveButton(page).click()
   await expect(page.getByText('「基本」を更新しました。')).toBeVisible()
-  expect((await saved(page)).lists.find((item: { id: string }) => item.id === 'basic').levels).toEqual(['基本', '初級'])
+  expect((await saved(page)).lists.find((item: { id: string }) => item.id === 'basic').levels).toEqual(['初級'])
 
   await page.goto('/play?list=plain')
   const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
   await aside.getByRole('button', { name: /^Shell/ }).click()
   const levels = aside.getByRole('group', { name: 'Shell の難易度' })
-  await levels.getByRole('button', { name: '基本' }).click()
-  await levels.getByRole('button', { name: '初級' }).click()
-  await expect(aside.getByRole('button', { name: /^Shell/ })).toContainText('基本・初級 · 2語')
+  await levels.getByRole('button', { name: '初級', exact: true }).click()
+  await expect(aside.getByRole('button', { name: /^Shell/ })).toContainText('初級 · 2語')
   await expect(page.locator('#wordDisplay')).toHaveText('ls')
 })
 
@@ -397,14 +388,22 @@ test('editing a list leaves the category and tags of its pack as they are', asyn
   expect('category' in adv || 'tags' in adv || 'group' in adv).toBe(false)
 })
 
-test('removing the only level focuses the button that adds one', async ({ page }) => {
+test('a level is shown in its input when the list is edited again, and clearing it saves the list without one', async ({ page }) => {
   await page.goto('/edit?list=adv')
-  await page.getByRole('button', { name: '難易度を追加' }).click()
-  await page.getByRole('button', { name: '難易度 1 を削除' }).click()
-  await expect(page.getByRole('button', { name: '難易度を追加' })).toBeFocused()
+  const level = page.getByRole('textbox', { name: '難易度（任意）', exact: true })
+  await level.fill('中級')
+  await saveButton(page).click()
+  await expect(page.getByText('「応用」を更新しました。')).toBeVisible()
+  await page.goto('/edit?list=adv')
+  await expect(level).toHaveValue('中級')
+  await level.fill('')
+  await saveButton(page).click()
+  await expect(page.getByText('「応用」を更新しました。')).toBeVisible()
+  expect((await saved(page)).lists.find((item: { id: string }) => item.id === 'adv')).not.toHaveProperty('levels')
 })
 
-// A pack with two lists that have levels and one that has not, and a pack of one list.
+// A pack with two lists that have levels and one that has not, and a pack of one list. The two levels of each list were
+// saved by an app before v0.97.0, and are joined into one when read.
 function levelsWorkspace() {
   return {
     version: 1, accountId: 'guest:local', revision: 1, devices: [],
@@ -433,7 +432,7 @@ test('the practice screen offers a choice for each pack, and a pack of one list 
   await expect(page.locator('#wordDisplay')).toHaveText('one')
 })
 
-test('a pack opens to its lists with levels first and then the lists without, and levels choose the list', async ({ page }) => {
+test('a pack opens to its lists with levels first and then the lists without, and a level chooses the list', async ({ page }) => {
   await seedLevels(page)
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/play?list=single-list')
@@ -441,10 +440,9 @@ test('a pack opens to its lists with levels first and then the lists without, an
   const study = aside.locator('li[data-pack-id="study"]')
   await study.getByRole('button', { expanded: false }).click()
   // A pack of lists with and without levels names its first step neutrally.
-  await expect(study.getByRole('group', { name: '1段目', exact: true }).getByRole('button')).toHaveText(['基本', '応用'])
+  await expect(study.getByRole('group', { name: '1段目', exact: true }).getByRole('button')).toHaveText(['基本・初級', '基本・上級', '応用'])
   await expect(study.getByRole('group', { name: 'Study の難易度' })).toBeVisible()
-  await study.getByRole('button', { name: '基本', exact: true }).click()
-  await study.getByRole('button', { name: '初級', exact: true }).click()
+  await study.getByRole('button', { name: '基本・初級', exact: true }).click()
   await expect(page.getByRole('button', { name: '単語リストを切り替える（現在: Study › 基本・初級）' })).toBeVisible()
   await expect(page.locator('#wordDisplay')).toHaveText('one')
 })
@@ -471,12 +469,11 @@ test('keeping on practising after choosing a list of another pack leaves none of
   const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
   const study = aside.locator('li[data-pack-id="study"]')
   await study.getByRole('button', { expanded: false }).click()
-  await study.getByRole('button', { name: '基本', exact: true }).click()
-  await study.getByRole('button', { name: '初級', exact: true }).click()
+  await study.getByRole('button', { name: '基本・初級', exact: true }).click()
   await expect(page.getByRole('alertdialog')).toContainText('「単独リスト」の進捗（0 / 2 語）は記録されません。「Study › 基本・初級」に切り替えます。')
   await page.getByRole('button', { name: '練習を続ける' }).click()
   await expect(study.locator('[aria-pressed="true"]')).toHaveCount(0)
-  await expect(study.getByRole('button', { name: '基本', exact: true })).toBeVisible()
+  await expect(study.getByRole('button', { name: '基本・初級', exact: true })).toBeVisible()
   await expect(page.locator('#wordDisplay')).toHaveText('solo')
 })
 
@@ -554,53 +551,24 @@ test('a search that finds a list of a pack opens the pack and marks that list', 
   await expect(pack.getByRole('button', { name: '応用', exact: true })).toHaveAccessibleDescription('検索に一致')
 })
 
-test('levels that would hide another list of the pack are refused under the levels', async ({ page }) => {
+test('a level that would hide another list of the pack is refused under the level', async ({ page }) => {
+  const message = '同じパックに、同じ難易度のリストがあります'
   await page.goto('/edit?list=adv')
-  await page.getByRole('button', { name: '難易度を追加' }).click()
-  await page.getByRole('textbox', { name: '難易度 1', exact: true }).fill('基本')
+  const level = page.getByRole('textbox', { name: '難易度（任意）', exact: true })
+  // basic has no level, so its name is what the practice screen picks it by.
+  await level.fill('基本')
   await saveButton(page).click()
-  await expect(page.getByText('同じパックに、同じ難易度か、その途中までが同じ難易度のリストがあります')).toBeVisible()
+  await expect(page.getByRole('alert').filter({ hasText: message })).toHaveCount(1)
+  await expect(level).toHaveAttribute('aria-invalid', 'true')
+  await expect(level).toHaveAccessibleDescription(new RegExp(message))
   expect((await saved(page)).lists.find((item: { id: string }) => item.id === 'adv').levels).toBeUndefined()
-  // Changing the levels lets the message go, and levels that part from the other list's are saved.
-  await page.getByRole('textbox', { name: '難易度 1', exact: true }).fill('応用')
-  await expect(page.getByText('同じパックに、同じ難易度か、その途中までが同じ難易度のリストがあります')).toHaveCount(0)
-  await saveButton(page).click()
-  await expect(page.getByText('「応用」を更新しました。')).toBeVisible()
-})
-
-test('a level entered twice in one list is marked while typing, and refused under the levels when saving', async ({ page }) => {
-  const message = '同じ難易度が2回入っています。別の難易度にしてください。'
-  await page.goto('/edit?list=adv')
-  const level = (n: number) => page.getByRole('textbox', { name: `難易度 ${n}`, exact: true })
-  const alerts = page.getByRole('alert').filter({ hasText: message })
-  await page.getByRole('button', { name: '難易度を追加' }).click()
-  await level(1).fill('中級1')
-  await page.getByRole('button', { name: '難易度を追加' }).click()
-  await level(2).fill(' 中級1 ')
-  // The repeat is marked on the later input, which names the one message under the levels.
-  await expect(level(2)).toHaveAttribute('aria-invalid', 'true')
-  await expect(level(1)).not.toHaveAttribute('aria-invalid', 'true')
-  await expect(alerts).toHaveCount(1)
-  await expect(level(2)).toHaveAccessibleDescription(new RegExp(message))
-  // A third repeat is marked too, and still has one message.
-  await page.getByRole('button', { name: '難易度を追加' }).click()
-  await level(3).fill('中級1')
-  await expect(level(3)).toHaveAttribute('aria-invalid', 'true')
-  await expect(alerts).toHaveCount(1)
-  await page.getByRole('button', { name: '難易度 3 を削除' }).click()
-  await saveButton(page).click()
-  // The save is refused with the message under the levels, and nothing is saved.
-  await expect(alerts).toHaveCount(1)
-  await expect(level(2)).toHaveAccessibleDescription(new RegExp(message))
-  await expect(page.getByText('「応用」を更新しました。')).toHaveCount(0)
-  expect((await saved(page)).lists.find((item: { id: string }) => item.id === 'adv').levels).toBeUndefined()
-  // Changing one of them lets the message go, and the levels are saved.
-  await level(2).fill('中級2')
+  // Changing the level lets the message go, and a level no other list has is saved.
+  await level.fill('応用')
   await expect(page.getByText(message)).toHaveCount(0)
-  await expect(level(2)).not.toHaveAttribute('aria-invalid', 'true')
+  await expect(level).not.toHaveAttribute('aria-invalid', 'true')
   await saveButton(page).click()
   await expect(page.getByText('「応用」を更新しました。')).toBeVisible()
-  expect((await saved(page)).lists.find((item: { id: string }) => item.id === 'adv').levels).toEqual(['中級1', '中級2'])
+  expect((await saved(page)).lists.find((item: { id: string }) => item.id === 'adv').levels).toEqual(['応用'])
 })
 
 // The best-records screen groups the lists by pack and totals each pack's records.
