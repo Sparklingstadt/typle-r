@@ -516,7 +516,7 @@ func insertLists(t *testing.T, conn *pgx.Conn, id string, n int) {
 // decoded reads a saved workspace, as the app does with the answer of /api/workspace.
 func decoded(t *testing.T, saved *Saved) *workspace.Workspace {
 	t.Helper()
-	w, err := workspace.Decode(saved.Lists, saved.Devices)
+	w, err := workspace.Decode(saved.Lists, saved.Devices, nil)
 	if err != nil {
 		t.Fatalf("saved %s %s: %v", saved.Lists, saved.Devices, err)
 	}

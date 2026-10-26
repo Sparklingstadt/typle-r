@@ -112,7 +112,7 @@ func decodeFields(fields map[string]json.RawMessage) (revision int, change store
 		devices = json.RawMessage("[]")
 	}
 	// The limits of the lists and the number of them are checked by the store, before it touches the database.
-	decoded, err := workspace.Decode(lists, devices)
+	decoded, err := workspace.Decode(lists, devices, nil)
 	if err != nil {
 		return 0, store.Change{}, err
 	}

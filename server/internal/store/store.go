@@ -102,7 +102,7 @@ func (s *Store) Read(ctx context.Context, owner string) (*workspace.Workspace, e
 	if err != nil {
 		return nil, err
 	}
-	w, err := workspace.Decode(lists, devices)
+	w, err := workspace.Decode(lists, devices, nil)
 	if err != nil {
 		return nil, fmt.Errorf("saved workspace of %s: %w", owner, err)
 	}
@@ -144,7 +144,7 @@ func (s *Store) Modify(ctx context.Context, owner string, change func(*workspace
 			return err
 		}
 		// A workspace that would not be read back is never saved: the account would no longer load, here or in the app.
-		if _, err := workspace.Decode(after, devices); err != nil {
+		if _, err := workspace.Decode(after, devices, nil); err != nil {
 			return fmt.Errorf("changed workspace of %s: %w", owner, err)
 		}
 		_, err = tx.Exec(ctx, `UPDATE typle_workspaces SET lists = $2::jsonb, devices = $3::jsonb, revision = revision + 1,
@@ -165,7 +165,7 @@ func lock(ctx context.Context, tx pgx.Tx, owner string) (*workspace.Workspace, e
 		err := tx.QueryRow(ctx, `SELECT lists::text, devices::text FROM typle_workspaces WHERE owner_id = $1 FOR UPDATE`, owner).
 			Scan(&lists, &devices)
 		if err == nil {
-			w, err := workspace.Decode(lists, devices)
+			w, err := workspace.Decode(lists, devices, nil)
 			if err != nil {
 				return nil, fmt.Errorf("saved workspace of %s: %w", owner, err)
 			}
@@ -218,7 +218,7 @@ func (s *Store) ReadRevision(ctx context.Context, owner string) (*Saved, error) 
 	if err != nil {
 		return nil, err
 	}
-	if _, err := workspace.Decode(saved.Lists, saved.Devices); err != nil {
+	if _, err := workspace.Decode(saved.Lists, saved.Devices, nil); err != nil {
 		return nil, fmt.Errorf("saved workspace of %s: %w", owner, err)
 	}
 	return saved, nil
@@ -254,7 +254,7 @@ func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, c
 		}
 	}
 	// A part left out is saved as it is, so only the other one can be refused; it is read with an empty one.
-	if _, err := workspace.Decode(orEmpty(lists), orEmpty(devices)); err != nil {
+	if _, err := workspace.Decode(orEmpty(lists), orEmpty(devices), nil); err != nil {
 		return nil, fmt.Errorf("changed workspace of %s: %w", owner, err)
 	}
 	if revision == 0 {

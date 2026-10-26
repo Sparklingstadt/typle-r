@@ -11,7 +11,7 @@ import (
 )
 
 func TestEncodeRoundTrip(t *testing.T) {
-	w, err := Decode([]byte(lists), []byte(devices))
+	w, err := Decode([]byte(lists), []byte(devices), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -19,7 +19,7 @@ func TestEncodeRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	again, err := Decode(encoded, []byte(devices))
+	again, err := Decode(encoded, []byte(devices), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -40,7 +40,7 @@ func TestEncodeRoundTrip(t *testing.T) {
 func TestEncodeDropsNulls(t *testing.T) {
 	w, err := Decode([]byte(`[{ "id": "l1", "name": "a", "createdAt": "x", "words": [{ "display": "a", "input": "a", "annotation": "" }],
 		"records": [{ "id": null, "time": 1, "date": "2026-10-10T00:00:00.000Z", "mistakes": null, "accuracy": null, "wordCount": null, "device": null }] }]`),
-		[]byte(`[]`))
+		[]byte(`[]`), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -96,7 +96,7 @@ func TestEncodeKeepsUnknownFields(t *testing.T) {
 		"words": [{ "display": "a", "input": "a", "annotation": "", "reading": "エー" }],
 		"records": [{ "time": 1, "date": "2026-10-10T00:00:00.000Z", "keys": [1, 2],
 			"device": { "id": "d1", "name": "自宅", "layout": "JIS", "model": "HHKB" } }] }]`
-	w, err := Decode([]byte(stored), []byte(`[]`))
+	w, err := Decode([]byte(stored), []byte(`[]`), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -112,7 +112,7 @@ func TestEncodeKeepsUnknownFields(t *testing.T) {
 	if strings.Contains(string(encoded), "share") {
 		t.Errorf("encoded = %s", encoded)
 	}
-	again, err := Decode(encoded, []byte(`[]`))
+	again, err := Decode(encoded, []byte(`[]`), nil)
 	if err != nil || !reflect.DeepEqual(again.Lists, w.Lists) {
 		t.Fatalf("again = %+v, %v", again, err)
 	}

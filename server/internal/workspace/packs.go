@@ -18,8 +18,8 @@ var (
 	commandsJSON []byte
 )
 
-// Initial is the workspace before anything is saved: the lists of initialLists in src/plugins/packs/index.ts and no
-// registered devices.
+// Initial is the workspace before anything is saved: the lists of initialLists in src/plugins/packs/index.ts, in the
+// packs of initialLibrary (turned into packs as lists saved before packs existed are), and no registered devices.
 func Initial() (*Workspace, error) {
 	var samples []*rawList
 	var countries []*rawList
@@ -42,5 +42,8 @@ func Initial() (*Workspace, error) {
 	if err != nil {
 		return nil, fmt.Errorf("initial lists: %w", err)
 	}
-	return &Workspace{Lists: lists, Devices: []Device{}}, nil
+	w := &Workspace{Devices: []Device{}}
+	w.Packs, w.Lists = convertLibrary(lists)
+	viewLists(w)
+	return w, nil
 }

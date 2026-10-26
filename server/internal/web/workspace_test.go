@@ -452,7 +452,7 @@ func TestPutAnswersAndPassesOn(t *testing.T) {
 	h := newHarness(t, fake, testBase)
 	device := `{"id":"mac","name":"MacBook","layout":"JIS"}`
 	response := h.put(testOwner, payload(testOwner, `"revision":3,"lists":[`+strings.Replace(oneList, `"records":[]`, `"records":[],"shared":true,"shareId":"x","keep":1`, 1)+`],"devices":[`+device+`]`))
-	want := `{"lists":[{"id":"one","name":"One","createdAt":"2026-09-06","words":[{"display":"a","input":"a","annotation":""}],"records":[],"keep":1}],` +
+	want := `{"lists":[{"id":"one","name":"One","packId":"pack-one","createdAt":"2026-09-06","words":[{"display":"a","input":"a","annotation":""}],"records":[],"keep":1}],` +
 		`"devices":[` + device + `],"revision":4,"accountId":"` + testOwner + `"}`
 	if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != want {
 		t.Fatalf("response = %d %s; want %s", response.Code, response.Body, want)

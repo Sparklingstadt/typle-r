@@ -62,7 +62,7 @@ func (verifier) Owner(_ context.Context, token string) (string, error) {
 
 func saved(t *testing.T) *source {
 	t.Helper()
-	w, err := workspace.Decode([]byte(savedLists), []byte(savedDevices))
+	w, err := workspace.Decode([]byte(savedLists), []byte(savedDevices), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -262,7 +262,7 @@ func TestRecordsFeed(t *testing.T) {
 // The day follows tz: 20:00 UTC on 10 October is 11 October in Tokyo.
 func TestRecordsFeedDay(t *testing.T) {
 	w, err := workspace.Decode([]byte(`[{"id":"l","name":"a","createdAt":"x","words":[{"display":"a","input":"a","annotation":""}],
-	  "records":[{"time":1,"date":"2026-10-10T20:00:00.000Z"}]}]`), []byte(`[]`))
+	  "records":[{"time":1,"date":"2026-10-10T20:00:00.000Z"}]}]`), []byte(`[]`), nil)
 	if err != nil {
 		t.Fatal(err)
 	}

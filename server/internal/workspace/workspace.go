@@ -1,7 +1,7 @@
-// Package workspace reads a Typle workspace: the lists and devices of an account, as the app saves them in the
-// typle_workspaces table. The checks follow decodeLists (src/core/wordLists.ts) and decodeDevices
-// (src/core/devices.ts), so data the app would read is read here and data it would refuse is refused. The one
-// difference is that null in an optional field reads as the field left out.
+// Package workspace reads a Typle workspace: the lists, word packs and devices of an account, as the app saves them in
+// the typle_workspaces table. The checks follow decodeLists (src/core/wordLists.ts), decodePacks
+// (src/core/wordPacks.ts) and decodeDevices (src/core/devices.ts), so data the app would read is read here and data it
+// would refuse is refused. The one difference is that null in an optional field reads as the field left out.
 package workspace
 
 import (
@@ -55,7 +55,12 @@ type Record struct {
 type List struct {
 	ID   string
 	Name string
-	// Category and Tags are "" and nil when the list has none, which is how they are stored: left out.
+	// PackID is the word pack the list belongs to. Every list Decode returns has one.
+	PackID string
+	// Group is the group of a list saved before packs existed. It is read to make the packs and never written.
+	Group string
+	// Category and Tags are those of the list's pack, as the app's viewLists shows them: "" and nil when it has none.
+	// They are not stored with the list; ApplyListChange puts a change to them back into the pack.
 	Category  string
 	Tags      []string
 	Words     []Word
@@ -66,6 +71,7 @@ type List struct {
 
 type Workspace struct {
 	Lists   []List
+	Packs   []Pack
 	Devices []Device
 }
 
@@ -104,14 +110,17 @@ type rawList struct {
 	Name      *string      `json:"name"`
 	Category  *string      `json:"category"`
 	Tags      []*string    `json:"tags"`
+	Group     *string      `json:"group"`
+	PackID    *string      `json:"packId"`
 	CreatedAt *string      `json:"createdAt"`
 	Words     []*rawWord   `json:"words"`
 	Records   []*rawRecord `json:"records"`
 	extra     string
 }
 
-// Decode reads a saved row: its lists and devices columns.
-func Decode(lists, devices []byte) (*Workspace, error) {
+// Decode reads a saved row: its lists, devices and packs columns. packs is nil (NULL) for lists saved before packs
+// existed, which are turned into packs as the app's normalizeLibrary does; saved packs are repaired as it does.
+func Decode(lists, devices, packs []byte) (*Workspace, error) {
 	var rawLists []*rawList
 	if err := json.Unmarshal(lists, &rawLists); err != nil {
 		return nil, fmt.Errorf("lists are not valid: %w", err)
@@ -131,7 +140,16 @@ func Decode(lists, devices []byte) (*Workspace, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Workspace{Lists: decoded, Devices: registered}, nil
+	var saved []Pack
+	if packs != nil {
+		if saved, err = decodePacks(packs); err != nil {
+			return nil, err
+		}
+	}
+	w := &Workspace{Devices: registered}
+	w.Packs, w.Lists = normalizeLibrary(decoded, saved, packs == nil)
+	viewLists(w)
+	return w, nil
 }
 
 func decodeLists(raw []*rawList) ([]List, error) {
@@ -192,8 +210,15 @@ func decodeList(raw *rawList) (List, error) {
 		}
 		records = append(records, record)
 	}
-	return List{ID: *raw.ID, Name: *raw.Name, Category: category, Tags: tags, Words: words, Records: records, CreatedAt: *raw.CreatedAt,
-		Extra: raw.extra}, nil
+	var group, packID string
+	if raw.Group != nil {
+		group = *raw.Group
+	}
+	if raw.PackID != nil {
+		packID = *raw.PackID
+	}
+	return List{ID: *raw.ID, Name: *raw.Name, PackID: packID, Group: group, Category: category, Tags: tags, Words: words, Records: records,
+		CreatedAt: *raw.CreatedAt, Extra: raw.extra}, nil
 }
 
 func decodeRecord(raw *rawRecord) (Record, error) {
@@ -278,7 +303,8 @@ func (r *rawRecord) UnmarshalJSON(data []byte) (err error) {
 func (r *rawList) UnmarshalJSON(data []byte) (err error) {
 	type plain rawList
 	if err = json.Unmarshal(data, (*plain)(r)); err == nil {
-		r.extra, err = unknown(data, "id", "name", "category", "tags", "createdAt", "words", "records", "shared", "shareId")
+		r.extra, err = unknown(data, "id", "name", "category", "tags", "group", "packId", "createdAt", "words", "records", "shared",
+			"shareId")
 	}
 	return err
 }

@@ -35,11 +35,11 @@ type Error struct {
 func (e *Error) Error() string { return e.Key }
 
 // The stored shape of a list. Words and records always have their arrays; a record leaves out what it does not have.
+// The category and tags belong to the list's pack, so they are not written here (see EncodePacks).
 type storedList struct {
 	ID        string   `json:"id"`
 	Name      string   `json:"name"`
-	Category  string   `json:"category,omitempty"`
-	Tags      []string `json:"tags,omitempty"`
+	PackID    string   `json:"packId,omitempty"`
 	CreatedAt string   `json:"createdAt"`
 	Words     []Word   `json:"words"`
 	Records   []Record `json:"records"`
@@ -63,8 +63,8 @@ func Encode(lists []List) ([]byte, error) {
 		if records == nil {
 			records = []Record{}
 		}
-		stored = append(stored, storedList{ID: list.ID, Name: list.Name, Category: list.Category, Tags: list.Tags,
-			CreatedAt: list.CreatedAt, Words: words, Records: records, extra: list.Extra})
+		stored = append(stored, storedList{ID: list.ID, Name: list.Name, PackID: list.PackID, CreatedAt: list.CreatedAt, Words: words,
+			Records: records, extra: list.Extra})
 	}
 	return marshal(stored)
 }

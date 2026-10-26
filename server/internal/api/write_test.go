@@ -13,7 +13,7 @@ import (
 )
 
 // writer keeps a workspace for every account, starting from savedLists, and saves a change only when it succeeds,
-// as the store's transaction does.
+// with its lists' changes put back into the packs, as the store's transaction does.
 type writer struct {
 	t         *testing.T
 	workspace *workspace.Workspace
@@ -34,7 +34,11 @@ func (w *writer) copy() *workspace.Workspace {
 	if err != nil {
 		w.t.Fatal(err)
 	}
-	copied, err := workspace.Decode(encoded, devices)
+	packs, err := workspace.EncodePacks(w.workspace.Packs)
+	if err != nil {
+		w.t.Fatal(err)
+	}
+	copied, err := workspace.Decode(encoded, devices, packs)
 	if err != nil {
 		w.t.Fatal(err)
 	}
@@ -46,10 +50,11 @@ func (w *writer) Modify(_ context.Context, owner string, change func(*workspace.
 	if w.err != nil {
 		return nil, w.err
 	}
-	next := w.copy()
+	previous, next := w.copy(), w.copy()
 	if _, err := change(next); err != nil {
 		return nil, err
 	}
+	next.ApplyListChange(previous)
 	w.workspace = next
 	return next, nil
 }
