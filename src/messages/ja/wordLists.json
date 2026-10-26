@@ -235,5 +235,26 @@
     "edit": "編集",
     "editList": "{name} を編集",
     "number": "番号"
+  },
+  "packEditor": {
+    "createTitle": "パックを作成",
+    "createDescription": "パックの情報と、最初の単語リストを登録します。リストはあとから追加できます。",
+    "editTitle": "パックを編集",
+    "editDescription": "パックの情報と、中のリストの順番を変更します。",
+    "info": "パックの情報",
+    "name": "パック名",
+    "nameHelp": "パックの一覧と、練習するパックの選択に表示されます。",
+    "descriptionLabel": "説明（任意）",
+    "descriptionPlaceholder": "このパックの内容など",
+    "lists": "リスト",
+    "listsHelp": "つまみをドラッグするか、キーボードで並べ替えます。",
+    "drag": "{name} をドラッグして並べ替え",
+    "dragTitle": "ドラッグして並べ替え",
+    "dragInstructions": "スペースキーでリストを持ち上げ、上下矢印キーで移動し、スペースキーで確定します。Escapeキーでキャンセルします。",
+    "levels": "難易度: {levels}",
+    "noLevels": "難易度なし",
+    "wordCount": "{count, plural, other {#語}}",
+    "created": "パック「{name}」を作成しました。",
+    "updated": "パック「{name}」を更新しました。"
   }
 }

@@ -235,5 +235,26 @@
     "edit": "Edit",
     "editList": "Edit {name}",
     "number": "Number"
+  },
+  "packEditor": {
+    "createTitle": "Create a pack",
+    "createDescription": "Enter the pack's details and its first word list. You can add more lists later.",
+    "editTitle": "Edit pack",
+    "editDescription": "Change the pack's details and the order of its lists.",
+    "info": "Pack details",
+    "name": "Pack name",
+    "nameHelp": "Shown in the pack list and when choosing a pack to practice.",
+    "descriptionLabel": "Description (optional)",
+    "descriptionPlaceholder": "What this pack contains",
+    "lists": "Lists",
+    "listsHelp": "Drag the handle, or use the keyboard, to change the order.",
+    "drag": "Drag {name} to reorder",
+    "dragTitle": "Drag to reorder",
+    "dragInstructions": "Press Space to pick up a list, use the up and down arrow keys to move it, and press Space again to drop it. Press Escape to cancel.",
+    "levels": "Difficulty: {levels}",
+    "noLevels": "No difficulty",
+    "wordCount": "{count, plural, one {# word} other {# words}}",
+    "created": "Pack “{name}” created.",
+    "updated": "Pack “{name}” updated."
   }
 }

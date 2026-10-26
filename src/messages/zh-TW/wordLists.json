@@ -235,5 +235,26 @@
     "edit": "編輯",
     "editList": "編輯 {name}",
     "number": "編號"
+  },
+  "packEditor": {
+    "createTitle": "建立包",
+    "createDescription": "填寫包的資訊和第一個單字清單。之後還可以新增清單。",
+    "editTitle": "編輯包",
+    "editDescription": "變更包的資訊和其中清單的順序。",
+    "info": "包的資訊",
+    "name": "包名稱",
+    "nameHelp": "顯示在包清單中，以及選擇要練習的包時。",
+    "descriptionLabel": "說明（選填）",
+    "descriptionPlaceholder": "這個包的內容等",
+    "lists": "清單",
+    "listsHelp": "拖曳握把或使用鍵盤來調整順序。",
+    "drag": "拖曳 {name} 以重新排序",
+    "dragTitle": "拖曳以重新排序",
+    "dragInstructions": "按空白鍵拿起清單，用上下方向鍵移動，再按空白鍵放下。按 Esc 鍵取消。",
+    "levels": "難度：{levels}",
+    "noLevels": "無難度",
+    "wordCount": "{count, plural, other {#個單字}}",
+    "created": "已建立包「{name}」。",
+    "updated": "已更新包「{name}」。"
   }
 }

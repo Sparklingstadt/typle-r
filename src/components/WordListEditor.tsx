@@ -42,7 +42,7 @@ function FieldError({ id, message, alert }: { id: string; message: string; alert
   </p>
 }
 
-export default function WordListEditor({ title, description, storage, initial, lists = [], error, errorKey, onSave, onCancel, onDirtyChange, cancelRequest = 0 }: {
+export default function WordListEditor({ title, description, storage, initial, lists = [], error, errorKey, packFields, packDirty = false, onSave, onCancel, onDirtyChange, cancelRequest = 0 }: {
   title: string
   description?: ReactNode
   storage?: WorkspaceLocation
@@ -52,6 +52,10 @@ export default function WordListEditor({ title, description, storage, initial, l
   error?: string
   /** Which error `error` is, so a duplicate name can be shown on the name field. */
   errorKey?: ErrorKey | null
+  /** The fields of a pack that this list starts, shown above the list's own. The pack then holds the category and tags. */
+  packFields?: ReactNode
+  /** Whether `packFields` has unsaved changes, which are confirmed before leaving like the list's own. */
+  packDirty?: boolean
   onSave: (list: SavedWordList) => Promise<boolean>
   onCancel: () => void
   onDirtyChange?: (dirty: boolean) => void
@@ -77,7 +81,7 @@ export default function WordListEditor({ title, description, storage, initial, l
   const suggestions = useMemo(() => listLabels(lists, locale), [lists, locale])
   const [words, setWords] = useState(() => (initial?.words ?? [emptyWord()]).map((word, index) => ({ ...normalize(word), key: `initial-${index}` })))
   const [initialSnapshot] = useState(() => snapshot(initial?.name ?? "", initial?.category ?? "", initial?.tags ?? [], (initial?.words ?? [emptyWord()]).map(normalize)))
-  const dirty = snapshot(name, category, tags, words) !== initialSnapshot
+  const dirty = snapshot(name, category, tags, words) !== initialSnapshot || packDirty
 
   const draftId = useRef<string | undefined>(undefined)
   const [saving, setSaving] = useState(false)
@@ -107,7 +111,8 @@ export default function WordListEditor({ title, description, storage, initial, l
   // The duplicate-name check runs while saving; show it on the name field until the name changes.
   const [failure, setFailure] = useState<{ count: number; name: string }>({ count: 0, name: "" })
   const duplicate = errorKey === "listNameDuplicate" && failure.name === name
-  const serverError = error && errorKey !== "listNameDuplicate" ? error : ""
+  // A pack's name is shown on its own field by whoever passes `packFields`.
+  const serverError = error && errorKey !== "listNameDuplicate" && errorKey !== "packNameRequired" && errorKey !== "packNameDuplicate" ? error : ""
   const nameError = errorFor(nameId) ?? (duplicate ? error : undefined)
   const handledFailure = useRef(0)
   useEffect(() => {
@@ -219,6 +224,7 @@ export default function WordListEditor({ title, description, storage, initial, l
     </header>
 
     <div className="space-y-6">
+      {packFields}
       <section className="space-y-2 rounded-xl border bg-card p-4 sm:p-6" aria-label={t("basics")}>
         <Label htmlFor={nameId}>{t("name")}<span aria-hidden="true" className="text-destructive">*</span></Label>
         <Input id={nameId} value={name} onChange={event => setName(event.target.value)} required aria-required="true"
@@ -226,7 +232,7 @@ export default function WordListEditor({ title, description, storage, initial, l
         {nameError ? <FieldError id={`${nameId}-error`} message={nameError} alert={duplicate && !errorFor(nameId)} />
           : null}
         <p id={`${nameId}-help`} className="text-xs text-muted-foreground">{t("nameHelp")}</p>
-        <LabelFields category={category} tags={tags} suggestions={suggestions} onCategoryChange={setCategory} onTagsChange={setTags} />
+        {!packFields && <LabelFields category={category} tags={tags} suggestions={suggestions} onCategoryChange={setCategory} onTagsChange={setTags} />}
       </section>
 
       <section aria-labelledby={`${baseId}-words`} className="md:overflow-hidden md:rounded-xl md:border md:bg-card">

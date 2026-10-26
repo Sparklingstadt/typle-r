@@ -235,5 +235,26 @@
     "edit": "编辑",
     "editList": "编辑 {name}",
     "number": "编号"
+  },
+  "packEditor": {
+    "createTitle": "创建包",
+    "createDescription": "填写包的信息和第一个单词列表。之后还可以添加列表。",
+    "editTitle": "编辑包",
+    "editDescription": "更改包的信息和其中列表的顺序。",
+    "info": "包的信息",
+    "name": "包名称",
+    "nameHelp": "显示在包列表中，以及选择要练习的包时。",
+    "descriptionLabel": "说明（可选）",
+    "descriptionPlaceholder": "这个包的内容等",
+    "lists": "列表",
+    "listsHelp": "拖动手柄或使用键盘来调整顺序。",
+    "drag": "拖动 {name} 以重新排序",
+    "dragTitle": "拖动以重新排序",
+    "dragInstructions": "按空格键拿起列表，用上下方向键移动，再按空格键放下。按 Esc 键取消。",
+    "levels": "难度：{levels}",
+    "noLevels": "无难度",
+    "wordCount": "{count, plural, other {#个单词}}",
+    "created": "已创建包“{name}”。",
+    "updated": "已更新包“{name}”。"
   }
 }

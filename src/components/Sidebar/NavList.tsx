@@ -22,7 +22,7 @@ function Item({ link, pathname, onNavigate }: { link: NavLink; pathname: string;
   return <li>
     {link.external
       ? <a href={link.path} className={itemClass(false)} onClick={onNavigate}>{content}</a>
-      : <Link href={link.path} prefetch={link.prefetch} className={itemClass(current)} onClick={onNavigate} aria-current={current ? "page" : undefined}>{content}</Link>}
+      : <Link href={link.path} className={itemClass(current)} onClick={onNavigate} aria-current={current ? "page" : undefined}>{content}</Link>}
   </li>
 }
 

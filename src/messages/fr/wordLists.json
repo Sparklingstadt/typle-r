@@ -235,5 +235,26 @@
     "edit": "Modifier",
     "editList": "Modifier {name}",
     "number": "Numéro"
+  },
+  "packEditor": {
+    "createTitle": "Créer un pack",
+    "createDescription": "Renseignez les informations du pack et sa première liste de mots. Vous pourrez ajouter d'autres listes plus tard.",
+    "editTitle": "Modifier le pack",
+    "editDescription": "Modifiez les informations du pack et l'ordre de ses listes.",
+    "info": "Informations du pack",
+    "name": "Nom du pack",
+    "nameHelp": "Affiché dans la liste des packs et lors du choix d'un pack à pratiquer.",
+    "descriptionLabel": "Description (facultatif)",
+    "descriptionPlaceholder": "Le contenu de ce pack",
+    "lists": "Listes",
+    "listsHelp": "Faites glisser la poignée ou utilisez le clavier pour changer l'ordre.",
+    "drag": "Faire glisser « {name} » pour réordonner",
+    "dragTitle": "Faire glisser pour réordonner",
+    "dragInstructions": "Appuyez sur Espace pour saisir une liste, déplacez-la avec les flèches haut et bas, puis appuyez de nouveau sur Espace pour la déposer. Appuyez sur Échap pour annuler.",
+    "levels": "Difficulté : {levels}",
+    "noLevels": "Sans difficulté",
+    "wordCount": "{count, plural, one {# mot} other {# mots}}",
+    "created": "Pack « {name} » créé.",
+    "updated": "Pack « {name} » mis à jour."
   }
 }
