@@ -16,10 +16,10 @@
   },
   "start": {
     "title": "Démarrer en 3 étapes",
-    "sample": {
-      "title": "S’entraîner avec l’exemple",
-      "text": "Une liste d’exemple est fournie : vous pouvez commencer tout de suite. Il suffit de taper les mots affichés.",
-      "action": "S’entraîner"
+    "follow": {
+      "title": "Suivre des packs officiels",
+      "text": "Suivez des packs officiels comme Go ou Kotlin : ils s’ajoutent à vos packs et vous pouvez vous entraîner tout de suite.",
+      "action": "Packs officiels"
     },
     "create": {
       "title": "Créer votre pack",
@@ -88,7 +88,7 @@
       "p1": "« Dupliquer », dans le menu « … » d’un pack, copie le pack avec ses listes. La copie s’appelle « Nom (copie) » et se place juste après l’original. L’historique d’entraînement n’est pas copié.",
       "p2": "« Exporter », dans le menu « … » d’un pack, enregistre le pack dans un fichier « nom-du-pack.typle-pack.json ». Il contient le nom, la description, la catégorie, les tags, les listes et les mots, mais pas l’historique.",
       "p3": "Choisissez ce fichier avec « Importer depuis un fichier » pour l’importer comme nouveau pack (cela fonctionne aussi quand vous n’avez encore aucun pack). Les fichiers vont jusqu’à 1 Mio ; un fichier illisible est refusé. Si un pack du même nom existe, le nouveau s’appelle « Nom (2) ».",
-      "p4": "Dans « Packs officiels », parmi les packs de mots, « Ajouter » ajoute un pack prêt à l’emploi à vos packs. Vous pouvez le modifier librement, et ceux que vous avez déjà sont signalés comme ajoutés. Un pack officiel supprimé peut être ajouté de nouveau (l’historique ne revient pas)."
+      "p4": "Dans « Packs officiels », parmi les packs de mots, « Suivre » ajoute ce pack à vos packs. Les packs suivis portent la mention « Officiel » et restent à jour avec la version officielle. Un pack suivi ne peut pas être modifié : pour le changer, utilisez « Dupliquer » afin d’en faire votre propre pack. « Ne plus suivre » retire le pack de vos packs, avec son historique d’entraînement."
     },
     "share": {
       "title": "Partager un pack",
@@ -114,7 +114,7 @@
     "manage": {
       "title": "Gérer les listes",
       "p1": "Dans <edit>Packs de mots</edit>, vous pouvez rechercher par nom de pack, nom de liste ou mot et changer l’ordre de tri.",
-      "p2": "Le menu « … » d’un pack permet de s’entraîner, de modifier le pack, d’ajouter une liste ou de le supprimer. Supprimer un pack supprime aussi ses listes et leur historique. Chaque ligne de liste a son propre menu « … » : meilleurs résultats, historique, export CSV, duplication et suppression.",
+      "p2": "Le menu « … » d’un pack permet de s’entraîner, de modifier le pack, d’ajouter une liste ou de le supprimer. Supprimer un pack supprime aussi ses listes et leur historique. Chaque ligne de liste a son propre menu « … » : meilleurs résultats, historique, export CSV, duplication et suppression. Les packs officiels suivis ne peuvent pas être modifiés et proposent « Ne plus suivre » au lieu de supprimer.",
       "p3": "La duplication ne copie que les mots, pas l’historique d’entraînement. Il en va de même pour la duplication d’un pack."
     },
     "csv": {
