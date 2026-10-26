@@ -12,8 +12,9 @@ export type WordPack = {
   description?: string
   category?: string
   tags?: string[]
-  /** Set when the pack was added from the official catalog. */
-  origin?: { catalogId: string; version: number }
+  /** Set when the pack came from the official catalog. Without `followed` it is a copy from before v0.98.0, which is
+   * removed when read (see followedPacks.ts). */
+  origin?: { catalogId: string; version: number; followed?: true }
   createdAt: string
 }
 
@@ -102,7 +103,8 @@ export function decodePacks(value: unknown): WordPack[] {
         (pack.description !== undefined && !isString(pack.description)) ||
         (pack.category !== undefined && !isString(pack.category)) ||
         (pack.tags !== undefined && (!Array.isArray(pack.tags) || pack.tags.some((tag: unknown) => !isString(tag)))) ||
-        (origin !== undefined && (!origin || !isString(origin.catalogId) || typeof origin.version !== 'number'))) {
+        (origin !== undefined && (!origin || !isString(origin.catalogId) || typeof origin.version !== 'number' ||
+          (origin.followed !== undefined && origin.followed !== true)))) {
       throw new AppError('savedDataCorrupted')
     }
     ids.add(pack.id)

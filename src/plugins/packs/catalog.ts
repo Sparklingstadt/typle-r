@@ -1,12 +1,12 @@
 import { AppError } from '../../core/appError'
 import { addPackFile, packFileOf, type NewPackIds } from '../../core/packFile'
 import { settle } from '../../core/packEditing'
-import type { SavedWordList } from '../../core/wordLists'
-import type { Library, WordPack } from '../../core/wordPacks'
+import type { OfficialPack } from '../../core/followedPacks'
+import type { Library } from '../../core/wordPacks'
 import { initialLibrary } from '.'
 
 // The official packs are the packs an account starts with (src/core may not read plugins, so the catalog lives here).
-export type OfficialPack = { catalogId: string; version: number; pack: WordPack; lists: SavedWordList[] }
+export type { OfficialPack }
 /** `added` when the library has a pack from this entry: one with its origin, or one with its id (accounts made before
  * origins existed got the initial packs under these ids, without an origin). */
 export type CatalogEntry = OfficialPack & { added: boolean }

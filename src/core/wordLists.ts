@@ -15,6 +15,8 @@ export type WordList = {
   levels?: string[],
   /** The word pack the list belongs to. Every saved list has one (see wordPacks.ts). */
   packId?: string,
+  /** Set on the lists of a followed official pack: the id of the official list (see followedPacks.ts). */
+  origin?: { listId: string },
   words: {
     display: string,
     input: string,
@@ -105,7 +107,9 @@ export function decodeLists(raw: string): SavedWordList[] {
     ids.add(list.id)
   }
   // Lists saved while link sharing existed may still carry its fields; they mean nothing now.
-  return data.lists.map(({ shared: _shared, shareId: _shareId, ...list }: SavedWordList & { shared?: unknown, shareId?: unknown }) => list)
+  // An origin of another shape is dropped.
+  return data.lists.map(({ shared: _shared, shareId: _shareId, origin, ...list }: SavedWordList & { shared?: unknown, shareId?: unknown }) =>
+    typeof (origin as { listId?: unknown } | null)?.listId === "string" ? { ...list, origin } : list)
 }
 
 export function encodeLists(lists: SavedWordList[]) {
