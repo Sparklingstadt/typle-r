@@ -109,6 +109,8 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 | `category` | そのカテゴリのリストだけ（大文字小文字を区別しない）。`category=`（空）ならカテゴリのないリストだけ（v0.78.0 から） |
 | `tag` | そのタグを持つリストだけ。`tag=Go&tag=CLI` のように複数並べると、すべてを持つリストだけ（大文字小文字を区別しない。v0.78.0 から） |
 
+`packId`（そのリストが入っている単語パックの ID）は v0.91.0 からで、`GET /api/v1/lists/{l}` と作成・更新の応答の `list` にもあります。`category`・`tags` はリストではなくパックの値です（同じパックのリストは同じ値になります）。`POST /api/v1/lists` は `packId` を受け取らず、1リストだけのパックを作ります。そのとき `category`・`tags` を送るとそのパックの値になります。`PATCH` の `category`・`tags` もパックの値を変えます。`packId` の指定やパックのエンドポイントは今後の版で足します。
+
 並べ方と検索はアプリの「単語リスト」画面と同じです。名前順は Go の照合表（CLDR 23）を使うため、半角カナ・ギリシャ文字・記号で始まる名前は、ブラウザーと順序が違うことがあります。
 
 `practiceCount`（練習回数。`recordCount` と同じ値）、`lastPracticed`（最も新しい記録の日時。なければ `null`）、`currentRecordCount`（今の単語数と同じ単語数の記録の数。ベスト記録の比較に使う記録）は v0.50.0 からです（`GET /api/v1/lists/{l}` にもあります）。
@@ -117,6 +119,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 {
   "lists": [{
     "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+    "packId": "pack-7c9e6679-7425-40de-944b-e07fc1f90ae7",
     "name": "英単語",
     "category": "語学",
     "tags": ["英語"],
