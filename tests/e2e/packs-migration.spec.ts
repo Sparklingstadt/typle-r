@@ -17,11 +17,12 @@ const oldLists = () => [
 const saved = (page: Page) => page.evaluate(k => JSON.parse(localStorage.getItem(k) ?? 'null'), key)
 
 async function expectGroupedView(page: Page) {
-  const group = page.locator('li[data-group="Shell"]')
-  await expect(group).toContainText('難易度別に2リスト')
+  // The two Shell lists are one pack row, and the list without a group is a pack row of its own.
+  const group = page.locator('li[data-pack-id="pack-basic-1"]')
+  await expect(group).toContainText('2リスト')
   await expect(group).toContainText('3語')
-  await expect(page.locator('li[data-list-id]')).toHaveCount(1)
-  await expect(page.locator('li[data-group]')).toHaveCount(1)
+  await expect(page.locator('li[data-pack-id="pack-plain"]')).toContainText('1リスト')
+  await expect(page.locator('li[data-pack-id]')).toHaveCount(2)
   return group
 }
 
@@ -62,7 +63,10 @@ test('a guest workspace saved by v0.90.0 shows the same and is saved as packs wh
 test('a guest with nothing saved sees the initial lists in the same groups as v0.90.0', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 })
   await page.goto('/edit')
-  await expect(page.locator('li[data-group]')).toHaveCount(17)
+  // 30 packs: the 17 groups, and a pack for each of the other lists.
+  await expect(page.locator('li[data-pack-id]')).toHaveCount(30)
+  // The 17 packs of several lists are the 17 groups the lists were shown in.
+  await expect(page.locator('li[data-pack-id]').filter({ hasText: /(^|[^\d])([2-9]|\d{2,})リスト/ })).toHaveCount(17)
 })
 
 test.describe('account', () => {

@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
+import { openPacks } from './packRows'
 const key = 'typle-r:guest-workspace:v1'
 const words = (...texts: string[]) => texts.map(text => ({ display: text, input: text, annotation: '' }))
 
@@ -35,6 +36,7 @@ test('lists show their category and tags and can be narrowed down by them', asyn
   await seed(page)
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/edit')
+  await openPacks(page)
   await expect(row(page, 'go').locator('[data-list-labels]')).toHaveText(/プログラミング.*#.*Go.*#.*CLI/)
   await expect(row(page, 'plain').locator('[data-list-labels]')).toHaveCount(0)
 
@@ -42,7 +44,7 @@ test('lists show their category and tags and can be narrowed down by them', asyn
   await expect(page.getByRole('menuitemradio', { name: 'プログラミング 2' })).toBeVisible()
   await page.getByRole('menuitemradio', { name: 'プログラミング 2' }).click()
   expect(await rowNames(page)).toEqual(['SQL basics', 'Go basics'])
-  await expect(page.getByText('2件 / 全4件')).toBeVisible()
+  await expect(page.getByText('2パック / 全4パック')).toBeVisible()
 
   // Tags narrow down further: a list must have every chosen tag.
   await page.getByRole('button', { name: 'すべてのタグ' }).click()
@@ -54,7 +56,7 @@ test('lists show their category and tags and can be narrowed down by them', asyn
   await page.getByRole('button', { name: 'タグ：Go・CLI' }).click()
   await page.getByRole('menuitemcheckbox', { name: 'PostgreSQL 1' }).click()
   await page.keyboard.press('Escape')
-  await expect(page.getByText('条件に一致するリストはありません。')).toBeVisible()
+  await expect(page.getByText('条件に一致するパックはありません。')).toBeVisible()
   await page.getByRole('button', { name: '検索と絞り込みを解除' }).click()
   expect(await rowNames(page)).toHaveLength(4)
 
@@ -64,16 +66,16 @@ test('lists show their category and tags and can be narrowed down by them', asyn
   await page.getByRole('button', { name: '絞り込みを解除' }).click()
 
   // The search finds lists by a category or tag too.
-  await page.getByRole('searchbox', { name: 'リスト名・カテゴリ・タグ・単語で検索' }).fill('postgres')
+  await page.getByRole('searchbox', { name: 'パック名・リスト名・カテゴリ・タグ・単語で検索' }).fill('postgres')
   expect(await rowNames(page)).toEqual(['SQL basics'])
   await page.getByRole('searchbox').fill('語学')
   expect(await rowNames(page)).toEqual(['English'])
   expect(errors).toEqual([])
 })
 
-test('the editor chooses the category and tags from those in use or creates them, and a copy keeps them', async ({ page }) => {
+test('the pack editor chooses the category and tags from those in use or creates them, and a copy keeps them', async ({ page }) => {
   await seed(page)
-  await page.goto('/edit?list=plain')
+  await page.goto('/packs/edit?pack=pack-plain')
   const category = page.getByRole('combobox', { name: 'カテゴリ（任意）' })
   const tags = page.getByRole('combobox', { name: 'タグ（任意）' })
   const options = page.getByRole('listbox').getByRole('option')
@@ -116,7 +118,7 @@ test('the editor chooses the category and tags from those in use or creates them
   await page.getByRole('button', { name: 'タグ「JVM」を外す' }).click()
   await expect(page.getByText('未保存の変更があります')).toBeVisible()
   await page.getByRole('button', { name: '保存', exact: true }).click()
-  await expect(page.getByText('「Plain」を更新しました。')).toBeVisible()
+  await expect(page.getByText('パック「Plain」を更新しました。')).toBeVisible()
   expect((await saved(page)).find((list: { id: string }) => list.id === 'plain')).toMatchObject({ category: 'プログラミング', tags: ['Kotlin', 'Gradle'] })
   await expect(row(page, 'plain').locator('[data-list-labels]')).toHaveText(/プログラミング.*Kotlin.*Gradle/)
 
@@ -126,15 +128,17 @@ test('the editor chooses the category and tags from those in use or creates them
   expect((await saved(page)).at(-1)).toMatchObject({ name: 'Plain（コピー）', category: 'プログラミング', tags: ['Kotlin', 'Gradle'] })
 
   // Clearing both leaves them out of the saved list, as before they existed.
-  await page.goto('/edit?list=plain')
+  await page.goto('/packs/edit?pack=pack-plain')
   await page.getByRole('combobox', { name: 'カテゴリ（任意）' }).click()
   await page.getByRole('option', { name: 'カテゴリを外す' }).click()
   await page.getByRole('button', { name: 'タグ「Kotlin」を外す' }).click()
   await page.getByRole('button', { name: 'タグ「Gradle」を外す' }).click()
   await page.getByRole('button', { name: '保存', exact: true }).click()
-  await expect(page.getByText('「Plain」を更新しました。')).toBeVisible()
+  await expect(page.getByText('パック「Plain」を更新しました。')).toBeVisible()
   const plain = (await saved(page)).find((list: { id: string }) => list.id === 'plain')
   expect('category' in plain || 'tags' in plain).toBe(false)
+  const pack = await page.evaluate(k => JSON.parse(localStorage.getItem(k) ?? 'null').packs.find((item: { id: string }) => item.id === 'pack-plain'), key)
+  expect('category' in pack || 'tags' in pack).toBe(false)
 })
 
 test('the practice screen shows the labels and narrows the lists to choose by category', async ({ page }) => {
@@ -159,7 +163,7 @@ test('the practice screen shows the labels and narrows the lists to choose by ca
 
 test('the initial lists come with their category and tags', async ({ page }) => {
   await page.goto('/edit')
-  await page.getByRole('searchbox', { name: 'リスト名・カテゴリ・タグ・単語で検索' }).fill('Kotlin構文（初級1）')
+  await page.getByRole('searchbox', { name: 'パック名・リスト名・カテゴリ・タグ・単語で検索' }).fill('Kotlin構文（初級1）')
   await expect(page.locator('li[data-list-id="kotlin-syntax-beginner-1"] [data-list-labels]')).toHaveText(/プログラミング.*Kotlin/)
   await page.getByRole('searchbox').fill('小文字・初級1')
   await expect(page.locator('li[data-list-id="un-member-states-chinese-193-lowercase-beginner-1"] [data-list-labels]')).toHaveText(/語学.*中国語.*国名/)

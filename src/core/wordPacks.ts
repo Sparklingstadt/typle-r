@@ -20,7 +20,7 @@ export type WordPack = {
 export type Library = { packs: WordPack[]; lists: SavedWordList[] }
 
 const isString = (value: unknown): value is string => typeof value === 'string'
-const nameKey = (name: string) => name.trim().toLocaleLowerCase()
+export const nameKey = (name: string) => name.trim().toLocaleLowerCase()
 const numbered = (name: string) => (count: number) => fit(name, `（${count}）`)
 
 /** Reads saved packs, keeping fields Typle does not know. */

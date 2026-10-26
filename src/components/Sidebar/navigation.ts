@@ -15,7 +15,7 @@ export const mainNavigation: NavGroup[] = [
   { label: "wordLists", links: [
     { name: "edit", path: "/edit", icon: List },
     { name: "words", path: "/words", icon: TableProperties },
-    { name: "create", path: "/create", icon: Plus },
+    { name: "create", path: "/packs/create", icon: Plus },
   ] },
   { label: "settings", links: [
     { name: "general", path: "/settings", icon: Settings },

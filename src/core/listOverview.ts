@@ -157,13 +157,14 @@ export function copyName(lists: SavedWordList[], name: string, suffix: (n: numbe
   }
 }
 
-// A copy keeps the words, category and tags but starts without records, so its best is its own. It is left out of the
-// source's group, where each list has levels of its own.
+// A copy keeps the words, category and tags but starts without records, so its best is its own. It joins the source's
+// pack at the end, without its levels, and only needs a name no other list of that pack has.
 export function duplicateList(lists: SavedWordList[], id: string, copyId: string, suffix: (n: number) => string, now = new Date()) {
   const source = lists.find(list => list.id === id)
   if (!source) throw new AppError('listDeleted')
   if (lists.length >= MAX_LISTS) throw new AppError('listLimit', { max: MAX_LISTS })
-  const copy: SavedWordList = { id: copyId, name: copyName(lists, source.name, suffix), createdAt: now.toISOString(),
+  const copy: SavedWordList = { id: copyId, name: copyName(lists.filter(list => list.packId === source.packId), source.name, suffix),
+    createdAt: now.toISOString(), ...(source.packId === undefined ? {} : { packId: source.packId }),
     ...(source.category === undefined ? {} : { category: source.category }), ...(source.tags ? { tags: [...source.tags] } : {}),
     words: source.words.map(word => ({ ...word })), records: [] }
   return { lists: [...lists, copy], copy }

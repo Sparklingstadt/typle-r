@@ -1,7 +1,7 @@
 {
   "page": {
-    "title": "Listes de mots",
-    "description": "Créez et modifiez les listes de mots pour vos entraînements. Exportez une liste en CSV pour l’importer dans un autre navigateur ou compte.",
+    "title": "Packs de mots",
+    "description": "Créez et modifiez les packs de mots pour vos entraînements. Exportez une liste en CSV pour l’importer dans un autre navigateur ou compte.",
     "reload": "Recharger",
     "notFound": "La liste de mots que vous avez essayé d’ouvrir est introuvable. Elle a peut-être été supprimée.",
     "editTitle": "Modifier la liste de mots",
@@ -10,19 +10,21 @@
     "updated": "La liste « {name} » a été mise à jour.",
     "created": "La liste « {name} » a été créée.",
     "deleted": "La liste « {name} » a été supprimée.",
+    "packDeleted": "Le pack « {name} » a été supprimé.",
     "exportFailed": "Impossible d’exporter « {name} ». Veuillez réessayer.",
     "copySuffix": "{n, plural, =1 { (copie)} other { (copie {n})}}"
   },
   "manager": {
-    "heading": "Listes enregistrées",
+    "heading": "Packs enregistrés",
     "limitTitle": "Jusqu’à {max} listes",
-    "create": "Créer une liste",
+    "create": "Créer un pack",
+    "createPack": "Nouveau pack",
     "full": "Vous pouvez enregistrer jusqu’à {max} listes de mots. Supprimez celles que vous n’utilisez plus pour en créer de nouvelles.",
-    "search": "Rechercher par nom, catégorie, étiquette ou mot",
+    "search": "Rechercher par nom de pack ou de liste, catégorie, étiquette ou mot",
     "clearSearch": "Effacer la recherche",
     "countFiltered": "{shown} sur {total}",
-    "count": "{total, plural, one {# liste} other {# listes}}",
-    "noMatch": "Aucune liste ne correspond à « {query} ». La recherche porte sur les noms de listes, catégories, étiquettes et mots.",
+    "count": "{total, plural, one {# pack} other {# packs}}",
+    "noMatch": "Aucun pack ne correspond à « {query} ». La recherche porte sur les noms de packs et de listes, catégories, étiquettes et mots.",
     "csvNote": "L’export CSV enregistre les mots affichés, le texte à saisir et les notes (l’historique n’est pas inclus). Vous pouvez le réimporter avec « Importer un CSV/TSV » sur l’écran de création ou de modification."
   },
   "delete": {
@@ -35,7 +37,10 @@
     "noRecords": "Aucun entraînement",
     "records": "{count, plural, one {# entraînement} other {# entraînements}} (dernier : {day})",
     "exportHint": "Vous pouvez conserver les mots en les exportant en CSV (l’historique n’est pas inclus).",
-    "export": "Exporter en CSV"
+    "export": "Exporter en CSV",
+    "packTitle": "Supprimer « {name} » ?",
+    "packDescription": "Cela supprime aussi {lists, plural, one {# liste} other {# listes}} et {records, plural, one {# enregistrement} other {# enregistrements}} d’entraînement.",
+    "lastInPack": "Le pack « {name} » sera aussi supprimé."
   },
   "order": {
     "label": "Tri",
@@ -57,15 +62,16 @@
     "allTags": "Toutes les étiquettes",
     "tagsCurrent": "Étiquettes : {tags}",
     "separator": ", ",
-    "tagsHint": "Listes ayant toutes les étiquettes choisies",
+    "tagsHint": "Packs ayant toutes les étiquettes choisies",
     "clearTags": "Effacer les étiquettes",
     "clear": "Effacer les filtres",
     "clearAll": "Effacer la recherche et les filtres",
-    "noMatch": "Aucune liste ne correspond à ces filtres.",
+    "noMatch": "Aucun pack ne correspond à ces filtres.",
     "option": "{name} ({count})"
   },
   "empty": {
     "title": "Aucune liste de mots pour l’instant",
+    "packTitle": "Aucun pack de mots pour l’instant",
     "description": "Ajoutez les mots à travailler et le texte à saisir comme bonne réponse. Vous pouvez aussi les importer depuis un fichier CSV ou TSV."
   },
   "row": {
@@ -89,12 +95,16 @@
     "copy": "Dupliquer",
     "delete": "Supprimer"
   },
-  "group": {
-    "levels": "{levels, plural, one {# niveau} other {# niveaux}}",
+  "pack": {
+    "lists": "{count, plural, one {# liste} other {# listes}}",
     "wordCount": "{count, plural, one {# mot} other {# mots}}",
     "practice": "S’entraîner",
-    "practiceGroup": "S’entraîner sur {name}",
-    "lists": "Listes de {name}"
+    "listsOf": "Listes de {name}",
+    "moreActions": "Autres actions",
+    "moreFor": "Actions du pack {name}",
+    "edit": "Modifier le pack",
+    "addList": "Ajouter une liste",
+    "delete": "Supprimer"
   },
   "wordRow": {
     "label": "Mot {n}",
@@ -102,7 +112,7 @@
     "dragTitle": "Faire glisser pour réorganiser"
   },
   "editor": {
-    "back": "Listes de mots",
+    "back": "Packs de mots",
     "description": "Ajoutez les mots affichés pendant la frappe et le texte à saisir comme bonne réponse.",
     "displayRequired": "Saisissez un mot à afficher ou supprimez cette ligne (les lignes vides ne peuvent pas être enregistrées).",
     "inputBlank": "Le texte à saisir ne contient que des espaces. Laissez-le vide pour utiliser le mot affiché.",
@@ -163,7 +173,17 @@
     "addTag": "Choisir ou créer des étiquettes",
     "searchTag": "Rechercher ou créer des étiquettes",
     "create": "Créer « {name} »",
-    "noLabels": "Aucune pour l’instant. Tapez pour en créer une."
+    "noLabels": "Aucune pour l’instant. Tapez pour en créer une.",
+    "pack": "Pack",
+    "newPack": "Nouveau pack (nommé d’après la liste)",
+    "packHelp": "Le pack auquel appartient cette liste. En choisir un autre y déplace la liste.",
+    "packWillBeDeleted": "Le pack « {name} » sera supprimé.",
+    "levels": "Difficulté (facultatif)",
+    "levelLabel": "Difficulté {n}",
+    "levelPlaceholder": "Base, débutant…",
+    "addLevel": "Ajouter une difficulté",
+    "removeLevel": "Supprimer la difficulté {n}",
+    "levelsHelp": "Sert à choisir pas à pas parmi les listes d’un pack sur l’écran d’entraînement, par exemple Base › Débutant (jusqu’à {max} niveaux)."
   },
   "import": {
     "open": "Importer un CSV/TSV",
@@ -226,5 +246,32 @@
     "edit": "Modifier",
     "editList": "Modifier {name}",
     "number": "Numéro"
+  },
+  "packEditor": {
+    "createTitle": "Créer un pack",
+    "createDescription": "Renseignez les informations du pack et sa première liste de mots. Vous pourrez ajouter d'autres listes plus tard.",
+    "editTitle": "Modifier le pack",
+    "editDescription": "Modifiez les informations du pack et l'ordre de ses listes.",
+    "info": "Informations du pack",
+    "name": "Nom du pack",
+    "nameHelp": "Affiché dans la liste des packs et lors du choix d'un pack à pratiquer.",
+    "descriptionLabel": "Description (facultatif)",
+    "descriptionPlaceholder": "Le contenu de ce pack",
+    "lists": "Listes",
+    "listsHelp": "Faites glisser la poignée ou utilisez le clavier pour changer l'ordre.",
+    "drag": "Faire glisser « {name} » pour réordonner",
+    "dragTitle": "Faire glisser pour réordonner",
+    "dragInstructions": "Appuyez sur Espace pour saisir une liste, déplacez-la avec les flèches haut et bas, puis appuyez de nouveau sur Espace pour la déposer. Appuyez sur Échap pour annuler.",
+    "listActions": "Actions pour « {name} »",
+    "announceStart": "Liste « {name} » saisie. Position {position} sur {total}.",
+    "announceOver": "Liste « {name} » déplacée en position {position} sur {total}.",
+    "announceOutside": "La liste « {name} » est hors de la zone de tri.",
+    "announceEnd": "Liste « {name} » déposée en position {position} sur {total}.",
+    "announceCancel": "Réorganisation annulée. La liste « {name} » a retrouvé sa place.",
+    "levels": "Difficulté : {levels}",
+    "noLevels": "Sans difficulté",
+    "wordCount": "{count, plural, one {# mot} other {# mots}}",
+    "created": "Pack « {name} » créé.",
+    "updated": "Pack « {name} » mis à jour."
   }
 }

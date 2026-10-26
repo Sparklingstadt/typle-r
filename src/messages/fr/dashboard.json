@@ -4,7 +4,7 @@
   "sourceAccount": "Calculé à partir des résultats enregistrés sur votre compte.",
   "start": "Commencer",
   "practice": "S’entraîner",
-  "create": "Créer une liste",
+  "create": "Créer un pack",
   "week": {
     "title": "Cette semaine",
     "description": "Résultats du {start} au {end}. Les variations sont comparées à la semaine dernière, jusqu’au même jour et à la même heure.",

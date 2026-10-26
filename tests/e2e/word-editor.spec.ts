@@ -30,7 +30,7 @@ test('Enter moves between words and adds rows instead of saving', async ({ page 
   await expect(display(page, 2)).toBeFocused()
   expect(await page.evaluate(k => localStorage.getItem(k), key)).toBeNull()
   await display(page, 2).press('Control+Enter')
-  await expect(page).toHaveURL(/\/edit$/)
+  await expect(page).toHaveURL(/\/edit\?pack=/)
   const saved = await page.evaluate(k => JSON.parse(localStorage.getItem(k) ?? 'null'), key)
   expect(saved.lists.find((list: { name: string }) => list.name === 'Enter list').words).toEqual([
     { display: 'one', input: 'ichi', annotation: '' },
@@ -43,6 +43,8 @@ test('a duplicate name is shown on the name field while the save bar stays visib
   await page.setViewportSize({ width: 1280, height: 720 })
   await page.goto('/create')
   await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('Go構文')
+  // A name is only taken within its pack, so the pack that has Go構文 is chosen.
+  await page.getByRole('combobox', { name: 'パック', exact: true }).selectOption({ label: 'Go構文' })
   for (let n = 1; n <= 10; n++) {
     await display(page, n).fill(`word ${n}`)
     await display(page, n).press('Enter')
@@ -90,6 +92,8 @@ test('cancel asks before discarding unsaved changes', async ({ page }) => {
   await expect(page).toHaveURL(/\/edit$/)
   await expect(page.getByRole('button', { name: 'Draft を編集', exact: true })).toHaveCount(0)
 
+  // Go構文 is a pack of one list, which opens to show the list.
+  await page.getByRole('button', { name: 'Go構文', exact: true }).click()
   await page.getByRole('button', { name: 'Go構文 を編集', exact: true }).click()
   await page.getByRole('button', { name: 'キャンセル', exact: true }).click()
   await expect(page.getByRole('alertdialog')).toHaveCount(0)
@@ -129,7 +133,7 @@ test('validation errors are shown on the fields and summarized in the save bar',
   await page.getByRole('button', { name: '単語 2 を削除', exact: true }).click()
   await expect(display(page, 1)).toBeFocused()
   await page.getByRole('button', { name: '保存', exact: true }).click()
-  await expect(page).toHaveURL(/\/edit$/)
+  await expect(page).toHaveURL(/\/edit\?pack=/)
 })
 
 test('row menu and Alt+Arrow keys reorder and delete words', async ({ page }) => {

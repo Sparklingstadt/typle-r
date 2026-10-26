@@ -47,5 +47,8 @@
   "deviceNameDuplicate": "「{name}」已登錄。請使用其他名稱。",
   "deviceLimit": "最多可以登錄 {max} 台裝置。請先刪除不再使用的裝置再新增。",
   "practiceIncomplete": "練習尚未完成。",
-  "recordListDeleted": "單字清單已被刪除，無法儲存紀錄。"
+  "recordListDeleted": "單字清單已被刪除，無法儲存紀錄。",
+  "packNameRequired": "請輸入包名稱。",
+  "packNameDuplicate": "已有同名的包。",
+  "packDeleted": "此包已被刪除。"
 }

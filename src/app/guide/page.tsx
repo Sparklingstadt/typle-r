@@ -14,7 +14,7 @@ const contents = ["practice", "lists", "records", "devices", "storage", "shortcu
 
 const steps: { icon: LucideIcon; key: "sample" | "create" | "review"; href: string }[] = [
   { icon: Keyboard, key: "sample", href: "/play" },
-  { icon: Plus, key: "create", href: "/create" },
+  { icon: Plus, key: "create", href: "/packs/create" },
   { icon: Trophy, key: "review", href: "/rankings" },
 ]
 
@@ -91,6 +91,14 @@ export default async function Guide() {
         </GuideSection>
 
         <GuideSection id="lists" icon={List} title={t("contents.lists")} lead={rich("lists.lead")}>
+          <Topic title={t("lists.packs.title")}>
+            <Points>
+              <li>{t("lists.packs.p1")}</li>
+              <li>{t("lists.packs.p2")}</li>
+              <li>{t("lists.packs.p3")}</li>
+              <li>{t("lists.packs.p4")}</li>
+            </Points>
+          </Topic>
           <Topic title={t("lists.input.title")}>
             <Points>
               <li>{t("lists.input.p1")}</li>

@@ -18,7 +18,7 @@ const chunkText = (chunks: ReactNode) => (Array.isArray(chunks) ? chunks : [chun
 // Rich-text tags shared by the guide's messages: links to each screen, in-page links and key combinations ("Ctrl+Enter").
 export const guideTags = {
   play: (chunks: ReactNode) => <PageLink href="/play">{chunks}</PageLink>,
-  create: (chunks: ReactNode) => <PageLink href="/create">{chunks}</PageLink>,
+  create: (chunks: ReactNode) => <PageLink href="/packs/create">{chunks}</PageLink>,
   edit: (chunks: ReactNode) => <PageLink href="/edit">{chunks}</PageLink>,
   records: (chunks: ReactNode) => <PageLink href="/records">{chunks}</PageLink>,
   rankings: (chunks: ReactNode) => <PageLink href="/rankings">{chunks}</PageLink>,

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { openPacks } from './packRows'
 
 for (const mobile of [false, true]) {
   test(`word dragging on create and edit (${mobile ? 'mobile' : 'desktop'})`, async ({ page }) => {
@@ -43,8 +44,9 @@ for (const mobile of [false, true]) {
     await expect(page.getByRole('textbox', { name: '表示する単語 3', exact: true })).toHaveValue('Word 1')
     await expect(page.getByRole('textbox', { name: '補足 3', exact: true })).toHaveValue('Attached note')
     await page.getByRole('button', { name: '保存', exact: true }).click()
-    await expect(page).toHaveURL(/\/edit$/)
+    await expect(page).toHaveURL(/\/edit\?pack=/)
     await page.reload()
+    await openPacks(page)
     await page.getByRole('button', { name: 'Drag list を編集', exact: true }).click()
     await expect(page.getByRole('textbox', { name: '表示する単語 3', exact: true })).toHaveValue('Word 1')
     await handles().first().focus()
@@ -63,6 +65,7 @@ for (const mobile of [false, true]) {
     // Until the save finishes the editor has unsaved changes, and leaving would ask first.
     await expect(page.getByRole('button', { name: 'Drag list を編集', exact: true })).toBeVisible()
     await page.reload()
+    await openPacks(page)
     await page.getByRole('button', { name: 'Drag list を編集', exact: true }).click()
     await expect(page.getByRole('textbox', { name: '表示する単語 1', exact: true })).toHaveValue('Word 3')
     expect(errors).toEqual([])

@@ -1,5 +1,5 @@
 {
-  "empty": "There are no words yet. <link>Create a word list</link> to get started.",
+  "empty": "There are no words yet. <link>Create a word pack</link> to get started.",
   "stats": {
     "label": "Current run",
     "elapsed": "Elapsed",
@@ -45,7 +45,7 @@
   "aside": {
     "label": "Word lists and best records",
     "lists": "Word lists",
-    "create": "Create",
+    "create": "New pack",
     "best": "Best records",
     "bestOrder": "Highest accuracy first, then fastest",
     "bestOrderAtCount": "Highest accuracy first, then fastest · runs at the current {count, plural, one {# word} other {# words}}",

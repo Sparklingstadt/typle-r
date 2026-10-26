@@ -1,5 +1,5 @@
 {
-  "empty": "Aucun mot pour l’instant. <link>Créez une liste de mots</link> pour commencer.",
+  "empty": "Aucun mot pour l’instant. <link>Créez un pack de mots</link> pour commencer.",
   "stats": {
     "label": "Session en cours",
     "elapsed": "Écoulé",
@@ -45,7 +45,7 @@
   "aside": {
     "label": "Listes de mots et meilleurs résultats",
     "lists": "Listes de mots",
-    "create": "Créer",
+    "create": "Nouveau pack",
     "best": "Meilleurs résultats",
     "bestOrder": "Par précision décroissante, puis par vitesse",
     "bestOrderAtCount": "Par précision décroissante, puis par vitesse · résultats à {count, plural, one {# mot} other {# mots}} uniquement",

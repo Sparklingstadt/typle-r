@@ -1,7 +1,7 @@
 {
   "page": {
-    "title": "単語リスト",
-    "description": "練習に使う単語リストを作成・編集します。CSVで書き出すと、別のブラウザーやアカウントで読み込めます。",
+    "title": "単語パック",
+    "description": "練習に使う単語パックを作成・編集します。リストをCSVで書き出すと、別のブラウザーやアカウントで読み込めます。",
     "reload": "再読み込み",
     "notFound": "開こうとした単語リストは見つかりません。削除された可能性があります。",
     "editTitle": "単語リストを編集",
@@ -10,19 +10,21 @@
     "updated": "「{name}」を更新しました。",
     "created": "「{name}」を作成しました。",
     "deleted": "「{name}」を削除しました。",
+    "packDeleted": "パック「{name}」を削除しました。",
     "exportFailed": "「{name}」をエクスポートできませんでした。もう一度お試しください。",
     "copySuffix": "{n, plural, =1 {（コピー）} other {（コピー{n}）}}"
   },
   "manager": {
-    "heading": "保存済みのリスト",
+    "heading": "保存済みのパック",
     "limitTitle": "{max}件まで保存できます",
-    "create": "新しいリストを作成",
+    "create": "新しいパックを作成",
+    "createPack": "新しいパック",
     "full": "単語リストは{max}件まで保存できます。使わなくなったリストを削除すると作成できます。",
-    "search": "リスト名・カテゴリ・タグ・単語で検索",
+    "search": "パック名・リスト名・カテゴリ・タグ・単語で検索",
     "clearSearch": "検索をクリア",
-    "countFiltered": "{shown}件 / 全{total}件",
-    "count": "{total}件",
-    "noMatch": "「{query}」に一致するリストはありません。リスト名・カテゴリ・タグ・単語から探します。",
+    "countFiltered": "{shown}パック / 全{total}パック",
+    "count": "{total}パック",
+    "noMatch": "「{query}」に一致するパックはありません。パック名・リスト名・カテゴリ・タグ・単語から探します。",
     "csvNote": "CSVエクスポートは表示する単語・入力する文字・補足を保存します（練習記録は含みません）。作成・編集画面の「CSV・TSVを読み込む」で使えます。"
   },
   "delete": {
@@ -35,7 +37,10 @@
     "noRecords": "練習記録なし",
     "records": "練習記録 {count}件（最終 {day}）",
     "exportHint": "単語はCSVに書き出して残せます（練習記録は含みません）。",
-    "export": "CSVエクスポート"
+    "export": "CSVエクスポート",
+    "packTitle": "{name} を削除しますか？",
+    "packDescription": "{lists}リストと{records}件の記録も削除されます。",
+    "lastInPack": "パック「{name}」も削除されます。"
   },
   "order": {
     "label": "並び順",
@@ -57,15 +62,16 @@
     "allTags": "すべてのタグ",
     "tagsCurrent": "タグ：{tags}",
     "separator": "・",
-    "tagsHint": "選んだタグをすべて持つリスト",
+    "tagsHint": "選んだタグをすべて持つパック",
     "clearTags": "タグの選択を解除",
     "clear": "絞り込みを解除",
     "clearAll": "検索と絞り込みを解除",
-    "noMatch": "条件に一致するリストはありません。",
+    "noMatch": "条件に一致するパックはありません。",
     "option": "{name}（{count}）"
   },
   "empty": {
     "title": "単語リストはまだありません",
+    "packTitle": "単語パックはまだありません",
     "description": "練習したい単語と、正解として入力する文字を登録します。CSV・TSVファイルから読み込むこともできます。"
   },
   "row": {
@@ -89,12 +95,16 @@
     "copy": "複製",
     "delete": "削除"
   },
-  "group": {
-    "levels": "難易度別に{levels, plural, other {#リスト}}",
+  "pack": {
+    "lists": "{count, plural, other {#リスト}}",
     "wordCount": "{count, plural, other {#語}}",
     "practice": "練習",
-    "practiceGroup": "{name} を練習",
-    "lists": "{name} のリスト"
+    "listsOf": "{name} のリスト",
+    "moreActions": "その他の操作",
+    "moreFor": "{name} のパックの操作",
+    "edit": "パックを編集",
+    "addList": "リストを追加",
+    "delete": "削除"
   },
   "wordRow": {
     "label": "単語 {n}",
@@ -102,7 +112,7 @@
     "dragTitle": "ドラッグして並べ替え"
   },
   "editor": {
-    "back": "単語リスト",
+    "back": "単語パック",
     "description": "タイピングで表示する単語と、正解として入力する文字を登録します。",
     "displayRequired": "表示する単語を入力するか、この行を削除してください（空の行は保存できません）。",
     "inputBlank": "入力する文字が空白だけです。空欄にすると表示する単語と同じになります。",
@@ -163,7 +173,17 @@
     "addTag": "タグを選ぶ・作成する",
     "searchTag": "タグを検索・作成",
     "create": "「{name}」を作成",
-    "noLabels": "まだありません。入力すると新しく作成できます。"
+    "noLabels": "まだありません。入力すると新しく作成できます。",
+    "pack": "パック",
+    "newPack": "新しいパック（リスト名で作成）",
+    "packHelp": "リストを入れるパックです。ほかのパックを選ぶと、リストはそのパックに移ります。",
+    "packWillBeDeleted": "パック「{name}」は削除されます。",
+    "levels": "難易度（任意）",
+    "levelLabel": "難易度 {n}",
+    "levelPlaceholder": "基本、初級など",
+    "addLevel": "難易度を追加",
+    "removeLevel": "難易度 {n} を削除",
+    "levelsHelp": "練習画面で、パックの中のリストを段階的に選ぶのに使います。例：基本 › 初級（{max}段まで）。"
   },
   "import": {
     "open": "CSV・TSVを読み込む",
@@ -226,5 +246,32 @@
     "edit": "編集",
     "editList": "{name} を編集",
     "number": "番号"
+  },
+  "packEditor": {
+    "createTitle": "パックを作成",
+    "createDescription": "パックの情報と、最初の単語リストを登録します。リストはあとから追加できます。",
+    "editTitle": "パックを編集",
+    "editDescription": "パックの情報と、中のリストの順番を変更します。",
+    "info": "パックの情報",
+    "name": "パック名",
+    "nameHelp": "パックの一覧と、練習するパックの選択に表示されます。",
+    "descriptionLabel": "説明（任意）",
+    "descriptionPlaceholder": "このパックの内容など",
+    "lists": "リスト",
+    "listsHelp": "つまみをドラッグするか、キーボードで並べ替えます。",
+    "drag": "{name} をドラッグして並べ替え",
+    "dragTitle": "ドラッグして並べ替え",
+    "dragInstructions": "スペースキーでリストを持ち上げ、上下矢印キーで移動し、スペースキーで確定します。Escapeキーでキャンセルします。",
+    "listActions": "{name} の操作",
+    "announceStart": "{name} を持ち上げました。{total}件中{position}番目です。",
+    "announceOver": "{name} を{total}件中{position}番目に移動しました。",
+    "announceOutside": "{name} は並べ替えの範囲外です。",
+    "announceEnd": "{name} を{total}件中{position}番目に置きました。",
+    "announceCancel": "並べ替えをキャンセルしました。{name} は元の位置に戻りました。",
+    "levels": "難易度: {levels}",
+    "noLevels": "難易度なし",
+    "wordCount": "{count, plural, other {#語}}",
+    "created": "パック「{name}」を作成しました。",
+    "updated": "パック「{name}」を更新しました。"
   }
 }

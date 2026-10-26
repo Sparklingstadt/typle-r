@@ -22,7 +22,7 @@ test('the guide links to each screen and shows the practice colors and keys', as
   await page.goto('/guide')
   const start = page.getByRole('region', { name: 'はじめの3ステップ' })
   await expect(start.getByRole('link', { name: '練習する' })).toHaveAttribute('href', '/play')
-  await expect(start.getByRole('link', { name: 'リストを作成' })).toHaveAttribute('href', '/create')
+  await expect(start.getByRole('link', { name: 'パックを作成' })).toHaveAttribute('href', '/packs/create')
   await expect(start.getByRole('link', { name: 'ベスト記録' })).toHaveAttribute('href', '/rankings')
 
   const practice = page.getByRole('region', { name: '練習する' })
@@ -35,8 +35,8 @@ test('the guide links to each screen and shows the practice colors and keys', as
   await expect(keys.getByText('保存する（Mac は ⌘ + Enter）')).toBeVisible()
   await expect(page.getByRole('region', { name: '単語リストを作る' }).getByLabel('CSVファイルの例')).toContainText('input,display,annotation')
 
-  await start.getByRole('link', { name: 'リストを作成' }).click()
-  await expect(page).toHaveURL(/\/create$/)
+  await start.getByRole('link', { name: 'パックを作成' }).click()
+  await expect(page).toHaveURL(/\/packs\/create$/)
 })
 
 test('on a phone the table of contents comes first and the page does not scroll sideways', async ({ page }) => {

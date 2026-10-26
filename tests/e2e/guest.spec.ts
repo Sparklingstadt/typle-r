@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { readFileSync } from 'node:fs'
+import { openPacks } from './packRows'
 const key = 'typle-r:guest-workspace:v1'
 async function importWords(page: import('@playwright/test').Page, files: Parameters<import('@playwright/test').Locator['setInputFiles']>[0]) {
   await page.getByRole('button', { name: 'CSV・TSVを読み込む', exact: true }).click()
@@ -27,8 +28,9 @@ test('guest can create, import, export, edit, practice, manage devices and delet
   await page.getByRole('button', { name: '単語 2 の操作', exact: true }).click()
   await page.getByRole('menuitem', { name: '上へ移動', exact: true }).click()
   await page.getByRole('button', { name: '保存', exact: true }).click()
-  await expect(page).toHaveURL(/\/edit$/)
+  await expect(page).toHaveURL(/\/edit\?pack=/)
   await page.reload()
+  await openPacks(page)
   await page.getByRole('button', { name: 'Guest を編集', exact: true }).click()
   await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('Guest saved')
   await page.getByRole('button', { name: '保存', exact: true }).click()
@@ -60,6 +62,7 @@ test('guest can create, import, export, edit, practice, manage devices and delet
   await expect(page.getByRole('alertdialog')).toHaveCount(0)
   await expect(page.getByRole('listitem').filter({ hasText: 'Guest saved' })).toHaveCount(0)
   await page.goto('/edit')
+  await openPacks(page)
   await page.getByRole('button', { name: 'Guest saved のその他の操作', exact: true }).click()
   await page.getByRole('menuitem', { name: '削除', exact: true }).click()
   await page.getByRole('alertdialog').getByRole('button', { name: '削除する', exact: true }).click()
@@ -98,7 +101,8 @@ test('quota failure keeps draft and allows retry', async ({ page }) => {
   await expect(page.getByRole('textbox', { name: '単語リスト名', exact: true })).toHaveValue('Retry')
   expect(await page.evaluate(key => localStorage.getItem(key), key)).toBeNull()
   await page.getByRole('button', { name: '保存', exact: true }).click()
-  await expect(page).toHaveURL(/\/edit$/)
+  await expect(page).toHaveURL(/\/edit\?pack=/)
+  await openPacks(page)
   await expect(page.getByRole('button', { name: 'Retry を編集', exact: true })).toBeVisible()
 })
 
@@ -137,7 +141,7 @@ test('about page explains features and storage, marks the browser as the current
   await expect(page).toHaveTitle('Typleについて | Typle')
   await expect(page.getByRole('heading', { name: 'Typleについて', exact: true, level: 1 })).toBeVisible()
   const features = page.getByRole('region', { name: 'できること', exact: true })
-  for (const [name, path] of [['リストを作成', '/create'], ['練習する', '/play'], ['ベスト記録', '/rankings']]) {
+  for (const [name, path] of [['パックを作成', '/packs/create'], ['練習する', '/play'], ['ベスト記録', '/rankings']]) {
     await expect(features.getByRole('link', { name, exact: true })).toHaveAttribute('href', path)
   }
   const storage = page.getByRole('region', { name: 'データの保存先', exact: true })
@@ -172,10 +176,12 @@ test('a guest’s lists of removed profiles are merged after the first profile�
     profiles: [{ id: 'default', name: 'メイン' }, { id: 'zh', name: '中国語', lists: [list('zh-list', '中文'), list('dup', 'Main')] }] })
   await page.addInitScript(([key, value]) => { if (localStorage.getItem(key) === null) localStorage.setItem(key, value) }, [key, legacy])
   await page.goto('/edit')
+  await openPacks(page)
   for (const name of ['Main', '中文', 'Main（中国語）']) await expect(page.getByRole('button', { name: `${name} を編集`, exact: true })).toBeVisible()
   const stored = JSON.parse(await page.evaluate(key => localStorage.getItem(key) ?? '{}', key))
   expect([stored.revision, 'profiles' in stored, stored.lists.map((item: { id: string }) => item.id)]).toEqual([3, false, ['main', 'zh-list', 'dup']])
   await page.reload()
+  await openPacks(page)
   await expect(page.getByRole('button', { name: 'Main（中国語） を編集', exact: true })).toBeVisible()
   expect(JSON.parse(await page.evaluate(key => localStorage.getItem(key) ?? '{}', key)).revision).toBe(3)
 })

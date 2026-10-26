@@ -10,7 +10,7 @@
   "features": {
     "title": "What you can do",
     "create": {
-      "title": "Create a list",
+      "title": "Create a pack",
       "description": "Add the words you want to learn. The word to display and the characters to type can be set separately, and you can also add words from CSV or TSV files."
     },
     "play": {

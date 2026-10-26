@@ -1,5 +1,5 @@
 {
-  "empty": "没有单词。请<link>创建单词列表</link>。",
+  "empty": "没有单词。请<link>创建单词包</link>。",
   "stats": {
     "label": "本次练习数据",
     "elapsed": "用时",
@@ -45,7 +45,7 @@
   "aside": {
     "label": "单词列表和最佳记录",
     "lists": "单词列表",
-    "create": "创建",
+    "create": "新建包",
     "best": "最佳记录",
     "bestOrder": "按正确率从高到低，相同时按速度从快到慢",
     "bestOrderAtCount": "按正确率从高到低，相同时按速度从快到慢 · 仅当前 {count} 个单词的记录",

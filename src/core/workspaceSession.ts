@@ -1,13 +1,13 @@
 import { AppError } from './appError'
 import type { PracticeDevice } from './devices'
 import type { SavedWordList } from './wordLists'
-import { applyListChange, viewLists, type Library } from './wordPacks'
+import { applyListChange, repairLibrary, viewLists, type Library, type WordPack } from './wordPacks'
 import { WorkspaceError, type WorkspaceState, type WorkspaceStore, type WorkspaceWrite } from './workspaceStore'
 
 type Change = Omit<WorkspaceWrite, 'revision' | 'accountId'>
 
 /** What the screens show of the workspace. */
-export type WorkspaceShown = { lists: SavedWordList[]; devices: PracticeDevice[] }
+export type WorkspaceShown = { lists: SavedWordList[]; packs: WordPack[]; devices: PracticeDevice[] }
 
 export type WorkspaceSessionOptions = {
   store: WorkspaceStore
@@ -30,7 +30,8 @@ export function createWorkspaceSession({ store, accountId, initialLibrary, show,
 
   function display(data: WorkspaceState) {
     state = data
-    show({ lists: viewLists(data.revision === 0 ? initialLibrary : data), devices: data.devices })
+    const library = data.revision === 0 ? initialLibrary : data
+    show({ lists: viewLists(library), packs: library.packs, devices: data.devices })
   }
 
   async function load(): Promise<WorkspaceState> {
@@ -75,6 +76,13 @@ export function createWorkspaceSession({ store, accountId, initialLibrary, show,
         const library = currentLibrary()
         const { lists, packs } = applyListChange(library, change(viewLists(library)))
         return { lists, packs, ...(changeDevices ? { devices: changeDevices(previous.devices) } : {}) }
+      }, useDefaults)
+    },
+    /** Replaces the library in its saved shape (packs and lists), repaired like any saved data. */
+    updateLibrary(change: (current: Library) => Library, useDefaults = true) {
+      return save((_previous, currentLibrary) => {
+        const { lists, packs } = repairLibrary(change(currentLibrary()))
+        return { lists, packs }
       }, useDefaults)
     },
     /** Stops showing results; the account changed. */

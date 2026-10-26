@@ -10,7 +10,7 @@
   "features": {
     "title": "主要功能",
     "create": {
-      "title": "建立清單",
+      "title": "建立包",
       "description": "加入想記住的單字。顯示的單字與要輸入的字元可以分別指定，也可以從 CSV、TSV 檔案加入。"
     },
     "play": {

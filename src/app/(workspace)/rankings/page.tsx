@@ -171,7 +171,7 @@ function EmptyState() {
     </div>
     <div className="flex flex-wrap justify-center gap-2">
       <Button size="lg" asChild><Link href="/play"><Keyboard aria-hidden="true" />{t('practice')}</Link></Button>
-      <Button size="lg" variant="outline" asChild><Link href="/create"><Plus aria-hidden="true" />{t('create')}</Link></Button>
+      <Button size="lg" variant="outline" asChild><Link href="/packs/create"><Plus aria-hidden="true" />{t('create')}</Link></Button>
     </div>
   </div>
 }

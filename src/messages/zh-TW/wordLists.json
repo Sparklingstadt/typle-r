@@ -1,7 +1,7 @@
 {
   "page": {
-    "title": "單字清單",
-    "description": "建立及編輯練習用的單字清單。匯出為 CSV 後，可在其他瀏覽器或帳號中匯入。",
+    "title": "單字包",
+    "description": "建立及編輯練習用的單字包。將清單匯出為 CSV 後，可在其他瀏覽器或帳號中匯入。",
     "reload": "重新載入",
     "notFound": "找不到要開啟的單字清單，可能已被刪除。",
     "editTitle": "編輯單字清單",
@@ -10,19 +10,21 @@
     "updated": "已更新「{name}」。",
     "created": "已建立「{name}」。",
     "deleted": "已刪除「{name}」。",
+    "packDeleted": "已刪除包「{name}」。",
     "exportFailed": "無法匯出「{name}」。請再試一次。",
     "copySuffix": "{n, plural, =1 {（副本）} other {（副本{n}）}}"
   },
   "manager": {
-    "heading": "已儲存的清單",
+    "heading": "已儲存的包",
     "limitTitle": "最多可儲存 {max} 個",
-    "create": "建立新清單",
+    "create": "建立新包",
+    "createPack": "建立新包",
     "full": "最多可儲存 {max} 個單字清單。刪除不再使用的清單後即可建立新清單。",
-    "search": "以清單名稱、分類、標籤或單字搜尋",
+    "search": "以包名稱、清單名稱、分類、標籤或單字搜尋",
     "clearSearch": "清除搜尋",
     "countFiltered": "{shown} 個 / 共 {total} 個",
     "count": "{total} 個",
-    "noMatch": "沒有符合「{query}」的清單。會從清單名稱、分類、標籤和單字中搜尋。",
+    "noMatch": "沒有符合「{query}」的包。會從包名稱、清單名稱、分類、標籤和單字中搜尋。",
     "csvNote": "CSV 匯出會儲存顯示的單字、輸入的文字和補充說明（不含練習紀錄）。可在建立、編輯畫面的「匯入 CSV/TSV」中使用。"
   },
   "delete": {
@@ -35,7 +37,10 @@
     "noRecords": "沒有練習紀錄",
     "records": "練習紀錄 {count} 筆（最近：{day}）",
     "exportHint": "可將單字匯出為 CSV 保留（不含練習紀錄）。",
-    "export": "匯出 CSV"
+    "export": "匯出 CSV",
+    "packTitle": "要刪除「{name}」嗎？",
+    "packDescription": "還會刪除 {lists} 個清單和 {records} 筆練習紀錄。",
+    "lastInPack": "包「{name}」也會被刪除。"
   },
   "order": {
     "label": "排序",
@@ -57,15 +62,16 @@
     "allTags": "所有標籤",
     "tagsCurrent": "標籤：{tags}",
     "separator": "、",
-    "tagsHint": "包含所有所選標籤的清單",
+    "tagsHint": "包含所有所選標籤的包",
     "clearTags": "取消選擇標籤",
     "clear": "清除篩選",
     "clearAll": "清除搜尋和篩選",
-    "noMatch": "沒有符合條件的清單。",
+    "noMatch": "沒有符合條件的包。",
     "option": "{name}（{count}）"
   },
   "empty": {
     "title": "還沒有單字清單",
+    "packTitle": "還沒有單字包",
     "description": "登錄想練習的單字，以及作為正確答案輸入的文字。也可以從 CSV、TSV 檔案匯入。"
   },
   "row": {
@@ -89,12 +95,16 @@
     "copy": "複製",
     "delete": "刪除"
   },
-  "group": {
-    "levels": "{levels, plural, other {#個難度}}",
+  "pack": {
+    "lists": "{count, plural, other {#個清單}}",
     "wordCount": "{count, plural, other {#個單字}}",
     "practice": "練習",
-    "practiceGroup": "練習 {name}",
-    "lists": "{name} 的清單"
+    "listsOf": "{name} 的清單",
+    "moreActions": "更多操作",
+    "moreFor": "{name} 包的操作",
+    "edit": "編輯包",
+    "addList": "新增清單",
+    "delete": "刪除"
   },
   "wordRow": {
     "label": "單字 {n}",
@@ -102,7 +112,7 @@
     "dragTitle": "拖曳以調整順序"
   },
   "editor": {
-    "back": "單字清單",
+    "back": "單字包",
     "description": "登錄打字時顯示的單字，以及作為正確答案輸入的文字。",
     "displayRequired": "請輸入要顯示的單字，或刪除此列（空白列無法儲存）。",
     "inputBlank": "輸入的文字只有空白。留空則與顯示的單字相同。",
@@ -163,7 +173,17 @@
     "addTag": "選擇或建立標籤",
     "searchTag": "搜尋或建立標籤",
     "create": "建立「{name}」",
-    "noLabels": "還沒有。輸入即可建立。"
+    "noLabels": "還沒有。輸入即可建立。",
+    "pack": "包",
+    "newPack": "建立新包（以清單名稱命名）",
+    "packHelp": "此清單所屬的包。選擇其他包會將清單移到該包。",
+    "packWillBeDeleted": "包「{name}」將被刪除。",
+    "levels": "難度（選填）",
+    "levelLabel": "難度 {n}",
+    "levelPlaceholder": "基礎、初級等",
+    "addLevel": "新增難度",
+    "removeLevel": "刪除難度 {n}",
+    "levelsHelp": "在練習畫面中用於逐級選擇包內的清單，例如：基礎 › 初級（最多 {max} 級）。"
   },
   "import": {
     "open": "匯入 CSV/TSV",
@@ -226,5 +246,32 @@
     "edit": "編輯",
     "editList": "編輯 {name}",
     "number": "編號"
+  },
+  "packEditor": {
+    "createTitle": "建立包",
+    "createDescription": "填寫包的資訊和第一個單字清單。之後還可以新增清單。",
+    "editTitle": "編輯包",
+    "editDescription": "變更包的資訊和其中清單的順序。",
+    "info": "包的資訊",
+    "name": "包名稱",
+    "nameHelp": "顯示在包清單中，以及選擇要練習的包時。",
+    "descriptionLabel": "說明（選填）",
+    "descriptionPlaceholder": "這個包的內容等",
+    "lists": "清單",
+    "listsHelp": "拖曳握把或使用鍵盤來調整順序。",
+    "drag": "拖曳 {name} 以重新排序",
+    "dragTitle": "拖曳以重新排序",
+    "dragInstructions": "按空白鍵拿起清單，用上下方向鍵移動，再按空白鍵放下。按 Esc 鍵取消。",
+    "listActions": "{name} 的操作",
+    "announceStart": "已拿起 {name}。位於第 {position} 個，共 {total} 個。",
+    "announceOver": "已將 {name} 移到第 {position} 個，共 {total} 個。",
+    "announceOutside": "{name} 不在排序範圍內。",
+    "announceEnd": "已將 {name} 放在第 {position} 個，共 {total} 個。",
+    "announceCancel": "已取消排序。{name} 已回到原本的位置。",
+    "levels": "難度：{levels}",
+    "noLevels": "無難度",
+    "wordCount": "{count, plural, other {#個單字}}",
+    "created": "已建立包「{name}」。",
+    "updated": "已更新包「{name}」。"
   }
 }

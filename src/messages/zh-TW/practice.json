@@ -1,5 +1,5 @@
 {
-  "empty": "沒有單字。請<link>建立單字清單</link>。",
+  "empty": "沒有單字。請<link>建立單字包</link>。",
   "stats": {
     "label": "本次練習數據",
     "elapsed": "用時",
@@ -45,7 +45,7 @@
   "aside": {
     "label": "單字清單與最佳紀錄",
     "lists": "單字清單",
-    "create": "建立",
+    "create": "建立新包",
     "best": "最佳紀錄",
     "bestOrder": "依正確率由高到低，相同時依速度由快到慢",
     "bestOrderAtCount": "依正確率由高到低，相同時依速度由快到慢 · 僅目前 {count} 個單字的紀錄",

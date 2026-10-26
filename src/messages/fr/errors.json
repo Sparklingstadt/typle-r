@@ -47,5 +47,8 @@
   "deviceNameDuplicate": "« {name} » est déjà enregistré. Choisissez un autre nom.",
   "deviceLimit": "Vous pouvez enregistrer jusqu’à {max} appareils. Supprimez ceux que vous n’utilisez plus avant d’en ajouter.",
   "practiceIncomplete": "L’entraînement n’est pas terminé.",
-  "recordListDeleted": "La liste de mots a été supprimée ; le résultat ne peut pas être enregistré."
+  "recordListDeleted": "La liste de mots a été supprimée ; le résultat ne peut pas être enregistré.",
+  "packNameRequired": "Saisissez un nom de pack.",
+  "packNameDuplicate": "Un pack porte déjà ce nom.",
+  "packDeleted": "Ce pack a été supprimé."
 }

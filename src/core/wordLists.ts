@@ -114,7 +114,8 @@ export function encodeLists(lists: SavedWordList[]) {
 
 export function saveList(lists: SavedWordList[], list: SavedWordList, editing: boolean) {
   if (editing && !lists.some(item => item.id === list.id)) throw new AppError('listDeleted')
-  validateList(list, lists.filter(item => item.id !== list.id))
+  // Names only have to differ within the list's pack.
+  validateList(list, lists.filter(item => item.id !== list.id && (list.packId === undefined || item.packId === list.packId)))
   // Whitespace can be meaningful in imported typing strings and annotations.
   const { category, tags, group, levels, ...rest } = list
   const normalized = { ...rest, name: list.name.trim(), ...normalizeLabels({ category, tags }), ...normalizeGroup({ group, levels }) }
