@@ -58,7 +58,7 @@ function useFilter(): [RecordFilter, (next: RecordFilter) => void] {
   const params = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
-  const filter = { list: params.get('list'), device: params.get('device') }
+  const filter = { pack: null, list: params.get('list'), device: params.get('device') }
   return [filter, next => {
     const query = new URLSearchParams()
     if (next.list) query.set('list', next.list)
@@ -98,7 +98,7 @@ function RecordHistory({ lists, saving, update }: {
     ({ value, count, label: format.recordDevice(device) })), [all, format])
   const selectedList = lists.find(list => list.id === filter.list)
   const { list: listId, device: deviceId } = filter
-  const rows = useMemo(() => filterRows(all, { list: listId, device: deviceId }), [all, listId, deviceId])
+  const rows = useMemo(() => filterRows(all, { pack: null, list: listId, device: deviceId }), [all, listId, deviceId])
   const groups = groupByDay(rows.slice(0, shown))
   const filtered = Boolean(filter.list || filter.device)
   const missing = rows.slice(0, shown).some(({ record }) => record.accuracy === undefined || record.wordCount === undefined)
@@ -123,13 +123,13 @@ function RecordHistory({ lists, saving, update }: {
     <div className="flex flex-wrap items-center gap-2">
       <FilterMenu name={t('filter.list')} allLabel={t('filter.allLists')} value={filter.list} options={listOptions} onChange={list => changeFilter({ ...filter, list })} />
       <FilterMenu name={t('filter.device')} allLabel={t('filter.allDevices')} value={filter.device} options={devicesOptions} onChange={device => changeFilter({ ...filter, device })} />
-      {filtered && <Button variant="ghost" size="lg" className="text-muted-foreground" onClick={() => changeFilter({ list: null, device: null })}>{t('filter.clear')}</Button>}
+      {filtered && <Button variant="ghost" size="lg" className="text-muted-foreground" onClick={() => changeFilter({ pack: null, list: null, device: null })}>{t('filter.clear')}</Button>}
       <p id="record-count" tabIndex={-1} aria-live="polite" className="ml-auto text-sm text-muted-foreground tabular-nums outline-none">{filtered ? t('filter.filteredCount', { count: rows.length, total: all.length }) : t('filter.count', { count: all.length })}</p>
     </div>
 
     {selectedList && selectedList.records.length > 0 && <ListSummary list={selectedList} now={now} />}
 
-    {!rows.length ? <FilteredEmpty list={selectedList} onClear={() => changeFilter({ list: null, device: null })} /> : <div className="space-y-6">
+    {!rows.length ? <FilteredEmpty list={selectedList} onClear={() => changeFilter({ pack: null, list: null, device: null })} /> : <div className="space-y-6">
       <div aria-hidden="true" className={cn('hidden px-5 text-xs text-muted-foreground sm:grid', recordColumns)}>
         <span>{t('columns.time')}</span><span>{t(filter.list ? 'columns.deviceWords' : 'columns.listDevice')}</span><span className="text-right">{t('columns.duration')}</span><span className="text-right">{t('columns.accuracy')}</span>
         <span className="text-right">{t('columns.perWord')}</span><span className="text-right">{t('columns.mistakes')}</span><span />

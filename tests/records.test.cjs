@@ -46,11 +46,20 @@ test('record rows are newest first and mark the current best of each list', () =
 
 test('filters match lists and devices by id, including records without a device', () => {
   const rows = recordRows(historyLists())
-  assert.deepEqual(filterRows(rows, { list: 'a', device: null }).map(row => row.key), ['a-a2', 'a-a1', 'a-2-' + at(27, 8)])
+  assert.deepEqual(filterRows(rows, { pack: null, list: 'a', device: null }).map(row => row.key), ['a-a2', 'a-a1', 'a-2-' + at(27, 8)])
   // The device was renamed between runs; both records still belong to it.
-  assert.deepEqual(filterRows(rows, { list: null, device: 'mac' }).map(row => row.key), ['a-a2', 'a-a1'])
-  assert.deepEqual(filterRows(rows, { list: null, device: NO_DEVICE }).map(row => row.key), ['b-b1', 'a-2-' + at(27, 8)])
-  assert.deepEqual(filterRows(rows, { list: 'b', device: 'mac' }), [])
+  assert.deepEqual(filterRows(rows, { pack: null, list: null, device: 'mac' }).map(row => row.key), ['a-a2', 'a-a1'])
+  assert.deepEqual(filterRows(rows, { pack: null, list: null, device: NO_DEVICE }).map(row => row.key), ['b-b1', 'a-2-' + at(27, 8)])
+  assert.deepEqual(filterRows(rows, { pack: null, list: 'b', device: 'mac' }), [])
+})
+
+test('filters narrow by pack, alone and together with a list or a device', () => {
+  const lists = historyLists().map(list => ({ ...list, packId: list.id === 'a' ? 'p' : 'q' }))
+  const rows = recordRows(lists)
+  assert.deepEqual(filterRows(rows, { pack: 'p', list: null, device: null }).map(row => row.key), ['a-a2', 'a-a1', 'a-2-' + at(27, 8)])
+  assert.deepEqual(filterRows(rows, { pack: 'q', list: 'b', device: null }).map(row => row.key), ['b-b1'])
+  assert.deepEqual(filterRows(rows, { pack: 'q', list: 'a', device: null }), [])
+  assert.deepEqual(filterRows(rows, { pack: 'p', list: null, device: 'mac' }).map(row => row.key), ['a-a2', 'a-a1'])
 })
 
 test('rows are grouped by local day with the practice time of each day', () => {

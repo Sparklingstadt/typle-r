@@ -74,7 +74,7 @@ export function removeRecord(lists: SavedWordList[], listId: string, record: Sto
 }
 
 export type RecordRow = { list: SavedWordList; record: StoredRecord; index: number; key: string; best: boolean }
-export type RecordFilter = { list: string | null; device: string | null }
+export type RecordFilter = { pack: string | null; list: string | null; device: string | null }
 export const NO_DEVICE = 'none'
 
 // Every record with its list, newest first. `best` marks the record that currently ranks first in its list.
@@ -89,7 +89,7 @@ export function matchesDevice(record: StoredRecord, device: string | null) {
 }
 
 export function filterRows(rows: RecordRow[], filter: RecordFilter) {
-  return rows.filter(row => (!filter.list || row.list.id === filter.list) && matchesDevice(row.record, filter.device))
+  return rows.filter(row => (!filter.pack || row.list.packId === filter.pack) && (!filter.list || row.list.id === filter.list) && matchesDevice(row.record, filter.device))
 }
 
 // Devices come from the records themselves, so deleted or renamed devices can still be picked (by id, with the
