@@ -49,7 +49,16 @@ func (f *fakeWorkspaces) WriteRevision(_ context.Context, _ string, revision int
 	if f.err != nil {
 		return nil, f.err
 	}
-	lists, err := workspace.Encode(change.Lists)
+	// As the store does: lists sent without packs keep their labels, and no packs are saved.
+	encode, packs := workspace.EncodeWithLabels, []byte(nil)
+	if change.HasPacks {
+		encode = workspace.Encode
+		var err error
+		if packs, err = workspace.EncodePacks(change.Packs); err != nil {
+			return nil, err
+		}
+	}
+	lists, err := encode(change.Lists)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +66,7 @@ func (f *fakeWorkspaces) WriteRevision(_ context.Context, _ string, revision int
 	if err != nil {
 		return nil, err
 	}
-	return &store.Saved{Lists: lists, Devices: devices, Revision: revision + 1}, nil
+	return &store.Saved{Lists: lists, Packs: packs, Devices: devices, Revision: revision + 1}, nil
 }
 
 // The database tests need the app's tables (npm run db:migrate). They use a random account and delete its row.
@@ -239,7 +248,7 @@ func TestGetEmpty(t *testing.T) {
 	s, owner := realStore(t)
 	h := newHarness(t, s, testBase)
 	response := h.get(owner)
-	want := `{"lists":[],"devices":[],"revision":0,"accountId":"` + owner + `"}`
+	want := `{"lists":[],"packs":null,"devices":[],"revision":0,"accountId":"` + owner + `"}`
 	if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != want {
 		t.Fatalf("response = %d %s; want %s", response.Code, response.Body, want)
 	}
@@ -453,7 +462,7 @@ func TestPutAnswersAndPassesOn(t *testing.T) {
 	device := `{"id":"mac","name":"MacBook","layout":"JIS"}`
 	response := h.put(testOwner, payload(testOwner, `"revision":3,"lists":[`+strings.Replace(oneList, `"records":[]`, `"records":[],"shared":true,"shareId":"x","keep":1`, 1)+`],"devices":[`+device+`]`))
 	want := `{"lists":[{"id":"one","name":"One","createdAt":"2026-09-06","words":[{"display":"a","input":"a","annotation":""}],"records":[],"keep":1}],` +
-		`"devices":[` + device + `],"revision":4,"accountId":"` + testOwner + `"}`
+		`"packs":null,"devices":[` + device + `],"revision":4,"accountId":"` + testOwner + `"}`
 	if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != want {
 		t.Fatalf("response = %d %s; want %s", response.Code, response.Body, want)
 	}
@@ -464,7 +473,7 @@ func TestPutAnswersAndPassesOn(t *testing.T) {
 	// A part left out stays as saved.
 	fake.change = store.Change{}
 	if response := h.put(testOwner, payload(testOwner, `"revision":4,"devices":[]`)); response.Code != http.StatusOK ||
-		strings.TrimSpace(response.Body.String()) != `{"lists":[],"devices":[],"revision":5,"accountId":"`+testOwner+`"}` {
+		strings.TrimSpace(response.Body.String()) != `{"lists":[],"packs":null,"devices":[],"revision":5,"accountId":"`+testOwner+`"}` {
 		t.Fatalf("response = %d %s", response.Code, response.Body)
 	}
 	if fake.change.HasLists || !fake.change.HasDevices {
@@ -529,6 +538,20 @@ func TestPutLimits(t *testing.T) {
 	expectError(t, h.put(owner, payload(owner, `"revision":0,"lists":[`+long+`]`)), http.StatusBadRequest, "invalidWorkspace")
 	if string(decodeBody(t, h.get(owner))["revision"]) != "0" || len(h.reports) != 0 {
 		t.Fatalf("a refused save created the workspace or was reported: %v", h.reports)
+	}
+}
+
+// A lists-only save stores the group it sends, which becomes a pack's name when it is read, so a group longer than
+// validateLists allows is refused, as the app does: a pack name over the limit would refuse every later save.
+func TestPutGroupLimit(t *testing.T) {
+	s, owner := realStore(t)
+	h := newHarness(t, s, testBase)
+	group := func(n int) string {
+		return strings.Replace(oneList, `"records":[]`, `"records":[],"group":"`+strings.Repeat("g", n)+`"`, 1)
+	}
+	expectError(t, h.put(owner, payload(owner, `"revision":0,"lists":[`+group(workspace.MaxGroup+1)+`]`)), http.StatusBadRequest, "invalidWorkspace")
+	if response := h.put(owner, payload(owner, `"revision":0,"lists":[`+group(workspace.MaxGroup)+`]`)); response.Code != http.StatusOK {
+		t.Fatalf("response = %d %s", response.Code, response.Body)
 	}
 }
 
@@ -776,5 +799,86 @@ func TestPutLoneSurrogateRealStore(t *testing.T) {
 	expectError(t, h.put(owner, payload(owner, `"revision":0,"lists":[`+list+`]`)), http.StatusBadRequest, "invalidWorkspace")
 	if len(h.reports) != 0 {
 		t.Fatalf("reports = %v", h.reports)
+	}
+}
+
+const (
+	aPack     = `{"id":"p","name":"P","category":"C","createdAt":"2026-09-06"}`
+	packedOne = `{"id":"one","name":"One","packId":"p","createdAt":"2026-09-06","words":[{"display":"a","input":"a","annotation":""}],"records":[]}`
+)
+
+// packs are taken only with the lists they hold, and checked as sent, as validateWorkspaceRequest and validateLibrary
+// do: a list of a save with packs has no labels of its own, not even empty ones.
+func TestPutPacks(t *testing.T) {
+	fake := &fakeWorkspaces{}
+	h := newHarness(t, fake, testBase)
+	response := h.put(testOwner, payload(testOwner, `"revision":1,"lists":[`+packedOne+`],"packs":[`+aPack+`]`))
+	want := `{"lists":[` + packedOne + `],"packs":[` + aPack + `],"devices":[],"revision":2,"accountId":"` + testOwner + `"}`
+	if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != want {
+		t.Fatalf("response = %d %s; want %s", response.Code, response.Body, want)
+	}
+	if !fake.change.HasLists || !fake.change.HasPacks || len(fake.change.Packs) != 1 || fake.change.Packs[0].Category != "C" {
+		t.Fatalf("change = %+v", fake.change)
+	}
+	// A save from an app that does not know packs keeps the labels it sent on its lists.
+	labeled := strings.Replace(oneList, `"records":[]`, `"records":[],"group":"G","category":"C","tags":["t"]`, 1)
+	if response := h.put(testOwner, payload(testOwner, `"revision":2,"lists":[`+labeled+`]`)); response.Code != http.StatusOK {
+		t.Fatalf("response = %d %s", response.Code, response.Body)
+	}
+	if list := fake.change.Lists[0]; fake.change.HasPacks || list.Group != "G" || list.Category != "C" || list.PackID != "" {
+		t.Fatalf("change = %+v", fake.change)
+	}
+	writes := fake.writes
+	with := func(fields string) string {
+		return strings.Replace(packedOne, `"records":[]`, `"records":[],`+fields, 1)
+	}
+	for name, fields := range map[string]string{
+		"null packs":         `"lists":[` + packedOne + `],"packs":null`,
+		"packs alone":        `"packs":[` + aPack + `]`,
+		"packs with devices": `"devices":[],"packs":[` + aPack + `]`,
+		"packs object":       `"lists":[` + packedOne + `],"packs":{}`,
+		"missing pack":       `"lists":[` + strings.Replace(packedOne, `"p"`, `"q"`, 1) + `],"packs":[` + aPack + `]`,
+		"empty category":     `"lists":[` + with(`"category":""`) + `],"packs":[` + aPack + `]`,
+		"empty tags":         `"lists":[` + with(`"tags":[]`) + `],"packs":[` + aPack + `]`,
+		"group":              `"lists":[` + with(`"group":"G"`) + `],"packs":[` + aPack + `]`,
+		"null description":   `"lists":[` + packedOne + `],"packs":[` + strings.Replace(aPack, `"category":"C"`, `"description":null`, 1) + `]`,
+		"pack without lists": `"lists":[` + packedOne + `],"packs":[` + aPack + `,{"id":"q","name":"Q","createdAt":"2026-09-06"}]`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			expectError(t, h.put(testOwner, payload(testOwner, `"revision":1,`+fields)), http.StatusBadRequest, "invalidWorkspace")
+		})
+	}
+	if fake.writes != writes {
+		t.Fatalf("writes = %d; want %d", fake.writes, writes)
+	}
+}
+
+func TestPutPacksFlow(t *testing.T) {
+	s, owner := realStore(t)
+	h := newHarness(t, s, testBase)
+	if packs := decodeBody(t, h.get(owner))["packs"]; string(packs) != "null" {
+		t.Fatalf("packs = %s; want null without a row", packs)
+	}
+	if response := h.put(owner, payload(owner, `"revision":0,"lists":[`+oneList+`]`)); response.Code != http.StatusOK {
+		t.Fatalf("response = %d %s", response.Code, response.Body)
+	}
+	if packs := decodeBody(t, h.get(owner))["packs"]; string(packs) != "null" {
+		t.Fatalf("packs = %s; want null for a row saved without packs", packs)
+	}
+	saved := h.put(owner, payload(owner, `"revision":1,"lists":[`+packedOne+`],"packs":[`+aPack+`]`))
+	read := h.get(owner)
+	if saved.Code != http.StatusOK || !bytes.Equal(bytes.TrimSpace(read.Body.Bytes()), bytes.TrimSpace(saved.Body.Bytes())) {
+		t.Fatalf("PUT = %d %s\nGET = %s", saved.Code, saved.Body, read.Body)
+	}
+	var packs []map[string]any
+	if err := json.Unmarshal(decodeBody(t, read)["packs"], &packs); err != nil || len(packs) != 1 || packs[0]["category"] != "C" {
+		t.Fatalf("packs = %s", decodeBody(t, read)["packs"])
+	}
+	// Lists sent alone leave the saved packs as they are.
+	if response := h.put(owner, payload(owner, `"revision":2,"lists":[`+packedOne+`,`+aList("two", "Two")+`]`)); response.Code != http.StatusOK {
+		t.Fatalf("response = %d %s", response.Code, response.Body)
+	}
+	if again := decodeBody(t, h.get(owner))["packs"]; !bytes.Equal(again, decodeBody(t, read)["packs"]) {
+		t.Fatalf("packs = %s; want %s", again, decodeBody(t, read)["packs"])
 	}
 }

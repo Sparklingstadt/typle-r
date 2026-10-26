@@ -16,25 +16,26 @@ type Stored = WorkspaceDocument & { revision: number }
 
 function readDocument(storage: Storage): Stored & { legacy: boolean } {
   const raw = storage.getItem(GUEST_STORAGE_KEY)
-  if (raw === null) return { lists: [], devices: [], revision: 0, legacy: false }
+  if (raw === null) return { lists: [], packs: [], devices: [], revision: 0, legacy: false }
   try {
     if (bytes(raw) > MAX_GUEST_BYTES) throw new Error('Too large')
     const value = JSON.parse(raw)
     if (value.version !== 1 || value.accountId !== GUEST_ACCOUNT_ID) throw new Error('Invalid guest workspace')
     if (!Number.isSafeInteger(value.revision) || value.revision < 0) throw new Error('Invalid revision')
-    const { lists, devices, legacy } = decodeDocument(value)
-    return { lists, devices, legacy, revision: value.revision }
+    // Data saved before packs has none, which decodeDocument converts.
+    const { lists, packs, devices, legacy } = decodeDocument(value)
+    return { lists, packs, devices, legacy, revision: value.revision }
   } catch {
     throw new AppError('guestReadFailed')
   }
 }
 
-function store(storage: Storage, { lists, devices, revision }: Stored): WorkspaceState {
-  const raw = JSON.stringify({ version: 1, accountId: GUEST_ACCOUNT_ID, revision, lists, devices })
+function store(storage: Storage, { lists, packs, devices, revision }: Stored): WorkspaceState {
+  const raw = JSON.stringify({ version: 1, accountId: GUEST_ACCOUNT_ID, revision, lists, packs, devices })
   if (!Number.isSafeInteger(revision) || bytes(raw) > MAX_GUEST_BYTES) throw new AppError('guestQuotaExceeded')
   try { storage.setItem(GUEST_STORAGE_KEY, raw) }
   catch { throw new AppError('guestWriteFailed') }
-  return { lists, devices, revision, accountId: GUEST_ACCOUNT_ID }
+  return { lists, packs, devices, revision, accountId: GUEST_ACCOUNT_ID }
 }
 
 // The lists of removed profiles are merged once, with a new revision, as for an account.
@@ -51,7 +52,7 @@ export function writeGuestWorkspace(request: WorkspaceWrite, storage: Storage = 
   let change
   try { change = validateWorkspaceRequest(request) }
   catch (error) { throw error instanceof LegacyProfileRequest ? new WorkspaceError('conflict', 409) : error }
-  if (change.lists && bytes(JSON.stringify(change.lists)) > MAX_WORKSPACE_BYTES) throw new AppError('guestQuotaExceeded')
+  if ((change.lists || change.packs) && bytes(JSON.stringify({ lists: change.lists, packs: change.packs })) > MAX_WORKSPACE_BYTES) throw new AppError('guestQuotaExceeded')
   return store(storage, { ...applyChange(previous, change), revision: change.revision + 1 })
 }
 

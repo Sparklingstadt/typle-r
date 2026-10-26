@@ -1,5 +1,6 @@
 import { decodeDevices } from './devices'
 import { decodeLists, MAX_CATEGORY, MAX_GROUP, MAX_LEVEL, MAX_LEVELS, MAX_TAG, MAX_TAGS, type SavedWordList } from './wordLists'
+import { decodePacks, validateLibrary } from './wordPacks'
 import { LEGACY_PROFILE_ID, type WorkspaceChange } from './workspaceDocument'
 
 export const MAX_WORKSPACE_BYTES = 1024 * 1024
@@ -25,7 +26,13 @@ export function validateWorkspaceRequest(value: unknown): WorkspaceChange & { re
   const body = value as Record<string, unknown>
   if (!Number.isSafeInteger(body.revision) || Number(body.revision) < 0) throw new Error('Invalid revision')
   if ((body.profileId !== undefined && body.profileId !== LEGACY_PROFILE_ID) || body.profiles !== undefined) throw new LegacyProfileRequest()
+  // Packs only make sense with the lists that belong to them.
+  if (body.packs !== undefined && body.lists === undefined) throw new Error('Invalid request')
+  const lists = body.lists === undefined ? undefined : validateLists(body.lists)
+  const packs = body.packs === undefined ? undefined : decodePacks(body.packs)
+  if (lists && packs) validateLibrary({ packs, lists })
   return { revision: Number(body.revision),
-    ...(body.lists === undefined ? {} : { lists: validateLists(body.lists) }),
+    ...(lists ? { lists } : {}),
+    ...(packs ? { packs } : {}),
     ...(body.devices === undefined ? {} : { devices: decodeDevices(body.devices) }) }
 }

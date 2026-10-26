@@ -4,9 +4,11 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -463,7 +465,7 @@ func TestModifyCopiesList(t *testing.T) {
 		t.Fatal(err)
 	}
 	stored, _, _ := row(t, conn, id)
-	want := `{"id": "c1", "name": "英単語（コピー）", "words": [{"input": "a", "display": "a", "reading": "エー", "annotation": ""}], "records": [], "createdAt": "2026-10-21T00:00:00.000Z"}`
+	want := `{"id": "c1", "name": "英単語（コピー）", "words": [{"input": "a", "display": "a", "reading": "エー", "annotation": ""}], "packId": "pack-c1", "records": [], "createdAt": "2026-10-21T00:00:00.000Z"}`
 	if !strings.Contains(stored, want) || !strings.Contains(stored, `"color": "red"`) || !strings.Contains(stored, `"records": [{"id": "r1"`) {
 		t.Fatalf("lists = %s", stored)
 	}
@@ -487,7 +489,7 @@ func TestModifyImportsList(t *testing.T) {
 	}
 	stored, _, _ := row(t, conn, id)
 	// A new account starts with the initial lists; the imported one is added after them.
-	want := `{"id": "i1", "name": "動物", "words": [{"input": "neko", "display": "猫,ねこ", "annotation": "1行目\n2行目"}], "records": [], "createdAt": "2026-10-21T00:00:00.000Z"}]`
+	want := `{"id": "i1", "name": "動物", "words": [{"input": "neko", "display": "猫,ねこ", "annotation": "1行目\n2行目"}], "packId": "pack-i1", "records": [], "createdAt": "2026-10-21T00:00:00.000Z"}]`
 	if !strings.HasSuffix(stored, want) {
 		t.Fatalf("lists = %.300s…", stored[max(0, len(stored)-300):])
 	}
@@ -516,9 +518,9 @@ func insertLists(t *testing.T, conn *pgx.Conn, id string, n int) {
 // decoded reads a saved workspace, as the app does with the answer of /api/workspace.
 func decoded(t *testing.T, saved *Saved) *workspace.Workspace {
 	t.Helper()
-	w, err := workspace.Decode(saved.Lists, saved.Devices)
+	w, err := workspace.Decode(saved.Lists, saved.Devices, saved.Packs)
 	if err != nil {
-		t.Fatalf("saved %s %s: %v", saved.Lists, saved.Devices, err)
+		t.Fatalf("saved %s %s %s: %v", saved.Lists, saved.Packs, saved.Devices, err)
 	}
 	return w
 }
@@ -882,5 +884,151 @@ func TestWriteRevisionDoesNotDecodeSavedLists(t *testing.T) {
 	}
 	if lists, _, _ := row(t, conn, kept); lists != unreadable || !strings.Contains(devices, `"d1"`) {
 		t.Fatalf("lists = %s, devices = %s", lists, devices)
+	}
+}
+
+// packsColumn is the owner's packs column as stored, or nil when it is NULL.
+func packsColumn(t *testing.T, conn *pgx.Conn, id string) []workspace.Pack {
+	t.Helper()
+	var packs *string
+	if err := conn.QueryRow(context.Background(), `SELECT packs::text FROM typle_workspaces WHERE owner_id = $1`, id).Scan(&packs); err != nil {
+		t.Fatal(err)
+	}
+	if packs == nil {
+		return nil
+	}
+	var stored []struct {
+		ID       string   `json:"id"`
+		Name     string   `json:"name"`
+		Category string   `json:"category"`
+		Tags     []string `json:"tags"`
+	}
+	if err := json.Unmarshal([]byte(*packs), &stored); err != nil {
+		t.Fatal(err)
+	}
+	result := make([]workspace.Pack, 0, len(stored))
+	for _, pack := range stored {
+		result = append(result, workspace.Pack{ID: pack.ID, Name: pack.Name, Category: pack.Category, Tags: pack.Tags})
+	}
+	return result
+}
+
+// A row saved before packs existed (packs NULL) is turned into packs when it is read, as the app does.
+func TestReadConvertsRowWithoutPacks(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	lists := `[{"id":"l1","name":"基本","group":"Linux","category":"プログラミング","tags":["シェル"],"createdAt":"2026-10-10T01:23:45.000Z",` +
+		`"words":[{"display":"ls","input":"ls","annotation":""}],"records":[]},` +
+		`{"id":"l2","name":"応用","group":"Linux","createdAt":"2026-10-11T01:23:45.000Z","words":[{"display":"cd","input":"cd","annotation":""}],"records":[]}]`
+	if _, err := conn.Exec(ctx, `INSERT INTO typle_workspaces (owner_id, lists, devices) VALUES ($1, $2, '[]')`, id, lists); err != nil {
+		t.Fatal(err)
+	}
+	s := open(t, connection, false)
+	w, err := s.Read(ctx, id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(w.Packs) != 1 || w.Packs[0].ID != "pack-l1" || w.Packs[0].Name != "Linux" || w.Packs[0].Category != "プログラミング" ||
+		w.Lists[1].PackID != "pack-l1" || w.Lists[1].Category != "プログラミング" {
+		t.Fatalf("packs = %+v, lists = %+v", w.Packs, w.Lists)
+	}
+	saved, err := s.ReadRevision(ctx, id)
+	if err != nil || saved.Packs != nil {
+		t.Fatalf("ReadRevision = %+v, %v; want packs NULL as nil", saved, err)
+	}
+}
+
+// Modify writes the packs with the lists: a new list gets a pack of its own, and a new category goes to the pack, not
+// the list. A row Modify inserts starts with the packs of the initial lists.
+func TestModifyWritesPacks(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	var created string
+	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) {
+		name := "動物"
+		list, err := workspace.CreateList(w, workspace.ListInput{Name: &name, Words: []workspace.Word{{Display: "a", Input: "a"}}},
+			workspace.NewID(), time.Now())
+		if err == nil {
+			created = list.ID
+		}
+		return true, err
+	}); err != nil {
+		t.Fatal(err)
+	}
+	initial, err := workspace.Initial()
+	if err != nil {
+		t.Fatal(err)
+	}
+	packs := packsColumn(t, conn, id)
+	if len(packs) != len(initial.Packs)+1 || packs[len(packs)-1].ID != "pack-"+created || packs[len(packs)-1].Name != "動物" {
+		t.Fatalf("packs = %+v", packs)
+	}
+	read, err := s.Read(ctx, id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, list := range initial.Lists {
+		if read.Lists[i].Category != list.Category || !slices.Equal(read.Lists[i].Tags, list.Tags) {
+			t.Fatalf("list %d = %+v; want the labels of %+v", i, read.Lists[i], list)
+		}
+	}
+	category := "生き物"
+	w, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) {
+		_, err := workspace.UpdateList(w, created, workspace.ListInput{Category: &category})
+		return true, err
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if list := w.Find(created); list == nil || list.Category != category || list.PackID != "pack-"+created {
+		t.Fatalf("result = %+v", list)
+	}
+	packs = packsColumn(t, conn, id)
+	if packs[len(packs)-1].Category != category {
+		t.Fatalf("packs = %+v", packs)
+	}
+	if lists, _, _ := row(t, conn, id); strings.Contains(lists, `"category"`) || strings.Contains(lists, category) {
+		t.Fatalf("lists = %s", lists)
+	}
+}
+
+// A save with packs writes them; a save of lists alone, from an app that does not know packs, keeps the saved packs
+// and the labels on its lists, which the next read moves into packs.
+func TestWriteRevisionPacks(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	lists := newLists(1)
+	lists[0].PackID = "p"
+	packs := []workspace.Pack{{ID: "p", Name: "P", Category: "C", CreatedAt: "2026-10-10T01:23:45.000Z"}}
+	saved, err := s.WriteRevision(ctx, id, 0, Change{Lists: lists, Packs: packs, HasLists: true, HasPacks: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if w := decoded(t, saved); len(w.Packs) != 1 || w.Packs[0].Category != "C" || w.Lists[0].Category != "C" {
+		t.Fatalf("saved = %s %s", saved.Lists, saved.Packs)
+	}
+	sent := newLists(2)
+	sent[0].PackID = "p"
+	sent[1].Category, sent[1].Tags = "語学", []string{"英語"}
+	saved, err = s.WriteRevision(ctx, id, 1, Change{Lists: sent, HasLists: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(saved.Lists), `"語学"`) || !strings.Contains(string(saved.Packs), `"C"`) {
+		t.Fatalf("saved = %s %s", saved.Lists, saved.Packs)
+	}
+	w := decoded(t, saved)
+	if len(w.Packs) != 2 || w.Lists[0].PackID != "p" || w.Lists[1].Category != "語学" || w.Find("l1").PackID == "p" {
+		t.Fatalf("packs = %+v, lists = %+v", w.Packs, w.Lists)
+	}
+	// A row created without packs is one saved before them: NULL.
+	other := owner(t, conn)
+	if saved, err := s.WriteRevision(ctx, other, 0, Change{Lists: sent, HasLists: true}); err != nil || saved.Packs != nil {
+		t.Fatalf("saved = %+v, %v", saved, err)
 	}
 }

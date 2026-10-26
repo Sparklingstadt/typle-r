@@ -3,10 +3,13 @@ const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { createWorkspaceSession } = require('../src/core/workspaceSession.ts')
 const { WorkspaceError } = require('../src/core/workspaceStore.ts')
+const { normalizeLibrary, viewLists } = require('../src/core/wordPacks.ts')
 
 const list = (id, name = id) => ({ id, name, words: [{ display: name, input: name, annotation: '' }], records: [], createdAt: '2026-10-04' })
-const initial = [list('sample-1', 'Sample')]
-const state = (revision, lists = [], accountId = 'github:1') => ({ accountId, revision, devices: [], lists })
+const grouped = (id, name, group) => ({ ...list(id, name), group, category: 'C' })
+const initialLibrary = normalizeLibrary([list('sample-1', 'Sample'), grouped('g1', 'G1', 'Group'), grouped('g2', 'G2', 'Group')], null)
+const initial = viewLists(initialLibrary)
+const state = (revision, lists = [], accountId = 'github:1', packs = null) => ({ accountId, revision, devices: [], ...normalizeLibrary(lists, packs) })
 
 function deferred() {
   let resolve, reject
@@ -30,7 +33,7 @@ function fakeStore({ staleReads = true } = {}) {
 function session(store) {
   const shown = [], saving = []
   const value = createWorkspaceSession({
-    store, accountId: 'github:1', initialLists: initial,
+    store, accountId: 'github:1', initialLibrary,
     show: view => shown.push(view), saving: on => saving.push(on),
   })
   return { session: value, shown, saving }
@@ -48,6 +51,8 @@ test('an empty workspace shows the initial lists, a saved one its own lists', as
   const fake = fakeStore()
   const empty = await loaded(fake, state(0))
   assert.deepEqual(empty.shown.at(-1).lists, initial)
+  // Screens see the pack name as the group of a pack with two lists or more.
+  assert.deepEqual(initial.map(item => item.group), [undefined, 'Group', 'Group'])
   const saved = await loaded(fake, state(3, [list('mine')]))
   assert.deepEqual(saved.shown.at(-1).lists.map(item => item.id), ['mine'])
 })
@@ -106,10 +111,10 @@ test('the first save keeps the initial lists unless the change starts from nothi
   const fake = fakeStore()
   const s = await loaded(fake, state(0))
   const saving = s.session.update(lists => [...lists, list('mine')])
-  assert.deepEqual(fake.writes[0].request.lists.map(item => item.id), ['sample-1', 'mine'])
+  assert.deepEqual(fake.writes[0].request.lists.map(item => item.id), ['sample-1', 'g1', 'g2', 'mine'])
   assert.equal(fake.writes[0].request.revision, 0)
   assert.equal(fake.writes[0].request.accountId, 'github:1')
-  fake.writes[0].resolve(state(1, fake.writes[0].request.lists))
+  fake.writes[0].resolve(state(1, fake.writes[0].request.lists, 'github:1', fake.writes[0].request.packs))
   await saving
 
   const legacy = await loaded(fake, state(0))
@@ -182,4 +187,17 @@ test('devices change with the lists left as they are', async () => {
   assert.deepEqual(fake.writes[0].request.lists.map(item => item.id), ['a'])
   fake.writes[0].resolve(state(2, [list('a')]))
   await saving
+})
+
+test('a save sends the lists in the saved shape together with the packs', async () => {
+  const fake = fakeStore()
+  const s = await loaded(fake, state(0))
+  const saving = s.session.update(lists => lists)
+  const { lists, packs } = fake.writes[0].request
+  assert.deepEqual(lists.map(item => item.packId), ['pack-sample-1', 'pack-g1', 'pack-g1'])
+  assert.equal(lists.some(item => 'group' in item || 'category' in item || 'tags' in item), false)
+  assert.deepEqual(packs, initialLibrary.packs)
+  fake.writes[0].resolve(state(1, lists, 'github:1', packs))
+  await saving
+  assert.deepEqual(s.shown.at(-1).lists, initial)
 })

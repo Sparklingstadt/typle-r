@@ -202,8 +202,8 @@ export default function WordListEditor({ title, description, storage, initial, l
     draftId.current ??= initial?.id ?? randomId()
     setSaving(true)
     try {
-      // The editor does not change the group and levels, so they stay as saved.
-      const saved = await onSave({ id: draftId.current, name, category, tags, group: initial?.group, levels: initial?.levels,
+      // The editor does not change the group, levels and pack, so they stay as saved.
+      const saved = await onSave({ id: draftId.current, name, category, tags, group: initial?.group, levels: initial?.levels, packId: initial?.packId,
         words: words.map(({ key, ...word }) => ({ ...word, input: word.input || word.display })),
         records: initial?.records ?? [], createdAt: initial?.createdAt ?? new Date().toISOString() })
       if (!saved) setFailure(current => ({ count: current.count + 1, name }))

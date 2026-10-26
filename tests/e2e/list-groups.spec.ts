@@ -20,7 +20,15 @@ function seed(page: Page) {
   }, [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists: lists(), devices: [] })])
 }
 
-const saved = (page: Page) => page.evaluate(k => JSON.parse(localStorage.getItem(k) ?? 'null').lists, key)
+// The saved lists as a screen sees them: a list's category and tags are its pack's, and a pack of two or more lists is a group.
+const saved = (page: Page) => page.evaluate(k => {
+  const { lists, packs } = JSON.parse(localStorage.getItem(k) ?? 'null')
+  return lists.map((list: { packId: string }) => {
+    const pack = packs.find((item: { id: string }) => item.id === list.packId)
+    const group = lists.filter((item: { packId: string }) => item.packId === list.packId).length >= 2 ? { group: pack.name } : {}
+    return { ...list, ...group, ...(pack.category ? { category: pack.category } : {}), ...(pack.tags ? { tags: pack.tags } : {}) }
+  })
+}, key)
 
 test('the lists of a group are one row that opens to show each of them', async ({ page }) => {
   const errors: string[] = []

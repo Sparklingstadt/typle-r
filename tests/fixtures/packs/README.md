@@ -1,0 +1,16 @@
+# 単語パックの共通 fixture
+
+入力 `lists`・`packs` に `normalizeLibrary`（Go は `workspace.Decode`）をかけた結果が `expected` です。
+TS は `tests/wordPacks.test.cjs`、Go は `server/internal/workspace/packs_library_test.go` が読みます。
+
+- `packs` が `null` のときは未変換のデータで、`group` ごとにパックを作ります。
+- `packs` があるときは変換済みのデータで、読み込み時の補正だけをかけます。
+
+## Go で守る約束
+
+- 長さは UTF-16 のコード単位で数える（TS の `string.length`）。
+- 名前は前後の空白を除き、`toLocaleLowerCase` で比べる。
+- `createdAt` は `Date.parse` で比べる。最も古いものを使い、同じときは `lists` の順で先のものを使う（元の文字列をそのまま残す）。
+- `group` の名前は前後の空白を除き、大文字小文字を区別して比べる。空白だけの `group` は `group` なしとして扱う。
+- 名前の重なりの接尾辞は「（2）」「（3）」…。200文字を超えるときは元の名前を切る。
+- 変換で作るタグは、`group` の全リストのタグの和集合の先頭20個まで。

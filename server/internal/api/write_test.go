@@ -13,7 +13,7 @@ import (
 )
 
 // writer keeps a workspace for every account, starting from savedLists, and saves a change only when it succeeds,
-// as the store's transaction does.
+// with its lists' changes put back into the packs, as the store's transaction does.
 type writer struct {
 	t         *testing.T
 	workspace *workspace.Workspace
@@ -34,7 +34,11 @@ func (w *writer) copy() *workspace.Workspace {
 	if err != nil {
 		w.t.Fatal(err)
 	}
-	copied, err := workspace.Decode(encoded, devices)
+	packs, err := workspace.EncodePacks(w.workspace.Packs)
+	if err != nil {
+		w.t.Fatal(err)
+	}
+	copied, err := workspace.Decode(encoded, devices, packs)
 	if err != nil {
 		w.t.Fatal(err)
 	}
@@ -46,10 +50,11 @@ func (w *writer) Modify(_ context.Context, owner string, change func(*workspace.
 	if w.err != nil {
 		return nil, w.err
 	}
-	next := w.copy()
+	previous, next := w.copy(), w.copy()
 	if _, err := change(next); err != nil {
 		return nil, err
 	}
+	next.ApplyListChange(previous)
 	w.workspace = next
 	return next, nil
 }
@@ -84,9 +89,14 @@ func TestCreateList(t *testing.T) {
 	if response.Code != 201 || !uuid.MatchString(got) {
 		t.Fatalf("%d %s", response.Code, got)
 	}
-	created := uuid.ReplaceAllString(got, `"id":"x"`)
+	// The list's pack is the one ApplyListChange made for it, named by the list's id.
+	id := w.workspace.Lists[len(w.workspace.Lists)-1].ID
+	if !strings.Contains(got, `"id":"`+id+`","name":"動物","packId":"pack-`+id+`"`) {
+		t.Fatalf("body = %s", got)
+	}
+	created := strings.ReplaceAll(got, id, "x")
 	created = regexp.MustCompile(`"createdAt":"[^"]+"`).ReplaceAllString(created, `"createdAt":"t"`)
-	if created != `{"list":{"id":"x","name":"動物","category":null,"tags":[],"wordCount":1,"recordCount":0,"createdAt":"t","practiceCount":0,"lastPracticed":null,"currentRecordCount":0,"words":[{"display":"cat","input":"cat","annotation":""}]}}` {
+	if created != `{"list":{"id":"x","name":"動物","packId":"pack-x","category":null,"tags":[],"wordCount":1,"recordCount":0,"createdAt":"t","practiceCount":0,"lastPracticed":null,"currentRecordCount":0,"words":[{"display":"cat","input":"cat","annotation":""}]}}` {
 		t.Fatalf("body = %s", created)
 	}
 	if response.Header().Get("Content-Type") != "application/json; charset=utf-8" || response.Header().Get("Cache-Control") != "no-store" {
@@ -101,7 +111,7 @@ func TestListLabels(t *testing.T) {
 	w := writable(t)
 	response := send(w, "POST", "/api/v1/lists", `{"name":"Go","category":" プログラミング ","tags":["Go"," go","","CLI"],"words":[{"display":"go","input":"go"}]}`)
 	got := body(t, response)
-	if response.Code != 201 || !strings.Contains(got, `"name":"Go","category":"プログラミング","tags":["Go","CLI"],"wordCount":1`) {
+	if response.Code != 201 || !strings.Contains(got, `"category":"プログラミング","tags":["Go","CLI"],"wordCount":1`) {
 		t.Fatalf("%d %s", response.Code, got)
 	}
 	id := w.workspace.Lists[2].ID
@@ -142,7 +152,7 @@ func TestListLabels(t *testing.T) {
 
 func TestUpdateList(t *testing.T) {
 	w := writable(t)
-	expect(t, send(w, "PATCH", "/api/v1/lists/l1", `{"name":"English"}`), 200, `{"list":{"id":"l1","name":"English","category":null,"tags":[],"wordCount":2,
+	expect(t, send(w, "PATCH", "/api/v1/lists/l1", `{"name":"English"}`), 200, `{"list":{"id":"l1","name":"English","packId":"pack-l1","category":null,"tags":[],"wordCount":2,
 	  "recordCount":3,"createdAt":"2026-10-10T01:23:45.000Z","practiceCount":3,"lastPracticed":"2026-10-03T00:00:00.000Z","currentRecordCount":1,"words":[{"display":"apple","input":"apple","annotation":"りんご"},
 	  {"display":"pear","input":"pear","annotation":""}]}}`)
 }
@@ -382,7 +392,7 @@ func TestCopyList(t *testing.T) {
 	w := writable(t)
 	response := sendAs(w, "Bearer alice", "POST", "/api/v1/lists/l1/copy", "", "")
 	got := body(t, response)
-	if response.Code != 201 || !uuid.MatchString(got) || !strings.Contains(got, `"name":"英単語（コピー）","category":null,"tags":[],"wordCount":2,"recordCount":0`) {
+	if response.Code != 201 || !uuid.MatchString(got) || !strings.Contains(got, `"name":"英単語（コピー）","packId":"pack-`+w.workspace.Lists[2].ID+`","category":null,"tags":[],"wordCount":2,"recordCount":0`) {
 		t.Fatalf("%d %s", response.Code, got)
 	}
 	if response := send(w, "POST", "/api/v1/lists/l1/copy", `{"name":"x"}`); response.Code != 201 || !strings.Contains(body(t, response), `"name":"x"`) {
@@ -413,7 +423,7 @@ func TestImportList(t *testing.T) {
 	csv := "input,display,annotation\r\nneko,猫,cat\r\n"
 	response := sendAs(w, "Bearer alice", "POST", "/api/v1/lists/import?name=%E5%8B%95%E7%89%A9&format=csv", "text/csv; charset=utf-8", csv)
 	got := body(t, response)
-	if response.Code != 201 || !uuid.MatchString(got) || !strings.Contains(got, `"name":"動物","category":null,"tags":[],"wordCount":1,"recordCount":0`) ||
+	if response.Code != 201 || !uuid.MatchString(got) || !strings.Contains(got, `"name":"動物","packId":"pack-`+w.workspace.Lists[2].ID+`","category":null,"tags":[],"wordCount":1,"recordCount":0`) ||
 		!strings.Contains(got, `"words":[{"display":"猫","input":"neko","annotation":"cat"}]`) {
 		t.Fatalf("%d %s", response.Code, got)
 	}

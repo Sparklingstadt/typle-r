@@ -1,6 +1,8 @@
 require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
+const fs = require('node:fs')
+const path = require('node:path')
 const { applyChange, decodeDocument } = require('../src/core/workspaceDocument.ts')
 const { readGuestWorkspace, writeGuestWorkspace, GUEST_STORAGE_KEY } = require('../src/plugins/storage/guest.ts')
 function storage() {
@@ -40,7 +42,7 @@ test('a name clashing again gets a number, and long names stay within the limit'
 test('data without removed profiles reads as it is', () => {
   for (const profiles of [undefined, []]) {
     const document = decodeDocument({ lists: [list], devices: [], profiles })
-    assert.deepEqual([document.lists, document.legacy], [[list], false])
+    assert.deepEqual([document.lists, document.legacy], [[{ ...list, packId: 'pack-l' }], false])
   }
   // Only the first profile, as the app with profiles saved it after the others were deleted: saved once without it.
   assert.equal(decodeDocument({ lists: [list], devices: [], profiles: [main] }).legacy, true)
@@ -50,12 +52,12 @@ test('data without removed profiles reads as it is', () => {
 
 test('a change may keep merged lists above the limit or lower them, but not add more', () => {
   const many = count => Array.from({ length: count }, (_, index) => named('l' + index, 'L' + index))
-  const document = { lists: many(155), devices: [] }
+  const document = { ...decodeDocument({ lists: many(155), devices: [] }) }
   assert.equal(applyChange(document, { lists: many(155) }).lists.length, 155)
   assert.equal(applyChange(document, { lists: many(151) }).lists.length, 151)
   assert.throws(() => applyChange(document, { lists: many(156) }), { key: 'listLimit', values: { max: 150 } })
-  assert.throws(() => applyChange({ lists: many(150), devices: [] }, { lists: many(151) }), { key: 'listLimit' })
-  assert.equal(applyChange({ lists: [], devices: [] }, { lists: many(150) }).lists.length, 150)
+  assert.throws(() => applyChange({ packs: [], lists: many(150), devices: [] }, { lists: many(151) }), { key: 'listLimit' })
+  assert.equal(applyChange({ packs: [], lists: [], devices: [] }, { lists: many(150) }).lists.length, 150)
 })
 
 test('guest data with profiles is merged once with a new revision, and saves read before it conflict', () => {
@@ -64,7 +66,7 @@ test('guest data with profiles is merged once with a new revision, and saves rea
   store.setItem(GUEST_STORAGE_KEY, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 2, lists: [list], devices: [],
     profiles: [main, { id: 'zh', name: '中国語', lists: [chinese] }] }))
   const merged = readGuestWorkspace(store)
-  assert.deepEqual([merged.revision, merged.lists], [3, [list, chinese]])
+  assert.deepEqual([merged.revision, merged.lists.map(item => item.id)], [3, ['l', 'zh-list']])
   const raw = JSON.parse(store.getItem(GUEST_STORAGE_KEY))
   assert.deepEqual([raw.revision, 'profiles' in raw], [3, false])
   assert.equal(readGuestWorkspace(store).revision, 3)
@@ -75,6 +77,35 @@ test('guest data with profiles is merged once with a new revision, and saves rea
     assert.throws(() => writeGuestWorkspace({ accountId: 'guest:local', revision: 3, ...body }, store), error => error.status === 409)
   }
   const saved = writeGuestWorkspace({ accountId: 'guest:local', revision: 3, profileId: 'default', lists: [chinese] }, store)
-  assert.deepEqual([saved.revision, saved.lists], [4, [chinese]])
-  assert.deepEqual(readGuestWorkspace(store).lists, [chinese])
+  assert.deepEqual([saved.revision, saved.lists.map(item => item.id)], [4, ['zh-list']])
+  assert.deepEqual(readGuestWorkspace(store).lists, saved.lists)
+})
+
+const fixture = name => JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/packs', name), 'utf8'))
+
+test('a document without packs is converted, and one with packs is repaired', () => {
+  const { lists, expected } = fixture('groups.json')
+  for (const packs of [undefined, null]) {
+    const document = decodeDocument({ lists, packs, devices: [] })
+    assert.deepEqual([document.packs, document.lists], [expected.packs, expected.lists])
+  }
+  // Saved packs are kept; a list without a packId gets a pack of its own.
+  const repaired = decodeDocument({ lists: [list], packs: [], devices: [] })
+  assert.deepEqual(repaired.packs.map(pack => [pack.id, pack.name]), [['pack-l', 'Local']])
+  assert.equal(repaired.lists[0].packId, 'pack-l')
+  assert.throws(() => decodeDocument({ lists: [list], packs: {}, devices: [] }), { key: 'savedDataCorrupted' })
+})
+
+test('a change of lists keeps the saved packs and drops those left without lists', () => {
+  const { lists, expected } = fixture('groups.json')
+  const document = decodeDocument({ lists, devices: [] })
+  const same = applyChange(document, { lists: expected.lists })
+  assert.deepEqual(same.packs, expected.packs)
+  const kept = applyChange(document, { devices: [] })
+  assert.deepEqual([kept.packs, kept.lists], [expected.packs, expected.lists])
+  // Removing every list of a pack removes the pack.
+  const gone = new Set(expected.packs.filter(pack => pack.name === 'Linux').map(pack => pack.id))
+  const rest = applyChange(document, { lists: expected.lists.filter(item => !gone.has(item.packId)) })
+  assert.equal(rest.packs.some(pack => gone.has(pack.id)), false)
+  assert.equal(rest.packs.length, expected.packs.length - gone.size)
 })

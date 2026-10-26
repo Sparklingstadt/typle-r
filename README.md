@@ -21,6 +21,19 @@
 - Go のバックエンド（`server/internal/*`）：typle-kotlin-backend の対応するコードを同じように直し、`TYPLE_BACKEND=kotlin npm run test:e2e` で確かめます。
 - ログイン（`client=ipad|macos|android|windows`）とトークンの形：各アプリが使うので、互換を保ちます。
 
+## v0.91.0 — 単語リストを単語パックに入れるようにしました（データ構造）
+
+単語リストを「単語パック」にまとめて持つ、データ構造の変更です。画面と使い方は変わりません。パックそのものを扱う画面やカタログは今後の版で足します（設計は `docs/superpowers/specs/2026-10-26-word-packs-design.md`）。
+
+- 保存形式：`packs`（パックの配列）を足し、各リストが `packId` で入るパックを指すようにしました。これまでリストごとに持っていた `group`・`category`・`tags` はパックの値になり、リストには保存しません（`levels` はリストに残ります）。ブラウザー保存のキーと `version` は変えていません。画面には、パックのカテゴリ・タグと、2リスト以上のパックの `group`（パック名）をリストに付けた形で渡すので、見え方は v0.90.0 と同じです。
+- 読み込み時の変換と補正：`packs` のない保存データ（ブラウザー保存、DB の `packs` が `NULL` の行）は、読み込むときにパックへ変換します。同じ `group` のリストは1つのパック（ID は `pack-<最初のリストの id>`）、`group` のないリストは1リストのパックです。足りない `packId` や存在しないパックを指すリストは1リストのパックに入れ、まとめたリストのタグの和集合は20個までにします。パック名と、パックの中のリスト名の重なりは「名前（2）」のように付け替え、200文字を超えるときは元の名前を切ります。次に保存したときに `packs` が書かれます。
+- DB：マイグレーション `0024_packs` で `typle_workspaces` に `packs`（JSONB、`NULL` ＝ まだ変換していない）を足しました。`/api/workspace` は `packs` を返し、受け取ります。GET は保存した `packs` をそのまま返し、まだ変換していない行では `"packs": null` を返します（このエンドポイントではサーバーは変換せず、アプリが変換します）。`packs` のない保存（古いアプリの `lists` だけの保存）は、`lists` を送られたとおり保存します。
+- `/api/v1`：リストの応答に `packId` を足しました。`category`・`tags` はパックの値で、作成は `packId` なしで1リストのパックを作り、`category`・`tags` の作成・変更はそのパックの値を変えます（`docs/api.md`）。`packId` の指定やパックのエンドポイントは今後の版です。
+- 最初の単語リストのファイル（`src/plugins/packs/*.json`）は変えていません。typle-ipad・typle-w・typle-a のテストが写しとの一致を確かめているためで、最初のパックは最初のリストを変換して作ります。`packs.json`・`catalogId`・`origin` はカタログの版で入れます。
+- iPad・Mac・Android・Windows のアプリ：このあとの版までは `packs` を知らないので、リストのカテゴリ・タグ・まとめ表示が出なくなります。データは消えません（`lists` だけを保存しても `packs` は残り、読み直すと Web 版では元のとおり見えます）。
+- typle-kotlin-backend も Go と同じように直しました（ブランチ `feat/word-packs`。この版と同じ時期にマージします）。
+- 不具合の修正：リストの編集画面で保存すると `packId` が外れ、まとまりのリストが別のパックに分かれてしまうのを直しました。
+
 ## v0.90.0 — iPad 版を別のリポジトリ typle-ipad に分けました
 
 iPad 版（SwiftUI）を、このリポジトリの `ios/` から公開リポジトリ [Sparklingstadt/typle-ipad](https://github.com/Sparklingstadt/typle-ipad) に移しました。`ios/` の git の履歴と設計のドキュメント（`docs/superpowers/specs` の iPad の2つの spec）を引き継いでいます。コミットの `(#N)` は `(Sparklingstadt/typle-r#N)` に書き換えたので、このリポジトリの PR を指します。これで、このリポジトリは Web 版と Go のバックエンドだけになりました。

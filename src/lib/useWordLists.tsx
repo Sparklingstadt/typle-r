@@ -7,7 +7,7 @@ import { useErrorText } from '@/i18n/useErrorText'
 import { AppError, type ErrorKey } from '../core/appError'
 import { GUEST_ACCOUNT_ID } from '../plugins/storage/guest'
 import { workspaceStore } from '../plugins/storage'
-import { initialLists } from '../plugins/packs'
+import { initialLibrary } from '../plugins/packs'
 
 import type { PracticeDevice } from '../core/devices'
 import { type SavedWordList } from '../core/wordLists'
@@ -44,7 +44,7 @@ function useWorkspace() {
   useEffect(() => {
     if (!accountId) return
     const current = createWorkspaceSession({
-      store: workspaceStore(accountId), accountId, initialLists, saving: setSaving,
+      store: workspaceStore(accountId), accountId, initialLibrary, saving: setSaving,
       show: shown => { setLists(shown.lists); setDevices(shown.devices) },
     })
     workspace.current = current

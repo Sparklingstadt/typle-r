@@ -91,19 +91,32 @@ func decodeFields(fields map[string]json.RawMessage) (revision int, change store
 		return 0, store.Change{}, errLegacy
 	}
 	lists, hasLists := fields["lists"]
+	packs, hasPacks := fields["packs"]
 	devices, hasDevices := fields["devices"]
+	// Packs only make sense with the lists that belong to them.
+	if hasPacks && !hasLists {
+		return 0, store.Change{}, errInvalid
+	}
 	if !hasLists && !hasDevices {
 		return revision, store.Change{}, nil
 	}
 	// null is not a left-out part: the app refuses it. A part that is left out is read as empty, so that only the
 	// other one is checked.
-	for _, raw := range []*json.RawMessage{&lists, &devices} {
+	for _, raw := range []*json.RawMessage{&lists, &packs, &devices} {
 		if bytes.Equal(*raw, []byte("null")) {
 			return 0, store.Change{}, errInvalid
 		}
 	}
-	if unstorable(lists) || unstorable(devices) {
+	if unstorable(lists) || unstorable(packs) || unstorable(devices) {
 		return 0, store.Change{}, errInvalid
+	}
+	// Lists sent with packs are checked as they were sent, before Decode repairs them.
+	if hasPacks {
+		if err := workspace.CheckLibrary(lists, packs); err != nil {
+			return 0, store.Change{}, err
+		}
+	} else {
+		packs = nil
 	}
 	if !hasLists {
 		lists = json.RawMessage("[]")
@@ -112,11 +125,20 @@ func decodeFields(fields map[string]json.RawMessage) (revision int, change store
 		devices = json.RawMessage("[]")
 	}
 	// The limits of the lists and the number of them are checked by the store, before it touches the database.
-	decoded, err := workspace.Decode(lists, devices)
+	decoded, err := workspace.Decode(lists, devices, packs)
 	if err != nil {
 		return 0, store.Change{}, err
 	}
-	return revision, store.Change{Lists: decoded.Lists, Devices: decoded.Devices, HasLists: hasLists, HasDevices: hasDevices}, nil
+	change = store.Change{Lists: decoded.Lists, Packs: decoded.Packs, Devices: decoded.Devices, HasLists: hasLists, HasPacks: hasPacks,
+		HasDevices: hasDevices}
+	if hasLists && !hasPacks {
+		// An app that does not know packs sends its lists with their labels, which are saved as it sent them (see
+		// store.Change).
+		if change.Lists, err = workspace.DecodeLists(lists); err != nil {
+			return 0, store.Change{}, err
+		}
+	}
+	return revision, change, nil
 }
 
 // unstorable reports whether a string or object key anywhere in the JSON value raw holds what PostgreSQL's jsonb cannot

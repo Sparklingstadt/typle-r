@@ -23,6 +23,8 @@ import (
 type listSummary struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
+	// PackID is the word pack the list belongs to; its category and tags are the pack's.
+	PackID string `json:"packId"`
 	// Category is null and Tags empty when the list has none.
 	Category    *string  `json:"category"`
 	Tags        []string `json:"tags"`
@@ -55,7 +57,7 @@ func summary(list *workspace.List) listSummary {
 	if tags == nil {
 		tags = []string{}
 	}
-	return listSummary{ID: list.ID, Name: list.Name, Category: category, Tags: tags, WordCount: len(list.Words),
+	return listSummary{ID: list.ID, Name: list.Name, PackID: list.PackID, Category: category, Tags: tags, WordCount: len(list.Words),
 		RecordCount: len(list.Records), CreatedAt: list.CreatedAt, PracticeCount: overview.PracticeCount, LastPracticed: last,
 		CurrentRecordCount: workspace.CurrentRecordCount(list)}
 }

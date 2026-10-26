@@ -25,7 +25,7 @@ const lists = `[{
 const devices = `[{ "id": "d1", "name": " 自宅 ", "layout": " JIS " }]`
 
 func TestDecodeSavedRow(t *testing.T) {
-	w, err := Decode([]byte(lists), []byte(devices))
+	w, err := Decode([]byte(lists), []byte(devices), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,7 +49,7 @@ func TestDecodeSavedRow(t *testing.T) {
 
 func TestDecodeEmptyRow(t *testing.T) {
 	for _, devices := range []string{`[]`, `null`} {
-		w, err := Decode([]byte(`[]`), []byte(devices))
+		w, err := Decode([]byte(`[]`), []byte(devices), nil)
 		if err != nil || len(w.Lists) != 0 || w.Devices == nil || len(w.Devices) != 0 {
 			t.Fatalf("devices %s: w = %+v, err = %v", devices, w, err)
 		}
@@ -78,18 +78,35 @@ func TestInitial(t *testing.T) {
 		if list.Category == "" && len(list.Tags) == 0 && list.Extra == "" {
 			continue
 		}
-		// The group and levels (v0.79.0) are fields Go keeps without reading them.
+		// The levels (v0.79.0) are a field Go keeps without reading it.
 		if (list.Category != "プログラミング" && list.Category != "語学") || len(list.Tags) == 0 ||
-			(list.Extra != "" && !strings.HasPrefix(list.Extra, `{"group":`)) {
+			(list.Extra != "" && !strings.HasPrefix(list.Extra, `{"levels":`)) {
 			t.Fatalf("%s: category %q, tags %v, extra %s", list.ID, list.Category, list.Tags, list.Extra)
 		}
 	}
+	// The lists are in the packs of initialLibrary: one for each group, and one for each list without a group.
+	lists, err := Encode(w.Lists)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := CheckPacks(w.Packs, stored(t, lists)); err != nil {
+		t.Fatal(err)
+	}
+	// The group Arch Linuxコマンド is named after the list arch-linux, which comes first and has no group.
+	arch := w.Find("arch-linux-beginner")
+	at := slices.IndexFunc(w.Packs, func(p Pack) bool { return p.ID == arch.PackID })
+	if len(w.Packs) != 30 || at < 0 || w.Packs[at].Name != "Arch Linuxコマンド（2）" || w.Packs[at].Category != "プログラミング" ||
+		arch.Category != w.Packs[at].Category || !slices.Equal(arch.Tags, w.Packs[at].Tags) ||
+		w.Find("arch-linux-advanced").PackID != arch.PackID || w.Find("arch-linux").PackID == arch.PackID {
+		t.Fatalf("packs = %+v, list = %+v", w.Packs, arch)
+	}
 }
 
-// The category and tags are optional: lists without them are written as before, and lists with them keep them.
+// The category and tags are optional. Lists saved before packs existed give theirs to their packs, which are written
+// with them; the lists are written without.
 func TestDecodeLabels(t *testing.T) {
 	w, err := Decode([]byte(`[{"id":"a","name":"A","category":"語学","tags":["英語","<b>"],"createdAt":"x","words":[{"display":"a","input":"a","annotation":""}],"records":[]},
-		{"id":"b","name":"B","category":null,"tags":null,"createdAt":"x","words":[{"display":"a","input":"a","annotation":""}],"records":[]}]`), []byte(`[]`))
+		{"id":"b","name":"B","category":null,"tags":null,"createdAt":"x","words":[{"display":"a","input":"a","annotation":""}],"records":[]}]`), []byte(`[]`), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -97,12 +114,16 @@ func TestDecodeLabels(t *testing.T) {
 		t.Fatalf("list = %+v", a)
 	}
 	encoded, err := Encode(w.Lists)
-	if err != nil || !strings.Contains(string(encoded), `"name":"A","category":"語学","tags":["英語","<b>"],"createdAt"`) ||
-		!strings.Contains(string(encoded), `{"id":"b","name":"B","createdAt"`) {
+	if err != nil || !strings.Contains(string(encoded), `{"id":"a","name":"A","packId":"pack-a","createdAt"`) ||
+		!strings.Contains(string(encoded), `{"id":"b","name":"B","packId":"pack-b","createdAt"`) {
 		t.Fatalf("encoded = %s, %v", encoded, err)
 	}
+	packs, err := EncodePacks(w.Packs)
+	if err != nil || string(packs) != `[{"id":"pack-a","name":"A","category":"語学","tags":["英語","<b>"],"createdAt":"x"},{"id":"pack-b","name":"B","createdAt":"x"}]` {
+		t.Fatalf("packs = %s, %v", packs, err)
+	}
 	for _, labels := range []string{`"category":1`, `"tags":"a"`, `"tags":[1]`, `"tags":[null]`} {
-		if _, err := Decode([]byte(`[{"id":"a","name":"A",`+labels+`,"createdAt":"x","words":[{"display":"a","input":"a","annotation":""}],"records":[]}]`), []byte(`[]`)); err == nil {
+		if _, err := Decode([]byte(`[{"id":"a","name":"A",`+labels+`,"createdAt":"x","words":[{"display":"a","input":"a","annotation":""}],"records":[]}]`), []byte(`[]`), nil); err == nil {
 			t.Errorf("%s was read", labels)
 		}
 	}
@@ -150,7 +171,7 @@ func TestDecodeRefusesWhatTheAppRefuses(t *testing.T) {
 		"long device name":  {`[]`, `[{"id":"d","name":"` + strings.Repeat("x", 101) + `","layout":""}]`},
 	}
 	for name, row := range cases {
-		if _, err := Decode([]byte(row[0]), []byte(row[1])); err == nil {
+		if _, err := Decode([]byte(row[0]), []byte(row[1]), nil); err == nil {
 			t.Errorf("%s: decoded", name)
 		}
 	}
@@ -191,6 +212,7 @@ func TestCheckLimits(t *testing.T) {
 		{Name: text(MaxListName, "a"), Words: words(MaxWords), Records: make([]Record, MaxRecords)},
 		{Name: text(MaxListName/2, "𠮷"), Words: []Word{{Input: text(MaxWordText, "a"), Display: text(MaxWordText, "a"), Annotation: text(MaxAnnotation, "a")}}},
 		{Category: text(MaxCategory, "a"), Tags: slices.Repeat([]string{text(MaxTag, "a")}, MaxTags)},
+		{Group: text(MaxGroup/2, "𠮷")},
 	}
 	if err := CheckLimits(ok); err != nil {
 		t.Fatalf("limits themselves refused: %v", err)
@@ -209,6 +231,8 @@ func TestCheckLimits(t *testing.T) {
 		{"category", List{Category: text(MaxCategory+1, "a")}},
 		{"tags", List{Tags: make([]string, MaxTags+1)}},
 		{"tag", List{Tags: []string{text(MaxTag+1, "a")}}},
+		{"group", List{Group: text(MaxGroup+1, "a")}},
+		{"group in UTF-16 units", List{Group: text(MaxGroup/2, "𠮷") + "a"}},
 	}
 	for _, c := range tooMany {
 		var e *Error

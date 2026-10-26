@@ -20,6 +20,9 @@ const (
 	MaxCategory = 50
 	MaxTag      = 50
 	MaxTags     = 20
+	// The limit of the group a list saved by an app that does not know packs may have (MAX_GROUP in
+	// src/core/wordLists.ts): it becomes the name of a pack when the lists are read.
+	MaxGroup = 200
 	// The app saves the lists with its devices, revision and account in one request of at most 1 MiB
 	// (MAX_WORKSPACE_BYTES), so the lists written here leave 128 KiB for the rest.
 	MaxListsBytes = 896 << 10
@@ -35,9 +38,13 @@ type Error struct {
 func (e *Error) Error() string { return e.Key }
 
 // The stored shape of a list. Words and records always have their arrays; a record leaves out what it does not have.
+// The category and tags belong to the list's pack, so Encode leaves them out (see EncodePacks); only EncodeWithLabels
+// writes them, and the group.
 type storedList struct {
 	ID        string   `json:"id"`
 	Name      string   `json:"name"`
+	PackID    string   `json:"packId,omitempty"`
+	Group     string   `json:"group,omitempty"`
 	Category  string   `json:"category,omitempty"`
 	Tags      []string `json:"tags,omitempty"`
 	CreatedAt string   `json:"createdAt"`
@@ -54,6 +61,16 @@ func (l storedList) MarshalJSON() ([]byte, error) {
 
 // Encode writes lists as the app saves them in the lists column, which its decodeLists reads back.
 func Encode(lists []List) ([]byte, error) {
+	return encodeLists(lists, false)
+}
+
+// EncodeWithLabels writes lists as an app that does not know packs saves them: each with its group, category and tags,
+// which Decode moves into packs when it reads them (see DecodeLists).
+func EncodeWithLabels(lists []List) ([]byte, error) {
+	return encodeLists(lists, true)
+}
+
+func encodeLists(lists []List, labels bool) ([]byte, error) {
 	stored := make([]storedList, 0, len(lists))
 	for _, list := range lists {
 		words, records := list.Words, list.Records
@@ -63,8 +80,12 @@ func Encode(lists []List) ([]byte, error) {
 		if records == nil {
 			records = []Record{}
 		}
-		stored = append(stored, storedList{ID: list.ID, Name: list.Name, Category: list.Category, Tags: list.Tags,
-			CreatedAt: list.CreatedAt, Words: words, Records: records, extra: list.Extra})
+		item := storedList{ID: list.ID, Name: list.Name, PackID: list.PackID, CreatedAt: list.CreatedAt, Words: words, Records: records,
+			extra: list.Extra}
+		if labels {
+			item.Group, item.Category, item.Tags = list.Group, list.Category, list.Tags
+		}
+		stored = append(stored, item)
 	}
 	return marshal(stored)
 }
@@ -87,11 +108,11 @@ func CheckSize(before, after int) error {
 }
 
 // CheckLimits refuses lists past the limits of validateLists (src/core/workspaceRequest.ts), which the app applies to
-// every save. The number of lists is not checked here: it is compared with the saved ones when the change is applied.
+// every save. The group is that of lists sent by an app that does not know packs (DecodeLists). The number of lists is not checked here: it is compared with the saved ones when the change is applied.
 func CheckLimits(lists []List) error {
 	for _, list := range lists {
 		if len(list.Words) > MaxWords || len(list.Records) > MaxRecords || length(list.Name) > MaxListName ||
-			length(list.Category) > MaxCategory || len(list.Tags) > MaxTags ||
+			length(list.Category) > MaxCategory || len(list.Tags) > MaxTags || length(list.Group) > MaxGroup ||
 			slices.ContainsFunc(list.Tags, func(tag string) bool { return length(tag) > MaxTag }) {
 			return &Error{Key: "invalidWorkspace"}
 		}
