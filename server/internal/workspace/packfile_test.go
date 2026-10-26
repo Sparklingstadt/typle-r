@@ -41,11 +41,7 @@ func packFileFixtures(t *testing.T) map[string]packFileFixture {
 
 func (f packFileFixture) workspace(t *testing.T) *Workspace {
 	t.Helper()
-	w, err := Decode(f.Library.Lists, []byte("[]"), f.Library.Packs)
-	if err != nil {
-		t.Fatal(err)
-	}
-	return w
+	return normalizedOnly(t, f.Library.Lists, []byte("[]"), f.Library.Packs)
 }
 
 var packNow = time.Date(2026, 10, 26, 0, 0, 0, 0, time.UTC)

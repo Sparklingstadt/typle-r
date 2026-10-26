@@ -1,4 +1,5 @@
 import { AppError } from './appError'
+import { isFollowed } from './followedPacks'
 import { listOverviews, matchesQuery, MAX_LISTS, type ListOverview } from './listOverview'
 import { MAX_LEVEL, MAX_LEVELS, MAX_SAVED_LEVELS, normalizeLabels, validateList, type SavedWordList } from './wordLists'
 import { levelPath, nameKey, pathsOverlap, repairLibrary, validateLibrary, viewLists, type Library, type WordPack } from './wordPacks'
@@ -80,6 +81,12 @@ const requirePack = (library: Library, packId: string) => {
   return pack
 }
 
+// An official pack that is followed is the catalog's to change: edits to it, or to a list in it, are refused.
+const refuseFollowed = (library: Library, packId: string | undefined) => {
+  const pack = packId === undefined ? undefined : library.packs.find(item => item.id === packId)
+  if (pack && isFollowed(pack)) throw new AppError('packFollowed')
+}
+
 // Every function ends here: the result is repaired, then refused if it is still not a library that can be saved.
 export function settle(library: Library) {
   const result = repairLibrary(library)
@@ -99,6 +106,7 @@ export function createPack(library: Library, fields: PackInput, firstList: Saved
 
 export function updatePack(library: Library, packId: string, fields: PackInput): Library {
   requirePack(library, packId)
+  refuseFollowed(library, packId)
   const saved = packFields(library, fields, packId)
   const packs = library.packs.map(pack => {
     if (pack.id !== packId) return pack
@@ -114,6 +122,7 @@ export function updatePack(library: Library, packId: string, fields: PackInput):
  */
 export function reorderPackLists(library: Library, packId: string, listIds: string[]): Library {
   requirePack(library, packId)
+  refuseFollowed(library, packId)
   const mine = library.lists.filter(list => list.packId === packId)
   const byId = new Map(mine.map(list => [list.id, list]))
   const given = [...new Set(listIds)].filter(id => byId.has(id))
@@ -134,6 +143,9 @@ export function saveListInPack(library: Library,
   if (packId !== null) requirePack(library, packId)
   const existing = library.lists.find(item => item.id === list.id)
   if (editing && !existing) throw new AppError('listDeleted')
+  // Neither the pack the list is saved to nor, when it is moved, the pack it leaves may be followed.
+  refuseFollowed(library, packId ?? undefined)
+  if (editing) refuseFollowed(library, existing!.packId)
   if (!editing && library.lists.length >= MAX_LISTS) throw new AppError('listLimit', { max: MAX_LISTS })
   const target = packId ?? newPackId(library, list.id)
   validateList({ ...list, records: [] }, packId === null ? [] : library.lists.filter(item => item.packId === packId && item.id !== list.id))

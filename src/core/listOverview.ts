@@ -135,6 +135,8 @@ export function copyName(lists: Pick<SavedWordList, 'name'>[], name: string, suf
 export function duplicateList(lists: SavedWordList[], id: string, copyId: string, suffix: (n: number) => string, now = new Date()) {
   const source = lists.find(list => list.id === id)
   if (!source) throw new AppError('listDeleted')
+  // A list of a followed pack is the only one with an origin (a copy of a pack has none), and it cannot be copied inside it.
+  if (source.origin) throw new AppError('packFollowed')
   if (lists.length >= MAX_LISTS) throw new AppError('listLimit', { max: MAX_LISTS })
   // The copy has no levels, so it is picked by its name: a first level of the pack is taken as a name is, or the copy
   // would overlap that list (see pathsOverlap) and be renamed when it is saved.

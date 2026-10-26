@@ -51,6 +51,7 @@
   "packNameRequired": "请输入包名称。",
   "packNameDuplicate": "已存在同名的包。",
   "packDeleted": "此包已被删除。",
+  "packFollowed": "官方包无法编辑。复制后即可作为自己的包进行编辑。",
   "levelsConflict": "同一个包中已有难度（没有难度的列表为名称）相同的列表。",
   "tooManyLevels": "一个列表只能有一个难度。",
   "packFileUnreadable": "无法将此文件作为单词包读取。",

@@ -6,6 +6,7 @@ import WordListEditor from "@/components/WordListEditor"
 import WordListEditorPage from "@/components/WordListEditorPage/WordListEditorPage"
 import { useSaveNotification } from "@/components/SaveNotification"
 import { useWordLists } from "@/lib/useWordLists"
+import { isFollowed } from "@/core/followedPacks"
 import { saveListInPack } from "@/core/packEditing"
 
 export default function Create() {
@@ -24,7 +25,9 @@ function Editor() {
   const common = useTranslations('common')
   const { ready, packs, error, errorKey, updateLibrary, storage } = useWordLists()
   if (!ready) return <p>{common('loading')}</p>
-  return <WordListEditor title={t('page.createTitle')} storage={storage} packs={packs} packId={params.get('pack')} error={error} errorKey={errorKey}
+  // A followed pack takes no new lists, so it is not offered and `?pack=` naming one starts a pack of its own.
+  const own = packs.filter(pack => !isFollowed(pack))
+  return <WordListEditor title={t('page.createTitle')} storage={storage} packs={own} packId={params.get('pack')} error={error} errorKey={errorKey}
     onCancel={() => router.push('/edit')} onSave={async (list, packId) => {
       // The pack of a list that starts a pack is made while saving, so its id is read from the result.
       let target = packId

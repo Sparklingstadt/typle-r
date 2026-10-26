@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
+import { followPacks } from './follow'
 const key = 'typle-r:guest-workspace:v1'
 const words = (...texts: string[]) => texts.map(text => ({ display: text, input: text, annotation: '' }))
 const member = (id: string, levels: string[], ...texts: string[]) =>
@@ -94,9 +95,10 @@ test('a group is one choice on the practice screen, and its lists are chosen by 
   await expect(page.locator('#wordDisplay')).toHaveText('ls')
 })
 
-test('the initial Kotlin syntax lists are one list with 初級1 to 上級2', async ({ page }) => {
+test('the official Kotlin syntax lists are one list with 初級1 to 上級2', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto('/play?list=arch-linux')
+  await followPacks(page, ['Kotlin構文'])
+  await page.goto('/play')
   const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
   await aside.getByRole('searchbox').fill('Kotlin構文')
   // Its lists' names hold the search, so the pack is already open at them.

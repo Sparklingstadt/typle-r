@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import { openPacks } from './packRows'
+import { followPacks } from './follow'
 const key = 'typle-r:guest-workspace:v1'
 const words = (...texts: string[]) => texts.map(text => ({ display: text, input: text, annotation: '' }))
 
@@ -161,10 +162,10 @@ test('the practice screen shows the labels and narrows the lists to choose by ca
   await expect(dialog.getByRole('list', { name: '単語リストの候補' }).getByRole('button')).toHaveText([/Plain/])
 })
 
-test('the initial lists come with their category and tags', async ({ page }) => {
-  await page.goto('/edit')
+test('the official lists come with their category and tags', async ({ page }) => {
+  await followPacks(page, ['Kotlin構文', '国名：中国語・国連加盟国（小文字）'])
   await page.getByRole('searchbox', { name: 'パック名・リスト名・カテゴリ・タグ・単語で検索' }).fill('Kotlin構文（初級1）')
-  await expect(page.locator('li[data-list-id="kotlin-syntax-beginner-1"] [data-list-labels]')).toHaveText(/プログラミング.*Kotlin/)
+  await expect(page.locator('li[data-list-id] [data-list-labels]')).toHaveText(/プログラミング.*Kotlin/)
   await page.getByRole('searchbox').fill('小文字・初級1')
-  await expect(page.locator('li[data-list-id="un-member-states-chinese-193-lowercase-beginner-1"] [data-list-labels]')).toHaveText(/語学.*中国語.*国名/)
+  await expect(page.locator('li[data-list-id] [data-list-labels]')).toHaveText(/語学.*中国語.*国名/)
 })

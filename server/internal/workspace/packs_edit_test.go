@@ -553,13 +553,13 @@ func TestUpdateListMovesToAPack(t *testing.T) {
 	}
 }
 
-func TestInitialPacksHaveOrigin(t *testing.T) {
-	w, err := Initial()
+func TestOfficialPacksHaveOrigin(t *testing.T) {
+	official, err := OfficialPacks()
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, pack := range w.Packs {
-		if pack.Origin == nil || pack.Origin.CatalogID != pack.ID || pack.Origin.Version != 1 {
+	for _, entry := range official {
+		if pack := entry.Pack; pack.Origin == nil || pack.Origin.CatalogID != pack.ID || pack.Origin.Version != 1 || pack.Origin.Followed {
 			t.Fatalf("pack %s: origin = %+v", pack.ID, pack.Origin)
 		}
 	}

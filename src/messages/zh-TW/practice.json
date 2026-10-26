@@ -1,5 +1,5 @@
 {
-  "empty": "沒有單字。請<link>建立單字包</link>。",
+  "empty": "還沒有單字包。請<catalog>追蹤官方單字包</catalog>，或<create>建立新的單字包</create>。",
   "stats": {
     "label": "本次練習數據",
     "elapsed": "用時",

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import { DropdownMenu } from 'radix-ui'
-import { ChevronRight, Copy, Download, History, Keyboard, ListPlus, MoreHorizontal, Pencil, Share2, Trash2 } from 'lucide-react'
+import { ChevronRight, Copy, Download, History, Keyboard, ListPlus, MoreHorizontal, Pencil, Share2, Trash2, UserMinus } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import type { PackOverview } from '@/core/packEditing'
@@ -16,7 +16,7 @@ const menuItem = 'flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-
 // The lists of a pack as one row, such as Linuxコマンド with its 11 lists, which opens to show each of them with its
 // own actions. A pack of one list is a row too. 練習 opens the list of the pack practised last, or its first.
 // `onAddList` and `onCopy` are left out when no more lists can be saved.
-export default function PackRow({ item, now, open, onToggle, highlight, disabled, onEditPack, onAddList, onCopy, onExport, onShare, shared, onDeletePack, children }: {
+export default function PackRow({ item, now, open, onToggle, highlight, disabled, onEditPack, onAddList, onCopy, onExport, onShare, shared, onDeletePack, followed, onUnfollow, children }: {
   item: PackOverview
   now: Date
   open: boolean
@@ -32,9 +32,13 @@ export default function PackRow({ item, now, open, onToggle, highlight, disabled
   /** The pack has a share link. */
   shared?: boolean
   onDeletePack: () => void
+  /** A followed official pack: it has no editing actions, and 'フォロー解除' takes the place of 削除. */
+  followed?: boolean
+  onUnfollow?: () => void
   children: ReactNode
 }) {
   const t = useTranslations('wordLists.pack')
+  const follow = useTranslations('wordLists.follow')
   const practiceText = usePracticeText()
   const { pack, lists } = item
   const latest = lists.reduce<PackOverview['lists'][number] | null>((last, entry) =>
@@ -56,6 +60,7 @@ export default function PackRow({ item, now, open, onToggle, highlight, disabled
             </button>
           </h3>
           <ListLabels list={pack} />
+          {followed && <Badge variant="secondary">{follow('badge')}</Badge>}
           {shared && <Badge variant="secondary" className="gap-1"><Share2 className="size-3" aria-hidden="true" />{t('shared')}</Badge>}
         </div>
         <p className="text-sm text-muted-foreground">
@@ -81,15 +86,17 @@ export default function PackRow({ item, now, open, onToggle, highlight, disabled
               {practiceId && <DropdownMenu.Item asChild className={menuItem}>
                 <Link href={`/play?list=${encodeURIComponent(practiceId)}`}><Keyboard aria-hidden="true" />{t('practice')}</Link>
               </DropdownMenu.Item>}
-              <DropdownMenu.Item className={menuItem} disabled={disabled} onSelect={onEditPack}><Pencil aria-hidden="true" />{t('edit')}</DropdownMenu.Item>
-              {onAddList && <DropdownMenu.Item className={menuItem} disabled={disabled} onSelect={onAddList}><ListPlus aria-hidden="true" />{t('addList')}</DropdownMenu.Item>}
+              {!followed && <DropdownMenu.Item className={menuItem} disabled={disabled} onSelect={onEditPack}><Pencil aria-hidden="true" />{t('edit')}</DropdownMenu.Item>}
+              {!followed && onAddList && <DropdownMenu.Item className={menuItem} disabled={disabled} onSelect={onAddList}><ListPlus aria-hidden="true" />{t('addList')}</DropdownMenu.Item>}
               {onCopy && <DropdownMenu.Item className={menuItem} disabled={disabled} onSelect={onCopy}><Copy aria-hidden="true" />{t('copy')}</DropdownMenu.Item>}
               <DropdownMenu.Item className={menuItem} onSelect={onExport}><Download aria-hidden="true" />{t('export')}</DropdownMenu.Item>
               {onShare && <DropdownMenu.Item className={menuItem} onSelect={onShare}><Share2 aria-hidden="true" />{t('share')}</DropdownMenu.Item>}
               <DropdownMenu.Separator className="my-1 h-px bg-border" />
-              <DropdownMenu.Item className={cn(menuItem, 'text-destructive data-[highlighted]:text-destructive [&_svg]:text-destructive')} disabled={disabled} onSelect={onDeletePack}>
+              {followed ? <DropdownMenu.Item className={cn(menuItem, 'text-destructive data-[highlighted]:text-destructive [&_svg]:text-destructive')} disabled={disabled} onSelect={onUnfollow}>
+                <UserMinus aria-hidden="true" />{follow('unfollow')}
+              </DropdownMenu.Item> : <DropdownMenu.Item className={cn(menuItem, 'text-destructive data-[highlighted]:text-destructive [&_svg]:text-destructive')} disabled={disabled} onSelect={onDeletePack}>
                 <Trash2 aria-hidden="true" />{t('delete')}
-              </DropdownMenu.Item>
+              </DropdownMenu.Item>}
             </DropdownMenu.Content>
           </DropdownMenu.Portal>
         </DropdownMenu.Root>

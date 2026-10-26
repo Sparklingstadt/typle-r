@@ -1,5 +1,5 @@
 {
-  "empty": "没有单词。请<link>创建单词包</link>。",
+  "empty": "还没有单词包。请<catalog>关注官方单词包</catalog>，或<create>创建新的单词包</create>。",
   "stats": {
     "label": "本次练习数据",
     "elapsed": "用时",

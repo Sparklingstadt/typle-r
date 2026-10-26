@@ -47,16 +47,17 @@ func (e *Error) Error() string { return e.Key }
 // The category and tags belong to the list's pack, so Encode leaves them out (see EncodePacks); only EncodeWithLabels
 // writes them, and the group.
 type storedList struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	PackID    string    `json:"packId,omitempty"`
-	Levels    *[]string `json:"levels,omitempty"`
-	Group     string    `json:"group,omitempty"`
-	Category  string    `json:"category,omitempty"`
-	Tags      []string  `json:"tags,omitempty"`
-	CreatedAt string    `json:"createdAt"`
-	Words     []Word    `json:"words"`
-	Records   []Record  `json:"records"`
+	ID        string      `json:"id"`
+	Name      string      `json:"name"`
+	PackID    string      `json:"packId,omitempty"`
+	Levels    *[]string   `json:"levels,omitempty"`
+	Group     string      `json:"group,omitempty"`
+	Category  string      `json:"category,omitempty"`
+	Tags      []string    `json:"tags,omitempty"`
+	CreatedAt string      `json:"createdAt"`
+	Words     []Word      `json:"words"`
+	Records   []Record    `json:"records"`
+	Origin    *ListOrigin `json:"origin,omitempty"`
 	extra     string
 }
 
@@ -88,7 +89,7 @@ func encodeLists(lists []List, labels bool) ([]byte, error) {
 			records = []Record{}
 		}
 		item := storedList{ID: list.ID, Name: list.Name, PackID: list.PackID, CreatedAt: list.CreatedAt, Words: words, Records: records,
-			extra: list.Extra}
+			Origin: list.Origin, extra: list.Extra}
 		if list.Levels != nil {
 			item.Levels = &list.Levels
 		}

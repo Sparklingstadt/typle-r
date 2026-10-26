@@ -70,7 +70,15 @@ type List struct {
 	Words     []Word
 	Records   []Record
 	CreatedAt string
-	Extra     string
+	// Origin is set on the lists of a followed official pack: the official list it is kept equal to (see followOfficial).
+	Origin *ListOrigin
+	Extra  string
+}
+
+// ListOrigin is the origin of a list of a followed pack. Extra holds the fields of it Typle does not know.
+type ListOrigin struct {
+	ListID string `json:"listId"`
+	Extra  string `json:"-"`
 }
 
 type Workspace struct {
@@ -120,12 +128,36 @@ type rawList struct {
 	CreatedAt *string      `json:"createdAt"`
 	Words     []*rawWord   `json:"words"`
 	Records   []*rawRecord `json:"records"`
-	extra     string
+	// Origin is read by originOf, which drops an origin of another shape.
+	Origin json.RawMessage `json:"origin"`
+	extra  string
 }
 
 // Decode reads a saved row: its lists, devices and packs columns. packs is nil (NULL) for lists saved before packs
-// existed, which are turned into packs as the app's normalizeLibrary does; saved packs are repaired as it does.
+// existed, which are turned into packs as the app's normalizeLibrary does; saved packs are repaired as it does. The
+// library then follows the official catalog (followOfficial), as the app makes it do whenever it reads saved data.
 func Decode(lists, devices, packs []byte) (*Workspace, error) {
+	official, err := catalog()
+	if err != nil {
+		return nil, err
+	}
+	return decode(lists, devices, packs, official)
+}
+
+// decode is Decode following the official packs given.
+func decode(lists, devices, packs []byte, official []OfficialPack) (*Workspace, error) {
+	w, err := normalized(lists, devices, packs)
+	if err != nil {
+		return nil, err
+	}
+	w.Packs, w.Lists = followOfficial(w.Packs, w.Lists, official)
+	viewLists(w)
+	return w, nil
+}
+
+// normalized reads a saved row as the app's normalizeLibrary does, before it follows the catalog. Its lists do not carry
+// their packs' labels yet (see viewLists).
+func normalized(lists, devices, packs []byte) (*Workspace, error) {
 	decoded, err := DecodeLists(lists)
 	if err != nil {
 		return nil, err
@@ -146,7 +178,6 @@ func Decode(lists, devices, packs []byte) (*Workspace, error) {
 	}
 	w := &Workspace{Devices: registered}
 	w.Packs, w.Lists = normalizeLibrary(decoded, saved, packs == nil)
-	viewLists(w)
 	return w, nil
 }
 
@@ -240,8 +271,30 @@ func decodeList(raw *rawList) (List, error) {
 	if raw.PackID != nil {
 		packID = *raw.PackID
 	}
+	origin, err := originOf(raw.Origin)
+	if err != nil {
+		return List{}, err
+	}
 	return List{ID: *raw.ID, Name: *raw.Name, Levels: levels, PackID: packID, Group: group, Category: category, Tags: tags, Words: words, Records: records,
-		CreatedAt: *raw.CreatedAt, Extra: raw.extra}, nil
+		CreatedAt: *raw.CreatedAt, Origin: origin, Extra: raw.extra}, nil
+}
+
+// originOf follows decodeLists (src/core/wordLists.ts): a list's origin is kept when it is an object with a string
+// listId, with the other fields it has; any other origin is dropped.
+func originOf(raw json.RawMessage) (*ListOrigin, error) {
+	var fields map[string]json.RawMessage
+	if len(raw) == 0 || json.Unmarshal(raw, &fields) != nil {
+		return nil, nil
+	}
+	var id string
+	if json.Unmarshal(fields["listId"], &id) != nil || string(fields["listId"]) == "null" {
+		return nil, nil
+	}
+	extra, err := unknown(raw, "listId")
+	if err != nil {
+		return nil, err
+	}
+	return &ListOrigin{ListID: id, Extra: extra}, nil
 }
 
 func decodeRecord(raw *rawRecord) (Record, error) {
@@ -327,7 +380,7 @@ func (r *rawList) UnmarshalJSON(data []byte) (err error) {
 	type plain rawList
 	if err = json.Unmarshal(data, (*plain)(r)); err == nil {
 		r.extra, err = unknown(data, "id", "name", "category", "tags", "group", "packId", "levels", "createdAt", "words", "records",
-			"shared", "shareId")
+			"origin", "shared", "shareId")
 	}
 	return err
 }
@@ -340,7 +393,8 @@ func (d *Device) UnmarshalJSON(data []byte) (err error) {
 	return err
 }
 
-// Words, records and devices are written with their unknown fields, both to the database and in the API's answers.
+// Words, records, list origins and devices are written with their unknown fields, both to the database and in the
+// API's answers.
 
 func (w Word) MarshalJSON() ([]byte, error) {
 	type plain Word
@@ -352,6 +406,12 @@ func (r Record) MarshalJSON() ([]byte, error) {
 	type plain Record
 	known, err := marshal(plain(r))
 	return withExtra(known, r.Extra), err
+}
+
+func (o ListOrigin) MarshalJSON() ([]byte, error) {
+	type plain ListOrigin
+	known, err := marshal(plain(o))
+	return withExtra(known, o.Extra), err
 }
 
 func (d Device) MarshalJSON() ([]byte, error) {

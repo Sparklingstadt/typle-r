@@ -2,6 +2,14 @@ import { test, expect, type Page } from '@playwright/test'
 const key = 'typle-r:guest-workspace:v1'
 const display = (page: Page, n: number) => page.getByRole('textbox', { name: `表示する単語 ${n}`, exact: true })
 const displays = (page: Page) => page.getByRole('textbox', { name: /^表示する単語 \d+$/ })
+// A guest starts with no packs, so an own pack with a list named Go構文 is put in the browser first.
+function seedGoList(page: Page) {
+  const word = (text: string) => ({ display: text, input: text, annotation: '' })
+  const raw = JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, devices: [],
+    packs: [{ id: 'pack-go', name: 'Go構文', createdAt: '2026-09-01' }],
+    lists: [{ id: 'go', name: 'Go構文', packId: 'pack-go', createdAt: '2026-09-01', words: [word('fmt'), word('func')], records: [] }] })
+  return page.addInitScript(([k, value]) => { if (!localStorage.getItem(k)) localStorage.setItem(k, value) }, [key, raw])
+}
 
 test('Enter moves between words and adds rows instead of saving', async ({ page }) => {
   const errors: string[] = []
@@ -40,6 +48,7 @@ test('Enter moves between words and adds rows instead of saving', async ({ page 
 })
 
 test('a duplicate name is shown on the name field while the save bar stays visible', async ({ page }) => {
+  await seedGoList(page)
   await page.setViewportSize({ width: 1280, height: 720 })
   await page.goto('/create')
   await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('Go構文')
@@ -64,6 +73,7 @@ test('a duplicate name is shown on the name field while the save bar stays visib
 })
 
 test('cancel asks before discarding unsaved changes', async ({ page }) => {
+  await seedGoList(page)
   await page.goto('/create')
   await page.getByRole('button', { name: 'キャンセル', exact: true }).click()
   await expect(page).toHaveURL(/\/edit$/)

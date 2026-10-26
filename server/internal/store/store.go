@@ -92,7 +92,7 @@ func (s *Store) Ping(ctx context.Context) error {
 func (s *Store) Close() { s.pool.Close() }
 
 // Read returns the owner's saved workspace, such as github:12345's. An account that has saved nothing yet has the
-// initial lists, as in the app.
+// initial workspace, as in the app: empty since v0.98.0.
 func (s *Store) Read(ctx context.Context, owner string) (*workspace.Workspace, error) {
 	var lists, packs, devices []byte
 	err := s.pool.QueryRow(ctx, `SELECT lists::text, packs::text, devices::text FROM typle_workspaces WHERE owner_id = $1`, owner).
@@ -112,7 +112,7 @@ func (s *Store) Read(ctx context.Context, owner string) (*workspace.Workspace, e
 
 // Modify changes the owner's workspace and saves it, in one transaction that holds the row locked. While it is held,
 // a save from the app waits; afterwards the app finds the revision changed and reloads (409), as it does when another
-// browser saved first. An account that has saved nothing starts from the initial lists. When change reports nothing
+// browser saved first. An account that has saved nothing starts from the initial workspace. When change reports nothing
 // changed, nothing is written.
 //
 // change edits the lists as Decode shows them, with their packs' category and tags; ApplyListChange then puts those
@@ -177,7 +177,7 @@ func encodeLibrary(w *workspace.Workspace) (lists, packs []byte, err error) {
 	return lists, packs, err
 }
 
-// lock reads the owner's row FOR UPDATE, first inserting one with the initial lists and their packs when there is
+// lock reads the owner's row FOR UPDATE, first inserting one with the initial workspace when there is
 // none. Another request may insert it at the same moment; the row is then read and locked once that request is done
 // with it.
 func lock(ctx context.Context, tx pgx.Tx, owner string) (*workspace.Workspace, error) {
@@ -236,7 +236,7 @@ type Change struct {
 }
 
 // ReadRevision returns the owner's saved workspace with its revision, or nil when nothing has been saved. Unlike Read
-// it does not make up initial lists: the app's /api/workspace answers revision 0 for an account without a row. The row
+// it does not make up the initial workspace: the app's /api/workspace answers revision 0 for an account without a row. The row
 // is checked with Decode, so saved data that Go cannot read is an error, but it is answered as stored (the jsonb text),
 // not as Go decoded it. Data that Go reads and the app's decodeLists or decodeDevices refuses therefore reaches the
 // browser, which says savedDataCorrupted, rather than being quietly changed here.

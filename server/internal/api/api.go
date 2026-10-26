@@ -37,6 +37,8 @@ type listSummary struct {
 	PracticeCount      int     `json:"practiceCount"`
 	LastPracticed      *string `json:"lastPracticed"`
 	CurrentRecordCount int     `json:"currentRecordCount"`
+	// Origin is the official list a list of a followed pack is kept equal to, and null for other lists.
+	Origin *workspace.ListOrigin `json:"origin"`
 }
 
 type listDetail struct {
@@ -65,7 +67,7 @@ func summary(list *workspace.List) listSummary {
 	}
 	return listSummary{ID: list.ID, Name: list.Name, PackID: list.PackID, Category: category, Tags: tags, Levels: levels, WordCount: len(list.Words),
 		RecordCount: len(list.Records), CreatedAt: list.CreatedAt, PracticeCount: overview.PracticeCount, LastPracticed: last,
-		CurrentRecordCount: workspace.CurrentRecordCount(list)}
+		CurrentRecordCount: workspace.CurrentRecordCount(list), Origin: list.Origin}
 }
 
 // Source reads an account's current workspace. It is read again for every request, so changes saved in the app show

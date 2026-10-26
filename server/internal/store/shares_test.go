@@ -12,12 +12,14 @@ import (
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
 
-// saved creates the owner's row with the initial lists and their packs, and returns the workspace as saved.
+// saved creates the owner's row with the lists a, b and c, each in a pack of its own, and returns the workspace as saved.
 func saved(t *testing.T, s *Store, owner string) *workspace.Workspace {
 	t.Helper()
 	ctx := context.Background()
-	if _, err := s.Modify(ctx, owner, createList("a")); err != nil {
-		t.Fatal(err)
+	for _, name := range []string{"a", "b", "c"} {
+		if _, err := s.Modify(ctx, owner, createList(name)); err != nil {
+			t.Fatal(err)
+		}
 	}
 	w, err := s.Read(ctx, owner)
 	if err != nil {
@@ -97,57 +99,44 @@ func TestPutShare(t *testing.T) {
 	}
 }
 
-// An account that has saved nothing shares the initial packs it is shown, and still has saved nothing. Its first save
-// without the pack deletes the link.
-func TestPutShareInitialPacks(t *testing.T) {
+// An account that has saved nothing has no packs (it starts empty since v0.98.0), so it has none to share, and sharing
+// saves nothing.
+func TestPutShareWithoutRow(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
 	s := open(t, connection, true)
-	initial, err := workspace.Initial()
-	if err != nil {
-		t.Fatal(err)
-	}
-	pack := initial.Packs[0].ID
-	share, err := s.PutShare(ctx, id, pack)
-	if err != nil {
-		t.Fatal(err)
+	if _, err := s.PutShare(ctx, id, "no-such-pack"); !isKey(err, "packNotFound") {
+		t.Fatalf("missing pack: %v", err)
 	}
 	if saved, err := s.ReadRevision(ctx, id); saved != nil || err != nil {
 		t.Fatalf("ReadRevision = %+v, %v; want no row", saved, err)
 	}
-	want, err := workspace.EncodePackFile(initial, pack)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if data, err := s.SharedPack(ctx, share.ID); err != nil || !bytes.Equal(data, want) {
-		t.Fatalf("SharedPack = %s, %v", data, err)
-	}
-	if _, err := s.PutShare(ctx, id, "no-such-pack"); !isKey(err, "packNotFound") {
-		t.Fatalf("missing pack: %v", err)
-	}
-
-	packs := slices.DeleteFunc(slices.Clone(initial.Packs), func(p workspace.Pack) bool { return p.ID == pack })
-	lists := slices.DeleteFunc(slices.Clone(initial.Lists), func(l workspace.List) bool { return l.PackID == pack })
-	if _, err := s.WriteRevision(ctx, id, 0, Change{Lists: lists, Packs: packs, HasLists: true, HasPacks: true}); err != nil {
-		t.Fatal(err)
-	}
 	if got := shareCount(t, s, id); len(got) != 0 {
-		t.Fatalf("shares after the first save = %v", got)
+		t.Fatalf("shares = %v", got)
 	}
 }
 
-// Modify on an account that has saved nothing saves the initial packs first; deleting a shared one deletes its link.
+// Modify on an account that has saved nothing starts from the empty initial workspace; deleting a shared pack later
+// deletes its link.
 func TestModifyWithoutRowDeletesShares(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
 	s := open(t, connection, true)
-	initial, err := workspace.Initial()
+	for _, name := range []string{"a", "b"} {
+		if _, err := s.Modify(ctx, id, createList(name)); err != nil {
+			t.Fatal(err)
+		}
+	}
+	w, err := s.Read(ctx, id)
 	if err != nil {
 		t.Fatal(err)
 	}
-	first, second := initial.Packs[0].ID, initial.Packs[1].ID
+	if len(w.Packs) != 2 || len(w.Lists) != 2 || w.Lists[0].Name != "a" || w.Lists[1].Name != "b" {
+		t.Fatalf("workspace = %+v", w)
+	}
+	first, second := w.Packs[0].ID, w.Packs[1].ID
 	for _, pack := range []string{first, second} {
 		if _, err := s.PutShare(ctx, id, pack); err != nil {
 			t.Fatal(err)
@@ -177,7 +166,10 @@ func TestDeleteAndListShares(t *testing.T) {
 	id, other := owner(t, conn), owner(t, conn)
 	s := open(t, connection, true)
 	w := saved(t, s, id)
-	saved(t, s, other)
+	// The other account has the same packs, so the same pack ids.
+	if _, err := s.WriteRevision(ctx, other, 0, Change{Lists: w.Lists, Packs: w.Packs, HasLists: true, HasPacks: true}); err != nil {
+		t.Fatal(err)
+	}
 	first, second := w.Packs[0].ID, w.Packs[1].ID
 	for _, share := range []struct{ owner, pack string }{{id, first}, {id, second}, {other, first}} {
 		if _, err := s.PutShare(ctx, share.owner, share.pack); err != nil {
@@ -253,11 +245,13 @@ func TestWriteRevisionListsOnlyDeletesSharesOfDerivedPacks(t *testing.T) {
 	connection, conn := database(t)
 	id := owner(t, conn)
 	s := open(t, connection, true)
-	initial, err := workspace.Initial()
+	// Lists as an app that does not know packs saves them: each becomes a pack of its own when read.
+	old, err := workspace.DecodeLists([]byte(`[{"id":"a","name":"A","createdAt":"2026-10-01T00:00:00.000Z","words":[{"display":"a","input":"a","annotation":""}],"records":[]},
+	  {"id":"b","name":"B","createdAt":"2026-10-01T00:00:00.000Z","words":[{"display":"b","input":"b","annotation":""}],"records":[]}]`))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := s.WriteRevision(ctx, id, 0, Change{Lists: initial.Lists, HasLists: true}); err != nil {
+	if _, err := s.WriteRevision(ctx, id, 0, Change{Lists: old, HasLists: true}); err != nil {
 		t.Fatal(err)
 	}
 	w, err := s.Read(ctx, id)

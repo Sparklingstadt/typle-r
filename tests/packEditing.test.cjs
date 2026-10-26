@@ -194,8 +194,8 @@ test('tidyLevels, saveListInPack and createPack refuse more than one level, as t
   assert.equal(JSON.stringify(lib), before)
 })
 
-test('the initial library has no lists out of reach in its packs', () => {
-  const { initialLibrary } = require('../src/plugins/packs/index.ts')
+test('the official library has no lists out of reach in its packs', () => {
+  const { officialLibrary: initialLibrary } = require('../src/plugins/packs/index.ts')
   const path = item => item.levels?.length ? item.levels : [item.name]
   for (const pack of initialLibrary.packs) {
     const paths = initialLibrary.lists.filter(item => item.packId === pack.id).map(path)
@@ -203,4 +203,54 @@ test('the initial library has no lists out of reach in its packs', () => {
       if (i !== j && a.length <= b.length) assert.ok(a.some((level, n) => level !== b[n]), `${pack.name}: ${a} / ${b}`)
     }))
   }
+})
+
+// Followed official packs: the catalog's to change, so edits are refused (deleting and records still work).
+const { followPack } = require('../src/core/followedPacks.ts')
+const { copyPack } = require('../src/core/packFile.ts')
+const official = {
+  catalogId: 'cat', version: 1,
+  pack: { id: 'cat', name: '公式', createdAt: stamp },
+  lists: [list('o1', '公式1', 'cat'), list('o2', '公式2', 'cat')],
+}
+const followedLibrary = () => {
+  const base = followPack(library(), [official], 'cat', { pack: 'f', lists: ['fl1', 'fl2'] })
+  return base
+}
+
+test('edits to a followed pack and its lists are refused with packFollowed', () => {
+  const lib = followedLibrary()
+  const refused = { key: 'packFollowed' }
+  assert.throws(() => updatePack(lib, 'f', { name: 'x' }), refused)
+  assert.throws(() => reorderPackLists(lib, 'f', ['fl2', 'fl1']), refused)
+  assert.throws(() => saveListInPack(lib, input('n', 'new'), 'f', false), refused)
+  assert.throws(() => saveListInPack(lib, input('fl1', 'edit'), 'f', true), refused)
+  assert.throws(() => duplicateList(lib.lists, 'fl1', 'c', n => `（${n}）`), refused)
+})
+
+test('moving a list into or out of a followed pack is refused', () => {
+  const lib = followedLibrary()
+  const refused = { key: 'packFollowed' }
+  assert.throws(() => saveListInPack(lib, input('a', 'a'), 'f', true), refused)
+  assert.throws(() => saveListInPack(lib, input('fl1', 'fl1'), 'p', true), refused)
+  assert.throws(() => saveListInPack(lib, input('fl1', 'fl1'), null, true), refused)
+})
+
+test('own packs still edit beside followed ones; deletePack unfollows', () => {
+  const lib = followedLibrary()
+  assert.equal(updatePack(lib, 'p', { name: 'Linux2' }).packs.find(item => item.id === 'p').name, 'Linux2')
+  assert.equal(deletePack(lib, 'f').packs.some(item => item.id === 'f'), false)
+  assert.equal(deletePack(lib, 'f').lists.some(item => item.packId === 'f'), false)
+})
+
+test('copyPack of a followed pack is an own pack without origin', () => {
+  const lib = followedLibrary()
+  assert.ok(lib.lists.some(item => item.origin))
+  const copied = copyPack(lib, 'f', { pack: 'c', lists: ['c1', 'c2'] }, n => `（${n}）`)
+  const copy = copied.packs.find(item => item.id === 'c')
+  assert.equal('origin' in copy, false)
+  const lists = copied.lists.filter(item => item.packId === 'c')
+  assert.equal(lists.length, 2)
+  assert.ok(lists.every(item => !('origin' in item)))
+  assert.equal(updatePack(copied, 'c', { name: 'mine' }).packs.find(item => item.id === 'c').name, 'mine')
 })

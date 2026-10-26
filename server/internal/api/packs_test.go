@@ -18,20 +18,20 @@ const (
 	  {"id":"b","name":"応用","packId":"p","levels":["応用"],"createdAt":"2026-10-12T00:00:00.000Z",
 	    "words":[{"display":"grep","input":"grep","annotation":""},{"display":"sed","input":"sed","annotation":""}],"records":[]}]`
 	savedPacks = `[{"id":"p","name":"Linux","description":"シェルの基本","category":"プログラミング","tags":["シェル"],
-	    "origin":{"catalogId":"pack-x","version":1},"createdAt":"2026-10-10T00:00:00.000Z"},
+	    "createdAt":"2026-10-10T00:00:00.000Z"},
 	  {"id":"q","name":"Go","createdAt":"2026-10-11T00:00:00.000Z"}]`
 
 	linuxSummary = `{"id":"p","name":"Linux","description":"シェルの基本","category":"プログラミング","tags":["シェル"],
-	  "origin":{"catalogId":"pack-x","version":1},"createdAt":"2026-10-10T00:00:00.000Z","listCount":2,"wordCount":3,"practiceCount":2,
+	  "origin":null,"createdAt":"2026-10-10T00:00:00.000Z","listCount":2,"wordCount":3,"practiceCount":2,
 	  "practicedListCount":1,"lastPracticed":"2026-10-05T00:00:00.000Z"}`
 	goSummary = `{"id":"q","name":"Go","description":null,"category":null,"tags":[],"origin":null,"createdAt":"2026-10-11T00:00:00.000Z",
 	  "listCount":1,"wordCount":1,"practiceCount":0,"practicedListCount":0,"lastPracticed":null}`
 	basicSummary = `{"id":"a","name":"基本","packId":"p","category":"プログラミング","tags":["シェル"],"levels":["基本"],"wordCount":1,"recordCount":2,
-	  "createdAt":"2026-10-10T00:00:00.000Z","practiceCount":2,"lastPracticed":"2026-10-05T00:00:00.000Z","currentRecordCount":0}`
+	  "createdAt":"2026-10-10T00:00:00.000Z","practiceCount":2,"lastPracticed":"2026-10-05T00:00:00.000Z","currentRecordCount":0,"origin":null}`
 	advancedSummary = `{"id":"b","name":"応用","packId":"p","category":"プログラミング","tags":["シェル"],"levels":["応用"],"wordCount":2,"recordCount":0,
-	  "createdAt":"2026-10-12T00:00:00.000Z","practiceCount":0,"lastPracticed":null,"currentRecordCount":0}`
+	  "createdAt":"2026-10-12T00:00:00.000Z","practiceCount":0,"lastPracticed":null,"currentRecordCount":0,"origin":null}`
 	goListSummary = `{"id":"g","name":"Go","packId":"q","category":null,"tags":[],"levels":[],"wordCount":1,"recordCount":0,
-	  "createdAt":"2026-10-11T00:00:00.000Z","practiceCount":0,"lastPracticed":null,"currentRecordCount":0}`
+	  "createdAt":"2026-10-11T00:00:00.000Z","practiceCount":0,"lastPracticed":null,"currentRecordCount":0,"origin":null}`
 )
 
 func packLibrary(t *testing.T) *workspace.Workspace {
@@ -125,7 +125,7 @@ func TestCreatePack(t *testing.T) {
 	got := withoutIDs(body(t, response))
 	list := func(name, level string) string {
 		return `{"id":"x","name":"` + name + `","packId":"x","category":"言語","tags":["rust"],"levels":["` + level + `"],"wordCount":1,"recordCount":0,` +
-			`"createdAt":"t","practiceCount":0,"lastPracticed":null,"currentRecordCount":0}`
+			`"createdAt":"t","practiceCount":0,"lastPracticed":null,"currentRecordCount":0,"origin":null}`
 	}
 	want := `{"pack":` + detailOf(`{"id":"x","name":"Rust","description":"所有権","category":"言語","tags":["rust"],"origin":null,"createdAt":"t",
 	  "listCount":2,"wordCount":2,"practiceCount":0,"practicedListCount":0,"lastPracticed":null}`, list("入門", "1"), list("応用", "2")) + `}`

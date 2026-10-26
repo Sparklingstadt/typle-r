@@ -106,8 +106,35 @@ test('a save from a screen without packs keeps the saved packs, and lists that d
   assert.equal(store.getItem(GUEST_STORAGE_KEY), before)
 })
 
-test('the initial library is the initial lists converted', () => {
-  const { initialLists, initialLibrary } = require('../src/plugins/packs/index.ts')
-  const converted = normalizeLibrary(initialLists, null)
-  assert.deepEqual(initialLibrary, { ...converted, packs: converted.packs.map(pack => ({ ...pack, origin: { catalogId: pack.id, version: 1 } })) })
+test('the guest starts with no packs', () => {
+  const { initialLibrary } = require('../src/plugins/packs/index.ts')
+  assert.deepEqual(initialLibrary, { packs: [], lists: [] })
+  assert.deepEqual([readGuestWorkspace(storage()).packs, readGuestWorkspace(storage()).lists], [[], []])
+})
+
+test('reading guest data removes copies of official packs but keeps the guest\'s own packs', () => {
+  const { officialPacks } = require('../src/plugins/packs/catalog.ts')
+  const [entry] = officialPacks()
+  const copy = { ...entry.pack, id: 'copy', origin: { catalogId: entry.catalogId, version: 1 } }
+  const copyList = { ...entry.lists[0], id: 'copy-l', packId: 'copy' }
+  const store = storage()
+  const saved = writeGuestWorkspace({ ...readGuestWorkspace(store), packs: [pack, copy], lists: [list, copyList] }, store)
+  assert.deepEqual(saved.packs.map(item => item.id), ['pack-l'])
+  assert.deepEqual(readGuestWorkspace(store).packs.map(item => item.id), ['pack-l'])
+  assert.deepEqual(readGuestWorkspace(store).lists.map(item => item.id), ['l'])
+})
+
+test('followed packs read back as the official words, and a read does not save them', () => {
+  const { officialPacks, followOfficialPack } = require('../src/plugins/packs/catalog.ts')
+  const [entry] = officialPacks()
+  const store = storage()
+  const initial = readGuestWorkspace(store)
+  const followed = followOfficialPack(initial, entry.catalogId, { pack: 'f', lists: entry.lists.map((_, n) => `f-${n}`) })
+  const edited = { ...followed, lists: followed.lists.map((item, n) => n === 0 ? { ...item, words: [{ display: 'x', input: 'x', annotation: '' }] } : item) }
+  const saved = writeGuestWorkspace({ ...initial, ...edited }, store)
+  assert.deepEqual(saved.lists[0].words, entry.lists[0].words)
+  const stored = store.getItem(GUEST_STORAGE_KEY)
+  assert.deepEqual(JSON.parse(stored).lists[0].words, [{ display: 'x', input: 'x', annotation: '' }])
+  assert.deepEqual(readGuestWorkspace(store).lists[0].words, entry.lists[0].words)
+  assert.equal(store.getItem(GUEST_STORAGE_KEY), stored)
 })

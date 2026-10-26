@@ -75,7 +75,9 @@
   "empty": {
     "title": "Aucune liste de mots pour l’instant",
     "packTitle": "Aucun pack de mots pour l’instant",
-    "description": "Ajoutez les mots à travailler et le texte à saisir comme bonne réponse. Vous pouvez aussi les importer depuis un fichier CSV ou TSV."
+    "description": "Ajoutez les mots à travailler et le texte à saisir comme bonne réponse. Vous pouvez aussi les importer depuis un fichier CSV ou TSV.",
+    "packDescription": "Aucun pack pour l’instant. Suivez un pack officiel ou créez-en un nouveau.",
+    "catalogLink": "Suivre un pack officiel"
   },
   "row": {
     "examples": "Exemples de mots :",
@@ -280,14 +282,15 @@
   },
   "catalog": {
     "title": "Packs officiels",
-    "description": "Des packs prêts à l’emploi. Ajoutez-en un pour l’avoir parmi vos packs et le modifier librement.",
+    "description": "Packs prêts à l’emploi. Suivez-en un pour utiliser le contenu officiel, mis à jour automatiquement. Il n’est pas modifiable, mais vous pouvez le dupliquer pour créer votre propre pack.",
     "back": "Retour aux packs",
     "open": "Ouvrir",
-    "add": "Ajouter",
-    "addPack": "Ajouter {name}",
-    "addedState": "Ajouté",
-    "added": "« {name} » ajouté.",
-    "full": "Ajout impossible : la limite de {max} listes est atteinte. Supprimez les listes inutilisées."
+    "full": "Impossible de suivre : vous avez atteint la limite de {max} listes. Supprimez les listes que vous n’utilisez plus.",
+    "follow": "Suivre",
+    "followPack": "Suivre {name}",
+    "followed": "« {name} » est suivi.",
+    "following": "Suivi",
+    "unfollowPack": "Ne plus suivre {name}"
   },
   "share": {
     "title": "Partager « {name} »",
@@ -320,5 +323,15 @@
     "levels": "Difficulté : {levels}",
     "lists": "Listes",
     "addFailed": "Impossible d’ajouter le pack. Réessayez."
+  },
+  "follow": {
+    "badge": "Officiel",
+    "unfollow": "Ne plus suivre",
+    "title": "Ne plus suivre « {name} » ?",
+    "description": "Vous ne suivrez plus « {name} ». Les enregistrements de ce pack seront aussi supprimés.",
+    "confirm": "Ne plus suivre",
+    "confirming": "Arrêt du suivi…",
+    "done": "« {name} » n’est plus suivi.",
+    "notice": "Ce pack est officiel : il ne peut pas être modifié. Dupliquez-le pour le modifier comme votre propre pack."
   }
 }

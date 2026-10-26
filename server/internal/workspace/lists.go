@@ -99,6 +99,9 @@ func CreateList(w *Workspace, input ListInput, id string, now time.Time) (*List,
 		if pack = findPack(w, *input.PackID); pack == nil {
 			return nil, packMissing()
 		}
+		if err := refuseFollowed(w, pack.ID); err != nil {
+			return nil, err
+		}
 	}
 	if len(w.Lists) >= MaxLists {
 		return nil, &Error{Key: "listLimit"}
@@ -162,6 +165,13 @@ func UpdateList(w *Workspace, id string, input ListInput) (*List, error) {
 			return nil, packMissing()
 		}
 		target = pack.ID
+	}
+	// Neither the pack the list is in nor, when it is moved, the pack it joins may be followed.
+	if err := refuseFollowed(w, list.PackID); err != nil {
+		return nil, err
+	}
+	if err := refuseFollowed(w, target); err != nil {
+		return nil, err
 	}
 	moving := target != list.PackID
 	name := list.Name
@@ -247,11 +257,14 @@ func followsRename(w *Workspace, list List) bool {
 	return !slices.ContainsFunc(w.Lists, func(other List) bool { return other.PackID == list.PackID && other.ID != list.ID })
 }
 
-// DeleteList removes a list with its records.
+// DeleteList removes a list with its records. A list of a followed pack goes only with its pack (DeletePack).
 func DeleteList(w *Workspace, id string) error {
 	at := index(w, id)
 	if at < 0 {
 		return missing()
+	}
+	if err := refuseFollowed(w, w.Lists[at].PackID); err != nil {
+		return err
 	}
 	w.Lists = slices.Delete(w.Lists, at, at+1)
 	return nil

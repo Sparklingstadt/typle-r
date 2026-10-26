@@ -1,5 +1,5 @@
 {
-  "empty": "単語がありません。<link>単語パックを作成</link>してください。",
+  "empty": "まだパックがありません。<catalog>公式パックをフォローする</catalog>か、<create>新しいパックを作り</create>ましょう",
   "stats": {
     "label": "練習中の記録",
     "elapsed": "経過",

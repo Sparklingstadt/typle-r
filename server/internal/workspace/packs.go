@@ -18,10 +18,17 @@ var (
 	commandsJSON []byte
 )
 
-// Initial is the workspace before anything is saved: the lists of initialLists in src/plugins/packs/index.ts, in the
-// packs of initialLibrary (turned into packs as lists saved before packs existed are), and no registered devices. Each
-// pack is an official pack, as initialLibrary has it: its catalog id is its own id, at version 1.
+// Initial is the workspace before anything is saved: no packs, lists or registered devices, as initialLibrary in
+// src/plugins/packs/index.ts is since v0.98.0. Official packs are followed from the catalog (see OfficialPacks).
 func Initial() (*Workspace, error) {
+	return &Workspace{Packs: []Pack{}, Lists: []List{}, Devices: []Device{}}, nil
+}
+
+// OfficialPacks follows officialPacks (src/plugins/packs/catalog.ts): the packs of officialLibrary
+// (src/plugins/packs/index.ts), made of the lists of initialLists as lists saved before packs existed are, each with
+// its lists in the saved shape. Each pack's catalog id is its own id, at version 1. Every call reads them anew, so the
+// caller may change what it gets.
+func OfficialPacks() ([]OfficialPack, error) {
 	var samples []*rawList
 	var countries []*rawList
 	var commands []*rawList
@@ -41,13 +48,19 @@ func Initial() (*Workspace, error) {
 	}
 	lists, err := decodeLists(append(append(samples, countries...), commands...))
 	if err != nil {
-		return nil, fmt.Errorf("initial lists: %w", err)
+		return nil, fmt.Errorf("official lists: %w", err)
 	}
-	w := &Workspace{Devices: []Device{}}
-	w.Packs, w.Lists = convertLibrary(lists)
-	for i := range w.Packs {
-		w.Packs[i].Origin = &Origin{CatalogID: w.Packs[i].ID, Version: 1}
+	packs, converted := convertLibrary(lists)
+	official := make([]OfficialPack, 0, len(packs))
+	for _, pack := range packs {
+		pack.Origin = &Origin{CatalogID: pack.ID, Version: 1}
+		var mine []List
+		for _, list := range converted {
+			if list.PackID == pack.ID {
+				mine = append(mine, list)
+			}
+		}
+		official = append(official, OfficialPack{CatalogID: pack.ID, Version: 1, Pack: pack, Lists: mine})
 	}
-	viewLists(w)
-	return w, nil
+	return official, nil
 }
