@@ -44,7 +44,8 @@ test('guest can create, import, export, edit, practice, manage devices and delet
   await page.reload()
   await expect(page.getByRole('heading', { name: 'Guest Mac', exact: true })).toBeVisible()
   await page.goto('/play')
-  await page.getByRole('button', { name: 'Guest saved を選択', exact: true }).click()
+  // The only list is already chosen.
+  await expect(page.getByRole('button', { name: 'Guest saved を選択中', exact: true })).toBeVisible()
   // The first device added becomes the one this browser practises with.
   await expect(page.getByRole('button', { name: '使用端末：Guest Mac', exact: true })).toBeEnabled()
   const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })

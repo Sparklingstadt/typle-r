@@ -105,6 +105,11 @@ test('deleting a shared pack ends its share and the confirmation says so', async
 })
 
 test('a guest has no share item in the pack menu', async ({ page }) => {
+  // A guest starts with no packs, so one of its own is put in the browser first.
+  await page.addInitScript(([k, raw]) => { if (!localStorage.getItem(k)) localStorage.setItem(k, raw) },
+    ['typle-r:guest-workspace:v1', JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, devices: [],
+      packs: [{ id: 'pack-mine', name: 'Mine', createdAt: '2026-09-02' }],
+      lists: [{ id: 'mine', name: 'Mine', packId: 'pack-mine', createdAt: '2026-09-02', words: words('ls'), records: [] }] })])
   await page.goto('/edit')
   await page.locator('li[data-pack-id]').first().getByRole('button', { name: /のパックの操作$/ }).click()
   await expect(page.getByRole('menuitem', { name: 'パックを編集' })).toBeVisible()
