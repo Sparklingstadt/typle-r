@@ -3,7 +3,9 @@ import { Check, ChevronDown } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import { listBest } from '@/core/records'
-import { groupEntries, levelName, levelSteps, listAtLevels } from '@/core/listOverview'
+import { levelName, levelSteps, listAtLevels } from '@/core/listOverview'
+import { packChoices } from '@/core/packPractice'
+import type { PackOverview } from '@/core/packEditing'
 import type { SavedWordList } from '@/core/wordLists'
 import ListLabels from '@/components/WordLists/ListLabels'
 
@@ -23,12 +25,10 @@ function useSummary() {
   }
 }
 
-// The lists to choose from. The lists of a group (such as Linuxコマンド in 基本, オプション and 応用, each in 初級 to 上級)
-// are one option, which opens to have its levels chosen one step after another.
-export default function WordListOptions({ lists, saved, selectedId, onSelect, label }: {
-  lists: SavedWordList[]
-  /** Every list in its saved order, which a group's levels are offered in, whatever order `lists` is in. */
-  saved: SavedWordList[]
+// The packs to choose a list from, in the order given. A pack of one list is that list's option; a pack of several is one
+// option, which opens to have its lists chosen one level after another (the lists with levels first, then those without).
+export default function WordListOptions({ packs, selectedId, onSelect, label }: {
+  packs: PackOverview[]
   selectedId?: string
   onSelect: (id: string) => void
   label: string
@@ -37,13 +37,15 @@ export default function WordListOptions({ lists, saved, selectedId, onSelect, la
   const summary = useSummary()
   const id = useId()
   return <ul aria-label={label} className="grid gap-1">
-    {groupEntries(lists, list => list, saved).map((entry, index) => {
-      // Picking a list elsewhere starts the group again from that list's levels.
-      if (entry.group !== null) return <GroupOption key={`group:${entry.group}:${entry.items.some(list => list.id === selectedId) ? selectedId : ''}`}
-        group={entry.group} lists={[...entry.items].sort((a, b) => saved.indexOf(a) - saved.indexOf(b))} selectedId={selectedId} onSelect={onSelect} />
-      const [list] = entry.items
+    {packs.map((item, index) => {
+      const lists = packChoices(item)
+      // Picking a list elsewhere starts the pack again from that list's levels.
+      if (lists.length >= 2) return <PackOption key={`${item.pack.id}:${lists.some(list => list.id === selectedId) ? selectedId : ''}`}
+        packId={item.pack.id} name={item.pack.name} lists={lists} selectedId={selectedId} onSelect={onSelect} />
+      const [list] = lists
+      if (!list) return null
       const selected = list.id === selectedId
-      return <li key={list.id}>
+      return <li key={item.pack.id} data-pack-id={item.pack.id}>
         <button type="button" aria-pressed={selected} aria-label={t(selected ? 'selected' : 'select', { name: list.name })} aria-describedby={`${id}-${index}`} onClick={() => onSelect(list.id)}
           className={cn(option, selected && 'bg-muted hover:bg-muted')}>
           <Radio selected={selected} />
@@ -58,7 +60,7 @@ export default function WordListOptions({ lists, saved, selectedId, onSelect, la
   </ul>
 }
 
-function GroupOption({ group, lists, selectedId, onSelect }: { group: string; lists: SavedWordList[]; selectedId?: string; onSelect: (id: string) => void }) {
+function PackOption({ packId, name: group, lists, selectedId, onSelect }: { packId: string; name: string; lists: SavedWordList[]; selectedId?: string; onSelect: (id: string) => void }) {
   const t = useTranslations('practice.options')
   const summary = useSummary()
   const id = useId()
@@ -74,7 +76,7 @@ function GroupOption({ group, lists, selectedId, onSelect }: { group: string; li
     // A level that leaves one list to practise picks it; otherwise the next step is asked.
     if (list && levelSteps(lists, next).length === next.length) onSelect(list.id)
   }
-  return <li data-group={group}>
+  return <li data-pack-id={packId}>
     <button type="button" aria-expanded={open} aria-controls={`${id}-levels`} aria-describedby={`${id}-summary`} onClick={() => setOpen(value => !value)}
       className={cn(option, current && 'bg-muted hover:bg-muted')}>
       <Radio selected={!!current} />

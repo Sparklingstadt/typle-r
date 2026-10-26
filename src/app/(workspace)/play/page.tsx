@@ -17,8 +17,11 @@ import { useWordLists, type WorkspaceUpdate } from "@/lib/useWordLists"
 import type { SavedWordList } from "@/core/wordLists"
 import { usePractice } from "@/lib/usePractice"
 import { compareInput, elapsedTime, typingSpeed, type TypingSession } from "@/core/typing"
-import { byRecentPractice, comparableRecords } from "@/core/records"
+import { comparableRecords } from "@/core/records"
 import { listLabels, matchesFilter } from "@/core/listOverview"
+import { matchesPackQuery, packOverviews } from "@/core/packEditing"
+import { packsByRecentPractice } from "@/core/packPractice"
+import type { WordPack } from "@/core/wordPacks"
 import { cn } from "@/lib/utils"
 import Page from "@/components/Page/Page"
 import PageContainer from "@/components/PageContainer/PageContainer"
@@ -42,9 +45,9 @@ export default function Play() {
 
 function PlayWorkspace() {
   const listId = useSearchParams().get('list')
-  const { lists, devices, accountId, ready, error, update } = useWordLists()
+  const { lists, packs, devices, accountId, ready, error, update } = useWordLists()
   if (!ready) return <Loading />
-  return <Practice key={accountId} accountId={accountId ?? ""} devices={devices} wordLists={lists} listId={listId} error={error} update={update} />
+  return <Practice key={accountId} accountId={accountId ?? ""} devices={devices} wordLists={lists} packs={packs} listId={listId} error={error} update={update} />
 }
 
 // Ticks only while a session is running, for the live elapsed time and speed.
@@ -113,10 +116,11 @@ function useWrappedLines(text: string | undefined) {
   return [setElement, lines] as const
 }
 
-function Practice({ wordLists, listId, error, update, devices, accountId }: {
+function Practice({ wordLists, packs, listId, error, update, devices, accountId }: {
   devices: PracticeDevice[]
   accountId: string
   wordLists: SavedWordList[]
+  packs: WordPack[]
   listId: string | null
   error: string
   update: WorkspaceUpdate
@@ -210,17 +214,13 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
     if (!running) switchTo(index)
     else if (index !== selected) setPendingSwitch(index)
   }
-  // Recently practised lists come first (a group at its latest list), and both list choosers can be narrowed down by name,
-  // group, category and tag.
-  const ordered = byRecentPractice(wordLists)
-  const labels = listLabels(wordLists, locale)
-  const matching = (text: string) => {
-    const needle = text.trim().toLowerCase()
-    return ordered.filter(item => matchesFilter(item, { category, tags: [] }) && (item.name.toLowerCase().includes(needle) ||
-      !!item.group?.toLowerCase().includes(needle) || !!item.category?.toLowerCase().includes(needle) || !!item.tags?.some(tag => tag.toLowerCase().includes(needle))))
-  }
-  const filteredLists = matching(query)
-  const asideFiltered = matching(asideQuery)
+  // Recently practised packs come first, and both choosers can be narrowed down by category and by what the pack, its lists
+  // and its words say.
+  const overviews = packsByRecentPractice(packOverviews({ packs, lists: wordLists }))
+  const labels = listLabels(packs, locale)
+  const matching = (text: string) => overviews.filter(item => matchesFilter(item.pack, { category, tags: [] }) && matchesPackQuery(item, text))
+  const filteredPacks = matching(query)
+  const asidePacks = matching(asideQuery)
   const next = words.slice(session.index + 1, session.index + 4)
   const remaining = words.length - session.index - 1 - next.length
   const progressText = t('progress.value', { current: finished ? words.length : session.index + 1, total: words.length })
@@ -331,7 +331,7 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
           <div className="mx-1 mb-1"><CategorySelect labels={labels} value={category} onChange={setCategory} /></div>
           {/* Its own scroll area, so a long collection never pushes the page far below the practice card. */}
           <div ref={asideLists} className="max-h-96 overflow-y-auto overscroll-contain lg:max-h-[min(36rem,calc(100dvh-14rem))]">
-            {asideFiltered.length ? <WordListOptions label={t('aside.lists')} lists={asideFiltered} saved={wordLists} selectedId={list.id} onSelect={id => { setAsideQuery(''); requestSwitch(id) }} />
+            {asidePacks.length ? <WordListOptions label={t('aside.lists')} packs={asidePacks} selectedId={list.id} onSelect={id => { setAsideQuery(''); requestSwitch(id) }} />
               : <p className="px-2 py-2 text-sm text-muted-foreground">{t('picker.noMatch')}</p>}
           </div>
         </Card>
@@ -358,7 +358,7 @@ function Practice({ wordLists, listId, error, update, devices, accountId }: {
             className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" />
         </label>
         <CategorySelect labels={labels} value={category} onChange={setCategory} className="h-10 w-full min-w-0 rounded-lg border bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30" />
-        {filteredLists.length ? <WordListOptions label={t('picker.candidates')} lists={filteredLists} saved={wordLists} selectedId={list?.id} onSelect={requestSwitch} />
+        {filteredPacks.length ? <WordListOptions label={t('picker.candidates')} packs={filteredPacks} selectedId={list?.id} onSelect={requestSwitch} />
           : <p className="px-1 py-2 text-sm text-muted-foreground">{t('picker.noMatch')}</p>}
       </DialogContent>
     </Dialog>

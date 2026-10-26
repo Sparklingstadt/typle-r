@@ -51,7 +51,7 @@ test('the sidebar opens the words of a list, and another list or a level of a gr
 
   // The lists to choose from are those of the practice screen: narrowed down by category, with a group chosen by its levels.
   const aside = page.getByRole('complementary', { name: '単語リスト' })
-  await aside.getByRole('combobox', { name: 'カテゴリで絞り込む' }).selectOption({ label: 'プログラミング（3）' })
+  await aside.getByRole('combobox', { name: 'カテゴリで絞り込む' }).selectOption({ label: 'プログラミング（2）' })
   await expect(aside.getByRole('button', { name: 'Fruits を選択' })).toHaveCount(0)
   await aside.getByRole('button', { name: 'SQL を選択' }).click()
   await expect(page).toHaveURL(/\/words\?list=sql$/)
@@ -61,7 +61,7 @@ test('the sidebar opens the words of a list, and another list or a level of a gr
   expect(await long.evaluate(table => table.scrollWidth <= table.parentElement!.clientWidth)).toBe(true)
   expect(await fitsWidth(page)).toBe(true)
 
-  const group = aside.locator('li[data-group="Shell"]')
+  const group = aside.locator('li[data-pack-id="pack-basic-1"]')
   await group.getByRole('button', { expanded: false }).click()
   await group.getByRole('button', { name: '基本', exact: true }).click()
   await group.getByRole('button', { name: '上級', exact: true }).click()

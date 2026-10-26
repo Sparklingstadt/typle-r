@@ -15,7 +15,9 @@ import WordListOptions from "@/components/Practice/WordListOptions"
 import ListLabels from "@/components/WordLists/ListLabels"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import { useWordLists } from "@/lib/useWordLists"
-import { byRecentPractice } from "@/core/records"
+import { matchesPackQuery, packOverviews } from "@/core/packEditing"
+import { packsByRecentPractice } from "@/core/packPractice"
+import type { WordPack } from "@/core/wordPacks"
 import { levelName, listLabels, matchesFilter } from "@/core/listOverview"
 import type { SavedWordList } from "@/core/wordLists"
 
@@ -39,7 +41,7 @@ export default function Words() {
       </AlertDescription>
     </Alert>}
     {!workspace.ready ? <LoadingState />
-      : workspace.lists.length ? <Suspense fallback={<LoadingState />}><WordsView key={workspace.accountId} lists={workspace.lists} /></Suspense>
+      : workspace.lists.length ? <Suspense fallback={<LoadingState />}><WordsView key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} /></Suspense>
         // After a failed load the lists are unknown; "no lists yet" would be wrong.
         : !workspace.error && <EmptyState />}
   </main>
@@ -47,7 +49,7 @@ export default function Words() {
 
 // `?list=<id>` keeps the chosen list in the URL, so it can be reloaded or opened from elsewhere. Without it the first
 // list is shown, as on the practice screen.
-function WordsView({ lists }: { lists: SavedWordList[] }) {
+function WordsView({ lists, packs }: { lists: SavedWordList[]; packs: WordPack[] }) {
   const t = useTranslations('wordLists.words')
   const page = useTranslations('wordLists.page')
   const locale = useLocale()
@@ -77,14 +79,10 @@ function WordsView({ lists }: { lists: SavedWordList[] }) {
     window.history.replaceState(null, '', `${window.location.pathname}?list=${encodeURIComponent(id)}`)
   }
 
-  // Recently practised lists come first (a group at its latest list), narrowed down by name, group, category and tag.
-  const ordered = byRecentPractice(lists)
-  const labels = listLabels(lists, locale)
-  const matching = (text: string) => {
-    const needle = text.trim().toLowerCase()
-    return ordered.filter(item => matchesFilter(item, { category, tags: [] }) && (item.name.toLowerCase().includes(needle) ||
-      !!item.group?.toLowerCase().includes(needle) || !!item.category?.toLowerCase().includes(needle) || !!item.tags?.some(tag => tag.toLowerCase().includes(needle))))
-  }
+  // Recently practised packs come first, narrowed down by category and by what the pack, its lists and its words say.
+  const overviews = packsByRecentPractice(packOverviews({ packs, lists }))
+  const labels = listLabels(packs, locale)
+  const matching = (text: string) => overviews.filter(item => matchesFilter(item.pack, { category, tags: [] }) && matchesPackQuery(item, text))
   const asideFiltered = matching(query)
   const pickerFiltered = matching(pickerQuery)
 
@@ -103,7 +101,7 @@ function WordsView({ lists }: { lists: SavedWordList[] }) {
           <SearchField value={query} onChange={setQuery} className="mx-1 mt-1 mb-1 h-9 shrink-0" />
           <div className="mx-1 mb-1"><CategorySelect labels={labels} value={category} onChange={setCategory} /></div>
           <div ref={asideLists} className="max-h-[36rem] min-h-0 overflow-y-auto overscroll-contain">
-            {asideFiltered.length ? <WordListOptions label={t('lists')} lists={asideFiltered} saved={lists} selectedId={list.id} onSelect={id => { setQuery(''); choose(id) }} />
+            {asideFiltered.length ? <WordListOptions label={t('lists')} packs={asideFiltered} selectedId={list.id} onSelect={id => { setQuery(''); choose(id) }} />
               : <p className="px-2 py-2 text-sm text-muted-foreground">{t('noMatch')}</p>}
           </div>
         </Card>
@@ -132,7 +130,7 @@ function WordsView({ lists }: { lists: SavedWordList[] }) {
                 <SearchField value={pickerQuery} onChange={setPickerQuery} className="h-10" />
                 <CategorySelect labels={labels} value={category} onChange={setCategory} className="h-10 w-full min-w-0 rounded-lg border bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30" />
                 <div className="-mx-1 max-h-[min(28rem,calc(100dvh-18rem))] overflow-y-auto overscroll-contain px-1">
-                  {pickerFiltered.length ? <WordListOptions label={t('candidates')} lists={pickerFiltered} saved={lists} selectedId={list.id} onSelect={choose} />
+                  {pickerFiltered.length ? <WordListOptions label={t('candidates')} packs={pickerFiltered} selectedId={list.id} onSelect={choose} />
                     : <p className="px-1 py-2 text-sm text-muted-foreground">{t('noMatch')}</p>}
                 </div>
               </DialogContent>

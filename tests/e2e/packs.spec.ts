@@ -403,3 +403,79 @@ test('removing the only level focuses the button that adds one', async ({ page }
   await page.getByRole('button', { name: '難易度 1 を削除' }).click()
   await expect(page.getByRole('button', { name: '難易度を追加' })).toBeFocused()
 })
+
+// A pack with two lists that have levels and one that has not, and a pack of one list.
+function levelsWorkspace() {
+  return {
+    version: 1, accountId: 'guest:local', revision: 1, devices: [],
+    packs: [
+      { id: 'study', name: 'Study', category: '学習', createdAt: '2026-09-01' },
+      { id: 'single', name: '単独', createdAt: '2026-09-02' },
+    ],
+    lists: [
+      { ...list('s-extra', 'study', '応用', ['extra']) },
+      { ...list('s-1', 'study', '初級の中身', ['one']), levels: ['基本', '初級'] },
+      { ...list('s-2', 'study', '上級の中身', ['two']), levels: ['基本', '上級'] },
+      list('single-list', 'single', '単独リスト', ['solo', 'word']),
+    ],
+  }
+}
+const seedLevels = (page: Page) =>
+  page.addInitScript(([key, raw]) => localStorage.setItem(key, raw), [key, JSON.stringify(levelsWorkspace())])
+
+test('the practice screen offers a choice for each pack, and a pack of one list is chosen by its list', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/play?list=basic')
+  const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
+  await expect(aside.locator('li[data-pack-id]')).toHaveCount(4)
+  await aside.locator('li[data-pack-id="solo"]').getByRole('button', { name: '単独リスト を選択' }).click()
+  await expect(page.getByRole('button', { name: '単語リストを切り替える（現在: 単独リスト）' })).toBeVisible()
+  await expect(page.locator('#wordDisplay')).toHaveText('one')
+})
+
+test('a pack opens to its lists with levels first and then the lists without, and levels choose the list', async ({ page }) => {
+  await seedLevels(page)
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/play?list=single-list')
+  const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
+  const study = aside.locator('li[data-pack-id="study"]')
+  await study.getByRole('button', { expanded: false }).click()
+  await expect(study.getByRole('group', { name: '難易度の1段目' }).getByRole('button')).toHaveText(['基本', '応用'])
+  await study.getByRole('button', { name: '基本', exact: true }).click()
+  await study.getByRole('button', { name: '初級', exact: true }).click()
+  await expect(page.getByRole('button', { name: '単語リストを切り替える（現在: 初級の中身）' })).toBeVisible()
+  await expect(page.locator('#wordDisplay')).toHaveText('one')
+})
+
+test('choosing a list of another pack while practising asks before stopping', async ({ page }) => {
+  await seedLevels(page)
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/play?list=single-list')
+  await page.getByRole('textbox', { name: '表示された文字を入力', exact: true }).pressSequentially('s')
+  const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
+  const study = aside.locator('li[data-pack-id="study"]')
+  await study.getByRole('button', { expanded: false }).click()
+  await study.getByRole('button', { name: '応用', exact: true }).click()
+  await expect(page.getByRole('alertdialog')).toContainText('練習を中断しますか？')
+  await page.getByRole('button', { name: '中断して切り替える' }).click()
+  await expect(page.locator('#wordDisplay')).toHaveText('extra')
+})
+
+test('a search by pack name leaves only that pack on the practice screen', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/play?list=basic')
+  const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
+  await aside.getByRole('searchbox').fill('果物')
+  await expect(aside.locator('li[data-pack-id]')).toHaveCount(1)
+  await expect(aside.locator('li[data-pack-id="fruits"]')).toBeVisible()
+})
+
+test('the words screen chooses from the same pack choices', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/words?list=basic')
+  const aside = page.getByRole('complementary', { name: '単語リスト' })
+  await expect(aside.locator('li[data-pack-id]')).toHaveCount(4)
+  await aside.locator('li[data-pack-id="solo"]').getByRole('button', { name: '単独リスト を選択' }).click()
+  await expect(page).toHaveURL(/\/words\?list=solo-list$/)
+  await expect(page.getByRole('table', { name: '単独リスト' })).toBeVisible()
+})

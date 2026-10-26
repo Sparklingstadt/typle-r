@@ -81,33 +81,6 @@ export function listLabels(lists: Pick<SavedWordList, 'category' | 'tags'>[], lo
   }
 }
 
-/** A list shown on its own, or the lists of one group shown as one entry. */
-export type ListEntry<T> = { group: null; items: [T] } | { group: string; items: T[] }
-
-/** Puts the lists of a group together at the place of the first of them, keeping the order of `items` otherwise. A
- * group that has one list in `all` (every list, when `items` are those a search found) is shown as that list. */
-export function groupEntries<T>(items: T[], listOf: (item: T) => Pick<SavedWordList, 'group'>,
-  all: Pick<SavedWordList, 'group'>[] = items.map(listOf)): ListEntry<T>[] {
-  const sizes = new Map<string, number>()
-  for (const list of all) {
-    const group = list.group?.trim()
-    if (group) sizes.set(group, (sizes.get(group) ?? 0) + 1)
-  }
-  const groups = new Map<string, T[]>()
-  for (const item of items) {
-    const group = listOf(item).group?.trim()
-    if (group) groups.set(group, [...groups.get(group) ?? [], item])
-  }
-  const entries: ListEntry<T>[] = []
-  for (const item of items) {
-    const group = listOf(item).group?.trim()
-    const members = group ? groups.get(group) : undefined
-    if (!group || !members || (sizes.get(group) ?? 0) < 2) entries.push({ group: null, items: [item] })
-    else if (members[0] === item) entries.push({ group, items: members })
-  }
-  return entries
-}
-
 /** A list's name in its group: its levels, such as 基本・初級, or its name when it has none. */
 export function levelName(list: Pick<SavedWordList, 'name' | 'levels'>, separator = '・') {
   return list.levels?.length ? list.levels.join(separator) : list.name
