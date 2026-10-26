@@ -246,6 +246,89 @@ func TestSavesDeleteSharesOfRemovedPacks(t *testing.T) {
 	}
 }
 
+// An account whose packs are still derived from its lists (packs NULL) saves lists only: the link of a derived pack
+// whose lists are gone is deleted, though no packs are sent.
+func TestWriteRevisionListsOnlyDeletesSharesOfDerivedPacks(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	initial, err := workspace.Initial()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.WriteRevision(ctx, id, 0, Change{Lists: initial.Lists, HasLists: true}); err != nil {
+		t.Fatal(err)
+	}
+	w, err := s.Read(ctx, id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pack := w.Packs[0].ID
+	if want := "pack-" + w.Lists[0].ID; pack != want {
+		t.Fatalf("first pack = %s; want %s", pack, want)
+	}
+	if _, err := s.PutShare(ctx, id, pack); err != nil {
+		t.Fatal(err)
+	}
+	current, err := s.ReadRevision(ctx, id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	lists := slices.DeleteFunc(slices.Clone(w.Lists), func(l workspace.List) bool { return l.PackID == pack })
+	if len(lists) == len(w.Lists) || len(lists) == 0 {
+		t.Fatalf("lists = %d of %d", len(lists), len(w.Lists))
+	}
+	if _, err := s.WriteRevision(ctx, id, current.Revision, Change{Lists: lists, HasLists: true}); err != nil {
+		t.Fatal(err)
+	}
+	if got := shareCount(t, s, id); len(got) != 0 {
+		t.Fatalf("shares after lists = %v", got)
+	}
+}
+
+// A save of devices alone leaves the links as they are.
+func TestWriteRevisionDevicesOnlyKeepsShares(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	w := saved(t, s, id)
+	if _, err := s.PutShare(ctx, id, w.Packs[0].ID); err != nil {
+		t.Fatal(err)
+	}
+	current, err := s.ReadRevision(ctx, id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.WriteRevision(ctx, id, current.Revision, Change{Devices: w.Devices, HasDevices: true}); err != nil {
+		t.Fatal(err)
+	}
+	if got := shareCount(t, s, id); len(got) != 1 {
+		t.Fatalf("shares after devices = %v", got)
+	}
+}
+
+// ListShares and PutShare both read the name from the snapshot.
+func TestListSharesNames(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	w := saved(t, s, id)
+	put, err := s.PutShare(ctx, id, w.Packs[0].ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	shares, err := s.ListShares(ctx, id)
+	if err != nil || len(shares) != 1 {
+		t.Fatalf("ListShares = %+v, %v", shares, err)
+	}
+	if shares[0].Name == "" || shares[0].Name != w.Packs[0].Name || put.Name != shares[0].Name {
+		t.Fatalf("names = %q (list), %q (put); want %q", shares[0].Name, put.Name, w.Packs[0].Name)
+	}
+}
+
 func TestPutShareTooLarge(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)

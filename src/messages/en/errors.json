@@ -54,5 +54,6 @@
   "levelsConflict": "This pack already has a list with the same levels, or with the same levels up to a step.",
   "packFileUnreadable": "This file could not be read as a word pack.",
   "invalidPackFile": "This file has an item that is over the limit for saving.",
-  "sharedPackNotFound": "This share has ended."
+  "sharedPackNotFound": "This share has ended.",
+  "packNotFound": "This pack could not be found. Reload the page."
 }

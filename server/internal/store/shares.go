@@ -21,7 +21,9 @@ const MaxSharedPackBytes = 1 << 20
 // Share is a link to one of the owner's packs.
 type Share struct {
 	ID, PackID string
-	UpdatedAt  time.Time
+	// Name is the pack's name in the snapshot, or "" when it has none.
+	Name      string
+	UpdatedAt time.Time
 }
 
 // PutShare shares the owner's pack packID as it is saved, or copies it again when it is already shared, keeping the
@@ -63,7 +65,8 @@ func (s *Store) PutShare(ctx context.Context, owner, packID string) (*Share, err
 		share = &Share{PackID: packID}
 		return tx.QueryRow(ctx, `INSERT INTO typle_shared_packs (id, owner_id, pack_id, data) VALUES ($1, $2, $3, $4::jsonb)
 			ON CONFLICT (owner_id, pack_id) DO UPDATE SET data = EXCLUDED.data, updated_at = now()
-			RETURNING id::text, updated_at`, workspace.NewID(), owner, packID, string(data)).Scan(&share.ID, &share.UpdatedAt)
+			RETURNING id::text, COALESCE(data #>> '{pack,name}', ''), updated_at`, workspace.NewID(), owner, packID, string(data)).
+			Scan(&share.ID, &share.Name, &share.UpdatedAt)
 	})
 	if err != nil {
 		return nil, err
@@ -79,14 +82,14 @@ func (s *Store) DeleteShare(ctx context.Context, owner, packID string) error {
 
 // ListShares returns the owner's links, the most recently updated first.
 func (s *Store) ListShares(ctx context.Context, owner string) ([]Share, error) {
-	rows, err := s.pool.Query(ctx, `SELECT id::text, pack_id, updated_at FROM typle_shared_packs WHERE owner_id = $1
+	rows, err := s.pool.Query(ctx, `SELECT id::text, pack_id, COALESCE(data #>> '{pack,name}', ''), updated_at FROM typle_shared_packs WHERE owner_id = $1
 		ORDER BY updated_at DESC, id`, owner)
 	if err != nil {
 		return nil, err
 	}
 	return pgx.CollectRows(rows, func(row pgx.CollectableRow) (Share, error) {
 		var share Share
-		err := row.Scan(&share.ID, &share.PackID, &share.UpdatedAt)
+		err := row.Scan(&share.ID, &share.PackID, &share.Name, &share.UpdatedAt)
 		return share, err
 	})
 }

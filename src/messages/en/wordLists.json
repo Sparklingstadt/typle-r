@@ -305,7 +305,14 @@
     "create": "Create link",
     "update": "Update share",
     "stop": "Stop sharing",
-    "failed": "Could not change the share."
+    "failed": "Could not change the share.",
+    "orphans": {
+      "title": "Shares without a pack",
+      "description": "The pack behind these share links is gone. Anyone with a link can still see it. Stop sharing the ones you no longer need.",
+      "unnamed": "Untitled pack",
+      "stop": "Stop sharing",
+      "stopLabel": "Stop sharing {name}"
+    }
   },
   "sharedPage": {
     "loading": "Loading the share",

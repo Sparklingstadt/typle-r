@@ -54,5 +54,6 @@
   "levelsConflict": "同一个包中已有难度相同，或前几步难度相同的列表。",
   "packFileUnreadable": "无法将此文件作为单词包读取。",
   "invalidPackFile": "此文件中有超出可保存上限的项目。",
-  "sharedPackNotFound": "此共享已结束。"
+  "sharedPackNotFound": "此共享已结束。",
+  "packNotFound": "找不到此包。请重新加载页面。"
 }

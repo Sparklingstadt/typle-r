@@ -176,11 +176,19 @@ func (b *Backend) sharedHandler() http.Handler {
 	}
 	source := b.database()
 	if source == nil {
-		return databaseUnavailable
+		return noindex(databaseUnavailable)
 	}
 	handler := web.Shared(source, web.NewReporter(os.Getenv))
 	b.public.CompareAndSwap(nil, &handler)
 	return *b.public.Load()
+}
+
+// noindex answers as next does, with X-Robots-Tag: noindex, as every answer of /api/shared has.
+func noindex(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Robots-Tag", "noindex")
+		next.ServeHTTP(w, r)
+	})
 }
 
 // databaseHandler serves /api/workspace, /api/shares and any other path outside /api/auth/, /api/health and
