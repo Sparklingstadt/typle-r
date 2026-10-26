@@ -6,6 +6,7 @@ import { Check, Clock, Keyboard, Minus, Plus, Sparkles, Target, TrendingDown, Tr
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import TrendChart from "@/components/Dashboard/TrendChart"
+import PracticeName, { usePracticeName } from "@/components/PracticeName"
 import { useFormat } from "@/i18n/useFormat"
 import {
   accuracyScale, listTrends, nextLists, speedScale, summarize, addDays,
@@ -86,6 +87,7 @@ function reasonBadge(t: T, { reason }: NextList) {
 
 function NextLists({ items, now }: { items: NextList[]; now: Date }) {
   const t = useTranslations('dashboard')
+  const practiceName = usePracticeName()
   const format = useFormat()
   if (!items.length) return <p className="rounded-xl p-4 text-sm ring-1 ring-foreground/10">{t('next.allPractised')}</p>
   return <ul className="divide-y overflow-hidden rounded-xl ring-1 ring-foreground/10">
@@ -93,12 +95,12 @@ function NextLists({ items, now }: { items: NextList[]; now: Date }) {
       const { icon: Icon, text } = reasonBadge(t, item)
       return <li key={item.list.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 p-4 sm:px-5 md:grid-cols-[minmax(0,1fr)_auto_auto]">
         <div className="min-w-0">
-          <p className="font-medium break-words">{item.list.name}</p>
+          <p className="font-medium break-words"><PracticeName list={item.list} /></p>
           <p className="text-[13px] text-muted-foreground">{t('next.words', { count: item.list.words.length })} · {item.lastPracticed ? t('next.lastPracticed', { day: format.day(item.lastPracticed, now) }) : t('next.noRecords')}</p>
         </div>
         <Badge variant="outline" className="col-span-2 justify-self-start md:col-span-1"><Icon aria-hidden="true" />{text}</Badge>
         <Button asChild variant="outline" className="col-start-2 row-start-1 md:col-start-3">
-          <Link href={practiceHref(item.list)} aria-label={t('next.practiceList', { name: item.list.name })}>{t('next.practice')}</Link>
+          <Link href={practiceHref(item.list)} aria-label={t('next.practiceList', { name: practiceName(item.list) })}>{t('next.practice')}</Link>
         </Button>
       </li>
     })}
@@ -128,6 +130,7 @@ function Metric({ title, trend, scale, withUnit, lowerIsBetter, describe }: {
 
 function TrendCard({ trend, now }: { trend: ListTrend; now: Date }) {
   const t = useTranslations('dashboard')
+  const practiceName = usePracticeName()
   const format = useFormat()
   const id = useId()
   const { list, best } = trend
@@ -135,12 +138,12 @@ function TrendCard({ trend, now }: { trend: ListTrend; now: Date }) {
   const accuracy = trend.accuracy.points.map(point => point.value)
   return <article aria-labelledby={id} className="flex flex-col gap-5 rounded-xl p-4 ring-1 ring-foreground/10 sm:p-5">
     <header className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-      <h3 id={id} className="font-medium break-words">{list.name}</h3>
+      <h3 id={id} className="font-medium break-words"><PracticeName list={list} /></h3>
       <p className="text-[13px] text-muted-foreground">{t('trends.summary', { count: trend.count, day: format.day(trend.lastPracticed, now) })}</p>
     </header>
     {trend.count < 2 ? <>
       <p className="text-sm text-muted-foreground">{t('trends.needTwo')}</p>
-      <Button asChild variant="outline" className="self-start"><Link href={practiceHref(list)} aria-label={t('trends.practiceList', { name: list.name })}><Keyboard aria-hidden="true" />{t('trends.practice')}</Link></Button>
+      <Button asChild variant="outline" className="self-start"><Link href={practiceHref(list)} aria-label={t('trends.practiceList', { name: practiceName(list) })}><Keyboard aria-hidden="true" />{t('trends.practice')}</Link></Button>
     </> : <>
       <Metric title={t('trends.speed')} trend={trend.speed} scale={speed.length > 1 ? speedScale(speed) : null} withUnit={value => t('trends.seconds', { value: value.toFixed(2) })} lowerIsBetter describe={secondsDifference} />
       <Metric title={t('trends.accuracy')} trend={trend.accuracy} scale={accuracy.length > 1 ? accuracyScale(accuracy) : null} withUnit={value => t('trends.percent', { value: value.toFixed(1) })} lowerIsBetter={false} describe={pointDifference} />

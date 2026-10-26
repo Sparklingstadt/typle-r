@@ -23,5 +23,6 @@
     "save": "儲存變更",
     "add": "新增",
     "saveFailed": "無法儲存。請再試一次。"
-  }
+  },
+  "packList": "{pack} › {list}"
 }

@@ -31,6 +31,7 @@ import DeviceMenu from "@/components/Practice/DeviceMenu"
 import WordListOptions from "@/components/Practice/WordListOptions"
 import CategorySelect from "@/components/Practice/CategorySelect"
 import PracticeBestRecords from "@/components/Practice/PracticeBestRecords"
+import PracticeName, { usePracticeName } from "@/components/PracticeName"
 import PracticeResult from "@/components/Practice/PracticeResult"
 
 function Loading() {
@@ -126,6 +127,7 @@ function Practice({ wordLists, packs, listId, error, update, devices, accountId 
   update: WorkspaceUpdate
 }) {
   const t = useTranslations('practice')
+  const practiceName = usePracticeName()
   const [device, chooseDevice] = useChosenDevice(accountId, devices)
   const [statsVisible, setStatsVisible] = useLiveStatsVisible()
   const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave, pause, resume } = usePractice(wordLists, update, device, listId)
@@ -235,10 +237,10 @@ function Practice({ wordLists, packs, listId, error, update, devices, accountId 
     <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <Card className="min-w-0 gap-0 py-0 text-base">
         <div className="flex h-14 items-center gap-1.5 border-b px-2 sm:h-16 sm:gap-3 sm:px-3">
-          <button type="button" onClick={openPicker} aria-haspopup="dialog" aria-label={t('header.switchList', { name: list.name })}
+          <button type="button" onClick={openPicker} aria-haspopup="dialog" aria-label={t('header.switchList', { name: practiceName(list) })}
             className="flex h-10 min-w-0 items-center gap-2 rounded-lg px-1.5 text-muted-foreground outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 sm:px-2.5">
             <List className="hidden size-4 shrink-0 sm:block" aria-hidden="true" />
-            <span className="truncate text-[15px] font-bold text-foreground sm:text-base">{list.name}</span>
+            <span className="truncate text-[15px] font-bold text-foreground sm:text-base"><PracticeName list={list} /></span>
             <span className="hidden shrink-0 text-[13px] sm:inline">{t('header.wordCount', { count: words.length })}</span>
             <ChevronsUpDown className="size-4 shrink-0" aria-hidden="true" />
           </button>

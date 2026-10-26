@@ -23,5 +23,6 @@
     "save": "Enregistrer",
     "add": "Ajouter",
     "saveFailed": "Échec de l’enregistrement. Veuillez réessayer."
-  }
+  },
+  "packList": "{pack} › {list}"
 }

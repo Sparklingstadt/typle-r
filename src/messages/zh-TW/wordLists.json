@@ -240,7 +240,6 @@
     "switch": "選擇清單",
     "switchList": "選擇單字清單（目前：{name}）",
     "wordCount": "{count, plural, other {# 個單字}}",
-    "groupSummary": "{group}・{level} · {count, plural, other {# 個單字}}",
     "practice": "練習",
     "practiceList": "練習 {name}",
     "edit": "編輯",

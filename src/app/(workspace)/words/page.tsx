@@ -18,7 +18,8 @@ import { useWordLists } from "@/lib/useWordLists"
 import { matchesPackQuery, packOverviews } from "@/core/packEditing"
 import { packsByRecentPractice } from "@/core/packPractice"
 import type { WordPack } from "@/core/wordPacks"
-import { levelName, listLabels, matchesFilter } from "@/core/listOverview"
+import { listLabels, matchesFilter } from "@/core/listOverview"
+import PracticeName, { usePracticeName } from "@/components/PracticeName"
 import type { SavedWordList } from "@/core/wordLists"
 
 export default function Words() {
@@ -51,6 +52,7 @@ export default function Words() {
 // list is shown, as on the practice screen.
 function WordsView({ lists, packs }: { lists: SavedWordList[]; packs: WordPack[] }) {
   const t = useTranslations('wordLists.words')
+  const practiceName = usePracticeName()
   const page = useTranslations('wordLists.page')
   const locale = useLocale()
   const params = useSearchParams()
@@ -109,16 +111,16 @@ function WordsView({ lists, packs }: { lists: SavedWordList[]; packs: WordPack[]
       <Card className="min-w-0 gap-0 py-0 text-base">
         <div className="flex flex-wrap items-start gap-x-4 gap-y-3 border-b px-4 py-4 sm:px-6">
           <div className="grid min-w-0 flex-1 basis-60 gap-1">
-            <h2 id="words-title" className="text-lg font-bold [overflow-wrap:anywhere]">{list.name}</h2>
+            <h2 id="words-title" className="text-lg font-bold [overflow-wrap:anywhere]"><PracticeName list={list} /></h2>
             <ListLabels list={list} />
             <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">
-              {list.group ? t('groupSummary', { group: list.group, level: levelName(list), count: list.words.length }) : t('wordCount', { count: list.words.length })}
+              {t('wordCount', { count: list.words.length })}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Dialog open={pickerOpen} onOpenChange={open => { setPickerOpen(open); if (!open) setPickerQuery('') }}>
               <DialogTrigger asChild>
-                <Button variant="outline" size="lg" className="lg:hidden" aria-label={t('switchList', { name: list.name })}>
+                <Button variant="outline" size="lg" className="lg:hidden" aria-label={t('switchList', { name: practiceName(list) })}>
                   <ChevronsUpDown aria-hidden="true" />{t('switch')}
                 </Button>
               </DialogTrigger>
@@ -135,8 +137,8 @@ function WordsView({ lists, packs }: { lists: SavedWordList[]; packs: WordPack[]
                 </div>
               </DialogContent>
             </Dialog>
-            <Button size="lg" asChild><Link href={`/play?list=${encodeURIComponent(list.id)}`} aria-label={t('practiceList', { name: list.name })}><Keyboard aria-hidden="true" />{t('practice')}</Link></Button>
-            <Button variant="outline" size="lg" asChild><Link href={`/edit?list=${encodeURIComponent(list.id)}`} aria-label={t('editList', { name: list.name })}><Pencil aria-hidden="true" />{t('edit')}</Link></Button>
+            <Button size="lg" asChild><Link href={`/play?list=${encodeURIComponent(list.id)}`} aria-label={t('practiceList', { name: practiceName(list) })}><Keyboard aria-hidden="true" />{t('practice')}</Link></Button>
+            <Button variant="outline" size="lg" asChild><Link href={`/edit?list=${encodeURIComponent(list.id)}`} aria-label={t('editList', { name: practiceName(list) })}><Pencil aria-hidden="true" />{t('edit')}</Link></Button>
           </div>
         </div>
         <WordTable list={list} />

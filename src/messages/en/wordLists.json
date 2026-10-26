@@ -240,7 +240,6 @@
     "switch": "Choose list",
     "switchList": "Choose a word list (current: {name})",
     "wordCount": "{count, plural, one {# word} other {# words}}",
-    "groupSummary": "{group}: {level} · {count, plural, one {# word} other {# words}}",
     "practice": "Practice",
     "practiceList": "Practice {name}",
     "edit": "Edit",

@@ -85,12 +85,12 @@ test('a group is one choice on the practice screen, and its levels are chosen on
   await expect(levels.getByRole('group', { name: '難易度の2段目' }).getByRole('button')).toHaveText(['初級', '上級'])
   await levels.getByRole('button', { name: '上級' }).click()
   await expect(page.locator('#wordDisplay')).toHaveText('tar -xzf')
-  await expect(page.getByRole('button', { name: '単語リストを切り替える（現在: Shell：オプション・上級）' })).toBeVisible()
+  await expect(page.getByRole('button', { name: '単語リストを切り替える（現在: Shell › オプション・上級）' })).toBeVisible()
   // The group of the list being practised stays open at its levels.
   await expect(aside.getByRole('button', { name: /^Shell/ })).toContainText('オプション・上級 · 1語 · 記録なし')
   await expect(levels.getByRole('button', { name: '上級' })).toHaveAttribute('aria-pressed', 'true')
 
-  await page.getByRole('button', { name: '単語リストを切り替える（現在: Shell：オプション・上級）' }).click()
+  await page.getByRole('button', { name: '単語リストを切り替える（現在: Shell › オプション・上級）' }).click()
   const dialog = page.getByRole('dialog', { name: '単語リストを選ぶ' })
   await dialog.getByRole('button', { name: '基本', exact: true }).click()
   await dialog.getByRole('button', { name: '初級', exact: true }).click()
@@ -107,5 +107,5 @@ test('the initial Kotlin syntax lists are one list with 初級1 to 上級2', asy
   const levels = aside.getByRole('group', { name: 'Kotlin構文 の難易度' })
   await expect(levels.getByRole('group', { name: '難易度の1段目' }).getByRole('button')).toHaveText(['初級1', '初級2', '中級', '上級1', '上級2'])
   await levels.getByRole('button', { name: '中級' }).click()
-  await expect(page.getByRole('button', { name: '単語リストを切り替える（現在: Kotlin構文（中級））' })).toBeVisible()
+  await expect(page.getByRole('button', { name: '単語リストを切り替える（現在: Kotlin構文 › 中級）' })).toBeVisible()
 })

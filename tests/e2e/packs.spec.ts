@@ -443,7 +443,7 @@ test('a pack opens to its lists with levels first and then the lists without, an
   await expect(study.getByRole('group', { name: '難易度の1段目' }).getByRole('button')).toHaveText(['基本', '応用'])
   await study.getByRole('button', { name: '基本', exact: true }).click()
   await study.getByRole('button', { name: '初級', exact: true }).click()
-  await expect(page.getByRole('button', { name: '単語リストを切り替える（現在: 初級の中身）' })).toBeVisible()
+  await expect(page.getByRole('button', { name: '単語リストを切り替える（現在: Study › 基本・初級）' })).toBeVisible()
   await expect(page.locator('#wordDisplay')).toHaveText('one')
 })
 
@@ -478,4 +478,25 @@ test('the words screen chooses from the same pack choices', async ({ page }) => 
   await aside.locator('li[data-pack-id="solo"]').getByRole('button', { name: '単独リスト を選択' }).click()
   await expect(page).toHaveURL(/\/words\?list=solo-list$/)
   await expect(page.getByRole('table', { name: '単独リスト' })).toBeVisible()
+})
+
+test('a list of a pack of several lists is named 「pack › list」 on the practice screen, a pack of one list by its list name', async ({ page }) => {
+  await page.goto('/play?list=adv')
+  await expect(page.getByRole('button', { name: /^単語リストを切り替える/ })).toContainText('Shell › 応用')
+  await page.goto('/play?list=solo-list')
+  const heading = page.getByRole('button', { name: /^単語リストを切り替える/ })
+  await expect(heading).toContainText('単独リスト')
+  await expect(heading).not.toContainText('›')
+})
+
+test('the words screen names the list once in its heading, and the line below only counts the words', async ({ page }) => {
+  await page.goto('/words?list=adv')
+  await expect(page.locator('#words-title')).toHaveText('Shell › 応用')
+  await expect(page.locator('#words-title').locator('xpath=..').locator('p')).toHaveText('2語')
+})
+
+test('the home screen names the next lists 「pack › list」', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByRole('link', { name: 'Shell › 応用 を練習する' })).toBeVisible()
+  await expect(page.getByText('Shell › 応用')).toBeVisible()
 })

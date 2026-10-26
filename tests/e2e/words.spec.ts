@@ -66,13 +66,13 @@ test('the sidebar opens the words of a list, and another list or a level of a gr
   await group.getByRole('button', { name: '基本', exact: true }).click()
   await group.getByRole('button', { name: '上級', exact: true }).click()
   await expect(page).toHaveURL(/\/words\?list=basic-2$/)
-  await expect(page.getByRole('heading', { level: 2, name: 'Shell：基本・上級' })).toBeVisible()
-  await expect(page.getByText('Shell・基本・上級 · 1語')).toBeVisible()
-  await expect(page.getByRole('table', { name: 'Shell：基本・上級' }).getByRole('row')).toHaveCount(2)
+  await expect(page.getByRole('heading', { level: 2, name: 'Shell › 基本・上級' })).toBeVisible()
+  await expect(page.getByText('1語', { exact: true })).toBeVisible()
+  await expect(page.getByRole('table', { name: 'Shell › 基本・上級' }).getByRole('row')).toHaveCount(2)
 
   // The chosen list is kept in the URL, so it survives a reload.
   await page.reload()
-  await expect(page.getByRole('table', { name: 'Shell：基本・上級' })).toBeVisible()
+  await expect(page.getByRole('table', { name: 'Shell › 基本・上級' })).toBeVisible()
   expect(errors).toEqual([])
 })
 
