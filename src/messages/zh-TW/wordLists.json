@@ -306,5 +306,15 @@
     "update": "更新分享",
     "stop": "停止分享",
     "failed": "無法變更分享。"
+  },
+  "sharedPage": {
+    "loading": "正在載入分享",
+    "intro": "這是別人分享的包。加入我的包後，就能編輯並用來練習。",
+    "add": "加入我的包",
+    "toPacks": "開啟單字包",
+    "loadFailed": "無法載入此分享。請稍後再試。",
+    "levels": "難度：{levels}",
+    "lists": "清單",
+    "addFailed": "無法加入此包。請重試。"
   }
 }

@@ -306,5 +306,15 @@
     "update": "Mettre à jour",
     "stop": "Arrêter le partage",
     "failed": "Impossible de modifier le partage."
+  },
+  "sharedPage": {
+    "loading": "Chargement du partage",
+    "intro": "Ce pack a été partagé avec vous. Ajoutez-le à vos packs pour le modifier et vous entraîner avec.",
+    "add": "Ajouter à mes packs",
+    "toPacks": "Ouvrir les packs de mots",
+    "loadFailed": "Impossible de charger ce partage. Réessayez dans un instant.",
+    "levels": "Difficulté : {levels}",
+    "lists": "Listes",
+    "addFailed": "Impossible d’ajouter le pack. Réessayez."
   }
 }

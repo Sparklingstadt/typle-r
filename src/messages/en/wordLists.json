@@ -306,5 +306,15 @@
     "update": "Update share",
     "stop": "Stop sharing",
     "failed": "Could not change the share."
+  },
+  "sharedPage": {
+    "loading": "Loading the share",
+    "intro": "This pack was shared with you. Add it to your packs to edit it and practice with it.",
+    "add": "Add to my packs",
+    "toPacks": "Open word packs",
+    "loadFailed": "Couldn’t load this share. Try again in a moment.",
+    "levels": "Difficulty: {levels}",
+    "lists": "Lists",
+    "addFailed": "Couldn’t add the pack. Please try again."
   }
 }

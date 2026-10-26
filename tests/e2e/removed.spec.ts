@@ -5,7 +5,9 @@ test('removed server routes answer 404', async ({ page }) => {
   for (const path of ['/api/v1/lists', '/api/tokens']) {
     expect((await page.request.get(path)).status(), path).toBe(404)
   }
-  expect((await page.goto('/shared/0b1c'))?.status()).toBe(404)
+  // /shared/<id> is the public page of a shared pack again; an id that names no share says it has ended.
+  await page.goto('/shared/0b1c')
+  await expect(page.getByText('この共有は終了しました。')).toBeVisible()
   await expect(page.getByRole('banner', { name: 'トップバー' })).toBeVisible()
 })
 

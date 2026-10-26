@@ -306,5 +306,15 @@
     "update": "更新共享",
     "stop": "停止共享",
     "failed": "无法更改共享。"
+  },
+  "sharedPage": {
+    "loading": "正在加载共享",
+    "intro": "这是别人共享的包。添加到我的包后，就可以编辑并用来练习。",
+    "add": "添加到我的包",
+    "toPacks": "打开单词包",
+    "loadFailed": "无法加载此共享。请稍后再试。",
+    "levels": "难度：{levels}",
+    "lists": "列表",
+    "addFailed": "无法添加此包。请重试。"
   }
 }

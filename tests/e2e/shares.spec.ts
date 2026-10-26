@@ -110,3 +110,54 @@ test('a guest has no share item in the pack menu', async ({ page }) => {
   await expect(page.getByRole('menuitem', { name: 'パックを編集' })).toBeVisible()
   await expect(page.getByRole('menuitem', { name: '共有', exact: true })).toHaveCount(0)
 })
+
+// Shares the signed-in account's pack through the API and returns the link's id.
+async function shareByApi(page: Page) {
+  const response = await page.request.put('/api/shares', { headers: { Origin: origin }, data: { packId: 'pack-shared-one' } })
+  expect(response.status()).toBe(200)
+  return (await response.json()).id as string
+}
+
+test('a guest opens a shared link, sees the pack without its owner, and adds it to the browser storage', async ({ page, browser }) => {
+  await signIn(page)
+  const id = await shareByApi(page)
+
+  const guest = await browser.newContext({ baseURL: origin })
+  try {
+    const view = await guest.newPage()
+    await view.goto(`/shared/${id}`)
+    await expect(view.getByRole('heading', { level: 1, name: 'Shared pack' })).toBeVisible()
+    const table = view.getByRole('table', { name: 'Shared pack' })
+    await expect(table.getByRole('cell', { name: 'ls', exact: true }).first()).toBeVisible()
+    await expect(table.getByRole('cell', { name: 'cd', exact: true }).first()).toBeVisible()
+    await expect(view.getByText('E2E User')).toHaveCount(0)
+
+    await view.getByRole('button', { name: '自分のパックに追加' }).click()
+    await expect(view).toHaveURL(/\/edit\?pack=[^&]+$/)
+    await expect(view.getByText('Shared pack', { exact: true }).first()).toBeVisible()
+
+    // The same name again gets （2）.
+    await view.goto(`/shared/${id}`)
+    await view.getByRole('button', { name: '自分のパックに追加' }).click()
+    await expect(view).toHaveURL(/\/edit\?pack=/)
+    await expect(view.getByText('Shared pack（2）', { exact: true }).first()).toBeVisible()
+  } finally { await guest.close() }
+})
+
+test('a link whose share was stopped, or an id that never existed, says the share has ended', async ({ page, browser }) => {
+  await signIn(page)
+  const id = await shareByApi(page)
+  const stopped = await page.request.delete('/api/shares?pack=pack-shared-one', { headers: { Origin: origin } })
+  expect(stopped.status()).toBe(204)
+
+  const guest = await browser.newContext({ baseURL: origin })
+  try {
+    const view = await guest.newPage()
+    for (const path of [id, 'not-an-id', '00000000-0000-4000-8000-000000000000']) {
+      await view.goto(`/shared/${path}`)
+      await expect(view.getByText('この共有は終了しました。')).toBeVisible()
+      await expect(view.getByRole('link', { name: '単語パックを開く' })).toHaveAttribute('href', '/edit')
+      await expect(view.getByRole('button', { name: '自分のパックに追加' })).toHaveCount(0)
+    }
+  } finally { await guest.close() }
+})
