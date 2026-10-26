@@ -120,8 +120,8 @@ export function currentRecordCount(list: Pick<SavedWordList, 'words' | 'records'
   return list.records.filter(record => record.wordCount === list.words.length).length
 }
 
-// `suffix(n)` is the localized mark for the nth copy, such as （コピー） and （コピー2）.
-export function copyName(lists: SavedWordList[], name: string, suffix: (n: number) => string) {
+// `suffix(n)` is the localized mark for the nth copy, such as （コピー） and （コピー2）. Packs are named the same way.
+export function copyName(lists: Pick<SavedWordList, 'name'>[], name: string, suffix: (n: number) => string) {
   const taken = new Set(lists.map(list => list.name.trim().toLocaleLowerCase()))
   for (let n = 1; ; n++) {
     const mark = suffix(n)

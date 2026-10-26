@@ -51,5 +51,6 @@
   "packNameRequired": "請輸入包名稱。",
   "packNameDuplicate": "已有同名的包。",
   "packDeleted": "此包已被刪除。",
-  "levelsConflict": "同一個包中已有難度相同，或前幾步難度相同的清單。"
+  "levelsConflict": "同一個包中已有難度相同，或前幾步難度相同的清單。",
+  "packFileUnreadable": "無法將此檔案作為單字包讀取。"
 }

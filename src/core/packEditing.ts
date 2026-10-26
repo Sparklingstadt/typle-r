@@ -59,7 +59,7 @@ function packFields(library: Library, fields: PackInput, selfId?: string) {
 }
 
 // Levels as normalizeGroup keeps them: trimmed, without empty ones, and left out when none is left.
-function tidyLevels(levels: string[] | undefined) {
+export function tidyLevels(levels: string[] | undefined) {
   const kept = (levels ?? []).map(level => level.trim()).filter(Boolean)
   if (kept.length > MAX_LEVELS || kept.some(level => level.length > MAX_LEVEL)) throw invalid()
   return kept.length ? { levels: kept } : {}
@@ -72,7 +72,7 @@ const requirePack = (library: Library, packId: string) => {
 }
 
 // Every function ends here: the result is repaired, then refused if it is still not a library that can be saved.
-function settle(library: Library) {
+export function settle(library: Library) {
   const result = repairLibrary(library)
   validateLibrary(result)
   return result
@@ -142,11 +142,11 @@ export function saveListInPack(library: Library,
 }
 
 // The levels the practice screen picks a list of a pack by: its levels, or its name when it has none.
-const levelPath = (list: Pick<SavedWordList, 'name' | 'levels'>) => list.levels?.length ? list.levels : [list.name]
+export const levelPath = (list: Pick<SavedWordList, 'name' | 'levels'>) => list.levels?.length ? list.levels : [list.name]
 
 // Two lists of a pack whose paths are equal, or one the start of the other, leave one of them out of reach on the
 // practice screen: picking the shorter path picks its list, or asks for a further level, but never both.
-function pathsOverlap(a: string[], b: string[]) {
+export function pathsOverlap(a: string[], b: string[]) {
   const [short, long] = a.length <= b.length ? [a, b] : [b, a]
   return short.every((level, n) => level === long[n])
 }
