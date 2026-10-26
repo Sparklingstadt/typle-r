@@ -201,3 +201,44 @@ test('a save sends the lists in the saved shape together with the packs', async 
   await saving
   assert.deepEqual(s.shown.at(-1).lists, initial)
 })
+
+test('packs are shown as the initial ones until the first save, then as saved', async () => {
+  const fake = fakeStore()
+  const empty = await loaded(fake, state(0))
+  assert.deepEqual(empty.shown.at(-1).packs, initialLibrary.packs)
+  const saved = await loaded(fake, state(2, [list('mine')]))
+  assert.deepEqual(saved.shown.at(-1).packs.map(pack => pack.id), ['pack-mine'])
+})
+
+test('updateLibrary saves the library in the saved shape, starting from the initial one at revision 0', async () => {
+  const fake = fakeStore()
+  const s = await loaded(fake, state(0))
+  const saving = s.session.updateLibrary(library => ({ ...library, packs: library.packs.map(pack => ({ ...pack, name: pack.name + '!' })) }))
+  const { packs, lists, revision, accountId } = fake.writes[0].request
+  assert.deepEqual(packs.map(pack => pack.name), initialLibrary.packs.map(pack => pack.name + '!'))
+  assert.deepEqual(lists.map(item => item.id), ['sample-1', 'g1', 'g2'])
+  assert.equal(revision, 0)
+  assert.equal(accountId, 'github:1')
+  fake.writes[0].resolve(state(1, lists, 'github:1', packs))
+  assert.equal(await saving, true)
+  assert.deepEqual(s.shown.at(-1).packs.map(pack => pack.name), packs.map(pack => pack.name))
+
+  const legacy = await loaded(fake, state(0))
+  const importing = legacy.session.updateLibrary(library => library, false)
+  assert.deepEqual(fake.writes[1].request.lists, [])
+  fake.writes[1].resolve(state(1))
+  await importing
+})
+
+test('updateLibrary repairs what the change returns, and reads again after a conflict', async () => {
+  const fake = fakeStore()
+  const s = await loaded(fake, state(1, [list('a')]))
+  const saving = s.session.updateLibrary(library => ({ packs: [...library.packs, { id: 'empty', name: 'Empty', createdAt: '2026-10-04' }], lists: library.lists }))
+  assert.deepEqual(fake.writes[0].request.packs.map(pack => pack.id), ['pack-a'])
+  fake.writes[0].reject(new WorkspaceError('conflict', 409))
+  await new Promise(setImmediate)
+  fake.reads[1].resolve(state(2, [list('a'), list('elsewhere')]))
+  await assert.rejects(saving, { key: 'conflict', status: 409 })
+  assert.deepEqual(s.shown.at(-1).lists.map(item => item.id), ['a', 'elsewhere'])
+  assert.equal(s.session.busy, false)
+})

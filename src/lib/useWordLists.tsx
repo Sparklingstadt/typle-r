@@ -11,6 +11,7 @@ import { initialLibrary } from '../plugins/packs'
 
 import type { PracticeDevice } from '../core/devices'
 import { type SavedWordList } from '../core/wordLists'
+import type { Library, WordPack } from '../core/wordPacks'
 import { createWorkspaceSession, type WorkspaceSession } from '../core/workspaceSession'
 
 export type WorkspaceUpdate = (change: (lists: SavedWordList[]) => SavedWordList[], useDefaults?: boolean) => Promise<boolean>
@@ -24,6 +25,7 @@ function useWorkspace() {
   const pathname = usePathname()
   const [devices, setDevices] = useState<PracticeDevice[]>([])
   const [lists, setLists] = useState<SavedWordList[]>([])
+  const [packs, setPacks] = useState<WordPack[]>([])
   const [ready, setReady] = useState(false)
   const [failure, setFailure] = useState<Failure>(null)
   const t = useTranslations('errors')
@@ -35,6 +37,7 @@ function useWorkspace() {
     setIdentity(accountId)
     setSaving(false)
     setLists([])
+    setPacks([])
     setDevices([])
     setReady(false)
     setFailure(null)
@@ -45,7 +48,7 @@ function useWorkspace() {
     if (!accountId) return
     const current = createWorkspaceSession({
       store: workspaceStore(accountId), accountId, initialLibrary, saving: setSaving,
-      show: shown => { setLists(shown.lists); setDevices(shown.devices) },
+      show: shown => { setLists(shown.lists); setPacks(shown.packs); setDevices(shown.devices) },
     })
     workspace.current = current
     let active = true
@@ -90,11 +93,13 @@ function useWorkspace() {
   /** Which error is shown, for screens that place some errors next to a field. */
   const errorKey = failure?.reason instanceof AppError ? failure.reason.key : null
   return {
-    lists, devices, accountId,
+    lists, packs, devices, accountId,
     /** Where this workspace is saved; undefined until the login is known. */
     storage: accountId ? workspaceStore(accountId).location : undefined,
     updateDevices: (change: (current: PracticeDevice[]) => PracticeDevice[]) => save(current => current.update(lists => lists, true, change)),
     update: (change: (current: SavedWordList[]) => SavedWordList[], useDefaults?: boolean) => save(current => current.update(change, useDefaults)),
+    /** Replaces the library in its saved shape; for pack edits. */
+    updateLibrary: (change: (current: Library) => Library, useDefaults?: boolean) => save(current => current.updateLibrary(change, useDefaults)),
     ready: loaded, error, errorKey, saving,
   }
 }
