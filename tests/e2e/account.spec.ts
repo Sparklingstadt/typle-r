@@ -1,26 +1,13 @@
 import { test, expect } from '@playwright/test'
-import { randomBytes } from 'node:crypto'
-import { sealSession } from './sessionCookie'
+import { cookieName, deleteWorkspace, newAccountId, origin, sessionFor as login, signIn } from './account'
 import { openPacks } from './packRows'
-const origin = 'http://127.0.0.1:3101'
-const secret = 'typle-e2e-only-not-a-production-secret-32-bytes'
-// The Go backend's login cookie over HTTP; the sealed value is what it sets after GitHub.
-const cookieName = 'typle-session'
-const login = (sub: string, name: string) => {
-  const iat = Math.floor(Date.now() / 1000)
-  return sealSession(secret, { sub, name, image: '', iat, exp: iat + 3600 })
-}
 let accountId = ''
 test.beforeEach(async ({ context }) => {
-  accountId = 'github:' + BigInt('0x' + randomBytes(16).toString('hex')).toString()
-  await context.addCookies([{ name: cookieName, value: login(accountId, 'E2E User'), url: origin, httpOnly: true, sameSite: 'Lax' }])
+  accountId = newAccountId()
+  await signIn(context, accountId)
 })
-test.afterEach(async () => {
-  // Test users are isolated; cleanup is handled through a direct DB connection below.
-  const { Pool } = await import('pg')
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-  try { await pool.query('DELETE FROM typle_workspaces WHERE owner_id = $1', [accountId]) } finally { await pool.end() }
-})
+// Test users are isolated; their rows are deleted through a direct DB connection.
+test.afterEach(() => deleteWorkspace(accountId))
 async function seed(page: import('@playwright/test').Page, lists: unknown[]) {
   const response = await page.request.put('/api/workspace', { headers: { Origin: origin }, data: { accountId, revision: 0, lists } })
   expect(response.status()).toBe(200)
