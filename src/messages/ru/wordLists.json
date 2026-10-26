@@ -97,6 +97,7 @@
   },
   "pack": {
     "lists": "{count, plural, one {# список} few {# списка} many {# списков} other {# списка}}",
+    "practiced": "тренировано {practiced}/{lists}",
     "wordCount": "{count, plural, one {# слово} few {# слова} many {# слов} other {# слова}}",
     "practice": "Тренировка",
     "listsOf": "Списки: {name}",

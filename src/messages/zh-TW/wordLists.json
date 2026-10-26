@@ -97,6 +97,7 @@
   },
   "pack": {
     "lists": "{count, plural, other {#個清單}}",
+    "practiced": "已練習 {practiced}/{lists}",
     "wordCount": "{count, plural, other {#個單字}}",
     "practice": "練習",
     "listsOf": "{name} 的清單",

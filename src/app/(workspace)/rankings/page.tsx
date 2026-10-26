@@ -15,8 +15,10 @@ import { useFormat } from "@/i18n/useFormat"
 import { useWordLists } from "@/lib/useWordLists"
 import { deviceExists, type PracticeDevice } from "@/core/devices"
 import { deviceOptions, matchesDevice, NO_DEVICE, type RankOrder } from "@/core/records"
-import { listRanking, sortRankings, type ListSort } from "@/core/rankings"
+import { listRanking, type ListSort } from "@/core/rankings"
+import { packRankings, sortPackRankings } from "@/core/packRecords"
 import type { SavedWordList } from "@/core/wordLists"
+import type { WordPack } from "@/core/wordPacks"
 import { cn } from "@/lib/utils"
 import PageStorageBadge from "@/components/PageStorageBadge"
 
@@ -53,7 +55,7 @@ export default function Rankings() {
       </AlertDescription>
     </Alert>}
     {!workspace.ready ? <LoadingState />
-      : practised ? <Suspense fallback={<LoadingState />}><RankingsView key={workspace.accountId} lists={workspace.lists} devices={workspace.devices} /></Suspense>
+      : practised ? <Suspense fallback={<LoadingState />}><RankingsView key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} devices={workspace.devices} /></Suspense>
         // After a failed load there is nothing to show, and "no records yet" would be wrong.
         : !workspace.error && <EmptyState />}
   </main>
@@ -63,7 +65,7 @@ type View = { list: string | null; device: string | null; order: RankOrder }
 
 // `?list=<id>&device=<id>&order=speed` keep the view in the URL, so other screens can open one list's ranking.
 // Below `xl`, opening a list pushes a history entry, so the browser's back button returns to the list.
-function RankingsView({ lists, devices }: { lists: SavedWordList[]; devices: PracticeDevice[] }) {
+function RankingsView({ lists, packs, devices }: { lists: SavedWordList[]; packs: WordPack[]; devices: PracticeDevice[] }) {
   const t = useTranslations('rankings')
   const format = useFormat()
   const locale = useLocale()
@@ -73,7 +75,7 @@ function RankingsView({ lists, devices }: { lists: SavedWordList[]; devices: Pra
   const wide = useWide()
   const pushed = useRef(false)
   // Where focus goes once the view has switched: the detail heading, or the list that was just closed.
-  const focusAfter = useRef<{ detail: true } | { list: string } | null>(null)
+  const focusAfter = useRef<{ detail: true } | { list: string; pack?: string } | null>(null)
 
   const devicesOptions = useMemo(() => deviceOptions(lists.flatMap(list => list.records)).map(({ value, device, count }) => {
     const label = format.recordDevice(device)
@@ -81,10 +83,13 @@ function RankingsView({ lists, devices }: { lists: SavedWordList[]; devices: Pra
   }), [lists, devices, format, t])
   const device = devicesOptions.some(option => option.value === params.get('device')) ? params.get('device') : null
   const order: RankOrder = params.get('order') === 'speed' ? 'speed' : 'accuracy'
-  const rankings = useMemo(() => sortRankings(lists.map(list => listRanking(list, { device, order, now })), sort, locale), [lists, device, order, now, sort, locale])
+  const packRanks = useMemo(() => sortPackRankings(packRankings(packs, lists.map(list => listRanking(list, { device, order, now }))), sort, locale), [lists, packs, device, order, now, sort, locale])
   const requested = lists.find(list => list.id === params.get('list'))
-  // On wide screens something is always open: the most recent list with a record, like the top of the list.
-  const selected = requested ?? rankings.find(item => item.ranked.length)?.list ?? rankings[0]?.list
+  // On wide screens something is always open: the most recent list with a record in the first pack with one, like the top of the list.
+  const firstPack = packRanks.find(item => item.items.some(ranking => ranking.ranked.length)) ?? packRanks[0]
+  const recent = firstPack?.items.filter(ranking => ranking.ranked.length).reduce<typeof firstPack.items[number] | undefined>(
+    (latest, ranking) => !latest || (ranking.lastPracticed?.getTime() ?? 0) > (latest.lastPracticed?.getTime() ?? 0) ? ranking : latest, undefined)
+  const selected = requested ?? (recent ?? firstPack?.items[0])?.list
   const opened = Boolean(requested)
   const deviceName = devicesOptions.find(option => option.value === device)?.label ?? ''
 
@@ -92,7 +97,13 @@ function RankingsView({ lists, devices }: { lists: SavedWordList[]; devices: Pra
     const target = focusAfter.current
     focusAfter.current = null
     if (target && 'detail' in target) document.getElementById('ranking-title')?.focus()
-    if (target && 'list' in target) document.querySelector<HTMLElement>(`[data-ranking-list] [data-list-id="${CSS.escape(target.list)}"]`)?.focus()
+    // A list collapsed into its pack's button has no row of its own, so the focus falls back to the pack's row.
+    if (target && 'list' in target) {
+      const root = document.querySelector('[data-ranking-list]')
+      const row = root?.querySelector<HTMLElement>(`[data-list-id="${CSS.escape(target.list)}"]`)
+        ?? (target.pack ? root?.querySelector<HTMLElement>(`[data-pack-id="${CSS.escape(target.pack)}"] button`) : null)
+      row?.focus()
+    }
   }, [opened])
 
   function navigate(next: Partial<View>, mode: 'push' | 'replace' = 'replace') {
@@ -115,7 +126,7 @@ function RankingsView({ lists, devices }: { lists: SavedWordList[]; devices: Pra
   }
 
   function back() {
-    if (requested) focusAfter.current = { list: requested.id }
+    if (requested) focusAfter.current = { list: requested.id, pack: requested.packId }
     if (pushed.current) {
       pushed.current = false
       window.history.back()
@@ -139,7 +150,7 @@ function RankingsView({ lists, devices }: { lists: SavedWordList[]; devices: Pra
 
     <div className="xl:grid xl:grid-cols-[320px_minmax(0,1fr)] xl:items-start xl:gap-6">
       <section aria-label={t('lists')} data-ranking-list className={cn('rounded-xl border bg-card xl:sticky xl:top-6', opened && 'hidden xl:block')}>
-        <RankingList rankings={rankings} selectedId={opened || wide ? selected?.id : undefined} filtered={device !== null} sort={sort} onSort={setSort} now={now} onChoose={choose} />
+        <RankingList packs={packRanks} selectedId={opened || wide ? selected?.id : undefined} filtered={device !== null} sort={sort} onSort={setSort} now={now} onChoose={choose} />
       </section>
       {selected && <section aria-labelledby="ranking-title" className={cn('min-w-0 rounded-xl border bg-card', !opened && 'hidden xl:block')}>
         <RankingDetail key={selected.id} list={selected} devices={devices} device={device} deviceName={deviceName} order={order} now={now}

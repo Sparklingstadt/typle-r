@@ -50,7 +50,11 @@ export default function PackRow({ item, now, open, onToggle, highlight, disabled
           </h3>
           <ListLabels list={pack} />
         </div>
-        <p className="text-sm text-muted-foreground">{t('lists', { count: lists.length })}</p>
+        <p className="text-sm text-muted-foreground">
+          {t('lists', { count: lists.length })}
+          {/* A pack of one list is practised or not, so the count says nothing there. */}
+          {lists.length > 1 && <> · {t('practiced', { practiced: item.practicedListCount, lists: lists.length })}</>}
+        </p>
         <p className="pt-0.5 text-xs text-muted-foreground tabular-nums sm:hidden">{t('wordCount', { count: item.wordCount })} · {usage}</p>
       </div>
       <div className="hidden space-y-0.5 text-[13px] tabular-nums sm:block">

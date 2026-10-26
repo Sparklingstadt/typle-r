@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { useFormat } from '@/i18n/useFormat'
 import { formatAccuracy, listBest } from '@/core/records'
 import type { SavedWordList } from '@/core/wordLists'
+import PracticeName from '@/components/PracticeName'
 import { RecordTime } from '@/components/Records/RecordRow'
 
 // Shown while one list is selected: how that list is going, and the way back to practising it.
@@ -15,7 +16,7 @@ export default function ListSummary({ list, now }: { list: SavedWordList; now: D
   const last = list.records.reduce<string | null>((latest, record) => !latest || Date.parse(record.date) > Date.parse(latest) ? record.date : latest, null)
   return <section aria-labelledby="list-summary-heading" className="grid gap-4 rounded-xl border bg-card p-4 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center sm:gap-6 sm:p-5">
     <div className="min-w-0">
-      <h2 id="list-summary-heading" className="font-bold [overflow-wrap:anywhere]">{list.name}</h2>
+      <h2 id="list-summary-heading" className="font-bold [overflow-wrap:anywhere]"><PracticeName list={list} /></h2>
       <p className="text-[13px] text-muted-foreground tabular-nums">
         {t('words', { count: list.words.length })} · {t('runs', { count: list.records.length })}{last && ` · ${t('last', { day: format.day(new Date(last), now) })}`}
       </p>

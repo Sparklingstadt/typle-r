@@ -124,12 +124,12 @@
     "history": {
       "title": "Practice history",
       "p1": "<records>Practice history</records> lists your practices by date, newest first, and can be filtered by list or device. Filters are kept in the URL, so you can open the same view from a bookmark or link.",
-      "p2": "When filtered by a list, it shows how many times you have practiced that list and your best, and you can start practicing right away with “Practice”.",
+      "p2": "When filtered by a list, it shows how many times you have practiced that list and your best, and you can start practicing right away with “Practice”. Choosing a pack limits the list choices to that pack’s lists. Records of packs with two or more lists show “pack › list”.",
       "p3": "The best record of each list is marked “Best”. When you delete a best, the confirmation shows which record will become the next best."
     },
     "best": {
       "title": "Best records",
-      "p1": "Choose a list in <rankings>Best records</rankings> to see your personal best, the average of your last 5 runs, how your time has changed, and your top records.",
+      "p1": "Choose a list in <rankings>Best records</rankings> to see your personal best, the average of your last 5 runs, how your time has changed, and your top records. The best-records screen groups lists by pack. Each pack shows its practice count, how many lists you have practiced (n/m practiced), when you last practiced, and how many lists set a new best in the last 7 days. Sorting applies to packs, and the lists inside a pack stay in difficulty order.",
       "p2": "You can switch the ranking between “Accuracy first” (highest accuracy first, then fastest) and “Speed first”, and filter it by device. The selected list and options are kept in the URL.",
       "p3": "The practice screen also shows the top 5 records for the selected list and highlights your latest one."
     },

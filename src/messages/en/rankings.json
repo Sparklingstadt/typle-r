@@ -40,7 +40,11 @@
       "recent": "Recently practiced",
       "name": "Name",
       "count": "Most records"
-    }
+    },
+    "packPracticed": "{practiced}/{lists} practiced",
+    "packImproved": "{count} new",
+    "packJoin": " · ",
+    "packLists": "{pack} · {count, plural, one {# list} other {# lists}}"
   },
   "detail": {
     "back": "All lists",

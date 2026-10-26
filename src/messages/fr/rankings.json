@@ -40,7 +40,11 @@
       "recent": "Entraînement récent",
       "name": "Nom",
       "count": "Nombre de résultats"
-    }
+    },
+    "packPracticed": "{practiced}/{lists} entraînées",
+    "packImproved": "{count, plural, one {# record} other {# records}}",
+    "packJoin": " · ",
+    "packLists": "{pack} · {count, plural, one {# liste} other {# listes}}"
   },
   "detail": {
     "back": "Toutes les listes",

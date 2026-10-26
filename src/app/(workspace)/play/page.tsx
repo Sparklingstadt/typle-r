@@ -267,7 +267,7 @@ function Practice({ wordLists, packs, listId, error, update, devices, accountId 
           </div>
           <span aria-hidden="true">{progressText}</span>
         </div>
-        {finished ? <PracticeResult listName={list.name} wordCount={words.length} result={result} correct={session.attempts - session.mistakes} speed={typingSpeed(session, 0)}
+        {finished ? <PracticeResult listName={practiceName(list)} wordCount={words.length} result={result} correct={session.attempts - session.mistakes} speed={typingSpeed(session, 0)}
           device={practiceDevice} record={record} records={selectedRecords} saveState={saveState} onRestart={() => restart()} onRetry={retrySave} onChooseList={openPicker} />
         : <>
           <div className="relative flex min-h-44 flex-1 flex-col items-center justify-center gap-3 px-4 pt-6 pb-2 text-center sm:min-h-52 sm:gap-3.5 sm:px-6 sm:pt-11">
@@ -347,7 +347,7 @@ function Practice({ wordLists, packs, listId, error, update, devices, accountId 
         <Card className="gap-2 px-4 pt-4 pb-3">
           <div className="flex min-w-0 items-baseline gap-2">
             <h2 className="shrink-0 text-[15px] font-bold">{t('aside.best')}</h2>
-            <span className="truncate text-xs text-muted-foreground">{list.name}</span>
+            <span className="truncate text-xs text-muted-foreground"><PracticeName list={list} /></span>
           </div>
           <p className="text-xs text-muted-foreground">{bestCandidates.length < selectedRecords.length ? t('aside.bestOrderAtCount', { count: selectedList?.words.length ?? 0 }) : t('aside.bestOrder')}</p>
           <PracticeBestRecords records={bestCandidates} highlightId={saveState === 'saved' ? record?.id : undefined} />

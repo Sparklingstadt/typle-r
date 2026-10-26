@@ -2,6 +2,8 @@
   "title": "Practice history",
   "intro": "Your practice runs, newest first. See each list’s top records in <rankings>Best records</rankings> and your progress on <home>Home</home>.",
   "filter": {
+    "pack": "Pack",
+    "allPacks": "All packs",
     "list": "List",
     "allLists": "All lists",
     "device": "Device",
