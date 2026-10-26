@@ -95,9 +95,69 @@ func TestPutShare(t *testing.T) {
 	if _, err := s.PutShare(ctx, id, "no-such-pack"); !isKey(err, "packNotFound") {
 		t.Fatalf("missing pack: %v", err)
 	}
-	// An account that has saved nothing has no pack to share.
-	if _, err := s.PutShare(ctx, owner(t, conn), pack); !isKey(err, "packNotFound") {
-		t.Fatalf("no workspace: %v", err)
+}
+
+// An account that has saved nothing shares the initial packs it is shown, and still has saved nothing. Its first save
+// without the pack deletes the link.
+func TestPutShareInitialPacks(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	initial, err := workspace.Initial()
+	if err != nil {
+		t.Fatal(err)
+	}
+	pack := initial.Packs[0].ID
+	share, err := s.PutShare(ctx, id, pack)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if saved, err := s.ReadRevision(ctx, id); saved != nil || err != nil {
+		t.Fatalf("ReadRevision = %+v, %v; want no row", saved, err)
+	}
+	want, err := workspace.EncodePackFile(initial, pack)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if data, err := s.SharedPack(ctx, share.ID); err != nil || !bytes.Equal(data, want) {
+		t.Fatalf("SharedPack = %s, %v", data, err)
+	}
+	if _, err := s.PutShare(ctx, id, "no-such-pack"); !isKey(err, "packNotFound") {
+		t.Fatalf("missing pack: %v", err)
+	}
+
+	packs := slices.DeleteFunc(slices.Clone(initial.Packs), func(p workspace.Pack) bool { return p.ID == pack })
+	lists := slices.DeleteFunc(slices.Clone(initial.Lists), func(l workspace.List) bool { return l.PackID == pack })
+	if _, err := s.WriteRevision(ctx, id, 0, Change{Lists: lists, Packs: packs, HasLists: true, HasPacks: true}); err != nil {
+		t.Fatal(err)
+	}
+	if got := shareCount(t, s, id); len(got) != 0 {
+		t.Fatalf("shares after the first save = %v", got)
+	}
+}
+
+// Modify on an account that has saved nothing saves the initial packs first; deleting a shared one deletes its link.
+func TestModifyWithoutRowDeletesShares(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	initial, err := workspace.Initial()
+	if err != nil {
+		t.Fatal(err)
+	}
+	first, second := initial.Packs[0].ID, initial.Packs[1].ID
+	for _, pack := range []string{first, second} {
+		if _, err := s.PutShare(ctx, id, pack); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) { return true, workspace.DeletePack(w, first) }); err != nil {
+		t.Fatal(err)
+	}
+	if got := shareCount(t, s, id); !slices.Equal(got, []string{second}) {
+		t.Fatalf("shares = %v", got)
 	}
 }
 

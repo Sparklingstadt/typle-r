@@ -195,6 +195,10 @@ func lock(ctx context.Context, tx pgx.Tx, owner string) (*workspace.Workspace, e
 		if !errors.Is(err, pgx.ErrNoRows) || inserted {
 			return nil, err
 		}
+		// As the first save does (see lockOwner), so that the links PutShare made from the initial packs are seen.
+		if err := lockOwner(ctx, tx, owner); err != nil {
+			return nil, err
+		}
 		initial, err := workspace.Initial()
 		if err != nil {
 			return nil, err
@@ -319,6 +323,10 @@ func writeRevision(ctx context.Context, tx pgx.Tx, owner string, revision int, c
 	if revision == 0 {
 		if len(change.Lists) > workspace.MaxLists {
 			return nil, &workspace.Error{Key: "listLimit"}
+		}
+		// The links PutShare made from the initial packs are seen by deleteRemovedShares (see lockOwner).
+		if err := lockOwner(ctx, tx, owner); err != nil {
+			return nil, err
 		}
 		// Unique owner makes the existence check and the insert one atomic operation.
 		saved, err := scanSaved(tx.QueryRow(ctx, `INSERT INTO typle_workspaces (owner_id, lists, packs, devices)

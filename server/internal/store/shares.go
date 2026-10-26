@@ -25,24 +25,33 @@ type Share struct {
 }
 
 // PutShare shares the owner's pack packID as it is saved, or copies it again when it is already shared, keeping the
-// link. The row of the workspace is read FOR UPDATE, so a save that removes the pack at the same moment either comes
-// first (and the pack is not found) or deletes the link once this is done. A pack not in the saved workspace, or an
-// account that has saved nothing, is packNotFound; a snapshot past MaxSharedPackBytes is invalidWorkspace.
+// link. An account that has saved nothing shares from the initial packs it is shown, and its row is not created.
+//
+// A save that removes the pack at the same moment must delete the link: the row of the workspace is read FOR UPDATE,
+// and, for an account without one, the first save waits for the owner's lock (lockOwner) as this does. The save either
+// comes first (and the pack is not found) or deletes the link once this is done. A pack not in the workspace is
+// packNotFound; a snapshot past MaxSharedPackBytes is invalidWorkspace.
 func (s *Store) PutShare(ctx context.Context, owner, packID string) (*Share, error) {
 	var share *Share
 	err := pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
-		var lists, packs, devices []byte
-		err := tx.QueryRow(ctx, `SELECT lists::text, packs::text, devices::text FROM typle_workspaces WHERE owner_id = $1 FOR UPDATE`,
-			owner).Scan(&lists, &packs, &devices)
-		if errors.Is(err, pgx.ErrNoRows) {
-			return &workspace.Error{Key: "packNotFound"}
-		}
-		if err != nil {
+		if err := lockOwner(ctx, tx, owner); err != nil {
 			return err
 		}
-		w, err := workspace.Decode(lists, devices, packs)
-		if err != nil {
-			return fmt.Errorf("saved workspace of %s: %w", owner, err)
+		var lists, packs, devices []byte
+		var w *workspace.Workspace
+		err := tx.QueryRow(ctx, `SELECT lists::text, packs::text, devices::text FROM typle_workspaces WHERE owner_id = $1 FOR UPDATE`,
+			owner).Scan(&lists, &packs, &devices)
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			if w, err = workspace.Initial(); err != nil {
+				return err
+			}
+		case err != nil:
+			return err
+		default:
+			if w, err = workspace.Decode(lists, devices, packs); err != nil {
+				return fmt.Errorf("saved workspace of %s: %w", owner, err)
+			}
 		}
 		data, err := workspace.EncodePackFile(w, packID)
 		if err != nil {
@@ -132,5 +141,13 @@ func deleteRemovedShares(ctx context.Context, tx pgx.Tx, owner string, packs []w
 		ids = append(ids, pack.ID)
 	}
 	_, err := tx.Exec(ctx, `DELETE FROM typle_shared_packs WHERE owner_id = $1 AND NOT (pack_id = ANY($2::text[]))`, owner, ids)
+	return err
+}
+
+// lockOwner holds the owner's advisory lock until the end of tx. It stands in for the row lock where there is no row
+// yet: PutShare takes it, and so does every save that creates the row, so that a link shared from the initial packs is
+// seen by the first save's deleteRemovedShares, or the first save is seen by PutShare.
+func lockOwner(ctx context.Context, tx pgx.Tx, owner string) error {
+	_, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtext('typle_workspaces:' || $1))`, owner)
 	return err
 }
