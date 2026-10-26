@@ -62,7 +62,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 |---|---|---|
 | 400 | `invalidQuery` | クエリの値が不正（`since`・`limit`・`tz`・`sort`・`order` など） |
 | 400 | `invalidJson` | 本文がJSONの1つのオブジェクトでない、型が違う、未知の項目がある（項目名は大文字小文字まで一致が必要）、`PATCH` で変える項目が1つもない |
-| 400 | `listNameRequired`・`listNameDuplicate`・`wordsRequired`・`wordFieldsRequired`・`invalidList`・`listLimit`・`levelsConflict` | リストの内容が不正（下の「リストの検証」） |
+| 400 | `listNameRequired`・`listNameDuplicate`・`wordsRequired`・`wordFieldsRequired`・`invalidList`・`listLimit`・`levelsConflict`・`levelDuplicate` | リストの内容が不正（下の「リストの検証」） |
 | 400 | `packNameRequired`・`packNameDuplicate`・`invalidPack` | パックの内容が不正（下の「パックの検証」。v0.95.0 から） |
 | 400 | `packNotFound` | 本文やクエリの `packId` のパックがない（v0.95.0 から） |
 | 400 | `packFileUnreadable` | 取り込むパックのファイルが読めない（下の「パックのファイルの取り込み」。v0.95.0 から） |
@@ -358,7 +358,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 - 長さ（UTF-16の文字数）: 名前200、単語1000件、`display`・`input` 1000、`annotation` 2000、カテゴリ50、タグ1つ50・20個まで、難易度1つ50・5個まで。超えると `invalidList`。NUL文字（`\u0000`）はDBに保存できないため、名前・単語・難易度のどこにあっても `invalidList`。
 - リストが150件あるときの作成・複製は `listLimit`。
 - `packId`（v0.95.0 から）: 名前はそのパックのほかのリストと違えばよい（`packId` を省略した作成ではすべてのリストと比べる）。ないパックは `400 packNotFound`。作成で `packId` と `category`・`tags` を一緒に送ると `invalidList`（パックの値を使うため）。リストと同じ名前の1リストだけのパックは、リストの名前を変えるとパックの名前も変わるため、そのリストをほかのパックと同じ名前にはできない（`listNameDuplicate`）。
-- `levels`（v0.95.0 から）: 前後の空白を除いて保存し、空の難易度は除く。空になれば保存しない。練習画面は難易度の並び（ないときはリスト名1つ）でパックの中のリストを選ぶため、同じパックのほかのリストと並びが同じ、または一方が他方の先頭と同じになると選べないリストができるので `levelsConflict`（例: `["基本"]` と `["基本", "1"]`）。
+- `levels`（v0.95.0 から）: 前後の空白を除いて保存し、空の難易度は除く。空になれば保存しない。練習画面は難易度の並び（ないときはリスト名1つ）でパックの中のリストを選ぶため、同じパックのほかのリストと並びが同じ、または一方が他方の先頭と同じになると選べないリストができるので `levelsConflict`（例: `["基本"]` と `["基本", "1"]`）。1 つのリストに同じ難易度が 2 回あると（空白を除いたあとで比べる）、`levelDuplicate`（v0.96.3 から。例: `["基本", "基本"]`）。
 
 ### パックの検証
 
@@ -367,14 +367,15 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 - `name`: 前後の空白を除いて1文字以上（`packNameRequired`）、ほかのパックと同じ名前は不可（比べ方はリスト名と同じ。`packNameDuplicate`）。前後の空白を除いて保存する。
 - `description`: 前後の空白を除いて保存する。`category`・`tags`: リストと同じ規則で整える。
 - 長さ（UTF-16の文字数）: 名前200、説明500、カテゴリ50、タグ1つ50・20個まで。超えるか NUL文字（`\u0000`）があると `invalidPack`。作成で `lists` がない・空のときも `invalidPack`。
-- 作成の `lists` はそれぞれ「リストの検証」と同じ規則で、前のリストと比べて確かめる（名前の重なりは `listNameDuplicate`、難易度の重なりは `levelsConflict`）。全体のリストが150件を超える作成・複製・取り込みは `listLimit`。
+- 作成の `lists` はそれぞれ「リストの検証」と同じ規則で、前のリストと比べて確かめる（名前の重なりは `listNameDuplicate`、難易度の重なりは `levelsConflict`、1 つのリストで同じ難易度は `levelDuplicate`）。全体のリストが150件を超える作成・複製・取り込みは `listLimit`。
 
 ### パックのファイルの取り込み
 
 アプリで「ファイルから追加」するときと同じです（v0.95.0 から）。
 
 - 先頭の BOM は読み飛ばす。JSONでない、`format` が `typle-pack` でない、`version` が `1` でない、形が違う（`pack.name`・`lists`・各リストの `name`・`words`、各単語の `display`・`input`・`annotation` が文字列でないなど）、リストが1つもないファイルは `400 packFileUnreadable`。Typleの知らない項目は読み飛ばす。
-- 中身は作成と同じ規則で確かめる（`packNameRequired`・`invalidPack`、リストの各キー、`levelsConflict`、`listLimit`）。パック名がほかのパックと同じなら「名前（2）」「名前（3）」…にする。
+- 中身は作成と同じ規則で確かめる（`packNameRequired`・`invalidPack`、リストの各キー、`listLimit`）。パック名がほかのパックと同じなら「名前（2）」「名前（3）」…にする。
+- 難易度は拒否せずに直す（v0.96.3 から）: 1 つのリストで同じ難易度（前後の空白を除いて比べる）は後の方に「（2）」…を付け、リストどうしの難易度の重なりは後のリストに「（2）」…を付けて分ける（保存したデータを読み込むときと同じ）。以前に書き出したファイルや共有リンクも取り込めるようにするため。
 - パック・リストのIDは新しく作り、作成日時は今の時刻、記録は空です。1MiB を超えると `413 importTooLarge`。
 
 ### CSV・TSV の取り込み

@@ -178,6 +178,22 @@ test('saveListInPack refuses levels that leave a list of the pack out of reach',
   assert.equal(saveListInPack(lib, input('n', '応用', { levels: ['基本'] }), null, false).lists.length, 4)
 })
 
+test('tidyLevels and saveListInPack refuse a level given twice in one list, as levelDuplicate', () => {
+  const { tidyLevels } = require('../src/core/packEditing.ts')
+  assert.throws(() => tidyLevels(['基本', '基本']), { key: 'levelDuplicate' })
+  // Compared after trimming and dropping empty levels, exactly as paths are compared.
+  assert.throws(() => tidyLevels([' 中級1', '', '中級1 ']), { key: 'levelDuplicate' })
+  assert.throws(() => tidyLevels(['A', 'B', 'A']), { key: 'levelDuplicate' })
+  assert.deepEqual(tidyLevels(['基本', '基本1', 'a', 'A']), { levels: ['基本', '基本1', 'a', 'A'] })
+  const lib = library()
+  const before = JSON.stringify(lib)
+  assert.throws(() => saveListInPack(lib, input('n', 'N', { levels: ['基本', '基本'] }), 'p', false), { key: 'levelDuplicate' })
+  assert.throws(() => saveListInPack(lib, input('a', '基本', { levels: ['中級1', '中級1'] }), 'p', true), { key: 'levelDuplicate' })
+  assert.throws(() => saveListInPack(lib, input('n', 'N', { levels: ['基本', ' 基本'] }), null, false), { key: 'levelDuplicate' })
+  assert.throws(() => createPack(lib, { name: 'New' }, list('n', 'N', undefined, { levels: ['基本', '基本'] }), 'n'), { key: 'levelDuplicate' })
+  assert.equal(JSON.stringify(lib), before)
+})
+
 test('the initial library has no lists out of reach in its packs', () => {
   const { initialLibrary } = require('../src/plugins/packs/index.ts')
   const path = item => item.levels?.length ? item.levels : [item.name]

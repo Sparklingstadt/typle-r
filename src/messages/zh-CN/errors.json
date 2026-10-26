@@ -52,6 +52,7 @@
   "packNameDuplicate": "已存在同名的包。",
   "packDeleted": "此包已被删除。",
   "levelsConflict": "同一个包中已有难度相同，或前几步难度相同的列表。",
+  "levelDuplicate": "此列表中已有相同的难度。请改用其他难度。",
   "packFileUnreadable": "无法将此文件作为单词包读取。",
   "invalidPackFile": "此文件中有超出可保存上限的项目。",
   "sharedPackNotFound": "此共享已结束。",

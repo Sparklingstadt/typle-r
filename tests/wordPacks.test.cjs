@@ -70,6 +70,27 @@ test('validateLibrary refuses lists of a pack whose levels overlap, as levelsCon
     { ...list, id: 'd', name: 'd', levels: ['中級', 'B'] }, { ...list, id: 'e', name: 'e', packId: 'q', levels: ['初級'] }] })
 })
 
+test('validateLibrary refuses a level given twice in one list, as levelDuplicate', () => {
+  const list = { id: 'a', name: 'a', packId: 'p', words: [{ display: 'ls', input: 'ls', annotation: '' }], records: [], createdAt: '2026-10-01T00:00:00.000Z' }
+  const packs = [{ id: 'p', name: 'P', createdAt: '2026-10-01T00:00:00.000Z' }]
+  assert.throws(() => validateLibrary({ packs, lists: [{ ...list, levels: ['基本', '基本'] }] }), { key: 'levelDuplicate' })
+  assert.throws(() => validateLibrary({ packs, lists: [{ ...list, levels: ['中級1', 'A', '中級1'] }] }), { key: 'levelDuplicate' })
+  // Levels are compared trimmed, as tidyLevels compares them.
+  assert.throws(() => validateLibrary({ packs, lists: [{ ...list, levels: [' 基本', '基本'] }] }), { key: 'levelDuplicate' })
+  validateLibrary({ packs, lists: [{ ...list, levels: ['基本', '基本1', '基本（2）'] }] })
+})
+
+test('a repeated level gets the smallest （n） its list does not use, within the limit', () => {
+  const at = '2026-10-01T00:00:00.000Z'
+  const list = (id, levels) => ({ id, name: id, words: [{ display: 'ls', input: 'ls', annotation: '' }], records: [], createdAt: at, packId: 'p', levels })
+  const packs = [{ id: 'p', name: 'P', createdAt: at }]
+  const levels = (...items) => normalizeLibrary(items, packs).lists.map(item => item.levels)
+  assert.deepEqual(levels(list('a', ['基本', '基本', '基本'])), [['基本', '基本（2）', '基本（3）']])
+  assert.deepEqual(levels(list('a', ['基本', '基本', '基本（2）'])), [['基本', '基本（3）', '基本（2）']])
+  assert.deepEqual(levels(list('a', ['a'.repeat(50), 'a'.repeat(50)])), [['a'.repeat(50), `${'a'.repeat(47)}（2）`]])
+  assert.deepEqual(levels(list('a', ['😀'.repeat(25), '😀'.repeat(25)])), [['😀'.repeat(25), `${'😀'.repeat(23)}（2）`]])
+})
+
 test('every list of a pack whose levels were separated can be picked on the practice screen', () => {
   for (const file of fs.readdirSync(dir).filter(name => name.startsWith('levels-'))) {
     const { lists, packs } = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'))

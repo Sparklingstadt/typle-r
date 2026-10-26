@@ -123,6 +123,29 @@ func TestImportPackAddsAtTheEndTidied(t *testing.T) {
 	}
 }
 
+// The case of tests/packFile.test.cjs: a file written before v0.96.3 may repeat a level in a list, or overlap levels of
+// its lists; the import tells them apart as reading saved data does, since the one who imports cannot change the file.
+func TestImportPackTellsLevelsApart(t *testing.T) {
+	w := editLibrary()
+	_, err := ImportPack(w, packFile([]PackFileList{
+		{Name: "A", Levels: []string{"基本", " 基本 "}, Words: packWordsOf("a")},
+		{Name: "B", Levels: []string{"基本", "基本（2）"}, Words: packWordsOf("b")},
+		{Name: "C", Words: packWordsOf("c")},
+		{Name: "D", Levels: []string{"C"}, Words: packWordsOf("d")},
+	}, PackFileInfo{Name: "Imported"}), "n", []string{"n1", "n2", "n3", "n4"}, packNow)
+	if err != nil {
+		t.Fatal(err)
+	}
+	valid(t, w)
+	var got [][]string
+	for _, list := range w.Lists[len(w.Lists)-4:] {
+		got = append(got, list.Levels)
+	}
+	if want := [][]string{{"基本", "基本（2）"}, {"基本", "基本（2）（2）"}, nil, {"C（2）"}}; !reflect.DeepEqual(got, want) {
+		t.Fatalf("levels = %q; want %q", got, want)
+	}
+}
+
 func TestImportPackRefusesAgainstTheRulesOfASave(t *testing.T) {
 	w := editLibrary()
 	before := editLibrary()
@@ -141,10 +164,6 @@ func TestImportPackRefusesAgainstTheRulesOfASave(t *testing.T) {
 		key   string
 	}{
 		{[]PackFileList{{Name: "L", Words: packWordsOf("a")}, {Name: " l ", Words: packWordsOf("b")}}, name, "listNameDuplicate"},
-		{[]PackFileList{{Name: "A", Levels: []string{"初級"}, Words: packWordsOf("a")}, {Name: "B", Levels: []string{"初級", "1"},
-			Words: packWordsOf("b")}}, name, "levelsConflict"},
-		{[]PackFileList{{Name: "A", Words: packWordsOf("a")}, {Name: "B", Levels: []string{"A"}, Words: packWordsOf("b")}}, name,
-			"levelsConflict"},
 		{[]PackFileList{{Name: " ", Words: packWordsOf("a")}}, name, "listNameRequired"},
 		{[]PackFileList{{Name: "L", Words: []Word{}}}, name, "wordsRequired"},
 		{[]PackFileList{{Name: "L", Words: []Word{{Display: "a", Input: " "}}}}, name, "wordFieldsRequired"},

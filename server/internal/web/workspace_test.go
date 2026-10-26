@@ -873,6 +873,36 @@ func TestPutLevelsConflict(t *testing.T) {
 	}
 }
 
+// A list sent with its pack whose levels hold one level twice is refused with levelDuplicate, and nothing is saved.
+func TestPutLevelDuplicate(t *testing.T) {
+	leveled := strings.Replace(packedOne, `"id":"one","name":"One"`, `"id":"one","name":"One","levels":["基本","基本"]`, 1)
+	fake := &fakeWorkspaces{}
+	h := newHarness(t, fake, testBase)
+	expectError(t, h.put(testOwner, payload(testOwner, `"revision":1,"lists":[`+leveled+`],"packs":[`+aPack+`]`)), http.StatusBadRequest, "levelDuplicate")
+	if fake.writes != 0 {
+		t.Fatalf("writes = %d; want 0", fake.writes)
+	}
+	// Data repaired on reading is saved as it is.
+	repaired := strings.Replace(leveled, `["基本","基本"]`, `["基本","基本（2）"]`, 1)
+	if response := h.put(testOwner, payload(testOwner, `"revision":1,"lists":[`+repaired+`],"packs":[`+aPack+`]`)); response.Code != http.StatusOK {
+		t.Fatalf("response = %d %s", response.Code, response.Body)
+	}
+}
+
+// Lists sent alone (by an app that does not know packs) that repeat a level are taken, and told apart when they are read.
+func TestPutLevelDuplicateWithoutPacksRealStore(t *testing.T) {
+	s, owner := realStore(t)
+	h := newHarness(t, s, testBase)
+	repeated := strings.Replace(aList("a", "a"), `"records":[]`, `"records":[],"levels":["基本","基本"]`, 1)
+	if response := h.put(owner, payload(owner, `"revision":0,"lists":[`+repeated+`]`)); response.Code != http.StatusOK {
+		t.Fatalf("response = %d %s", response.Code, response.Body)
+	}
+	w, err := s.Read(context.Background(), owner)
+	if err != nil || len(w.Lists) != 1 || !slices.Equal(w.Lists[0].Levels, []string{"基本", "基本（2）"}) {
+		t.Fatalf("read = %+v, %v", w, err)
+	}
+}
+
 func TestPutLevelsWithoutPacksRealStore(t *testing.T) {
 	s, owner := realStore(t)
 	h := newHarness(t, s, testBase)
