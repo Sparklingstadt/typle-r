@@ -22,6 +22,7 @@ import { AppError, type ErrorKey } from "@/core/appError"
 import { currentRecordCount } from "@/core/listOverview"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import LevelFields from "@/components/WordLists/LevelFields"
+import FieldError from "@/components/WordLists/FieldError"
 
 type Word = SavedWordList["words"][number]
 const MAX_WORDS = 1000
@@ -35,12 +36,6 @@ const menuItem = "flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-
 
 function Kbd({ children }: { children: string }) {
   return <kbd className="rounded border bg-background px-1.5 py-px font-sans text-[11px] font-medium text-foreground/70">{children}</kbd>
-}
-
-function FieldError({ id, message, alert }: { id: string; message: string; alert?: boolean }) {
-  return <p id={id} role={alert ? "alert" : undefined} className="flex items-start gap-1.5 text-sm text-destructive">
-    <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />{message}
-  </p>
 }
 
 export default function WordListEditor({ title, description, storage, initial, packs = [], packId, lonePackName, error, errorKey, packFields, packDirty = false, onSave, onCancel, onDirtyChange, cancelRequest = 0 }: {
@@ -121,10 +116,13 @@ export default function WordListEditor({ title, description, storage, initial, p
   // The duplicate-name check runs while saving; show it on the name field until the name changes.
   const [failure, setFailure] = useState<{ count: number; name: string; pack: string | null; levels: string }>({ count: 0, name: "", pack: null, levels: "" })
   const duplicate = errorKey === "listNameDuplicate" && failure.name === name && failure.pack === chosenPack
-  // Levels that clash with another list of the pack are shown under the levels until the levels, name or pack change.
-  const levelsConflict = errorKey === "levelsConflict" && failure.name === name && failure.pack === chosenPack && failure.levels === JSON.stringify(levels)
+  // Levels that clash with another list of the pack, or that repeat a level, are shown under the levels until the
+  // levels, name or pack change.
+  const levelsError = (errorKey === "levelsConflict" || errorKey === "levelDuplicate") && failure.name === name && failure.pack === chosenPack && failure.levels === JSON.stringify(levels)
+  const levelsErrorId = `${baseId}-levels-error`
   // A pack's name is shown on its own field by whoever passes `packFields`.
-  const serverError = error && errorKey !== "listNameDuplicate" && errorKey !== "levelsConflict" && errorKey !== "packNameRequired" && errorKey !== "packNameDuplicate" ? error : ""
+  const serverError = error && errorKey !== "listNameDuplicate" && errorKey !== "levelsConflict" && errorKey !== "levelDuplicate" &&
+    errorKey !== "packNameRequired" && errorKey !== "packNameDuplicate" ? error : ""
   const nameError = errorFor(nameId) ?? (duplicate ? error : undefined)
   const handledFailure = useRef(0)
   useEffect(() => {
@@ -256,8 +254,8 @@ export default function WordListEditor({ title, description, storage, initial, p
         {nameError ? <FieldError id={`${nameId}-error`} message={nameError} alert={duplicate && !errorFor(nameId)} />
           : null}
         <p id={`${nameId}-help`} className="text-xs text-muted-foreground">{t("nameHelp")}</p>
-        <LevelFields value={levels} onChange={setLevels} />
-        {levelsConflict && <FieldError id={`${baseId}-levels-error`} message={error ?? ""} alert />}
+        <LevelFields value={levels} onChange={setLevels} errorId={levelsError && errorKey === "levelDuplicate" ? levelsErrorId : undefined} />
+        {levelsError && <FieldError id={levelsErrorId} message={error ?? ""} alert />}
       </section>
 
       <section aria-labelledby={`${baseId}-words`} className="md:overflow-hidden md:rounded-xl md:border md:bg-card">
