@@ -290,7 +290,11 @@
     "followPack": "关注 {name}",
     "followed": "已关注“{name}”",
     "following": "已关注",
-    "unfollowPack": "取消关注 {name}"
+    "unfollowPack": "取消关注 {name}",
+    "matching": "符合兴趣的词包",
+    "others": "其他词包",
+    "noMatching": "暂时没有符合兴趣的词包",
+    "changeInterests": "更改兴趣"
   },
   "share": {
     "title": "共享“{name}”",

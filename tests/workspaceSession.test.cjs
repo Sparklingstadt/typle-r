@@ -242,3 +242,15 @@ test('updateLibrary repairs what the change returns, and reads again after a con
   assert.deepEqual(s.shown.at(-1).lists.map(item => item.id), ['a', 'elsewhere'])
   assert.equal(s.session.busy, false)
 })
+
+test('updateInterests writes only the interests, also before the first save', async () => {
+  const fake = fakeStore()
+  const s = await loaded(fake, { ...state(0), interests: ['language'] })
+  const saving = s.session.updateInterests(current => [...current, 'language/zh'])
+  assert.deepEqual(fake.writes[0].request, { interests: ['language', 'language/zh'], revision: 0, accountId: 'github:1' })
+  fake.writes[0].resolve({ ...state(1), interests: ['language', 'language/zh'] })
+  assert.equal(await saving, true)
+  assert.deepEqual(s.shown.at(-1).interests, ['language', 'language/zh'])
+  const saved = await loaded(fake, { ...state(3, [list('a')]), interests: ['programming'] })
+  assert.deepEqual(saved.shown.at(-1).interests, ['programming'])
+})

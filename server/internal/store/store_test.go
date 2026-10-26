@@ -1021,3 +1021,114 @@ func TestWriteRevisionPacks(t *testing.T) {
 		t.Fatalf("saved = %+v, %v", saved, err)
 	}
 }
+
+// interests reads the saved interests as the app would.
+func interests(t *testing.T, saved *Saved) []string {
+	t.Helper()
+	got, err := workspace.DecodeInterests(saved.Interests)
+	if err != nil {
+		t.Fatalf("interests %s: %v", saved.Interests, err)
+	}
+	return got
+}
+
+// The interests have a column of their own: saved with a change that sets them, kept by one that leaves them out, and
+// [] for a row without them.
+func TestWriteRevisionInterests(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	saved, err := s.WriteRevision(ctx, id, 0, Change{Lists: newLists(1), HasLists: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(saved.Interests) != "[]" {
+		t.Fatalf("interests of a new row = %s", saved.Interests)
+	}
+	chosen := []string{"language", "language/zh", "x/unknown"}
+	if saved, err = s.WriteRevision(ctx, id, 1, Change{Interests: chosen, HasInterests: true}); err != nil {
+		t.Fatal(err)
+	}
+	if saved.Revision != 2 || !slices.Equal(interests(t, saved), chosen) || len(decoded(t, saved).Lists) != 1 {
+		t.Fatalf("saved = %+v", saved)
+	}
+	read, err := s.ReadRevision(ctx, id)
+	if err != nil || !slices.Equal(interests(t, read), chosen) {
+		t.Fatalf("ReadRevision = %+v, %v", read, err)
+	}
+	// Lists or devices alone leave the interests as they are.
+	if saved, err = s.WriteRevision(ctx, id, 2, Change{Lists: newLists(2), HasLists: true}); err != nil {
+		t.Fatal(err)
+	}
+	if saved, err = s.WriteRevision(ctx, id, 3, Change{Devices: []workspace.Device{{ID: "d1", Name: "自宅", Layout: "JIS"}}, HasDevices: true}); err != nil {
+		t.Fatal(err)
+	}
+	if !slices.Equal(interests(t, saved), chosen) || len(decoded(t, saved).Lists) != 2 {
+		t.Fatalf("saved = %+v", saved)
+	}
+	// So does a change through /api/v1.
+	if _, err := s.Modify(ctx, id, createList("b")); err != nil {
+		t.Fatal(err)
+	}
+	if read, err = s.ReadRevision(ctx, id); err != nil || !slices.Equal(interests(t, read), chosen) {
+		t.Fatalf("after Modify: %+v, %v", read, err)
+	}
+	// They can be emptied.
+	if saved, err = s.WriteRevision(ctx, id, read.Revision, Change{Interests: nil, HasInterests: true}); err != nil {
+		t.Fatal(err)
+	}
+	if string(saved.Interests) != "[]" {
+		t.Fatalf("emptied interests = %s", saved.Interests)
+	}
+}
+
+func TestWriteRevisionCreateInterests(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	saved, err := s.WriteRevision(ctx, id, 0, Change{Interests: []string{"programming"}, HasInterests: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if saved.Revision != 1 || !slices.Equal(interests(t, saved), []string{"programming"}) || len(decoded(t, saved).Lists) != 0 {
+		t.Fatalf("saved = %+v", saved)
+	}
+}
+
+// Interests the app would refuse are never saved: the change is refused as an invalid workspace, before the database.
+func TestWriteRevisionRefusesInvalidInterests(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	for name, invalid := range map[string][]string{
+		"duplicate": {"language", "language"},
+		"empty":     {""},
+		"too long":  {strings.Repeat("a", workspace.MaxInterestLength+1)},
+	} {
+		_, err := s.WriteRevision(ctx, id, 0, Change{Interests: invalid, HasInterests: true})
+		var e *workspace.Error
+		if !errors.As(err, &e) || e.Key != "invalidWorkspace" {
+			t.Fatalf("%s: %v; want invalidWorkspace", name, err)
+		}
+	}
+	if saved, err := s.ReadRevision(ctx, id); saved != nil || err != nil {
+		t.Fatalf("a refused create left a row (%v, %v)", saved, err)
+	}
+}
+
+// A row whose interests the app would refuse is refused when read, as its lists would be.
+func TestReadRevisionRefusesInvalidInterests(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	if _, err := conn.Exec(ctx, `INSERT INTO typle_workspaces (owner_id, lists, devices, interests) VALUES ($1, '[]', '[]', '["a","a"]')`, id); err != nil {
+		t.Fatal(err)
+	}
+	s := open(t, connection, false)
+	if saved, err := s.ReadRevision(ctx, id); err == nil {
+		t.Fatalf("ReadRevision = %+v; want an error", saved)
+	}
+}

@@ -1,0 +1,32 @@
+{
+  "title": "兴趣",
+  "description": "与所选兴趣相符的官方词包，会在官方词包列表中优先显示。",
+  "parents": {
+    "language": "语言",
+    "programming": "编程"
+  },
+  "childrenLabel": "{parent}：细分",
+  "children": {
+    "language": {
+      "zh": "中文",
+      "ru": "俄语",
+      "ko": "韩语",
+      "en": "英语",
+      "es": "西班牙语",
+      "fr": "法语",
+      "de": "德语"
+    },
+    "programming": {
+      "go": "Go",
+      "kotlin": "Kotlin",
+      "java": "Java",
+      "typescript": "TypeScript",
+      "php": "PHP",
+      "ruby": "Ruby",
+      "sql": "SQL",
+      "linux": "Linux",
+      "vim": "Vim",
+      "test": "测试"
+    }
+  }
+}

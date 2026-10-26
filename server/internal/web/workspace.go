@@ -12,16 +12,26 @@ import (
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
 
-// saved is the answer of GET and PUT. The lists, packs and devices are the stored jsonb text, with the fields Typle
-// does not know: Go decodes them only to check them (store.ReadRevision), so where Go and the app's decoders differ, the
-// browser is the one to refuse the data (savedDataCorrupted). Packs are null for lists saved before packs existed, and
-// for an account that has saved nothing.
+// saved is the answer of GET and PUT. The lists, packs, devices and interests are the stored jsonb text, with the
+// fields Typle does not know: Go decodes them only to check them (store.ReadRevision), so where Go and the app's
+// decoders differ, the browser is the one to refuse the data (savedDataCorrupted). Packs are null for lists saved before
+// packs existed, and for an account that has saved nothing. Interests are [] when none have been saved.
 type saved struct {
 	Lists     json.RawMessage `json:"lists"`
 	Packs     json.RawMessage `json:"packs"`
 	Devices   json.RawMessage `json:"devices"`
+	Interests json.RawMessage `json:"interests"`
 	Revision  int             `json:"revision"`
 	AccountID string          `json:"accountId"`
+}
+
+// answer is the saved workspace as GET and PUT answer it.
+func answer(result *store.Saved, account string) saved {
+	interests := result.Interests
+	if len(interests) == 0 {
+		interests = json.RawMessage("[]")
+	}
+	return saved{result.Lists, result.Packs, result.Devices, interests, result.Revision, account}
 }
 
 func (s *server) now() time.Time {
@@ -116,7 +126,7 @@ func (s *server) readWorkspace(w http.ResponseWriter, r *http.Request) {
 		// An account that has saved nothing has no lists, not the first list that /api/v1 starts with.
 		result = &store.Saved{Lists: json.RawMessage("[]"), Devices: json.RawMessage("[]")}
 	}
-	reply(w, http.StatusOK, saved{result.Lists, result.Packs, result.Devices, result.Revision, user.Sub})
+	reply(w, http.StatusOK, answer(result, user.Sub))
 }
 
 func (s *server) writeWorkspace(w http.ResponseWriter, r *http.Request) {
@@ -181,6 +191,6 @@ func (s *server) writeWorkspace(w http.ResponseWriter, r *http.Request) {
 		s.report(r, err, "workspace.write")
 		refuse(w, http.StatusServiceUnavailable, "workspaceSaveFailed")
 	default:
-		reply(w, http.StatusOK, saved{result.Lists, result.Packs, result.Devices, result.Revision, user.Sub})
+		reply(w, http.StatusOK, answer(result, user.Sub))
 	}
 }

@@ -1,4 +1,5 @@
 import { decodeDevices } from './devices'
+import { decodeInterests } from './interests'
 import { decodeLists, MAX_CATEGORY, MAX_GROUP, MAX_LEVEL, MAX_SAVED_LEVELS, MAX_TAG, MAX_TAGS, type SavedWordList } from './wordLists'
 import { decodePacks, validateLibrary } from './wordPacks'
 import { LEGACY_PROFILE_ID, type WorkspaceChange } from './workspaceDocument'
@@ -36,5 +37,6 @@ export function validateWorkspaceRequest(value: unknown): WorkspaceChange & { re
   return { revision: Number(body.revision),
     ...(lists ? { lists } : {}),
     ...(packs ? { packs } : {}),
-    ...(body.devices === undefined ? {} : { devices: decodeDevices(body.devices) }) }
+    ...(body.devices === undefined ? {} : { devices: decodeDevices(body.devices) }),
+    ...(body.interests === undefined ? {} : { interests: decodeInterests(body.interests) }) }
 }

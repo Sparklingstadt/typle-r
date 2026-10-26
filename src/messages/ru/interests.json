@@ -1,0 +1,32 @@
+{
+  "title": "Интересы",
+  "description": "Официальные наборы, подходящие под выбранные интересы, показываются первыми в списке официальных наборов.",
+  "parents": {
+    "language": "Языки",
+    "programming": "Программирование"
+  },
+  "childrenLabel": "{parent}: уточнение",
+  "children": {
+    "language": {
+      "zh": "Китайский",
+      "ru": "Русский",
+      "ko": "Корейский",
+      "en": "Английский",
+      "es": "Испанский",
+      "fr": "Французский",
+      "de": "Немецкий"
+    },
+    "programming": {
+      "go": "Go",
+      "kotlin": "Kotlin",
+      "java": "Java",
+      "typescript": "TypeScript",
+      "php": "PHP",
+      "ruby": "Ruby",
+      "sql": "SQL",
+      "linux": "Linux",
+      "vim": "Vim",
+      "test": "Тестирование"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "title": "Centres d’intérêt",
+  "description": "Les packs officiels qui correspondent à vos centres d’intérêt apparaissent en premier dans la liste des packs officiels.",
+  "parents": {
+    "language": "Langues",
+    "programming": "Programmation"
+  },
+  "childrenLabel": "{parent} : précisions",
+  "children": {
+    "language": {
+      "zh": "Chinois",
+      "ru": "Russe",
+      "ko": "Coréen",
+      "en": "Anglais",
+      "es": "Espagnol",
+      "fr": "Français",
+      "de": "Allemand"
+    },
+    "programming": {
+      "go": "Go",
+      "kotlin": "Kotlin",
+      "java": "Java",
+      "typescript": "TypeScript",
+      "php": "PHP",
+      "ruby": "Ruby",
+      "sql": "SQL",
+      "linux": "Linux",
+      "vim": "Vim",
+      "test": "Tests"
+    }
+  }
+}

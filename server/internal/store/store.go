@@ -214,25 +214,29 @@ func lock(ctx context.Context, tx pgx.Tx, owner string) (*workspace.Workspace, e
 	}
 }
 
-// Saved is a workspace as stored: its lists, packs and devices columns as JSON, with the revision a later save must
-// name. The JSON is the database's own text of the jsonb, so object keys may be in another order than they were
-// written in. Packs is nil, which is JSON's null, when the column is NULL: the lists were saved before packs existed.
+// Saved is a workspace as stored: its lists, packs, devices and interests columns as JSON, with the revision a later
+// save must name. The JSON is the database's own text of the jsonb, so object keys may be in another order than they
+// were written in. Packs is nil, which is JSON's null, when the column is NULL: the lists were saved before packs
+// existed. Interests are [] when their column is NULL: none have been saved.
 type Saved struct {
-	Lists, Packs, Devices json.RawMessage
-	Revision              int
+	Lists, Packs, Devices, Interests json.RawMessage
+	Revision                         int
 }
 
-// Change is what a save sets. A part that is not set (HasLists, HasPacks, HasDevices) stays as it is. Packs are set
+// Change is what a save sets. A part that is not set (HasLists, HasPacks, HasDevices, HasInterests) stays as it is.
+// Interests are only the app's: Modify, which /api/v1 changes the workspace with, leaves them as they are. Packs are set
 // only with the lists they hold, which are then written without labels (workspace.Encode). Lists set without packs
 // come from an app that does not know packs: they are written as it sent them, labels and all
 // (workspace.EncodeWithLabels), for Decode to settle with the saved packs when they are read.
 type Change struct {
-	Lists      []workspace.List
-	Packs      []workspace.Pack
-	Devices    []workspace.Device
-	HasLists   bool
-	HasPacks   bool
-	HasDevices bool
+	Lists        []workspace.List
+	Packs        []workspace.Pack
+	Devices      []workspace.Device
+	Interests    []string
+	HasLists     bool
+	HasPacks     bool
+	HasDevices   bool
+	HasInterests bool
 }
 
 // ReadRevision returns the owner's saved workspace with its revision, or nil when nothing has been saved. Unlike Read
@@ -241,8 +245,7 @@ type Change struct {
 // not as Go decoded it. Data that Go reads and the app's decodeLists or decodeDevices refuses therefore reaches the
 // browser, which says savedDataCorrupted, rather than being quietly changed here.
 func (s *Store) ReadRevision(ctx context.Context, owner string) (*Saved, error) {
-	saved, err := scanSaved(s.pool.QueryRow(ctx,
-		`SELECT lists::text, packs::text, devices::text, revision FROM typle_workspaces WHERE owner_id = $1`, owner))
+	saved, err := scanSaved(s.pool.QueryRow(ctx, `SELECT `+savedColumns+` FROM typle_workspaces WHERE owner_id = $1`, owner))
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
@@ -251,6 +254,9 @@ func (s *Store) ReadRevision(ctx context.Context, owner string) (*Saved, error) 
 	}
 	if _, err := workspace.Decode(saved.Lists, saved.Devices, saved.Packs); err != nil {
 		return nil, fmt.Errorf("saved workspace of %s: %w", owner, err)
+	}
+	if _, err := workspace.DecodeInterests(saved.Interests); err != nil {
+		return nil, fmt.Errorf("saved interests of %s: %w", owner, err)
 	}
 	return saved, nil
 }
@@ -273,7 +279,7 @@ func (s *Store) ReadRevision(ctx context.Context, owner string) (*Saved, error) 
 // when it has none); devices alone leave the links as they are.
 func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, change Change) (*Saved, error) {
 	// nil is a part left out: NULL in the queries below.
-	var lists, packs, devices []byte
+	var lists, packs, devices, interests []byte
 	var err error
 	if change.HasPacks && !change.HasLists {
 		return nil, &workspace.Error{Key: "invalidWorkspace"}
@@ -298,6 +304,15 @@ func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, c
 			return nil, err
 		}
 	}
+	if change.HasInterests {
+		if interests, err = workspace.EncodeInterests(change.Interests); err != nil {
+			return nil, err
+		}
+		// Interests the app would refuse are refused as the request would be.
+		if _, err := workspace.DecodeInterests(interests); err != nil {
+			return nil, &workspace.Error{Key: "invalidWorkspace"}
+		}
+	}
 	// A part left out is saved as it is, so only the other one can be refused; it is read with an empty one. Lists
 	// without packs are read as lists saved before packs existed.
 	if _, err := workspace.Decode(orEmpty(lists), orEmpty(devices), packs); err != nil {
@@ -306,7 +321,7 @@ func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, c
 	var saved *Saved
 	err = pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
 		var err error
-		if saved, err = writeRevision(ctx, tx, owner, revision, change, lists, packs, devices); err != nil {
+		if saved, err = writeRevision(ctx, tx, owner, revision, change, lists, packs, devices, interests); err != nil {
 			return err
 		}
 		switch {
@@ -329,7 +344,7 @@ func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, c
 }
 
 // writeRevision writes the parts of WriteRevision, encoded (nil for a part left out), in tx.
-func writeRevision(ctx context.Context, tx pgx.Tx, owner string, revision int, change Change, lists, packs, devices []byte) (*Saved, error) {
+func writeRevision(ctx context.Context, tx pgx.Tx, owner string, revision int, change Change, lists, packs, devices, interests []byte) (*Saved, error) {
 	if revision == 0 {
 		if len(change.Lists) > workspace.MaxLists {
 			return nil, &workspace.Error{Key: "listLimit"}
@@ -339,10 +354,10 @@ func writeRevision(ctx context.Context, tx pgx.Tx, owner string, revision int, c
 			return nil, err
 		}
 		// Unique owner makes the existence check and the insert one atomic operation.
-		saved, err := scanSaved(tx.QueryRow(ctx, `INSERT INTO typle_workspaces (owner_id, lists, packs, devices)
-			VALUES ($1, $2::jsonb, $3::jsonb, $4::jsonb) ON CONFLICT (owner_id) DO NOTHING
-			RETURNING lists::text, packs::text, devices::text, revision`,
-			owner, string(orEmpty(lists)), nullable(packs), string(orEmpty(devices))))
+		saved, err := scanSaved(tx.QueryRow(ctx, `INSERT INTO typle_workspaces (owner_id, lists, packs, devices, interests)
+			VALUES ($1, $2::jsonb, $3::jsonb, $4::jsonb, $5::jsonb) ON CONFLICT (owner_id) DO NOTHING
+			RETURNING `+savedColumns,
+			owner, string(orEmpty(lists)), nullable(packs), string(orEmpty(devices)), nullable(interests)))
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrConflict
 		}
@@ -362,9 +377,9 @@ func writeRevision(ctx context.Context, tx pgx.Tx, owner string, revision int, c
 	}
 	// Matching the revision in the UPDATE itself makes the comparison and the write one atomic operation.
 	saved, err := scanSaved(tx.QueryRow(ctx, `UPDATE typle_workspaces SET lists = COALESCE($3::jsonb, lists),
-		packs = COALESCE($4::jsonb, packs), devices = COALESCE($5::jsonb, devices), revision = revision + 1, updated_at = now()
-		WHERE owner_id = $1 AND revision = $2 RETURNING lists::text, packs::text, devices::text, revision`,
-		owner, revision, nullable(lists), nullable(packs), nullable(devices)))
+		packs = COALESCE($4::jsonb, packs), devices = COALESCE($5::jsonb, devices), interests = COALESCE($6::jsonb, interests),
+		revision = revision + 1, updated_at = now() WHERE owner_id = $1 AND revision = $2 RETURNING `+savedColumns,
+		owner, revision, nullable(lists), nullable(packs), nullable(devices), nullable(interests)))
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, ErrConflict
 	}
@@ -386,12 +401,15 @@ func nullable(part []byte) any {
 	return string(part)
 }
 
-// scanSaved reads a row as stored: its lists, packs, devices and revision. A no-rows error is passed on as it is.
+// savedColumns are the columns scanSaved reads. Interests not saved (NULL) are read as none.
+const savedColumns = `lists::text, packs::text, devices::text, COALESCE(interests, '[]'::jsonb)::text, revision`
+
+// scanSaved reads a row as stored: its savedColumns. A no-rows error is passed on as it is.
 func scanSaved(row pgx.Row) (*Saved, error) {
-	var lists, packs, devices []byte
+	var lists, packs, devices, interests []byte
 	var revision int
-	if err := row.Scan(&lists, &packs, &devices, &revision); err != nil {
+	if err := row.Scan(&lists, &packs, &devices, &interests, &revision); err != nil {
 		return nil, err
 	}
-	return &Saved{Lists: lists, Packs: packs, Devices: devices, Revision: revision}, nil
+	return &Saved{Lists: lists, Packs: packs, Devices: devices, Interests: interests, Revision: revision}, nil
 }

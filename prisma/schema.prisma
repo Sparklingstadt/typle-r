@@ -11,6 +11,7 @@ model Workspace {
   devices   Json     @default("[]") @db.JsonB
   lists     Json     @default("[]") @db.JsonB
   packs     Json?    @db.JsonB
+  interests Json?    @db.JsonB
   revision  Int      @default(1)
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
