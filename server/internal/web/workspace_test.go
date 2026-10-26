@@ -67,7 +67,11 @@ func (f *fakeWorkspaces) WriteRevision(_ context.Context, _ string, revision int
 	if err != nil {
 		return nil, err
 	}
-	return &store.Saved{Lists: lists, Packs: packs, Devices: devices, Revision: revision + 1}, nil
+	interests, err := workspace.EncodeInterests(change.Interests)
+	if err != nil {
+		return nil, err
+	}
+	return &store.Saved{Lists: lists, Packs: packs, Devices: devices, Interests: interests, Revision: revision + 1}, nil
 }
 
 // The database tests need the app's tables (npm run db:migrate). They use a random account and delete its row.
@@ -249,7 +253,7 @@ func TestGetEmpty(t *testing.T) {
 	s, owner := realStore(t)
 	h := newHarness(t, s, testBase)
 	response := h.get(owner)
-	want := `{"lists":[],"packs":null,"devices":[],"revision":0,"accountId":"` + owner + `"}`
+	want := `{"lists":[],"packs":null,"devices":[],"interests":[],"revision":0,"accountId":"` + owner + `"}`
 	if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != want {
 		t.Fatalf("response = %d %s; want %s", response.Code, response.Body, want)
 	}
@@ -463,7 +467,7 @@ func TestPutAnswersAndPassesOn(t *testing.T) {
 	device := `{"id":"mac","name":"MacBook","layout":"JIS"}`
 	response := h.put(testOwner, payload(testOwner, `"revision":3,"lists":[`+strings.Replace(oneList, `"records":[]`, `"records":[],"shared":true,"shareId":"x","keep":1`, 1)+`],"devices":[`+device+`]`))
 	want := `{"lists":[{"id":"one","name":"One","createdAt":"2026-09-06","words":[{"display":"a","input":"a","annotation":""}],"records":[],"keep":1}],` +
-		`"packs":null,"devices":[` + device + `],"revision":4,"accountId":"` + testOwner + `"}`
+		`"packs":null,"devices":[` + device + `],"interests":[],"revision":4,"accountId":"` + testOwner + `"}`
 	if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != want {
 		t.Fatalf("response = %d %s; want %s", response.Code, response.Body, want)
 	}
@@ -474,7 +478,7 @@ func TestPutAnswersAndPassesOn(t *testing.T) {
 	// A part left out stays as saved.
 	fake.change = store.Change{}
 	if response := h.put(testOwner, payload(testOwner, `"revision":4,"devices":[]`)); response.Code != http.StatusOK ||
-		strings.TrimSpace(response.Body.String()) != `{"lists":[],"packs":null,"devices":[],"revision":5,"accountId":"`+testOwner+`"}` {
+		strings.TrimSpace(response.Body.String()) != `{"lists":[],"packs":null,"devices":[],"interests":[],"revision":5,"accountId":"`+testOwner+`"}` {
 		t.Fatalf("response = %d %s", response.Code, response.Body)
 	}
 	if fake.change.HasLists || !fake.change.HasDevices {
@@ -689,6 +693,10 @@ func TestMatchesTypeScript(t *testing.T) {
 		{"devices", `{"revision":1,"devices":[{"id":"mac","name":" MacBook ","layout":"JIS"}]}`, accepted, 1, -1, 1},
 		{"duplicate devices", `{"revision":1,"devices":[{"id":"mac","name":"a","layout":""},{"id":"mac","name":"b","layout":""}]}`, invalid, 0, 0, 0},
 		{"lists left out", `{"revision":2}`, accepted, 2, -1, -1},
+		{"interests alone", `{"revision":2,"interests":["language"]}`, accepted, 2, -1, -1},
+		{"interests null", `{"revision":2,"interests":null}`, accepted, 2, -1, -1},
+		{"interests duplicate", `{"revision":2,"interests":["a","a"]}`, invalid, 0, 0, 0},
+		{"interests number", `{"revision":2,"interests":["a",1]}`, invalid, 0, 0, 0},
 		{"not an object", `[1]`, invalid, 0, 0, 0},
 	}
 	for _, c := range cases {
@@ -815,7 +823,7 @@ func TestPutPacks(t *testing.T) {
 	fake := &fakeWorkspaces{}
 	h := newHarness(t, fake, testBase)
 	response := h.put(testOwner, payload(testOwner, `"revision":1,"lists":[`+packedOne+`],"packs":[`+aPack+`]`))
-	want := `{"lists":[` + packedOne + `],"packs":[` + aPack + `],"devices":[],"revision":2,"accountId":"` + testOwner + `"}`
+	want := `{"lists":[` + packedOne + `],"packs":[` + aPack + `],"devices":[],"interests":[],"revision":2,"accountId":"` + testOwner + `"}`
 	if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != want {
 		t.Fatalf("response = %d %s; want %s", response.Code, response.Body, want)
 	}
@@ -864,6 +872,9 @@ func TestPutLevelsConflict(t *testing.T) {
 	fake := &fakeWorkspaces{}
 	h := newHarness(t, fake, testBase)
 	expectError(t, h.put(testOwner, payload(testOwner, `"revision":1,"lists":[`+leveled("a", `["初級"]`)+`,`+leveled("b", `["初級"]`)+`],"packs":[`+aPack+`]`)),
+		http.StatusBadRequest, "levelsConflict")
+	// The interests are judged after the lists, as in validateWorkspaceRequest.
+	expectError(t, h.put(testOwner, payload(testOwner, `"revision":1,"lists":[`+leveled("a", `["初級"]`)+`,`+leveled("b", `["初級"]`)+`],"packs":[`+aPack+`],"interests":[1]`)),
 		http.StatusBadRequest, "levelsConflict")
 	if fake.writes != 0 {
 		t.Fatalf("writes = %d; want 0", fake.writes)
@@ -961,5 +972,84 @@ func TestPutPacksFlow(t *testing.T) {
 	}
 	if again := decodeBody(t, h.get(owner))["packs"]; !bytes.Equal(again, decodeBody(t, read)["packs"]) {
 		t.Fatalf("packs = %s; want %s", again, decodeBody(t, read)["packs"])
+	}
+}
+
+// interests are taken as decodeInterests (src/core/interests.ts) takes them, on their own or with the rest: left out,
+// they stay as saved; null empties them, as the app reads it.
+func TestPutInterests(t *testing.T) {
+	fake := &fakeWorkspaces{}
+	h := newHarness(t, fake, testBase)
+	response := h.put(testOwner, payload(testOwner, `"revision":3,"interests":["language","language/zh"]`))
+	if response.Code != http.StatusOK || string(decodeBody(t, response)["interests"]) != `["language","language/zh"]` {
+		t.Fatalf("response = %d %s", response.Code, response.Body)
+	}
+	if fake.writes != 1 || fake.revision != 3 || !fake.change.HasInterests || fake.change.HasLists || fake.change.HasDevices ||
+		!slices.Equal(fake.change.Interests, []string{"language", "language/zh"}) {
+		t.Fatalf("revision %d, change %+v", fake.revision, fake.change)
+	}
+	// A body of an app that does not know interests leaves them out.
+	if response := h.put(testOwner, payload(testOwner, `"revision":4,"lists":[`+oneList+`]`)); response.Code != http.StatusOK ||
+		fake.change.HasInterests {
+		t.Fatalf("response = %d %s, change %+v", response.Code, response.Body, fake.change)
+	}
+	if response := h.put(testOwner, payload(testOwner, `"revision":5,"interests":null`)); response.Code != http.StatusOK ||
+		!fake.change.HasInterests || len(fake.change.Interests) != 0 {
+		t.Fatalf("response = %d %s, change %+v", response.Code, response.Body, fake.change)
+	}
+	writes := fake.writes
+	many := make([]string, workspace.MaxInterests+1)
+	for i := range many {
+		many[i] = fmt.Sprintf(`"x/%d"`, i)
+	}
+	for name, interests := range map[string]string{
+		"object":         `{}`,
+		"string":         `"language"`,
+		"number item":    `["a",1]`,
+		"null item":      `[null]`,
+		"empty item":     `[""]`,
+		"duplicate":      `["a","a"]`,
+		"too long":       `["` + strings.Repeat("a", workspace.MaxInterestLength+1) + `"]`,
+		"too many":       `[` + strings.Join(many, ",") + `]`,
+		"NUL":            `["a\u0000"]`,
+		"lone surrogate": `["a\ud800"]`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			expectError(t, h.put(testOwner, payload(testOwner, `"revision":6,"interests":`+interests)), http.StatusBadRequest, "invalidWorkspace")
+		})
+	}
+	if fake.writes != writes {
+		t.Fatalf("writes = %d", fake.writes)
+	}
+	// An answer from a store that has none to give is [].
+	fake.saved = &store.Saved{Lists: json.RawMessage("[]"), Devices: json.RawMessage("[]"), Revision: 1}
+	if got := decodeBody(t, h.get(testOwner)); string(got["interests"]) != "[]" {
+		t.Fatalf("GET = %s", got)
+	}
+}
+
+// With the database: interests saved alone are answered and read back, and kept by saves that leave them out.
+func TestPutInterestsFlow(t *testing.T) {
+	s, owner := realStore(t)
+	h := newHarness(t, s, testBase)
+	expectInterests := func(response *httptest.ResponseRecorder, want string) {
+		t.Helper()
+		if fields := decodeBody(t, response); response.Code != http.StatusOK || string(fields["interests"]) != want {
+			t.Fatalf("response = %d %s; want interests %s", response.Code, response.Body, want)
+		}
+	}
+	expectInterests(h.put(owner, payload(owner, `"revision":0,"interests":["language"]`)), `["language"]`)
+	expectInterests(h.get(owner), `["language"]`)
+	expectInterests(h.put(owner, payload(owner, `"revision":1,"lists":[`+oneList+`],"devices":[]`)), `["language"]`)
+	expectInterests(h.put(owner, payload(owner, `"revision":2,"interests":["language","language/ru"]`)), `["language","language/ru"]`)
+	expectInterests(h.put(owner, payload(owner, `"revision":3,"devices":[]`)), `["language","language/ru"]`)
+	fields := decodeBody(t, h.get(owner))
+	var lists []json.RawMessage
+	if err := json.Unmarshal(fields["lists"], &lists); err != nil || len(lists) != 1 || string(fields["revision"]) != "4" {
+		t.Fatalf("GET = %s", fields)
+	}
+	expectError(t, h.put(owner, payload(owner, `"revision":4,"interests":["a","a"]`)), http.StatusBadRequest, "invalidWorkspace")
+	if len(h.reports) != 0 {
+		t.Fatalf("reports = %v", h.reports)
 	}
 }

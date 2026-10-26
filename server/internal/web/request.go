@@ -97,8 +97,15 @@ func decodeFields(fields map[string]json.RawMessage) (revision int, change store
 	if hasPacks && !hasLists {
 		return 0, store.Change{}, errInvalid
 	}
+	// Interests may be all a save sets. They are judged after the other parts, as in validateWorkspaceRequest, so that
+	// lists whose levels overlap are told so first.
+	sentInterests, hasInterests := fields["interests"]
+	interests, interestsErr := decodeInterests(sentInterests, hasInterests)
 	if !hasLists && !hasDevices {
-		return revision, store.Change{}, nil
+		if interestsErr != nil {
+			return 0, store.Change{}, interestsErr
+		}
+		return revision, store.Change{Interests: interests, HasInterests: hasInterests}, nil
 	}
 	// null is not a left-out part: the app refuses it. A part that is left out is read as empty, so that only the
 	// other one is checked.
@@ -129,10 +136,13 @@ func decodeFields(fields map[string]json.RawMessage) (revision int, change store
 	if err != nil {
 		return 0, store.Change{}, err
 	}
+	if interestsErr != nil {
+		return 0, store.Change{}, interestsErr
+	}
 	// With packs, the lists are stored as Decode repaired them, so a list sent with several levels (by an app before
 	// v0.97.0) is stored with them joined into one.
-	change = store.Change{Lists: decoded.Lists, Packs: decoded.Packs, Devices: decoded.Devices, HasLists: hasLists, HasPacks: hasPacks,
-		HasDevices: hasDevices}
+	change = store.Change{Lists: decoded.Lists, Packs: decoded.Packs, Devices: decoded.Devices, Interests: interests, HasLists: hasLists,
+		HasPacks: hasPacks, HasDevices: hasDevices, HasInterests: hasInterests}
 	if hasLists && !hasPacks {
 		// An app that does not know packs sends its lists with their labels, which are saved as it sent them (see
 		// store.Change).
@@ -141,6 +151,18 @@ func decodeFields(fields map[string]json.RawMessage) (revision int, change store
 		}
 	}
 	return revision, change, nil
+}
+
+// decodeInterests reads the interests of a save as decodeInterests (src/core/interests.ts) does: null is none. Left out
+// (sent false), they are nil and stay as saved.
+func decodeInterests(raw json.RawMessage, sent bool) ([]string, error) {
+	if !sent {
+		return nil, nil
+	}
+	if unstorable(raw) {
+		return nil, errInvalid
+	}
+	return workspace.DecodeInterests(raw)
 }
 
 // unstorable reports whether a string or object key anywhere in the JSON value raw holds what PostgreSQL's jsonb cannot
