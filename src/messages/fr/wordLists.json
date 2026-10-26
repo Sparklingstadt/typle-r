@@ -290,7 +290,11 @@
     "followPack": "Suivre {name}",
     "followed": "« {name} » est suivi.",
     "following": "Suivi",
-    "unfollowPack": "Ne plus suivre {name}"
+    "unfollowPack": "Ne plus suivre {name}",
+    "matching": "Packs correspondant à vos centres d’intérêt",
+    "others": "Autres packs",
+    "noMatching": "Aucun pack ne correspond encore à vos centres d’intérêt",
+    "changeInterests": "Modifier les centres d’intérêt"
   },
   "share": {
     "title": "Partager « {name} »",

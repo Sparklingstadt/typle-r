@@ -290,7 +290,11 @@
     "followPack": "Подписаться на {name}",
     "followed": "Вы подписались на «{name}».",
     "following": "Вы подписаны",
-    "unfollowPack": "Отписаться от {name}"
+    "unfollowPack": "Отписаться от {name}",
+    "matching": "Наборы по вашим интересам",
+    "others": "Другие наборы",
+    "noMatching": "Наборов по вашим интересам пока нет",
+    "changeInterests": "Изменить интересы"
   },
   "share": {
     "title": "Поделиться «{name}»",

@@ -290,7 +290,11 @@
     "followPack": "Follow {name}",
     "followed": "Followed “{name}”.",
     "following": "Following",
-    "unfollowPack": "Unfollow {name}"
+    "unfollowPack": "Unfollow {name}",
+    "matching": "Packs matching your interests",
+    "others": "Other packs",
+    "noMatching": "No packs match your interests yet",
+    "changeInterests": "Change interests"
   },
   "share": {
     "title": "Share “{name}”",

@@ -290,7 +290,11 @@
     "followPack": "追蹤 {name}",
     "followed": "已追蹤「{name}」",
     "following": "追蹤中",
-    "unfollowPack": "取消追蹤 {name}"
+    "unfollowPack": "取消追蹤 {name}",
+    "matching": "符合興趣的詞包",
+    "others": "其他詞包",
+    "noMatching": "目前沒有符合興趣的詞包",
+    "changeInterests": "變更興趣"
   },
   "share": {
     "title": "分享「{name}」",

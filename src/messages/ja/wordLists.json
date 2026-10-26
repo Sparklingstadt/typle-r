@@ -290,7 +290,11 @@
     "followPack": "{name} をフォローする",
     "followed": "「{name}」をフォローしました",
     "following": "フォロー中",
-    "unfollowPack": "{name} のフォローを解除"
+    "unfollowPack": "{name} のフォローを解除",
+    "matching": "関心に合うパック",
+    "others": "そのほかのパック",
+    "noMatching": "関心に合うパックはまだありません",
+    "changeInterests": "関心を変える"
   },
   "share": {
     "title": "「{name}」を共有",

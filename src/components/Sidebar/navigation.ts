@@ -1,4 +1,4 @@
-import { BookOpen, ExternalLink, History, House, Info, Keyboard, List, Monitor, Plus, Settings, TableProperties, Trophy, type LucideIcon } from "lucide-react"
+import { BookOpen, ExternalLink, History, House, Info, Keyboard, List, Monitor, Plus, Settings, Sparkles, TableProperties, Trophy, type LucideIcon } from "lucide-react"
 import type nav from "@/messages/ja/nav.json"
 
 // Names are keys of the `nav` messages; each matches its page's heading so the sidebar and the page read the same.
@@ -19,6 +19,7 @@ export const mainNavigation: NavGroup[] = [
   ] },
   { label: "settings", links: [
     { name: "general", path: "/settings", icon: Settings },
+    { name: "interests", path: "/interests", icon: Sparkles },
     { name: "devices", path: "/devices", icon: Monitor },
   ] },
 ]

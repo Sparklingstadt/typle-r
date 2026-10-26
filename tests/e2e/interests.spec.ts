@@ -1,0 +1,70 @@
+import { test, expect, type Page } from '@playwright/test'
+import { randomBytes } from 'node:crypto'
+import { sealSession } from './sessionCookie'
+
+const origin = 'http://127.0.0.1:3101'
+const secret = 'typle-e2e-only-not-a-production-secret-32-bytes'
+
+async function choose(page: Page) {
+  await page.goto('/home')
+  await page.getByRole('navigation', { name: 'メインナビゲーション' }).getByRole('link', { name: '関心', exact: true }).click()
+  await expect(page).toHaveURL(/\/interests$/)
+  await expect(page.getByRole('heading', { name: '関心', level: 1 })).toBeVisible()
+  await expect(page.getByRole('button', { name: '中国語', exact: true })).toHaveCount(0)
+  const language = page.getByRole('button', { name: '語学', exact: true })
+  await expect(language).toHaveAttribute('aria-pressed', 'false')
+  await language.click()
+  await expect(language).toHaveAttribute('aria-pressed', 'true')
+  const chinese = page.getByRole('button', { name: '中国語', exact: true })
+  await chinese.click()
+  await expect(chinese).toHaveAttribute('aria-pressed', 'true')
+  return { language, chinese }
+}
+
+async function expectSelectionKept(page: Page) {
+  await page.reload()
+  await expect(page.getByRole('button', { name: '語学', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByRole('button', { name: '中国語', exact: true })).toHaveAttribute('aria-pressed', 'true')
+}
+
+test('a guest picks interests, they survive a reload and split the catalog', async ({ page }) => {
+  const { language } = await choose(page)
+  await expectSelectionKept(page)
+
+  await page.goto('/packs/catalog')
+  const matching = page.getByRole('region', { name: '関心に合うパック' })
+  const others = page.getByRole('region', { name: 'そのほかのパック' })
+  await expect(matching.getByRole('heading', { name: '国名：中国語・国連加盟国（小文字）', exact: true })).toHaveCount(1)
+  await expect(matching.getByRole('heading', { name: 'Go構文', exact: true })).toHaveCount(0)
+  await expect(others.getByRole('heading', { name: 'Go構文', exact: true })).toHaveCount(1)
+  await page.getByRole('link', { name: '関心を変える', exact: true }).click()
+  await expect(page).toHaveURL(/\/interests$/)
+
+  await language.click()
+  await expect(language).toHaveAttribute('aria-pressed', 'false')
+  await expect(page.getByRole('button', { name: '中国語', exact: true })).toHaveCount(0)
+  await page.goto('/packs/catalog')
+  await expect(page.getByRole('region', { name: '関心に合うパック' })).toHaveCount(0)
+})
+
+test('with no interests the catalog is not split', async ({ page }) => {
+  await page.goto('/packs/catalog')
+  await expect(page.locator('li[data-catalog-id]').first()).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'そのほかのパック' })).toHaveCount(0)
+})
+
+test('an account keeps its interests after a reload', async ({ page, context }) => {
+  const accountId = 'github:' + BigInt('0x' + randomBytes(16).toString('hex')).toString()
+  const iat = Math.floor(Date.now() / 1000)
+  await context.addCookies([{ name: 'typle-session', value: sealSession(secret, { sub: accountId, name: 'E2E User', image: '', iat, exp: iat + 3600 }), url: origin, httpOnly: true, sameSite: 'Lax' }])
+  try {
+    await choose(page)
+    await expectSelectionKept(page)
+    const response = await page.request.get('/api/workspace')
+    expect((await response.json()).interests).toEqual(['language', 'language/zh'])
+  } finally {
+    const { Pool } = await import('pg')
+    const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+    try { await pool.query('DELETE FROM typle_workspaces WHERE owner_id = $1', [accountId]) } finally { await pool.end() }
+  }
+})

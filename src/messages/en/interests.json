@@ -1,0 +1,32 @@
+{
+  "title": "Interests",
+  "description": "Official packs that match your interests are shown first in the list of official packs.",
+  "parents": {
+    "language": "Languages",
+    "programming": "Programming"
+  },
+  "childrenLabel": "{parent}: details",
+  "children": {
+    "language": {
+      "zh": "Chinese",
+      "ru": "Russian",
+      "ko": "Korean",
+      "en": "English",
+      "es": "Spanish",
+      "fr": "French",
+      "de": "German"
+    },
+    "programming": {
+      "go": "Go",
+      "kotlin": "Kotlin",
+      "java": "Java",
+      "typescript": "TypeScript",
+      "php": "PHP",
+      "ruby": "Ruby",
+      "sql": "SQL",
+      "linux": "Linux",
+      "vim": "Vim",
+      "test": "Testing"
+    }
+  }
+}
