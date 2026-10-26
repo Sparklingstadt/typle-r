@@ -187,7 +187,7 @@
     "packHelp": "Le pack auquel appartient cette liste. En choisir un autre y déplace la liste.",
     "packWillBeDeleted": "Le pack « {name} » sera supprimé.",
     "levels": "Difficulté (facultatif)",
-    "levelPlaceholder": "Base, débutant…",
+    "levelPlaceholder": "ex. Débutant",
     "levelsHelp": "Sert à choisir parmi les listes d’un pack sur l’écran d’entraînement, par exemple Débutant."
   },
   "import": {

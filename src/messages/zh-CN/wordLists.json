@@ -187,7 +187,7 @@
     "packHelp": "此列表所属的包。选择其他包会将列表移到该包。",
     "packWillBeDeleted": "包“{name}”将被删除。",
     "levels": "难度（可选）",
-    "levelPlaceholder": "基础、初级等",
+    "levelPlaceholder": "例如：初级",
     "levelsHelp": "在练习界面中用于选择包内的列表，例如：初级。"
   },
   "import": {

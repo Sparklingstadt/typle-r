@@ -873,20 +873,26 @@ func TestPutLevelsConflict(t *testing.T) {
 	}
 }
 
-// A list sent with its pack that has more than one level is refused with tooManyLevels, and nothing is saved.
-func TestPutTooManyLevels(t *testing.T) {
-	leveled := strings.Replace(packedOne, `"id":"one","name":"One"`, `"id":"one","name":"One","levels":["基本","初級"]`, 1)
-	fake := &fakeWorkspaces{}
-	h := newHarness(t, fake, testBase)
-	expectError(t, h.put(testOwner, payload(testOwner, `"revision":1,"lists":[`+leveled+`],"packs":[`+aPack+`]`)), http.StatusBadRequest, "tooManyLevels")
-	if fake.writes != 0 {
-		t.Fatalf("writes = %d; want 0", fake.writes)
+// A list sent with its pack by an app before v0.97.0 may have several levels: the save is taken, and the list is stored
+// with them joined into one (and told apart from a list of the pack that has that level), as Decode repairs it.
+func TestPutSeveralLevelsWithPacksRealStore(t *testing.T) {
+	s, owner := realStore(t)
+	h := newHarness(t, s, testBase)
+	leveled := func(id string, levels string) string {
+		return strings.Replace(packedOne, `"id":"one","name":"One"`, `"id":"`+id+`","name":"`+id+`","levels":`+levels, 1)
 	}
-	// Data repaired on reading is saved as it is.
-	repaired := strings.Replace(leveled, `["基本","初級"]`, `["基本・初級"]`, 1)
-	if response := h.put(testOwner, payload(testOwner, `"revision":1,"lists":[`+repaired+`],"packs":[`+aPack+`]`)); response.Code != http.StatusOK {
+	body := `"revision":0,"lists":[` + leveled("a", `["基本・初級"]`) + `,` + leveled("b", `["基本"," 初級 ",""]`) + `],"packs":[` + aPack + `]`
+	if response := h.put(owner, payload(owner, body)); response.Code != http.StatusOK {
 		t.Fatalf("response = %d %s", response.Code, response.Body)
 	}
+	var lists []struct{ Levels []string }
+	if err := json.Unmarshal(decodeBody(t, h.get(owner))["lists"], &lists); err != nil || len(lists) != 2 ||
+		!slices.Equal(lists[0].Levels, []string{"基本・初級"}) || !slices.Equal(lists[1].Levels, []string{"基本・初級（2）"}) {
+		t.Fatalf("lists = %+v, %v", lists, err)
+	}
+	// More than an older app could save is invalid.
+	expectError(t, h.put(owner, payload(owner, `"revision":1,"lists":[`+leveled("a", `["1","2","3","4","5","6"]`)+`],"packs":[`+aPack+`]`)),
+		http.StatusBadRequest, "invalidWorkspace")
 }
 
 // Lists sent alone by an app before v0.97.0 may have up to 5 levels: they are taken, and joined into one when they are

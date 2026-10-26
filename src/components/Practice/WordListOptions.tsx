@@ -95,9 +95,8 @@ function PackOption({ packId, name, lists, selectedId, onSelect, matches, resetK
     if (seen.resetKey !== resetKey) setChosen(startLevels())
   }
   const steps = levelSteps(lists, chosen)
-  // Packs whose lists have no levels are chosen from by list; a pack with both asks its first step without naming it.
+  // Packs whose lists have no levels are chosen from by list.
   const anyLevels = lists.some(list => list.levels?.length)
-  const anyPlain = lists.some(list => !list.levels?.length)
   const found = (prefix: string[]) => lists.some(list => matches.includes(list.id) && prefix.every((level, n) => levelPath(list)[n] === level))
   function choose(step: number, level: string) {
     const next = [...chosen.slice(0, step), level]
@@ -120,7 +119,8 @@ function PackOption({ packId, name, lists, selectedId, onSelect, matches, resetK
       <ChevronDown className={cn('size-4 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none', open && 'rotate-180')} aria-hidden="true" />
     </button>
     {open && <div id={`${id}-levels`} role="group" aria-label={t(anyLevels ? 'levels' : 'listsOf', { name })} className="grid gap-2 px-3 pt-1 pb-2.5 pl-[42px]">
-      {steps.map((step, index) => <div key={index} role="group" aria-label={t(index === 0 && anyPlain ? 'stepPlain' : 'step', { n: index + 1 })} className="flex flex-wrap gap-1.5">
+      {/* A list has one level at most (v0.97.0), so there is one step, named by the group around it. */}
+      {steps.map((step, index) => <div key={index} className="flex flex-wrap gap-1.5">
         {step.options.map(level => {
           const pressed = step.chosen === level
           const prefix = [...chosen.slice(0, index), level]

@@ -187,7 +187,7 @@
     "packHelp": "The pack this list belongs to. Choosing another pack moves the list there.",
     "packWillBeDeleted": "The pack “{name}” will be deleted.",
     "levels": "Difficulty (optional)",
-    "levelPlaceholder": "Basic, Beginner…",
+    "levelPlaceholder": "e.g. Beginner",
     "levelsHelp": "Used to choose among the lists of a pack on the practice screen, such as Beginner."
   },
   "import": {

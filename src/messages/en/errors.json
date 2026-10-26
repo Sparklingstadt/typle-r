@@ -51,7 +51,7 @@
   "packNameRequired": "Enter a pack name.",
   "packNameDuplicate": "A pack with the same name already exists.",
   "packDeleted": "This pack has been deleted.",
-  "levelsConflict": "This pack already has a list with the same difficulty.",
+  "levelsConflict": "This pack already has a list with the same difficulty (or, for a list without one, the same name).",
   "tooManyLevels": "A list can have only one difficulty.",
   "packFileUnreadable": "This file could not be read as a word pack.",
   "invalidPackFile": "This file has an item that is over the limit for saving.",

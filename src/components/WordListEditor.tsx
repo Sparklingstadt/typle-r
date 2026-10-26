@@ -253,7 +253,7 @@ export default function WordListEditor({ title, description, storage, initial, p
         {nameError ? <FieldError id={`${nameId}-error`} message={nameError} alert={duplicate && !errorFor(nameId)} />
           : null}
         <p id={`${nameId}-help`} className="text-xs text-muted-foreground">{t("nameHelp")}</p>
-        <LevelFields value={levels} onChange={setLevels} error={levelError ? error ?? "" : undefined} />
+        <LevelFields value={levels} onChange={setLevels} error={levelError ? error ?? "" : undefined} refusals={failure.count} />
       </section>
 
       <section aria-labelledby={`${baseId}-words`} className="md:overflow-hidden md:rounded-xl md:border md:bg-card">

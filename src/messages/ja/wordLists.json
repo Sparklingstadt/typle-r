@@ -187,7 +187,7 @@
     "packHelp": "リストを入れるパックです。ほかのパックを選ぶと、リストはそのパックに移ります。",
     "packWillBeDeleted": "パック「{name}」は削除されます。",
     "levels": "難易度（任意）",
-    "levelPlaceholder": "基本、初級など",
+    "levelPlaceholder": "初級など",
     "levelsHelp": "練習画面で、パックの中のリストを選ぶのに使います。例：初級"
   },
   "import": {

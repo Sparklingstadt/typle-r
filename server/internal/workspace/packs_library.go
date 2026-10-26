@@ -160,21 +160,26 @@ func numbered(name string) func(count int) string {
 	return func(count int) string { return fit(name, fmt.Sprintf("（%d）", count), MaxListName) }
 }
 
+// bare follows bare (src/core/wordPacks.ts): a level without the spaces and ・ at its ends.
+func bare(level string) string {
+	return strings.TrimFunc(level, func(r rune) bool { return r == '・' || spaceJS(r) })
+}
+
 // collapseLevels follows collapseLevels (src/core/wordPacks.ts): a list holds one level at most since v0.97.0, so
-// several levels saved by an older app become one: the levels trimmed, without empty ones, joined with ・ and cut to
-// MaxLevel; no level at all when none is left.
+// several levels saved by an older app become one: the levels made bare, without empty ones, joined with ・, cut to
+// MaxLevel and made bare again; no level at all when none is left.
 func collapseLevels(list List) List {
 	if len(list.Levels) <= 1 {
 		return list
 	}
 	var kept []string
 	for _, level := range list.Levels {
-		if level = trimJS(level); level != "" {
+		if level = bare(level); level != "" {
 			kept = append(kept, level)
 		}
 	}
 	list.Levels = nil
-	if joined := fit(strings.Join(kept, "・"), "", MaxLevel); joined != "" {
+	if joined := bare(fit(strings.Join(kept, "・"), "", MaxLevel)); joined != "" {
 		list.Levels = []string{joined}
 	}
 	return list
@@ -451,8 +456,11 @@ func (w *Workspace) ApplyListChange(previous *Workspace) {
 }
 
 // CheckPacks follows validateLibrary (src/core/wordPacks.ts): it refuses packs and lists that are not in the saved
-// shape, with invalidWorkspace, a list with more than one level, with tooManyLevels, and lists of a pack whose paths
-// overlap, with levelsConflict.
+// shape, with invalidWorkspace, and lists of a pack whose paths overlap, with levelsConflict. Unlike validateLibrary it
+// takes a list with several levels (up to MaxSavedLevels, see CheckLimits): apps before v0.97.0, which may still be
+// open or not yet updated, send them with their packs, and a save they cannot change must not fail. Such a list is
+// stored as Decode repairs it, joined into one level (collapseLevels) and told apart (separateLevels), so it is not
+// checked for overlaps here.
 func CheckPacks(packs []Pack, lists []List) error {
 	invalid := &Error{Key: "invalidWorkspace"}
 	ids := map[string]bool{}
@@ -475,7 +483,9 @@ func CheckPacks(packs []Pack, lists []List) error {
 			listNames[list.PackID] = taken
 		}
 		name := nameKey(list.Name)
-		if list.PackID == "" || !ids[list.PackID] || taken[name] || list.Group != "" || list.Category != "" || list.Tags != nil {
+		// CheckLimits sees the lists as Decode joined their levels, so the number sent is checked here.
+		if list.PackID == "" || !ids[list.PackID] || taken[name] || list.Group != "" || list.Category != "" || list.Tags != nil ||
+			len(list.Levels) > MaxSavedLevels {
 			return invalid
 		}
 		taken[name] = true
@@ -483,12 +493,11 @@ func CheckPacks(packs []Pack, lists []List) error {
 	if len(ids) != len(listNames) {
 		return invalid
 	}
-	// Lists of a pack whose paths overlap, or with more than one level, are refused as checkReach and tidyLevels refuse
-	// them; separateLevels repairs saved ones.
+	// Lists of a pack whose paths overlap are refused as checkReach refuses them; separateLevels repairs saved ones.
 	paths := map[string][][]string{}
 	for _, list := range lists {
 		if len(list.Levels) > MaxLevels {
-			return &Error{Key: "tooManyLevels"}
+			continue
 		}
 		path := levelPath(list.Name, list.Levels)
 		if slices.ContainsFunc(paths[list.PackID], func(other []string) bool { return pathsOverlap(other, path) }) {
@@ -502,8 +511,7 @@ func CheckPacks(packs []Pack, lists []List) error {
 // CheckLibrary follows validateLibrary (src/core/wordPacks.ts) for a save that sends lists and packs. It reads them as
 // they were sent, before Decode repairs them: a list may not have a group, category or tags at all, not even "" or [],
 // and a pack's description, category, tags and origin may be left out but not null, as decodePacks requires. Anything
-// refused is invalidWorkspace, but for a list with more than one level and lists whose levels overlap (tooManyLevels and
-// levelsConflict, see CheckPacks).
+// refused is invalidWorkspace, but for lists whose levels overlap (levelsConflict, see CheckPacks).
 func CheckLibrary(lists, packs []byte) error {
 	invalid := &Error{Key: "invalidWorkspace"}
 	decoded, err := DecodeLists(lists)

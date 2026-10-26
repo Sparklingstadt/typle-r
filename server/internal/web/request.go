@@ -129,6 +129,8 @@ func decodeFields(fields map[string]json.RawMessage) (revision int, change store
 	if err != nil {
 		return 0, store.Change{}, err
 	}
+	// With packs, the lists are stored as Decode repaired them, so a list sent with several levels (by an app before
+	// v0.97.0) is stored with them joined into one.
 	change = store.Change{Lists: decoded.Lists, Packs: decoded.Packs, Devices: decoded.Devices, HasLists: hasLists, HasPacks: hasPacks,
 		HasDevices: hasDevices}
 	if hasLists && !hasPacks {

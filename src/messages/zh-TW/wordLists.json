@@ -187,7 +187,7 @@
     "packHelp": "此清單所屬的包。選擇其他包會將清單移到該包。",
     "packWillBeDeleted": "包「{name}」將被刪除。",
     "levels": "難度（選填）",
-    "levelPlaceholder": "基礎、初級等",
+    "levelPlaceholder": "例如：初級",
     "levelsHelp": "在練習畫面中用於選擇包內的清單，例如：初級。"
   },
   "import": {

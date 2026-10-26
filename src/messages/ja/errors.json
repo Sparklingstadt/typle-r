@@ -51,7 +51,7 @@
   "packNameRequired": "パック名を入力してください",
   "packNameDuplicate": "同じ名前のパックがあります",
   "packDeleted": "このパックは削除されています",
-  "levelsConflict": "同じパックに、同じ難易度のリストがあります",
+  "levelsConflict": "同じパックに、難易度（難易度がないリストは名前）が同じリストがあります",
   "tooManyLevels": "難易度は1つまでです。",
   "packFileUnreadable": "単語パックのファイルとして読み込めませんでした",
   "invalidPackFile": "このファイルの中に、保存できる上限を超える項目があります",

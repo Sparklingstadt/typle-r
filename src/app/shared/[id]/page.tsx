@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { MAX_LISTS } from "@/core/listOverview"
 import { decodePackFile, importPackFile, type PackFile } from "@/core/packFile"
 import { randomId } from "@/core/randomId"
+import { importedLevel } from "@/core/wordPacks"
 import { useErrorText } from "@/i18n/useErrorText"
 import { useWordLists } from "@/lib/useWordLists"
 
@@ -123,7 +124,8 @@ function Pack({ file }: { file: PackFile }) {
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <h3 className="font-bold">{list.name}</h3>
           <p className="text-sm text-muted-foreground">
-            {list.levels?.length ? t('sharedPage.levels', { levels: list.levels.join(' › ') }) : t('packEditor.noLevels')}
+            {/* Levels a share made before v0.97.0 may hold several, shown joined into one as they are imported. */}
+            {importedLevel(list.levels) ? t('sharedPage.levels', { levels: importedLevel(list.levels)! }) : t('packEditor.noLevels')}
             {' · '}{t('packEditor.wordCount', { count: list.words.length })}
           </p>
         </div>

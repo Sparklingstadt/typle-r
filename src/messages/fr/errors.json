@@ -51,7 +51,7 @@
   "packNameRequired": "Saisissez un nom de pack.",
   "packNameDuplicate": "Un pack porte déjà ce nom.",
   "packDeleted": "Ce pack a été supprimé.",
-  "levelsConflict": "Ce pack contient déjà une liste avec la même difficulté.",
+  "levelsConflict": "Ce pack contient déjà une liste avec la même difficulté (ou, pour une liste sans difficulté, le même nom).",
   "tooManyLevels": "Une liste ne peut avoir qu’une seule difficulté.",
   "packFileUnreadable": "Ce fichier n’a pas pu être lu comme un pack de mots.",
   "invalidPackFile": "Ce fichier contient un élément qui dépasse la limite d’enregistrement.",

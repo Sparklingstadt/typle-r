@@ -112,11 +112,9 @@
     "groupSelected": "{level} · {summary}",
     "groupLists": "{count, plural, other {#個清單}} · 選擇難度",
     "levels": "{name} 的難度",
-    "step": "難度第{n}步",
-    "chooseLevel": "請繼續選擇難度。",
+    "chooseLevel": "請選擇難度。",
     "groupListsPlain": "{count, plural, other {#個清單}} · 選擇清單",
     "listsOf": "{name} 的清單",
-    "stepPlain": "第{n}步",
     "chooseList": "請選擇清單。",
     "match": "符合搜尋"
   }

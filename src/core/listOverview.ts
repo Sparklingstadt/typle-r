@@ -88,7 +88,7 @@ export function levelName(list: Pick<SavedWordList, 'name' | 'levels'>, separato
 
 /** The choices of each step of a group, in the order of its lists: step n offers the nth levels of the lists that match
  * the levels chosen before it. A list without levels is its own choice in the first step. `chosen` is the levels
- * picked so far. */
+ * picked so far. Since v0.97.0 a list has one level at most, so there is one step. */
 export function levelSteps(lists: Pick<SavedWordList, 'name' | 'levels'>[], chosen: string[]) {
   const levelsOf = (list: Pick<SavedWordList, 'name' | 'levels'>) => list.levels?.length ? list.levels : [list.name]
   const steps: { options: string[]; chosen: string | null }[] = []

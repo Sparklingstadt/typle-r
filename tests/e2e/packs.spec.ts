@@ -439,9 +439,10 @@ test('a pack opens to its lists with levels first and then the lists without, an
   const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
   const study = aside.locator('li[data-pack-id="study"]')
   await study.getByRole('button', { expanded: false }).click()
-  // A pack of lists with and without levels names its first step neutrally.
-  await expect(study.getByRole('group', { name: '1段目', exact: true }).getByRole('button')).toHaveText(['基本・初級', '基本・上級', '応用'])
-  await expect(study.getByRole('group', { name: 'Study の難易度' })).toBeVisible()
+  // A list has one level, so the choices are one row without a step of their own.
+  await expect(study.getByRole('group', { name: 'Study の難易度' }).getByRole('button')).toHaveText(['基本・初級', '基本・上級', '応用'])
+  await expect(study).toContainText('難易度を選んでください。')
+  await expect(study.getByRole('group', { name: /段目/ })).toHaveCount(0)
   await study.getByRole('button', { name: '基本・初級', exact: true }).click()
   await expect(page.getByRole('button', { name: '単語リストを切り替える（現在: Study › 基本・初級）' })).toBeVisible()
   await expect(page.locator('#wordDisplay')).toHaveText('one')
@@ -526,7 +527,7 @@ test('a pack whose lists have no levels is chosen from by list', async ({ page }
   await expect(shell).not.toContainText('難易度')
   await shell.getByRole('button', { expanded: false }).click()
   const choices = shell.getByRole('group', { name: 'Shell のリスト' })
-  await expect(choices.getByRole('group', { name: '1段目', exact: true }).getByRole('button')).toHaveText(['基本', '応用'])
+  await expect(choices.getByRole('button')).toHaveText(['基本', '応用'])
   await expect(shell).toContainText('リストを選んでください。')
   await expect(shell).not.toContainText('難易度')
 })
@@ -552,7 +553,7 @@ test('a search that finds a list of a pack opens the pack and marks that list', 
 })
 
 test('a level that would hide another list of the pack is refused under the level', async ({ page }) => {
-  const message = '同じパックに、同じ難易度のリストがあります'
+  const message = '同じパックに、難易度（難易度がないリストは名前）が同じリストがあります'
   await page.goto('/edit?list=adv')
   const level = page.getByRole('textbox', { name: '難易度（任意）', exact: true })
   // basic has no level, so its name is what the practice screen picks it by.

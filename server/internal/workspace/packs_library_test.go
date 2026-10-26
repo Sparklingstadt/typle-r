@@ -345,14 +345,11 @@ func TestCheckPacksLevels(t *testing.T) {
 		with("e", func(l *List) { l.PackID, l.Levels = "q", []string{"初級"} })}); err != nil {
 		t.Fatal(err)
 	}
-	// A list with more than one level is refused with tooManyLevels.
-	var many *Error
-	for _, levels := range [][]string{{"基本", "初級"}, {"基本", "基本"}} {
-		if err := CheckPacks(packs, []List{with("a", func(l *List) { l.Levels = levels }), inQ}); !errors.As(err, &many) || many.Key != "tooManyLevels" {
-			t.Errorf("%q: err = %v", levels, err)
-		}
-	}
-	if err := CheckPacks(packs, []List{with("a", func(l *List) { l.Levels = []string{"基本・初級"} }), inQ}); err != nil {
+	// A list with several levels, sent by an app before v0.97.0, is taken, and not checked for overlaps: it is stored
+	// joined into one level and told apart.
+	several := []List{with("a", func(l *List) { l.Levels = []string{"基本", "初級"} }), with("b", func(l *List) { l.Levels = []string{"基本"} }),
+		with("c", func(l *List) { l.Levels = []string{"基本", "初級"} }), inQ}
+	if err := CheckPacks(packs, several); err != nil {
 		t.Fatal(err)
 	}
 	// CheckLibrary keeps the key, so a save is refused with it.
@@ -387,7 +384,8 @@ func TestSeparateLevelsLimit(t *testing.T) {
 }
 
 // The cases of several levels in tests/wordPacks.test.cjs: they are joined with ・ into one, trimmed and without empty
-// ones, cut to MaxLevel UTF-16 code units without splitting a character of two; one level stays as it was saved.
+// ones and without ・ at their ends, cut to MaxLevel UTF-16 code units without splitting a character of two or leaving a
+// ・ at the end; one level stays as it was saved.
 func TestCollapseLevels(t *testing.T) {
 	cases := []struct{ levels, want []string }{
 		{[]string{"基本", "初級"}, []string{"基本・初級"}},
@@ -395,7 +393,9 @@ func TestCollapseLevels(t *testing.T) {
 		{[]string{" ", ""}, nil},
 		{[]string{strings.Repeat("a", 50), "b"}, []string{strings.Repeat("a", 50)}},
 		{[]string{strings.Repeat("a", 48), " b c "}, []string{strings.Repeat("a", 48) + "・b"}},
-		{[]string{strings.Repeat("a", 48), "😀"}, []string{strings.Repeat("a", 48) + "・"}},
+		{[]string{strings.Repeat("a", 48), "😀"}, []string{strings.Repeat("a", 48)}},
+		{[]string{"・基本・ ", " ・ ", "初級・"}, []string{"基本・初級"}},
+		{[]string{"・", " "}, nil},
 		{[]string{" 基本 "}, []string{" 基本 "}},
 	}
 	for _, c := range cases {

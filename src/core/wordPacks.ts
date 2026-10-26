@@ -29,20 +29,37 @@ export const levelPath = (list: Pick<SavedWordList, 'name' | 'levels'>) => list.
 
 // Two lists of a pack whose paths are equal, or one the start of the other, leave one of them out of reach on the
 // practice screen: picking the shorter path picks its list, or asks for a further level, but never both.
+// Since v0.97.0 a path has one step (a list has one level at most), so paths overlap only when they are equal; the
+// general check stays for data before that is repaired.
 export function pathsOverlap(a: string[], b: string[]) {
   const [short, long] = a.length <= b.length ? [a, b] : [b, a]
   return short.every((level, n) => level === long[n])
 }
 
+// A level without the spaces and ・ at its ends, which joining or cutting would leave as ・・ or a trailing ・.
+const bare = (level: string) => level.replace(/^[\s・]+|[\s・]+$/g, '')
+
 /**
- * A list holds one level at most since v0.97.0. Several levels saved by an older app become one: the levels trimmed,
- * without empty ones, joined with ・ as levelName shows them, and cut to MAX_LEVEL; no level at all when none is left.
+ * A list holds one level at most since v0.97.0. Several levels saved by an older app become one: the levels without
+ * spaces and ・ at their ends (bare), without empty ones, joined with ・ as levelName shows them, cut to MAX_LEVEL and
+ * made bare again; no level at all when none is left.
  */
 export function collapseLevels(list: SavedWordList): SavedWordList {
   if ((list.levels?.length ?? 0) <= 1) return list
   const { levels, ...rest } = list
-  const joined = fit(levels!.map(level => level.trim()).filter(Boolean).join('・'), '', MAX_LEVEL)
+  const joined = joinLevels(levels!)
   return joined ? { ...list, levels: [joined] } : rest
+}
+
+/** Several levels as collapseLevels joins them into one, or undefined when none is left. */
+export function joinLevels(levels: string[]) {
+  return bare(fit(levels.map(bare).filter(Boolean).join('・'), '', MAX_LEVEL)) || undefined
+}
+
+/** The level a list of a pack file gets when it is imported (trimLevels, then collapseLevels), or undefined. */
+export function importedLevel(levels: string[] | undefined) {
+  const kept = (levels ?? []).map(level => level.trim()).filter(Boolean)
+  return kept.length > 1 ? joinLevels(kept) : kept[0]
 }
 
 /**

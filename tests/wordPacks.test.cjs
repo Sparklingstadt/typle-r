@@ -3,7 +3,7 @@ const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
-const { normalizeLibrary, decodePacks, validateLibrary, viewLists, applyListChange } = require('../src/core/wordPacks.ts')
+const { normalizeLibrary, decodePacks, validateLibrary, viewLists, applyListChange, importedLevel } = require('../src/core/wordPacks.ts')
 const { decodeLists, saveList } = require('../src/core/wordLists.ts')
 const { levelSteps, listAtLevels } = require('../src/core/listOverview.ts')
 
@@ -87,7 +87,10 @@ test('several levels saved by an older app are joined into one, within the limit
   assert.deepEqual(levels(list('a', [' ', ''])), [undefined])
   assert.deepEqual(levels(list('a', ['a'.repeat(50), 'b'])), [['a'.repeat(50)]])
   assert.deepEqual(levels(list('a', ['a'.repeat(48), ' b c '])), [[`${'a'.repeat(48)}・b`]])
-  assert.deepEqual(levels(list('a', ['a'.repeat(48), '😀'])), [[`${'a'.repeat(48)}・`]])
+  // No ・ is left at the ends or doubled by a level that is only ・, and none is left where the cut falls.
+  assert.deepEqual(levels(list('a', ['a'.repeat(48), '😀'])), [['a'.repeat(48)]])
+  assert.deepEqual(levels(list('a', ['・基本・ ', ' ・ ', '初級・'])), [['基本・初級']])
+  assert.deepEqual(levels(list('a', ['・', ' '])), [undefined])
   // One level stays as it was saved.
   assert.deepEqual(levels(list('a', [' 基本 '])), [[' 基本 ']])
   // A joined level that another list of the pack holds is told apart afterwards.
@@ -125,6 +128,13 @@ test('a library of more lists than MAX_LISTS, all without a group, converts and 
   const library = normalizeLibrary(lists, null)
   assert.equal(library.packs.length, 151)
   validateLibrary(library)
+})
+
+test('importedLevel shows the level a list of a pack file gets when it is imported', () => {
+  assert.equal(importedLevel(['基本', ' 初級 ']), '基本・初級')
+  assert.equal(importedLevel([' ・基本 ', '']), '・基本')
+  assert.equal(importedLevel(['', ' ']), undefined)
+  assert.equal(importedLevel(undefined), undefined)
 })
 
 test('lists keep a packId and refuse one that is not a string', () => {
