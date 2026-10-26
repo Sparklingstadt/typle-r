@@ -28,3 +28,12 @@ test('browser exceptions without request metadata remain reportable', () => {
   const event = { exception: { values: [{ type: 'Error', value: 'Render failed' }] } }
   assert.deepEqual(sanitizeSentryEvent(event), event)
 })
+
+test('a shared link’s id stays out of error reports', () => {
+  const event = sanitizeSentryEvent({
+    transaction: '/shared/0b6f5c9e-3d1a-4c55-9a43-1f2e8d7c6b5a',
+    request: { method: 'GET', url: 'https://typle.example/shared/0b6f5c9e-3d1a-4c55-9a43-1f2e8d7c6b5a?from=chat#top' },
+  })
+  assert.deepEqual(event.request, { method: 'GET', url: 'https://typle.example/shared/[id]' })
+  assert.equal(event.transaction, '/shared/[id]')
+})

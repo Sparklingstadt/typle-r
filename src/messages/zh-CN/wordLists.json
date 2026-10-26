@@ -305,7 +305,14 @@
     "create": "创建链接",
     "update": "更新共享",
     "stop": "停止共享",
-    "failed": "无法更改共享。"
+    "failed": "无法更改共享。",
+    "orphans": {
+      "title": "找不到包的共享",
+      "description": "这些共享链接对应的包已不存在。知道链接的人仍然可以查看。不需要的话请停止共享。",
+      "unnamed": "未命名的包",
+      "stop": "停止共享",
+      "stopLabel": "停止共享 {name}"
+    }
   },
   "sharedPage": {
     "loading": "正在加载共享",

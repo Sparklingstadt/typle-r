@@ -305,7 +305,14 @@
     "create": "Créer le lien",
     "update": "Mettre à jour",
     "stop": "Arrêter le partage",
-    "failed": "Impossible de modifier le partage."
+    "failed": "Impossible de modifier le partage.",
+    "orphans": {
+      "title": "Partages sans pack",
+      "description": "Le pack de ces liens de partage n’existe plus. Toute personne qui a le lien peut encore le voir. Arrêtez le partage de ceux dont vous n’avez plus besoin.",
+      "unnamed": "Pack sans nom",
+      "stop": "Arrêter le partage",
+      "stopLabel": "Arrêter le partage de {name}"
+    }
   },
   "sharedPage": {
     "loading": "Chargement du partage",

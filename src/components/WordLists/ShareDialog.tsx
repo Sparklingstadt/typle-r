@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { Check, Copy, Link2, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -21,6 +21,9 @@ export default function ShareDialog({ pack, share, onShare, onStop, onOpenChange
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
+  const copiedTimer = useRef<number | undefined>(undefined)
+  const clearCopied = () => { window.clearTimeout(copiedTimer.current); setCopied(false) }
+  useEffect(() => () => window.clearTimeout(copiedTimer.current), [])
 
   async function run(action: (packId: string) => Promise<unknown>) {
     if (!pack || busy) return
@@ -33,12 +36,13 @@ export default function ShareDialog({ pack, share, onShare, onStop, onOpenChange
   async function copy() {
     try {
       await navigator.clipboard.writeText(link)
+      window.clearTimeout(copiedTimer.current)
       setCopied(true)
-      window.setTimeout(() => setCopied(false), 2000)
+      copiedTimer.current = window.setTimeout(() => setCopied(false), 2000)
     } catch { setError(t('copyFailed')) }
   }
 
-  return <Dialog open={!!pack} onOpenChange={open => { if (!busy) { setError(''); setCopied(false); onOpenChange(open) } }}>
+  return <Dialog open={!!pack} onOpenChange={open => { if (!busy) { setError(''); clearCopied(); onOpenChange(open) } }}>
     <DialogContent>
       <DialogHeader>
         <DialogTitle>{t('title', { name: pack?.name ?? '' })}</DialogTitle>
@@ -49,6 +53,8 @@ export default function ShareDialog({ pack, share, onShare, onStop, onOpenChange
           <input readOnly aria-label={t('link')} value={link} onFocus={event => event.currentTarget.select()}
             className="h-10 min-w-0 flex-1 rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30" />
           <Button variant="outline" onClick={copy}>{copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}{copied ? t('copied') : t('copy')}</Button>
+          {/* The button's own text changes too, but a screen reader only hears it from here. */}
+          <span className="sr-only" aria-live="polite">{copied ? t('copied') : ''}</span>
         </div>
         <p className="text-[13px] text-muted-foreground">{t('updatedAt', { date: new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(share.updatedAt)) })}</p>
         <p className="text-[13px] text-muted-foreground">{t('updateHint')}</p>

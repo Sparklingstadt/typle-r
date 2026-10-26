@@ -54,5 +54,6 @@
   "levelsConflict": "Ce pack contient déjà une liste avec les mêmes niveaux, ou avec des niveaux identiques jusqu’à une étape.",
   "packFileUnreadable": "Ce fichier n’a pas pu être lu comme un pack de mots.",
   "invalidPackFile": "Ce fichier contient un élément qui dépasse la limite d’enregistrement.",
-  "sharedPackNotFound": "Ce partage est terminé."
+  "sharedPackNotFound": "Ce partage est terminé.",
+  "packNotFound": "Ce pack est introuvable. Rechargez la page."
 }
