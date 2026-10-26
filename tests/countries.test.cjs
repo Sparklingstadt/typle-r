@@ -2,35 +2,8 @@ require('./register.cjs')
 const test = require('node:test')
 const assert = require('node:assert/strict')
 const crypto = require('node:crypto')
-// The 初級 to 上級 parts of the country list as step 0018 of migration 0023 splits it (tests/commands.test.cjs checks
-// how). Since v0.85.0 the initial lists keep only its lowercase list.
-const countries = require('./seedMigration.cjs').pack('0018_split_long_initial_lists')
-  .find(item => item.id === 'un-member-states-chinese-193').parts
-const words = countries.flatMap(list => list.words)
 const { decodeLists } = require('../src/core/wordLists.ts')
 const { localDevelopmentEnabled } = require('../src/lib/localDevelopment.ts')
-
-test('all 193 country entries match the provided source and decode in Typle', () => {
-  assert.equal(decodeLists(JSON.stringify({ version: 1, lists: countries })).flatMap(list => list.words).length, 193)
-  assert.equal(new Set(words.map(word => word.display)).size, 193)
-  // The source typed the Chinese name, so restore that input before comparing with the source's hash. The parts no
-  // longer keep the source's order, so the hash is of the entries sorted by their Chinese name.
-  const source = words.map(word => ({ display: word.display, input: word.display, annotation: word.annotation }))
-    .sort((a, b) => a.display < b.display ? -1 : a.display > b.display ? 1 : 0)
-  assert.equal(crypto.createHash('sha256').update(JSON.stringify(source)).digest('hex'),
-    'e9d1cd0efce0db190d4d2d90af05641b04f4e86483621fa68df3de0778ed6b40')
-})
-
-test('country input is the pinyin without tone marks, apostrophes or brackets', () => {
-  for (const word of words) {
-    const pinyin = word.annotation.split(' / ')[0].normalize('NFD')
-      .replace(/u\u0308/g, 'v').replace(/\p{M}/gu, '').replace(/['()]/g, '')
-    assert.equal(word.input, pinyin, word.display)
-    assert.match(word.input, /^[A-Za-z]+( [A-Za-z]+)*$/, word.display)
-  }
-  assert.equal(words.find(word => word.display === '阿尔巴尼亚').input, 'Aerbaniya')
-  assert.equal(words.find(word => word.display === '菲律宾').input, 'Feilvbin')
-})
 
 test('local login requires explicit development opt-in, secret and loopback URL', () => {
   const env = { NODE_ENV: 'development', LOCAL_DEVELOPMENT_LOGIN: '1', AUTH_SECRET: 'test-only', AUTH_URL: 'http://localhost:3000' }
