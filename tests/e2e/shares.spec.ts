@@ -184,6 +184,7 @@ test('a share whose pack is gone is listed under the packs and can be stopped', 
 
     await section.getByRole('button', { name: 'Gone pack の共有をやめる' }).click()
     await expect(section).toHaveCount(0)
+    await expect(page.locator('#list-heading')).toBeFocused()
     expect((await orphans()).rowCount).toBe(0)
     expect((await publicStatus(page, id)).status).toBe(200)
   } finally { await pool.end() }
@@ -209,12 +210,13 @@ test('deleting a shared pack never lists its share as one whose pack is gone', a
       .observe(document.body, { childList: true, subtree: true })
   })
 
+  const read = page.waitForResponse(response => response.url().endsWith('/api/shares') && response.request().method() === 'GET')
   await row(page).getByRole('button', { name: 'Shared pack のパックの操作' }).click()
   await page.getByRole('menuitem', { name: '削除', exact: true }).click()
   await page.getByRole('alertdialog').getByRole('button', { name: '削除する' }).click()
   await expect(row(page)).toHaveCount(0)
-  await expect.poll(() => reads).toBeGreaterThan(0)
-  await page.waitForTimeout(2000)
+  await read
+  expect(reads).toBeGreaterThan(0)
   await expect(page.getByRole('region', { name: 'パックが見つからない共有' })).toHaveCount(0)
   expect(await page.evaluate(() => (window as unknown as { orphansSeen?: boolean }).orphansSeen ?? false)).toBe(false)
 })
@@ -228,4 +230,28 @@ test('a failed share says why', async ({ page }) => {
   const dialog = await openShare(page)
   await dialog.getByRole('button', { name: 'リンクを作る' }).click()
   await expect(dialog.getByRole('alert')).toHaveText('このパックが見つかりません。ページを再読み込みしてください。')
+
+  // A failed save's text is about keeping what was typed, which is not what happened here; the dialog says its own.
+  await page.unroute('**/api/shares')
+  await page.route('**/api/shares', route => route.request().method() === 'PUT'
+    ? route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: 'workspaceSaveFailed' }) })
+    : route.continue())
+  await dialog.getByRole('button', { name: 'リンクを作る' }).click()
+  await expect(dialog.getByRole('alert')).toHaveText('共有の操作ができませんでした。')
+})
+
+test('every copy of the link is announced, even right after the last one', async ({ page }) => {
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin })
+  await signIn(page)
+  await page.goto('/edit')
+  const dialog = await openShare(page)
+  await dialog.getByRole('button', { name: 'リンクを作る' }).click()
+  const announced = dialog.locator('[aria-live="polite"]')
+  await expect(announced).toHaveText('')
+  await dialog.getByRole('button', { name: 'コピー' }).click()
+  await expect(announced).toContainText('コピーしました')
+  const first = await announced.textContent()
+  await dialog.getByRole('button', { name: 'コピーしました' }).click()
+  await expect.poll(() => announced.textContent()).not.toBe(first)
+  await expect(announced).toContainText('コピーしました')
 })

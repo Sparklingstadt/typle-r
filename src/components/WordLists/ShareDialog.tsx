@@ -21,6 +21,9 @@ export default function ShareDialog({ pack, share, onShare, onStop, onOpenChange
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
+  // Each copy changes what the live region says (a trailing no-break space every other time), so a copy within the 2 s
+  // of the previous one is announced too.
+  const [copies, setCopies] = useState(0)
   const copiedTimer = useRef<number | undefined>(undefined)
   const clearCopied = () => { window.clearTimeout(copiedTimer.current); setCopied(false) }
   useEffect(() => () => window.clearTimeout(copiedTimer.current), [])
@@ -38,6 +41,7 @@ export default function ShareDialog({ pack, share, onShare, onStop, onOpenChange
       await navigator.clipboard.writeText(link)
       window.clearTimeout(copiedTimer.current)
       setCopied(true)
+      setCopies(count => count + 1)
       copiedTimer.current = window.setTimeout(() => setCopied(false), 2000)
     } catch { setError(t('copyFailed')) }
   }
@@ -54,7 +58,7 @@ export default function ShareDialog({ pack, share, onShare, onStop, onOpenChange
             className="h-10 min-w-0 flex-1 rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30" />
           <Button variant="outline" onClick={copy}>{copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}{copied ? t('copied') : t('copy')}</Button>
           {/* The button's own text changes too, but a screen reader only hears it from here. */}
-          <span className="sr-only" aria-live="polite">{copied ? t('copied') : ''}</span>
+          <span className="sr-only" aria-live="polite">{copied ? t('copied') + (copies % 2 ? '' : '\u00a0') : ''}</span>
         </div>
         <p className="text-[13px] text-muted-foreground">{t('updatedAt', { date: new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(share.updatedAt)) })}</p>
         <p className="text-[13px] text-muted-foreground">{t('updateHint')}</p>

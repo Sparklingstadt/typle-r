@@ -363,7 +363,7 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
       <Button variant="outline" disabled={saving} onClick={() => fileInput.current?.click()}><Upload aria-hidden="true" />{t('manager.importFile')}</Button>
     </>} />
     {exportError && <p role="alert" className="mt-3 flex items-center gap-1.5 text-sm text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{exportError}</p>}
-    <OrphanShares orphans={orphans} onStop={stop} className="mt-6" />
+    <OrphanShares orphans={orphans} onStop={stop} focusWhenGone="empty-heading" className="mt-6" />
   </>
 
   return <section aria-labelledby="list-heading" className="space-y-3">
@@ -427,7 +427,7 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
       <Button variant="outline" onClick={() => { setQuery(''); setFilter(NO_FILTER) }}>{isFiltered(filter) ? t('filter.clearAll') : t('manager.clearSearch')}</Button>
     </div>}
     <p className="text-xs text-muted-foreground">{t('manager.csvNote')}</p>
-    <OrphanShares orphans={orphans} onStop={stop} />
+    <OrphanShares orphans={orphans} onStop={stop} focusWhenGone="list-heading" />
 
     {deleting.item && <DeleteConfirmation open={deleting.open} onOpenChange={open => setDeleting(current => ({ ...current, open }))}
       title={t('delete.title', { name: deleting.item.list.name })}
@@ -513,7 +513,7 @@ function EmptyState({ actions }: { actions?: ReactNode }) {
   return <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed bg-card px-6 py-10 text-center sm:py-14">
     <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground"><ListPlus className="size-6" aria-hidden="true" /></span>
     <div className="space-y-1.5">
-      <h2 className="font-bold">{t('empty.packTitle')}</h2>
+      <h2 id="empty-heading" tabIndex={-1} className="font-bold outline-none">{t('empty.packTitle')}</h2>
       <p className="max-w-md text-sm text-balance text-muted-foreground">{t('empty.description')}</p>
     </div>
     <div className="flex flex-wrap justify-center gap-2">
