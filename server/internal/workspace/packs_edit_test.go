@@ -123,25 +123,26 @@ func TestImportPackAddsAtTheEndTidied(t *testing.T) {
 	}
 }
 
-// The case of tests/packFile.test.cjs: a file written before v0.96.3 may repeat a level in a list, or overlap levels of
-// its lists; the import tells them apart as reading saved data does, since the one who imports cannot change the file.
-func TestImportPackTellsLevelsApart(t *testing.T) {
+// The case of tests/packFile.test.cjs: a file written before v0.97.0 may give a list several levels, or overlap levels
+// of its lists; the import repairs them as reading saved data does, since the one who imports cannot change the file.
+func TestImportPackRepairsLevels(t *testing.T) {
 	w := editLibrary()
 	_, err := ImportPack(w, packFile([]PackFileList{
 		{Name: "A", Levels: []string{"基本", " 基本 "}, Words: packWordsOf("a")},
-		{Name: "B", Levels: []string{"基本", "基本（2）"}, Words: packWordsOf("b")},
+		{Name: "B", Levels: []string{"基本", "", "初級"}, Words: packWordsOf("b")},
 		{Name: "C", Words: packWordsOf("c")},
 		{Name: "D", Levels: []string{"C"}, Words: packWordsOf("d")},
-	}, PackFileInfo{Name: "Imported"}), "n", []string{"n1", "n2", "n3", "n4"}, packNow)
+		{Name: "E", Levels: []string{" 基本・初級 "}, Words: packWordsOf("e")},
+	}, PackFileInfo{Name: "Imported"}), "n", []string{"n1", "n2", "n3", "n4", "n5"}, packNow)
 	if err != nil {
 		t.Fatal(err)
 	}
 	valid(t, w)
 	var got [][]string
-	for _, list := range w.Lists[len(w.Lists)-4:] {
+	for _, list := range w.Lists[len(w.Lists)-5:] {
 		got = append(got, list.Levels)
 	}
-	if want := [][]string{{"基本", "基本（2）"}, {"基本", "基本（2）（2）"}, nil, {"C（2）"}}; !reflect.DeepEqual(got, want) {
+	if want := [][]string{{"基本・基本"}, {"基本・初級"}, nil, {"C（2）"}, {"基本・初級（2）"}}; !reflect.DeepEqual(got, want) {
 		t.Fatalf("levels = %q; want %q", got, want)
 	}
 }
@@ -277,7 +278,7 @@ func TestCreatePack(t *testing.T) {
 	w := editLibrary()
 	tags := []string{"t", "T"}
 	pack, err := CreatePack(w, PackInput{Name: text(" New "), Description: text(" "), Category: text(" c "), Tags: &tags,
-		Lists: []PackListInput{packList(" First ", " 基本 ", "", "  ", "初級"), packList("Second")}}, "pn", []string{"n1", "n2"}, packNow)
+		Lists: []PackListInput{packList(" First ", " 基本 ", "", "  "), packList("Second")}}, "pn", []string{"n1", "n2"}, packNow)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -287,7 +288,7 @@ func TestCreatePack(t *testing.T) {
 		t.Fatalf("pack = %+v", *pack)
 	}
 	wantLists := []List{
-		{ID: "n1", Name: "First", Levels: []string{"基本", "初級"}, PackID: "pn", Category: "c", Tags: []string{"t"}, Words: packWordsOf("x"),
+		{ID: "n1", Name: "First", Levels: []string{"基本"}, PackID: "pn", Category: "c", Tags: []string{"t"}, Words: packWordsOf("x"),
 			Records: []Record{}, CreatedAt: "2026-10-26T00:00:00.000Z"},
 		{ID: "n2", Name: "Second", PackID: "pn", Category: "c", Tags: []string{"t"}, Words: packWordsOf("x"), Records: []Record{},
 			CreatedAt: "2026-10-26T00:00:00.000Z"},
@@ -320,7 +321,8 @@ func TestCreatePackErrors(t *testing.T) {
 		{PackInput{Name: text("N"), Lists: []PackListInput{{Words: packWordsOf("x")}}}, "listNameRequired"},
 		{PackInput{Name: text("N"), Lists: []PackListInput{{Name: text("L")}}}, "wordsRequired"},
 		{PackInput{Name: text("N"), Lists: []PackListInput{packList("A"), packList(" a ")}}, "listNameDuplicate"},
-		{PackInput{Name: text("N"), Lists: []PackListInput{packList("A", "基本"), packList("B", "基本", "1")}}, "levelsConflict"},
+		{PackInput{Name: text("N"), Lists: []PackListInput{packList("A", "基本"), packList("B", " 基本 ")}}, "levelsConflict"},
+		{PackInput{Name: text("N"), Lists: []PackListInput{packList("A", "基本", "", "初級")}}, "tooManyLevels"},
 	}
 	for _, c := range cases {
 		w := editLibrary()
@@ -430,13 +432,13 @@ func TestDeletePack(t *testing.T) {
 
 func TestCreateListInAPack(t *testing.T) {
 	w := editLibrary()
-	levels := []string{" 中級 ", "", "1"}
+	levels := []string{" 中級 ", ""}
 	list, err := CreateList(w, ListInput{Name: text(" Go "), PackID: text("p"), Levels: &levels, Words: packWordsOf("x")}, "n", now)
 	if err != nil {
 		t.Fatal(err)
 	}
 	// The name only has to differ within the pack, and the list shows the pack's labels.
-	want := List{ID: "n", Name: "Go", PackID: "p", Levels: []string{"中級", "1"}, Category: "C", Tags: []string{"t"}, Words: packWordsOf("x"),
+	want := List{ID: "n", Name: "Go", PackID: "p", Levels: []string{"中級"}, Category: "C", Tags: []string{"t"}, Words: packWordsOf("x"),
 		Records: []Record{}, CreatedAt: "2026-10-20T00:00:00.000Z"}
 	if !reflect.DeepEqual(*list, want) || list != &w.Lists[3] {
 		t.Fatalf("list = %+v", *list)
@@ -444,7 +446,8 @@ func TestCreateListInAPack(t *testing.T) {
 	valid(t, w)
 	category := "c"
 	tags := []string{}
-	conflict := []string{"基本", "初級"}
+	conflict := []string{" 基本 "}
+	two := []string{"中級", "", "1"}
 	many := []string{"1", "2", "3", "4", "5", "6"}
 	cases := []struct {
 		input ListInput
@@ -457,8 +460,8 @@ func TestCreateListInAPack(t *testing.T) {
 		{ListInput{Name: text("N"), PackID: text("p"), Levels: &conflict, Words: packWordsOf("x")}, "levelsConflict"},
 		{ListInput{Name: text("基本"), PackID: text("q"), Levels: &conflict, Words: packWordsOf("x")}, ""},
 		{ListInput{Name: text("基本"), PackID: text("p"), Words: packWordsOf("x")}, "listNameDuplicate"},
-		{ListInput{Name: text("応用2"), PackID: text("p"), Levels: &many, Words: packWordsOf("x")}, "invalidList"},
-		{ListInput{Name: text("N"), Levels: &many, Words: packWordsOf("x")}, "invalidList"},
+		{ListInput{Name: text("応用2"), PackID: text("p"), Levels: &two, Words: packWordsOf("x")}, "tooManyLevels"},
+		{ListInput{Name: text("N"), Levels: &many, Words: packWordsOf("x")}, "tooManyLevels"},
 	}
 	for _, c := range cases {
 		w := editLibrary()
@@ -472,8 +475,8 @@ func TestCreateListInAPack(t *testing.T) {
 		wantKey(t, err, c.key)
 		unchanged(t, w, editLibrary())
 	}
-	// A list without levels is chosen by its name, which must not be another list's first level.
-	_, err = CreateList(editLibrary(), ListInput{Name: text("基本2"), PackID: text("p"), Levels: &[]string{"応用", "上級"}, Words: packWordsOf("x")}, "n", now)
+	// A list without levels is chosen by its name, which must not be another list's level.
+	_, err = CreateList(editLibrary(), ListInput{Name: text("基本2"), PackID: text("p"), Levels: &[]string{"応用"}, Words: packWordsOf("x")}, "n", now)
 	wantKey(t, err, "levelsConflict")
 	// Without a pack the list starts one of its own, with its levels tidied.
 	w = editLibrary()
