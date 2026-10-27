@@ -106,10 +106,9 @@ test('a save from a screen without packs keeps the saved packs, and lists that d
   assert.equal(store.getItem(GUEST_STORAGE_KEY), before)
 })
 
-test('the guest starts with no packs', () => {
-  const { initialLibrary } = require('../src/plugins/packs/index.ts')
-  assert.deepEqual(initialLibrary, { packs: [], lists: [] })
-  assert.deepEqual([readGuestWorkspace(storage()).packs, readGuestWorkspace(storage()).lists], [[], []])
+test('the guest saves nothing until its first save, and is shown the initial library meanwhile', () => {
+  // The workspace session shows initialLibrary (every official pack, followed) while the revision is 0.
+  assert.deepEqual([readGuestWorkspace(storage()).revision, readGuestWorkspace(storage()).packs, readGuestWorkspace(storage()).lists], [0, [], []])
 })
 
 test('reading guest data removes copies of official packs but keeps the guest\'s own packs', () => {

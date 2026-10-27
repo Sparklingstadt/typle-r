@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { startEmpty } from './follow'
 import { readFileSync } from 'node:fs'
 import { openPacks } from './packRows'
 const key = 'typle-r:guest-workspace:v1'
@@ -19,6 +20,8 @@ async function addDevice(page: import('@playwright/test').Page, name: string) {
 }
 
 test('guest can create, import, export, edit, practice, manage devices and delete without cloud persistence', async ({ page }) => {
+  // Starts from an empty library, so that the list it creates is the only one.
+  await startEmpty(page)
   const requests: string[] = []
   const errors: string[] = []
   page.on('request', request => { if (request.url().includes('/api/workspace')) requests.push(request.method()) })
