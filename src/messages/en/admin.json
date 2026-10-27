@@ -1,0 +1,51 @@
+{
+  "title": "Admin dashboard",
+  "description": "How Typle is being used.",
+  "checking": "Checking sign-in",
+  "loadFailed": "The dashboard could not be loaded.",
+  "retry": "Try again",
+  "refresh": "Refresh",
+  "signOut": "Sign out",
+  "signOutFailed": "Could not sign out. Please try again.",
+  "signedInAs": "Signed in as {login}",
+  "never": "None",
+  "dateTime": "{date} {time}",
+  "updatedAt": "Updated",
+  "signIn": {
+    "title": "Admin sign-in",
+    "description": "Sign in with a GitHub account registered as an administrator.",
+    "button": "Sign in with GitHub"
+  },
+  "stats": {
+    "label": "Overview",
+    "workspaces": "Saved accounts",
+    "activeDay": "Updated in 24 hours",
+    "activeWeek": "Updated in 7 days",
+    "activeMonth": "Updated in 30 days",
+    "sharedPacks": "Shared packs"
+  },
+  "workspaces": {
+    "title": "Recently updated accounts",
+    "owner": "Account",
+    "lists": "Lists",
+    "packs": "Packs",
+    "devices": "Devices",
+    "revision": "Revision",
+    "empty": "No account has saved data yet."
+  },
+  "shares": {
+    "title": "Recently shared packs",
+    "name": "Pack",
+    "owner": "Account",
+    "unnamed": "(no name)",
+    "empty": "No pack is shared."
+  },
+  "admins": {
+    "title": "Administrators",
+    "login": "GitHub login",
+    "githubId": "GitHub ID",
+    "createdAt": "Added",
+    "lastSeenAt": "Last seen",
+    "unbound": "Not signed in yet"
+  }
+}

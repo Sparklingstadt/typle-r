@@ -57,5 +57,7 @@
   "packFileUnreadable": "无法将此文件作为单词包读取。",
   "invalidPackFile": "此文件中有超出可保存上限的项目。",
   "sharedPackNotFound": "此共享已结束。",
-  "packNotFound": "找不到此包。请重新加载页面。"
+  "packNotFound": "找不到此包。请重新加载页面。",
+  "adminRequired": "请以管理员身份登录。",
+  "adminForbidden": "此 GitHub 账号不是管理员。"
 }

@@ -1,0 +1,51 @@
+{
+  "title": "管理者ダッシュボード",
+  "description": "Typle全体の利用状況です。",
+  "checking": "ログイン状態を確認中",
+  "loadFailed": "ダッシュボードを読み込めませんでした。",
+  "retry": "再試行",
+  "refresh": "更新",
+  "signOut": "ログアウト",
+  "signOutFailed": "ログアウトできませんでした。もう一度お試しください。",
+  "signedInAs": "{login} でログイン中",
+  "never": "なし",
+  "dateTime": "{date} {time}",
+  "updatedAt": "更新日時",
+  "signIn": {
+    "title": "管理者ログイン",
+    "description": "管理者として登録されたGitHubアカウントでログインしてください。",
+    "button": "GitHubでログイン"
+  },
+  "stats": {
+    "label": "概要",
+    "workspaces": "保存済みアカウント",
+    "activeDay": "24時間以内に更新",
+    "activeWeek": "7日以内に更新",
+    "activeMonth": "30日以内に更新",
+    "sharedPacks": "共有中のパック"
+  },
+  "workspaces": {
+    "title": "最近更新されたアカウント",
+    "owner": "アカウント",
+    "lists": "リスト",
+    "packs": "パック",
+    "devices": "端末",
+    "revision": "リビジョン",
+    "empty": "保存済みのアカウントはありません。"
+  },
+  "shares": {
+    "title": "最近共有されたパック",
+    "name": "パック名",
+    "owner": "アカウント",
+    "unnamed": "（名前なし）",
+    "empty": "共有中のパックはありません。"
+  },
+  "admins": {
+    "title": "管理者",
+    "login": "GitHubログイン",
+    "githubId": "GitHub ID",
+    "createdAt": "登録日時",
+    "lastSeenAt": "最終アクセス",
+    "unbound": "未ログイン"
+  }
+}

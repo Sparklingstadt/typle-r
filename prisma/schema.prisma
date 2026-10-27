@@ -30,3 +30,14 @@ model SharedPack {
   @@unique([ownerId, packId], map: "typle_shared_packs_owner_pack")
   @@map("typle_shared_packs")
 }
+
+// An account that may sign in to /admin. login is the GitHub login in lower case; githubId is bound at the first
+// sign-in and must match from then on.
+model Admin {
+  login      String    @id @db.Text
+  githubId   BigInt?   @unique @map("github_id")
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  lastSeenAt DateTime? @map("last_seen_at") @db.Timestamptz(6)
+
+  @@map("typle_admins")
+}

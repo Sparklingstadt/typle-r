@@ -57,5 +57,7 @@
   "packFileUnreadable": "This file could not be read as a word pack.",
   "invalidPackFile": "This file has an item that is over the limit for saving.",
   "sharedPackNotFound": "This share has ended.",
-  "packNotFound": "This pack could not be found. Reload the page."
+  "packNotFound": "This pack could not be found. Reload the page.",
+  "adminRequired": "Please sign in as an administrator.",
+  "adminForbidden": "This GitHub account is not an administrator."
 }

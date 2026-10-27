@@ -57,5 +57,7 @@
   "packFileUnreadable": "単語パックのファイルとして読み込めませんでした",
   "invalidPackFile": "このファイルの中に、保存できる上限を超える項目があります",
   "sharedPackNotFound": "この共有は終了しました。",
-  "packNotFound": "このパックが見つかりません。ページを再読み込みしてください。"
+  "packNotFound": "このパックが見つかりません。ページを再読み込みしてください。",
+  "adminRequired": "管理者としてログインしてください。",
+  "adminForbidden": "このGitHubアカウントは管理者ではありません。"
 }

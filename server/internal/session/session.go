@@ -1,6 +1,6 @@
 // Package session signs and checks the cookies and tokens of the Go server: the login session, the short-lived OAuth
-// state that lives between redirecting to GitHub and coming back, and for the iPad app the one-time code its login
-// ends with and the token it then signs in with. Each is base64url(JSON) + "." + base64url(HMAC-SHA256), and the HMAC
+// state that lives between redirecting to GitHub and coming back, for the iPad app the one-time code its login
+// ends with and the token it then signs in with, and the administrator's session of /admin. Each is base64url(JSON) + "." + base64url(HMAC-SHA256), and the HMAC
 // key is derived from AUTH_SECRET, with a different key for each kind, so one kind never opens as another. The end-to-end tests forge a session with the TypeScript twin of Seal (tests/e2e/sessionCookie.ts), so
 // the JSON field order and the key derivation here must not change without changing it too.
 package session
@@ -27,6 +27,9 @@ const (
 	OAuthCookie = "typle-oauth"
 	// AppCodeMaxAge is how long the iPad app has to trade the code of its login for a token.
 	AppCodeMaxAge = 2 * time.Minute
+	// AdminMaxAge is how long an administrator's session of /admin is valid. It is not renewed: the administrator signs
+	// in again with GitHub.
+	AdminMaxAge = 12 * time.Hour
 
 	// A session is sealed again once it is this old, so an active user stays signed in while MaxAge bounds an idle one.
 	renewAfter = 24 * time.Hour
@@ -35,6 +38,7 @@ const (
 	oauthInfo   = "typle oauth v1"
 	appInfo     = "typle app session v1"
 	codeInfo    = "typle app code v1"
+	adminInfo   = "typle admin v1"
 )
 
 // accountSub is the only subject accepted: the numeric GitHub user id, as the Next.js login used to give.
@@ -47,10 +51,19 @@ type Session struct {
 }
 
 // OAuth is the state of one login in progress: the PKCE verifier and where to go afterwards. Challenge is the iPad
-// app's own PKCE challenge when the app started the login, and empty for the web app's.
+// app's own PKCE challenge when the app started the login, and empty for the web app's. Admin is a login to /admin,
+// which ends with an Admin session instead of a Session.
 type OAuth struct {
 	State, Verifier, ReturnTo, Challenge string
+	Admin                                bool
 	Expires                              time.Time
+}
+
+// Admin is the administrator signed in to /admin: their GitHub login, as GitHub spells it, and numeric user id.
+type Admin struct {
+	Login             string
+	GitHubID          int64
+	IssuedAt, Expires time.Time
 }
 
 // AppCode is the end of a login the iPad app started: who signed in, for the app that holds the verifier of Challenge.
@@ -75,6 +88,14 @@ type oauthWire struct {
 	Exp      int64  `json:"exp"`
 	// Left out for the web app's login, whose cookie thus stays as it was.
 	Challenge string `json:"challenge,omitempty"`
+	Admin     bool   `json:"admin,omitempty"`
+}
+
+type adminWire struct {
+	Login    string `json:"login"`
+	GitHubID int64  `json:"githubId"`
+	Iat      int64  `json:"iat"`
+	Exp      int64  `json:"exp"`
 }
 
 type codeWire struct {
@@ -89,7 +110,7 @@ type codeWire struct {
 // cookie, and its Seal and SealOAuth panic, because HMAC with an empty key is a signature anyone can make, and using
 // Keys that NewKeys never returned is a programming error that must not pass quietly.
 type Keys struct {
-	session, oauth, app, code []byte
+	session, oauth, app, code, admin []byte
 }
 
 // NewKeys derives the keys from AUTH_SECRET. An empty secret would make every cookie forgeable, so it is refused.
@@ -113,7 +134,11 @@ func NewKeys(secret string) (Keys, error) {
 	if err != nil {
 		return Keys{}, err
 	}
-	return Keys{session: sessionKey, oauth: oauthKey, app: appKey, code: codeKey}, nil
+	adminKey, err := hkdf.Key(sha256.New, []byte(secret), nil, adminInfo, sha256.Size)
+	if err != nil {
+		return Keys{}, err
+	}
+	return Keys{session: sessionKey, oauth: oauthKey, app: appKey, code: codeKey, admin: adminKey}, nil
 }
 
 // New starts a session at now.
@@ -167,7 +192,7 @@ func openSession(key []byte, value string, now time.Time) (Session, bool) {
 
 // SealOAuth signs o with the OAuth key. It panics on the zero Keys.
 func (k Keys) SealOAuth(o OAuth) string {
-	return seal(k.oauth, oauthWire{o.State, o.Verifier, o.ReturnTo, o.Expires.Unix(), o.Challenge})
+	return seal(k.oauth, oauthWire{o.State, o.Verifier, o.ReturnTo, o.Expires.Unix(), o.Challenge, o.Admin})
 }
 
 // OpenOAuth returns the login state in value if it is ours and unexpired.
@@ -176,7 +201,36 @@ func (k Keys) OpenOAuth(value string, now time.Time) (OAuth, bool) {
 	if !open(k.oauth, value, &w) || !now.Before(time.Unix(w.Exp, 0)) {
 		return OAuth{}, false
 	}
-	return OAuth{w.State, w.Verifier, w.ReturnTo, w.Challenge, time.Unix(w.Exp, 0)}, true
+	return OAuth{w.State, w.Verifier, w.ReturnTo, w.Challenge, w.Admin, time.Unix(w.Exp, 0)}, true
+}
+
+// NewAdmin starts an administrator's session at now.
+func NewAdmin(login string, githubID int64, now time.Time) Admin {
+	now = now.Truncate(time.Second)
+	return Admin{Login: login, GitHubID: githubID, IssuedAt: now, Expires: now.Add(AdminMaxAge)}
+}
+
+// AdminCookieName is the administrator's cookie, __Host- over HTTPS as CookieName.
+func AdminCookieName(secure bool) string {
+	if secure {
+		return "__Host-typle-admin"
+	}
+	return "typle-admin"
+}
+
+// SealAdmin signs a with the admin key. It panics on the zero Keys.
+func (k Keys) SealAdmin(a Admin) string {
+	return seal(k.admin, adminWire{a.Login, a.GitHubID, a.IssuedAt.Unix(), a.Expires.Unix()})
+}
+
+// OpenAdmin returns the administrator's session in value if it is ours, unexpired and names a GitHub account. Whether
+// that account is still an administrator is for the caller to check.
+func (k Keys) OpenAdmin(value string, now time.Time) (Admin, bool) {
+	var w adminWire
+	if !open(k.admin, value, &w) || !now.Before(time.Unix(w.Exp, 0)) || w.Login == "" || w.GitHubID <= 0 {
+		return Admin{}, false
+	}
+	return Admin{w.Login, w.GitHubID, time.Unix(w.Iat, 0), time.Unix(w.Exp, 0)}, true
 }
 
 // SealCode signs c with the code key. It panics on the zero Keys.

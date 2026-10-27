@@ -23,6 +23,8 @@ type Store interface {
 	DeleteShare(ctx context.Context, owner, packID string) error
 	ListShares(ctx context.Context, owner string) ([]store.Share, error)
 	SharedPack(ctx context.Context, id string) (json.RawMessage, error)
+	Admin(ctx context.Context, login string, githubID int64) (bool, error)
+	Overview(ctx context.Context) (*store.AdminOverview, error)
 }
 
 // OAuthClient is the GitHub OAuth App the login goes through (auth.OAuth).
@@ -73,6 +75,8 @@ func New(c Config) http.Handler {
 	mux.HandleFunc("/api/auth/token", s.token)
 	mux.HandleFunc("/api/auth/signout", s.signout)
 	mux.HandleFunc("/api/auth/local", s.localLogin)
+	mux.HandleFunc("/api/auth/admin/signout", s.adminSignout)
+	mux.HandleFunc("/api/admin/dashboard", s.adminDashboard)
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { refuse(w, http.StatusNotFound, "notFound") })
 	return withSecurityHeaders(mux)
 }

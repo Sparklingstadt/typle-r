@@ -139,14 +139,20 @@ func random() (string, error) {
 // signin sends the browser to GitHub with a state and a PKCE challenge, and keeps the state, the verifier and where to
 // return to in the signed OAuth cookie. With client=ipad, client=macos, client=android or client=windows and the app's
 // own S256 code_challenge, the login is that app's: it ends at appReturn with a code that only the holder of the
-// challenge's verifier can trade for a token.
+// challenge's verifier can trade for a token. With admin=1 the login is to the administrator's dashboard, and always
+// returns to it.
 func (s *server) signin(w http.ResponseWriter, r *http.Request) {
 	if !methods(w, r, http.MethodGet) || !s.loginReady(w, r) {
 		return
 	}
 	query := r.URL.Query()
+	admin := query.Get("admin") == "1"
+	returnTo := safeReturnTo(query.Get("returnTo"))
+	if admin {
+		returnTo = adminPage
+	}
 	var appChallenge string
-	if appClients[query.Get("client")] {
+	if !admin && appClients[query.Get("client")] {
 		if appChallenge = query.Get("code_challenge"); !pkceChallenge.MatchString(appChallenge) {
 			toApp(w, "error", "loginFailed")
 			return
@@ -163,7 +169,7 @@ func (s *server) signin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	value := s.config.Keys.SealOAuth(session.OAuth{
-		State: state, Verifier: verifier, ReturnTo: safeReturnTo(query.Get("returnTo")), Challenge: appChallenge,
+		State: state, Verifier: verifier, ReturnTo: returnTo, Challenge: appChallenge, Admin: admin,
 		Expires: s.now().Add(session.OAuthMaxAge),
 	})
 	http.SetCookie(w, s.oauthCookie(value, int(session.OAuthMaxAge.Seconds())))
@@ -173,7 +179,9 @@ func (s *server) signin(w http.ResponseWriter, r *http.Request) {
 // callback is where GitHub sends the browser back to. Whatever happens, the OAuth cookie is spent and the browser goes
 // back to the page it left, signed in only if everything checked out. Errors are not shown: the screen has no page for
 // a failed login, and what GitHub says is not for the reader. A login an app (iPad, Mac, Android or Windows) started
-// goes back to the app instead, with a code for it to trade for a token, or loginFailed; no cookie is set.
+// goes back to the app instead, with a code for it to trade for a token, or loginFailed; no cookie is set. A login to
+// the administrator's dashboard sets the administrator's cookie instead of the session cookie, and only for
+// adminLogin: any other account goes back to the dashboard with adminRefused, signed in to nothing.
 func (s *server) callback(w http.ResponseWriter, r *http.Request) {
 	if !methods(w, r, http.MethodGet) || !s.loginReady(w, r) {
 		return
@@ -212,6 +220,15 @@ func (s *server) callback(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		s.report(r, err, "auth.callback")
 		fail()
+		return
+	}
+	if pending.Admin {
+		if !isAdminLogin(user.Login) {
+			goTo(w, adminRefused)
+			return
+		}
+		s.issueAdmin(w, user.Login, user.ID)
+		goTo(w, adminPage)
 		return
 	}
 	name := strings.TrimSpace(user.DisplayName())

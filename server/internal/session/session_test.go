@@ -288,3 +288,50 @@ func TestOAuthChallenge(t *testing.T) {
 		t.Fatalf("OpenOAuth = %+v, %v; want %+v", got, ok, app)
 	}
 }
+
+// The administrator's cookie opens only as itself, and no other kind opens as it.
+func TestAdminKeysAreSeparate(t *testing.T) {
+	keys := testKeys(t)
+	now := time.Unix(1700000000, 0)
+	a := NewAdmin("sparklingstadt", 42, now)
+	s := New("github:42", "Ada", "", now)
+	admin := keys.SealAdmin(a)
+	others := []string{keys.Seal(s), keys.SealApp(s),
+		keys.SealOAuth(OAuth{State: "s", Verifier: "v", ReturnTo: "/admin", Admin: true, Expires: now.Add(OAuthMaxAge)}),
+		keys.SealCode(AppCode{Sub: "github:42", Challenge: "c", Expires: now.Add(AppCodeMaxAge)})}
+
+	if got, ok := keys.OpenAdmin(admin, now); !ok || got != a {
+		t.Fatalf("OpenAdmin = %+v, %v; want %+v", got, ok, a)
+	}
+	for _, value := range others {
+		if _, ok := keys.OpenAdmin(value, now); ok {
+			t.Errorf("OpenAdmin opened %q", value)
+		}
+	}
+	if _, ok := keys.Open(admin, now); ok {
+		t.Error("Open opened the admin cookie")
+	}
+	if _, ok := keys.OpenApp(admin, now); ok {
+		t.Error("OpenApp opened the admin cookie")
+	}
+	if _, ok := keys.OpenAdmin(admin, a.Expires); ok {
+		t.Error("an expired admin cookie was accepted")
+	}
+	if _, ok := keys.OpenAdmin(keys.SealAdmin(NewAdmin("sparklingstadt", 0, now)), now); ok {
+		t.Error("an admin cookie without a GitHub id was accepted")
+	}
+	var zero Keys
+	if _, ok := zero.OpenAdmin(admin, now); ok {
+		t.Error("zero Keys opened the admin cookie")
+	}
+}
+
+// A login to /admin keeps its flag through the OAuth cookie.
+func TestOAuthAdmin(t *testing.T) {
+	keys := testKeys(t)
+	now := time.Unix(1700000000, 0)
+	o := OAuth{State: "s", Verifier: "v", ReturnTo: "/admin", Admin: true, Expires: now.Add(OAuthMaxAge)}
+	if got, ok := keys.OpenOAuth(keys.SealOAuth(o), now); !ok || got != o {
+		t.Fatalf("OpenOAuth = %+v, %v; want %+v", got, ok, o)
+	}
+}

@@ -1,0 +1,51 @@
+{
+  "title": "Tableau de bord d’administration",
+  "description": "L’utilisation de Typle dans son ensemble.",
+  "checking": "Vérification de la connexion",
+  "loadFailed": "Impossible de charger le tableau de bord.",
+  "retry": "Réessayer",
+  "refresh": "Actualiser",
+  "signOut": "Se déconnecter",
+  "signOutFailed": "Impossible de se déconnecter. Veuillez réessayer.",
+  "signedInAs": "Connecté en tant que {login}",
+  "never": "Aucune",
+  "dateTime": "{date} {time}",
+  "updatedAt": "Mis à jour",
+  "signIn": {
+    "title": "Connexion administrateur",
+    "description": "Connectez-vous avec un compte GitHub enregistré comme administrateur.",
+    "button": "Se connecter avec GitHub"
+  },
+  "stats": {
+    "label": "Aperçu",
+    "workspaces": "Comptes enregistrés",
+    "activeDay": "Mis à jour en 24 heures",
+    "activeWeek": "Mis à jour en 7 jours",
+    "activeMonth": "Mis à jour en 30 jours",
+    "sharedPacks": "Packs partagés"
+  },
+  "workspaces": {
+    "title": "Comptes récemment mis à jour",
+    "owner": "Compte",
+    "lists": "Listes",
+    "packs": "Packs",
+    "devices": "Appareils",
+    "revision": "Révision",
+    "empty": "Aucun compte n’a encore enregistré de données."
+  },
+  "shares": {
+    "title": "Packs récemment partagés",
+    "name": "Pack",
+    "owner": "Compte",
+    "unnamed": "(sans nom)",
+    "empty": "Aucun pack n’est partagé."
+  },
+  "admins": {
+    "title": "Administrateurs",
+    "login": "Identifiant GitHub",
+    "githubId": "ID GitHub",
+    "createdAt": "Ajouté",
+    "lastSeenAt": "Dernier accès",
+    "unbound": "Pas encore connecté"
+  }
+}
