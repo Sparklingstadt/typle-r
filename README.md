@@ -21,6 +21,16 @@
 - Go のバックエンド（`server/internal/*`）：typle-kotlin-backend の対応するコードを同じように直し、`TYPLE_BACKEND=kotlin npm run test:e2e` で確かめます。
 - ログイン（`client=ipad|macos|android|windows`）とトークンの形：各アプリが使うので、互換を保ちます。
 
+## v0.99.5 — マイグレーション11本を1本にまとめました
+
+`prisma/migrations` に残っていた11本（`0001_workspaces`〜`0008_drop_shared_lists_and_api_tokens`、`0024_packs`〜`0026_interests`）を、今の DB の形を作る `0027_schema` の1本にまとめました。アプリの動きと保存データは変わりません。
+
+- 各手順は、無いものだけを作ります（`CREATE TABLE IF NOT EXISTS`、`ADD COLUMN IF NOT EXISTS` など）。本番の DB（11本すべて適用済み）では 0027 は記録されるだけで、テーブルもデータも変わりません。新しい DB には、旧11本を順に適用したときと同じテーブル・列・制約・列の並びができます。
+- 作ってから消していたもの（プロファイルの `profiles` 列、共有リンクの `typle_shared_lists`、API トークンの `typle_api_tokens`）は作りません。古い DB に残っていれば消します。ただし、プロファイルを統合する前の DB（`profiles` にデータがある）では、データが消えないよう止めます。その DB は v0.99.4 までで一度マイグレーションしてください。
+- `npm run db:baseline`（v0.2.x/v0.3.x の DB 用）は、0027 を実行してから適用済みとして登録するようにしました。
+- `prisma migrate deploy` は、適用済みで手元に無いマイグレーションを気にせず、まだ適用していない 0027 だけを適用します（v0.87.1・v0.99.4 と同じです）。本番の `_prisma_migrations` には旧マイグレーションの記録が残ります。
+- 一時的な PostgreSQL で確かめたこと：新しい DB で旧11本と `pg_dump` のスキーマが一致すること、旧11本を適用してデータを入れた DB で 0027 がスキーマもデータも変えないこと、v0.3.x の DB が `db:baseline` で同じスキーマになること、プロファイル未統合の DB で止まりデータが残ること。
+
 ## v0.99.4 — DB の旧シードを削除しました
 
 保存済みのアカウントに初期リストを追加していた DB のシードを削除しました。v0.98.0 から新しいアカウントは空のライブラリで始まり、公式パックはカタログからフォローするため、使われていませんでした。アプリの動きと保存データは変わりません。
@@ -622,7 +632,7 @@ Tailwind 4の対象ブラウザーはSafari 16.4以上、Chrome 111以上、Fire
 
 Prisma 7.10のClientとMigrateで保存処理を管理します（v0.55.0 から保存処理は Go が行い、Prisma はマイグレーションと seed だけに使います）。既存の `typle_workspaces` を `Workspace` モデルに対応付け、JSONB・所有者ID・revision・DB制約を維持しています。Clientはプロセス内で再利用し、revisionの条件付き更新で同時書き込みの衝突を検出します。
 
-既存のv0.2.x/v0.3.x DBは、初回のみ `npm run db:baseline` を実行してください。スキーマ一致を確認した上で履歴を登録します。新規DBと以後の更新は `npm run db:migrate` を使用します。`migrate reset` や `db push` は通常運用では使用しません。
+既存のv0.2.x/v0.3.x DBは、初回のみ `npm run db:baseline` を実行してください。スキーマ一致を確認した上で履歴を登録します（v0.99.5 から、足りない列とテーブルを `0027_schema` で足してから、0027 を適用済みとして登録します）。新規DBと以後の更新は `npm run db:migrate` を使用します。`migrate reset` や `db push` は通常運用では使用しません。
 
 `npm ci` とビルド時にPrisma Clientを生成します。スキーマ変更後は `npm run db:generate` でも生成できます。マイグレーションSQLは `prisma/migrations` にあります。PostgreSQLのCHECK制約はSQL側で管理します。
 
