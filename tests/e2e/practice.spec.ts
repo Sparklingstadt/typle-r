@@ -1,5 +1,4 @@
 import { test, expect, type Page } from '@playwright/test'
-import { startEmpty } from './follow'
 import { openPacks } from './packRows'
 const key = 'typle-r:guest-workspace:v1'
 async function importWords(page: import('@playwright/test').Page, files: Parameters<import('@playwright/test').Locator['setInputFiles']>[0]) {
@@ -31,8 +30,6 @@ function failNextSave(page: Page) {
 }
 
 test('create, reorder, edit, play, reload and delete records', async ({ page }) => {
-  // Starts from an empty library, so that the list it creates is the only one.
-  await startEmpty(page)
   const errors: string[] = []
   page.on('pageerror', error => errors.push(error.message))
   await page.goto('/create')

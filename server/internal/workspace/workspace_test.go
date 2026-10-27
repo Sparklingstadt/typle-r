@@ -2,7 +2,6 @@ package workspace
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"os"
 	"path/filepath"
@@ -57,60 +56,19 @@ func TestDecodeEmptyRow(t *testing.T) {
 	}
 }
 
-// Since v0.100.0 a workspace starts with every official pack, followed, as initialLibrary in
-// src/plugins/packs/index.ts: tests/fixtures/initial-library.json holds it without the words, for both to check.
+// Since v0.98.0 a workspace starts empty: official packs are followed from the catalog (see OfficialPacks).
 func TestInitial(t *testing.T) {
 	w, err := Initial()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if w.Devices == nil || len(w.Devices) != 0 {
-		t.Fatalf("devices = %+v", w.Devices)
+	if w.Packs == nil || w.Lists == nil || w.Devices == nil || len(w.Packs)+len(w.Lists)+len(w.Devices) != 0 {
+		t.Fatalf("initial = %+v", w)
 	}
 	lists, packs := encodeBoth(t, w)
-	data, err := os.ReadFile(filepath.Join("..", "..", "..", "tests", "fixtures", "initial-library.json"))
-	if err != nil {
-		t.Fatal(err)
+	if string(lists) != "[]" || string(packs) != "[]" {
+		t.Fatalf("lists = %s, packs = %s", lists, packs)
 	}
-	var fixture struct{ Packs, Lists json.RawMessage }
-	if err := json.Unmarshal(data, &fixture); err != nil {
-		t.Fatal(err)
-	}
-	var withoutWords []map[string]any
-	if err := json.Unmarshal(lists, &withoutWords); err != nil {
-		t.Fatal(err)
-	}
-	for _, list := range withoutWords {
-		delete(list, "words")
-	}
-	trimmed, _ := json.Marshal(withoutWords)
-	sameJSON(t, "packs", packs, fixture.Packs)
-	sameJSON(t, "lists", trimmed, fixture.Lists)
-	// The words are the official lists'.
-	official, err := OfficialPacks()
-	if err != nil {
-		t.Fatal(err)
-	}
-	n := 0
-	for _, entry := range official {
-		for _, list := range entry.Lists {
-			if !slices.Equal(w.Lists[n].Words, list.Words) {
-				t.Fatalf("words of %s differ from %s", w.Lists[n].ID, list.ID)
-			}
-			n++
-		}
-	}
-	if err := CheckPacks(w.Packs, stored(t, lists)); err != nil {
-		t.Fatal(err)
-	}
-	// Reading it follows the catalog and changes nothing.
-	again, err := Decode(lists, []byte("[]"), packs)
-	if err != nil {
-		t.Fatal(err)
-	}
-	againLists, againPacks := encodeBoth(t, again)
-	sameJSON(t, "lists again", againLists, lists)
-	sameJSON(t, "packs again", againPacks, packs)
 }
 
 // The category and tags are optional. Lists saved before packs existed give theirs to their packs, which are written

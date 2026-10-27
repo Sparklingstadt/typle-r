@@ -1,6 +1,6 @@
 {
   "title": "Centres d’intérêt",
-  "description": "Les packs officiels qui correspondent à vos centres d’intérêt apparaissent en premier dans la liste des packs officiels.",
+  "description": "Suivez les packs officiels qui correspondent à vos centres d’intérêt. La liste des packs officiels les affiche aussi en premier.",
   "parents": {
     "language": "Langues",
     "programming": "Programmation"
@@ -28,5 +28,19 @@
       "vim": "Vim",
       "test": "Tests"
     }
+  },
+  "packs": {
+    "title": "Packs officiels pour vos centres d’intérêt",
+    "description": "« Ajouter » suit les packs activés. Désactiver un pack suivi arrête de le suivre.",
+    "pick": "Choisissez des centres d’intérêt pour voir ici les packs officiels qui y correspondent.",
+    "none": "Aucun pack officiel ne correspond aux centres d’intérêt choisis.",
+    "lists": "Listes de mots",
+    "separator": ", ",
+    "switch": "Suivre {name}",
+    "add": "Ajouter",
+    "adding": "Ajout…",
+    "done": "{followed, plural, =0 {} one {# pack suivi. } other {# packs suivis. }}{unfollowed, plural, =0 {} one {# pack n’est plus suivi.} other {# packs ne sont plus suivis.}}",
+    "confirmTitle": "Cela inclut l’arrêt du suivi",
+    "confirmDescription": "Vous ne suivrez plus {names}. Leur historique d’entraînement sera aussi supprimé."
   }
 }

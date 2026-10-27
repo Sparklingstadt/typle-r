@@ -1,6 +1,6 @@
 {
   "title": "Interests",
-  "description": "Official packs that match your interests are shown first in the list of official packs.",
+  "description": "Follow the official packs that fit your interests. The official pack list also shows them first.",
   "parents": {
     "language": "Languages",
     "programming": "Programming"
@@ -28,5 +28,19 @@
       "vim": "Vim",
       "test": "Testing"
     }
+  },
+  "packs": {
+    "title": "Official packs for your interests",
+    "description": "“Add” follows the packs you switch on. Switching off a followed pack unfollows it.",
+    "pick": "Choose interests to see the official packs that fit them here.",
+    "none": "No official packs fit the interests you chose.",
+    "lists": "Word lists",
+    "separator": ", ",
+    "switch": "Follow {name}",
+    "add": "Add",
+    "adding": "Adding…",
+    "done": "{followed, plural, =0 {} one {Followed # pack. } other {Followed # packs. }}{unfollowed, plural, =0 {} one {Unfollowed # pack.} other {Unfollowed # packs.}}",
+    "confirmTitle": "This includes unfollowing",
+    "confirmDescription": "{names} will be unfollowed. Their practice history will be deleted too."
   }
 }

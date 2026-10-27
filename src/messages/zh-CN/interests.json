@@ -1,6 +1,6 @@
 {
   "title": "兴趣",
-  "description": "与所选兴趣相符的官方词包，会在官方词包列表中优先显示。",
+  "description": "可以关注符合兴趣的官方包。官方包列表中也会优先显示它们。",
   "parents": {
     "language": "语言",
     "programming": "编程"
@@ -28,5 +28,19 @@
       "vim": "Vim",
       "test": "测试"
     }
+  },
+  "packs": {
+    "title": "符合兴趣的官方包",
+    "description": "点击“添加”会关注已打开开关的包。关闭已关注包的开关，会取消关注。",
+    "pick": "选择兴趣后，符合的官方包会显示在这里。",
+    "none": "没有符合所选兴趣的官方包。",
+    "lists": "包含的单词列表",
+    "separator": "、",
+    "switch": "关注 {name}",
+    "add": "添加",
+    "adding": "添加中…",
+    "done": "{followed, plural, =0 {} other {已关注 # 个包。}}{unfollowed, plural, =0 {} other {已取消关注 # 个包。}}",
+    "confirmTitle": "包含取消关注",
+    "confirmDescription": "将取消关注{names}。这些包的练习记录也会删除。"
   }
 }

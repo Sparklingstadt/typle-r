@@ -1,24 +1,7 @@
 import { test, expect } from '@playwright/test'
-import { startEmpty } from './follow'
 
-// Since v0.100.0 a guest starts following every official pack; one that unfollowed them all follows them again from
-// the catalog.
-test('a guest with nothing saved starts following every official pack, and can practise one at once', async ({ page }) => {
-  await page.goto('/edit')
-  const row = page.locator('li[data-pack-id]', { has: page.getByRole('button', { name: 'Go構文', exact: true }) })
-  await expect(row.getByText('公式', { exact: true })).toBeVisible()
-  await page.goto('/packs/catalog')
-  const entries = page.locator('li[data-catalog-id]')
-  expect(await entries.count()).toBe(30)
-  for (const entry of await entries.all()) await expect(entry.getByRole('button', { name: 'フォロー中' })).toBeDisabled()
-  await page.goto('/play')
-  await page.getByRole('button', { name: /^単語リストを切り替える/ }).click()
-  await page.getByRole('dialog', { name: '単語リストを選ぶ' }).getByRole('button', { name: /^Go構文 を選択/ }).click()
-  await expect(page.getByRole('textbox', { name: '表示された文字を入力', exact: true })).toBeVisible()
-})
-
+// A guest starts with no packs: the official ones are followed from the catalog.
 test('a guest follows an official pack from the catalog, practises it and unfollows it', async ({ page }) => {
-  await startEmpty(page)
   await page.goto('/edit')
   await expect(page.getByText('まだパックがありません。公式パックをフォローするか、新しいパックを作りましょう')).toBeVisible()
   await page.getByRole('link', { name: '公式パックをフォローする' }).click()
@@ -62,7 +45,6 @@ test('a guest follows an official pack from the catalog, practises it and unfoll
 })
 
 test('the practice screen points to the catalog when there are no packs', async ({ page }) => {
-  await startEmpty(page)
   await page.goto('/play')
   await expect(page.getByText('まだパックがありません。公式パックをフォローするか、新しいパックを作りましょう')).toBeVisible()
   await page.getByRole('link', { name: '公式パックをフォローする' }).click()
@@ -70,7 +52,6 @@ test('the practice screen points to the catalog when there are no packs', async 
 })
 
 test('a followed pack opened on its edit page has no form, only duplicate and unfollow', async ({ page }) => {
-  await startEmpty(page)
   await page.goto('/packs/catalog')
   await page.getByRole('button', { name: 'Go構文 をフォローする', exact: true }).click()
   await expect(page).toHaveURL(/\/edit\?pack=/)
@@ -92,7 +73,6 @@ test('a followed pack opened on its edit page has no form, only duplicate and un
 })
 
 test('a followed list opened by URL shows the notice, and /create does not offer the followed pack', async ({ page }) => {
-  await startEmpty(page)
   await page.goto('/packs/catalog')
   await page.getByRole('button', { name: 'Go構文 をフォローする', exact: true }).click()
   await expect(page).toHaveURL(/\/edit\?pack=/)
