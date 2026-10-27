@@ -236,31 +236,34 @@ func TestFFPFExchangeSuccess(t *testing.T) {
 // Accepted variations of a valid ID token.
 func TestFFPFExchangeAccepts(t *testing.T) {
 	for name, tc := range map[string]struct {
-		change func(c map[string]any)
+		change func(c map[string]any, now time.Time)
 		want   FFPFUser
 	}{
 		"exp 59 seconds ago": {
-			change: func(c map[string]any) { c["exp"] = time.Now().Add(-59 * time.Second).Unix() },
+			change: func(c map[string]any, now time.Time) { c["exp"] = now.Add(-59 * time.Second).Unix() },
 			want:   FFPFUser{Sub: "cabc", Email: "a@example.com", Name: "ふわ"},
 		},
 		"aud as an array": {
-			change: func(c map[string]any) { c["aud"] = []string{"other", testClientID} },
+			change: func(c map[string]any, _ time.Time) { c["aud"] = []string{"other", testClientID} },
 			want:   FFPFUser{Sub: "cabc", Email: "a@example.com", Name: "ふわ"},
 		},
 		"no name": {
-			change: func(c map[string]any) { delete(c, "name") },
+			change: func(c map[string]any, _ time.Time) { delete(c, "name") },
 			want:   FFPFUser{Sub: "cabc", Email: "a@example.com", Name: "a"},
 		},
 		"blank name": {
-			change: func(c map[string]any) { c["name"] = "  " },
+			change: func(c map[string]any, _ time.Time) { c["name"] = "  " },
 			want:   FFPFUser{Sub: "cabc", Email: "a@example.com", Name: "a"},
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			p := newFakePortal(t)
 			key := newTestKey(t)
+			// The clock is pinned so that "59 seconds ago" is 59 seconds ago however slowly the test runs.
+			now := time.Now()
+			p.ffpf.now = func() time.Time { return now }
 			claims := p.claims()
-			tc.change(claims)
+			tc.change(claims, now)
 			p.set(func(p *fakePortal) {
 				p.jwks = []map[string]any{jwk(key, "k1")}
 				p.idToken = signIDToken(t, key, "k1", claims)
