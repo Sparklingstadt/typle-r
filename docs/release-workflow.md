@@ -66,7 +66,7 @@ CI用Vercelトークンは90日期限で作成しています。期限前にSecr
    前のデプロイにもあるパスは同じ応答になるため、そのままでは確認が新しいデプロイを見ません。デプロイ前に本番の `/home` が示すデプロイ（`data-dpl-id`）を記録し、
    それと違うデプロイを返すまで5秒ごとに最大5分待ちます。変わらなければ失敗します。
    その後、本番ホームの成功応答、Goの関数が返す`/api/health`の200（本番DBへの接続を含む）、匿名APIアクセスの401を確認します。
-   ログインの関数も確認します。`/api/auth/session`が200で本文がちょうど`{"user":null}`であること、
+   ログインの関数も確認します。`/api/auth/session`が200で、本文の`user`が`null`、`providers`が`"github"`を含む配列であること（FFPF IDを設定している場合は`"ffpf"`も入りますが、確認はしません）、
    `/api/auth/signin`がリダイレクトを辿らずに302を返し、`Location`が`https://github.com/login/oauth/authorize?`で始まり
    本番の`redirect_uri`（`https://typle-r-six.vercel.app/api/auth/callback/github`）を含むことです。
    これにより、本番の関数で`AUTH_SECRET`・`AUTH_URL`・`AUTH_GITHUB_ID`・`AUTH_GITHUB_SECRET`が揃って設定されていることまで確かめます。

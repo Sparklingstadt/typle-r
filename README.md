@@ -28,6 +28,7 @@
 - `/admin` は FFPF ID でだけログインできます（手順は「管理者ダッシュボード（/admin）」）。
 - 設定が3つ揃っていなければ、FFPF ID のログインは出ません（GitHub のログインは今までどおりです）。
 - 文言：メニューのボタンの名前（`aria-label`）が、見えている文字（「Se connecter」「Войти」）を含むようにしました（WCAG 2.5.3）。
+- 別リポジトリ：typle-kotlin-backend には `providers`（`/api/auth/session`）、`/api/auth/callback/ffpf`、`ffpf:` で始まる sub、管理者の v2（FFPF ID のメールアドレス）がまだありません。`TYPLE_BACKEND=kotlin` では FFPF ID のログインと `/admin` は使えません。
 
 ## v0.104.0 — 公式パックの一覧で、フォローしてもページを移動しないようにしました
 
