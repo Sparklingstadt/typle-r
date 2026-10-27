@@ -1,6 +1,7 @@
 package session
 
 import (
+	"crypto/hkdf"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
@@ -349,7 +350,8 @@ func TestOpenAdminRefusesOtherAccounts(t *testing.T) {
 	}
 }
 
-// githubAdminVector was sealed by the code from before FFPF ID (key info "typle admin v1") with testSecret, for
+// githubAdminVector was sealed by the code from before FFPF ID (main at 04f34c5, key info "typle admin v1", with a
+// temporary generator test since removed) with testSecret, for
 // NewAdmin("sparklingstadt", 42, time.Unix(1700000000, 0)). /admin is now reached only through FFPF ID, so an
 // administrator's cookie of a GitHub sign-in must not open, even before it expires.
 const githubAdminVector = "eyJsb2dpbiI6InNwYXJrbGluZ3N0YWR0IiwiZ2l0aHViSWQiOjQyLCJpYXQiOjE3MDAwMDAwMDAsImV4cCI6MTcwMDA0MzIwMH0.f0QswMlBjBK-DevHqVkrPppWjfbqi7G8AYa3_3I6cXQ"
@@ -365,6 +367,16 @@ func TestOpenAdminRefusesGitHubAdminCookie(t *testing.T) {
 	if _, ok := keys.OpenAdmin(old, now); ok {
 		t.Fatal("an administrator's cookie in the GitHub format opened")
 	}
+	// The vector above is refused on its shape alone, so this is what holds the key to v2: a cookie of the new shape,
+	// sealed with the v1 key, must not open.
+	v1Key, err := hkdf.Key(sha256.New, []byte(testSecret), nil, "typle admin v1", sha256.Size)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a := NewAdmin("admin@example.com", "cabc123", now)
+	if _, ok := keys.OpenAdmin(seal(v1Key, adminWire{a.Email, a.Sub, a.IssuedAt.Unix(), a.Expires.Unix()}), now); ok {
+		t.Fatal("an administrator's cookie sealed with the v1 key opened")
+	}
 }
 
 // A login to /admin keeps its flag through the OAuth cookie.
@@ -378,7 +390,8 @@ func TestOAuthAdmin(t *testing.T) {
 }
 
 // githubOAuthVector, githubOAuthChallengeVector, githubAdminOAuthVector and githubAdminOAuthChallengeVector were sealed
-// by the code from before FFPF ID, with testSecret and an expiry of 1700000600. A login through GitHub must keep
+// by the code from before FFPF ID (main at 04f34c5, with a temporary generator test since removed), with testSecret
+// and an expiry of 1700000600. A login through GitHub must keep
 // producing exactly these bytes: Provider and Nonce are left out of the JSON when empty, so an OAuth cookie in flight
 // during a deploy still opens and one sealed now does not differ.
 const (
