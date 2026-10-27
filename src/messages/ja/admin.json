@@ -24,15 +24,6 @@
     "activeMonth": "30日以内に更新",
     "sharedPacks": "共有中のパック"
   },
-  "workspaces": {
-    "title": "最近更新されたアカウント",
-    "owner": "アカウント",
-    "lists": "リスト",
-    "packs": "パック",
-    "devices": "端末",
-    "revision": "リビジョン",
-    "empty": "保存済みのアカウントはありません。"
-  },
   "shares": {
     "title": "最近共有されたパック",
     "name": "パック名",
@@ -47,5 +38,24 @@
     "createdAt": "登録日時",
     "lastSeenAt": "最終アクセス",
     "unbound": "未ログイン"
+  },
+  "users": {
+    "title": "ユーザー一覧",
+    "description": "データを保存したアカウントを、更新が新しい順に表示します。ゲストのデータはブラウザーにあるため含みません。",
+    "loading": "読み込み中",
+    "retry": "再試行",
+    "empty": "保存済みのアカウントはありません。",
+    "account": "アカウント",
+    "lists": "リスト",
+    "packs": "パック",
+    "devices": "端末",
+    "shares": "共有",
+    "revision": "リビジョン",
+    "updatedAt": "更新日時",
+    "pagination": "ユーザー一覧のページ",
+    "range": "{total}件中 {from}〜{to}件",
+    "page": "{page} / {pages}ページ",
+    "previous": "前へ",
+    "next": "次へ"
   }
 }

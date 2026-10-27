@@ -25,6 +25,7 @@ type Store interface {
 	SharedPack(ctx context.Context, id string) (json.RawMessage, error)
 	Admin(ctx context.Context, login string, githubID int64) (bool, error)
 	Overview(ctx context.Context) (*store.AdminOverview, error)
+	Users(ctx context.Context, page int) (*store.AdminUsers, error)
 }
 
 // OAuthClient is the GitHub OAuth App the login goes through (auth.OAuth).
@@ -77,6 +78,7 @@ func New(c Config) http.Handler {
 	mux.HandleFunc("/api/auth/local", s.localLogin)
 	mux.HandleFunc("/api/auth/admin/signout", s.adminSignout)
 	mux.HandleFunc("/api/admin/dashboard", s.adminDashboard)
+	mux.HandleFunc("/api/admin/users", s.adminUsers)
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { refuse(w, http.StatusNotFound, "notFound") })
 	return withSecurityHeaders(mux)
 }

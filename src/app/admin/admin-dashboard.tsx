@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import PageContainer from '@/components/PageContainer/PageContainer'
 import { useFormat } from '@/i18n/useFormat'
+import UserList from './user-list'
 
 // The answer of GET /api/admin/dashboard (server/internal/web/admin.go, server/internal/store/admin.go).
 type Overview = {
@@ -17,7 +18,6 @@ type Overview = {
   activeWeek: number
   activeMonth: number
   sharedPacks: number
-  recentWorkspaces: { ownerId: string; lists: number; packs: number; devices: number; revision: number; updatedAt: string }[]
   recentShares: { id: string; ownerId: string; name: string; updatedAt: string }[]
   admins: { login: string; githubId: number | null; createdAt: string; lastSeenAt: string | null }[]
 }
@@ -121,29 +121,7 @@ export default function AdminDashboard() {
         </Card>)}
       </section>
 
-      <Card>
-        <CardHeader><CardTitle><h2>{t('workspaces.title')}</h2></CardTitle></CardHeader>
-        <CardContent>
-          {state.answer.overview.recentWorkspaces.length === 0 ? <p>{t('workspaces.empty')}</p> : <Table>
-            <TableHeader><TableRow>
-              <TableHead>{t('workspaces.owner')}</TableHead>
-              <TableHead className="text-right">{t('workspaces.lists')}</TableHead>
-              <TableHead className="text-right">{t('workspaces.packs')}</TableHead>
-              <TableHead className="text-right">{t('workspaces.devices')}</TableHead>
-              <TableHead className="text-right">{t('workspaces.revision')}</TableHead>
-              <TableHead>{t('updatedAt')}</TableHead>
-            </TableRow></TableHeader>
-            <TableBody>{state.answer.overview.recentWorkspaces.map(row => <TableRow key={row.ownerId}>
-              <TableCell className="font-mono">{row.ownerId}</TableCell>
-              <TableCell className="text-right tabular-nums">{row.lists}</TableCell>
-              <TableCell className="text-right tabular-nums">{row.packs}</TableCell>
-              <TableCell className="text-right tabular-nums">{row.devices}</TableCell>
-              <TableCell className="text-right tabular-nums">{row.revision}</TableCell>
-              <TableCell>{time(row.updatedAt)}</TableCell>
-            </TableRow>)}</TableBody>
-          </Table>}
-        </CardContent>
-      </Card>
+      <UserList time={time} errorText={errorText} />
 
       <Card>
         <CardHeader><CardTitle><h2>{t('shares.title')}</h2></CardTitle></CardHeader>

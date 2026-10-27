@@ -24,15 +24,6 @@
     "activeMonth": "30 天内更新",
     "sharedPacks": "共享中的词包"
   },
-  "workspaces": {
-    "title": "最近更新的账号",
-    "owner": "账号",
-    "lists": "列表",
-    "packs": "词包",
-    "devices": "设备",
-    "revision": "修订版本",
-    "empty": "还没有账号保存数据。"
-  },
   "shares": {
     "title": "最近共享的词包",
     "name": "词包名称",
@@ -47,5 +38,24 @@
     "createdAt": "添加时间",
     "lastSeenAt": "最近访问",
     "unbound": "尚未登录"
+  },
+  "users": {
+    "title": "用户列表",
+    "description": "已保存数据的账号，按更新时间从新到旧排列。访客的数据保存在浏览器中，不在此列。",
+    "loading": "正在加载",
+    "retry": "重试",
+    "empty": "还没有账号保存数据。",
+    "account": "账号",
+    "lists": "列表",
+    "packs": "词包",
+    "devices": "设备",
+    "shares": "共享",
+    "revision": "修订版本",
+    "updatedAt": "更新时间",
+    "pagination": "用户列表分页",
+    "range": "共 {total} 个，第 {from}–{to} 个",
+    "page": "第 {page} / {pages} 页",
+    "previous": "上一页",
+    "next": "下一页"
   }
 }

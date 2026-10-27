@@ -59,5 +59,6 @@
   "sharedPackNotFound": "此分享已結束。",
   "packNotFound": "找不到此包。請重新載入頁面。",
   "adminRequired": "請以管理員身分登入。",
-  "adminForbidden": "此 GitHub 帳號不是管理員。"
+  "adminForbidden": "此 GitHub 帳號不是管理員。",
+  "invalidPage": "頁碼無效。"
 }

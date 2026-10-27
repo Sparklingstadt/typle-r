@@ -1200,8 +1200,19 @@ func TestOverview(t *testing.T) {
 		after.SharedPacks != before.SharedPacks+1 {
 		t.Fatalf("before %+v, after %+v", before, after)
 	}
-	if got := after.RecentWorkspaces[0]; got.OwnerID != id || got.Lists != 2 || got.Packs != 0 || got.Devices != 1 || got.Revision != 4 {
-		t.Fatalf("recent workspace = %+v", got)
+	users, err := s.Users(ctx, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if users.Total != after.Workspaces || len(users.Users) > AdminUsersPage {
+		t.Fatalf("users: total %d, %d on the page", users.Total, len(users.Users))
+	}
+	if got := users.Users[0]; got.OwnerID != id || got.Lists != 2 || got.Packs != 0 || got.Devices != 1 || got.Shares != 1 || got.Revision != 4 {
+		t.Fatalf("first user = %+v", got)
+	}
+	// A page past the last is empty, not an error.
+	if past, err := s.Users(ctx, users.Total/AdminUsersPage+1); err != nil || past.Total != users.Total || len(past.Users) != 0 {
+		t.Fatalf("page past the last = %+v, %v", past, err)
 	}
 	if got := after.RecentShares[0]; got.OwnerID != id || got.Name != "Words" {
 		t.Fatalf("recent share = %+v", got)

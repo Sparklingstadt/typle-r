@@ -21,6 +21,13 @@
 - Go のバックエンド（`server/internal/*`）：typle-kotlin-backend の対応するコードを同じように直し、`TYPLE_BACKEND=kotlin npm run test:e2e` で確かめます。
 - ログイン（`client=ipad|macos|android|windows`）とトークンの形：各アプリが使うので、互換を保ちます。
 
+## v0.103.0 — 管理者ダッシュボードにユーザー一覧を追加しました
+
+- `/admin` の「最近更新されたアカウント」（20件まで）を「ユーザー一覧」に置き換えました。データを保存したすべてのアカウントを、更新が新しい順に50件ずつページ送りで表示します。列はアバター・アカウントID・リスト・パック・端末・共有・リビジョン・更新日時です。ゲストのデータはブラウザーにあるため含みません。
+- アバターは GitHub の数値 ID から `https://avatars.githubusercontent.com/u/<id>` を表示します。GitHub のログイン名は DB に保存していないため表示しません。
+- API：`GET /api/admin/users?page=<0から>` を追加しました（Vercel 関数 `api/admin/users.go`）。ダッシュボードと同じく管理者 Cookie と `typle_admins` を確かめます。ページが 0〜10000 の整数でなければ `400 invalidPage` です。`/api/admin/dashboard` の `recentWorkspaces` はなくしました。
+- DB：マイグレーションはありません。
+
 ## v0.102.0 — 管理者用のダッシュボード `/admin` を追加しました
 
 - 画面（`src/app/admin/`）：保存済みアカウント数、24時間・7日・30日以内に更新したアカウント数、共有中のパック数と、最近更新されたアカウント・最近共有されたパック・管理者の一覧を表示します。検索エンジンには載せません（`noindex`）。
