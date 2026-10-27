@@ -18,10 +18,39 @@ var (
 	commandsJSON []byte
 )
 
-// Initial is the workspace before anything is saved: no packs, lists or registered devices, as initialLibrary in
-// src/plugins/packs/index.ts is since v0.98.0. Official packs are followed from the catalog (see OfficialPacks).
+// Initial is the workspace before anything is saved, as initialLibrary in src/plugins/packs/index.ts (since v0.100.0):
+// every official pack, followed, in the catalog's order, and no registered devices. A pack's id is made from its catalog
+// id and each list's from the pack's and the official list's, so the app and Go start every account with the same
+// library; tests/fixtures/initial-library.json is checked by both.
 func Initial() (*Workspace, error) {
-	return &Workspace{Packs: []Pack{}, Lists: []List{}, Devices: []Device{}}, nil
+	official, err := OfficialPacks()
+	if err != nil {
+		return nil, err
+	}
+	packs := make([]Pack, 0, len(official))
+	var lists []List
+	for _, entry := range official {
+		pack := entry.Pack
+		pack.ID = "followed-" + entry.CatalogID
+		pack.Origin = &Origin{CatalogID: entry.CatalogID, Version: float64(entry.Version), Followed: true}
+		packs = append(packs, pack)
+		// followOfficial gives each list its name, levels and words, as a read of the saved workspace does.
+		for _, list := range entry.Lists {
+			lists = append(lists, List{ID: pack.ID + ":" + list.ID, PackID: pack.ID, Records: []Record{}, CreatedAt: list.CreatedAt,
+				Origin: &ListOrigin{ListID: list.ID}})
+		}
+	}
+	packs, lists = followOfficial(packs, lists, official)
+	// Read back as a saved workspace is, so that it is the same as the workspace its first save writes.
+	encoded, err := Encode(lists)
+	if err != nil {
+		return nil, err
+	}
+	encodedPacks, err := EncodePacks(packs)
+	if err != nil {
+		return nil, err
+	}
+	return Decode(encoded, []byte("[]"), encodedPacks)
 }
 
 // OfficialPacks follows officialPacks (src/plugins/packs/catalog.ts): the packs of officialLibrary

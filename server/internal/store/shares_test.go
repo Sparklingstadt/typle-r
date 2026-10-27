@@ -13,9 +13,14 @@ import (
 )
 
 // saved creates the owner's row with the lists a, b and c, each in a pack of its own, and returns the workspace as saved.
+// The account first saves an empty library, as one that unfollowed the official packs it started with (since v0.100.0)
+// has: followed packs cannot be shared.
 func saved(t *testing.T, s *Store, owner string) *workspace.Workspace {
 	t.Helper()
 	ctx := context.Background()
+	if _, err := s.WriteRevision(ctx, owner, 0, Change{Lists: []workspace.List{}, Packs: []workspace.Pack{}, HasLists: true, HasPacks: true}); err != nil {
+		t.Fatal(err)
+	}
 	for _, name := range []string{"a", "b", "c"} {
 		if _, err := s.Modify(ctx, owner, createList(name)); err != nil {
 			t.Fatal(err)
@@ -99,8 +104,8 @@ func TestPutShare(t *testing.T) {
 	}
 }
 
-// An account that has saved nothing has no packs (it starts empty since v0.98.0), so it has none to share, and sharing
-// saves nothing.
+// An account that has saved nothing has only the followed official packs it starts with (since v0.100.0), so a pack it
+// does not have is not found, and sharing saves nothing.
 func TestPutShareWithoutRow(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
@@ -117,8 +122,8 @@ func TestPutShareWithoutRow(t *testing.T) {
 	}
 }
 
-// Modify on an account that has saved nothing starts from the empty initial workspace; deleting a shared pack later
-// deletes its link.
+// Modify on an account that has saved nothing starts from the initial workspace (the followed official packs); deleting a
+// shared pack later deletes its link.
 func TestModifyWithoutRowDeletesShares(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
@@ -133,10 +138,15 @@ func TestModifyWithoutRowDeletesShares(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(w.Packs) != 2 || len(w.Lists) != 2 || w.Lists[0].Name != "a" || w.Lists[1].Name != "b" {
-		t.Fatalf("workspace = %+v", w)
+	initial, err := workspace.Initial()
+	if err != nil {
+		t.Fatal(err)
 	}
-	first, second := w.Packs[0].ID, w.Packs[1].ID
+	n := len(initial.Lists)
+	if len(w.Packs) != len(initial.Packs)+2 || len(w.Lists) != n+2 || w.Lists[n].Name != "a" || w.Lists[n+1].Name != "b" {
+		t.Fatalf("workspace = %d packs, %d lists", len(w.Packs), len(w.Lists))
+	}
+	first, second := w.Packs[len(w.Packs)-2].ID, w.Packs[len(w.Packs)-1].ID
 	for _, pack := range []string{first, second} {
 		if _, err := s.PutShare(ctx, id, pack); err != nil {
 			t.Fatal(err)
