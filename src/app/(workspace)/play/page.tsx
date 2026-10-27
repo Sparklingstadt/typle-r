@@ -1,5 +1,5 @@
 "use client"
-import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
+import { Suspense, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils"
 import Page from "@/components/Page/Page"
 import PageContainer from "@/components/PageContainer/PageContainer"
 import TargetText from "@/components/Practice/TargetText"
+import PracticeText from "@/components/Practice/PracticeText"
 import Kbd from "@/components/Practice/Kbd"
 import DeviceMenu from "@/components/Practice/DeviceMenu"
 import WordListOptions from "@/components/Practice/WordListOptions"
@@ -94,34 +95,6 @@ function LiveStats({ session, accuracy }: { session: TypingSession; accuracy: nu
   </dl>
 }
 
-// Text that would wrap to 3, 4, 5, or 6 and more lines at that size gets a step smaller each time.
-const wrappedSizes = ['text-lg sm:text-[22px]', 'text-[17px] sm:text-xl', 'text-base sm:text-lg', 'text-[15px] sm:text-base']
-
-// Shorter text gets the large size; anything over 24 characters wraps as a left-aligned paragraph,
-// and text that would still wrap to three or more lines steps down through `wrappedSizes`.
-function wordSize(text: string, lines = 1) {
-  if (lines >= 3) return cn('leading-relaxed text-left max-w-[40em]', wrappedSizes[Math.min(lines, 6) - 3])
-  const length = Array.from(text).length
-  if (length > 24) return 'text-xl leading-relaxed text-left sm:text-[26px] max-w-[34em]'
-  return length > 10 ? 'text-[32px] leading-tight sm:text-[44px]' : 'text-[44px] leading-tight sm:text-[64px]'
-}
-
-// How many lines the word wraps to at its usual size. It measures a hidden zero-height copy (scrollHeight still
-// holds the full text), so the smaller size can't change the count it was chosen from.
-// The copy is held in state, so it is measured again when it remounts, e.g. after the result screen.
-function useWrappedLines(text: string | undefined) {
-  const [element, setElement] = useState<HTMLParagraphElement | null>(null)
-  const [lines, setLines] = useState(1)
-  useLayoutEffect(() => {
-    if (!element) return
-    // The observer reports once on observe and again whenever the width changes, before the frame is painted.
-    const observer = new ResizeObserver(() => setLines(Math.round(element.scrollHeight / parseFloat(getComputedStyle(element).lineHeight))))
-    observer.observe(element)
-    return () => observer.disconnect()
-  }, [element, text])
-  return [setElement, lines] as const
-}
-
 function Practice({ wordLists, packs, listId, error, update, devices, accountId }: {
   devices: PracticeDevice[]
   accountId: string
@@ -135,7 +108,8 @@ function Practice({ wordLists, packs, listId, error, update, devices, accountId 
   const practiceName = usePracticeName()
   const [device, chooseDevice] = useChosenDevice(accountId, devices)
   const [statsVisible, setStatsVisible] = useLiveStatsVisible()
-  const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave, pause, resume } = usePractice(wordLists, update, device, listId)
+  const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart: restartPractice, retrySave, pause, resume } = usePractice(wordLists, update, device, listId)
+  const [displayRun, setDisplayRun] = useState(0)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [asideQuery, setAsideQuery] = useState('')
@@ -161,7 +135,6 @@ function Practice({ wordLists, packs, listId, error, update, devices, accountId 
   const bestCandidates = selectedList ? comparableRecords(selectedList) : []
   // Colour only committed text: IME composition (romaji, pinyin) is shown in the input but never judged.
   const comparison = compareInput(word?.input ?? '', session.input)
-  const [wordCopy, wrappedLines] = useWrappedLines(word?.display)
   const hasError = comparison.errorIndex >= 0
   const dialogOpen = pickerOpen || pendingSwitch !== null || menuOpen
   const showResume = focusedOnce && !inputFocused && !finished && !dialogOpen && words.length > 0
@@ -210,6 +183,11 @@ function Practice({ wordLists, packs, listId, error, update, devices, accountId 
     event.preventDefault()
     if (finished) pickerOpener.current?.focus()
     else input.current?.focus()
+  }
+  function restart(index = selected) {
+    // Also reset manually scrolled display-only text, including an identical word on a fresh attempt.
+    setDisplayRun(value => value + 1)
+    restartPractice(index)
   }
   function switchTo(index: number) {
     setShowAll(true)
@@ -273,16 +251,15 @@ function Practice({ wordLists, packs, listId, error, update, devices, accountId 
         {finished ? <PracticeResult listName={practiceName(list)} wordCount={words.length} result={result} correct={session.attempts - session.mistakes} speed={typingSpeed(session, 0)}
           device={practiceDevice} record={record} records={selectedRecords} saveState={saveState} onRestart={() => restart()} onRetry={retrySave} onChooseList={openPicker} />
         : <>
-          <div className="relative flex min-h-44 flex-1 flex-col items-center justify-center gap-3 px-4 pt-6 pb-2 text-center sm:min-h-52 sm:gap-3.5 sm:px-6 sm:pt-11">
-            {word && <p ref={wordCopy} aria-hidden="true" className={cn('invisible absolute inset-x-4 top-0 m-0 h-0 overflow-hidden font-medium whitespace-pre-wrap [overflow-wrap:anywhere] sm:inset-x-6', wordSize(word.display))}>{word.display}</p>}
+          <div key={`${list.id}:${session.index}:${displayRun}`} className="relative flex min-h-44 flex-1 flex-col items-center justify-center gap-3 px-4 pt-6 pb-2 text-center sm:min-h-52 sm:gap-3.5 sm:px-6 sm:pt-11">
             {word?.annotation && <p className="max-w-full text-base break-words text-foreground">{word.annotation}</p>}
             {word && word.display === word.input
-              ? <TargetText id="wordDisplay" {...comparison} className={wordSize(word.display, wrappedLines)} />
+              ? <TargetText id="wordDisplay" {...comparison} />
               : word && <>
-                <p id="wordDisplay" className={cn('m-0 max-w-full font-medium whitespace-pre-wrap [overflow-wrap:anywhere]', wordSize(word.display, wrappedLines))}>{word.display}</p>
-                <div className="flex max-w-full flex-wrap items-center justify-center gap-2.5">
+                <PracticeText id="wordDisplay" text={word.display} />
+                <div className="flex w-full min-w-0 flex-col items-center gap-2.5">
                   <span className="rounded-full border px-2 text-xs text-muted-foreground">{t('word.typeThis')}</span>
-                  <TargetText {...comparison} className="text-2xl tracking-wide sm:text-3xl" />
+                  <TargetText id="wordTarget" {...comparison} guide />
                 </div>
               </>}
             {showResume && <button type="button" onClick={() => input.current?.focus()} className="absolute inset-0 z-10 grid place-items-center bg-card/70 outline-none backdrop-blur-sm">
@@ -314,9 +291,11 @@ function Practice({ wordLists, packs, listId, error, update, devices, accountId 
             {showAll && <ul id="all-words" ref={allWords} aria-label={t('upcoming.allWords')} className="relative mt-1.5 flex max-h-44 basis-full flex-wrap gap-1.5 overflow-y-auto border-t border-dashed pt-2.5 pb-1">
               {words.map((item, index) => {
                 const done = index < session.index
-                return <li key={index} className="max-w-full">
+                const paragraph = Array.from(item.display).length > 24 || item.display.includes('\n')
+                return <li key={index} className={cn('max-w-full', paragraph && 'w-full')}>
                   <span aria-current={index === session.index ? 'step' : undefined}
-                    className={cn('inline-flex min-h-7 max-w-full items-center rounded-full border px-3 text-[13px] break-all text-muted-foreground',
+                    className={cn('min-h-7 max-w-full border px-3 text-[13px] text-muted-foreground',
+                      paragraph ? 'block rounded-lg py-2 text-left leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]' : 'inline-flex items-center rounded-full break-all',
                       done && 'border-transparent bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300',
                       index === session.index && 'border-transparent bg-primary text-primary-foreground')}>
                     {item.display}<span className="sr-only">{t(done ? 'upcoming.done' : index === session.index ? 'upcoming.current' : 'upcoming.pending')}</span>
