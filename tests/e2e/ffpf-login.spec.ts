@@ -54,6 +54,19 @@ test.describe('login method', () => {
     expect(new URL(urls[0]).searchParams.has('provider')).toBe(false)
   })
 
+  test('both: the login menu fits a 320px screen without horizontal overflow', async ({ page }) => {
+    await answer(page, { user: null, providers: ['github', 'ffpf'] })
+    await page.setViewportSize({ width: 320, height: 568 })
+    await page.goto('/play')
+    const button = page.getByRole('button', { name: 'ログイン方法を選ぶ' })
+    await expect(button).toBeInViewport({ ratio: 1 })
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    await button.click()
+    await expect(page.getByRole('menuitem')).toHaveText(['GitHubでログイン', 'FFPF IDでログイン'])
+    await expect(page.getByRole('menu')).toBeInViewport({ ratio: 1 })
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  })
+
   test('FFPF ID only: one FFPF ID button', async ({ page }) => {
     await answer(page, { user: null, providers: ['ffpf'] })
     const urls = await captureSignIn(page)

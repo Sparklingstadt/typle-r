@@ -29,7 +29,7 @@ export default function AccountBar() {
     if (providers.length > 1) return <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <Button variant="outline" size="lg" className="gap-2 px-3" aria-label={t('chooseSignIn')}>
-          <LogIn aria-hidden="true" /><span>{t('signIn')}</span><ChevronDown aria-hidden="true" className="size-4 text-muted-foreground" />
+          <LogIn aria-hidden="true" /><span>{t('signIn')}</span><ChevronDown aria-hidden="true" className="hidden size-4 text-muted-foreground sm:block" />
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
