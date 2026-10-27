@@ -1033,7 +1033,7 @@ func interests(t *testing.T, saved *Saved) []string {
 }
 
 // The interests have a column of their own: saved with a change that sets them, kept by one that leaves them out, and
-// [] for a row without them.
+// nil (NULL) for a row without them, which the app reads as the default.
 func TestWriteRevisionInterests(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
@@ -1043,7 +1043,7 @@ func TestWriteRevisionInterests(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if string(saved.Interests) != "[]" {
+	if saved.Interests != nil {
 		t.Fatalf("interests of a new row = %s", saved.Interests)
 	}
 	chosen := []string{"language", "language/zh", "x/unknown"}

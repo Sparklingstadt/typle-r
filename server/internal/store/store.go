@@ -217,7 +217,7 @@ func lock(ctx context.Context, tx pgx.Tx, owner string) (*workspace.Workspace, e
 // Saved is a workspace as stored: its lists, packs, devices and interests columns as JSON, with the revision a later
 // save must name. The JSON is the database's own text of the jsonb, so object keys may be in another order than they
 // were written in. Packs is nil, which is JSON's null, when the column is NULL: the lists were saved before packs
-// existed. Interests are [] when their column is NULL: none have been saved.
+// existed. Interests are nil when their column is NULL: none have been saved.
 type Saved struct {
 	Lists, Packs, Devices, Interests json.RawMessage
 	Revision                         int
@@ -401,8 +401,8 @@ func nullable(part []byte) any {
 	return string(part)
 }
 
-// savedColumns are the columns scanSaved reads. Interests not saved (NULL) are read as none.
-const savedColumns = `lists::text, packs::text, devices::text, COALESCE(interests, '[]'::jsonb)::text, revision`
+// savedColumns are the columns scanSaved reads. Interests not saved (NULL) are read as nil.
+const savedColumns = `lists::text, packs::text, devices::text, interests::text, revision`
 
 // scanSaved reads a row as stored: its savedColumns. A no-rows error is passed on as it is.
 func scanSaved(row pgx.Row) (*Saved, error) {

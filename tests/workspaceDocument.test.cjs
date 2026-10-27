@@ -110,8 +110,8 @@ test('a change of lists keeps the saved packs and drops those left without lists
   assert.equal(rest.packs.length, expected.packs.length - gone.size)
 })
 
-test('interests missing or null read as empty, and a change without them keeps the saved ones', () => {
-  for (const interests of [undefined, null]) assert.deepEqual(decodeDocument({ lists: [], devices: [], interests }).interests, [])
+test('interests missing or null read as the default, and a change without them keeps the saved ones', () => {
+  for (const interests of [undefined, null]) assert.deepEqual(decodeDocument({ lists: [], devices: [], interests }).interests, [...require('../src/core/interests.ts').DEFAULT_INTERESTS])
   const document = decodeDocument({ lists: [], devices: [], interests: ['language', 'language/zh'] })
   assert.deepEqual(document.interests, ['language', 'language/zh'])
   assert.deepEqual(applyChange(document, { devices: [] }).interests, ['language', 'language/zh'])

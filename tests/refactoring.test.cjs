@@ -22,8 +22,8 @@ test('record ordering and deletion preserve other lists and legacy records', () 
 test('workspace transport validates responses and preserves conflict status', async t => {
   const state = { accountId: 'github:1', revision: 1, lists: [], packs: [], devices: [] }
   const fetch = t.mock.method(global, 'fetch', async () => Response.json(state))
-  // A server that does not know interests leaves them out; they read as none and are not sent unless the change has them.
-  assert.deepEqual(await readWorkspace(), { ...state, interests: [] })
+  // A server that does not know interests leaves them out; they read as the default and are not sent unless the change has them.
+  assert.deepEqual(await readWorkspace(), { ...state, interests: [...require('../src/core/interests.ts').DEFAULT_INTERESTS] })
   assert.equal(fetch.mock.calls[0].arguments[0], '/api/workspace')
   await writeWorkspace(state)
   const [, options] = fetch.mock.calls[1].arguments
@@ -38,7 +38,7 @@ test('workspace transport validates responses and preserves conflict status', as
   fetch.mock.mockImplementation(async () => Response.json(state))
   // A server from before profiles were removed also sends its profiles; only the first profile's lists are used.
   fetch.mock.mockImplementation(async () => Response.json({ ...state, profiles: [{ id: 'default', name: 'メイン', listCount: 0, recordCount: 0 }], profileId: 'default' }))
-  assert.deepEqual(await readWorkspace(), { ...state, interests: [] })
+  assert.deepEqual(await readWorkspace(), { ...state, interests: [...require('../src/core/interests.ts').DEFAULT_INTERESTS] })
   fetch.mock.mockImplementation(async () => Response.json({ error: 'conflict' }, { status: 409 }))
   await assert.rejects(writeWorkspace(state), error => error instanceof WorkspaceError && error.status === 409)
   for (const invalid of [{ revision: -1 }, { lists: [{}] }, { accountId: 1 }]) {

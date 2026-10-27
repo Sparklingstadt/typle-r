@@ -8,7 +8,7 @@ const corrupted = error => error.key === 'savedDataCorrupted'
 test('options follow the spec table', () => {
   assert.deepEqual(INTEREST_OPTIONS.map(option => [option.id, option.category]), [['language', '語学'], ['programming', 'プログラミング']])
   assert.deepEqual(INTEREST_OPTIONS[0].children.map(child => child.id), ['language/zh', 'language/ru', 'language/ko', 'language/en', 'language/es', 'language/fr', 'language/de'])
-  assert.deepEqual(INTEREST_OPTIONS[1].children.map(child => child.tag), ['Go', 'Kotlin', 'Java', 'TypeScript', 'PHP', 'Ruby', 'SQL', 'Linux', 'Vim', 'テスト'])
+  assert.deepEqual(INTEREST_OPTIONS[1].children.map(child => child.tag), ['Go', 'Kotlin', 'Java', 'TypeScript', 'PHP', 'Ruby', 'SQL', 'Linux', 'Vim', 'テスト', 'Node.js', 'シェル', 'クラウド'])
 })
 
 test('matchesInterests: parent only matches by category', () => {
@@ -57,12 +57,21 @@ test('normalizeInterests orders by options and drops duplicates', () => {
 })
 
 test('decodeInterests', () => {
-  assert.deepEqual(decodeInterests(undefined), [])
-  assert.deepEqual(decodeInterests(null), [])
+  assert.deepEqual(decodeInterests(undefined), [...require('../src/core/interests.ts').DEFAULT_INTERESTS])
+  assert.deepEqual(decodeInterests(null), [...require('../src/core/interests.ts').DEFAULT_INTERESTS])
+  assert.deepEqual(decodeInterests([]), [])
   assert.deepEqual(decodeInterests(['language', 'x']), ['language', 'x'])
   assert.equal(decodeInterests(Array.from({ length: 50 }, (_, n) => `i${n}`)).length, 50)
   assert.deepEqual(decodeInterests(['a'.repeat(50)]), ['a'.repeat(50)])
   for (const bad of [['a', 1], Array.from({ length: 51 }, (_, n) => `i${n}`), ['a'.repeat(51)], ['a', 'a'], [''], 'language', {}, 1]) {
     assert.throws(() => decodeInterests(bad), corrupted)
   }
+})
+
+test('the default interests are every option, as the fixture Go also reads has them, and every official pack fits them', () => {
+  const defaults = require('../src/core/interests.ts').DEFAULT_INTERESTS
+  assert.deepEqual(defaults, INTEREST_OPTIONS.flatMap(option => [option.id, ...option.children.map(child => child.id)]))
+  assert.deepEqual(defaults, require('./fixtures/default-interests.json'))
+  const { officialPacks } = require('../src/plugins/packs/catalog.ts')
+  for (const entry of officialPacks()) assert.ok(matchesInterests(entry.pack, [...defaults]), entry.pack.name)
 })

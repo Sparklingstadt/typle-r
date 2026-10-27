@@ -1,11 +1,22 @@
 import { test, expect, type Page } from '@playwright/test'
 import { deleteWorkspace, newAccountId, signIn } from './account'
 
+// Since v0.101.1 every interest is picked until some are saved. Unpicks both parents, which unpicks every chip.
+async function clearInterests(page: Page) {
+  for (const name of ['語学', 'プログラミング']) {
+    const chip = page.getByRole('button', { name, exact: true })
+    await expect(chip).toBeEnabled()
+    if (await chip.getAttribute('aria-pressed') === 'true') await chip.click()
+    await expect(chip).toHaveAttribute('aria-pressed', 'false')
+  }
+}
+
 async function choose(page: Page) {
   await page.goto('/home')
   await page.getByRole('navigation', { name: 'メインナビゲーション' }).getByRole('link', { name: '関心', exact: true }).click()
   await expect(page).toHaveURL(/\/interests$/)
   await expect(page.getByRole('heading', { name: '関心', level: 1 })).toBeVisible()
+  await clearInterests(page)
   await expect(page.getByRole('button', { name: '中国語', exact: true })).toHaveCount(0)
   const language = page.getByRole('button', { name: '語学', exact: true })
   await expect(language).toHaveAttribute('aria-pressed', 'false')
@@ -43,7 +54,22 @@ test('a guest picks interests, they survive a reload and split the catalog', asy
   await expect(page.getByRole('region', { name: '関心に合うパック' })).toHaveCount(0)
 })
 
+test('every interest is picked at first, so every official pack is listed and matches', async ({ page }) => {
+  await page.goto('/interests')
+  for (const name of ['語学', 'プログラミング', '中国語', 'Go', 'Node.js', 'シェル', 'クラウド']) {
+    await expect(page.getByRole('button', { name, exact: true })).toHaveAttribute('aria-pressed', 'true')
+  }
+  const section = page.getByRole('region', { name: '関心に合う公式パック' })
+  await expect(section.locator('li[data-catalog-id]')).toHaveCount(30)
+  for (const toggle of await section.getByRole('switch').all()) await expect(toggle).not.toBeChecked()
+  await page.goto('/packs/catalog')
+  await expect(page.getByRole('region', { name: '関心に合うパック' }).locator('li[data-catalog-id]')).toHaveCount(30)
+  await expect(page.getByRole('region', { name: 'そのほかのパック' })).toHaveCount(0)
+})
+
 test('with no interests the catalog is not split', async ({ page }) => {
+  await page.goto('/interests')
+  await clearInterests(page)
   await page.goto('/packs/catalog')
   await expect(page.locator('li[data-catalog-id]').first()).toBeVisible()
   await expect(page.getByRole('heading', { name: 'そのほかのパック' })).toHaveCount(0)
@@ -64,13 +90,16 @@ test('an account keeps its interests after a reload', async ({ page, context }) 
 
 test('the interests screen lists the fitting official packs with switches, and 追加 follows those switched on', async ({ page }) => {
   await page.goto('/interests')
+  await clearInterests(page)
   await expect(page.getByText('関心を選ぶと、合う公式パックがここに並びます。')).toBeVisible()
   await page.getByRole('button', { name: '語学', exact: true }).click()
   const section = page.getByRole('region', { name: '関心に合う公式パック' })
   const name = '国名：中国語・国連加盟国（小文字）'
   const row = section.locator('li[data-catalog-id]', { has: page.getByRole('heading', { name, exact: true }) })
-  // Each pack shows its name, its lists and its word count, with its switch off.
-  await expect(section.locator('li[data-catalog-id]')).toHaveCount(1)
+  // Each pack shows its name, its lists and its word count, with its switch off. 語学 has the country list in levels
+  // and whole.
+  await expect(section.locator('li[data-catalog-id]')).toHaveCount(2)
+  await expect(section.getByRole('heading', { name: '国名：中国語・国連加盟193か国（小文字）', exact: true })).toBeVisible()
   await expect(row).toContainText('国名：中国語・国連加盟国（小文字・初級1）')
   await expect(row).toContainText('193語')
   const toggle = row.getByRole('switch', { name: `${name} をフォローする` })

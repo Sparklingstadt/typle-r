@@ -2,6 +2,7 @@ import { AppError } from '../../core/appError'
 import { applyChange, decodeDocument, type WorkspaceDocument } from '../../core/workspaceDocument'
 import { LegacyProfileRequest, MAX_WORKSPACE_BYTES, validateWorkspaceRequest } from '../../core/workspaceRequest'
 import { followOfficial } from '../../core/followedPacks'
+import { decodeInterests } from '../../core/interests'
 import { officialPacks } from '../packs/catalog'
 import { WorkspaceError, type WorkspaceState, type WorkspaceStore, type WorkspaceWrite } from '../../core/workspaceStore'
 
@@ -18,7 +19,7 @@ type Stored = WorkspaceDocument & { revision: number }
 
 function readDocument(storage: Storage): Stored & { legacy: boolean } {
   const raw = storage.getItem(GUEST_STORAGE_KEY)
-  if (raw === null) return { lists: [], packs: [], devices: [], interests: [], revision: 0, legacy: false }
+  if (raw === null) return { lists: [], packs: [], devices: [], interests: decodeInterests(undefined), revision: 0, legacy: false }
   try {
     if (bytes(raw) > MAX_GUEST_BYTES) throw new Error('Too large')
     const value = JSON.parse(raw)

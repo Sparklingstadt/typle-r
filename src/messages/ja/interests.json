@@ -26,7 +26,10 @@
       "sql": "SQL",
       "linux": "Linux",
       "vim": "Vim",
-      "test": "テスト"
+      "test": "テスト",
+      "node": "Node.js",
+      "shell": "シェル",
+      "cloud": "クラウド"
     }
   },
   "packs": {
