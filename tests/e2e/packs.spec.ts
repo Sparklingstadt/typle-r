@@ -851,8 +851,10 @@ test('a followed official pack shows as following, opens on /edit, and is follow
   const first = page.locator('li[data-catalog-id]').first()
   const name = (await first.getByRole('heading').innerText()).trim()
   await first.getByRole('button', { name: `${name} をフォローする`, exact: true }).click()
-  await expect(page).toHaveURL(/\/edit\?pack=/)
   await expect(page.getByText(`「${name}」をフォローしました`)).toBeVisible()
+  await expect(page).toHaveURL(/\/packs\/catalog$/)
+  await first.getByRole('link', { name: /開く/ }).click()
+  await expect(page).toHaveURL(/\/edit\?pack=/)
   await expect(page.locator('li[data-pack-id]', { has: page.getByRole('button', { name, exact: true }) })).toBeVisible()
 
   await page.getByRole('link', { name: '公式パック', exact: true }).click()
@@ -866,9 +868,9 @@ test('a followed official pack shows as following, opens on /edit, and is follow
   await expect(page.getByText(`「${name}」のフォローを解除しました`)).toBeVisible()
   await expect(entry.getByRole('link', { name: /開く/ })).toHaveCount(0)
   await entry.getByRole('button', { name: `${name} をフォローする`, exact: true }).click()
-  await expect(page).toHaveURL(/\/edit\?pack=/)
   // The first notice may still be showing.
   await expect(page.getByText(`「${name}」をフォローしました`).last()).toBeVisible()
+  await expect(entry.getByRole('link', { name: /開く/ })).toBeVisible()
 })
 
 test('an official pack followed next to a pack of the same name is numbered 「名前（2）」', async ({ page }) => {
@@ -887,6 +889,7 @@ test('an official pack followed next to a pack of the same name is numbered 「�
   }, [key, name])
   await page.reload()
   await page.locator('li[data-catalog-id]').first().getByRole('button', { name: `${name} をフォローする`, exact: true }).click()
+  await page.locator('li[data-catalog-id]').first().getByRole('link', { name: /開く/ }).click()
   await expect(page).toHaveURL(/\/edit\?pack=/)
   await expect(page.getByRole('button', { name: `${name}（2）`, exact: true })).toBeVisible()
 })
