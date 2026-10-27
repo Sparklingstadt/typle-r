@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
+import { startEmpty } from './follow'
 const key = 'typle-r:guest-workspace:v1'
 const words = (...texts: string[]) => texts.map(text => ({ display: text, input: text, annotation: '' }))
 const record = { date: '2026-09-10T00:00:00.000Z', time: 30, accuracy: 100, score: 100, mistakes: 0 }
@@ -827,7 +828,7 @@ async function startFresh(page: Page) {
   }, key)
 }
 
-test('the catalog shows every official pack as not followed for a guest with nothing saved', async ({ page }) => {
+test('the catalog shows every official pack as followed for a guest with nothing saved', async ({ page }) => {
   await startFresh(page)
   await page.goto('/edit')
   await page.getByRole('link', { name: '公式パック', exact: true }).click()
@@ -838,15 +839,14 @@ test('the catalog shows every official pack as not followed for a guest with not
   await expect(entries.first()).toContainText('リスト')
   await expect(entries.first()).toContainText('語')
   for (const entry of await entries.all()) {
-    await expect(entry.getByRole('button', { name: /^.* をフォローする$/ })).toBeEnabled()
-    await expect(entry.getByRole('link', { name: /開く/ })).toHaveCount(0)
-    await expect(entry.getByRole('button', { name: 'フォロー中' })).toHaveCount(0)
-    await expect(entry.getByRole('button', { name: 'フォロー解除' })).toHaveCount(0)
+    await expect(entry.getByRole('button', { name: 'フォロー中' })).toBeDisabled()
+    await expect(entry.getByRole('link', { name: /開く/ })).toBeVisible()
+    await expect(entry.getByRole('button', { name: /^.* をフォローする$/ })).toHaveCount(0)
   }
 })
 
 test('a followed official pack shows as following, opens on /edit, and is followed again after unfollowing', async ({ page }) => {
-  await startFresh(page)
+  await startEmpty(page)
   await page.goto('/packs/catalog')
   const first = page.locator('li[data-catalog-id]').first()
   const name = (await first.getByRole('heading').innerText()).trim()

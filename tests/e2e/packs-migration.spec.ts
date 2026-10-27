@@ -59,11 +59,12 @@ test('a guest workspace saved by v0.90.0 shows the same and is saved as packs wh
   expect(errors).toEqual([])
 })
 
-test('a guest with nothing saved starts with no packs', async ({ page }) => {
+test('a guest with nothing saved starts following every official pack', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 })
   await page.goto('/edit')
-  await expect(page.getByText('まだパックがありません。公式パックをフォローするか、新しいパックを作りましょう')).toBeVisible()
-  await expect(page.locator('li[data-pack-id]')).toHaveCount(0)
+  await expect(page.locator('li[data-pack-id]')).toHaveCount(30)
+  await expect(page.locator('li[data-pack-id]').getByText('公式', { exact: true })).toHaveCount(30)
+  await expect(page.getByText('まだパックがありません。公式パックをフォローするか、新しいパックを作りましょう')).toHaveCount(0)
 })
 
 // Before v0.98.0 every account held a copy of each official pack. The copies that are not followed are removed when
