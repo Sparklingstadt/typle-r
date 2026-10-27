@@ -1132,3 +1132,81 @@ func TestReadRevisionRefusesInvalidInterests(t *testing.T) {
 		t.Fatalf("ReadRevision = %+v; want an error", saved)
 	}
 }
+
+// An administrator's row binds the GitHub id of the first sign-in, and lets in only that id from then on.
+func TestAdmin(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	s, err := OpenApp(ctx, connection)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(s.Close)
+	login := strings.ToLower(strings.TrimPrefix(owner(t, conn), "go-test:"))
+	t.Cleanup(func() { _, _ = conn.Exec(context.Background(), `DELETE FROM typle_admins WHERE login = $1`, login) })
+	if ok, err := s.Admin(ctx, login, 1<<40); err != nil || ok {
+		t.Fatalf("Admin without a row = %v, %v", ok, err)
+	}
+	if _, err := conn.Exec(ctx, `INSERT INTO typle_admins (login) VALUES ($1)`, login); err != nil {
+		t.Fatal(err)
+	}
+	if ok, err := s.Admin(ctx, strings.ToUpper(login), 1<<40); err != nil || !ok {
+		t.Fatalf("first Admin = %v, %v", ok, err)
+	}
+	var id int64
+	var seen *time.Time
+	if err := conn.QueryRow(ctx, `SELECT github_id, last_seen_at FROM typle_admins WHERE login = $1`, login).Scan(&id, &seen); err != nil || id != 1<<40 || seen == nil {
+		t.Fatalf("row = %d %v, %v", id, seen, err)
+	}
+	if ok, err := s.Admin(ctx, login, 1<<40+1); err != nil || ok {
+		t.Fatalf("Admin with another id = %v, %v", ok, err)
+	}
+	if ok, err := s.Admin(ctx, login, 1<<40); err != nil || !ok {
+		t.Fatalf("Admin again = %v, %v", ok, err)
+	}
+	// The migration lets in sparklingstadt.
+	var seeded int
+	if err := conn.QueryRow(ctx, `SELECT count(*) FROM typle_admins WHERE login = 'sparklingstadt'`).Scan(&seeded); err != nil || seeded != 1 {
+		t.Fatalf("sparklingstadt rows = %d, %v", seeded, err)
+	}
+}
+
+func TestOverview(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	s, err := OpenApp(ctx, connection)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(s.Close)
+	before, err := s.Overview(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	id := owner(t, conn)
+	if _, err := conn.Exec(ctx, `INSERT INTO typle_workspaces (owner_id, lists, devices, packs, revision, updated_at)
+		VALUES ($1, '[{"id":"a"},{"id":"b"}]', '[{"id":"d"}]', NULL, 4, now() + interval '1 hour')`, id); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := conn.Exec(ctx, `INSERT INTO typle_shared_packs (id, owner_id, pack_id, data, updated_at)
+		VALUES (gen_random_uuid(), $1, 'p', '{"pack":{"name":"Words"}}', now() + interval '1 hour')`, id); err != nil {
+		t.Fatal(err)
+	}
+	after, err := s.Overview(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if after.Workspaces != before.Workspaces+1 || after.ActiveDay != before.ActiveDay+1 || after.ActiveMonth != before.ActiveMonth+1 ||
+		after.SharedPacks != before.SharedPacks+1 {
+		t.Fatalf("before %+v, after %+v", before, after)
+	}
+	if got := after.RecentWorkspaces[0]; got.OwnerID != id || got.Lists != 2 || got.Packs != 0 || got.Devices != 1 || got.Revision != 4 {
+		t.Fatalf("recent workspace = %+v", got)
+	}
+	if got := after.RecentShares[0]; got.OwnerID != id || got.Name != "Words" {
+		t.Fatalf("recent share = %+v", got)
+	}
+	if !slices.ContainsFunc(after.Admins, func(a AdminAccount) bool { return a.Login == "sparklingstadt" }) {
+		t.Fatalf("admins = %+v", after.Admins)
+	}
+}

@@ -21,6 +21,13 @@
 - Go のバックエンド（`server/internal/*`）：typle-kotlin-backend の対応するコードを同じように直し、`TYPLE_BACKEND=kotlin npm run test:e2e` で確かめます。
 - ログイン（`client=ipad|macos|android|windows`）とトークンの形：各アプリが使うので、互換を保ちます。
 
+## v0.102.0 — 管理者用のダッシュボード `/admin` を追加しました
+
+- 画面（`src/app/admin/`）：保存済みアカウント数、24時間・7日・30日以内に更新したアカウント数、共有中のパック数と、最近更新されたアカウント・最近共有されたパック・管理者の一覧を表示します。検索エンジンには載せません（`noindex`）。
+- ログイン：GitHub でログインします（`GET /api/auth/signin?admin=1`、コールバックは既存の `/api/auth/callback/github` のまま）。GitHub のログイン名が `sparklingstadt`（大文字小文字は区別しません）のときだけ、管理者用 Cookie（`__Host-typle-admin`、SameSite=Strict、12時間で失効・延長なし）を発行します。ほかのアカウントは `/admin?error=adminForbidden` に戻り、何にもログインしません。管理者のログインは通常のセッション Cookie を発行せず、通常のログインで管理者になることもありません。ログアウトは `POST /api/auth/admin/signout` です。
+- DB：`typle_admins` テーブルを追加しました（マイグレーション `0028_admins`、Prisma の `Admin`）。`sparklingstadt` の行をマイグレーションで入れます。`GET /api/admin/dashboard` は毎回この表を確かめ、行がなければ `403 adminForbidden` で Cookie を消します。GitHub の数値 ID は最初のアクセスで記録し、以後は同じ ID だけを通します（ログイン名を引き継いだ別人を通さないため）。
+- 別リポジトリ：typle-kotlin-backend には `/api/admin/*` がまだありません。`TYPLE_BACKEND=kotlin` では `tests/e2e/admin.spec.ts` の最初のテストが失敗します。
+
 ## v0.101.0 — 関心の画面で、合う公式パックをスイッチで選んで追加できるようにしました
 
 - 初期状態：v0.100.0 をやめ、新しいアカウントとゲストはまた空のライブラリ（フォローなし）で始まります（Web の `initialLibrary`、Go の `workspace.Initial()`）。すでに保存しているアカウントとブラウザーのライブラリは変わりません。

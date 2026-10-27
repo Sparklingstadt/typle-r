@@ -1,0 +1,51 @@
+{
+  "title": "管理员仪表板",
+  "description": "Typle 的整体使用情况。",
+  "checking": "正在确认登录状态",
+  "loadFailed": "无法加载仪表板。",
+  "retry": "重试",
+  "refresh": "刷新",
+  "signOut": "退出登录",
+  "signOutFailed": "无法退出登录，请重试。",
+  "signedInAs": "已以 {login} 登录",
+  "never": "无",
+  "dateTime": "{date} {time}",
+  "updatedAt": "更新时间",
+  "signIn": {
+    "title": "管理员登录",
+    "description": "请使用已注册为管理员的 GitHub 账号登录。",
+    "button": "使用 GitHub 登录"
+  },
+  "stats": {
+    "label": "概览",
+    "workspaces": "已保存的账号",
+    "activeDay": "24 小时内更新",
+    "activeWeek": "7 天内更新",
+    "activeMonth": "30 天内更新",
+    "sharedPacks": "共享中的词包"
+  },
+  "workspaces": {
+    "title": "最近更新的账号",
+    "owner": "账号",
+    "lists": "列表",
+    "packs": "词包",
+    "devices": "设备",
+    "revision": "修订版本",
+    "empty": "还没有账号保存数据。"
+  },
+  "shares": {
+    "title": "最近共享的词包",
+    "name": "词包名称",
+    "owner": "账号",
+    "unnamed": "（无名称）",
+    "empty": "没有共享中的词包。"
+  },
+  "admins": {
+    "title": "管理员",
+    "login": "GitHub 用户名",
+    "githubId": "GitHub ID",
+    "createdAt": "添加时间",
+    "lastSeenAt": "最近访问",
+    "unbound": "尚未登录"
+  }
+}

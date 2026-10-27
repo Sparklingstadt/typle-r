@@ -102,3 +102,7 @@ func (f fakeStore) DeleteShare(context.Context, string, string) error { return f
 func (f fakeStore) ListShares(context.Context, string) ([]store.Share, error) { return nil, f.err }
 
 func (f fakeStore) SharedPack(context.Context, string) (json.RawMessage, error) { return nil, f.err }
+
+func (f fakeStore) Admin(context.Context, string, int64) (bool, error) { return false, f.err }
+
+func (f fakeStore) Overview(context.Context) (*store.AdminOverview, error) { return nil, f.err }

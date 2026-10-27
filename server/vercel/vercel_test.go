@@ -46,6 +46,10 @@ func (fakeStore) ListShares(context.Context, string) ([]store.Share, error) {
 
 // SharedPack has no links: every id is not found.
 func (fakeStore) SharedPack(context.Context, string) (json.RawMessage, error) { return nil, nil }
+func (fakeStore) Admin(context.Context, string, int64) (bool, error)          { return false, nil }
+func (fakeStore) Overview(context.Context) (*store.AdminOverview, error) {
+	return nil, errors.New("not used")
+}
 
 func settings(t *testing.T) {
 	t.Helper()
@@ -146,7 +150,7 @@ func TestAuthDoesNotOpenTheDatabase(t *testing.T) {
 	settings(t)
 	var opened atomic.Int32
 	backend.open = func(context.Context, string) (web.Store, error) { opened.Add(1); return nil, errors.New("down") }
-	for _, path := range []string{"/api/auth/session", "/api/auth/signin", "/api/auth/signout", "/api/auth/token"} {
+	for _, path := range []string{"/api/auth/session", "/api/auth/signin", "/api/auth/signout", "/api/auth/token", "/api/auth/admin/signout"} {
 		if code := get(path).Code; code == http.StatusServiceUnavailable {
 			t.Errorf("%s = %d", path, code)
 		}

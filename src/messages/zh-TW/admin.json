@@ -1,0 +1,51 @@
+{
+  "title": "管理員儀表板",
+  "description": "Typle 的整體使用情況。",
+  "checking": "正在確認登入狀態",
+  "loadFailed": "無法載入儀表板。",
+  "retry": "重試",
+  "refresh": "重新整理",
+  "signOut": "登出",
+  "signOutFailed": "無法登出，請再試一次。",
+  "signedInAs": "已以 {login} 登入",
+  "never": "無",
+  "dateTime": "{date} {time}",
+  "updatedAt": "更新時間",
+  "signIn": {
+    "title": "管理員登入",
+    "description": "請使用已註冊為管理員的 GitHub 帳號登入。",
+    "button": "使用 GitHub 登入"
+  },
+  "stats": {
+    "label": "概覽",
+    "workspaces": "已儲存的帳號",
+    "activeDay": "24 小時內更新",
+    "activeWeek": "7 天內更新",
+    "activeMonth": "30 天內更新",
+    "sharedPacks": "共享中的單字包"
+  },
+  "workspaces": {
+    "title": "最近更新的帳號",
+    "owner": "帳號",
+    "lists": "清單",
+    "packs": "單字包",
+    "devices": "裝置",
+    "revision": "修訂版本",
+    "empty": "還沒有帳號儲存資料。"
+  },
+  "shares": {
+    "title": "最近共享的單字包",
+    "name": "單字包名稱",
+    "owner": "帳號",
+    "unnamed": "（無名稱）",
+    "empty": "沒有共享中的單字包。"
+  },
+  "admins": {
+    "title": "管理員",
+    "login": "GitHub 使用者名稱",
+    "githubId": "GitHub ID",
+    "createdAt": "新增時間",
+    "lastSeenAt": "最近存取",
+    "unbound": "尚未登入"
+  }
+}

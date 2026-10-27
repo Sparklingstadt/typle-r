@@ -57,5 +57,7 @@
   "packFileUnreadable": "Ce fichier n’a pas pu être lu comme un pack de mots.",
   "invalidPackFile": "Ce fichier contient un élément qui dépasse la limite d’enregistrement.",
   "sharedPackNotFound": "Ce partage est terminé.",
-  "packNotFound": "Ce pack est introuvable. Rechargez la page."
+  "packNotFound": "Ce pack est introuvable. Rechargez la page.",
+  "adminRequired": "Veuillez vous connecter en tant qu’administrateur.",
+  "adminForbidden": "Ce compte GitHub n’est pas administrateur."
 }
