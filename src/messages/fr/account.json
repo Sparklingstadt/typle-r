@@ -3,7 +3,7 @@
   "signIn": "Se connecter",
   "signInWithGitHub": "Se connecter avec GitHub",
   "signInWithFfpf": "Se connecter avec FFPF ID",
-  "chooseSignIn": "Choisir le mode de connexion",
+  "chooseSignIn": "Se connecter : choisir le mode de connexion",
   "githubUser": "Utilisateur GitHub",
   "ffpfUser": "Utilisateur FFPF ID",
   "menu": "Menu du compte",
