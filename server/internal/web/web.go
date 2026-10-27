@@ -23,7 +23,7 @@ type Store interface {
 	DeleteShare(ctx context.Context, owner, packID string) error
 	ListShares(ctx context.Context, owner string) ([]store.Share, error)
 	SharedPack(ctx context.Context, id string) (json.RawMessage, error)
-	Admin(ctx context.Context, login string, githubID int64) (bool, error)
+	Admin(ctx context.Context, email, sub string) (bool, error)
 	Overview(ctx context.Context) (*store.AdminOverview, error)
 	Users(ctx context.Context, page int) (*store.AdminUsers, error)
 }

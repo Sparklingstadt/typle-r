@@ -46,7 +46,7 @@ func (fakeStore) ListShares(context.Context, string) ([]store.Share, error) {
 
 // SharedPack has no links: every id is not found.
 func (fakeStore) SharedPack(context.Context, string) (json.RawMessage, error) { return nil, nil }
-func (fakeStore) Admin(context.Context, string, int64) (bool, error)          { return false, nil }
+func (fakeStore) Admin(context.Context, string, string) (bool, error)         { return false, nil }
 func (fakeStore) Overview(context.Context) (*store.AdminOverview, error) {
 	return nil, errors.New("not used")
 }

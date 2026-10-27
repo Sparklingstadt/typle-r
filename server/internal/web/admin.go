@@ -80,8 +80,7 @@ func (s *server) allowAdmin(w http.ResponseWriter, r *http.Request) (session.Adm
 		refuse(w, http.StatusUnauthorized, "adminRequired")
 		return session.Admin{}, false
 	}
-	login, githubID, _ := githubAdmin(admin)
-	allowed, err := s.config.Store.Admin(r.Context(), login, githubID)
+	allowed, err := s.config.Store.Admin(r.Context(), admin.Email, admin.Sub)
 	if err != nil {
 		s.report(r, err, "admin.check")
 		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")

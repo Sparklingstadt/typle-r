@@ -22,12 +22,12 @@ type adminStore struct {
 	allowed  bool
 	checkErr error
 	login    string
-	githubID int64
+	sub      string
 	overview *store.AdminOverview
 }
 
-func (a *adminStore) Admin(_ context.Context, login string, githubID int64) (bool, error) {
-	a.login, a.githubID = login, githubID
+func (a *adminStore) Admin(_ context.Context, email, sub string) (bool, error) {
+	a.login, a.sub = email, sub
 	return a.allowed, a.checkErr
 }
 
@@ -143,8 +143,8 @@ func TestAdminDashboard(t *testing.T) {
 	if body.Admin != (adminUser{"SparklingStadt", 7}) || body.Overview.Workspaces != 3 || body.Overview.SharedPacks != 1 {
 		t.Fatalf("body = %s", response.Body)
 	}
-	if a.login != "SparklingStadt" || a.githubID != 7 {
-		t.Fatalf("checked %q %d", a.login, a.githubID)
+	if a.login != "SparklingStadt" || a.sub != "7" {
+		t.Fatalf("checked %q %q", a.login, a.sub)
 	}
 }
 

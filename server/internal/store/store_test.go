@@ -1133,7 +1133,8 @@ func TestReadRevisionRefusesInvalidInterests(t *testing.T) {
 	}
 }
 
-// An administrator's row binds the GitHub id of the first sign-in, and lets in only that id from then on.
+// An administrator's row is keyed by FFPF ID email, binds the sub of the first sign-in, and lets in only that sub from
+// then on. The email may be written in any case.
 func TestAdmin(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
@@ -1142,32 +1143,31 @@ func TestAdmin(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Cleanup(s.Close)
-	login := strings.ToLower(strings.TrimPrefix(owner(t, conn), "go-test:"))
-	t.Cleanup(func() { _, _ = conn.Exec(context.Background(), `DELETE FROM typle_admins WHERE login = $1`, login) })
-	if ok, err := s.Admin(ctx, login, 1<<40); err != nil || ok {
+	email := strings.ToLower(strings.TrimPrefix(owner(t, conn), "go-test:")) + "@example.com"
+	t.Cleanup(func() { _, _ = conn.Exec(context.Background(), `DELETE FROM typle_admins WHERE email = $1`, email) })
+	if ok, err := s.Admin(ctx, email, "sub1"); err != nil || ok {
 		t.Fatalf("Admin without a row = %v, %v", ok, err)
 	}
-	if _, err := conn.Exec(ctx, `INSERT INTO typle_admins (login) VALUES ($1)`, login); err != nil {
+	if _, err := conn.Exec(ctx, `INSERT INTO typle_admins (email) VALUES ($1)`, email); err != nil {
 		t.Fatal(err)
 	}
-	if ok, err := s.Admin(ctx, strings.ToUpper(login), 1<<40); err != nil || !ok {
+	if ok, err := s.Admin(ctx, strings.ToUpper(email), "sub1"); err != nil || !ok {
 		t.Fatalf("first Admin = %v, %v", ok, err)
 	}
-	var id int64
+	var sub string
 	var seen *time.Time
-	if err := conn.QueryRow(ctx, `SELECT github_id, last_seen_at FROM typle_admins WHERE login = $1`, login).Scan(&id, &seen); err != nil || id != 1<<40 || seen == nil {
-		t.Fatalf("row = %d %v, %v", id, seen, err)
+	if err := conn.QueryRow(ctx, `SELECT ffpf_sub, last_seen_at FROM typle_admins WHERE email = $1`, email).Scan(&sub, &seen); err != nil || sub != "sub1" || seen == nil {
+		t.Fatalf("row = %q %v, %v", sub, seen, err)
 	}
-	if ok, err := s.Admin(ctx, login, 1<<40+1); err != nil || ok {
-		t.Fatalf("Admin with another id = %v, %v", ok, err)
+	if ok, err := s.Admin(ctx, email, "sub2"); err != nil || ok {
+		t.Fatalf("Admin with another sub = %v, %v", ok, err)
 	}
-	if ok, err := s.Admin(ctx, login, 1<<40); err != nil || !ok {
+	if ok, err := s.Admin(ctx, email, "sub1"); err != nil || !ok {
 		t.Fatalf("Admin again = %v, %v", ok, err)
 	}
-	// The migration lets in sparklingstadt.
-	var seeded int
-	if err := conn.QueryRow(ctx, `SELECT count(*) FROM typle_admins WHERE login = 'sparklingstadt'`).Scan(&seeded); err != nil || seeded != 1 {
-		t.Fatalf("sparklingstadt rows = %d, %v", seeded, err)
+	// An email that is not in lower case cannot be stored.
+	if _, err := conn.Exec(ctx, `INSERT INTO typle_admins (email) VALUES ('Admin@example.com')`); err == nil {
+		t.Fatal("a mixed-case email was stored")
 	}
 }
 
@@ -1190,6 +1190,13 @@ func TestOverview(t *testing.T) {
 	}
 	if _, err := conn.Exec(ctx, `INSERT INTO typle_shared_packs (id, owner_id, pack_id, data, updated_at)
 		VALUES (gen_random_uuid(), $1, 'p', '{"pack":{"name":"Words"}}', now() + interval '1 hour')`, id); err != nil {
+		t.Fatal(err)
+	}
+	adminEmail := strings.ToLower(strings.TrimPrefix(id, "go-test:")) + "@example.com"
+	t.Cleanup(func() {
+		_, _ = conn.Exec(context.Background(), `DELETE FROM typle_admins WHERE email = $1`, adminEmail)
+	})
+	if _, err := conn.Exec(ctx, `INSERT INTO typle_admins (email) VALUES ($1)`, adminEmail); err != nil {
 		t.Fatal(err)
 	}
 	after, err := s.Overview(ctx)
@@ -1217,7 +1224,7 @@ func TestOverview(t *testing.T) {
 	if got := after.RecentShares[0]; got.OwnerID != id || got.Name != "Words" {
 		t.Fatalf("recent share = %+v", got)
 	}
-	if !slices.ContainsFunc(after.Admins, func(a AdminAccount) bool { return a.Login == "sparklingstadt" }) {
+	if !slices.ContainsFunc(after.Admins, func(a AdminAccount) bool { return a.Email == adminEmail && a.FFPFSub == nil }) {
 		t.Fatalf("admins = %+v", after.Admins)
 	}
 }
