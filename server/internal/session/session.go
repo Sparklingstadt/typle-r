@@ -1,5 +1,5 @@
 // Package session signs and checks the cookies and tokens of the Go server: the login session, the short-lived OAuth
-// state that lives between redirecting to GitHub and coming back, for the iPad app the one-time code its login
+// state that lives between redirecting to GitHub or FFPF ID and coming back, for the iPad app the one-time code its login
 // ends with and the token it then signs in with, and the administrator's session of /admin. Each is base64url(JSON) + "." + base64url(HMAC-SHA256), and the HMAC
 // key is derived from AUTH_SECRET, with a different key for each kind, so one kind never opens as another. The end-to-end tests forge a session with the TypeScript twin of Seal (tests/e2e/sessionCookie.ts), so
 // the JSON field order and the key derivation here must not change without changing it too.
@@ -21,14 +21,14 @@ import (
 const (
 	// MaxAge is how long a session is valid after it is issued.
 	MaxAge = 30 * 24 * time.Hour
-	// OAuthMaxAge is how long a login may take between leaving for GitHub and coming back.
+	// OAuthMaxAge is how long a login may take between leaving for GitHub or FFPF ID and coming back.
 	OAuthMaxAge = 10 * time.Minute
 	// OAuthCookie is the name of the OAuth state cookie.
 	OAuthCookie = "typle-oauth"
 	// AppCodeMaxAge is how long the iPad app has to trade the code of its login for a token.
 	AppCodeMaxAge = 2 * time.Minute
 	// AdminMaxAge is how long an administrator's session of /admin is valid. It is not renewed: the administrator signs
-	// in again with GitHub.
+	// in again with FFPF ID.
 	AdminMaxAge = 12 * time.Hour
 
 	// A session is sealed again once it is this old, so an active user stays signed in while MaxAge bounds an idle one.
@@ -38,11 +38,17 @@ const (
 	oauthInfo   = "typle oauth v1"
 	appInfo     = "typle app session v1"
 	codeInfo    = "typle app code v1"
-	adminInfo   = "typle admin v1"
+	// v2 since the administrator signs in with FFPF ID instead of GitHub: the new key keeps an administrator's cookie
+	// of a GitHub sign-in from ever opening, whatever its JSON says.
+	adminInfo = "typle admin v2"
 )
 
-// accountSub is the only subject accepted: the numeric GitHub user id, as the Next.js login used to give.
-var accountSub = regexp.MustCompile(`^github:\d+$`)
+// accountSub is the only subject accepted: a GitHub account (the numeric user id, as the Next.js login used to give) or
+// an FFPF ID account (its lowercase alphanumeric sub). The prefix keeps the two id spaces from ever colliding.
+var accountSub = regexp.MustCompile(`^(github:\d+|ffpf:[a-z0-9]{1,64})$`)
+
+// ffpfSub is an FFPF ID sub as it stands, without the prefix: what the administrator's session names.
+var ffpfSub = regexp.MustCompile(`^[a-z0-9]{1,64}$`)
 
 // Session is a signed-in user. Times are kept in whole seconds.
 type Session struct {
@@ -52,17 +58,20 @@ type Session struct {
 
 // OAuth is the state of one login in progress: the PKCE verifier and where to go afterwards. Challenge is the iPad
 // app's own PKCE challenge when the app started the login, and empty for the web app's. Admin is a login to /admin,
-// which ends with an Admin session instead of a Session.
+// which ends with an Admin session instead of a Session. Provider is "ffpf" for a login through FFPF ID and empty for
+// GitHub, so a callback can refuse a cookie that another provider's login started. Nonce is the OpenID Connect nonce
+// that FFPF ID's ID token must echo, and empty for GitHub.
 type OAuth struct {
 	State, Verifier, ReturnTo, Challenge string
 	Admin                                bool
+	Provider, Nonce                      string
 	Expires                              time.Time
 }
 
-// Admin is the administrator signed in to /admin: their GitHub login, as GitHub spells it, and numeric user id.
+// Admin is the administrator signed in to /admin: the FFPF ID account's verified email and its sub (without the
+// "ffpf:" prefix). /admin is reached only through FFPF ID.
 type Admin struct {
-	Login             string
-	GitHubID          int64
+	Email, Sub        string
 	IssuedAt, Expires time.Time
 }
 
@@ -89,13 +98,16 @@ type oauthWire struct {
 	// Left out for the web app's login, whose cookie thus stays as it was.
 	Challenge string `json:"challenge,omitempty"`
 	Admin     bool   `json:"admin,omitempty"`
+	// Likewise left out for GitHub, after Challenge and Admin so that the bytes before them do not move.
+	Provider string `json:"provider,omitempty"`
+	Nonce    string `json:"nonce,omitempty"`
 }
 
 type adminWire struct {
-	Login    string `json:"login"`
-	GitHubID int64  `json:"githubId"`
-	Iat      int64  `json:"iat"`
-	Exp      int64  `json:"exp"`
+	Email string `json:"email"`
+	Sub   string `json:"sub"`
+	Iat   int64  `json:"iat"`
+	Exp   int64  `json:"exp"`
 }
 
 type codeWire struct {
@@ -166,7 +178,7 @@ func (k Keys) Seal(s Session) string {
 	return seal(k.session, sessionWire{s.Sub, s.Name, s.Image, s.IssuedAt.Unix(), s.Expires.Unix()})
 }
 
-// Open returns the session in value if it is ours, unexpired and for a GitHub account.
+// Open returns the session in value if it is ours, unexpired and for a GitHub or FFPF ID account.
 func (k Keys) Open(value string, now time.Time) (Session, bool) {
 	return openSession(k.session, value, now)
 }
@@ -192,7 +204,7 @@ func openSession(key []byte, value string, now time.Time) (Session, bool) {
 
 // SealOAuth signs o with the OAuth key. It panics on the zero Keys.
 func (k Keys) SealOAuth(o OAuth) string {
-	return seal(k.oauth, oauthWire{o.State, o.Verifier, o.ReturnTo, o.Expires.Unix(), o.Challenge, o.Admin})
+	return seal(k.oauth, oauthWire{o.State, o.Verifier, o.ReturnTo, o.Expires.Unix(), o.Challenge, o.Admin, o.Provider, o.Nonce})
 }
 
 // OpenOAuth returns the login state in value if it is ours and unexpired.
@@ -201,13 +213,13 @@ func (k Keys) OpenOAuth(value string, now time.Time) (OAuth, bool) {
 	if !open(k.oauth, value, &w) || !now.Before(time.Unix(w.Exp, 0)) {
 		return OAuth{}, false
 	}
-	return OAuth{w.State, w.Verifier, w.ReturnTo, w.Challenge, w.Admin, time.Unix(w.Exp, 0)}, true
+	return OAuth{w.State, w.Verifier, w.ReturnTo, w.Challenge, w.Admin, w.Provider, w.Nonce, time.Unix(w.Exp, 0)}, true
 }
 
 // NewAdmin starts an administrator's session at now.
-func NewAdmin(login string, githubID int64, now time.Time) Admin {
+func NewAdmin(email, sub string, now time.Time) Admin {
 	now = now.Truncate(time.Second)
-	return Admin{Login: login, GitHubID: githubID, IssuedAt: now, Expires: now.Add(AdminMaxAge)}
+	return Admin{Email: email, Sub: sub, IssuedAt: now, Expires: now.Add(AdminMaxAge)}
 }
 
 // AdminCookieName is the administrator's cookie, __Host- over HTTPS as CookieName.
@@ -220,17 +232,17 @@ func AdminCookieName(secure bool) string {
 
 // SealAdmin signs a with the admin key. It panics on the zero Keys.
 func (k Keys) SealAdmin(a Admin) string {
-	return seal(k.admin, adminWire{a.Login, a.GitHubID, a.IssuedAt.Unix(), a.Expires.Unix()})
+	return seal(k.admin, adminWire{a.Email, a.Sub, a.IssuedAt.Unix(), a.Expires.Unix()})
 }
 
-// OpenAdmin returns the administrator's session in value if it is ours, unexpired and names a GitHub account. Whether
-// that account is still an administrator is for the caller to check.
+// OpenAdmin returns the administrator's session in value if it is ours, unexpired and names an FFPF ID account: an
+// email and a sub. Whether that account is still an administrator is for the caller to check.
 func (k Keys) OpenAdmin(value string, now time.Time) (Admin, bool) {
 	var w adminWire
-	if !open(k.admin, value, &w) || !now.Before(time.Unix(w.Exp, 0)) || w.Login == "" || w.GitHubID <= 0 {
+	if !open(k.admin, value, &w) || !now.Before(time.Unix(w.Exp, 0)) || w.Email == "" || !ffpfSub.MatchString(w.Sub) {
 		return Admin{}, false
 	}
-	return Admin{w.Login, w.GitHubID, time.Unix(w.Iat, 0), time.Unix(w.Exp, 0)}, true
+	return Admin{w.Email, w.Sub, time.Unix(w.Iat, 0), time.Unix(w.Exp, 0)}, true
 }
 
 // SealCode signs c with the code key. It panics on the zero Keys.
@@ -238,7 +250,7 @@ func (k Keys) SealCode(c AppCode) string {
 	return seal(k.code, codeWire{c.Sub, c.Name, c.Image, c.Challenge, c.Expires.Unix()})
 }
 
-// OpenCode returns the code in value if it is ours, unexpired and for a GitHub account. It does not check the
+// OpenCode returns the code in value if it is ours, unexpired and for a GitHub or FFPF ID account. It does not check the
 // verifier: the caller compares it with Challenge.
 func (k Keys) OpenCode(value string, now time.Time) (AppCode, bool) {
 	var w codeWire

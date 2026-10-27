@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -60,7 +61,7 @@ func (h *loginHarness) adminSignin(t *testing.T, query string) *http.Cookie {
 }
 
 func (h *loginHarness) adminCookie(login string, id int64) *http.Cookie {
-	return &http.Cookie{Name: session.AdminCookieName(h.secure), Value: h.keys.SealAdmin(session.NewAdmin(login, id, h.now))}
+	return &http.Cookie{Name: session.AdminCookieName(h.secure), Value: h.keys.SealAdmin(session.NewAdmin(login, strconv.FormatInt(id, 10), h.now))}
 }
 
 // A login to the dashboard always returns to it, whatever returnTo says, and an app's client is not taken.
@@ -95,7 +96,7 @@ func TestAdminCallback(t *testing.T) {
 			t.Fatalf("%s: admin cookie = %+v", base, admin)
 		}
 		opened, ok := h.keys.OpenAdmin(admin.Value, h.now)
-		if !ok || opened.Login != "SparklingStadt" || opened.GitHubID != 7 {
+		if !ok || opened.Email != "SparklingStadt" || opened.Sub != "7" {
 			t.Fatalf("%s: admin session = %+v, %v", base, opened, ok)
 		}
 	}
@@ -152,7 +153,7 @@ func TestAdminDashboardRefuses(t *testing.T) {
 	h := newAdminHarness(t, testBase, a)
 	sessionCookie := &http.Cookie{Name: h.sessionCookieName(), Value: h.keys.Seal(session.New("github:7", "x", "", h.now))}
 	expired := h.adminCookie("sparklingstadt", 7)
-	expired.Value = h.keys.SealAdmin(session.NewAdmin("sparklingstadt", 7, h.now.Add(-session.AdminMaxAge)))
+	expired.Value = h.keys.SealAdmin(session.NewAdmin("sparklingstadt", "7", h.now.Add(-session.AdminMaxAge)))
 	for name, cookie := range map[string]*http.Cookie{
 		"no cookie":      nil,
 		"session cookie": sessionCookie,

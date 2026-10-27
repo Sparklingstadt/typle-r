@@ -35,9 +35,19 @@ func (s *server) adminCookie(value string, maxAge int) *http.Cookie {
 }
 
 // issueAdmin signs the administrator in to the dashboard.
+//
+// TODO(Task 3'): session.Admin now names an FFPF ID account (email and sub), but the dashboard's login still goes
+// through GitHub and typle_admins still holds GitHub accounts. Until the login is rewritten for FFPF ID, the GitHub
+// login rides in Email and the numeric GitHub id, in decimal, in Sub; githubAdmin reads them back.
 func (s *server) issueAdmin(w http.ResponseWriter, login string, githubID int64) {
-	value := s.config.Keys.SealAdmin(session.NewAdmin(login, githubID, s.now()))
+	value := s.config.Keys.SealAdmin(session.NewAdmin(login, strconv.FormatInt(githubID, 10), s.now()))
 	http.SetCookie(w, s.adminCookie(value, int(session.AdminMaxAge.Seconds())))
+}
+
+// githubAdmin is the GitHub account that issueAdmin put in admin. TODO(Task 3'): goes with the GitHub login.
+func githubAdmin(admin session.Admin) (login string, githubID int64, ok bool) {
+	id, err := strconv.ParseInt(admin.Sub, 10, 64)
+	return admin.Email, id, err == nil && id > 0
 }
 
 // signedInAdmin is the administrator's session of the request's cookie, before it is checked against typle_admins.
@@ -47,7 +57,8 @@ func (s *server) signedInAdmin(r *http.Request) (session.Admin, bool) {
 		return session.Admin{}, false
 	}
 	admin, ok := s.config.Keys.OpenAdmin(cookie.Value, s.now())
-	return admin, ok && isAdminLogin(admin.Login)
+	login, _, isGitHub := githubAdmin(admin)
+	return admin, ok && isGitHub && isAdminLogin(login)
 }
 
 // adminAnswer is who is signed in to the dashboard, and what it shows.
@@ -69,7 +80,8 @@ func (s *server) allowAdmin(w http.ResponseWriter, r *http.Request) (session.Adm
 		refuse(w, http.StatusUnauthorized, "adminRequired")
 		return session.Admin{}, false
 	}
-	allowed, err := s.config.Store.Admin(r.Context(), admin.Login, admin.GitHubID)
+	login, githubID, _ := githubAdmin(admin)
+	allowed, err := s.config.Store.Admin(r.Context(), login, githubID)
 	if err != nil {
 		s.report(r, err, "admin.check")
 		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
@@ -98,7 +110,8 @@ func (s *server) adminDashboard(w http.ResponseWriter, r *http.Request) {
 		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
 		return
 	}
-	reply(w, http.StatusOK, adminAnswer{Admin: adminUser{Login: admin.Login, GitHubID: admin.GitHubID}, Overview: overview})
+	login, githubID, _ := githubAdmin(admin)
+	reply(w, http.StatusOK, adminAnswer{Admin: adminUser{Login: login, GitHubID: githubID}, Overview: overview})
 }
 
 // maxUsersPage keeps the OFFSET of a made-up page number from making the database walk far.
