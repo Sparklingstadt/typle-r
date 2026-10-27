@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import Link from 'next/link'
-import { LogIn, LogOut, Monitor } from 'lucide-react'
+import { ChevronDown, LogIn, LogOut, Monitor } from 'lucide-react'
 import { Avatar, DropdownMenu } from 'radix-ui'
 
 const itemClass = "flex cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 text-sm outline-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:size-4 [&_svg]:text-muted-foreground"
@@ -20,15 +20,35 @@ function UserAvatar({ name, image, className }: { name: string; image?: string |
 }
 
 export default function AccountBar() {
-  const { data: session, status } = useSession()
+  const { data: session, providers, status } = useSession()
   const t = useTranslations('account')
   const [signOutFailed, setSignOutFailed] = useState(false)
   // Same size as the avatar button so the top bar does not shift once the session is known.
   if (status === 'loading') return <div className="flex size-10 items-center justify-center"><Skeleton className="size-8 rounded-full" /><span className="sr-only">{t('checking')}</span></div>
-  if (!session?.user) return <Button variant="outline" size="lg" className="gap-2 px-3" aria-label={t('signInWithGitHub')} onClick={() => signIn()}>
-    <LogIn aria-hidden="true" /><span className="sm:hidden">{t('signIn')}</span><span className="hidden sm:inline">{t('signInWithGitHub')}</span>
-  </Button>
-  const name = session.user.name ?? t('githubUser')
+  if (!session?.user) {
+    if (providers.length > 1) return <DropdownMenu.Root>
+      <DropdownMenu.Trigger asChild>
+        <Button variant="outline" size="lg" className="gap-2 px-3" aria-label={t('chooseSignIn')}>
+          <LogIn aria-hidden="true" /><span>{t('signIn')}</span><ChevronDown aria-hidden="true" className="size-4 text-muted-foreground" />
+        </Button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content align="end" sideOffset={8} className="z-50 w-56 rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md">
+          {providers.map(provider => <DropdownMenu.Item key={provider} className={itemClass} onSelect={() => signIn(provider)}>
+            <LogIn aria-hidden="true" />{t(provider === 'ffpf' ? 'signInWithFfpf' : 'signInWithGitHub')}
+          </DropdownMenu.Item>)}
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
+    const only = providers[0]
+    const label = t(only === 'ffpf' ? 'signInWithFfpf' : 'signInWithGitHub')
+    return <Button variant="outline" size="lg" className="gap-2 px-3" aria-label={label} onClick={() => signIn(only)}>
+      <LogIn aria-hidden="true" /><span className="sm:hidden">{t('signIn')}</span><span className="hidden sm:inline">{label}</span>
+    </Button>
+  }
+  const viaFfpf = session.user.id.startsWith('ffpf:')
+  // A name that is empty (an FFPF ID without one) is no name, so it falls back too.
+  const name = session.user.name || t(viaFfpf ? 'ffpfUser' : 'githubUser')
   return <div className="relative">
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
@@ -42,7 +62,7 @@ export default function AccountBar() {
             <UserAvatar name={name} image={session.user.image} className="size-9" />
             <span className="grid min-w-0">
               <span className="truncate text-sm font-medium">{name}</span>
-              <span className="text-xs text-muted-foreground">{t('signedInWithGitHub')}</span>
+              <span className="text-xs text-muted-foreground">{t(viaFfpf ? 'signedInWithFfpf' : 'signedInWithGitHub')}</span>
             </span>
           </DropdownMenu.Label>
           <DropdownMenu.Separator className="-mx-1 my-1 h-px bg-border" />
