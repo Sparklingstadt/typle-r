@@ -24,15 +24,6 @@
     "activeMonth": "30 天內更新",
     "sharedPacks": "共享中的單字包"
   },
-  "workspaces": {
-    "title": "最近更新的帳號",
-    "owner": "帳號",
-    "lists": "清單",
-    "packs": "單字包",
-    "devices": "裝置",
-    "revision": "修訂版本",
-    "empty": "還沒有帳號儲存資料。"
-  },
   "shares": {
     "title": "最近共享的單字包",
     "name": "單字包名稱",
@@ -47,5 +38,24 @@
     "createdAt": "新增時間",
     "lastSeenAt": "最近存取",
     "unbound": "尚未登入"
+  },
+  "users": {
+    "title": "使用者清單",
+    "description": "已儲存資料的帳號，依更新時間由新到舊排列。訪客的資料儲存在瀏覽器中，不在此列。",
+    "loading": "正在載入",
+    "retry": "重試",
+    "empty": "還沒有帳號儲存資料。",
+    "account": "帳號",
+    "lists": "清單",
+    "packs": "單字包",
+    "devices": "裝置",
+    "shares": "共享",
+    "revision": "修訂版本",
+    "updatedAt": "更新時間",
+    "pagination": "使用者清單分頁",
+    "range": "共 {total} 個，第 {from}–{to} 個",
+    "page": "第 {page} / {pages} 頁",
+    "previous": "上一頁",
+    "next": "下一頁"
   }
 }

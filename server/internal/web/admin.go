@@ -2,6 +2,7 @@ package web
 
 import (
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/sparklingstadt/typle-r/server/internal/session"
@@ -60,26 +61,35 @@ type adminUser struct {
 	GitHubID int64  `json:"githubId"`
 }
 
-// adminDashboard answers the dashboard's figures to the administrator: adminRequired without their cookie, and
-// adminForbidden, with the cookie removed, when typle_admins no longer lets the account in.
-func (s *server) adminDashboard(w http.ResponseWriter, r *http.Request) {
-	if !methods(w, r, http.MethodGet, http.MethodHead) {
-		return
-	}
+// allowAdmin lets the administrator through: adminRequired without their cookie, and adminForbidden, with the cookie
+// removed, when typle_admins no longer lets the account in. The caller answers only when it returns true.
+func (s *server) allowAdmin(w http.ResponseWriter, r *http.Request) (session.Admin, bool) {
 	admin, ok := s.signedInAdmin(r)
 	if !ok {
 		refuse(w, http.StatusUnauthorized, "adminRequired")
-		return
+		return session.Admin{}, false
 	}
 	allowed, err := s.config.Store.Admin(r.Context(), admin.Login, admin.GitHubID)
 	if err != nil {
 		s.report(r, err, "admin.check")
 		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
-		return
+		return session.Admin{}, false
 	}
 	if !allowed {
 		http.SetCookie(w, s.adminCookie("", -1))
 		refuse(w, http.StatusForbidden, "adminForbidden")
+		return session.Admin{}, false
+	}
+	return admin, true
+}
+
+// adminDashboard answers the dashboard's figures to the administrator.
+func (s *server) adminDashboard(w http.ResponseWriter, r *http.Request) {
+	if !methods(w, r, http.MethodGet, http.MethodHead) {
+		return
+	}
+	admin, ok := s.allowAdmin(w, r)
+	if !ok {
 		return
 	}
 	overview, err := s.config.Store.Overview(r.Context())
@@ -89,6 +99,43 @@ func (s *server) adminDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	reply(w, http.StatusOK, adminAnswer{Admin: adminUser{Login: admin.Login, GitHubID: admin.GitHubID}, Overview: overview})
+}
+
+// maxUsersPage keeps the OFFSET of a made-up page number from making the database walk far.
+const maxUsersPage = 10000
+
+// adminUsers answers one page of the user list (?page=, from 0) to the administrator. A page that is not a number from
+// 0 to maxUsersPage is invalidPage.
+func (s *server) adminUsers(w http.ResponseWriter, r *http.Request) {
+	if !methods(w, r, http.MethodGet, http.MethodHead) {
+		return
+	}
+	if _, ok := s.allowAdmin(w, r); !ok {
+		return
+	}
+	page := 0
+	if value := r.URL.Query().Get("page"); value != "" {
+		var err error
+		if page, err = strconv.Atoi(value); err != nil || page < 0 || page > maxUsersPage {
+			refuse(w, http.StatusBadRequest, "invalidPage")
+			return
+		}
+	}
+	users, err := s.config.Store.Users(r.Context(), page)
+	if err != nil {
+		s.report(r, err, "admin.users")
+		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
+		return
+	}
+	reply(w, http.StatusOK, adminUsersAnswer{Page: page, PageSize: store.AdminUsersPage, Total: users.Total, Users: users.Users})
+}
+
+// adminUsersAnswer is one page of the user list.
+type adminUsersAnswer struct {
+	Page     int               `json:"page"`
+	PageSize int               `json:"pageSize"`
+	Total    int               `json:"total"`
+	Users    []store.AdminUser `json:"users"`
 }
 
 // adminSignout forgets the administrator's cookie. Like signout, it needs the app's own Origin.

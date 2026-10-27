@@ -125,7 +125,7 @@ func TestAdminCallbackRefusesOthers(t *testing.T) {
 
 func TestAdminDashboard(t *testing.T) {
 	overview := &store.AdminOverview{Workspaces: 3, ActiveWeek: 2, SharedPacks: 1,
-		RecentWorkspaces: []store.AdminWorkspace{}, RecentShares: []store.AdminShare{}, Admins: []store.AdminAccount{}}
+		RecentShares: []store.AdminShare{}, Admins: []store.AdminAccount{}}
 	a := &adminStore{allowed: true, overview: overview}
 	h := newAdminHarness(t, testBase, a)
 	response := h.do(http.MethodGet, "/api/admin/dashboard", withCookie(h.adminCookie("SparklingStadt", 7)))
@@ -198,5 +198,53 @@ func TestAdminSignout(t *testing.T) {
 	c := findCookie(response, session.AdminCookieName(false))
 	if response.Code != http.StatusNoContent || c == nil || c.MaxAge >= 0 || c.SameSite != http.SameSiteStrictMode {
 		t.Fatalf("signout = %d %+v", response.Code, c)
+	}
+}
+
+// usersStore answers the user list and remembers the page it was asked for.
+type usersStore struct {
+	adminStore
+	page  int
+	users *store.AdminUsers
+}
+
+func (u *usersStore) Users(_ context.Context, page int) (*store.AdminUsers, error) {
+	u.page = page
+	return u.users, u.err
+}
+
+func TestAdminUsers(t *testing.T) {
+	u := &usersStore{adminStore: adminStore{allowed: true}, page: -1, users: &store.AdminUsers{Total: 51,
+		Users: []store.AdminUser{{OwnerID: "github:42", Lists: 3, Shares: 1, Revision: 2, UpdatedAt: time.Unix(1700000000, 0).UTC()}}}}
+	h := newLoginHarness(t, testBase, false)
+	parsed, _ := url.Parse(testBase)
+	h.handler = New(Config{Store: u, Keys: h.keys, BaseURL: parsed, Now: func() time.Time { return h.now },
+		Report: func(_ *http.Request, err error, operation string) { h.reports = append(h.reports, operation) }})
+	admin := withCookie(h.adminCookie("sparklingstadt", 7))
+
+	response := h.do(http.MethodGet, "/api/admin/users?page=1", admin)
+	want := `{"page":1,"pageSize":50,"total":51,"users":[{"ownerId":"github:42","lists":3,"packs":0,"devices":0,"shares":1,` +
+		`"revision":2,"updatedAt":"2023-11-14T22:13:20Z"}]}`
+	if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != want || u.page != 1 {
+		t.Fatalf("users = %d %s (page %d)", response.Code, response.Body, u.page)
+	}
+	if h.do(http.MethodGet, "/api/admin/users", admin); u.page != 0 {
+		t.Fatalf("no page asked for page %d", u.page)
+	}
+	for _, page := range []string{"-1", "x", "1.5", "10001"} {
+		u.page = -1
+		expectError(t, h.do(http.MethodGet, "/api/admin/users?page="+page, admin), http.StatusBadRequest, "invalidPage")
+		if u.page != -1 {
+			t.Fatalf("page %s reached the database", page)
+		}
+	}
+	// The list is the administrator's alone.
+	expectError(t, h.do(http.MethodGet, "/api/admin/users"), http.StatusUnauthorized, "adminRequired")
+	u.allowed = false
+	expectError(t, h.do(http.MethodGet, "/api/admin/users", admin), http.StatusForbidden, "adminForbidden")
+	u.allowed, u.err = true, errors.New("down")
+	expectError(t, h.do(http.MethodGet, "/api/admin/users", admin), http.StatusServiceUnavailable, "databaseUnavailable")
+	if strings.Join(h.reports, ",") != "admin.users" {
+		t.Fatalf("reports = %v", h.reports)
 	}
 }

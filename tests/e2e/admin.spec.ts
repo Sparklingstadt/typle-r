@@ -25,11 +25,19 @@ test('the administrator sees the figures and can sign out', async ({ page }) => 
     admin: { login: 'sparklingstadt', githubId: 7 },
     overview: {
       workspaces: 12, activeDay: 1, activeWeek: 4, activeMonth: 9, sharedPacks: 3,
-      recentWorkspaces: [{ ownerId: 'github:42', lists: 5, packs: 2, devices: 1, revision: 8, updatedAt: '2026-10-20T03:04:05Z' }],
       recentShares: [{ id: '00000000-0000-4000-8000-000000000001', ownerId: 'github:42', name: '', updatedAt: '2026-10-20T03:04:05Z' }],
       admins: [{ login: 'sparklingstadt', githubId: 7, createdAt: '2026-10-01T00:00:00Z', lastSeenAt: null }],
     },
   } }))
+  const pages: string[] = []
+  await page.route('**/api/admin/users?*', route => {
+    const number = Number(new URL(route.request().url()).searchParams.get('page'))
+    pages.push(String(number))
+    const users = number === 0
+      ? Array.from({ length: 50 }, (_, i) => ({ ownerId: `github:${1000 + i}`, lists: 5, packs: 2, devices: 1, shares: 0, revision: 8, updatedAt: '2026-10-20T03:04:05Z' }))
+      : [{ ownerId: 'github:9', lists: 1, packs: 1, devices: 0, shares: 3, revision: 1, updatedAt: '2026-10-01T00:00:00Z' }]
+    return route.fulfill({ json: { page: number, pageSize: 50, total: 51, users } })
+  })
   let signedOut = false
   await page.route('**/api/auth/admin/signout', route => { signedOut = true; return route.fulfill({ status: 204 }) })
   await page.goto('/admin')
@@ -37,7 +45,18 @@ test('the administrator sees the figures and can sign out', async ({ page }) => 
   const stats = page.getByRole('region', { name: '概要' })
   await expect(stats.getByText('保存済みアカウント')).toBeVisible()
   await expect(stats.getByText('12', { exact: true })).toBeVisible()
-  await expect(page.getByRole('cell', { name: 'github:42' }).first()).toBeVisible()
+  await expect(page.getByRole('cell', { name: 'github:42' })).toBeVisible()
+
+  const users = page.getByRole('navigation', { name: 'ユーザー一覧のページ' })
+  await expect(users).toContainText('51件中 1〜50件')
+  await expect(users.getByRole('button', { name: '前へ' })).toBeDisabled()
+  await expect(page.getByText('github:1049')).toBeVisible()
+  await users.getByRole('button', { name: '次へ' }).click()
+  await expect(users).toContainText('51件中 51〜51件')
+  await expect(users).toContainText('2 / 2ページ')
+  await expect(page.getByText('github:9', { exact: true })).toBeVisible()
+  await expect(users.getByRole('button', { name: '次へ' })).toBeDisabled()
+  expect(pages).toEqual(['0', '1'])
   await expect(page.getByRole('link', { name: '（名前なし）' })).toHaveAttribute('href', '/shared/00000000-0000-4000-8000-000000000001')
   await expect(page.getByRole('cell', { name: '未ログイン' })).toHaveCount(0)
 

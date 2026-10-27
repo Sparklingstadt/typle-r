@@ -24,15 +24,6 @@
     "activeMonth": "Mis à jour en 30 jours",
     "sharedPacks": "Packs partagés"
   },
-  "workspaces": {
-    "title": "Comptes récemment mis à jour",
-    "owner": "Compte",
-    "lists": "Listes",
-    "packs": "Packs",
-    "devices": "Appareils",
-    "revision": "Révision",
-    "empty": "Aucun compte n’a encore enregistré de données."
-  },
   "shares": {
     "title": "Packs récemment partagés",
     "name": "Pack",
@@ -47,5 +38,24 @@
     "createdAt": "Ajouté",
     "lastSeenAt": "Dernier accès",
     "unbound": "Pas encore connecté"
+  },
+  "users": {
+    "title": "Utilisateurs",
+    "description": "Les comptes qui ont enregistré des données, du plus récemment mis à jour au plus ancien. Les invités gardent leurs données dans le navigateur et ne sont pas listés.",
+    "loading": "Chargement",
+    "retry": "Réessayer",
+    "empty": "Aucun compte n’a encore enregistré de données.",
+    "account": "Compte",
+    "lists": "Listes",
+    "packs": "Packs",
+    "devices": "Appareils",
+    "shares": "Partages",
+    "revision": "Révision",
+    "updatedAt": "Mis à jour",
+    "pagination": "Pages de la liste des utilisateurs",
+    "range": "{from}–{to} sur {total}",
+    "page": "Page {page} sur {pages}",
+    "previous": "Précédent",
+    "next": "Suivant"
   }
 }

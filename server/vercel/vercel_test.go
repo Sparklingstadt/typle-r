@@ -50,6 +50,9 @@ func (fakeStore) Admin(context.Context, string, int64) (bool, error)          { 
 func (fakeStore) Overview(context.Context) (*store.AdminOverview, error) {
 	return nil, errors.New("not used")
 }
+func (fakeStore) Users(context.Context, int) (*store.AdminUsers, error) {
+	return nil, errors.New("not used")
+}
 
 func settings(t *testing.T) {
 	t.Helper()

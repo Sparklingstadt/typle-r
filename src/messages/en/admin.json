@@ -24,15 +24,6 @@
     "activeMonth": "Updated in 30 days",
     "sharedPacks": "Shared packs"
   },
-  "workspaces": {
-    "title": "Recently updated accounts",
-    "owner": "Account",
-    "lists": "Lists",
-    "packs": "Packs",
-    "devices": "Devices",
-    "revision": "Revision",
-    "empty": "No account has saved data yet."
-  },
   "shares": {
     "title": "Recently shared packs",
     "name": "Pack",
@@ -47,5 +38,24 @@
     "createdAt": "Added",
     "lastSeenAt": "Last seen",
     "unbound": "Not signed in yet"
+  },
+  "users": {
+    "title": "Users",
+    "description": "Accounts that have saved data, most recently updated first. Guests keep their data in the browser and are not listed.",
+    "loading": "Loading",
+    "retry": "Try again",
+    "empty": "No account has saved data yet.",
+    "account": "Account",
+    "lists": "Lists",
+    "packs": "Packs",
+    "devices": "Devices",
+    "shares": "Shares",
+    "revision": "Revision",
+    "updatedAt": "Updated",
+    "pagination": "User list pages",
+    "range": "{from}–{to} of {total}",
+    "page": "Page {page} of {pages}",
+    "previous": "Previous",
+    "next": "Next"
   }
 }

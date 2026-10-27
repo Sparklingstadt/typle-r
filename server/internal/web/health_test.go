@@ -106,3 +106,5 @@ func (f fakeStore) SharedPack(context.Context, string) (json.RawMessage, error) 
 func (f fakeStore) Admin(context.Context, string, int64) (bool, error) { return false, f.err }
 
 func (f fakeStore) Overview(context.Context) (*store.AdminOverview, error) { return nil, f.err }
+
+func (f fakeStore) Users(context.Context, int) (*store.AdminUsers, error) { return nil, f.err }
