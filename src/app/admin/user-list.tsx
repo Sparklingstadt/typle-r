@@ -14,8 +14,8 @@ type Page = { page: number; pageSize: number; total: number; users: User[] }
 
 type State = { kind: 'loading' } | { kind: 'failed'; error: string } | { kind: 'ready'; answer: Page }
 
-// Accounts are github:<numeric user id>, and GitHub serves an account's avatar by that id. The local account (github:0)
-// has none.
+// A GitHub account is github:<numeric user id>, and GitHub serves its avatar by that id. The local account (github:0) and
+// FFPF ID accounts (ffpf:<sub>) have none.
 function avatarOf(ownerId: string) {
   const id = /^github:(\d+)$/.exec(ownerId)?.[1]
   return id && id !== '0' ? `https://avatars.githubusercontent.com/u/${id}?s=64` : undefined

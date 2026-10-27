@@ -3,14 +3,13 @@ package store
 import (
 	"context"
 	"errors"
-	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
 )
 
-// The accounts that may sign in to /admin are kept in typle_admins, by GitHub login in lower case. The numeric GitHub
-// user id is bound at the first sign-in, so that whoever takes the login over after a rename is not let in.
+// The accounts that may sign in to /admin are kept in typle_admins, by FFPF ID email in lower case. The FFPF ID sub is
+// bound at the first sign-in, so that whoever takes the email over later is not let in.
 
 // AdminRecentRows is how many shared packs the dashboard lists, and AdminUsersPage how many accounts one page of the
 // user list holds.
@@ -19,12 +18,16 @@ const (
 	AdminUsersPage  = 50
 )
 
-// Admin reports whether the GitHub account login (any case) with the numeric id githubID is an administrator, and if
-// so binds the id to the row when it has none yet and records when it was last seen.
-func (s *Store) Admin(ctx context.Context, login string, githubID int64) (bool, error) {
+// Admin reports whether the FFPF ID account with the verified email (any case) and the sub is an administrator, and if
+// so binds the sub to the row when it has none yet and records when it was last seen. An empty email or sub is no
+// account, and is answered false without asking the database: an empty sub must never be bound to a row.
+func (s *Store) Admin(ctx context.Context, email, sub string) (bool, error) {
+	if email == "" || sub == "" {
+		return false, nil
+	}
 	var one int
-	err := s.pool.QueryRow(ctx, `UPDATE typle_admins SET github_id = $2, last_seen_at = now()
-		WHERE login = $1 AND (github_id IS NULL OR github_id = $2) RETURNING 1`, strings.ToLower(login), githubID).Scan(&one)
+	err := s.pool.QueryRow(ctx, `UPDATE typle_admins SET ffpf_sub = $2, last_seen_at = now()
+		WHERE email = lower($1) AND (ffpf_sub IS NULL OR ffpf_sub = $2) RETURNING 1`, email, sub).Scan(&one)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return false, nil
 	}
@@ -33,8 +36,8 @@ func (s *Store) Admin(ctx context.Context, login string, githubID int64) (bool, 
 
 // AdminAccount is a row of typle_admins.
 type AdminAccount struct {
-	Login      string     `json:"login"`
-	GitHubID   *int64     `json:"githubId"`
+	Email      string     `json:"email"`
+	FFPFSub    *string    `json:"ffpfSub"`
 	CreatedAt  time.Time  `json:"createdAt"`
 	LastSeenAt *time.Time `json:"lastSeenAt"`
 }
@@ -99,13 +102,13 @@ func (s *Store) Overview(ctx context.Context) (*AdminOverview, error) {
 		}); err != nil {
 			return err
 		}
-		rows, err = tx.Query(ctx, `SELECT login, github_id, created_at, last_seen_at FROM typle_admins ORDER BY login`)
+		rows, err = tx.Query(ctx, `SELECT email, ffpf_sub, created_at, last_seen_at FROM typle_admins ORDER BY email`)
 		if err != nil {
 			return err
 		}
 		overview.Admins, err = pgx.CollectRows(rows, func(row pgx.CollectableRow) (AdminAccount, error) {
 			var a AdminAccount
-			return a, row.Scan(&a.Login, &a.GitHubID, &a.CreatedAt, &a.LastSeenAt)
+			return a, row.Scan(&a.Email, &a.FFPFSub, &a.CreatedAt, &a.LastSeenAt)
 		})
 		return err
 	})

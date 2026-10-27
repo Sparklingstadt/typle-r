@@ -1,29 +1,29 @@
 package web
 
 import (
+	"context"
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
 
+	"github.com/sparklingstadt/typle-r/server/internal/auth"
 	"github.com/sparklingstadt/typle-r/server/internal/session"
 	"github.com/sparklingstadt/typle-r/server/internal/store"
 )
 
-// The administrator's dashboard (/admin) has a login of its own. It goes through GitHub as the app's login does
-// (/api/auth/signin?admin=1, then the same callback), but ends with the administrator's cookie instead of the session
-// cookie, and only for the GitHub account adminLogin. Each /api/admin request then also checks the account against
-// typle_admins, which binds the account's numeric id at its first sign-in.
+// The administrator's dashboard (/admin) has a login of its own. It goes through FFPF ID only
+// (/api/auth/signin?admin=1, then /api/auth/callback/ffpf), and ends with the administrator's cookie instead of the
+// session cookie, for an account that typle_admins lets in: one registered there by its email, which binds the
+// account's sub at its first sign-in. Each /api/admin request checks the account against typle_admins again, so an
+// administrator whose row is removed is let in no longer.
 const (
-	adminLogin = "sparklingstadt"
-	adminPage  = "/admin"
-	// adminRefused is where a login of another GitHub account ends: the page says it is not an administrator.
+	adminPage = "/admin"
+	// adminRefused is where a login of an account that is not an administrator ends: the page says so.
 	adminRefused = adminPage + "?error=adminForbidden"
+	// adminUnavailable is where a login to the dashboard ends when typle_admins could not be asked.
+	adminUnavailable = adminPage + "?error=adminUnavailable"
 )
-
-// isAdminLogin reports whether a GitHub login is the administrator's. GitHub logins are not case-sensitive.
-func isAdminLogin(login string) bool {
-	return strings.EqualFold(login, adminLogin)
-}
 
 // adminCookie is SameSite=Strict: the dashboard is only reached from the app's own pages, and its cookie is never sent
 // with a request another site starts.
@@ -34,10 +34,39 @@ func (s *server) adminCookie(value string, maxAge int) *http.Cookie {
 	}
 }
 
-// issueAdmin signs the administrator in to the dashboard.
-func (s *server) issueAdmin(w http.ResponseWriter, login string, githubID int64) {
-	value := s.config.Keys.SealAdmin(session.NewAdmin(login, githubID, s.now()))
+// finishAdmin ends a login to the dashboard through FFPF ID: the administrator's cookie if typle_admins lets the
+// account in, and adminRefused otherwise, or adminUnavailable when the database does not answer. It never sets the
+// session cookie, so a login to the dashboard does not sign in to the app.
+func (s *server) finishAdmin(w http.ResponseWriter, r *http.Request, user auth.FFPFUser) {
+	email := strings.ToLower(user.Email)
+	allowed, err := s.isAdmin(r.Context(), email, user.Sub)
+	if err != nil {
+		s.report(r, err, "admin.check")
+		goTo(w, adminUnavailable)
+		return
+	}
+	if !allowed {
+		goTo(w, adminRefused)
+		return
+	}
+	value := s.config.Keys.SealAdmin(session.NewAdmin(email, user.Sub, s.now()))
 	http.SetCookie(w, s.adminCookie(value, int(session.AdminMaxAge.Seconds())))
+	goTo(w, adminPage)
+}
+
+// errNoAdmins is a server set up without a database to ask about administrators.
+var errNoAdmins = errors.New("no database to check the administrator against")
+
+// isAdmin asks typle_admins, through Config.Admins or else Config.Store, whether the FFPF ID account is an
+// administrator.
+func (s *server) isAdmin(ctx context.Context, email, sub string) (bool, error) {
+	if s.config.Admins != nil {
+		return s.config.Admins.Admin(ctx, email, sub)
+	}
+	if s.config.Store != nil {
+		return s.config.Store.Admin(ctx, email, sub)
+	}
+	return false, errNoAdmins
 }
 
 // signedInAdmin is the administrator's session of the request's cookie, before it is checked against typle_admins.
@@ -46,8 +75,7 @@ func (s *server) signedInAdmin(r *http.Request) (session.Admin, bool) {
 	if err != nil {
 		return session.Admin{}, false
 	}
-	admin, ok := s.config.Keys.OpenAdmin(cookie.Value, s.now())
-	return admin, ok && isAdminLogin(admin.Login)
+	return s.config.Keys.OpenAdmin(cookie.Value, s.now())
 }
 
 // adminAnswer is who is signed in to the dashboard, and what it shows.
@@ -56,9 +84,10 @@ type adminAnswer struct {
 	Overview *store.AdminOverview `json:"overview"`
 }
 
+// adminUser is the FFPF ID account signed in to the dashboard.
 type adminUser struct {
-	Login    string `json:"login"`
-	GitHubID int64  `json:"githubId"`
+	Email string `json:"email"`
+	Sub   string `json:"sub"`
 }
 
 // allowAdmin lets the administrator through: adminRequired without their cookie, and adminForbidden, with the cookie
@@ -69,7 +98,7 @@ func (s *server) allowAdmin(w http.ResponseWriter, r *http.Request) (session.Adm
 		refuse(w, http.StatusUnauthorized, "adminRequired")
 		return session.Admin{}, false
 	}
-	allowed, err := s.config.Store.Admin(r.Context(), admin.Login, admin.GitHubID)
+	allowed, err := s.config.Store.Admin(r.Context(), admin.Email, admin.Sub)
 	if err != nil {
 		s.report(r, err, "admin.check")
 		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
@@ -98,7 +127,7 @@ func (s *server) adminDashboard(w http.ResponseWriter, r *http.Request) {
 		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
 		return
 	}
-	reply(w, http.StatusOK, adminAnswer{Admin: adminUser{Login: admin.Login, GitHubID: admin.GitHubID}, Overview: overview})
+	reply(w, http.StatusOK, adminAnswer{Admin: adminUser{Email: admin.Email, Sub: admin.Sub}, Overview: overview})
 }
 
 // maxUsersPage keeps the OFFSET of a made-up page number from making the database walk far.

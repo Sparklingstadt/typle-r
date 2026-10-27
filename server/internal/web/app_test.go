@@ -113,7 +113,7 @@ func TestAppLogin(t *testing.T) {
 	}
 
 	got := h.do(http.MethodGet, "/api/auth/session", bearer(token))
-	if strings.TrimSpace(got.Body.String()) != `{"user":{"id":"github:1","name":"The Octocat","image":"https://avatars.test/1"}}` {
+	if strings.TrimSpace(got.Body.String()) != `{"user":{"id":"github:1","name":"The Octocat","image":"https://avatars.test/1"},"providers":["github","ffpf"]}` {
 		t.Fatalf("session = %s", got.Body)
 	}
 }
@@ -251,7 +251,7 @@ func TestAppSessionRenewal(t *testing.T) {
 	for _, header := range []string{"Bearer " + h.keys.SealApp(session.New("github:1", "", "", h.now.Add(-session.MaxAge))),
 		"Bearer", "Bearer ", "Token " + token, "Bearer " + token + " x", "bearer " + token} {
 		response := h.do(http.MethodGet, "/api/auth/session", cookie, func(r *http.Request) { r.Header.Set("Authorization", header) })
-		if strings.TrimSpace(response.Body.String()) != `{"user":null}` {
+		if strings.TrimSpace(response.Body.String()) != `{"user":null,"providers":["github","ffpf"]}` {
 			t.Errorf("%q: session = %s", header, response.Body)
 		}
 	}

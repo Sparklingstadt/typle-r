@@ -22,6 +22,14 @@
 - Go のバックエンド（`server/internal/*`）：typle-kotlin-backend の対応するコードを同じように直し、`TYPLE_BACKEND=kotlin npm run test:e2e` で確かめます。
 - ログイン（`client=ipad|macos|android|windows`）とトークンの形：各アプリが使うので、互換を保ちます。
 
+## v0.105.0 — FFPF ID でログインできるようにしました
+
+- ログイン：FFPF ID（ffpf-portal）でもログインできます。GitHub と FFPF ID の両方が使えるときは、「ログイン」のメニューから選びます。設定は「FFPF ID でのログインの設定」を見てください。
+- `/admin` は FFPF ID でだけログインできます（手順は「管理者ダッシュボード（/admin）」）。
+- 設定が3つ揃っていなければ、FFPF ID のログインは出ません（GitHub のログインは今までどおりです）。
+- 文言：メニューのボタンの名前（`aria-label`）が、見えている文字（「Se connecter」「Войти」）を含むようにしました（WCAG 2.5.3）。
+- 別リポジトリ：typle-kotlin-backend には `providers`（`/api/auth/session`）、`/api/auth/callback/ffpf`、`ffpf:` で始まる sub、管理者の v2（FFPF ID のメールアドレス）がまだありません。`TYPLE_BACKEND=kotlin` では FFPF ID のログインと `/admin` は使えません。
+
 ## v0.104.0 — 公式パックの一覧で、フォローしてもページを移動しないようにしました
 
 - `/packs/catalog` で「フォローする」を押しても、パックの画面（`/edit?pack=…`）へ移動しなくなりました。一覧に残ったまま、続けて他のパックをフォローできます。
@@ -38,8 +46,8 @@
 ## v0.102.0 — 管理者用のダッシュボード `/admin` を追加しました
 
 - 画面（`src/app/admin/`）：保存済みアカウント数、24時間・7日・30日以内に更新したアカウント数、共有中のパック数と、最近更新されたアカウント・最近共有されたパック・管理者の一覧を表示します。検索エンジンには載せません（`noindex`）。
-- ログイン：GitHub でログインします（`GET /api/auth/signin?admin=1`、コールバックは既存の `/api/auth/callback/github` のまま）。GitHub のログイン名が `sparklingstadt`（大文字小文字は区別しません）のときだけ、管理者用 Cookie（`__Host-typle-admin`、SameSite=Strict、12時間で失効・延長なし）を発行します。ほかのアカウントは `/admin?error=adminForbidden` に戻り、何にもログインしません。管理者のログインは通常のセッション Cookie を発行せず、通常のログインで管理者になることもありません。ログアウトは `POST /api/auth/admin/signout` です。
-- DB：`typle_admins` テーブルを追加しました（マイグレーション `0028_admins`、Prisma の `Admin`）。`sparklingstadt` の行をマイグレーションで入れます。`GET /api/admin/dashboard` は毎回この表を確かめ、行がなければ `403 adminForbidden` で Cookie を消します。GitHub の数値 ID は最初のアクセスで記録し、以後は同じ ID だけを通します（ログイン名を引き継いだ別人を通さないため）。
+- ログイン（このあと FFPF ID だけのログインに変わりました。今の手順は「管理者ダッシュボード（/admin）」を見てください）：GitHub でログインします（`GET /api/auth/signin?admin=1`、コールバックは既存の `/api/auth/callback/github` のまま）。GitHub のログイン名が `sparklingstadt`（大文字小文字は区別しません）のときだけ、管理者用 Cookie（`__Host-typle-admin`、SameSite=Strict、12時間で失効・延長なし）を発行します。ほかのアカウントは `/admin?error=adminForbidden` に戻り、何にもログインしません。管理者のログインは通常のセッション Cookie を発行せず、通常のログインで管理者になることもありません。ログアウトは `POST /api/auth/admin/signout` です。
+- DB：`typle_admins` テーブルを追加しました（マイグレーション `0028_admins`、Prisma の `Admin`）。`sparklingstadt` の行をマイグレーションで入れます（マイグレーション `0029_admins_ffpf` でこの表は FFPF ID のメールアドレスの表に作り直され、この行はなくなりました）。`GET /api/admin/dashboard` は毎回この表を確かめ、行がなければ `403 adminForbidden` で Cookie を消します。GitHub の数値 ID は最初のアクセスで記録し、以後は同じ ID だけを通します（ログイン名を引き継いだ別人を通さないため）。
 - 別リポジトリ：typle-kotlin-backend には `/api/admin/*` がまだありません。`TYPLE_BACKEND=kotlin` では `tests/e2e/admin.spec.ts` の最初のテストが失敗します。
 
 ## v0.101.1 — 関心は、はじめはすべて選んだ状態にし、すべての公式パックが並ぶようにしました
@@ -564,6 +572,37 @@ API（Go、`server/`）は、アカウントのクラウド保存をDBから読�
 - 次に練習するリスト：記録なし、3日以上練習していない、直近5回の平均正確率が90%未満のリストを順番に1件ずつ選び、最大3件。「練習する」は `/play?list=<id>` でそのリストを選んだ状態で開きます。
 - リスト別の推移：最後に練習した順に、1単語あたりの秒数（所要時間÷単語数）と正確率を直近20回まで表示します。単語数・正確率がない古い記録はそのグラフから除外します。
 
+## FFPF ID でのログインの設定
+
+FFPF ID（ffpf-portal）は、GitHub と並ぶもう1つのログイン方法です。次の3つの環境変数がすべて設定されているときだけ有効になります（1〜2個だけだと警告を1回ログに書いて無効のままです）。
+
+| 環境変数 | 内容 |
+|---|---|
+| `FFPF_ID_ISSUER` | ffpf-portal の issuer（`https://…`。末尾の `/` は付けても外されます） |
+| `FFPF_ID_CLIENT_ID` | portal に登録したクライアントの ID |
+| `FFPF_ID_CLIENT_SECRET` | そのクライアントのシークレット |
+
+- portal に登録する redirect URI は `<AUTH_URL のオリジン>/api/auth/callback/ffpf` です（本番は `https://typle-r-six.vercel.app/api/auth/callback/ffpf`）。portal は redirect URI が登録と完全に一致しないと拒否します。
+- クライアントの登録（client_id・シークレットの作成と redirect URI の登録）は ffpf-portal 側の作業です。手順は ffpf-portal の README と、`docs/superpowers/specs/2026-10-27-ffpf-id-design.md` の「クライアント」を見てください。
+- `.env.example` に3つの変数を載せています。ローカルで試すときは `.env.local` に書きます。Vercel では「Neon / Vercelの構成」の環境変数に足します。
+- ログインした利用者は GitHub のアカウントとは別のアカウントです（アカウント ID は `ffpf:` で始まります）。
+
+## 管理者ダッシュボード（/admin）
+
+`/admin` には FFPF ID でだけログインできます（`GET /api/auth/signin?admin=1`、`provider` の値にかかわらず FFPF ID へ進み、コールバックは `/api/auth/callback/ffpf`）。GitHub でのログインでは管理者になれません。
+
+- 使うには FFPF ID の設定（`FFPF_ID_ISSUER`・`FFPF_ID_CLIENT_ID`・`FFPF_ID_CLIENT_SECRET`）が必要です。揃っていなければ、管理者のログインは 503（`authUnavailable`）になります。
+- ログインの最後に `typle_admins` を確かめ、登録されたメールアドレスのときだけ管理者用 Cookie（`__Host-typle-admin`、SameSite=Strict、12時間で失効・延長なし）を発行して `/admin` に戻ります。登録されていないアカウントは `/admin?error=adminForbidden`、DB に届かないときは `/admin?error=adminUnavailable` に戻り、何にもログインしません。管理者のログインは通常のセッション Cookie を発行しません。
+- FFPF ID の `sub` は最初のログインで記録し、以後は同じ `sub` だけを通します（メールアドレスを引き継いだ別人を通さないため）。`GET /api/admin/*` も毎回この表を確かめ、行がなければ `403 adminForbidden` で Cookie を消します。
+
+管理者は、リポジトリには書かず、対象の DB に SQL で登録します。1人につき1行で、メールアドレスは FFPF ID に登録したものを小文字で書きます。
+
+```sql
+INSERT INTO typle_admins (email) VALUES ('<FFPF IDのメールアドレス>');
+```
+
+管理者をやめるときは、その行を `DELETE FROM typle_admins WHERE email = '<メールアドレス>';` で消します。
+
 ## コードの構成
 
 Next.js のアプリは1つで、`src` を層に分けています。依存は上から下への一方向だけで、`eslint.config.mjs` が `src/core`・`src/plugins` からの逆向きの import をエラーにします。画面（`src/app`・`src/components`）は保存先プラグインを直接 import できず、ワークスペースと保存場所（`storage`：`browser` / `account`）は `useWordLists()` から受け取ります。
@@ -740,6 +779,7 @@ Vercel MarketplaceでNeonを接続し、サーバー用の環境変数を設定�
 - `AUTH_SECRET`: 暗号学的にランダムな秘密値
 - `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`: 本番用OAuth Appの認証情報
 - `AUTH_URL`: 本番URL。本番OAuth callbackは `<本番URL>/api/auth/callback/github`（v0.55.0 でも変わりません）。Go はこの値のオリジンだけを使います
+- `FFPF_ID_ISSUER`, `FFPF_ID_CLIENT_ID`, `FFPF_ID_CLIENT_SECRET`: FFPF ID（ffpf-portal）の issuer とクライアントの認証情報（任意。3つ揃えたときだけ FFPF ID のログインと `/admin` を使えます）。portal に登録する redirect URI は `<本番URL>/api/auth/callback/ffpf` です
 
 Go の関数（`api/*.go`）も同じ環境変数を読むため、Vercel の設定は増やしません。対象DBの環境変数を使って `npm run db:migrate` を実行してからデプロイします。DockerのDBからNeonへのデータコピーは自動ではありません。必要な場合はバックアップと復元を別途行います。本番への反映は検証済みのコミットからGitHub Actions内のVercel CLIで行います。
 

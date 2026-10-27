@@ -1,6 +1,7 @@
 package session
 
 import (
+	"crypto/hkdf"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
@@ -293,15 +294,18 @@ func TestOAuthChallenge(t *testing.T) {
 func TestAdminKeysAreSeparate(t *testing.T) {
 	keys := testKeys(t)
 	now := time.Unix(1700000000, 0)
-	a := NewAdmin("sparklingstadt", 42, now)
-	s := New("github:42", "Ada", "", now)
+	a := NewAdmin("admin@example.com", "cabc123", now)
+	s := New("ffpf:cabc123", "Ada", "", now)
 	admin := keys.SealAdmin(a)
 	others := []string{keys.Seal(s), keys.SealApp(s),
-		keys.SealOAuth(OAuth{State: "s", Verifier: "v", ReturnTo: "/admin", Admin: true, Expires: now.Add(OAuthMaxAge)}),
-		keys.SealCode(AppCode{Sub: "github:42", Challenge: "c", Expires: now.Add(AppCodeMaxAge)})}
+		keys.SealOAuth(OAuth{State: "s", Verifier: "v", ReturnTo: "/admin", Admin: true, Provider: "ffpf", Nonce: "n", Expires: now.Add(OAuthMaxAge)}),
+		keys.SealCode(AppCode{Sub: "ffpf:cabc123", Challenge: "c", Expires: now.Add(AppCodeMaxAge)})}
 
 	if got, ok := keys.OpenAdmin(admin, now); !ok || got != a {
 		t.Fatalf("OpenAdmin = %+v, %v; want %+v", got, ok, a)
+	}
+	if !a.Expires.Equal(now.Add(AdminMaxAge)) {
+		t.Fatalf("Expires = %v, want %v", a.Expires, now.Add(AdminMaxAge))
 	}
 	for _, value := range others {
 		if _, ok := keys.OpenAdmin(value, now); ok {
@@ -317,12 +321,61 @@ func TestAdminKeysAreSeparate(t *testing.T) {
 	if _, ok := keys.OpenAdmin(admin, a.Expires); ok {
 		t.Error("an expired admin cookie was accepted")
 	}
-	if _, ok := keys.OpenAdmin(keys.SealAdmin(NewAdmin("sparklingstadt", 0, now)), now); ok {
-		t.Error("an admin cookie without a GitHub id was accepted")
-	}
 	var zero Keys
 	if _, ok := zero.OpenAdmin(admin, now); ok {
 		t.Error("zero Keys opened the admin cookie")
+	}
+}
+
+// The administrator's cookie names an FFPF ID account: an email, and a sub as FFPF ID spells it.
+func TestOpenAdminRefusesOtherAccounts(t *testing.T) {
+	keys := testKeys(t)
+	now := time.Unix(1700000000, 0)
+	for name, a := range map[string]Admin{
+		"no email":          NewAdmin("", "cabc123", now),
+		"no sub":            NewAdmin("admin@example.com", "", now),
+		"sub upper case":    NewAdmin("admin@example.com", "Cabc", now),
+		"sub too long":      NewAdmin("admin@example.com", strings.Repeat("a", 65), now),
+		"sub with a dash":   NewAdmin("admin@example.com", "a-b", now),
+		"sub with newline":  NewAdmin("admin@example.com", "abc\n", now),
+		"sub with a prefix": NewAdmin("admin@example.com", "ffpf:abc", now),
+	} {
+		if _, ok := keys.OpenAdmin(keys.SealAdmin(a), now); ok {
+			t.Errorf("%s: admin cookie opened", name)
+		}
+	}
+	long := NewAdmin("admin@example.com", strings.Repeat("a", 64), now)
+	if got, ok := keys.OpenAdmin(keys.SealAdmin(long), now); !ok || got != long {
+		t.Errorf("a 64-character sub must open: %+v, %v", got, ok)
+	}
+}
+
+// githubAdminVector was sealed by the code from before FFPF ID (main at 04f34c5, key info "typle admin v1", with a
+// temporary generator test since removed) with testSecret, for
+// NewAdmin("sparklingstadt", 42, time.Unix(1700000000, 0)). /admin is now reached only through FFPF ID, so an
+// administrator's cookie of a GitHub sign-in must not open, even before it expires.
+const githubAdminVector = "eyJsb2dpbiI6InNwYXJrbGluZ3N0YWR0IiwiZ2l0aHViSWQiOjQyLCJpYXQiOjE3MDAwMDAwMDAsImV4cCI6MTcwMDA0MzIwMH0.f0QswMlBjBK-DevHqVkrPppWjfbqi7G8AYa3_3I6cXQ"
+
+func TestOpenAdminRefusesGitHubAdminCookie(t *testing.T) {
+	keys := testKeys(t)
+	now := time.Unix(1700000000, 0)
+	if _, ok := keys.OpenAdmin(githubAdminVector, now); ok {
+		t.Fatal("an administrator's cookie sealed with the v1 key opened")
+	}
+	// Nor does the old JSON open under the new key: it has no email or sub.
+	old := seal(keys.admin, map[string]any{"login": "sparklingstadt", "githubId": 42, "iat": 1700000000, "exp": 1700043200})
+	if _, ok := keys.OpenAdmin(old, now); ok {
+		t.Fatal("an administrator's cookie in the GitHub format opened")
+	}
+	// The vector above is refused on its shape alone, so this is what holds the key to v2: a cookie of the new shape,
+	// sealed with the v1 key, must not open.
+	v1Key, err := hkdf.Key(sha256.New, []byte(testSecret), nil, "typle admin v1", sha256.Size)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a := NewAdmin("admin@example.com", "cabc123", now)
+	if _, ok := keys.OpenAdmin(seal(v1Key, adminWire{a.Email, a.Sub, a.IssuedAt.Unix(), a.Expires.Unix()}), now); ok {
+		t.Fatal("an administrator's cookie sealed with the v1 key opened")
 	}
 }
 
@@ -333,5 +386,86 @@ func TestOAuthAdmin(t *testing.T) {
 	o := OAuth{State: "s", Verifier: "v", ReturnTo: "/admin", Admin: true, Expires: now.Add(OAuthMaxAge)}
 	if got, ok := keys.OpenOAuth(keys.SealOAuth(o), now); !ok || got != o {
 		t.Fatalf("OpenOAuth = %+v, %v; want %+v", got, ok, o)
+	}
+}
+
+// githubOAuthVector, githubOAuthChallengeVector, githubAdminOAuthVector and githubAdminOAuthChallengeVector were sealed
+// by the code from before FFPF ID (main at 04f34c5, with a temporary generator test since removed), with testSecret
+// and an expiry of 1700000600. A login through GitHub must keep
+// producing exactly these bytes: Provider and Nonce are left out of the JSON when empty, so an OAuth cookie in flight
+// during a deploy still opens and one sealed now does not differ.
+const (
+	githubOAuthVector               = "eyJzdGF0ZSI6InN0YXRlLTEiLCJ2ZXJpZmllciI6InZlcmlmaWVyLTEiLCJyZXR1cm5UbyI6Ii9wbGF5P3g9MSZ5PTIiLCJleHAiOjE3MDAwMDA2MDB9.y5nMp3lk65vqMyNXUc39dSZAxmu8WNzgeieOaANmsC8"
+	githubOAuthChallengeVector      = "eyJzdGF0ZSI6InN0YXRlLTEiLCJ2ZXJpZmllciI6InZlcmlmaWVyLTEiLCJyZXR1cm5UbyI6Ii9wbGF5IiwiZXhwIjoxNzAwMDAwNjAwLCJjaGFsbGVuZ2UiOiJjaGFsIn0._7F8TYEmhmwIsNwPzJnsVUonAYu94NPottWTamO9hUY"
+	githubAdminOAuthVector          = "eyJzdGF0ZSI6InN0YXRlLTEiLCJ2ZXJpZmllciI6InZlcmlmaWVyLTEiLCJyZXR1cm5UbyI6Ii9hZG1pbiIsImV4cCI6MTcwMDAwMDYwMCwiYWRtaW4iOnRydWV9.CxrR0KPjFCBD9iuQaBxuMshksjtvwTc3EtkytWzJDsE"
+	githubAdminOAuthChallengeVector = "eyJzdGF0ZSI6InN0YXRlLTEiLCJ2ZXJpZmllciI6InZlcmlmaWVyLTEiLCJyZXR1cm5UbyI6Ii9hZG1pbiIsImV4cCI6MTcwMDAwMDYwMCwiY2hhbGxlbmdlIjoiY2hhbCIsImFkbWluIjp0cnVlfQ.kBmQ8Yj84Dx4M1PKmLanyAbs7RwR7dhvi6E09zNBS1I"
+)
+
+func TestGitHubOAuthCookieBytesAreUnchanged(t *testing.T) {
+	keys := testKeys(t)
+	expires := time.Unix(1700000600, 0)
+	for want, o := range map[string]OAuth{
+		githubOAuthVector:               {State: "state-1", Verifier: "verifier-1", ReturnTo: "/play?x=1&y=2", Expires: expires},
+		githubOAuthChallengeVector:      {State: "state-1", Verifier: "verifier-1", ReturnTo: "/play", Challenge: "chal", Expires: expires},
+		githubAdminOAuthVector:          {State: "state-1", Verifier: "verifier-1", ReturnTo: "/admin", Admin: true, Expires: expires},
+		githubAdminOAuthChallengeVector: {State: "state-1", Verifier: "verifier-1", ReturnTo: "/admin", Challenge: "chal", Admin: true, Expires: expires},
+	} {
+		if got := keys.SealOAuth(o); got != want {
+			t.Errorf("SealOAuth(%+v) = %q, want %q", o, got, want)
+		}
+		if got, ok := keys.OpenOAuth(want, expires.Add(-time.Minute)); !ok || got != o {
+			t.Errorf("OpenOAuth(%q) = %+v, %v; want %+v", want, got, ok, o)
+		}
+	}
+}
+
+func TestFFPFSessionAndCode(t *testing.T) {
+	keys := testKeys(t)
+	now := time.Unix(1700000000, 0)
+	want := New("ffpf:cabc123", "ふわ", "", now)
+	got, ok := keys.Open(keys.Seal(want), now)
+	if !ok || got != want {
+		t.Fatalf("session = %+v, %v", got, ok)
+	}
+	app, ok := keys.OpenApp(keys.SealApp(want), now)
+	if !ok || app != want {
+		t.Fatalf("app session = %+v, %v", app, ok)
+	}
+	code := AppCode{Sub: "ffpf:cabc123", Name: "ふわ", Challenge: "c", Expires: now.Add(AppCodeMaxAge)}
+	if gotCode, ok := keys.OpenCode(keys.SealCode(code), now); !ok || gotCode != code {
+		t.Fatalf("code = %+v, %v", gotCode, ok)
+	}
+}
+
+func TestOpenRefusesOtherSubjects(t *testing.T) {
+	keys := testKeys(t)
+	now := time.Unix(1700000000, 0)
+	for _, sub := range []string{"ffpf:", "ffpf:A", "ffpf:" + strings.Repeat("a", 65), "ffpf:a-b", "gitlab:1", "github:", "ffpf:abc\n", "ffpf:github:1"} {
+		if _, ok := keys.Open(keys.Seal(New(sub, "x", "", now)), now); ok {
+			t.Errorf("session for %q opened", sub)
+		}
+		if _, ok := keys.OpenApp(keys.SealApp(New(sub, "x", "", now)), now); ok {
+			t.Errorf("app session for %q opened", sub)
+		}
+		if _, ok := keys.OpenCode(keys.SealCode(AppCode{Sub: sub, Challenge: "c", Expires: now.Add(time.Minute)}), now); ok {
+			t.Errorf("code for %q opened", sub)
+		}
+	}
+	if _, ok := keys.Open(keys.Seal(New("ffpf:"+strings.Repeat("a", 64), "x", "", now)), now); !ok {
+		t.Error("a 64-character subject must open")
+	}
+}
+
+func TestOAuthProviderAndNonce(t *testing.T) {
+	keys := testKeys(t)
+	now := time.Unix(1700000000, 0)
+	for _, want := range []OAuth{
+		{State: "s", Verifier: "v", ReturnTo: "/", Challenge: "c", Provider: "ffpf", Nonce: "n", Expires: now.Add(OAuthMaxAge)},
+		{State: "s", Verifier: "v", ReturnTo: "/admin", Admin: true, Provider: "ffpf", Nonce: "n", Expires: now.Add(OAuthMaxAge)},
+	} {
+		got, ok := keys.OpenOAuth(keys.SealOAuth(want), now)
+		if !ok || got != want {
+			t.Fatalf("oauth = %+v, %v; want %+v", got, ok, want)
+		}
 	}
 }

@@ -19,9 +19,9 @@ type Overview = {
   activeMonth: number
   sharedPacks: number
   recentShares: { id: string; ownerId: string; name: string; updatedAt: string }[]
-  admins: { login: string; githubId: number | null; createdAt: string; lastSeenAt: string | null }[]
+  admins: { email: string; ffpfSub: string | null; createdAt: string; lastSeenAt: string | null }[]
 }
-type Answer = { admin: { login: string; githubId: number }; overview: Overview }
+type Answer = { admin: { email: string; sub: string }; overview: Overview }
 
 type State =
   | { kind: 'loading' }
@@ -33,11 +33,17 @@ type ErrorKey = Parameters<ReturnType<typeof useTranslations<'errors'>>>[0]
 
 const stats = ['workspaces', 'activeDay', 'activeWeek', 'activeMonth', 'sharedPacks'] as const
 
+// The errors a login to the dashboard comes back with (/admin?error=…, server/internal/web/admin.go).
+const loginErrors = ['adminForbidden', 'adminUnavailable'] as const
+type LoginError = typeof loginErrors[number]
+const isLoginError = (value: string | null): value is LoginError => loginErrors.some(key => key === value)
+
 export default function AdminDashboard() {
   const t = useTranslations('admin')
   const errors = useTranslations('errors')
   const format = useFormat()
-  const refused = useSearchParams().get('error') === 'adminForbidden'
+  const loginError = useSearchParams().get('error')
+  const refused = isLoginError(loginError) ? loginError : null
   const [state, setState] = useState<State>({ kind: 'loading' })
   const [signOutFailed, setSignOutFailed] = useState(false)
 
@@ -89,7 +95,7 @@ export default function AdminDashboard() {
         <p className="text-muted-foreground">{t('description')}</p>
       </div>
       {state.kind === 'ready' && <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm text-muted-foreground">{t('signedInAs', { login: state.answer.admin.login })}</span>
+        <span className="text-sm text-muted-foreground">{t('signedInAs', { email: state.answer.admin.email })}</span>
         <Button variant="outline" size="sm" onClick={() => void load()}><RefreshCw aria-hidden="true" />{t('refresh')}</Button>
         <Button variant="outline" size="sm" onClick={() => void signOut()}><LogOut aria-hidden="true" />{t('signOut')}</Button>
       </div>}
@@ -108,7 +114,7 @@ export default function AdminDashboard() {
         <CardDescription>{t('signIn.description')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {(state.error || refused) && <Alert variant="destructive"><AlertDescription>{state.error ?? errors('adminForbidden')}</AlertDescription></Alert>}
+        {(state.error || refused) && <Alert variant="destructive"><AlertDescription>{state.error ?? (refused && errors(refused))}</AlertDescription></Alert>}
         <Button asChild><a href="/api/auth/signin?admin=1"><LogIn aria-hidden="true" />{t('signIn.button')}</a></Button>
       </CardContent>
     </Card>}
@@ -145,14 +151,14 @@ export default function AdminDashboard() {
         <CardHeader><CardTitle><h2>{t('admins.title')}</h2></CardTitle></CardHeader>
         <CardContent><Table>
           <TableHeader><TableRow>
-            <TableHead>{t('admins.login')}</TableHead>
-            <TableHead>{t('admins.githubId')}</TableHead>
+            <TableHead>{t('admins.email')}</TableHead>
+            <TableHead>{t('admins.ffpfSub')}</TableHead>
             <TableHead>{t('admins.createdAt')}</TableHead>
             <TableHead>{t('admins.lastSeenAt')}</TableHead>
           </TableRow></TableHeader>
-          <TableBody>{state.answer.overview.admins.map(row => <TableRow key={row.login}>
-            <TableCell className="font-mono">{row.login}</TableCell>
-            <TableCell className="tabular-nums">{row.githubId ?? t('admins.unbound')}</TableCell>
+          <TableBody>{state.answer.overview.admins.map(row => <TableRow key={row.email}>
+            <TableCell className="font-mono">{row.email}</TableCell>
+            <TableCell className="font-mono">{row.ffpfSub ?? t('admins.unbound')}</TableCell>
             <TableCell>{time(row.createdAt)}</TableCell>
             <TableCell>{time(row.lastSeenAt)}</TableCell>
           </TableRow>)}</TableBody>

@@ -6,17 +6,24 @@ import (
 	"crypto/subtle"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
 
+	"github.com/sparklingstadt/typle-r/server/internal/auth"
 	"github.com/sparklingstadt/typle-r/server/internal/session"
 )
 
 const (
-	callbackPath = "/api/auth/callback/github"
+	githubCallback = "/api/auth/callback/github"
+	ffpfCallback   = "/api/auth/callback/ffpf"
+	// The providers, as signin's provider= and /api/auth/session's providers name them. A GitHub login keeps an empty
+	// Provider in its OAuth cookie, so that the cookie is the same as before FFPF ID was added.
+	providerGitHub = "github"
+	providerFFPF   = "ffpf"
 	// authPath is where the OAuth cookie lives: only the login endpoints are sent it.
 	authPath   = "/api/auth"
 	defaultTo  = "/home"
@@ -67,21 +74,33 @@ func safeReturnTo(value string) string {
 	return value
 }
 
-// redirectURI is where GitHub sends the browser back to; it is the callback URL of the OAuth App.
-func (s *server) redirectURI() string {
+// redirectURI is where the provider sends the browser back to: the callback URL of the GitHub OAuth App, or the
+// redirect URI registered for the FFPF ID client.
+func (s *server) redirectURI(path string) string {
 	base := s.config.BaseURL
-	return (&url.URL{Scheme: base.Scheme, Host: base.Host, Path: strings.TrimSuffix(base.Path, "/") + callbackPath}).String()
+	return (&url.URL{Scheme: base.Scheme, Host: base.Host, Path: strings.TrimSuffix(base.Path, "/") + path}).String()
 }
 
 func (s *server) secure() bool {
 	return s.config.BaseURL != nil && s.config.BaseURL.Scheme == "https"
 }
 
-// loginReady reports whether the login can run, and otherwise answers 503 and logs why. It is only logged, not
-// reported: a missing setting would otherwise send an error to the tracker with every request.
-func (s *server) loginReady(w http.ResponseWriter, r *http.Request) bool {
-	if s.config.OAuth == nil || s.config.GitHub == nil || s.config.BaseURL == nil {
-		log.Printf("%s %s: the login is not configured", r.Method, r.URL.Path)
+// ready reports whether the provider's login is configured.
+func (s *server) ready(provider string) bool {
+	if s.config.BaseURL == nil {
+		return false
+	}
+	if provider == providerFFPF {
+		return s.config.FFPF != nil
+	}
+	return s.config.OAuth != nil && s.config.GitHub != nil
+}
+
+// loginReady reports whether the provider's login can run, and otherwise answers 503 and logs why. It is only logged,
+// not reported: a missing setting would otherwise send an error to the tracker with every request.
+func (s *server) loginReady(w http.ResponseWriter, r *http.Request, provider string) bool {
+	if !s.ready(provider) {
+		log.Printf("%s %s: the %s login is not configured", r.Method, r.URL.Path, provider)
 		refuse(w, http.StatusServiceUnavailable, "authUnavailable")
 		return false
 	}
@@ -136,17 +155,25 @@ func random() (string, error) {
 	return base64.RawURLEncoding.EncodeToString(bytes), nil
 }
 
-// signin sends the browser to GitHub with a state and a PKCE challenge, and keeps the state, the verifier and where to
-// return to in the signed OAuth cookie. With client=ipad, client=macos, client=android or client=windows and the app's
-// own S256 code_challenge, the login is that app's: it ends at appReturn with a code that only the holder of the
-// challenge's verifier can trade for a token. With admin=1 the login is to the administrator's dashboard, and always
-// returns to it.
+// signin sends the browser to GitHub, or with provider=ffpf to FFPF ID, with a state and a PKCE challenge (and for FFPF
+// ID a nonce), and keeps them, the verifier and where to return to in the signed OAuth cookie. With client=ipad,
+// client=macos, client=android or client=windows and the app's own S256 code_challenge, the login is that app's: it
+// ends at appReturn with a code that only the holder of the challenge's verifier can trade for a token. With admin=1
+// the login is to the administrator's dashboard: it always goes through FFPF ID, whatever provider says, and always
+// returns to the dashboard.
 func (s *server) signin(w http.ResponseWriter, r *http.Request) {
-	if !methods(w, r, http.MethodGet) || !s.loginReady(w, r) {
+	if !methods(w, r, http.MethodGet) {
 		return
 	}
 	query := r.URL.Query()
 	admin := query.Get("admin") == "1"
+	provider := providerGitHub
+	if admin || query.Get("provider") == providerFFPF {
+		provider = providerFFPF
+	}
+	if !s.loginReady(w, r, provider) {
+		return
+	}
 	returnTo := safeReturnTo(query.Get("returnTo"))
 	if admin {
 		returnTo = adminPage
@@ -159,88 +186,122 @@ func (s *server) signin(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	state, err := random()
-	var verifier string
+	var verifier, nonce string
 	if err == nil {
 		verifier, err = random()
+	}
+	if err == nil && provider == providerFFPF {
+		nonce, err = random()
 	}
 	if err != nil {
 		log.Printf("%s %s: %v", r.Method, r.URL.Path, err)
 		refuse(w, http.StatusServiceUnavailable, "authUnavailable")
 		return
 	}
-	value := s.config.Keys.SealOAuth(session.OAuth{
+	pending := session.OAuth{
 		State: state, Verifier: verifier, ReturnTo: returnTo, Challenge: appChallenge, Admin: admin,
 		Expires: s.now().Add(session.OAuthMaxAge),
-	})
-	http.SetCookie(w, s.oauthCookie(value, int(session.OAuthMaxAge.Seconds())))
-	goTo(w, s.config.OAuth.AuthorizeURL(state, challengeOf(verifier), s.redirectURI()))
+	}
+	location := ""
+	if provider == providerFFPF {
+		pending.Provider, pending.Nonce = providerFFPF, nonce
+		location = s.config.FFPF.AuthorizeURL(state, challengeOf(verifier), nonce, s.redirectURI(ffpfCallback))
+	} else {
+		location = s.config.OAuth.AuthorizeURL(state, challengeOf(verifier), s.redirectURI(githubCallback))
+	}
+	http.SetCookie(w, s.oauthCookie(s.config.Keys.SealOAuth(pending), int(session.OAuthMaxAge.Seconds())))
+	goTo(w, location)
 }
 
-// callback is where GitHub sends the browser back to. Whatever happens, the OAuth cookie is spent and the browser goes
-// back to the page it left, signed in only if everything checked out. Errors are not shown: the screen has no page for
-// a failed login, and what GitHub says is not for the reader. A login an app (iPad, Mac, Android or Windows) started
-// goes back to the app instead, with a code for it to trade for a token, or loginFailed; no cookie is set. A login to
-// the administrator's dashboard sets the administrator's cookie instead of the session cookie, and only for
-// adminLogin: any other account goes back to the dashboard with adminRefused, signed in to nothing.
-func (s *server) callback(w http.ResponseWriter, r *http.Request) {
-	if !methods(w, r, http.MethodGet) || !s.loginReady(w, r) {
-		return
-	}
-	http.SetCookie(w, s.oauthCookie("", -1))
-	returnTo := defaultTo
-	var pending session.OAuth
-	opened := false
-	if cookie, err := r.Cookie(session.OAuthCookie); err == nil {
-		if pending, opened = s.config.Keys.OpenOAuth(cookie.Value, s.now()); opened {
-			returnTo = safeReturnTo(pending.ReturnTo)
+// signedInUser is who a provider says signed in, in the form the session holds.
+type signedInUser struct{ sub, name, image string }
+
+// callback is where the provider sends the browser back to. Whatever happens, the OAuth cookie is spent and the
+// browser goes back to the page it left, signed in only if everything checked out: the cookie was started for this
+// provider, its state matches, and the provider vouches for the account. Errors are not shown: the screen has no page
+// for a failed login, and what the provider says is not for the reader. A login an app (iPad, Mac, Android or Windows)
+// started goes back to the app instead, with a code for it to trade for a token, or loginFailed; no cookie is set. A
+// login to the administrator's dashboard ends in finishAdmin; it can only be one through FFPF ID, and one that comes
+// back to GitHub's callback goes back to the dashboard with adminRefused.
+func (s *server) callback(provider string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if !methods(w, r, http.MethodGet) || !s.loginReady(w, r, provider) {
+			return
 		}
-	}
-	app := opened && pending.Challenge != ""
-	fail := func() {
-		if app {
-			toApp(w, "error", "loginFailed")
-		} else {
-			goTo(w, returnTo)
+		http.SetCookie(w, s.oauthCookie("", -1))
+		returnTo := defaultTo
+		var pending session.OAuth
+		opened := false
+		if cookie, err := r.Cookie(session.OAuthCookie); err == nil {
+			if pending, opened = s.config.Keys.OpenOAuth(cookie.Value, s.now()); opened {
+				returnTo = safeReturnTo(pending.ReturnTo)
+			}
 		}
-	}
-	query := r.URL.Query()
-	state, code := query.Get("state"), query.Get("code")
-	if !opened || query.Get("error") != "" || state == "" || code == "" ||
-		subtle.ConstantTimeCompare([]byte(state), []byte(pending.State)) != 1 {
-		fail()
-		return
-	}
-	token, err := s.config.OAuth.Exchange(r.Context(), code, pending.Verifier, s.redirectURI())
-	if err != nil {
-		s.report(r, err, "auth.callback")
-		fail()
-		return
-	}
-	user, err := s.config.GitHub.User(r.Context(), token)
-	if err != nil {
-		s.report(r, err, "auth.callback")
-		fail()
-		return
-	}
-	if pending.Admin {
-		if !isAdminLogin(user.Login) {
+		if opened && pending.Admin && provider != providerFFPF {
 			goTo(w, adminRefused)
 			return
 		}
-		s.issueAdmin(w, user.Login, user.ID)
-		goTo(w, adminPage)
-		return
+		app := opened && pending.Challenge != ""
+		fail := func() {
+			if app {
+				toApp(w, "error", "loginFailed")
+			} else {
+				goTo(w, returnTo)
+			}
+		}
+		// The cookie of a GitHub login has no Provider, and that of an FFPF ID login "ffpf".
+		started := providerGitHub
+		if pending.Provider != "" {
+			started = pending.Provider
+		}
+		query := r.URL.Query()
+		state, code := query.Get("state"), query.Get("code")
+		if !opened || started != provider || query.Get("error") != "" || state == "" || code == "" ||
+			subtle.ConstantTimeCompare([]byte(state), []byte(pending.State)) != 1 {
+			fail()
+			return
+		}
+		var user signedInUser
+		if provider == providerFFPF {
+			ffpfUser, err := s.config.FFPF.Exchange(r.Context(), code, pending.Verifier, s.redirectURI(ffpfCallback), pending.Nonce)
+			if err != nil {
+				// A refusal comes of what the user did, such as a code used twice, and is not the app's failure.
+				if !errors.Is(err, auth.ErrFFPFRejected) {
+					s.report(r, err, "auth.callback")
+				}
+				fail()
+				return
+			}
+			if pending.Admin {
+				s.finishAdmin(w, r, ffpfUser)
+				return
+			}
+			user = signedInUser{sub: ffpfUser.Account(), name: strings.TrimSpace(ffpfUser.Name)}
+		} else {
+			token, err := s.config.OAuth.Exchange(r.Context(), code, pending.Verifier, s.redirectURI(githubCallback))
+			if err != nil {
+				s.report(r, err, "auth.callback")
+				fail()
+				return
+			}
+			githubUser, err := s.config.GitHub.User(r.Context(), token)
+			if err != nil {
+				s.report(r, err, "auth.callback")
+				fail()
+				return
+			}
+			user = signedInUser{sub: githubUser.Account(), name: strings.TrimSpace(githubUser.DisplayName()), image: githubUser.AvatarURL}
+		}
+		if app {
+			toApp(w, "code", s.config.Keys.SealCode(session.AppCode{
+				Sub: user.sub, Name: user.name, Image: user.image, Challenge: pending.Challenge,
+				Expires: s.now().Add(session.AppCodeMaxAge),
+			}))
+			return
+		}
+		s.issue(w, user.sub, user.name, user.image)
+		goTo(w, returnTo)
 	}
-	name := strings.TrimSpace(user.DisplayName())
-	if app {
-		toApp(w, "code", s.config.Keys.SealCode(session.AppCode{
-			Sub: user.Account(), Name: name, Image: user.AvatarURL, Challenge: pending.Challenge,
-			Expires: s.now().Add(session.AppCodeMaxAge),
-		}))
-		return
-	}
-	s.issue(w, user.Account(), name, user.AvatarURL)
-	goTo(w, returnTo)
 }
 
 // tokenAnswer is the app's token and who it signs in.
@@ -289,10 +350,23 @@ type sessionUser struct {
 	Image *string `json:"image"`
 }
 
-// sessionAnswer is who is signed in, and for an app the token to use from now on when its own has grown old.
+// sessionAnswer is who is signed in, the providers the screen may offer to sign in with (in the order the screen lists
+// them), and for an app the token to use from now on when its own has grown old.
 type sessionAnswer struct {
-	User  *sessionUser `json:"user"`
-	Token string       `json:"token,omitempty"`
+	User      *sessionUser `json:"user"`
+	Providers []string     `json:"providers"`
+	Token     string       `json:"token,omitempty"`
+}
+
+// providers are the logins that are configured, "github" before "ffpf". It is never nil, so the answer has a list.
+func (s *server) providers() []string {
+	list := []string{}
+	for _, provider := range []string{providerGitHub, providerFFPF} {
+		if s.ready(provider) {
+			list = append(list, provider)
+		}
+	}
+	return list
 }
 
 // session says who is signed in. A session that has grown old is signed again, so an active user stays signed in: a
@@ -301,12 +375,12 @@ func (s *server) session(w http.ResponseWriter, r *http.Request) {
 	if !methods(w, r, http.MethodGet, http.MethodHead) {
 		return
 	}
+	answer := sessionAnswer{Providers: s.providers()}
 	user, ok := s.owner(r)
 	if !ok {
-		reply(w, http.StatusOK, sessionAnswer{})
+		reply(w, http.StatusOK, answer)
 		return
 	}
-	var answer sessionAnswer
 	if user.NeedsRenewal(s.now()) {
 		if fromApp(r) {
 			answer.Token = s.config.Keys.SealApp(session.New(user.Sub, user.Name, user.Image, s.now()))

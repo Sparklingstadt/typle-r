@@ -219,7 +219,7 @@ jobs:
           status=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --max-time 60 https://typle-r-six.vercel.app/api/workspace)
           test "$status" = 401 || { echo "Expected anonymous API HTTP 401, got $status"; exit 1; }
           body=$(curl --fail --silent --show-error --retry 3 --max-time 60 https://typle-r-six.vercel.app/api/auth/session)
-          test "$body" = '{"user":null}' || { echo "Expected anonymous session {\"user\":null}, got $body"; exit 1; }
+          echo "$body" | jq -e '.user == null and (.providers | type == "array") and (.providers | index("github")) != null' > /dev/null || { echo "Expected anonymous session with a null user and a providers array containing github, got $body"; exit 1; }
           signin=$(curl --silent --show-error --retry 3 --max-time 60 --output "$RUNNER_TEMP/signin-response" --write-out '%{http_code} %{redirect_url}' https://typle-r-six.vercel.app/api/auth/signin)
           status=${signin%% *}
           location=${signin#* }

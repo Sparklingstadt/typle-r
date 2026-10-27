@@ -46,7 +46,7 @@ func (fakeStore) ListShares(context.Context, string) ([]store.Share, error) {
 
 // SharedPack has no links: every id is not found.
 func (fakeStore) SharedPack(context.Context, string) (json.RawMessage, error) { return nil, nil }
-func (fakeStore) Admin(context.Context, string, int64) (bool, error)          { return false, nil }
+func (fakeStore) Admin(context.Context, string, string) (bool, error)         { return false, nil }
 func (fakeStore) Overview(context.Context) (*store.AdminOverview, error) {
 	return nil, errors.New("not used")
 }
@@ -60,6 +60,9 @@ func settings(t *testing.T) {
 	t.Setenv("AUTH_URL", "https://typle.example")
 	t.Setenv("AUTH_GITHUB_ID", "id")
 	t.Setenv("AUTH_GITHUB_SECRET", "client-secret")
+	t.Setenv("FFPF_ID_ISSUER", "")
+	t.Setenv("FFPF_ID_CLIENT_ID", "")
+	t.Setenv("FFPF_ID_CLIENT_SECRET", "")
 	t.Setenv("DATABASE_URL", "postgresql://typle@db.invalid/typle")
 	t.Setenv("POSTGRES_URL", "")
 	t.Setenv("SENTRY_DSN", "")
@@ -96,6 +99,7 @@ func TestHandlerWithoutSecret(t *testing.T) {
 
 	expect(t, get("/api/auth/session"), http.StatusServiceUnavailable, `{"error":"authUnavailable"}`)
 	expect(t, get("/api/auth/callback/github?code=x&state=y"), http.StatusServiceUnavailable, `{"error":"authUnavailable"}`)
+	expect(t, get("/api/auth/callback/ffpf?code=x&state=y"), http.StatusServiceUnavailable, `{"error":"authUnavailable"}`)
 	expect(t, get("/api/workspace"), http.StatusServiceUnavailable, `{"error":"authUnavailable"}`)
 	if opened.Load() != 0 {
 		t.Fatal("the database was opened for a path that cannot be served without the login settings")
@@ -106,7 +110,7 @@ func TestHandlerWithoutSecret(t *testing.T) {
 	}
 
 	t.Setenv("AUTH_SECRET", "secret")
-	expect(t, get("/api/auth/session"), http.StatusOK, `{"user":null}`)
+	expect(t, get("/api/auth/session"), http.StatusOK, `{"user":null,"providers":["github"]}`)
 	expect(t, get("/api/workspace"), http.StatusUnauthorized, `{"error":"loginRequired"}`)
 	expect(t, get("/api/health"), http.StatusOK, `{"status":"ok"}`)
 	if opened.Load() != 1 {
@@ -142,7 +146,7 @@ func TestHandlerDatabaseDown(t *testing.T) {
 	for _, path := range []string{"/api/health", "/api/workspace"} {
 		expect(t, get(path), http.StatusServiceUnavailable, `{"error":"databaseUnavailable"}`)
 	}
-	expect(t, get("/api/auth/session"), http.StatusOK, `{"user":null}`)
+	expect(t, get("/api/auth/session"), http.StatusOK, `{"user":null,"providers":["github"]}`)
 	backend.open = func(context.Context, string) (web.Store, error) { return fakeStore{}, nil }
 	expect(t, get("/api/health"), http.StatusOK, `{"status":"ok"}`)
 }
@@ -167,6 +171,27 @@ func TestAuthDoesNotOpenTheDatabase(t *testing.T) {
 	}
 }
 
+// The end of a login to the administrator's dashboard is the one auth request that asks the database, and it opens it
+// only then: when it does not open, the question fails, and the handler says adminUnavailable.
+func TestLazyAdmins(t *testing.T) {
+	reset(t)
+	settings(t)
+	backend.retryAfter = 0
+	var opened atomic.Int32
+	backend.open = func(context.Context, string) (web.Store, error) { opened.Add(1); return nil, errors.New("down") }
+	admins := lazyAdmins{backend}
+	if ok, err := admins.Admin(context.Background(), "admin@example.com", "cadmin"); ok || err == nil {
+		t.Fatalf("Admin with the database down = %v, %v", ok, err)
+	}
+	backend.open = func(context.Context, string) (web.Store, error) { opened.Add(1); return fakeStore{}, nil }
+	if ok, err := admins.Admin(context.Background(), "admin@example.com", "cadmin"); ok || err != nil {
+		t.Fatalf("Admin = %v, %v", ok, err)
+	}
+	if opened.Load() != 2 {
+		t.Fatalf("opened %d times", opened.Load())
+	}
+}
+
 // With a database that cannot be reached at all: the session answers, with the user of a valid cookie, while the
 // workspace says databaseUnavailable. Auth.js answered sessions without the database too, and a first session read that
 // keeps failing leaves the screen signed out, so it must not fail with the database.
@@ -174,7 +199,7 @@ func TestHandlerSessionWithUnreachableDatabase(t *testing.T) {
 	reset(t)
 	settings(t)
 	t.Setenv("DATABASE_URL", "postgresql://typle@127.0.0.1:1/typle?connect_timeout=1")
-	expect(t, get("/api/auth/session"), http.StatusOK, `{"user":null}`)
+	expect(t, get("/api/auth/session"), http.StatusOK, `{"user":null,"providers":["github"]}`)
 
 	keys, err := session.NewKeys("secret")
 	if err != nil {
@@ -185,7 +210,7 @@ func TestHandlerSessionWithUnreachableDatabase(t *testing.T) {
 	request.AddCookie(cookie)
 	response := httptest.NewRecorder()
 	backend.ServeHTTP(response, request)
-	expect(t, response, http.StatusOK, `{"user":{"id":"github:1","name":"Octo","image":"https://avatars.test/1"}}`)
+	expect(t, response, http.StatusOK, `{"user":{"id":"github:1","name":"Octo","image":"https://avatars.test/1"},"providers":["github"]}`)
 
 	request = httptest.NewRequest(http.MethodGet, "/api/workspace", nil)
 	request.AddCookie(cookie)
@@ -202,7 +227,7 @@ func TestHandlerWithoutGitHub(t *testing.T) {
 	t.Setenv("AUTH_GITHUB_ID", "")
 	t.Setenv("AUTH_GITHUB_SECRET", "")
 	backend.open = func(context.Context, string) (web.Store, error) { return fakeStore{}, nil }
-	expect(t, get("/api/auth/session"), http.StatusOK, `{"user":null}`)
+	expect(t, get("/api/auth/session"), http.StatusOK, `{"user":null,"providers":[]}`)
 	expect(t, get("/api/auth/signin"), http.StatusServiceUnavailable, `{"error":"authUnavailable"}`)
 	expect(t, get("/api/health"), http.StatusOK, `{"status":"ok"}`)
 }
@@ -211,7 +236,7 @@ func TestHandlerWithoutGitHub(t *testing.T) {
 func TestAuthHandlerBuiltIsKept(t *testing.T) {
 	reset(t)
 	settings(t)
-	expect(t, get("/api/auth/session"), http.StatusOK, `{"user":null}`)
+	expect(t, get("/api/auth/session"), http.StatusOK, `{"user":null,"providers":["github"]}`)
 	first := backend.authHandler()
 	t.Setenv("AUTH_SECRET", "")
 	backend.mu.Lock()
@@ -358,7 +383,7 @@ func TestHandlerRealDatabase(t *testing.T) {
 	t.Setenv("DATABASE_URL", "")
 	t.Setenv("POSTGRES_URL", connection)
 	expect(t, serve(t), http.StatusOK, `{"status":"ok"}`)
-	expect(t, get("/api/auth/session"), http.StatusOK, `{"user":null}`)
+	expect(t, get("/api/auth/session"), http.StatusOK, `{"user":null,"providers":["github"]}`)
 }
 
 func TestHandlerUnreachableDatabase(t *testing.T) {

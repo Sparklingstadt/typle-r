@@ -7,14 +7,14 @@
   "refresh": "Обновить",
   "signOut": "Выйти",
   "signOutFailed": "Не удалось выйти. Попробуйте ещё раз.",
-  "signedInAs": "Вы вошли как {login}",
+  "signedInAs": "Вы вошли как {email}",
   "never": "Нет",
   "dateTime": "{date} {time}",
   "updatedAt": "Обновлено",
   "signIn": {
     "title": "Вход администратора",
-    "description": "Войдите с аккаунтом GitHub, зарегистрированным как администратор.",
-    "button": "Войти через GitHub"
+    "description": "Войдите с FFPF ID, зарегистрированным как администратор.",
+    "button": "Войти через FFPF ID"
   },
   "stats": {
     "label": "Обзор",
@@ -33,8 +33,8 @@
   },
   "admins": {
     "title": "Администраторы",
-    "login": "Логин GitHub",
-    "githubId": "ID GitHub",
+    "email": "Эл. почта",
+    "ffpfSub": "sub FFPF ID",
     "createdAt": "Добавлен",
     "lastSeenAt": "Последний вход",
     "unbound": "Ещё не входил"

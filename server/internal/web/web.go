@@ -23,7 +23,7 @@ type Store interface {
 	DeleteShare(ctx context.Context, owner, packID string) error
 	ListShares(ctx context.Context, owner string) ([]store.Share, error)
 	SharedPack(ctx context.Context, id string) (json.RawMessage, error)
-	Admin(ctx context.Context, login string, githubID int64) (bool, error)
+	Admin(ctx context.Context, email, sub string) (bool, error)
 	Overview(ctx context.Context) (*store.AdminOverview, error)
 	Users(ctx context.Context, page int) (*store.AdminUsers, error)
 }
@@ -39,6 +39,17 @@ type UserSource interface {
 	User(ctx context.Context, token string) (auth.User, error)
 }
 
+// FFPFLogin is the "Sign in with FFPF ID" client (auth.FFPF): the OpenID Connect provider of ffpf-portal.
+type FFPFLogin interface {
+	AuthorizeURL(state, challenge, nonce, redirectURI string) string
+	Exchange(ctx context.Context, code, verifier, redirectURI, nonce string) (auth.FFPFUser, error)
+}
+
+// AdminSource tells whether an FFPF ID account is an administrator (store.Store.Admin).
+type AdminSource interface {
+	Admin(ctx context.Context, email, sub string) (bool, error)
+}
+
 // Config holds what the handlers depend on.
 type Config struct {
 	Store Store
@@ -52,6 +63,13 @@ type Config struct {
 	// OAuth and GitHub are the login: without them, or without BaseURL, signin and callback answer 503.
 	OAuth  OAuthClient
 	GitHub UserSource
+	// FFPF is the login through FFPF ID, and the only way in to the administrator's dashboard: without it, or without
+	// BaseURL, signin with provider=ffpf or admin=1 and its callback answer 503.
+	FFPF FFPFLogin
+	// Admins is asked, at the end of a login to the dashboard, whether the FFPF ID account is an administrator. When
+	// nil, Store is asked. It lets the /api/auth part, which has no Store so that the session never waits for the
+	// database (server/vercel), open the database for this one question only.
+	Admins AdminSource
 	// LocalLogin turns on POST /api/auth/local, which signs in as a made-up local account for development. Off, the
 	// path does not exist.
 	LocalLogin bool
@@ -71,7 +89,8 @@ func New(c Config) http.Handler {
 	mux.HandleFunc("/api/shares", s.shares)
 	mux.HandleFunc("/api/shared", s.shared)
 	mux.HandleFunc("/api/auth/signin", s.signin)
-	mux.HandleFunc("/api/auth/callback/github", s.callback)
+	mux.HandleFunc(githubCallback, s.callback(providerGitHub))
+	mux.HandleFunc(ffpfCallback, s.callback(providerFFPF))
 	mux.HandleFunc("/api/auth/session", s.session)
 	mux.HandleFunc("/api/auth/token", s.token)
 	mux.HandleFunc("/api/auth/signout", s.signout)

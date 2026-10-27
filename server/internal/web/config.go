@@ -12,11 +12,14 @@ import (
 )
 
 // FromEnv reads the login settings from the environment: AUTH_SECRET and AUTH_URL (an http or https URL, of which only
-// the origin is used), which are required, and AUTH_GITHUB_ID and AUTH_GITHUB_SECRET, which are optional. When a
+// the origin is used), which are required, and AUTH_GITHUB_ID and AUTH_GITHUB_SECRET, and FFPF_ID_ISSUER,
+// FFPF_ID_CLIENT_ID and FFPF_ID_CLIENT_SECRET, which are optional. When a
 // required one is missing or unusable the error names each of them, so that one message tells everything to fix. When
 // either GitHub one is missing OAuth and GitHub are left nil, one warning is logged, and only signin and callback
 // answer 503 (authUnavailable): the session, the workspace and the local login do not need GitHub, so development with
-// the local login alone needs no OAuth App. The Store and Report are left to the caller: nothing is opened here, and the
+// the local login alone needs no OAuth App. FFPF ID is the same: unless all three of its settings are set FFPF is nil,
+// and when only some are set one warning is logged, as that is a mistake to fix; when none is set it is not configured,
+// and nothing is said. Without it the FFPF ID login and the administrator's dashboard login answer 503. The Store and Report are left to the caller: nothing is opened here, and the
 // Keys always come from a successful session.NewKeys, because the zero Keys cannot seal a cookie.
 //
 // local is for the typle-web command: only then may LocalLogin be turned on. It is on under the conditions of
@@ -49,6 +52,14 @@ func FromEnv(getenv func(string) string, local bool) (Config, error) {
 	} else {
 		log.Print("AUTH_GITHUB_ID and AUTH_GITHUB_SECRET are not both set: signing in with GitHub is unavailable")
 	}
+	issuer, ffpfID, ffpfSecret := getenv("FFPF_ID_ISSUER"), getenv("FFPF_ID_CLIENT_ID"), getenv("FFPF_ID_CLIENT_SECRET")
+	switch {
+	case issuer != "" && ffpfID != "" && ffpfSecret != "":
+		// Assigned only here, for the same reason as OAuth.
+		config.FFPF = auth.NewFFPF(issuer, ffpfID, ffpfSecret)
+	case issuer != "" || ffpfID != "" || ffpfSecret != "":
+		log.Print("FFPF_ID_ISSUER, FFPF_ID_CLIENT_ID and FFPF_ID_CLIENT_SECRET are not all set: signing in with FFPF ID is unavailable")
+	}
 	return config, nil
 }
 
@@ -60,8 +71,8 @@ func parseBaseURL(value string) (*url.URL, error) {
 	if (parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.Hostname() == "" {
 		return nil, errors.New("not an http or https URL")
 	}
-	// Only the origin is kept. The Go functions are served at the domain root, so the callback is always
-	// <origin>/api/auth/callback/github, whatever path AUTH_URL has (Auth.js allowed one, such as https://host/api/auth),
+	// Only the origin is kept. The Go functions are served at the domain root, so the callbacks are always
+	// <origin>/api/auth/callback/github and <origin>/api/auth/callback/ffpf, whatever path AUTH_URL has (Auth.js allowed one, such as https://host/api/auth),
 	// and a state-changing request is judged by its origin alone.
 	return &url.URL{Scheme: parsed.Scheme, Host: parsed.Host}, nil
 }

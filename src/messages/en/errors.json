@@ -59,6 +59,7 @@
   "sharedPackNotFound": "This share has ended.",
   "packNotFound": "This pack could not be found. Reload the page.",
   "adminRequired": "Please sign in as an administrator.",
-  "adminForbidden": "This GitHub account is not an administrator.",
+  "adminForbidden": "This FFPF ID is not an administrator.",
+  "adminUnavailable": "Could not check whether you are an administrator. Please try again later.",
   "invalidPage": "The page number is not valid."
 }

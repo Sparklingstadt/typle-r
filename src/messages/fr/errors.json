@@ -59,6 +59,7 @@
   "sharedPackNotFound": "Ce partage est terminé.",
   "packNotFound": "Ce pack est introuvable. Rechargez la page.",
   "adminRequired": "Veuillez vous connecter en tant qu’administrateur.",
-  "adminForbidden": "Ce compte GitHub n’est pas administrateur.",
+  "adminForbidden": "Ce FFPF ID n’est pas administrateur.",
+  "adminUnavailable": "Impossible de vérifier si vous êtes administrateur. Veuillez réessayer plus tard.",
   "invalidPage": "Le numéro de page n’est pas valide."
 }

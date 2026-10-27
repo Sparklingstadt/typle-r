@@ -7,14 +7,14 @@
   "refresh": "Refresh",
   "signOut": "Sign out",
   "signOutFailed": "Could not sign out. Please try again.",
-  "signedInAs": "Signed in as {login}",
+  "signedInAs": "Signed in as {email}",
   "never": "None",
   "dateTime": "{date} {time}",
   "updatedAt": "Updated",
   "signIn": {
     "title": "Admin sign-in",
-    "description": "Sign in with a GitHub account registered as an administrator.",
-    "button": "Sign in with GitHub"
+    "description": "Sign in with an FFPF ID registered as an administrator.",
+    "button": "Sign in with FFPF ID"
   },
   "stats": {
     "label": "Overview",
@@ -33,8 +33,8 @@
   },
   "admins": {
     "title": "Administrators",
-    "login": "GitHub login",
-    "githubId": "GitHub ID",
+    "email": "Email",
+    "ffpfSub": "FFPF ID sub",
     "createdAt": "Added",
     "lastSeenAt": "Last seen",
     "unbound": "Not signed in yet"

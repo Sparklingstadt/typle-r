@@ -7,14 +7,14 @@
   "refresh": "Actualiser",
   "signOut": "Se déconnecter",
   "signOutFailed": "Impossible de se déconnecter. Veuillez réessayer.",
-  "signedInAs": "Connecté en tant que {login}",
+  "signedInAs": "Connecté en tant que {email}",
   "never": "Aucune",
   "dateTime": "{date} {time}",
   "updatedAt": "Mis à jour",
   "signIn": {
     "title": "Connexion administrateur",
-    "description": "Connectez-vous avec un compte GitHub enregistré comme administrateur.",
-    "button": "Se connecter avec GitHub"
+    "description": "Connectez-vous avec un FFPF ID enregistré comme administrateur.",
+    "button": "Se connecter avec FFPF ID"
   },
   "stats": {
     "label": "Aperçu",
@@ -33,8 +33,8 @@
   },
   "admins": {
     "title": "Administrateurs",
-    "login": "Identifiant GitHub",
-    "githubId": "ID GitHub",
+    "email": "Adresse e-mail",
+    "ffpfSub": "sub FFPF ID",
     "createdAt": "Ajouté",
     "lastSeenAt": "Dernier accès",
     "unbound": "Pas encore connecté"
