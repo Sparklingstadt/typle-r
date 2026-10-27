@@ -350,12 +350,11 @@ type sessionUser struct {
 	Image *string `json:"image"`
 }
 
-// sessionAnswer is who is signed in, the providers the screen may offer to sign in with (in the order the screen lists
-// them), and for an app the token to use from now on when its own has grown old.
+// sessionAnswer is who is signed in, and the providers the screen may offer to sign in with (in the order the screen
+// lists them).
 type sessionAnswer struct {
 	User      *sessionUser `json:"user"`
 	Providers []string     `json:"providers"`
-	Token     string       `json:"token,omitempty"`
 }
 
 // providers are the logins that are configured, "github" before "ffpf". It is never nil, so the answer has a list.
@@ -369,8 +368,14 @@ func (s *server) providers() []string {
 	return list
 }
 
-// session says who is signed in. A session that has grown old is signed again, so an active user stays signed in: a
-// cookie is set again, and an app is given a new token.
+// ErrSessionsUnchecked is what a SessionSource answers when it cannot tell yet, without waiting, whether a session was
+// revoked: the /api/auth part does not open the database for the session's answer (server/vercel).
+var ErrSessionsUnchecked = errors.New("the revocations were not read")
+
+// session says who is signed in. It is not sealed again however active the user is: a session ends MaxAge after its
+// login. A revoked one (signed out of every device) is no one, and its cookie is removed, when the revocations can be
+// read at once; otherwise the answer goes on without them, as the session never waits for the database, and the
+// account's data, which is read with the revocations (signedIn), stays out of reach all the same.
 func (s *server) session(w http.ResponseWriter, r *http.Request) {
 	if !methods(w, r, http.MethodGet, http.MethodHead) {
 		return
@@ -381,27 +386,62 @@ func (s *server) session(w http.ResponseWriter, r *http.Request) {
 		reply(w, http.StatusOK, answer)
 		return
 	}
-	if user.NeedsRenewal(s.now()) {
-		if fromApp(r) {
-			answer.Token = s.config.Keys.SealApp(session.New(user.Sub, user.Name, user.Image, s.now()))
-		} else {
-			s.issue(w, user.Sub, user.Name, user.Image)
+	revoked, err := s.revoked(r, user)
+	if err != nil && !errors.Is(err, ErrSessionsUnchecked) && !errors.Is(err, errNoSessions) {
+		logOnly(r, err, "session.check")
+	}
+	if revoked {
+		if !fromApp(r) {
+			http.SetCookie(w, s.sessionCookie("", -1))
 		}
+		reply(w, http.StatusOK, answer)
+		return
 	}
 	answer.User = userOf(user)
 	reply(w, http.StatusOK, answer)
 }
 
-// signout forgets the session in the browser. The session is only a signed cookie, so there is nothing to revoke.
+// signout forgets the session in the browser. With ?everywhere=1 it also signs the account out of every device: every
+// session cookie and app token of a login until now is revoked (Store.RevokeSessions), which is the one way to stop a
+// stolen one before it expires. An app may ask for that too, with its token and without an Origin. Signing out
+// everywhere needs a session that is itself not revoked, so a stolen cookie that was revoked cannot sign out the logins
+// made since; it answers loginRequired, and databaseUnavailable when the revocations cannot be read or written, and
+// then the cookie is kept so that the user can try again.
 func (s *server) signout(w http.ResponseWriter, r *http.Request) {
 	if !methods(w, r, http.MethodPost) {
 		return
 	}
-	if !s.sameOrigin(r) {
+	everywhere := r.URL.Query().Get("everywhere") == "1"
+	if !(s.sameOrigin(r) || everywhere && fromApp(r)) {
 		refuse(w, http.StatusForbidden, "forbiddenRequest")
 		return
 	}
-	http.SetCookie(w, s.sessionCookie("", -1))
+	if everywhere {
+		user, ok := s.owner(r)
+		if !ok {
+			refuse(w, http.StatusUnauthorized, "loginRequired")
+			return
+		}
+		revoked, err := s.revoked(r, user)
+		if err == nil && !revoked {
+			err = s.sessions().RevokeSessions(r.Context(), user.Sub)
+		}
+		switch {
+		case err != nil:
+			s.report(r, err, "session.revoke")
+			refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
+			return
+		case revoked:
+			if !fromApp(r) {
+				http.SetCookie(w, s.sessionCookie("", -1))
+			}
+			refuse(w, http.StatusUnauthorized, "loginRequired")
+			return
+		}
+	}
+	if !fromApp(r) {
+		http.SetCookie(w, s.sessionCookie("", -1))
+	}
 	noContent(w)
 }
 

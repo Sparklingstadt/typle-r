@@ -142,7 +142,7 @@ func (b *Backend) config() (web.Config, error) {
 
 // authHandler serves /api/auth/*. It is built from the login settings alone: no Store, because the auth handlers do not
 // use it, and the database is not opened for them, but for the one question at the end of a login to the
-// administrator's dashboard (lazyAdmins). When the settings are missing or invalid it says authUnavailable.
+// administrator's dashboard (lazyAdmins) and for signing out of every device (lazySessions). When the settings are missing or invalid it says authUnavailable.
 func (b *Backend) authHandler() http.Handler {
 	if built := b.login.Load(); built != nil {
 		return *built
@@ -152,6 +152,7 @@ func (b *Backend) authHandler() http.Handler {
 		return authUnavailable
 	}
 	config.Admins = lazyAdmins{b}
+	config.Sessions = lazySessions{b}
 	handler := web.New(config)
 	b.login.CompareAndSwap(nil, &handler)
 	return *b.login.Load()
@@ -170,6 +171,28 @@ func (l lazyAdmins) Admin(ctx context.Context, email, sub string) (bool, error) 
 		return false, errDatabaseUnavailable
 	}
 	return source.Admin(ctx, email, sub)
+}
+
+// lazySessions keeps the revocations (signing out of every device) for the /api/auth part. Signing out everywhere
+// opens the database, as lazyAdmins does; reading the revocations for the session's answer does not, so that the
+// session never waits for the database: until this instance has opened it for something else, that answer goes on
+// unchecked (web.ErrSessionsUnchecked).
+type lazySessions struct{ b *Backend }
+
+func (l lazySessions) RevokeSessions(ctx context.Context, owner string) error {
+	source := l.b.database()
+	if source == nil {
+		return errDatabaseUnavailable
+	}
+	return source.RevokeSessions(ctx, owner)
+}
+
+func (l lazySessions) SessionsRevokedAt(ctx context.Context, owner string) (time.Time, error) {
+	open := l.b.source.Load()
+	if open == nil {
+		return time.Time{}, web.ErrSessionsUnchecked
+	}
+	return (*open).SessionsRevokedAt(ctx, owner)
 }
 
 // healthHandler serves /api/health from the database alone: without the login settings it still says whether the

@@ -22,6 +22,15 @@
 - Go のバックエンド（`server/internal/*`）：typle-kotlin-backend の対応するコードを同じように直し、`TYPLE_BACKEND=kotlin npm run test:e2e` で確かめます。
 - ログイン（`client=ipad|macos|android|windows`）とトークンの形：各アプリが使うので、互換を保ちます。
 
+## v0.106.0 — ログインに絶対期限を設け、すべての端末からログアウトできるようにしました
+
+- ログインはログインした時から30日で切れます。これまでは使うたびに（24時間ごとに）延長され、使い続ける限り切れませんでした。Cookie もアプリのトークンも延長しないため、盗まれたものもログインから30日を超えては使えません。`/api/auth/session` の応答から `token`（アプリのトークンの更新）をなくしました。
+- 「一般」（`/settings`）に「すべての端末からログアウト」を追加しました（ログイン中だけ表示します）。このブラウザー・ほかのブラウザー・iPad・Mac・Android・Windows アプリのログインを、その時点までの分すべて無効にします。
+- API：`POST /api/auth/signout?everywhere=1`。ブラウザーからは Origin が必要で、アプリからは `Authorization: Bearer <トークン>` で呼べます。成功すると `204`、ログインしていない・すでに無効なログインでは `401 loginRequired`（無効なログインで呼んでも、その後のログインは無効になりません）、DB に届かないときは `503 databaseUnavailable` で Cookie を残します。`?everywhere=1` のない `POST /api/auth/signout` は今までどおりこのブラウザーだけです。
+- 無効にしたログインの Cookie・トークンでは、`/api/workspace`・`/api/shares` は `401 loginRequired` で、ブラウザーの Cookie を消します。画面はこの `401` でログインを読み直し、ログアウトした状態になります。`/api/auth/session` は DB を待たない作りのため、その関数ですでに DB を開いているときだけ確かめます（確かめないときも、データには届きません）。
+- DB：`typle_session_revocations` テーブル（アカウントごとに、最後に「すべての端末からログアウト」した時刻）を追加しました（マイグレーション `0030_session_revocations`、Prisma の `SessionRevocation`）。ログインの時刻（秒単位）がこの時刻以前のログインを無効とします。同じ秒のログインも無効側に数えます。
+- 別リポジトリ：iPad・Mac・Android・Windows アプリはトークンの更新がなくなるため、ログインから30日で `401` になり、もう一度ログインが必要です。typle-kotlin-backend には絶対期限・`typle_session_revocations`・`?everywhere=1` がまだありません。
+
 ## v0.105.0 — FFPF ID でログインできるようにしました
 
 - ログイン：FFPF ID（ffpf-portal）でもログインできます。GitHub と FFPF ID の両方が使えるときは、「ログイン」のメニューから選びます。設定は「FFPF ID でのログインの設定」を見てください。
@@ -621,8 +630,8 @@ API（`server/`）はNext.jsとは独立したGoのコードで、モジュー�
 
 | 場所 | 内容 |
 |---|---|
-| `server/internal/web` | GitHub ログイン（`/api/auth/session`・`signin`・`signout`・`callback/github`、アプリ用の `token`）、`/api/workspace`（読み込みと、`revision` による保存）、`/api/health` を1つの `http.Handler` にまとめます。すべての応答に、`next.config.mjs` と同じ4つのセキュリティヘッダー（`Content-Security-Policy`・`X-Frame-Options`・`X-Content-Type-Options`・`Referrer-Policy`）を付けます。ローカル開発のログイン（`POST /api/auth/local`）もここにあり、`typle-web` でだけ有効です |
-| `server/internal/session` | ログインの Cookie（`HttpOnly`・`SameSite=Lax`・有効期限30日）と、iPad・Android・Windows のログインのコード・トークンの署名と検証です。値は `AUTH_SECRET` から導いた鍵（種類ごとに別）で HMAC-SHA256 署名します。名前は `AUTH_URL` が HTTPS なら `__Host-typle-session`、HTTP なら `typle-session` です |
+| `server/internal/web` | GitHub ログイン（`/api/auth/session`・`signin`・`signout`（`?everywhere=1` ですべての端末から）・`callback/github`、アプリ用の `token`）、`/api/workspace`（読み込みと、`revision` による保存）、`/api/health` を1つの `http.Handler` にまとめます。すべての応答に、`next.config.mjs` と同じ4つのセキュリティヘッダー（`Content-Security-Policy`・`X-Frame-Options`・`X-Content-Type-Options`・`Referrer-Policy`）を付けます。ローカル開発のログイン（`POST /api/auth/local`）もここにあり、`typle-web` でだけ有効です |
+| `server/internal/session` | ログインの Cookie（`HttpOnly`・`SameSite=Lax`・ログインから30日で失効・延長なし）と、iPad・Android・Windows のログインのコード・トークンの署名と検証です。値は `AUTH_SECRET` から導いた鍵（種類ごとに別）で HMAC-SHA256 署名します。名前は `AUTH_URL` が HTTPS なら `__Host-typle-session`、HTTP なら `typle-session` です |
 | `server/internal/auth` | `/api/v1` のトークン確認のほか、アプリのログイン用の GitHub OAuth クライアント（認可コードと PKCE）を持ちます |
 | `server/vercel` | `web` のハンドラーを Vercel の Go の関数として呼ぶ橋渡しです。リポジトリ直下の `api/health.go`・`api/workspace.go`・`api/auth/*.go`（`api/auth/token.go` を含む）がこれを呼びます。`/api/health` はログインの設定（`AUTH_SECRET`・`AUTH_URL`）がなくても DB だけで答え、`/api/workspace` はログインの設定がなければ DB を開かずに 503（`authUnavailable`）を返します |
 | `server/cmd/typle-web` | `web` のハンドラーを手元で起動します（既定 `127.0.0.1:8081`）。`npm run dev` と E2E が使います |
@@ -636,8 +645,8 @@ iPad アプリ（[typle-ipad](https://github.com/Sparklingstadt/typle-ipad) リ�
 1. アプリが32バイトの乱数から検証値（verifier）を作り、システムのログイン画面（iPad と Mac は `ASWebAuthenticationSession`、Android は Custom Tabs、Windows は既定のブラウザー）で `/api/auth/signin?client=<ipad|macos|android|windows>&code_challenge=<S256>` を開きます。チャレンジは OAuth の Cookie に入り、GitHub にはサーバー自身の PKCE を使います。
 2. `callback/github` は Cookie を発行せず、`typle-r://login?code=<コード>` へリダイレクトします。コードはユーザーとチャレンジに署名したもので、2分で切れます。失敗・キャンセルは `typle-r://login?error=loginFailed` です。Android は `MainActivity` の intent-filter（scheme `typle-r`・host `login`）で、Windows は起動のたびに登録するプロトコル（`typle-r`、この Windows ユーザーの `HKEY_CURRENT_USER`）でこの URL を受け取ります。Windows では、ブラウザーが開いた2つ目の Typle が、動いている Typle にこの URL を渡して終わります。アプリを離れてコールバックが来なかったときは、何も起きなかったものとして戻ります（Windows は「ログインをやめる」で待つのをやめます）。
 3. アプリが `POST /api/auth/token`（`{"code","verifier"}`）を呼び、検証値の SHA-256 がチャレンジと一致すれば `{"token","user"}` を返します。コードを横取りしても、検証値がなければトークンにできません。間違いはすべて `400 loginFailed` です。Android と Windows は、ログインを始めてから10分たったログイン途中の状態は無効とし、ログインに失敗したものとして扱います。
-4. アプリは `Authorization: Bearer <トークン>` で `/api/auth/session` と `/api/workspace` を呼びます。トークンは Cookie と別の鍵で署名した有効期限30日の値で、Cookie の値をトークンとして、トークンを Cookie として使うことはできません。`Authorization` ヘッダーがある要求はトークンだけで判断し（Cookie は見ません）、ブラウザーが自動では付けないため、`PUT /api/workspace` の Origin の確認は要りません（`Content-Type` の確認は残ります）。
-5. 発行から24時間たったトークンは、`/api/auth/session` の応答の `token` で新しくなります。ログアウトはアプリがトークンを消すだけです（Cookie と同じく、サーバーには取り消す記録がありません）。トークンは iPad と Mac では Keychain に、Android では Android Keystore の鍵で暗号化して、Windows では Windows のデータ保護（DPAPI）で暗号化して保存します。
+4. アプリは `Authorization: Bearer <トークン>` で `/api/auth/session` と `/api/workspace` を呼びます。トークンは Cookie と別の鍵で署名した、ログインから30日で切れる（延長しない）値で、Cookie の値をトークンとして、トークンを Cookie として使うことはできません。`Authorization` ヘッダーがある要求はトークンだけで判断し（Cookie は見ません）、ブラウザーが自動では付けないため、`PUT /api/workspace` の Origin の確認は要りません（`Content-Type` の確認は残ります）。
+5. トークンは更新されません（v0.106.0 から。それまでは発行から24時間で `/api/auth/session` の応答の `token` で新しくなっていました）。切れたら `401` になるので、もう一度ログインします。ログアウトはアプリがトークンを消すだけですが、`POST /api/auth/signout?everywhere=1` を `Authorization: Bearer <トークン>` で呼ぶと、そのアカウントのすべての端末のログインを無効にできます（`typle_session_revocations`）。トークンは iPad と Mac では Keychain に、Android では Android Keystore の鍵で暗号化して、Windows では Windows のデータ保護（DPAPI）で暗号化して保存します。
 
 Android のエミュレーターから手元の `npm run dev` で試すときは、サーバー URL に `http://10.0.2.2:<ポート>`（エミュレーターから見たホストの `localhost`）を入れます。ただし GitHub の OAuth App の callback URL は `AUTH_URL` に合わせたもの（`<AUTH_URL>/api/auth/callback/github`）でなければならず、開発用ログイン（`POST /api/auth/local`）はアプリでは使えません。
 

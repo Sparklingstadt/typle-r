@@ -50,9 +50,8 @@ func (s *server) shares(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) listShares(w http.ResponseWriter, r *http.Request) {
-	user, ok := s.owner(r)
+	user, ok := s.signedIn(w, r)
 	if !ok {
-		refuse(w, http.StatusUnauthorized, "loginRequired")
 		return
 	}
 	shares, err := s.config.Store.ListShares(r.Context(), user.Sub)
@@ -75,9 +74,8 @@ func (s *server) putShare(w http.ResponseWriter, r *http.Request) {
 		refuse(w, http.StatusForbidden, "forbiddenRequest")
 		return
 	}
-	user, ok := s.owner(r)
+	user, ok := s.signedIn(w, r)
 	if !ok {
-		refuse(w, http.StatusUnauthorized, "loginRequired")
 		return
 	}
 	packID, ok := readPackID(r)
@@ -107,9 +105,8 @@ func (s *server) deleteShare(w http.ResponseWriter, r *http.Request) {
 		refuse(w, http.StatusForbidden, "forbiddenRequest")
 		return
 	}
-	user, ok := s.owner(r)
+	user, ok := s.signedIn(w, r)
 	if !ok {
-		refuse(w, http.StatusUnauthorized, "loginRequired")
 		return
 	}
 	packID := r.URL.Query().Get("pack")

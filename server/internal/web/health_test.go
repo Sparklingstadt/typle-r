@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/sparklingstadt/typle-r/server/internal/store"
 )
@@ -108,3 +109,11 @@ func (f fakeStore) Admin(context.Context, string, string) (bool, error) { return
 func (f fakeStore) Overview(context.Context) (*store.AdminOverview, error) { return nil, f.err }
 
 func (f fakeStore) Users(context.Context, int) (*store.AdminUsers, error) { return nil, f.err }
+
+// No account has signed out of every device, whatever err is, so that a test of another failure fails where it means
+// to; revocations_test.go has its own store for them.
+func (f fakeStore) SessionsRevokedAt(context.Context, string) (time.Time, error) {
+	return time.Time{}, nil
+}
+
+func (f fakeStore) RevokeSessions(context.Context, string) error { return f.err }

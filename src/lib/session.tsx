@@ -143,6 +143,18 @@ export function signIn(provider: Provider = 'github'): void {
   location.assign('/api/auth/signin?returnTo=' + encodeURIComponent(location.pathname + location.search) + (provider === 'ffpf' ? '&provider=ffpf' : ''))
 }
 
+/**
+ * Signs out of every device, this browser included, and goes home: every session and app token of a login until now
+ * stops working, such as one that was stolen. Rejects, and stays on the page signed in, when the request fails or is
+ * refused.
+ */
+export async function signOutEverywhere(): Promise<void> {
+  const response = await fetch('/api/auth/signout?everywhere=1', { method: 'POST' })
+  if (!response.ok) throw new Error('sign out everywhere failed')
+  // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+  location.assign('/home')
+}
+
 /** Signs out and goes home. Rejects, and stays on the page signed in, when the sign-out request fails or is refused. */
 export async function signOut(): Promise<void> {
   const response = await fetch('/api/auth/signout', { method: 'POST' })

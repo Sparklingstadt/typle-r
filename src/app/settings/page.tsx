@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import LanguageSettings from '@/components/Settings/LanguageSettings'
+import SessionSettings from '@/components/Settings/SessionSettings'
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('settings')
@@ -16,6 +17,7 @@ export default async function Settings() {
     </header>
     <div className="space-y-6">
       <LanguageSettings />
+      <SessionSettings />
     </div>
   </main>
 }

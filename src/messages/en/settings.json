@@ -1,7 +1,7 @@
 {
   "title": "General",
   "metaTitle": "General | Typle",
-  "description": "Settings for how Typle is displayed.",
+  "description": "Settings for how Typle is displayed and for signing in.",
   "language": {
     "heading": "Display language",
     "description": "Choose the language used on screen. Your word lists and practice records stay as they are.",
@@ -10,6 +10,16 @@
     "changing": "Changing the display language…",
     "changed": "The display language is now {language}.",
     "failed": "Could not change the display language. Please try again."
+  },
+  "sessions": {
+    "heading": "Signed-in devices",
+    "description": "Sign this account out of every device it is signed in on: this browser, other browsers, and the iPad, Mac, Android and Windows apps. Use this if you lose a device or think someone else has used your account. Every sign-in ends after 30 days on any device.",
+    "action": "Sign out of all devices",
+    "confirmTitle": "Sign out of all devices?",
+    "confirmDescription": "Every device and app signed in now, this browser included, will be signed out. Sign in again on the devices you keep using. Your word lists and practice records are not deleted.",
+    "confirm": "Sign out",
+    "signingOut": "Signing out…",
+    "failed": "Could not sign out. Please try again."
   },
   "languages": {
     "ja": "Japanese",

@@ -19,7 +19,8 @@ import (
 )
 
 const (
-	// MaxAge is how long a session is valid after it is issued.
+	// MaxAge is how long a session is valid after its login. It is not renewed, however active the user is, so a cookie
+	// or an app token that is stolen stops working at most this long after the login it came from.
 	MaxAge = 30 * 24 * time.Hour
 	// OAuthMaxAge is how long a login may take between leaving for GitHub or FFPF ID and coming back.
 	OAuthMaxAge = 10 * time.Minute
@@ -30,9 +31,6 @@ const (
 	// AdminMaxAge is how long an administrator's session of /admin is valid. It is not renewed: the administrator signs
 	// in again with FFPF ID.
 	AdminMaxAge = 12 * time.Hour
-
-	// A session is sealed again once it is this old, so an active user stays signed in while MaxAge bounds an idle one.
-	renewAfter = 24 * time.Hour
 
 	sessionInfo = "typle session v1"
 	oauthInfo   = "typle oauth v1"
@@ -50,7 +48,8 @@ var accountSub = regexp.MustCompile(`^(github:\d+|ffpf:[a-z0-9]{1,64})$`)
 // ffpfSub is an FFPF ID sub as it stands, without the prefix: what the administrator's session names.
 var ffpfSub = regexp.MustCompile(`^[a-z0-9]{1,64}$`)
 
-// Session is a signed-in user. Times are kept in whole seconds.
+// Session is a signed-in user. Times are kept in whole seconds. IssuedAt is the time of the login, as a session is
+// never sealed again.
 type Session struct {
 	Sub, Name, Image  string
 	IssuedAt, Expires time.Time
@@ -159,9 +158,11 @@ func New(sub, name, image string, now time.Time) Session {
 	return Session{Sub: sub, Name: name, Image: image, IssuedAt: now, Expires: now.Add(MaxAge)}
 }
 
-// NeedsRenewal reports whether the session is old enough to be issued again.
-func (s Session) NeedsRenewal(now time.Time) bool {
-	return now.Sub(s.IssuedAt) >= renewAfter
+// RevokedBy reports whether the account's sessions revoked at revokedAt (Store.RevokeSessions) include s: those of a
+// login no later than revokedAt. IssuedAt is in whole seconds, so a login in the very second of the revocation counts
+// as revoked too; that errs on the side of signing someone out.
+func (s Session) RevokedBy(revokedAt time.Time) bool {
+	return !revokedAt.IsZero() && !s.IssuedAt.After(revokedAt)
 }
 
 // CookieName is __Host- over HTTPS, which makes the browser insist on Secure, Path=/ and no Domain; plain HTTP
