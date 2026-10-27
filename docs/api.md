@@ -28,7 +28,7 @@ DATABASE_URL='postgresql://…' go run ./server/cmd/typle-api
 - 遅い送受信や使われない接続を持ち続けないよう、リクエストの読み込みは30秒、応答は1分、待機中の接続は2分で切ります。
 - 既定では `127.0.0.1` だけで待ち受けます。ほかの端末から使う場合は、トークンが平文で流れないよう、HTTPSのリバースプロキシの後ろに置いてください。
 - まだ一度も保存していないアカウント（行がない）は、アプリと同じく最初の単語リスト（v0.85.0 から sparklingstadt アカウントの67リストのコピー）を返します。
-- `sslmode=prefer`・`require`・`verify-ca` は、アプリと同じく `verify-full` として接続し、サーバー証明書を検証します（`uselibpqcompat=true` のときはそのまま）。Neonの `channel_binding=require` も使えます。
+- `sslmode=prefer`・`require`・`verify-ca` は、アプリと同じく `verify-full` として接続し、サーバー証明書を検証します（`uselibpqcompat=true` のときはそのまま）。`sslmode` のない URL も、接続先がこの機械（`localhost`・`127.0.0.0/8`・`::1`・Unix ソケット）でなければ `verify-full` にします。Neonの `channel_binding=require` も使えます。
 - 検証はアプリの読み込みと同じです（任意の項目の `null` だけは、省略と同じに扱います）。保存データが読めないときは `503 databaseUnavailable` を返し、理由をログに出します。
 - 以前の共有の項目（`shared`・`shareId`）は読み込み時に捨てます。ほかの知らない項目（リスト・単語・記録・記録の端末）は、アプリと同じく残し、書き込みでも消しません。
 - 記録の日時は `toISOString` の形（`2026-10-10T02:00:00.000Z`）と、`2024/09/22 10:05` のような形を読みます。時差のない日時はサーバーのタイムゾーンで解釈するため、ブラウザーと違う場合は `TZ=Asia/Tokyo` などを指定します。

@@ -19,7 +19,23 @@ import (
 
 func TestConnString(t *testing.T) {
 	cases := map[string]string{
-		"postgres://u:p@h/db":                                                   "postgres://u:p@h/db",
+		"postgres://u:p@h/db":                                         "postgres://u:p@h/db?sslmode=verify-full",
+		"postgresql://u:p@h/db?sslmode=":                              "postgresql://u:p@h/db?sslmode=verify-full",
+		"postgresql://u:p@db.example:6543/db?channel_binding=require": "postgresql://u:p@db.example:6543/db?channel_binding=require&sslmode=verify-full",
+		"postgresql://u:p@10.0.0.5/db":                                "postgresql://u:p@10.0.0.5/db?sslmode=verify-full",
+		"postgresql://localhost.example/db":                           "postgresql://localhost.example/db?sslmode=verify-full",
+		"postgresql://u:p@localhost,db.example/db":                    "postgresql://u:p@localhost,db.example/db?sslmode=verify-full",
+		"postgresql:///db?host=db.example":                            "postgresql:///db?host=db.example&sslmode=verify-full",
+		"postgresql://u:p@h/db?uselibpqcompat=true":                   "postgresql://u:p@h/db",
+		// This machine needs no TLS.
+		"postgresql://u:p@localhost:5432/db":                                    "postgresql://u:p@localhost:5432/db",
+		"postgresql://u:p@LOCALHOST/db":                                         "postgresql://u:p@LOCALHOST/db",
+		"postgresql://u:p@127.0.0.1:5432/db":                                    "postgresql://u:p@127.0.0.1:5432/db",
+		"postgresql://u@127.1.2.3/db":                                           "postgresql://u@127.1.2.3/db",
+		"postgresql://u@[::1]:5432/db":                                          "postgresql://u@[::1]:5432/db",
+		"postgresql://u@localhost,127.0.0.1:5433/db":                            "postgresql://u@localhost,127.0.0.1:5433/db",
+		"postgresql:///db":                                                      "postgresql:///db",
+		"postgresql:///db?host=%2Fvar%2Frun%2Fpostgresql":                       "postgresql:///db?host=%2Fvar%2Frun%2Fpostgresql",
 		"postgresql://u:p@h/db?sslmode=require":                                 "postgresql://u:p@h/db?sslmode=verify-full",
 		"postgresql://u:p@h/db?sslmode=prefer":                                  "postgresql://u:p@h/db?sslmode=verify-full",
 		"postgresql://u:p@h/db?sslmode=verify-ca":                               "postgresql://u:p@h/db?sslmode=verify-full",
