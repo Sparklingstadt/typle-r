@@ -10,8 +10,13 @@ test('a guest follows an official pack from the catalog, practises it and unfoll
   const entry = page.locator('li[data-catalog-id]', { has: page.getByRole('heading', { name: 'Go構文', exact: true }) })
   await expect(entry.getByRole('button', { name: 'フォロー解除' })).toHaveCount(0)
   await entry.getByRole('button', { name: 'Go構文 をフォローする', exact: true }).click()
-  await expect(page).toHaveURL(/\/edit\?pack=/)
   await expect(page.getByText('「Go構文」をフォローしました')).toBeVisible()
+  // The catalog stays open, and the focus moves from the follow button to the pack's 「開く」 link.
+  await expect(page).toHaveURL(/\/packs\/catalog$/)
+  await expect(entry.getByRole('button', { name: 'フォロー中' })).toBeDisabled()
+  await expect(entry.getByRole('link', { name: /開く/ })).toBeFocused()
+  await entry.getByRole('link', { name: /開く/ }).click()
+  await expect(page).toHaveURL(/\/edit\?pack=/)
 
   const row = page.locator('li[data-pack-id]', { has: page.getByRole('button', { name: 'Go構文', exact: true }) })
   await expect(row).toBeVisible()
@@ -54,6 +59,7 @@ test('the practice screen points to the catalog when there are no packs', async 
 test('a followed pack opened on its edit page has no form, only duplicate and unfollow', async ({ page }) => {
   await page.goto('/packs/catalog')
   await page.getByRole('button', { name: 'Go構文 をフォローする', exact: true }).click()
+  await page.getByRole('link', { name: '開く Go構文' }).click()
   await expect(page).toHaveURL(/\/edit\?pack=/)
   const id = new URL(page.url()).searchParams.get('pack')!
   await page.goto(`/packs/edit?pack=${encodeURIComponent(id)}`)
@@ -75,6 +81,7 @@ test('a followed pack opened on its edit page has no form, only duplicate and un
 test('a followed list opened by URL shows the notice, and /create does not offer the followed pack', async ({ page }) => {
   await page.goto('/packs/catalog')
   await page.getByRole('button', { name: 'Go構文 をフォローする', exact: true }).click()
+  await page.getByRole('link', { name: '開く Go構文' }).click()
   await expect(page).toHaveURL(/\/edit\?pack=/)
   const packId = new URL(page.url()).searchParams.get('pack')!
   const listId = await page.locator('li[data-list-id]').first().getAttribute('data-list-id')
@@ -87,4 +94,17 @@ test('a followed list opened by URL shows the notice, and /create does not offer
   await expect(page.getByRole('textbox').first()).toBeVisible()
   if (await select.count()) await expect(select.locator('option', { hasText: 'Go構文' })).toHaveCount(0)
   await expect(select).not.toHaveValue(packId)
+})
+
+test('several official packs are followed one after another without leaving the catalog', async ({ page }) => {
+  await page.goto('/packs/catalog')
+  for (const name of ['Go構文', 'Kotlin構文']) {
+    await page.getByRole('button', { name: `${name} をフォローする`, exact: true }).click()
+    await expect(page.getByText(`「${name}」をフォローしました`)).toBeVisible()
+    await expect(page.getByRole('button', { name: `${name} のフォローを解除`, exact: true })).toBeVisible()
+  }
+  await expect(page).toHaveURL(/\/packs\/catalog$/)
+  await page.goto('/edit')
+  await expect(page.getByRole('button', { name: 'Go構文', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Kotlin構文', exact: true })).toBeVisible()
 })

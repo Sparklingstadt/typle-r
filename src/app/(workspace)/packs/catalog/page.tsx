@@ -1,7 +1,6 @@
 "use client"
 import { useMemo, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { ArrowLeft, Check, CircleAlert, Plus, SquareArrowOutUpRight, UserMinus } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -23,10 +22,12 @@ export default function Catalog() {
   const row = useTranslations("wordLists.pack")
   const unfollow = useTranslations("wordLists.follow")
   const common = useTranslations("common")
-  const router = useRouter()
   const notify = useSaveNotification()
   const [unfollowing, setUnfollowing] = useState<{ id: string; name: string } | null>(null)
   const entries = useMemo(() => catalogEntries({ packs, lists }), [packs, lists])
+  // Following stays on the catalog, so that more packs can be followed one after another. The follow button gives way
+  // to 「フォロー中」, so the focus moves to the new pack's 「開く」 link instead of being lost.
+  const [followedNow, setFollowedNow] = useState<string | null>(null)
 
   // With interests, the entries that match come first in a section of their own; each keeps its place in the catalog order.
   const [matching, others] = useMemo(() => {
@@ -52,7 +53,7 @@ export default function Catalog() {
     })
     if (saved) {
       notify(t("followed", { name }))
-      router.push(`/edit?pack=${encodeURIComponent(ids.pack)}`)
+      setFollowedNow(entry.catalogId)
     }
   }
 
@@ -71,7 +72,8 @@ export default function Catalog() {
             {!entry.followed && full && <p className="text-[13px] text-muted-foreground">{t("full", { max: MAX_LISTS })}</p>}
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            {owned && <Button asChild variant="outline"><Link href={`/edit?pack=${encodeURIComponent(owned.id)}`}>
+            {owned && <Button asChild variant="outline"><Link href={`/edit?pack=${encodeURIComponent(owned.id)}`}
+              ref={entry.catalogId === followedNow ? link => link?.focus() : undefined} onBlur={() => setFollowedNow(null)}>
               <SquareArrowOutUpRight aria-hidden="true" />{t("open")}<span className="sr-only"> {entry.pack.name}</span>
             </Link></Button>}
             {entry.followed ? <>
