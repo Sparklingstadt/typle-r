@@ -22,6 +22,13 @@
 - Go のバックエンド（`server/internal/*`）：typle-kotlin-backend の対応するコードを同じように直し、`TYPLE_BACKEND=kotlin npm run test:e2e` で確かめます。
 - ログイン（`client=ipad|macos|android|windows`）とトークンの形：各アプリが使うので、互換を保ちます。
 
+## v0.105.0 — FFPF ID でログインできるようにしました
+
+- ログイン：FFPF ID（ffpf-portal）でもログインできます。GitHub と FFPF ID の両方が使えるときは、「ログイン」のメニューから選びます。設定は「FFPF ID でのログインの設定」を見てください。
+- `/admin` は FFPF ID でだけログインできます（手順は「管理者ダッシュボード（/admin）」）。
+- 設定が3つ揃っていなければ、FFPF ID のログインは出ません（GitHub のログインは今までどおりです）。
+- 文言：メニューのボタンの名前（`aria-label`）が、見えている文字（「Se connecter」「Войти」）を含むようにしました（WCAG 2.5.3）。
+
 ## v0.104.0 — 公式パックの一覧で、フォローしてもページを移動しないようにしました
 
 - `/packs/catalog` で「フォローする」を押しても、パックの画面（`/edit?pack=…`）へ移動しなくなりました。一覧に残ったまま、続けて他のパックをフォローできます。
@@ -563,6 +570,21 @@ API（Go、`server/`）は、アカウントのクラウド保存をDBから読�
 - 今週のまとめ：今週の練習回数・連続練習日数・直近10回の平均正確率・練習時間。増減は先週の同じ曜日・時刻までと比べます。
 - 次に練習するリスト：記録なし、3日以上練習していない、直近5回の平均正確率が90%未満のリストを順番に1件ずつ選び、最大3件。「練習する」は `/play?list=<id>` でそのリストを選んだ状態で開きます。
 - リスト別の推移：最後に練習した順に、1単語あたりの秒数（所要時間÷単語数）と正確率を直近20回まで表示します。単語数・正確率がない古い記録はそのグラフから除外します。
+
+## FFPF ID でのログインの設定
+
+FFPF ID（ffpf-portal）は、GitHub と並ぶもう1つのログイン方法です。次の3つの環境変数がすべて設定されているときだけ有効になります（1〜2個だけだと警告を1回ログに書いて無効のままです）。
+
+| 環境変数 | 内容 |
+|---|---|
+| `FFPF_ID_ISSUER` | ffpf-portal の issuer（`https://…`。末尾の `/` は付けても外されます） |
+| `FFPF_ID_CLIENT_ID` | portal に登録したクライアントの ID |
+| `FFPF_ID_CLIENT_SECRET` | そのクライアントのシークレット |
+
+- portal に登録する redirect URI は `<AUTH_URL のオリジン>/api/auth/callback/ffpf` です（本番は `https://typle-r-six.vercel.app/api/auth/callback/ffpf`）。portal は redirect URI が登録と完全に一致しないと拒否します。
+- クライアントの登録（client_id・シークレットの作成と redirect URI の登録）は ffpf-portal 側の作業です。手順は ffpf-portal の README と、`docs/superpowers/specs/2026-10-27-ffpf-id-design.md` の「クライアント」を見てください。
+- `.env.example` に3つの変数を載せています。ローカルで試すときは `.env.local` に書きます。Vercel では「Neon / Vercelの構成」の環境変数に足します。
+- ログインした利用者は GitHub のアカウントとは別のアカウントです（アカウント ID は `ffpf:` で始まります）。
 
 ## 管理者ダッシュボード（/admin）
 
