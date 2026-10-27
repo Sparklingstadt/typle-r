@@ -10,6 +10,9 @@
 // the user's OAuth App token (gho_…), and holds the OAuth App's client secret to do so. GitHub.User then reads who that
 // token belongs to once, right after the exchange: it takes any token, with no prefix rule, cache or rate limit, which
 // belong to Owner alone. The token is not kept.
+//
+// FFPF (ffpf.go) is the other browser login, "Sign in with FFPF ID": an OpenID Connect client of ffpf-portal that
+// verifies the ID token itself and gives the account ffpf:<sub>. It shares nothing with the GitHub login but maxBodyLen.
 package auth
 
 import (
