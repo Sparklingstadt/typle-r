@@ -2,6 +2,11 @@
   {
     "id": "8f3cf116-1f9f-4579-a071-e600094b104d",
     "name": "macOSターミナル（zsh）コマンド",
+    "category": "プログラミング",
+    "tags": [
+      "macOS",
+      "シェル"
+    ],
     "words": [
       {
         "display": "pwd",
@@ -460,6 +465,11 @@
   {
     "id": "ef974a4b-3c7a-4eeb-9979-6721a0a1c81a",
     "name": "AWS CLIコマンド",
+    "category": "プログラミング",
+    "tags": [
+      "AWS",
+      "クラウド"
+    ],
     "words": [
       {
         "display": "aws --version",
@@ -698,6 +708,11 @@
   {
     "id": "d6a056c2-9f2b-48ba-b4e6-1d851cc45f41",
     "name": "Google Cloud CLI（gcloud）コマンド",
+    "category": "プログラミング",
+    "tags": [
+      "Google Cloud",
+      "クラウド"
+    ],
     "words": [
       {
         "display": "gcloud init",
@@ -881,6 +896,10 @@
   {
     "id": "04450fbe-2974-417c-9350-39802a5c650c",
     "name": "Linux：システムの仕組み",
+    "category": "プログラミング",
+    "tags": [
+      "Linux"
+    ],
     "words": [
       {
         "display": "/",
@@ -1589,6 +1608,12 @@
   {
     "id": "d3638812-0c0a-4f37-a413-d17404344c32",
     "name": "Linux：シェルとBash",
+    "category": "プログラミング",
+    "tags": [
+      "Linux",
+      "シェル",
+      "Bash"
+    ],
     "words": [
       {
         "display": "$$",
@@ -1977,6 +2002,11 @@
   {
     "id": "3099bf52-7790-49b0-841d-5230d7d3dd68",
     "name": "Linuxコマンド：応用",
+    "category": "プログラミング",
+    "tags": [
+      "Linux",
+      "シェル"
+    ],
     "words": [
       {
         "display": "lsblk -f",
@@ -2640,6 +2670,11 @@
   {
     "id": "78aaf407-fd11-4b12-92bd-2f0bffaf3779",
     "name": "Linuxコマンド：オプション",
+    "category": "プログラミング",
+    "tags": [
+      "Linux",
+      "シェル"
+    ],
     "words": [
       {
         "display": "ls -l",
@@ -3378,6 +3413,11 @@
   {
     "id": "0b27f311-38aa-40aa-9c29-ea17e374e1fe",
     "name": "Linuxコマンド：基本",
+    "category": "プログラミング",
+    "tags": [
+      "Linux",
+      "シェル"
+    ],
     "words": [
       {
         "display": "pwd",
@@ -3976,6 +4016,11 @@
   {
     "id": "eba3ec64-7d45-4f41-9de1-200ba5e957d5",
     "name": "Vercel CLIコマンド",
+    "category": "プログラミング",
+    "tags": [
+      "Vercel",
+      "クラウド"
+    ],
     "words": [
       {
         "display": "vercel login",
@@ -4154,6 +4199,12 @@
   {
     "id": "arch-linux",
     "name": "Arch Linuxコマンド",
+    "category": "プログラミング",
+    "tags": [
+      "Arch Linux",
+      "Linux",
+      "シェル"
+    ],
     "words": [
       {
         "display": "pwd",
@@ -5176,6 +5227,10 @@
   {
     "id": "vim",
     "name": "Vimコマンド",
+    "category": "プログラミング",
+    "tags": [
+      "Vim"
+    ],
     "words": [
       {
         "display": "i",
@@ -6352,6 +6407,10 @@
   {
     "id": "go-syntax",
     "name": "Go構文",
+    "category": "プログラミング",
+    "tags": [
+      "Go"
+    ],
     "words": [
       {
         "display": "package main",
@@ -9107,6 +9166,11 @@
   {
     "id": "un-member-states-chinese-193-lowercase",
     "name": "国名：中国語・国連加盟193か国（小文字）",
+    "category": "語学",
+    "tags": [
+      "中国語",
+      "国名"
+    ],
     "words": [
       {
         "display": "阿富汗",

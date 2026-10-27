@@ -3,6 +3,8 @@ package workspace
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
@@ -69,5 +71,20 @@ func TestEncodeInterests(t *testing.T) {
 		if err != nil || string(got) != c.want {
 			t.Errorf("EncodeInterests(%q) = %s, %v; want %s", c.interests, got, err, c.want)
 		}
+	}
+}
+
+// The default interests are the app's DEFAULT_INTERESTS, which tests/fixtures/default-interests.json holds.
+func TestDefaultInterests(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join("..", "..", "..", "tests", "fixtures", "default-interests.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var want []string
+	if err := json.Unmarshal(data, &want); err != nil {
+		t.Fatal(err)
+	}
+	if !slices.Equal(DefaultInterests, want) || CheckInterests(DefaultInterests) != nil {
+		t.Fatalf("DefaultInterests = %v, want %v", DefaultInterests, want)
 	}
 }

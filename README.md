@@ -21,6 +21,13 @@
 - Go のバックエンド（`server/internal/*`）：typle-kotlin-backend の対応するコードを同じように直し、`TYPLE_BACKEND=kotlin npm run test:e2e` で確かめます。
 - ログイン（`client=ipad|macos|android|windows`）とトークンの形：各アプリが使うので、互換を保ちます。
 
+## v0.101.1 — 関心は、はじめはすべて選んだ状態にし、すべての公式パックが並ぶようにしました
+
+- 関心をまだ保存していないアカウントとゲストは、すべてのチップを選んだ状態で始まります（Web の `DEFAULT_INTERESTS`、Go の `workspace.DefaultInterests`。共通 fixture `tests/fixtures/default-interests.json` を両方で確かめます）。保存した関心は、空を含めてそのまま使います。DB の `interests` が NULL のとき、`GET /api/workspace` はこの既定を返します。
+- 公式パックのうちカテゴリとタグのなかった13個に付けました（`commands.json`）。Linux・zsh・AWS・gcloud・Vercel のコマンド集は「プログラミング」で Linux・シェル・クラウドなどのタグ、レベル分けしていない Go構文・Vim・Arch Linux は分けた版と同じタグ、193か国の国名は「語学」の中国語・国名です。
+- プログラミングのチップに「Node.js」「シェル」「クラウド」を足しました（6言語）。これで、関心をすべて選ぶと公式パック30個すべてが合い、関心の画面と公式パックの一覧に並びます。
+- `commands.json` を変えたので、typle-ipad・typle-w・typle-a の写しも同じに直す必要があります。
+
 ## v0.101.0 — 関心の画面で、合う公式パックをスイッチで選んで追加できるようにしました
 
 - 初期状態：v0.100.0 をやめ、新しいアカウントとゲストはまた空のライブラリ（フォローなし）で始まります（Web の `initialLibrary`、Go の `workspace.Initial()`）。すでに保存しているアカウントとブラウザーのライブラリは変わりません。

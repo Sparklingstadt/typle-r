@@ -138,10 +138,10 @@ test('followed packs read back as the official words, and a read does not save t
   assert.deepEqual(readGuestWorkspace(store).lists[0].words, entry.lists[0].words)
   assert.equal(store.getItem(GUEST_STORAGE_KEY), stored)
 })
-test('guest interests are saved without touching lists, and old data reads as none', () => {
+test('guest interests are saved without touching lists, and old data reads as the default (every option)', () => {
   const store = storage()
   const initial = readGuestWorkspace(store)
-  assert.deepEqual(initial.interests, [])
+  assert.deepEqual(initial.interests, require('../src/core/interests.ts').DEFAULT_INTERESTS)
   const withLists = writeGuestWorkspace({ ...initial, lists: [list], packs: [pack] }, store)
   const saved = writeGuestWorkspace({ accountId: withLists.accountId, revision: withLists.revision, interests: ['language', 'language/zh'] }, store)
   assert.deepEqual(readGuestWorkspace(store).interests, ['language', 'language/zh'])
@@ -150,6 +150,6 @@ test('guest interests are saved without touching lists, and old data reads as no
   assert.deepEqual(again.interests, ['language', 'language/zh'])
   const old = storage()
   old.setItem(GUEST_STORAGE_KEY, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 2, lists: [], devices: [] }))
-  assert.deepEqual(readGuestWorkspace(old).interests, [])
+  assert.deepEqual(readGuestWorkspace(old).interests, require('../src/core/interests.ts').DEFAULT_INTERESTS)
   assert.throws(() => writeGuestWorkspace({ accountId: 'guest:local', revision: 2, interests: ['a', 'a'] }, old))
 })

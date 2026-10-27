@@ -21,7 +21,8 @@ export const INTEREST_OPTIONS: InterestOption[] = [
       child('programming', 'go', 'Go'), child('programming', 'kotlin', 'Kotlin'), child('programming', 'java', 'Java'),
       child('programming', 'typescript', 'TypeScript'), child('programming', 'php', 'PHP'), child('programming', 'ruby', 'Ruby'),
       child('programming', 'sql', 'SQL'), child('programming', 'linux', 'Linux'), child('programming', 'vim', 'Vim'),
-      child('programming', 'test', 'テスト'), // i18n-ignore
+      child('programming', 'test', 'テスト'), child('programming', 'node', 'Node.js'), child('programming', 'shell', 'シェル'), // i18n-ignore
+      child('programming', 'cloud', 'クラウド'), // i18n-ignore
     ],
   },
 ]
@@ -32,9 +33,15 @@ export const MAX_INTEREST_LENGTH = 50
 const known = INTEREST_OPTIONS.flatMap(option => [option.id, ...option.children.map(item => item.id)])
 const knownIds = new Set(known)
 
-/** Reads saved interests: absent is empty; anything but a list of distinct, non-empty, short strings is corrupted. */
+/**
+ * The interests of a user who has saved none (since v0.101.1): every option, so that every official pack fits. Go's
+ * workspace.DefaultInterests is the same; tests/fixtures/default-interests.json is checked by both.
+ */
+export const DEFAULT_INTERESTS: readonly string[] = known
+
+/** Reads saved interests: absent is the default (every option); anything but a list of distinct, non-empty, short strings is corrupted. */
 export function decodeInterests(value: unknown): string[] {
-  if (value === undefined || value === null) return []
+  if (value === undefined || value === null) return [...DEFAULT_INTERESTS]
   if (!Array.isArray(value) || value.length > MAX_INTERESTS ||
       value.some(id => typeof id !== 'string' || !id || id.length > MAX_INTEREST_LENGTH) || new Set(value).size !== value.length) {
     throw new AppError('savedDataCorrupted')
