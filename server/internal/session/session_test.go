@@ -157,14 +157,38 @@ func TestOAuthKeyIsSeparate(t *testing.T) {
 	}
 }
 
-func TestNeedsRenewal(t *testing.T) {
+func TestRevokedBy(t *testing.T) {
 	issued := time.Unix(1700000000, 0)
-	s := New("github:1", "A", "", issued)
-	if s.NeedsRenewal(issued.Add(23 * time.Hour)) {
-		t.Error("23 hours after issue must not need renewal")
+	s := New("github:1", "A", "", issued.Add(400*time.Millisecond))
+	for _, c := range []struct {
+		name      string
+		revokedAt time.Time
+		want      bool
+	}{
+		{"never revoked", time.Time{}, false},
+		{"revoked before the login", issued.Add(-time.Second), false},
+		{"revoked in the second of the login", issued.Add(900 * time.Millisecond), true},
+		{"revoked after the login", issued.Add(time.Hour), true},
+	} {
+		if got := s.RevokedBy(c.revokedAt); got != c.want {
+			t.Errorf("%s: RevokedBy = %v, want %v", c.name, got, c.want)
+		}
 	}
-	if !s.NeedsRenewal(issued.Add(24 * time.Hour)) {
-		t.Error("24 hours after issue must need renewal")
+}
+
+// A session is valid MaxAge after its login and no longer: nothing extends it.
+func TestSessionAbsoluteLifetime(t *testing.T) {
+	keys, err := NewKeys("secret")
+	if err != nil {
+		t.Fatal(err)
+	}
+	issued := time.Unix(1700000000, 0)
+	value := keys.Seal(New("github:1", "A", "", issued))
+	if _, ok := keys.Open(value, issued.Add(MaxAge-time.Second)); !ok {
+		t.Error("a session was refused a second before MaxAge")
+	}
+	if _, ok := keys.Open(value, issued.Add(MaxAge)); ok {
+		t.Error("a session was accepted at MaxAge")
 	}
 }
 

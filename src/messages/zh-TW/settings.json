@@ -1,7 +1,7 @@
 {
   "title": "一般",
   "metaTitle": "一般 | Typle",
-  "description": "與 Typle 顯示相關的設定。",
+  "description": "與 Typle 顯示和登入相關的設定。",
   "language": {
     "heading": "顯示語言",
     "description": "選擇畫面顯示的語言。單字清單的內容與練習紀錄不會改變。",
@@ -10,6 +10,16 @@
     "changing": "正在變更顯示語言…",
     "changed": "顯示語言已變更為{language}。",
     "failed": "無法變更顯示語言。請再試一次。"
+  },
+  "sessions": {
+    "heading": "已登入的裝置",
+    "description": "在此帳號已登入的所有裝置上登出：此瀏覽器、其他瀏覽器，以及 iPad、Mac、Android 和 Windows 應用程式。在裝置遺失或懷疑他人使用了你的帳號時使用。任何裝置上的登入都會在 30 天後失效。",
+    "action": "在所有裝置上登出",
+    "confirmTitle": "要在所有裝置上登出嗎？",
+    "confirmDescription": "包括此瀏覽器在內，目前已登入的所有裝置和應用程式都將登出。請在繼續使用的裝置上重新登入。單字清單和練習紀錄不會被刪除。",
+    "confirm": "登出",
+    "signingOut": "正在登出…",
+    "failed": "無法登出。請再試一次。"
   },
   "languages": {
     "ja": "日文",

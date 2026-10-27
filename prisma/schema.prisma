@@ -31,6 +31,14 @@ model SharedPack {
   @@map("typle_shared_packs")
 }
 
+// When an account last signed out of every device: its sessions of a login no later than revokedAt are refused.
+model SessionRevocation {
+  ownerId   String   @id @map("owner_id") @db.Text
+  revokedAt DateTime @default(now()) @map("revoked_at") @db.Timestamptz(6)
+
+  @@map("typle_session_revocations")
+}
+
 // An account that may sign in to /admin. email is the FFPF ID account's email in lower case; ffpfSub is bound at the
 // first sign-in and must match from then on.
 model Admin {

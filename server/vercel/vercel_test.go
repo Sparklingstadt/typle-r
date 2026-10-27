@@ -54,6 +54,12 @@ func (fakeStore) Users(context.Context, int) (*store.AdminUsers, error) {
 	return nil, errors.New("not used")
 }
 
+// No account has signed out of every device.
+func (fakeStore) SessionsRevokedAt(context.Context, string) (time.Time, error) {
+	return time.Time{}, nil
+}
+func (fakeStore) RevokeSessions(context.Context, string) error { return nil }
+
 func settings(t *testing.T) {
 	t.Helper()
 	t.Setenv("AUTH_SECRET", "secret")
@@ -186,6 +192,36 @@ func TestLazyAdmins(t *testing.T) {
 	backend.open = func(context.Context, string) (web.Store, error) { opened.Add(1); return fakeStore{}, nil }
 	if ok, err := admins.Admin(context.Background(), "admin@example.com", "cadmin"); ok || err != nil {
 		t.Fatalf("Admin = %v, %v", ok, err)
+	}
+	if opened.Load() != 2 {
+		t.Fatalf("opened %d times", opened.Load())
+	}
+}
+
+// The revocations of the /api/auth part: the session's answer reads them only from a database that is already open,
+// and never opens it; signing out of every device opens it, as an administrator's login does.
+func TestLazySessions(t *testing.T) {
+	reset(t)
+	settings(t)
+	backend.retryAfter = 0
+	var opened atomic.Int32
+	backend.open = func(context.Context, string) (web.Store, error) { opened.Add(1); return nil, errors.New("down") }
+	sessions := lazySessions{backend}
+	if _, err := sessions.SessionsRevokedAt(context.Background(), "github:1"); !errors.Is(err, web.ErrSessionsUnchecked) {
+		t.Fatalf("SessionsRevokedAt before the database is open = %v", err)
+	}
+	if opened.Load() != 0 {
+		t.Fatalf("reading the revocations opened the database %d times", opened.Load())
+	}
+	if err := sessions.RevokeSessions(context.Background(), "github:1"); err == nil {
+		t.Fatal("RevokeSessions with the database down succeeded")
+	}
+	backend.open = func(context.Context, string) (web.Store, error) { opened.Add(1); return fakeStore{}, nil }
+	if err := sessions.RevokeSessions(context.Background(), "github:1"); err != nil {
+		t.Fatal(err)
+	}
+	if revokedAt, err := sessions.SessionsRevokedAt(context.Background(), "github:1"); err != nil || !revokedAt.IsZero() {
+		t.Fatalf("SessionsRevokedAt once open = %v, %v", revokedAt, err)
 	}
 	if opened.Load() != 2 {
 		t.Fatalf("opened %d times", opened.Load())

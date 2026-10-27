@@ -1,7 +1,7 @@
 {
   "title": "通用",
   "metaTitle": "通用 | Typle",
-  "description": "与 Typle 显示相关的设置。",
+  "description": "与 Typle 显示和登录相关的设置。",
   "language": {
     "heading": "显示语言",
     "description": "选择界面显示的语言。单词列表的内容和练习记录不会改变。",
@@ -10,6 +10,16 @@
     "changing": "正在更改显示语言…",
     "changed": "显示语言已更改为{language}。",
     "failed": "无法更改显示语言。请重试。"
+  },
+  "sessions": {
+    "heading": "已登录的设备",
+    "description": "在此账号已登录的所有设备上退出登录：此浏览器、其他浏览器，以及 iPad、Mac、Android 和 Windows 应用。在设备丢失或怀疑他人使用了你的账号时使用。任何设备上的登录都会在 30 天后失效。",
+    "action": "在所有设备上退出登录",
+    "confirmTitle": "要在所有设备上退出登录吗？",
+    "confirmDescription": "包括此浏览器在内，当前已登录的所有设备和应用都将退出登录。请在继续使用的设备上重新登录。单词列表和练习记录不会被删除。",
+    "confirm": "退出登录",
+    "signingOut": "正在退出登录…",
+    "failed": "无法退出登录。请重试。"
   },
   "languages": {
     "ja": "日语",

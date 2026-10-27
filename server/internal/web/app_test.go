@@ -227,24 +227,19 @@ func TestTokenRefuses(t *testing.T) {
 	}
 }
 
-// An app token that has grown old is renewed in the answer, not with a cookie.
-func TestAppSessionRenewal(t *testing.T) {
+// An app token is never renewed: the answer has no new token, however old the app's own is.
+func TestAppSessionNotRenewed(t *testing.T) {
 	h := newLoginHarness(t, testBase, false)
 	token := h.keys.SealApp(session.New("github:1", "A", "", h.now))
-	if got := h.do(http.MethodGet, "/api/auth/session", bearer(token)); strings.Contains(got.Body.String(), "token") {
-		t.Fatalf("a new token was given early: %s", got.Body)
-	}
-	h.now = h.now.Add(25 * time.Hour)
+	h.now = h.now.Add(session.MaxAge - time.Hour)
 	response := h.do(http.MethodGet, "/api/auth/session", bearer(token))
-	if len(response.Result().Cookies()) != 0 {
-		t.Fatalf("cookies = %v", response.Result().Cookies())
+	if strings.Contains(response.Body.String(), "token") || len(response.Result().Cookies()) != 0 ||
+		!strings.Contains(response.Body.String(), `"id":"github:1"`) {
+		t.Fatalf("session = %s %v", response.Body, response.Result().Cookies())
 	}
-	var renewed string
-	if err := jsonString(decodeBody(t, response)["token"], &renewed); err != nil {
-		t.Fatal(err)
-	}
-	if got, ok := h.keys.OpenApp(renewed, h.now); !ok || !got.IssuedAt.Equal(h.now) {
-		t.Fatalf("renewed = %+v, %v", got, ok)
+	h.now = h.now.Add(time.Hour)
+	if got := h.do(http.MethodGet, "/api/auth/session", bearer(token)); !strings.Contains(got.Body.String(), `"user":null`) {
+		t.Fatalf("a token was accepted at MaxAge: %s", got.Body)
 	}
 	// An expired, malformed or refused token is nobody, even with a valid cookie beside it.
 	cookie := withCookie(&http.Cookie{Name: "typle-session", Value: h.keys.Seal(session.New("github:2", "", "", h.now))})

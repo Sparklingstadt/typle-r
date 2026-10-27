@@ -26,6 +26,7 @@ type Store interface {
 	Admin(ctx context.Context, email, sub string) (bool, error)
 	Overview(ctx context.Context) (*store.AdminOverview, error)
 	Users(ctx context.Context, page int) (*store.AdminUsers, error)
+	SessionSource
 }
 
 // OAuthClient is the GitHub OAuth App the login goes through (auth.OAuth).
@@ -50,6 +51,13 @@ type AdminSource interface {
 	Admin(ctx context.Context, email, sub string) (bool, error)
 }
 
+// SessionSource keeps when each account last signed out of every device (store.Store.RevokeSessions and
+// SessionsRevokedAt).
+type SessionSource interface {
+	RevokeSessions(ctx context.Context, owner string) error
+	SessionsRevokedAt(ctx context.Context, owner string) (time.Time, error)
+}
+
 // Config holds what the handlers depend on.
 type Config struct {
 	Store Store
@@ -70,6 +78,10 @@ type Config struct {
 	// nil, Store is asked. It lets the /api/auth part, which has no Store so that the session never waits for the
 	// database (server/vercel), open the database for this one question only.
 	Admins AdminSource
+	// Sessions is asked whether a session has been revoked (signed out of every device), and told when one is. When
+	// nil, Store is. As with Admins, it lets the /api/auth part ask without a Store: there, SessionsRevokedAt may fail
+	// when the database is not open yet, and only the session's answer goes on unchecked (see session).
+	Sessions SessionSource
 	// LocalLogin turns on POST /api/auth/local, which signs in as a made-up local account for development. Off, the
 	// path does not exist.
 	LocalLogin bool

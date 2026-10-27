@@ -13,6 +13,7 @@ import type { PracticeDevice } from '../core/devices'
 import { type SavedWordList } from '../core/wordLists'
 import type { Library, WordPack } from '../core/wordPacks'
 import { createWorkspaceSession, type WorkspaceSession } from '../core/workspaceSession'
+import { WorkspaceError } from '../core/workspaceStore'
 
 export type WorkspaceUpdate = (change: (lists: SavedWordList[]) => SavedWordList[], useDefaults?: boolean) => Promise<boolean>
 // The error is kept as caught and turned into text while rendering, so it follows a change of language.
@@ -20,7 +21,7 @@ type Failure = { reason: unknown; fallback: ErrorKey } | null
 
 // One workspace state for the whole app, so every part of the screen shares the same data and saves.
 function useWorkspace() {
-  const { data: session, status } = useSession()
+  const { data: session, status, update } = useSession()
   const accountId = status === 'loading' ? undefined : session?.user?.id ?? GUEST_ACCOUNT_ID
   const pathname = usePathname()
   const [devices, setDevices] = useState<PracticeDevice[]>([])
@@ -60,6 +61,9 @@ function useWorkspace() {
         if (active) { setFailure(null); setReady(true) }
       }).catch(reason => {
         if (active) { setFailure({ reason, fallback: 'loadFailed' }); setReady(true) }
+        // The session ended elsewhere, such as by signing out of every device: read it again, so that the screen
+        // shows it signed out instead of a cloud it can no longer reach.
+        if (active && reason instanceof WorkspaceError && reason.status === 401) void update()
       })
     }
     const reload = () => refresh.current()
@@ -73,7 +77,7 @@ function useWorkspace() {
       unsubscribe?.()
       window.removeEventListener('focus', reload)
     }
-  }, [accountId])
+  }, [accountId, update])
   // Each page opens with the latest data, as when every page loaded the workspace itself.
   useEffect(() => refresh.current(), [accountId, pathname])
 

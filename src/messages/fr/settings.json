@@ -1,7 +1,7 @@
 {
   "title": "Général",
   "metaTitle": "Général | Typle",
-  "description": "Réglages d’affichage de Typle.",
+  "description": "Réglages d’affichage et de connexion de Typle.",
   "language": {
     "heading": "Langue d’affichage",
     "description": "Choisissez la langue de l’interface. Vos listes de mots et vos résultats ne changent pas.",
@@ -10,6 +10,16 @@
     "changing": "Changement de la langue d’affichage…",
     "changed": "La langue d’affichage est maintenant : {language}.",
     "failed": "Impossible de changer la langue d’affichage. Veuillez réessayer."
+  },
+  "sessions": {
+    "heading": "Appareils connectés",
+    "description": "Déconnectez ce compte de tous les appareils où il est connecté : ce navigateur, les autres navigateurs et les applications iPad, Mac, Android et Windows. Utilisez cette option si vous perdez un appareil ou pensez que quelqu’un d’autre a utilisé votre compte. Toute connexion prend fin après 30 jours, sur tous les appareils.",
+    "action": "Se déconnecter de tous les appareils",
+    "confirmTitle": "Se déconnecter de tous les appareils ?",
+    "confirmDescription": "Tous les appareils et applications connectés, y compris ce navigateur, seront déconnectés. Reconnectez-vous sur les appareils que vous continuez à utiliser. Vos listes de mots et vos résultats d’entraînement ne sont pas supprimés.",
+    "confirm": "Se déconnecter",
+    "signingOut": "Déconnexion…",
+    "failed": "Impossible de se déconnecter. Veuillez réessayer."
   },
   "languages": {
     "ja": "japonais",

@@ -66,6 +66,59 @@ func (s *server) owner(r *http.Request) (session.Session, bool) {
 	return s.config.Keys.Open(cookie.Value, s.now())
 }
 
+// errNoSessions is a server set up without a database to keep the revocations in.
+var errNoSessions = errors.New("no database to check the session against")
+
+// sessions is Config.Sessions, or else Config.Store, or nil.
+func (s *server) sessions() SessionSource {
+	if s.config.Sessions != nil {
+		return s.config.Sessions
+	}
+	if s.config.Store != nil {
+		return s.config.Store
+	}
+	return nil
+}
+
+// revoked reports whether the account signed out of every device after user's login.
+func (s *server) revoked(r *http.Request, user session.Session) (bool, error) {
+	sessions := s.sessions()
+	if sessions == nil {
+		return false, errNoSessions
+	}
+	revokedAt, err := sessions.SessionsRevokedAt(r.Context(), user.Sub)
+	if err != nil {
+		return false, err
+	}
+	return user.RevokedBy(revokedAt), nil
+}
+
+// signedIn is owner, for a request that reads or changes the account's data: the session must also not have been
+// revoked. Otherwise it answers the request, and the caller answers only when it returns true: loginRequired without a
+// session or with a revoked one, whose cookie is then removed, and databaseUnavailable when the revocations cannot be
+// read, as the data cannot be either.
+func (s *server) signedIn(w http.ResponseWriter, r *http.Request) (session.Session, bool) {
+	user, ok := s.owner(r)
+	if !ok {
+		refuse(w, http.StatusUnauthorized, "loginRequired")
+		return session.Session{}, false
+	}
+	revoked, err := s.revoked(r, user)
+	if err != nil {
+		s.report(r, err, "session.check")
+		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
+		return session.Session{}, false
+	}
+	if revoked {
+		if !fromApp(r) {
+			http.SetCookie(w, s.sessionCookie("", -1))
+		}
+		refuse(w, http.StatusUnauthorized, "loginRequired")
+		return session.Session{}, false
+	}
+	return user, true
+}
+
 // sameOrigin reports whether the request comes from the app's own pages: its Origin is that of BaseURL, written as a
 // browser writes it (lower case, without the default port). State-changing requests must pass this.
 func (s *server) sameOrigin(r *http.Request) bool {
@@ -112,9 +165,8 @@ func (s *server) workspace(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) readWorkspace(w http.ResponseWriter, r *http.Request) {
-	user, ok := s.owner(r)
+	user, ok := s.signedIn(w, r)
 	if !ok {
-		refuse(w, http.StatusUnauthorized, "loginRequired")
 		return
 	}
 	result, err := s.config.Store.ReadRevision(r.Context(), user.Sub)
@@ -137,9 +189,8 @@ func (s *server) writeWorkspace(w http.ResponseWriter, r *http.Request) {
 		refuse(w, http.StatusForbidden, "forbiddenRequest")
 		return
 	}
-	user, ok := s.owner(r)
+	user, ok := s.signedIn(w, r)
 	if !ok {
-		refuse(w, http.StatusUnauthorized, "loginRequired")
 		return
 	}
 	if r.Body == nil || r.Body == http.NoBody {

@@ -446,20 +446,14 @@ func TestSession(t *testing.T) {
 			t.Fatalf("body = %s", response.Body)
 		}
 	})
-	t.Run("renewed after 25 hours", func(t *testing.T) {
-		response := h.do(http.MethodGet, "/api/auth/session", withCookie(issue(25*time.Hour, "Octo", "https://avatars.test/1")))
+	t.Run("not renewed, however old", func(t *testing.T) {
+		response := h.do(http.MethodGet, "/api/auth/session", withCookie(issue(29*24*time.Hour, "Octo", "https://avatars.test/1")))
 		if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), `"id":"github:1"`) {
 			t.Fatalf("response = %d %s", response.Code, response.Body)
 		}
 		expectPrivate(t, response)
-		renewed := findCookie(response, "typle-session")
-		if renewed == nil || !renewed.HttpOnly || renewed.SameSite != http.SameSiteLaxMode || renewed.Path != "/" || renewed.MaxAge != 30*24*60*60 {
-			t.Fatalf("cookie = %+v", renewed)
-		}
-		got, ok := h.keys.Open(renewed.Value, h.now)
-		if !ok || got.Sub != "github:1" || got.Name != "Octo" || got.Image != "https://avatars.test/1" ||
-			!got.IssuedAt.Equal(h.now) || !got.Expires.Equal(h.now.Add(session.MaxAge)) {
-			t.Fatalf("renewed session = %+v", got)
+		if len(response.Result().Cookies()) != 0 {
+			t.Fatalf("an old session was renewed: %v", response.Result().Cookies())
 		}
 	})
 	t.Run("expired", func(t *testing.T) {
@@ -556,12 +550,10 @@ func TestCookieName(t *testing.T) {
 			check("callback oauth", response, session.OAuthCookie)
 			check("signin", h.do(http.MethodGet, "/api/auth/signin"), session.OAuthCookie)
 			sessionCookie := &http.Cookie{Name: name, Value: findCookie(response, name).Value}
-			// The cookie is read, renewed and cleared under the same name.
+			// The cookie is read and cleared under the same name.
 			if got := h.do(http.MethodGet, "/api/auth/session", withCookie(sessionCookie)); !strings.Contains(got.Body.String(), `"id":"github:1"`) {
 				t.Fatalf("session = %s", got.Body)
 			}
-			h.now = h.now.Add(25 * time.Hour)
-			check("renewal", h.do(http.MethodGet, "/api/auth/session", withCookie(sessionCookie)), name)
 			origin := withOrigin(base)
 			check("signout", h.do(http.MethodPost, "/api/auth/signout", origin), name)
 			check("local", h.do(http.MethodPost, "/api/auth/local", origin), name)
