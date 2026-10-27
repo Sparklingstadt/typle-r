@@ -59,6 +59,7 @@
   "sharedPackNotFound": "此共享已结束。",
   "packNotFound": "找不到此包。请重新加载页面。",
   "adminRequired": "请以管理员身份登录。",
-  "adminForbidden": "此 GitHub 账号不是管理员。",
+  "adminForbidden": "此 FFPF ID 不是管理员。",
+  "adminUnavailable": "无法确认您是否为管理员。请稍后再试。",
   "invalidPage": "页码无效。"
 }

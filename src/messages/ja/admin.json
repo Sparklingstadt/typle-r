@@ -7,14 +7,14 @@
   "refresh": "更新",
   "signOut": "ログアウト",
   "signOutFailed": "ログアウトできませんでした。もう一度お試しください。",
-  "signedInAs": "{login} でログイン中",
+  "signedInAs": "{email} でログイン中",
   "never": "なし",
   "dateTime": "{date} {time}",
   "updatedAt": "更新日時",
   "signIn": {
     "title": "管理者ログイン",
-    "description": "管理者として登録されたGitHubアカウントでログインしてください。",
-    "button": "GitHubでログイン"
+    "description": "管理者として登録されたFFPF IDでログインしてください。",
+    "button": "FFPF IDでログイン"
   },
   "stats": {
     "label": "概要",
@@ -33,8 +33,8 @@
   },
   "admins": {
     "title": "管理者",
-    "login": "GitHubログイン",
-    "githubId": "GitHub ID",
+    "email": "メールアドレス",
+    "ffpfSub": "FFPF IDのsub",
     "createdAt": "登録日時",
     "lastSeenAt": "最終アクセス",
     "unbound": "未ログイン"

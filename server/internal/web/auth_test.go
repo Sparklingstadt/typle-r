@@ -46,11 +46,36 @@ func (f *fakeUsers) User(context.Context, string) (auth.User, error) {
 	return f.user, f.err
 }
 
+// fakeFFPF stands in for FFPF ID: it remembers what the handler gave it, and answers user or err.
+type fakeFFPF struct {
+	state, challenge, nonce, redirectURI string
+	exchanges                            int
+	code, verifier, exchangeURI          string
+	exchangeNonce                        string
+	user                                 auth.FFPFUser
+	err                                  error
+}
+
+func (f *fakeFFPF) AuthorizeURL(state, challenge, nonce, redirectURI string) string {
+	f.state, f.challenge, f.nonce, f.redirectURI = state, challenge, nonce, redirectURI
+	return "https://id.test/oauth/authorize?state=" + url.QueryEscape(state)
+}
+
+func (f *fakeFFPF) Exchange(_ context.Context, code, verifier, redirectURI, nonce string) (auth.FFPFUser, error) {
+	f.exchanges++
+	f.code, f.verifier, f.exchangeURI, f.exchangeNonce = code, verifier, redirectURI, nonce
+	if f.err != nil {
+		return auth.FFPFUser{}, f.err
+	}
+	return f.user, nil
+}
+
 type loginHarness struct {
 	handler http.Handler
 	keys    session.Keys
 	oauth   *fakeOAuth
 	users   *fakeUsers
+	ffpf    *fakeFFPF
 	now     time.Time
 	reports []string
 	secure  bool
@@ -70,11 +95,12 @@ func newLoginHarness(t *testing.T, base string, localLogin bool) *loginHarness {
 		keys:   keys,
 		oauth:  &fakeOAuth{},
 		users:  &fakeUsers{user: auth.User{ID: 1, Login: "octocat", Name: "  The Octocat ", AvatarURL: "https://avatars.test/1"}},
+		ffpf:   &fakeFFPF{user: auth.FFPFUser{Sub: "cabc", Email: "user@example.com", Name: " FFPF User "}},
 		now:    time.Date(2026, 10, 21, 9, 0, 0, 0, time.UTC),
 		secure: parsed.Scheme == "https",
 	}
 	h.handler = New(Config{
-		Store: fakeStore{}, Keys: keys, BaseURL: parsed, OAuth: h.oauth, GitHub: h.users, LocalLogin: localLogin,
+		Store: fakeStore{}, Keys: keys, BaseURL: parsed, OAuth: h.oauth, GitHub: h.users, FFPF: h.ffpf, LocalLogin: localLogin,
 		Now:    func() time.Time { return h.now },
 		Report: func(_ *http.Request, err error, operation string) { h.reports = append(h.reports, operation) },
 	})
@@ -385,7 +411,7 @@ func TestSession(t *testing.T) {
 	}
 	t.Run("signed out", func(t *testing.T) {
 		response := h.do(http.MethodGet, "/api/auth/session")
-		if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != `{"user":null}` {
+		if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != `{"user":null,"providers":["github","ffpf"]}` {
 			t.Fatalf("response = %d %s", response.Code, response.Body)
 		}
 		expectPrivate(t, response)
@@ -395,13 +421,13 @@ func TestSession(t *testing.T) {
 	})
 	t.Run("auth.js cookie only", func(t *testing.T) {
 		response := h.do(http.MethodGet, "/api/auth/session", withCookie(&http.Cookie{Name: "authjs.session-token", Value: "x"}))
-		if strings.TrimSpace(response.Body.String()) != `{"user":null}` {
+		if strings.TrimSpace(response.Body.String()) != `{"user":null,"providers":["github","ffpf"]}` {
 			t.Fatalf("body = %s", response.Body)
 		}
 	})
 	t.Run("signed in", func(t *testing.T) {
 		response := h.do(http.MethodGet, "/api/auth/session", withCookie(issue(time.Hour, "Octo", "https://avatars.test/1")))
-		want := `{"user":{"id":"github:1","name":"Octo","image":"https://avatars.test/1"}}`
+		want := `{"user":{"id":"github:1","name":"Octo","image":"https://avatars.test/1"},"providers":["github","ffpf"]}`
 		if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != want {
 			t.Fatalf("response = %d %s", response.Code, response.Body)
 		}
@@ -415,7 +441,7 @@ func TestSession(t *testing.T) {
 	})
 	t.Run("no image", func(t *testing.T) {
 		response := h.do(http.MethodGet, "/api/auth/session", withCookie(issue(time.Hour, "Octo", "")))
-		want := `{"user":{"id":"github:1","name":"Octo","image":null}}`
+		want := `{"user":{"id":"github:1","name":"Octo","image":null},"providers":["github","ffpf"]}`
 		if strings.TrimSpace(response.Body.String()) != want {
 			t.Fatalf("body = %s", response.Body)
 		}
@@ -438,7 +464,7 @@ func TestSession(t *testing.T) {
 	})
 	t.Run("expired", func(t *testing.T) {
 		response := h.do(http.MethodGet, "/api/auth/session", withCookie(issue(31*24*time.Hour, "Octo", "")))
-		if strings.TrimSpace(response.Body.String()) != `{"user":null}` || len(response.Result().Cookies()) != 0 {
+		if strings.TrimSpace(response.Body.String()) != `{"user":null,"providers":["github","ffpf"]}` || len(response.Result().Cookies()) != 0 {
 			t.Fatalf("response = %s %v", response.Body, response.Result().Cookies())
 		}
 	})
@@ -549,6 +575,7 @@ func TestAuthMethods(t *testing.T) {
 	for path, allow := range map[string]string{
 		"/api/auth/signin":          "GET",
 		"/api/auth/callback/github": "GET",
+		"/api/auth/callback/ffpf":   "GET",
 		"/api/auth/session":         "GET, HEAD",
 		"/api/auth/signout":         "POST",
 		"/api/auth/local":           "POST",
@@ -577,8 +604,8 @@ func TestAuthMethods(t *testing.T) {
 	if response := h.do(http.MethodHead, "/api/auth/session"); response.Code != http.StatusOK {
 		t.Errorf("HEAD session = %d", response.Code)
 	}
-	if h.oauth.exchanges != 0 || h.users.calls != 0 || h.oauth.state != "" {
-		t.Error("a refused method reached GitHub")
+	if h.oauth.exchanges != 0 || h.users.calls != 0 || h.oauth.state != "" || h.ffpf.exchanges != 0 {
+		t.Error("a refused method reached GitHub or FFPF ID")
 	}
 }
 

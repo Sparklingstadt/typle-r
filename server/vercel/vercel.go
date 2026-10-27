@@ -4,6 +4,7 @@ package vercel
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net/http"
 	"os"
@@ -140,7 +141,8 @@ func (b *Backend) config() (web.Config, error) {
 }
 
 // authHandler serves /api/auth/*. It is built from the login settings alone: no Store, because the auth handlers do not
-// use it, and the database is never opened for them. When the settings are missing or invalid it says authUnavailable.
+// use it, and the database is not opened for them, but for the one question at the end of a login to the
+// administrator's dashboard (lazyAdmins). When the settings are missing or invalid it says authUnavailable.
 func (b *Backend) authHandler() http.Handler {
 	if built := b.login.Load(); built != nil {
 		return *built
@@ -149,9 +151,25 @@ func (b *Backend) authHandler() http.Handler {
 	if err != nil {
 		return authUnavailable
 	}
+	config.Admins = lazyAdmins{b}
 	handler := web.New(config)
 	b.login.CompareAndSwap(nil, &handler)
 	return *b.login.Load()
+}
+
+// lazyAdmins asks typle_admins, opening the database only when asked: a login to the administrator's dashboard is the
+// one /api/auth request that needs it.
+type lazyAdmins struct{ b *Backend }
+
+// errDatabaseUnavailable is the database not opening; database has logged why.
+var errDatabaseUnavailable = errors.New("the database is unavailable")
+
+func (l lazyAdmins) Admin(ctx context.Context, email, sub string) (bool, error) {
+	source := l.b.database()
+	if source == nil {
+		return false, errDatabaseUnavailable
+	}
+	return source.Admin(ctx, email, sub)
 }
 
 // healthHandler serves /api/health from the database alone: without the login settings it still says whether the

@@ -1151,6 +1151,16 @@ func TestAdmin(t *testing.T) {
 	if _, err := conn.Exec(ctx, `INSERT INTO typle_admins (email) VALUES ($1)`, email); err != nil {
 		t.Fatal(err)
 	}
+	// An empty sub is not bound to the row, and an empty email is nobody.
+	for _, pair := range [][2]string{{email, ""}, {"", "sub1"}, {"", ""}} {
+		if ok, err := s.Admin(ctx, pair[0], pair[1]); err != nil || ok {
+			t.Fatalf("Admin(%q, %q) = %v, %v", pair[0], pair[1], ok, err)
+		}
+	}
+	var bound *string
+	if err := conn.QueryRow(ctx, `SELECT ffpf_sub FROM typle_admins WHERE email = $1`, email).Scan(&bound); err != nil || bound != nil {
+		t.Fatalf("ffpf_sub = %v, %v", bound, err)
+	}
 	if ok, err := s.Admin(ctx, strings.ToUpper(email), "sub1"); err != nil || !ok {
 		t.Fatalf("first Admin = %v, %v", ok, err)
 	}

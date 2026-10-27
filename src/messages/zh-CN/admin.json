@@ -7,14 +7,14 @@
   "refresh": "刷新",
   "signOut": "退出登录",
   "signOutFailed": "无法退出登录，请重试。",
-  "signedInAs": "已以 {login} 登录",
+  "signedInAs": "已以 {email} 登录",
   "never": "无",
   "dateTime": "{date} {time}",
   "updatedAt": "更新时间",
   "signIn": {
     "title": "管理员登录",
-    "description": "请使用已注册为管理员的 GitHub 账号登录。",
-    "button": "使用 GitHub 登录"
+    "description": "请使用已注册为管理员的 FFPF ID 登录。",
+    "button": "使用 FFPF ID 登录"
   },
   "stats": {
     "label": "概览",
@@ -33,8 +33,8 @@
   },
   "admins": {
     "title": "管理员",
-    "login": "GitHub 用户名",
-    "githubId": "GitHub ID",
+    "email": "邮箱地址",
+    "ffpfSub": "FFPF ID 的 sub",
     "createdAt": "添加时间",
     "lastSeenAt": "最近访问",
     "unbound": "尚未登录"

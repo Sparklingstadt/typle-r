@@ -2,6 +2,8 @@
 -- email in lower case instead of by a GitHub login. ffpf_sub is the FFPF ID sub, recorded at the first sign-in and
 -- required to match from then on, so that whoever takes the email over later is not let in. The GitHub rows are
 -- dropped with the old table, and no row is added here: the administrators are registered by hand (see the README).
+-- `prisma migrate deploy` applies this once. It must never be run again by hand: re-running it drops the table, and with
+-- it every administrator registered since.
 DROP TABLE IF EXISTS "typle_admins";
 
 CREATE TABLE "typle_admins" (

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"log"
+	"maps"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -12,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sparklingstadt/typle-r/server/internal/auth"
 	"github.com/sparklingstadt/typle-r/server/internal/session"
 )
 
@@ -102,6 +104,53 @@ func TestFromEnvWithoutGitHub(t *testing.T) {
 	}
 }
 
+// FFPF ID is on with all three of its settings, and the issuer's trailing slash is dropped. With one or two of them it
+// is off, with one warning and no error; with none it is off without a word, as it is simply not used.
+func TestFromEnvFFPF(t *testing.T) {
+	values := validEnv()
+	values["FFPF_ID_ISSUER"] = "https://portal.example/"
+	values["FFPF_ID_CLIENT_ID"] = "typle"
+	values["FFPF_ID_CLIENT_SECRET"] = "ffpf-secret"
+	config, err := FromEnv(env(values), false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ffpf, ok := config.FFPF.(*auth.FFPF)
+	if !ok || ffpf.Issuer != "https://portal.example" || ffpf.ClientID != "typle" || ffpf.ClientSecret != "ffpf-secret" {
+		t.Fatalf("FFPF = %#v", config.FFPF)
+	}
+	// The redirect_uri FFPF ID is given is the callback at AUTH_URL's origin.
+	response := httptest.NewRecorder()
+	New(config).ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/api/auth/signin?provider=ffpf", nil))
+	location := response.Header().Get("Location")
+	if !strings.HasPrefix(location, "https://portal.example/oauth/authorize?") ||
+		!strings.Contains(location, "redirect_uri="+url.QueryEscape("https://typle.example/api/auth/callback/ffpf")) {
+		t.Fatalf("Location = %s", location)
+	}
+
+	for _, missing := range [][]string{{"FFPF_ID_ISSUER"}, {"FFPF_ID_CLIENT_ID"}, {"FFPF_ID_CLIENT_SECRET"},
+		{"FFPF_ID_ISSUER", "FFPF_ID_CLIENT_SECRET"}, {"FFPF_ID_ISSUER", "FFPF_ID_CLIENT_ID", "FFPF_ID_CLIENT_SECRET"}} {
+		partial := maps.Clone(values)
+		for _, name := range missing {
+			delete(partial, name)
+		}
+		var logged bytes.Buffer
+		log.SetOutput(&logged)
+		config, err := FromEnv(env(partial), false)
+		log.SetOutput(os.Stderr)
+		if err != nil || config.FFPF != nil {
+			t.Errorf("without %v: FFPF = %v, err = %v", missing, config.FFPF, err)
+		}
+		want := 1
+		if len(missing) == 3 {
+			want = 0
+		}
+		if got := strings.Count(logged.String(), "FFPF_ID_ISSUER, FFPF_ID_CLIENT_ID and FFPF_ID_CLIENT_SECRET"); got != want {
+			t.Errorf("without %v: %d warnings (%q), want %d", missing, got, logged.String(), want)
+		}
+	}
+}
+
 // Without the GitHub OAuth App only the GitHub login is unavailable: the session, the workspace and the local login work.
 func TestWithoutGitHubOnlySigninIsUnavailable(t *testing.T) {
 	values := validEnv()
@@ -131,7 +180,7 @@ func TestWithoutGitHubOnlySigninIsUnavailable(t *testing.T) {
 	expectError(t, do(http.MethodGet, "/api/auth/signin", nil), http.StatusServiceUnavailable, "authUnavailable")
 	expectError(t, do(http.MethodGet, "/api/auth/callback/github?code=c&state=s", nil), http.StatusServiceUnavailable, "authUnavailable")
 	if response := do(http.MethodGet, "/api/auth/session", nil); response.Code != http.StatusOK ||
-		strings.TrimSpace(response.Body.String()) != `{"user":null}` {
+		strings.TrimSpace(response.Body.String()) != `{"user":null,"providers":[]}` {
 		t.Fatalf("session = %d %s", response.Code, response.Body)
 	}
 	local := do(http.MethodPost, "/api/auth/local", nil)

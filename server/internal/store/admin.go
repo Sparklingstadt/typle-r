@@ -19,8 +19,12 @@ const (
 )
 
 // Admin reports whether the FFPF ID account with the verified email (any case) and the sub is an administrator, and if
-// so binds the sub to the row when it has none yet and records when it was last seen.
+// so binds the sub to the row when it has none yet and records when it was last seen. An empty email or sub is no
+// account, and is answered false without asking the database: an empty sub must never be bound to a row.
 func (s *Store) Admin(ctx context.Context, email, sub string) (bool, error) {
+	if email == "" || sub == "" {
+		return false, nil
+	}
 	var one int
 	err := s.pool.QueryRow(ctx, `UPDATE typle_admins SET ffpf_sub = $2, last_seen_at = now()
 		WHERE email = lower($1) AND (ffpf_sub IS NULL OR ffpf_sub = $2) RETURNING 1`, email, sub).Scan(&one)
