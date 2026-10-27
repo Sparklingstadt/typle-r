@@ -22,7 +22,7 @@
 - Go のバックエンド（`server/internal/*`）：typle-kotlin-backend の対応するコードを同じように直し、`TYPLE_BACKEND=kotlin npm run test:e2e` で確かめます。
 - ログイン（`client=ipad|macos|android|windows`）とトークンの形：各アプリが使うので、互換を保ちます。
 
-## v0.106.0 — ログインに絶対期限を設け、すべての端末からログアウトできるようにしました
+## v0.107.0 — ログインに絶対期限を設け、すべての端末からログアウトできるようにしました
 
 - ログインはログインした時から30日で切れます。これまでは使うたびに（24時間ごとに）延長され、使い続ける限り切れませんでした。Cookie もアプリのトークンも延長しないため、盗まれたものもログインから30日を超えては使えません。`/api/auth/session` の応答から `token`（アプリのトークンの更新）をなくしました。
 - 「一般」（`/settings`）に「すべての端末からログアウト」を追加しました（ログイン中だけ表示します）。このブラウザー・ほかのブラウザー・iPad・Mac・Android・Windows アプリのログインを、その時点までの分すべて無効にします。
@@ -30,6 +30,13 @@
 - 無効にしたログインの Cookie・トークンでは、`/api/workspace`・`/api/shares` は `401 loginRequired` で、ブラウザーの Cookie を消します。画面はこの `401` でログインを読み直し、ログアウトした状態になります。`/api/auth/session` は DB を待たない作りのため、その関数ですでに DB を開いているときだけ確かめます（確かめないときも、データには届きません）。
 - DB：`typle_session_revocations` テーブル（アカウントごとに、最後に「すべての端末からログアウト」した時刻）を追加しました（マイグレーション `0030_session_revocations`、Prisma の `SessionRevocation`）。ログインの時刻（秒単位）がこの時刻以前のログインを無効とします。同じ秒のログインも無効側に数えます。
 - 別リポジトリ：iPad・Mac・Android・Windows アプリはトークンの更新がなくなるため、ログインから30日で `401` になり、もう一度ログインが必要です。typle-kotlin-backend には絶対期限・`typle_session_revocations`・`?everywhere=1` がまだありません。
+
+## v0.106.0 — 練習画面の長文を読みやすい複数行で表示します
+
+- 長い文章でも文字を小さくせず、十分な行間を取って複数行で表示します。入力中の文字が見えるよう、表示欄の中だけを自動でスクロールします。
+- 再開始・次の単語・リスト切り替えでは、手動でスクロールした本文も先頭へ戻ります。表示する文章と入力する文字が異なる場合の入力ガイドにも対応します。
+- 下部の単語一覧でも、長文は段落として表示します。短い単語の大きな表示と、既存の入力欄・IMEでの入力方法はそのままです。
+- スマートフォン幅、空白のない長い単語、誤入力の修正、同じ文章が続く場合、再開始時の表示をE2Eで確認します。DBの変更はありません。
 
 ## v0.105.0 — FFPF ID でログインできるようにしました
 
@@ -646,7 +653,7 @@ iPad アプリ（[typle-ipad](https://github.com/Sparklingstadt/typle-ipad) リ�
 2. `callback/github` は Cookie を発行せず、`typle-r://login?code=<コード>` へリダイレクトします。コードはユーザーとチャレンジに署名したもので、2分で切れます。失敗・キャンセルは `typle-r://login?error=loginFailed` です。Android は `MainActivity` の intent-filter（scheme `typle-r`・host `login`）で、Windows は起動のたびに登録するプロトコル（`typle-r`、この Windows ユーザーの `HKEY_CURRENT_USER`）でこの URL を受け取ります。Windows では、ブラウザーが開いた2つ目の Typle が、動いている Typle にこの URL を渡して終わります。アプリを離れてコールバックが来なかったときは、何も起きなかったものとして戻ります（Windows は「ログインをやめる」で待つのをやめます）。
 3. アプリが `POST /api/auth/token`（`{"code","verifier"}`）を呼び、検証値の SHA-256 がチャレンジと一致すれば `{"token","user"}` を返します。コードを横取りしても、検証値がなければトークンにできません。間違いはすべて `400 loginFailed` です。Android と Windows は、ログインを始めてから10分たったログイン途中の状態は無効とし、ログインに失敗したものとして扱います。
 4. アプリは `Authorization: Bearer <トークン>` で `/api/auth/session` と `/api/workspace` を呼びます。トークンは Cookie と別の鍵で署名した、ログインから30日で切れる（延長しない）値で、Cookie の値をトークンとして、トークンを Cookie として使うことはできません。`Authorization` ヘッダーがある要求はトークンだけで判断し（Cookie は見ません）、ブラウザーが自動では付けないため、`PUT /api/workspace` の Origin の確認は要りません（`Content-Type` の確認は残ります）。
-5. トークンは更新されません（v0.106.0 から。それまでは発行から24時間で `/api/auth/session` の応答の `token` で新しくなっていました）。切れたら `401` になるので、もう一度ログインします。ログアウトはアプリがトークンを消すだけですが、`POST /api/auth/signout?everywhere=1` を `Authorization: Bearer <トークン>` で呼ぶと、そのアカウントのすべての端末のログインを無効にできます（`typle_session_revocations`）。トークンは iPad と Mac では Keychain に、Android では Android Keystore の鍵で暗号化して、Windows では Windows のデータ保護（DPAPI）で暗号化して保存します。
+5. トークンは更新されません（v0.107.0 から。それまでは発行から24時間で `/api/auth/session` の応答の `token` で新しくなっていました）。切れたら `401` になるので、もう一度ログインします。ログアウトはアプリがトークンを消すだけですが、`POST /api/auth/signout?everywhere=1` を `Authorization: Bearer <トークン>` で呼ぶと、そのアカウントのすべての端末のログインを無効にできます（`typle_session_revocations`）。トークンは iPad と Mac では Keychain に、Android では Android Keystore の鍵で暗号化して、Windows では Windows のデータ保護（DPAPI）で暗号化して保存します。
 
 Android のエミュレーターから手元の `npm run dev` で試すときは、サーバー URL に `http://10.0.2.2:<ポート>`（エミュレーターから見たホストの `localhost`）を入れます。ただし GitHub の OAuth App の callback URL は `AUTH_URL` に合わせたもの（`<AUTH_URL>/api/auth/callback/github`）でなければならず、開発用ログイン（`POST /api/auth/local`）はアプリでは使えません。
 
