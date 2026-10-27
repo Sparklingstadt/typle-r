@@ -288,3 +288,67 @@ func TestOAuthChallenge(t *testing.T) {
 		t.Fatalf("OpenOAuth = %+v, %v; want %+v", got, ok, app)
 	}
 }
+
+// githubOAuthVector and githubOAuthChallengeVector were sealed by the code from before FFPF ID, with testSecret and an
+// expiry of 1700000600. A web or app login through GitHub must keep producing exactly these bytes: Provider and Nonce
+// are left out of the JSON when empty, so an OAuth cookie in flight during a deploy still opens and one sealed now
+// does not differ.
+const (
+	githubOAuthVector          = "eyJzdGF0ZSI6InN0YXRlLTEiLCJ2ZXJpZmllciI6InZlcmlmaWVyLTEiLCJyZXR1cm5UbyI6Ii9wbGF5P3g9MSZ5PTIiLCJleHAiOjE3MDAwMDA2MDB9.y5nMp3lk65vqMyNXUc39dSZAxmu8WNzgeieOaANmsC8"
+	githubOAuthChallengeVector = "eyJzdGF0ZSI6InN0YXRlLTEiLCJ2ZXJpZmllciI6InZlcmlmaWVyLTEiLCJyZXR1cm5UbyI6Ii9wbGF5IiwiZXhwIjoxNzAwMDAwNjAwLCJjaGFsbGVuZ2UiOiJjaGFsIn0._7F8TYEmhmwIsNwPzJnsVUonAYu94NPottWTamO9hUY"
+)
+
+func TestGitHubOAuthCookieBytesAreUnchanged(t *testing.T) {
+	keys := testKeys(t)
+	expires := time.Unix(1700000600, 0)
+	if got := keys.SealOAuth(OAuth{State: "state-1", Verifier: "verifier-1", ReturnTo: "/play?x=1&y=2", Expires: expires}); got != githubOAuthVector {
+		t.Fatalf("sealed = %q, want %q", got, githubOAuthVector)
+	}
+	if got := keys.SealOAuth(OAuth{State: "state-1", Verifier: "verifier-1", ReturnTo: "/play", Challenge: "chal", Expires: expires}); got != githubOAuthChallengeVector {
+		t.Fatalf("sealed = %q, want %q", got, githubOAuthChallengeVector)
+	}
+}
+
+func TestFFPFSessionAndCode(t *testing.T) {
+	keys := testKeys(t)
+	now := time.Unix(1700000000, 0)
+	want := New("ffpf:cabc123", "ふわ", "", now)
+	got, ok := keys.Open(keys.Seal(want), now)
+	if !ok || got != want {
+		t.Fatalf("session = %+v, %v", got, ok)
+	}
+	app, ok := keys.OpenApp(keys.SealApp(want), now)
+	if !ok || app != want {
+		t.Fatalf("app session = %+v, %v", app, ok)
+	}
+	code := AppCode{Sub: "ffpf:cabc123", Name: "ふわ", Challenge: "c", Expires: now.Add(AppCodeMaxAge)}
+	if gotCode, ok := keys.OpenCode(keys.SealCode(code), now); !ok || gotCode != code {
+		t.Fatalf("code = %+v, %v", gotCode, ok)
+	}
+}
+
+func TestOpenRefusesOtherSubjects(t *testing.T) {
+	keys := testKeys(t)
+	now := time.Unix(1700000000, 0)
+	for _, sub := range []string{"ffpf:", "ffpf:A", "ffpf:" + strings.Repeat("a", 65), "ffpf:a-b", "gitlab:1", "github:", "ffpf:abc\n"} {
+		if _, ok := keys.Open(keys.Seal(New(sub, "x", "", now)), now); ok {
+			t.Errorf("session for %q opened", sub)
+		}
+		if _, ok := keys.OpenCode(keys.SealCode(AppCode{Sub: sub, Challenge: "c", Expires: now.Add(time.Minute)}), now); ok {
+			t.Errorf("code for %q opened", sub)
+		}
+	}
+	if _, ok := keys.Open(keys.Seal(New("ffpf:"+strings.Repeat("a", 64), "x", "", now)), now); !ok {
+		t.Error("a 64-character subject must open")
+	}
+}
+
+func TestOAuthProviderAndNonce(t *testing.T) {
+	keys := testKeys(t)
+	now := time.Unix(1700000000, 0)
+	want := OAuth{State: "s", Verifier: "v", ReturnTo: "/", Challenge: "c", Provider: "ffpf", Nonce: "n", Expires: now.Add(OAuthMaxAge)}
+	got, ok := keys.OpenOAuth(keys.SealOAuth(want), now)
+	if !ok || got != want {
+		t.Fatalf("oauth = %+v, %v", got, ok)
+	}
+}
