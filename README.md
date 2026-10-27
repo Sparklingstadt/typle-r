@@ -16,7 +16,8 @@
 
 どのアプリも、このリポジトリの Go のバックエンド（本番は `https://typle-r-six.vercel.app`）に同じ GitHub ログインでつなぎます。ほかのリポジトリは、このリポジトリのコードやデータの写しや対応する実装を持っています。ここを変えたら、合わせて直してください。
 
-- 最初の単語リスト（`src/plugins/packs`）：typle-ipad の `TypleCore/Sources/TypleCore/Resources`、typle-w の `packs/`、typle-a の `core/src/main/resources` に写します。どれも `TYPLE_R=../typle-r node --test tests/` で同じになったことを確かめられます。
+- 最初の単語リスト（`src/plugins/packs`）：typle-ipad と typle-m の `TypleCore/Sources/TypleCore/Resources`、typle-w の `packs/`、typle-a の `core/src/main/resources`、typle-kotlin-backend の `src/main/resources/packs/`（Go の `server/internal/workspace/packs/` と同じく公式パックに使います）に写します。アプリは `TYPLE_R=../typle-r node --test tests/*.test.cjs` で同じになったことを確かめられます。
+- 共通の fixture：typle-kotlin-backend の `src/test/resources` に、`tests/fixtures` の `follow/`・`packs/`・`pack-file/` の一部と `default-interests.json` の写しがあります。変えたら写して `./gradlew test` で確かめます。
 - iPad 版と Mac 版：typle-m の `Shared/`・`TypleCore/` は typle-ipad の `Typle/`・`TypleCore/` の v0.86.1 時点の写しで、自動では入りません。両方に必要な変更は、それぞれのリポジトリで同じように直します。
 - Go のバックエンド（`server/internal/*`）：typle-kotlin-backend の対応するコードを同じように直し、`TYPLE_BACKEND=kotlin npm run test:e2e` で確かめます。
 - ログイン（`client=ipad|macos|android|windows`）とトークンの形：各アプリが使うので、互換を保ちます。
