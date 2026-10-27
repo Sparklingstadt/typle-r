@@ -37,6 +37,16 @@ func DecodeInterests(data []byte) ([]string, error) {
 
 var errInvalidInterests = errors.New("interests are invalid")
 
+// DefaultInterests are the interests of a user who has saved none (since v0.101.1), as DEFAULT_INTERESTS in
+// src/core/interests.ts: every option, so that every official pack fits. tests/fixtures/default-interests.json is
+// checked by both. Callers do not change it.
+var DefaultInterests = []string{
+	"language", "language/zh", "language/ru", "language/ko", "language/en", "language/es", "language/fr", "language/de",
+	"programming", "programming/go", "programming/kotlin", "programming/java", "programming/typescript", "programming/php",
+	"programming/ruby", "programming/sql", "programming/linux", "programming/vim", "programming/test", "programming/node",
+	"programming/shell", "programming/cloud",
+}
+
 // CheckInterests refuses interests DecodeInterests would refuse: more than MaxInterests, or one that is empty, longer
 // than MaxInterestLength or repeated.
 func CheckInterests(interests []string) error {

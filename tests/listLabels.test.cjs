@@ -70,12 +70,10 @@ test('the categories and tags in use are counted once each, in name order', () =
   })
 })
 
-test('every initial list the sparklingstadt account did not make itself has a category and tags', () => {
-  // Since v0.85.0 the initial lists are the lists of the sparklingstadt account. The lists it made itself, and those it
-  // kept whole beside their parts, have none.
-  const unlabeled = initialLists.filter(item => !item.category && !item.tags)
-  assert.deepEqual(unlabeled.map(item => item.id), [...initialLists.slice(0, 9).map(item => item.id), 'arch-linux', 'vim', 'go-syntax', 'un-member-states-chinese-193-lowercase'])
-  for (const item of initialLists.filter(item => !unlabeled.includes(item))) {
+test('every initial list has a category and tags', () => {
+  // Since v0.101.1 the lists the sparklingstadt account made itself, and those it kept whole beside their parts, have
+  // them too, so that every official pack fits some interest.
+  for (const item of initialLists) {
     assert.ok(['プログラミング', '語学'].includes(item.category), `${item.id}: ${item.category}`)
     assert.ok(item.tags?.length, item.id)
     assert.deepEqual(normalizeLabels(item), { category: item.category, tags: item.tags }, item.id)

@@ -253,7 +253,8 @@ func TestGetEmpty(t *testing.T) {
 	s, owner := realStore(t)
 	h := newHarness(t, s, testBase)
 	response := h.get(owner)
-	want := `{"lists":[],"packs":null,"devices":[],"interests":[],"revision":0,"accountId":"` + owner + `"}`
+	defaults, _ := json.Marshal(workspace.DefaultInterests)
+	want := `{"lists":[],"packs":null,"devices":[],"interests":` + string(defaults) + `,"revision":0,"accountId":"` + owner + `"}`
 	if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != want {
 		t.Fatalf("response = %d %s; want %s", response.Code, response.Body, want)
 	}
@@ -1021,8 +1022,13 @@ func TestPutInterests(t *testing.T) {
 	if fake.writes != writes {
 		t.Fatalf("writes = %d", fake.writes)
 	}
-	// An answer from a store that has none to give is [].
+	// An answer from a store that has none to give is the default (every option), as the app reads none; saved [] is [].
 	fake.saved = &store.Saved{Lists: json.RawMessage("[]"), Devices: json.RawMessage("[]"), Revision: 1}
+	defaults, _ := json.Marshal(workspace.DefaultInterests)
+	if got := decodeBody(t, h.get(testOwner)); string(got["interests"]) != string(defaults) {
+		t.Fatalf("GET = %s", got)
+	}
+	fake.saved.Interests = json.RawMessage("[]")
 	if got := decodeBody(t, h.get(testOwner)); string(got["interests"]) != "[]" {
 		t.Fatalf("GET = %s", got)
 	}

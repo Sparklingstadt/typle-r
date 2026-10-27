@@ -92,7 +92,7 @@
     },
     "interests": {
       "title": "Centres d’intérêt",
-      "p1": "Dans <interests>Centres d’intérêt</interests>, choisissez les puces « Langues » et « Programmation ». Vous pouvez en choisir autant que vous voulez ; chaque choix est enregistré dès que vous appuyez.",
+      "p1": "Dans <interests>Centres d’intérêt</interests>, choisissez les puces « Langues » et « Programmation ». Vous pouvez en choisir autant que vous voulez ; chaque choix est enregistré dès que vous appuyez. Au départ, toutes les puces sont choisies : tous les packs officiels correspondent.",
       "p2": "Choisir une puce parente ouvre les puces en dessous, comme « Chinois », « Russe » et « Coréen », ou « Go » et « Kotlin ». Désélectionner la parente désélectionne aussi les puces en dessous.",
       "p3": "Avec des centres d’intérêt choisis, « Packs officiels » parmi les packs de mots est séparé en « Packs correspondant à vos centres d’intérêt » et « Autres packs ». Sans puce choisie sous une parente, tous les packs de ce domaine correspondent ; avec des puces choisies, ce sont les packs portant ces étiquettes. L’écran Centres d’intérêt affiche aussi, sous les puces, les packs officiels qui correspondent, avec leur nom, leurs listes de mots, leur nombre de mots et un interrupteur. Activez des packs puis appuyez sur « Ajouter » en bas pour les suivre ; désactivez un pack suivi puis appuyez sur « Ajouter » pour ne plus le suivre (son historique d’entraînement est supprimé).",
       "p4": "Les centres d’intérêt sont enregistrés dans votre compte si vous êtes connecté, et dans ce navigateur sinon."

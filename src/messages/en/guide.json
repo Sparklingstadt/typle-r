@@ -92,7 +92,7 @@
     },
     "interests": {
       "title": "Interests",
-      "p1": "In <interests>Interests</interests>, pick the “Languages” and “Programming” chips. You can pick any number, and each pick is saved as soon as you press it.",
+      "p1": "In <interests>Interests</interests>, pick the “Languages” and “Programming” chips. You can pick any number, and each pick is saved as soon as you press it. At first every chip is picked, so every official pack matches.",
       "p2": "Picking a parent chip opens chips under it, such as “Chinese”, “Russian” and “Korean”, or “Go” and “Kotlin”. Unpicking the parent also unpicks the chips under it.",
       "p3": "With interests picked, “Official packs” under Word packs is split into “Packs matching your interests” and “Other packs”. With no chip picked under a parent, every pack of that field matches; with some picked, the packs with those tags match. The Interests screen also lists the official packs that fit, under the chips, with their name, word lists, word count and a switch. Switch packs on and press “Add” at the bottom to follow them; switch a followed pack off and press “Add” to unfollow it (its practice history is deleted).",
       "p4": "Interests are saved to your account when you are signed in, and in this browser when you are not."
