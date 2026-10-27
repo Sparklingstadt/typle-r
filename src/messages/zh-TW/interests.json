@@ -1,6 +1,6 @@
 {
   "title": "興趣",
-  "description": "與所選興趣相符的官方詞包，會在官方詞包清單中優先顯示。",
+  "description": "可以追蹤符合興趣的官方包。官方包列表中也會優先顯示它們。",
   "parents": {
     "language": "語言",
     "programming": "程式設計"
@@ -28,5 +28,19 @@
       "vim": "Vim",
       "test": "測試"
     }
+  },
+  "packs": {
+    "title": "符合興趣的官方包",
+    "description": "按「新增」會追蹤已開啟開關的包。關閉追蹤中包的開關，會取消追蹤。",
+    "pick": "選擇興趣後，符合的官方包會顯示在這裡。",
+    "none": "沒有符合所選興趣的官方包。",
+    "lists": "包含的單字列表",
+    "separator": "、",
+    "switch": "追蹤 {name}",
+    "add": "新增",
+    "adding": "新增中…",
+    "done": "{followed, plural, =0 {} other {已追蹤 # 個包。}}{unfollowed, plural, =0 {} other {已取消追蹤 # 個包。}}",
+    "confirmTitle": "包含取消追蹤",
+    "confirmDescription": "將取消追蹤{names}。這些包的練習紀錄也會刪除。"
   }
 }

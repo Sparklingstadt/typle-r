@@ -19,17 +19,5 @@ const converted = normalizeLibrary(initialLists, null)
  */
 export const officialLibrary: Library = { ...converted, packs: converted.packs.map(pack => ({ ...pack, origin: { catalogId: pack.id, version: 1 } })) }
 
-// A pack of initialLibrary is its official pack, followed: its id is made from the catalog id, and each list's from the
-// pack's and the official list's, so that the app and Go (workspace.Initial) start every account with the same library.
-const followedId = (catalogId: string) => `followed-${catalogId}`
-
-/**
- * What a new account and the guest start with (since v0.100.0): every official pack, followed, in the catalog's order.
- * They are kept equal to the official packs as followed packs are, and can be unfollowed.
- */
-export const initialLibrary: Library = {
-  packs: officialLibrary.packs.map(pack => ({ ...pack, id: followedId(pack.id), origin: { ...pack.origin!, followed: true } })),
-  lists: officialLibrary.packs.flatMap(pack => officialLibrary.lists.filter(list => list.packId === pack.id).map(list => ({
-    ...list, id: `${followedId(pack.id)}:${list.id}`, packId: followedId(pack.id), records: [], origin: { listId: list.id },
-  }))),
-}
+/** What a new account and the guest start with: nothing. Official packs are followed from the catalog. */
+export const initialLibrary: Library = { packs: [], lists: [] }

@@ -61,3 +61,46 @@ test('an account keeps its interests after a reload', async ({ page, context }) 
     await deleteWorkspace(accountId)
   }
 })
+
+test('the interests screen lists the fitting official packs with switches, and 追加 follows those switched on', async ({ page }) => {
+  await page.goto('/interests')
+  await expect(page.getByText('関心を選ぶと、合う公式パックがここに並びます。')).toBeVisible()
+  await page.getByRole('button', { name: '語学', exact: true }).click()
+  const section = page.getByRole('region', { name: '関心に合う公式パック' })
+  const name = '国名：中国語・国連加盟国（小文字）'
+  const row = section.locator('li[data-catalog-id]', { has: page.getByRole('heading', { name, exact: true }) })
+  // Each pack shows its name, its lists and its word count, with its switch off.
+  await expect(section.locator('li[data-catalog-id]')).toHaveCount(1)
+  await expect(row).toContainText('国名：中国語・国連加盟国（小文字・初級1）')
+  await expect(row).toContainText('193語')
+  const toggle = row.getByRole('switch', { name: `${name} をフォローする` })
+  await expect(toggle).not.toBeChecked()
+  const add = page.getByRole('button', { name: '追加', exact: true })
+  await expect(add).toBeDisabled()
+
+  // プログラミング adds its packs; a switch left off is not followed.
+  await page.getByRole('button', { name: 'プログラミング', exact: true }).click()
+  await expect(section.getByRole('heading', { name: 'Go構文（2）', exact: true })).toBeVisible()
+  await toggle.click()
+  await expect(toggle).toBeChecked()
+  await add.click()
+  await expect(page.getByText('1個のパックをフォローしました。')).toBeVisible()
+  await expect(toggle).toBeChecked()
+  await expect(add).toBeDisabled()
+  await page.goto('/edit')
+  await expect(page.locator('li[data-pack-id]')).toHaveCount(1)
+  await expect(page.getByRole('button', { name, exact: true })).toBeVisible()
+
+  // Switching a followed pack off and adding unfollows it, after asking.
+  await page.goto('/interests')
+  await expect(toggle).toBeChecked()
+  await toggle.click()
+  await add.click()
+  const dialog = page.getByRole('alertdialog')
+  await expect(dialog.getByText(`「${name}」のフォローを解除します。これらのパックの記録も消えます。`)).toBeVisible()
+  await dialog.getByRole('button', { name: '追加', exact: true }).click()
+  await expect(page.getByText('1個のパックのフォローを解除しました。')).toBeVisible()
+  await expect(toggle).not.toBeChecked()
+  await page.goto('/edit')
+  await expect(page.locator('li[data-pack-id]')).toHaveCount(0)
+})

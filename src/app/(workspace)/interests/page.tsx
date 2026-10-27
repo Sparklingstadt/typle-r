@@ -4,6 +4,7 @@ import { useWordLists } from '@/lib/useWordLists'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import InterestSettings from '@/components/Settings/InterestSettings'
+import InterestPacks from '@/components/Settings/InterestPacks'
 import PageStorageBadge from '@/components/PageStorageBadge'
 
 export default function Interests() {
@@ -20,6 +21,10 @@ export default function Interests() {
     </header>
     {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
     {!workspace.ready ? <div role="status" className="space-y-3"><p className="sr-only">{common('loading')}</p><Skeleton className="h-10 w-72 max-w-full" /><Skeleton className="h-24 w-full" /></div>
-      : <InterestSettings key={workspace.accountId} interests={workspace.interests} saving={workspace.saving} updateInterests={workspace.updateInterests} />}
+      : <div className="space-y-8">
+        <InterestSettings key={workspace.accountId} interests={workspace.interests} saving={workspace.saving} updateInterests={workspace.updateInterests} />
+        <InterestPacks key={`packs-${workspace.accountId}`} packs={workspace.packs} lists={workspace.lists} interests={workspace.interests}
+          saving={workspace.saving} updateLibrary={workspace.updateLibrary} />
+      </div>}
   </main>
 }

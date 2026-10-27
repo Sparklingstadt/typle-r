@@ -2,9 +2,8 @@ require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { validateLibrary, normalizeLibrary } = require('../src/core/wordPacks.ts')
-const { followOfficial } = require('../src/core/followedPacks.ts')
 const { deletePack } = require('../src/core/packEditing.ts')
-const { officialPacks, catalogEntries, followOfficialPack } = require('../src/plugins/packs/catalog.ts')
+const { officialPacks, catalogEntries, followOfficialPack, applyCatalogChoices } = require('../src/plugins/packs/catalog.ts')
 const { MAX_LISTS } = require('../src/core/listOverview.ts')
 const { initialLibrary, officialLibrary, initialLists } = require('../src/plugins/packs/index.ts')
 
@@ -12,24 +11,8 @@ const OFFICIAL_FIRST_TWO = ['pack-8f3cf116-1f9f-4579-a071-e600094b104d', 'pack-e
 const now = new Date('2026-10-26T00:00:00Z')
 const idsFor = (entry, prefix) => ({ pack: prefix, lists: entry.lists.map((_, n) => `${prefix}-${n}`) })
 
-const empty = { packs: [], lists: [] }
-
-test('the initial library follows every official pack, as the fixture Go also reads has it', () => {
-  const fixture = require('./fixtures/initial-library.json')
-  assert.deepEqual({ packs: initialLibrary.packs, lists: initialLibrary.lists.map(({ words: _words, ...list }) => list) }, fixture)
-  assert.ok(catalogEntries(initialLibrary).every(entry => entry.followed))
-  // Each pack is its official pack under its own id, with the official lists and their words, without records.
-  const official = officialPacks()
-  assert.deepEqual(initialLibrary.packs.map(pack => pack.origin.catalogId), official.map(entry => entry.catalogId))
-  for (const entry of official) {
-    const id = `followed-${entry.catalogId}`
-    assert.deepEqual(initialLibrary.lists.filter(list => list.packId === id).map(list => [list.id, list.name, list.words, list.records]),
-      entry.lists.map(list => [`${id}:${list.id}`, list.name, list.words, []]))
-  }
-  // Reading it follows the catalog and changes nothing.
-  assert.deepEqual(followOfficial(initialLibrary, official), initialLibrary)
-  assert.deepEqual(normalizeLibrary(initialLibrary.lists, initialLibrary.packs), initialLibrary)
-  validateLibrary(initialLibrary)
+test('the initial library is empty', () => {
+  assert.deepEqual(initialLibrary, { packs: [], lists: [] })
 })
 
 test('the official packs are the packs of the official library, each with its lists', () => {
@@ -53,13 +36,13 @@ test('the packs of the official library carry their catalog origin', () => {
 })
 
 test('a pack counts as followed by its followed origin only', () => {
-  assert.ok(catalogEntries(empty).every(entry => !entry.followed))
+  assert.ok(catalogEntries(initialLibrary).every(entry => !entry.followed))
   const [first, second, third] = officialPacks()
   // A copy from before v0.98.0 has an origin without followed; the oldest accounts have the id only.
   const copies = { packs: officialLibrary.packs.map(({ origin: _origin, ...pack }) => pack), lists: officialLibrary.lists }
   assert.ok(catalogEntries(copies).every(entry => !entry.followed))
   assert.ok(catalogEntries(officialLibrary).every(entry => !entry.followed))
-  let lib = followOfficialPack(empty, second.catalogId, idsFor(second, 'f2'), now)
+  let lib = followOfficialPack(initialLibrary, second.catalogId, idsFor(second, 'f2'), now)
   const followed = new Map(catalogEntries(lib).map(entry => [entry.catalogId, entry.followed]))
   assert.deepEqual([followed.get(first.catalogId), followed.get(second.catalogId), followed.get(third.catalogId)], [false, true, false])
   assert.deepEqual(catalogEntries(lib).map(entry => entry.catalogId), officialPacks().map(entry => entry.catalogId))
@@ -69,7 +52,7 @@ test('a pack counts as followed by its followed origin only', () => {
 
 test('followOfficialPack adds the pack at the end as followed, without records and with the official lists', () => {
   const [entry] = officialPacks()
-  const next = followOfficialPack(empty, entry.catalogId, idsFor(entry, 'back'), now)
+  const next = followOfficialPack(initialLibrary, entry.catalogId, idsFor(entry, 'back'), now)
   validateLibrary(next)
   const pack = next.packs.at(-1)
   const { id: _id, createdAt: _createdAt, origin: _origin, ...fields } = entry.pack
@@ -85,13 +68,35 @@ test('followOfficialPack adds the pack at the end as followed, without records a
 
 test('followOfficialPack numbers the name when a pack of that name is there, and refuses what it cannot add', () => {
   const [entry] = officialPacks()
-  const once = followOfficialPack(empty, entry.catalogId, idsFor(entry, 'one'), now)
+  const once = followOfficialPack(initialLibrary, entry.catalogId, idsFor(entry, 'one'), now)
   const next = followOfficialPack(once, entry.catalogId, idsFor(entry, 'again'), now)
   assert.equal(next.packs.at(-1).name, `${entry.pack.name}（2）`)
-  assert.throws(() => followOfficialPack(empty, 'missing', { pack: 'x', lists: [] }, now), { key: 'packDeleted' })
+  assert.throws(() => followOfficialPack(initialLibrary, 'missing', { pack: 'x', lists: [] }, now), { key: 'packDeleted' })
   const room = MAX_LISTS - once.lists.length
   const filler = { packs: [...once.packs, { id: 'f', name: 'Filler', createdAt: now.toISOString() }],
     lists: [...once.lists, ...Array.from({ length: room - entry.lists.length + 1 }, (_, n) =>
       ({ id: `f${n}`, name: `F${n}`, packId: 'f', words: [{ display: 'a', input: 'a', annotation: '' }], records: [], createdAt: now.toISOString() }))] }
   assert.throws(() => followOfficialPack(filler, entry.catalogId, idsFor(entry, 'over'), now), { key: 'listLimit', values: { max: MAX_LISTS } })
+})
+
+test('applyCatalogChoices follows the packs switched on and unfollows the followed packs switched off', () => {
+  const [first, second, third] = officialPacks()
+  const ids = entry => idsFor(entry, `n-${entry.catalogId}`)
+  // first is followed already and stays on; second is switched on; third is followed and switched off.
+  let lib = followOfficialPack(initialLibrary, first.catalogId, idsFor(first, 'a'), now)
+  lib = followOfficialPack(lib, third.catalogId, idsFor(third, 'c'), now)
+  const mine = { id: 'own', name: 'Own', createdAt: now.toISOString() }
+  lib = { packs: [...lib.packs, mine], lists: [...lib.lists, { id: 'own-l', name: 'Own list', packId: 'own', words: [{ display: 'a', input: 'a', annotation: '' }], records: [], createdAt: now.toISOString() }] }
+  const next = applyCatalogChoices(lib, [
+    { catalogId: first.catalogId, follow: true }, { catalogId: second.catalogId, follow: true }, { catalogId: third.catalogId, follow: false },
+  ], ids, now)
+  validateLibrary(next)
+  const followed = new Map(catalogEntries(next).map(entry => [entry.catalogId, entry.followed]))
+  assert.deepEqual([followed.get(first.catalogId), followed.get(second.catalogId), followed.get(third.catalogId)], [true, true, false])
+  // The followed pack keeps its id; the new one comes last with the given ids; the user's own pack stays.
+  assert.deepEqual(next.packs.map(pack => pack.id), ['a', 'own', `n-${second.catalogId}`])
+  assert.ok(next.lists.every(list => list.packId !== 'c'))
+  // Nothing to change changes nothing.
+  assert.deepEqual(applyCatalogChoices(next, [{ catalogId: second.catalogId, follow: true }, { catalogId: third.catalogId, follow: false }], ids, now), next)
+  assert.deepEqual(applyCatalogChoices(initialLibrary, [], ids, now), initialLibrary)
 })

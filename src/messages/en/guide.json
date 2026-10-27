@@ -17,8 +17,8 @@
   "start": {
     "title": "Get started in 3 steps",
     "follow": {
-      "title": "Practice with official packs",
-      "text": "You start out following every official pack, such as Go or Kotlin, so you can practice right away. Unfollow the ones you don't need in “Official packs”.",
+      "title": "Follow official packs",
+      "text": "Follow official packs such as Go or Kotlin to put them in your packs and start practicing right away.",
       "action": "Official packs"
     },
     "create": {
@@ -88,13 +88,13 @@
       "p1": "“Duplicate” in a pack’s “…” menu copies the pack with all its lists. The copy is named “Name (copy)” and placed right after the original. Practice history is not copied.",
       "p2": "“Export” in a pack’s “…” menu saves the pack to a “pack-name.typle-pack.json” file. It contains the name, description, category, tags, lists, and words, but not practice history.",
       "p3": "Choose that file with “Import from file” to import it as a new pack (this also works when you have no packs yet). Files up to 1 MiB are accepted, and unreadable files are refused. If a pack with the same name exists, the new one is named “Name (2)”.",
-      "p4": "A new account, and this browser before you sign in, start out following every official pack. In “Official packs” under Word packs, “Follow” puts that pack into your packs. Followed packs are marked “Official” and stay up to date with the official version. A followed pack cannot be edited; to change it, use “Duplicate” to make a pack of your own. “Unfollow” removes the pack from your packs, together with its practice history."
+      "p4": "In “Official packs” under Word packs, “Follow” puts that pack into your packs. Followed packs are marked “Official” and stay up to date with the official version. A followed pack cannot be edited; to change it, use “Duplicate” to make a pack of your own. “Unfollow” removes the pack from your packs, together with its practice history."
     },
     "interests": {
       "title": "Interests",
       "p1": "In <interests>Interests</interests>, pick the “Languages” and “Programming” chips. You can pick any number, and each pick is saved as soon as you press it.",
       "p2": "Picking a parent chip opens chips under it, such as “Chinese”, “Russian” and “Korean”, or “Go” and “Kotlin”. Unpicking the parent also unpicks the chips under it.",
-      "p3": "With interests picked, “Official packs” under Word packs is split into “Packs matching your interests” and “Other packs”. With no chip picked under a parent, every pack of that field matches; with some picked, the packs with those tags match.",
+      "p3": "With interests picked, “Official packs” under Word packs is split into “Packs matching your interests” and “Other packs”. With no chip picked under a parent, every pack of that field matches; with some picked, the packs with those tags match. The Interests screen also lists the official packs that fit, under the chips, with their name, word lists, word count and a switch. Switch packs on and press “Add” at the bottom to follow them; switch a followed pack off and press “Add” to unfollow it (its practice history is deleted).",
       "p4": "Interests are saved to your account when you are signed in, and in this browser when you are not."
     },
     "share": {

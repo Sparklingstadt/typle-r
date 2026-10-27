@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"reflect"
 	"slices"
 	"strings"
 	"testing"
@@ -98,7 +97,7 @@ func TestReadSavedWorkspace(t *testing.T) {
 	}
 }
 
-// An account that has saved nothing starts with every official pack, followed (since v0.100.0), as in the app.
+// An account that has saved nothing starts empty (since v0.98.0), as in the app.
 func TestReadWithoutRowGivesInitialWorkspace(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
@@ -108,15 +107,8 @@ func TestReadWithoutRowGivesInitialWorkspace(t *testing.T) {
 	}
 	defer s.Close()
 	w, err := s.Read(ctx, owner(t, conn))
-	if err != nil {
-		t.Fatal(err)
-	}
-	initial, err := workspace.Initial()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !reflect.DeepEqual(w, initial) || len(w.Packs) != 30 {
-		t.Fatalf("workspace = %d packs, %d lists; want the initial workspace", len(w.Packs), len(w.Lists))
+	if err != nil || w.Lists == nil || w.Packs == nil || len(w.Lists) != 0 || len(w.Packs) != 0 {
+		t.Fatalf("workspace = %+v, %v", w, err)
 	}
 }
 
@@ -207,14 +199,10 @@ func TestModifyCreatesRow(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// The change is made to the initial workspace: the list comes after the followed official packs' lists.
-	initial, err := workspace.Initial()
-	if err != nil {
-		t.Fatal(err)
-	}
+	// The change is made to the empty initial workspace.
 	for _, got := range []*workspace.Workspace{w, read} {
-		if len(got.Lists) != len(initial.Lists)+1 || got.Lists[len(got.Lists)-1].Name != "a" || len(got.Packs) != len(initial.Packs)+1 {
-			t.Fatalf("%d lists, %d packs", len(got.Lists), len(got.Packs))
+		if len(got.Lists) != 1 || got.Lists[0].Name != "a" || len(got.Packs) != 1 {
+			t.Fatalf("lists = %+v", got.Lists)
 		}
 	}
 	// Inserting the initial workspace made revision 1; the change made 2.
