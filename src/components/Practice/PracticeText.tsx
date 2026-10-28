@@ -40,7 +40,9 @@ export default function PracticeText({ id, text, activeIndex, children, guide = 
   }, [text, activeIndex])
 
   return <p ref={paragraph} id={id} className={cn(
-    'mx-auto my-0 w-4/5 max-h-[min(5lh,28dvh)] max-w-full overflow-y-auto overscroll-contain py-1 text-center font-medium whitespace-pre-wrap [overflow-wrap:anywhere] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+    // Inline font boxes can be taller than a tight line-height. Reserve space proportional to the text size so the
+    // caret below a character stays inside this scrolling region, including on spaces and the last visible line.
+    'mx-auto my-0 w-4/5 max-h-[min(5lh,28dvh)] max-w-full overflow-y-auto overscroll-contain py-[0.25em] text-center font-medium whitespace-pre-wrap [overflow-wrap:anywhere] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
     className ?? (multiline ? 'text-xl leading-[1.75] sm:text-[26px]'
       : guide ? 'text-2xl leading-relaxed tracking-wide sm:text-3xl'
         : length > 10 ? 'text-[32px] leading-tight sm:text-[44px]' : 'text-[44px] leading-tight sm:text-[64px]'),

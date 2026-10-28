@@ -104,7 +104,7 @@ test('a long input guide uses the same readable layout when the displayed text d
   for (const text of [display, target]) {
     await expect(text).toHaveCSS('font-size', '20px')
     await expect(text).toHaveCSS('line-height', '35px')
-    await expect(text).toHaveCSS('text-align', 'left')
+    await expect(text).toHaveCSS('text-align', 'center')
     const state = await paragraphState(text)
     expect(state.contentHeight).toBeGreaterThan(state.height)
     expect(state.height).toBeLessThanOrEqual(state.lineHeight * 5 + 8)
