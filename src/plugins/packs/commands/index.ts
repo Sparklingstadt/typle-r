@@ -16,7 +16,6 @@ import list13 from './vim.json'
 import list14 from './vim-beginner.json'
 import list15 from './vim-intermediate.json'
 import list16 from './vim-advanced.json'
-import list17 from './go-syntax.json'
 import list18 from './go-syntax-beginner.json'
 import list19 from './go-syntax-intermediate.json'
 import list20 from './go-syntax-advanced.json'
@@ -86,7 +85,6 @@ const commands: SavedWordList[] = [
   list14,
   list15,
   list16,
-  list17,
   list18,
   list19,
   list20,

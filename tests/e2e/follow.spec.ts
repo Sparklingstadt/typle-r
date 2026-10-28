@@ -8,6 +8,7 @@ test('a guest follows an official pack from the catalog, practises it and unfoll
   await expect(page).toHaveURL(/\/packs\/catalog$/)
 
   const entry = page.locator('li[data-catalog-id]', { has: page.getByRole('heading', { name: 'Go構文', exact: true }) })
+  await expect(entry).toHaveCount(1)
   await expect(entry.getByRole('button', { name: 'フォロー解除' })).toHaveCount(0)
   await entry.getByRole('button', { name: 'Go構文 をフォローする', exact: true }).click()
   await expect(page.getByText('「Go構文」をフォローしました')).toBeVisible()
@@ -30,12 +31,13 @@ test('a guest follows an official pack from the catalog, practises it and unfoll
   await expect(page.getByRole('menuitem', { name: 'フォロー解除' })).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(row.locator('li[data-list-id]').first()).toBeVisible()
+  await expect(row.locator('li[data-list-id]')).toHaveCount(3)
   await expect(row.locator('[data-edit]')).toHaveCount(0)
 
   await page.goto('/play')
   await page.getByRole('button', { name: /^単語リストを切り替える/ }).click()
   const picker = page.getByRole('dialog', { name: '単語リストを選ぶ' })
-  await picker.getByRole('button', { name: /^Go構文 を選択/ }).click()
+  await picker.getByRole('button', { name: '中級', exact: true }).click()
   await expect(page.getByRole('textbox', { name: '表示された文字を入力', exact: true })).toBeVisible()
 
   await page.goto('/packs/catalog')
