@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/sparklingstadt/typle-r/server/internal/auth"
+	"github.com/sparklingstadt/typle-r/server/internal/operation"
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
 
@@ -78,9 +79,7 @@ type Source interface {
 
 // Writer changes an account's workspace and saves it, as store.Store.Modify does. change reports whether it changed
 // anything; its errors, and a *workspace.Error for a change too large to save, come back unchanged.
-type Writer interface {
-	Modify(ctx context.Context, owner string, change func(*workspace.Workspace) (bool, error)) (*workspace.Workspace, error)
-}
+type Writer = operation.Writer
 
 // Verifier tells which account a token belongs to: auth.ErrInvalidToken when it belongs to none, auth.ErrUnavailable
 // when that cannot be told now.

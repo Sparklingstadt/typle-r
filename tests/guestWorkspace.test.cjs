@@ -2,7 +2,7 @@ require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { normalizeLibrary } = require('../src/core/wordPacks.ts')
-const { readGuestWorkspace, writeGuestWorkspace, GUEST_STORAGE_KEY } = require('../src/plugins/storage/guest.ts')
+const { readGuestWorkspace, writeGuestWorkspace, addGuestRecord, GUEST_STORAGE_KEY } = require('../src/plugins/storage/guest.ts')
 function storage() {
   const values = new Map()
   return { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) }
@@ -152,4 +152,22 @@ test('guest interests are saved without touching lists, and old data reads as th
   old.setItem(GUEST_STORAGE_KEY, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 2, lists: [], devices: [] }))
   assert.deepEqual(readGuestWorkspace(old).interests, require('../src/core/interests.ts').DEFAULT_INTERESTS)
   assert.throws(() => writeGuestWorkspace({ accountId: 'guest:local', revision: 2, interests: ['a', 'a'] }, old))
+})
+
+test('a guest run is added without a revision, once, and keeps a list edit saved meanwhile', () => {
+  const store = storage()
+  const first = writeGuestWorkspace({ ...readGuestWorkspace(store), lists: [list], packs: [pack] }, store)
+  // Another tab renames the list after this screen loaded revision 1.
+  writeGuestWorkspace({ ...first, lists: [{ ...first.lists[0], name: 'Renamed' }] }, store)
+  const record = { id: 'run-1', time: 2, date: '2026-10-01T00:00:00.000Z', mistakes: 0, accuracy: 100, wordCount: 1 }
+  const added = addGuestRecord({ accountId: 'guest:local', listId: 'l', record }, store)
+  assert.equal(added.revision, 3)
+  assert.equal(added.lists[0].name, 'Renamed')
+  assert.deepEqual(added.lists[0].records.at(-1), record)
+  // Sent again (a retry): nothing changes.
+  const again = addGuestRecord({ accountId: 'guest:local', listId: 'l', record }, store)
+  assert.equal(again.revision, 3)
+  assert.equal(readGuestWorkspace(store).lists[0].records.length, 2)
+  assert.throws(() => addGuestRecord({ accountId: 'guest:local', listId: 'gone', record }, store), { key: 'recordListDeleted' })
+  assert.throws(() => addGuestRecord({ accountId: 'github:1', listId: 'l', record }, store), { key: 'storageChanged' })
 })

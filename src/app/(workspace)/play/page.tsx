@@ -12,7 +12,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
-import { useWordLists, type WorkspaceUpdate } from "@/lib/useWordLists"
+import { useWordLists, type RecordSave } from "@/lib/useWordLists"
 import type { SavedWordList } from "@/core/wordLists"
 import { usePractice } from "@/lib/usePractice"
 import { compareInput, elapsedTime, typingSpeed, type TypingSession } from "@/core/typing"
@@ -51,9 +51,9 @@ export default function Play() {
 
 function PlayWorkspace() {
   const listId = useSearchParams().get('list')
-  const { lists, packs, devices, accountId, ready, error, update } = useWordLists()
+  const { lists, packs, devices, accountId, ready, error, addRecord } = useWordLists()
   if (!ready) return <Loading />
-  return <Practice key={accountId} accountId={accountId ?? ""} devices={devices} wordLists={lists} packs={packs} listId={listId} error={error} update={update} />
+  return <Practice key={accountId} accountId={accountId ?? ""} devices={devices} wordLists={lists} packs={packs} listId={listId} error={error} addRecord={addRecord} />
 }
 
 // Ticks only while a session is running, for the live elapsed time and speed.
@@ -94,20 +94,20 @@ function LiveStats({ session, accuracy }: { session: TypingSession; accuracy: nu
   </dl>
 }
 
-function Practice({ wordLists, packs, listId, error, update, devices, accountId }: {
+function Practice({ wordLists, packs, listId, error, addRecord, devices, accountId }: {
   devices: PracticeDevice[]
   accountId: string
   wordLists: SavedWordList[]
   packs: WordPack[]
   listId: string | null
   error: string
-  update: WorkspaceUpdate
+  addRecord: RecordSave
 }) {
   const t = useTranslations('practice')
   const practiceName = usePracticeName()
   const [device, chooseDevice] = useChosenDevice(accountId, devices)
   const [statsVisible, setStatsVisible] = useLiveStatsVisible()
-  const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart: restartPractice, retrySave, pause, resume } = usePractice(wordLists, update, device, listId)
+  const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart: restartPractice, retrySave, pause, resume } = usePractice(wordLists, addRecord, device, listId)
   const [displayRun, setDisplayRun] = useState(0)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [query, setQuery] = useState('')

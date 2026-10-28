@@ -10,11 +10,13 @@ import { workspaceStore } from '../plugins/storage'
 import { initialLibrary } from '../plugins/packs'
 
 import type { PracticeDevice } from '../core/devices'
+import type { PracticeRecord } from '../core/records'
 import { type SavedWordList } from '../core/wordLists'
 import type { Library, WordPack } from '../core/wordPacks'
 import { createWorkspaceSession, type WorkspaceSession } from '../core/workspaceSession'
 import { WorkspaceError } from '../core/workspaceStore'
 
+export type RecordSave = (listId: string, record: PracticeRecord) => Promise<boolean>
 export type WorkspaceUpdate = (change: (lists: SavedWordList[]) => SavedWordList[], useDefaults?: boolean) => Promise<boolean>
 // The error is kept as caught and turned into text while rendering, so it follows a change of language.
 type Failure = { reason: unknown; fallback: ErrorKey } | null
@@ -104,6 +106,8 @@ function useWorkspace() {
     storage: accountId ? workspaceStore(accountId).location : undefined,
     updateDevices: (change: (current: PracticeDevice[]) => PracticeDevice[]) => save(current => current.update(lists => lists, true, change)),
     update: (change: (current: SavedWordList[]) => SavedWordList[], useDefaults?: boolean) => save(current => current.update(change, useDefaults)),
+    /** Adds a finished practice run to a list, on its own: it is not refused for a list changed elsewhere. */
+    addRecord: (listId: string, record: PracticeRecord) => save(current => current.addRecord(listId, record)),
     /** Replaces the interests; only they are saved. */
     updateInterests: (change: (current: string[]) => string[]) => save(current => current.updateInterests(change)),
     /** Replaces the library in its saved shape; for pack edits. */

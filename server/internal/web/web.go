@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/sparklingstadt/typle-r/server/internal/auth"
+	"github.com/sparklingstadt/typle-r/server/internal/operation"
 	"github.com/sparklingstadt/typle-r/server/internal/session"
 	"github.com/sparklingstadt/typle-r/server/internal/store"
 )
@@ -19,6 +20,7 @@ type Store interface {
 	Ping(ctx context.Context) error
 	ReadRevision(ctx context.Context, owner string) (*store.Saved, error)
 	WriteRevision(ctx context.Context, owner string, revision int, change store.Change) (*store.Saved, error)
+	operation.Writer
 	PutShare(ctx context.Context, owner, packID string) (*store.Share, error)
 	DeleteShare(ctx context.Context, owner, packID string) error
 	ListShares(ctx context.Context, owner string) ([]store.Share, error)
@@ -98,6 +100,7 @@ func New(c Config) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/health", s.health)
 	mux.HandleFunc("/api/workspace", s.workspace)
+	mux.HandleFunc("/api/workspace/records", s.addRecord)
 	mux.HandleFunc("/api/shares", s.shares)
 	mux.HandleFunc("/api/shared", s.shared)
 	mux.HandleFunc("/api/auth/signin", s.signin)

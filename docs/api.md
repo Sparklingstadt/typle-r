@@ -348,6 +348,8 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 | `POST /api/v1/packs/{p}/copy` | なし、または `{ "name"? }` | `201 { "pack" }`。元のパックの直後に入る。説明・カテゴリ・タグと、リストの名前・難易度・単語をコピーし、記録・`origin`（パックとリストの）はコピーしない。フォロー中の公式パックも複製でき、複製は自分のパックになる（v0.98.0 から）。名前を省略すると「元の名前（コピー）」、使われていれば「（コピー2）」…（v0.95.0 から） |
 | `POST /api/v1/packs/import` | パックのファイルそのもの（`Content-Type: application/json`。1MiB まで） | `201 { "pack" }`。アプリの「ファイルから追加」と同じ読み方でパックを最後に追加する（下の「パックのファイルの取り込み」。v0.95.0 から） |
 
+記録の追加は、アプリの練習画面（本番の `POST /api/workspace/records`）と同じ操作（`server/internal/operation` の `AddRecord`）です（v1.2.0 から）。revision を使わないため、別の画面でリストを編集していても拒否されず、同じ `id` の再送で記録が重複しません。ゲスト保存も同じ規則に従います（`tests/fixtures/records`）。
+
 ### フォロー中の公式パック
 
 アプリでフォローした公式パック（`origin.followed` が `true`）は、公式の内容のまま読み取り専用です（v0.98.0 から）。

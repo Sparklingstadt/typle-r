@@ -1,7 +1,11 @@
 package workspace
 
 import (
+	"encoding/json"
+	"errors"
 	"math"
+	"os"
+	"path/filepath"
 	"reflect"
 	"slices"
 	"strings"
@@ -231,5 +235,54 @@ func TestFindRecord(t *testing.T) {
 	}
 	if w.Lists[0].FindRecord("missing") != nil || w.Lists[0].FindRecord("") != nil {
 		t.Fatal("found a missing record")
+	}
+}
+
+// The fixtures are shared with tests/records.test.cjs, so the guest's workspace adds a run as the account's does.
+func TestAddRecordFixtures(t *testing.T) {
+	files, err := filepath.Glob(filepath.Join("..", "..", "..", "tests", "fixtures", "records", "*.json"))
+	if err != nil || len(files) == 0 {
+		t.Fatalf("fixtures: %v, %v", files, err)
+	}
+	for _, file := range files {
+		t.Run(filepath.Base(file), func(t *testing.T) {
+			data, err := os.ReadFile(file)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var fixture struct {
+				Lists, Devices json.RawMessage
+				ListID         string
+				Input          RecordInput
+				Expected       struct {
+					Added  bool
+					Record json.RawMessage
+					Error  string
+				}
+			}
+			if err := json.Unmarshal(data, &fixture); err != nil {
+				t.Fatal(err)
+			}
+			w, err := Decode(fixture.Lists, fixture.Devices, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			record, added, err := AddRecord(w, fixture.ListID, fixture.Input, "unused")
+			if fixture.Expected.Error != "" {
+				var refused *Error
+				if !errors.As(err, &refused) || refused.Key != fixture.Expected.Error {
+					t.Fatalf("error = %v, want %s", err, fixture.Expected.Error)
+				}
+				return
+			}
+			if err != nil || added != fixture.Expected.Added {
+				t.Fatalf("added = %v, %v; want %v", added, err, fixture.Expected.Added)
+			}
+			got, err := json.Marshal(record)
+			if err != nil {
+				t.Fatal(err)
+			}
+			sameJSON(t, "record", got, fixture.Expected.Record)
+		})
 	}
 }

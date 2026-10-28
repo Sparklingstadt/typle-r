@@ -2,7 +2,7 @@ require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { newSession, typeInput } = require('../src/core/typing.ts')
-const { makeRecord, addRecord } = require('../src/core/records.ts')
+const { makeRecord, addRecord, recordInput } = require('../src/core/records.ts')
 const { encodeLists, decodeLists, saveList } = require('../src/core/wordLists.ts')
 
 test('completed records survive reload and editing; retry never duplicates', () => {
@@ -10,15 +10,16 @@ test('completed records survive reload and editing; retry never duplicates', () 
   let s = typeInput(newSession(), list.words, 'a', 1000)
   s = typeInput(s, list.words, 'ab', 3000)
   const record = makeRecord(s, 1, 'run-1')
-  let lists = addRecord([list], 'a', record)
-  lists = addRecord(lists, 'a', record)
+  const add = lists => addRecord({ lists, devices: [] }, 'a', recordInput(record, [])).document.lists
+  let lists = add([list])
+  lists = add(lists)
   lists = saveList(lists, { ...list, words: [...list.words, ...list.words] }, true)
   const restored = decodeLists(encodeLists(lists))
   assert.equal(restored[0].records.length, 1)
   assert.equal(restored[0].records[0].wordCount, 1)
   assert.equal(restored[0].records[0].time, 2)
   assert.deepEqual(decodeLists(encodeLists(restored.map(l => ({ ...l, records: l.records.filter(r => r.id !== record.id) }))))[0].records, [])
-  assert.throws(() => addRecord([], 'a', record))
+  assert.throws(() => addRecord({ lists: [], devices: [] }, 'a', recordInput(record, [])), { key: 'recordListDeleted' })
   assert.throws(() => makeRecord(newSession(), 1, 'incomplete'))
 })
 
@@ -88,4 +89,34 @@ test('lists to choose from put the most recently practised first and keep the sa
   const lists = [list('a'), list('b', '2026-10-01T00:00:00Z'), list('c'), list('d', '2026-09-01T00:00:00Z', '2026-10-05T00:00:00Z'), list('e', 'not a date')]
   assert.deepEqual(byRecentPractice(lists).map(item => item.id), ['d', 'b', 'a', 'c', 'e'])
   assert.deepEqual(lists.map(item => item.id), ['a', 'b', 'c', 'd', 'e'])
+})
+
+// The fixtures are shared with server/internal/workspace/records_test.go, so the guest's workspace adds a run as the account's does.
+const fs = require('node:fs')
+const path = require('node:path')
+const recordFixtures = path.join(__dirname, 'fixtures', 'records')
+for (const file of fs.readdirSync(recordFixtures).filter(name => name.endsWith('.json'))) {
+  test(`add-record fixture ${file}`, () => {
+    const fixture = JSON.parse(fs.readFileSync(path.join(recordFixtures, file), 'utf8'))
+    const run = () => addRecord({ lists: fixture.lists, devices: fixture.devices }, fixture.listId, fixture.input)
+    if (fixture.expected.error) {
+      const key = fixture.expected.error === 'listNotFound' ? 'recordListDeleted' : fixture.expected.error
+      assert.throws(run, { key })
+      return
+    }
+    const { document, record, added } = run()
+    assert.equal(added, fixture.expected.added)
+    assert.deepEqual(record, fixture.expected.record)
+    const saved = document.lists.find(list => list.id === fixture.listId).records
+    assert.deepEqual(saved.at(-1), fixture.expected.record)
+    assert.equal(saved.length, fixture.lists.find(list => list.id === fixture.listId).records.length + (added ? 1 : 0))
+  })
+}
+
+test('a run on a device deleted while it ran is sent without the device', () => {
+  const record = { id: 'r', time: 1, date: '2026-10-01T00:00:00.000Z', mistakes: 0, accuracy: 100, wordCount: 1, device: mac }
+  assert.equal(recordInput(record, [mac]).deviceId, 'mac')
+  assert.equal('deviceId' in recordInput(record, []), false)
+  assert.equal(recordInput({ ...record, device: { id: 'default', name: 'Default', layout: '' } }, []).deviceId, 'default')
+  assert.equal('device' in recordInput(record, [mac]), false)
 })

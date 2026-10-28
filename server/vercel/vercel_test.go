@@ -16,6 +16,7 @@ import (
 	"github.com/sparklingstadt/typle-r/server/internal/session"
 	"github.com/sparklingstadt/typle-r/server/internal/store"
 	"github.com/sparklingstadt/typle-r/server/internal/web"
+	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
 
 // backend is the Backend under test; reset gives each test a fresh one, built from its own environment.
@@ -34,6 +35,9 @@ func (fakeStore) ReadRevision(context.Context, string) (*store.Saved, error) {
 	return nil, errors.New("not used")
 }
 func (fakeStore) WriteRevision(context.Context, string, int, store.Change) (*store.Saved, error) {
+	return nil, errors.New("not used")
+}
+func (fakeStore) Modify(context.Context, string, func(*workspace.Workspace) (bool, error)) (*workspace.Workspace, error) {
 	return nil, errors.New("not used")
 }
 func (fakeStore) PutShare(context.Context, string, string) (*store.Share, error) {

@@ -3,11 +3,11 @@ import { randomId } from "../core/randomId"
 import { useEffect, useRef, useState } from 'react'
 import type { PracticeDevice } from '../core/devices'
 import type { SavedWordList } from '../core/wordLists'
-import type { WorkspaceUpdate } from './useWordLists'
-import { addRecord, makeRecord, type PracticeRecord } from '../core/records'
+import type { RecordSave } from './useWordLists'
+import { makeRecord, type PracticeRecord } from '../core/records'
 import { newSession, pauseSession, resumeSession, sessionResult, typeInput } from '../core/typing'
 
-export function usePractice(wordLists: SavedWordList[], update: WorkspaceUpdate, device?: PracticeDevice, initialListId?: string | null) {
+export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, device?: PracticeDevice, initialListId?: string | null) {
   const [list, setList] = useState<SavedWordList | undefined>(() => wordLists.find(item => item.id === initialListId) ?? wordLists[0])
   const selected = wordLists.findIndex(item => item.id === list?.id)
   const [practiceDevice, setPracticeDevice] = useState<PracticeDevice | undefined>()
@@ -63,7 +63,7 @@ export function usePractice(wordLists: SavedWordList[], update: WorkspaceUpdate,
   function saveRecord(record: PracticeRecord) {
     if (!list) return
     setSaveState('saving')
-    void update(current => addRecord(current, list.id, record)).then(value => {
+    void addRecord(list.id, record).then(value => {
       if (completedRecord.current === record) setSaveState(value ? 'saved' : 'failed')
     })
   }

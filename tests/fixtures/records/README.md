@@ -1,0 +1,15 @@
+# 練習記録の追加の共通 fixture
+
+`lists`・`devices` のワークスペースで、`listId` のリストに `input` の記録を追加した結果が `expected` です。
+記録の追加は Web（`/api/workspace/records`）・外部API（`POST /api/v1/lists/{listId}/records`）・ゲスト保存で同じ操作契約に従います。
+TS は `tests/records.test.cjs`（`addRecord`）、Go は `server/internal/workspace/records_test.go`（`AddRecord`）が読みます。
+
+- 成功したときは `expected.added`（新しく追加したか）と `expected.record`（保存された記録）。
+- 拒否したときは `expected.error`（Go の `workspace.Error` のキー）。TS ではリストがないとき `recordListDeleted` になります。
+
+## 守る約束
+
+- revision を使わない。同じ `id` の再送は追加せず、保存済みの記録を返す。
+- `deviceId` は保存時のデバイス（`default` は組み込みのデバイス）に置き換える。見つからなければ拒否する。
+- `wordCount` がなければリストの単語数を使う。日時は `toISOString` の形で保存する。
+- 1つのリストの記録は10000件まで（`recordLimit`）。

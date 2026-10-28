@@ -4,7 +4,8 @@ import { LegacyProfileRequest, MAX_WORKSPACE_BYTES, validateWorkspaceRequest } f
 import { followOfficial } from '../../core/followedPacks'
 import { decodeInterests } from '../../core/interests'
 import { officialPacks } from '../packs/catalog'
-import { WorkspaceError, type WorkspaceState, type WorkspaceStore, type WorkspaceWrite } from '../../core/workspaceStore'
+import { addRecord } from '../../core/records'
+import { WorkspaceError, type RecordAdd, type WorkspaceState, type WorkspaceStore, type WorkspaceWrite } from '../../core/workspaceStore'
 
 export const GUEST_ACCOUNT_ID = 'guest:local'
 export const GUEST_STORAGE_KEY = 'typle-r:guest-workspace:v1'
@@ -65,12 +66,25 @@ export function writeGuestWorkspace(request: WorkspaceWrite, storage: Storage = 
   return followed(store(storage, { ...applyChange(previous, change), revision: change.revision + 1 }))
 }
 
+// Adds a run as the account's /api/workspace/records does: on whatever is stored now, without a revision, and to the
+// lists as a read shows them (followed packs in line with the catalog), where the run was practised.
+export function addGuestRecord(request: RecordAdd, storage: Storage = localStorage): WorkspaceState {
+  if (request.accountId !== GUEST_ACCOUNT_ID) throw new AppError('storageChanged')
+  const { legacy, ...previous } = followed(readDocument(storage))
+  const { document, added } = addRecord(previous, request.listId, request.record)
+  if (!added && !legacy) return { ...previous, accountId: GUEST_ACCOUNT_ID }
+  if (bytes(JSON.stringify({ lists: document.lists, packs: document.packs })) > MAX_WORKSPACE_BYTES) throw new AppError('guestQuotaExceeded')
+  return followed(store(storage, { ...document, revision: previous.revision + 1 }))
+}
+
 // Serialize read/check/write across tabs where the Web Locks API is available.
+function locked<T>(action: () => T): Promise<T> {
+  if (typeof navigator !== 'undefined' && navigator.locks) return navigator.locks.request(GUEST_STORAGE_KEY, action)
+  return Promise.resolve(action())
+}
+
 export async function saveGuestWorkspace(request: WorkspaceWrite) {
-  if (typeof navigator !== 'undefined' && navigator.locks) {
-    return navigator.locks.request(GUEST_STORAGE_KEY, () => writeGuestWorkspace(request))
-  }
-  return writeGuestWorkspace(request)
+  return locked(() => writeGuestWorkspace(request))
 }
 
 /** The guest workspace in this browser's LocalStorage. */
@@ -78,6 +92,7 @@ export const guestStore: WorkspaceStore = {
   location: 'browser',
   read: async () => readGuestWorkspace(localStorage),
   write: saveGuestWorkspace,
+  addRecord: request => locked(() => addGuestRecord(request)),
   staleReads: false,
   subscribe(onChange) {
     // `key` is null when another tab clears the whole storage.
