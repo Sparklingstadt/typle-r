@@ -3,7 +3,7 @@ import { test, expect, type Locator, type Page } from '@playwright/test'
 const key = 'typle-r:guest-workspace:v1'
 const sentence = 'The quick brown fox jumps over the lazy dog and keeps running across the field'
 const paragraph = `${sentence} ${sentence} ${sentence} ${sentence}`
-type Word = { display: string; input: string; annotation: string }
+type Word = { display: string; input: string; annotation: string; input_type?: string }
 
 function seedWords(page: Page, words: Word[], otherWords?: Word[]) {
   return page.addInitScript(([storageKey, value]) => {
@@ -164,4 +164,16 @@ test('an unbroken long word stays inside the card and the active character remai
   expect(state.overflowsHorizontally).toBe(false)
   await expect(input).toBeInViewport({ ratio: 1 })
   await expectNoPageOverflow(page)
+})
+
+test('code shows only the characters to type, not its formatted display as well', async ({ page }) => {
+  const code = { display: 'import (\n  "fmt";\n  "errors"\n)', input: 'import ( "fmt"; "errors" )', annotation: '', input_type: 'code' }
+  await seedWords(page, [code])
+  await page.goto('/play')
+  const display = page.locator('#wordDisplay')
+  await expect(display).toHaveText(code.input)
+  await expect(page.locator('#wordTarget')).toHaveCount(0)
+  await expect(page.getByText('入力する文字', { exact: true })).toHaveCount(0)
+  await page.getByRole('textbox', { name: '表示された文字を入力', exact: true }).pressSequentially('import')
+  await expect(display.locator('[data-state="current"]')).toHaveText(' ')
 })
