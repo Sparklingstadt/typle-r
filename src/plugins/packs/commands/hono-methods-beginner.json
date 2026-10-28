@@ -12,42 +12,42 @@
   ],
   "words": [
     {
-      "display": "import {Hono} from 'hono'; const app=new Hono();",
+      "display": "import { Hono } from 'hono';\nconst app = new Hono();",
       "input": "import {Hono} from 'hono'; const app=new Hono();",
       "annotation": "Hono / TypeScript：対象環境（現行公式APIで共通的な機能を中心に整理。実行環境・メジャー版・adapterを固定して利用）"
     },
     {
-      "display": "app.get('/',c=>c.text('Hello, Hono!'));",
+      "display": "app.get('/', c => c.text('Hello, Hono!'));",
       "input": "app.get('/',c=>c.text('Hello, Hono!'));",
       "annotation": "GET / c.text：テキスト応答（必ずResponse等をreturn）"
     },
     {
-      "display": "app.post('/users',c=>c.json({id:1},201));",
+      "display": "app.post('/users', c => c.json({ id: 1 }, 201));",
       "input": "app.post('/users',c=>c.json({id:1},201));",
       "annotation": "c.json / status：JSONとステータス（実際の保存・認証認可・入力検証は別途）"
     },
     {
-      "display": "app.get('/page',c=>c.html('<h1>Hello</h1>'));",
+      "display": "app.get('/page', c => c.html('<h1>Hello</h1>'));",
       "input": "app.get('/page',c=>c.html('<h1>Hello</h1>'));",
       "annotation": "c.html / c.body：HTML・本文（c.htmlへ未検証入力を直接連結しない）"
     },
     {
-      "display": "app.delete('/items/:id',c=>c.body(null,204));",
+      "display": "app.delete('/items/:id', c => c.body(null, 204));",
       "input": "app.delete('/items/:id',c=>c.body(null,204));",
       "annotation": "get/post/put/patch/delete：メソッド別ルート（実削除には認可等が必要）"
     },
     {
-      "display": "app.get('/users/:id',c=>c.json({id:c.req.param('id')}));",
+      "display": "app.get('/users/:id', c => c.json({ id: c.req.param('id') }));",
       "input": "app.get('/users/:id',c=>c.json({id:c.req.param('id')}));",
       "annotation": "c.req.param：パス引数（文字列。型・範囲を検証）"
     },
     {
-      "display": "app.get('/old',c=>c.redirect('/new',302));",
+      "display": "app.get('/old', c => c.redirect('/new', 302));",
       "input": "app.get('/old',c=>c.redirect('/new',302));",
       "annotation": "c.redirect：転送（未検証の転送先を使わない）"
     },
     {
-      "display": "app.notFound(c=>c.json({error:'not found'},404));",
+      "display": "app.notFound(c => c.json({ error: 'not found' }, 404));",
       "input": "app.notFound(c=>c.json({error:'not found'},404));",
       "annotation": "c.notFound / app.notFound：404（特定ハンドラーからreturn c.notFound()も可能）"
     },

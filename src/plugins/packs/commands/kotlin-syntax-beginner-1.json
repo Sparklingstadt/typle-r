@@ -11,12 +11,12 @@
   ],
   "words": [
     {
-      "display": "fun main() { println(\"Hello, Kotlin!\") }",
+      "display": "fun main() {\n  println(\"Hello, Kotlin!\")\n}",
       "input": "fun main() { println(\"Hello, Kotlin!\") }",
       "annotation": "fun main()：実行開始の関数（関数をトップレベルに定義可能） / コード例の利用：断片を適切な場所へ配置（多くの例は関数内の断片。未定義の変数・型・関数・import等を補って利用）"
     },
     {
-      "display": "fun greet() {}",
+      "display": "fun greet() {\n}",
       "input": "fun greet() {}",
       "annotation": "fun：関数定義"
     },
@@ -141,7 +141,7 @@
       "annotation": "open class：継承可能なクラス（通常のクラスは既定でfinal）"
     },
     {
-      "display": "class Dog : Animal()",
+      "display": "class Dog: Animal()",
       "input": "class Dog : Animal()",
       "annotation": ": 親クラス()：クラス継承"
     },

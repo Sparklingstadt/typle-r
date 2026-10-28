@@ -101,12 +101,12 @@
       "annotation": "<< / >>：ビットシフト"
     },
     {
-      "display": "for { break }",
+      "display": "for {\n  break\n}",
       "input": "for { break }",
       "annotation": "for：無限ループ"
     },
     {
-      "display": "if done { break }",
+      "display": "if done {\n  break\n}",
       "input": "if done { break }",
       "annotation": "break：ループを抜ける（break可能な構文内で使用）"
     },

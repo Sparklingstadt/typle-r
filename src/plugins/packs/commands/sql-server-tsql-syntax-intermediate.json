@@ -18,32 +18,32 @@
       "annotation": "ORDER BY / OFFSET FETCH：ページング（一意に並ぶ順序を指定。LIMITは使わない）"
     },
     {
-      "display": "SELECT * FROM dbo.Users WHERE Active = 1 AND Age BETWEEN 20 AND 29 AND Id IN (1,\n2,3);",
+      "display": "SELECT * FROM dbo.Users WHERE Active = 1 AND Age BETWEEN 20 AND 29 AND Id IN (1, 2, 3);",
       "input": "SELECT * FROM dbo.Users WHERE Active = 1 AND Age BETWEEN 20 AND 29 AND Id IN (1,2,3);",
       "annotation": "AND / OR / IN / BETWEEN：条件の組合せ（BETWEENは両端を含む）"
     },
     {
-      "display": "SELECT u.Name, o.Amount FROM dbo.Users u LEFT JOIN dbo.Orders o ON o.UserId =\nu.Id;",
+      "display": "SELECT u.Name, o.Amount FROM dbo.Users u LEFT JOIN dbo.Orders o ON o.UserId = u.Id;",
       "input": "SELECT u.Name, o.Amount FROM dbo.Users u LEFT JOIN dbo.Orders o ON o.UserId = u.Id;",
       "annotation": "INNER JOIN / LEFT JOIN：表を結合（右側をWHEREで絞ると実質内部結合になる場合）"
     },
     {
-      "display": "SELECT * FROM dbo.Users u WHERE EXISTS (SELECT 1 FROM dbo.Orders o WHERE\no.UserId = u.Id);",
+      "display": "SELECT *\nFROM dbo.Users u\nWHERE EXISTS (\n  SELECT 1\n  FROM dbo.Orders o\n  WHERE o.UserId = u.Id\n);",
       "input": "SELECT * FROM dbo.Users u WHERE EXISTS (SELECT 1 FROM dbo.Orders o WHERE o.UserId = u.Id);",
       "annotation": "EXISTS / NOT EXISTS：関連行の存在"
     },
     {
-      "display": "SELECT Id, ROW_NUMBER() OVER (ORDER BY CreatedAt, Id) AS RowNo FROM dbo.Users;",
+      "display": "SELECT Id, ROW_NUMBER() OVER (\n  ORDER BY CreatedAt, Id\n) AS RowNo FROM dbo.Users;",
       "input": "SELECT Id, ROW_NUMBER() OVER (ORDER BY CreatedAt, Id) AS RowNo FROM dbo.Users;",
       "annotation": "ROW_NUMBER / OVER：行番号（一意に順序を決める）"
     },
     {
-      "display": "SELECT Id, UserId, Amount, SUM(Amount) OVER (PARTITION BY UserId) AS Total FROM\ndbo.Orders;",
+      "display": "SELECT Id, UserId, Amount, SUM(Amount) OVER (\n  PARTITION BY UserId\n) AS Total\nFROM dbo.Orders;",
       "input": "SELECT Id, UserId, Amount, SUM(Amount) OVER (PARTITION BY UserId) AS Total FROM dbo.Orders;",
       "annotation": "PARTITION BY / SUM OVER：行を残して集計"
     },
     {
-      "display": "SELECT Id, LAG(Amount) OVER (PARTITION BY UserId ORDER BY Id) AS Previous FROM\ndbo.Orders;",
+      "display": "SELECT Id, LAG(Amount) OVER (\n  PARTITION BY UserId\n  ORDER BY Id\n) AS Previous\nFROM dbo.Orders;",
       "input": "SELECT Id, LAG(Amount) OVER (PARTITION BY UserId ORDER BY Id) AS Previous FROM dbo.Orders;",
       "annotation": "LAG / LEAD：前後の行を参照"
     },
@@ -68,22 +68,22 @@
       "annotation": "datetime2 / datetimeoffset / uniqueidentifier：日時・UUID（datetime2はタイムゾーンを保持しない）"
     },
     {
-      "display": "SELECT CONCAT(Name,N'さん'), LEN(Name), SUBSTRING(Name,1,2) FROM dbo.Users;",
+      "display": "SELECT CONCAT(Name, N'さん'), LEN(Name), SUBSTRING(Name, 1, 2) FROM dbo.Users;",
       "input": "SELECT CONCAT(Name,N'さん'), LEN(Name), SUBSTRING(Name,1,2) FROM dbo.Users;",
       "annotation": "CONCAT / LEN / SUBSTRING：文字列処理（LENは末尾の空白を数えない）"
     },
     {
-      "display": "SELECT DATEADD(day,7,SYSUTCDATETIME()), DATEDIFF(day,'2026-01-01','2026-01-03');",
+      "display": "SELECT DATEADD(day, 7, SYSUTCDATETIME()), DATEDIFF(day, '2026-01-01', '2026-01-03');",
       "input": "SELECT DATEADD(day,7,SYSUTCDATETIME()), DATEDIFF(day,'2026-01-01','2026-01-03');",
       "annotation": "DATEADD / DATEDIFF：日時の加減・境界数（DATEDIFFは単純な経過時間でなく単位境界数）"
     },
     {
-      "display": "DECLARE @i int=0; WHILE @i<3 BEGIN IF @i=1 PRINT N'one'; SET @i+=1; END;",
+      "display": "DECLARE @i int = 0;\nWHILE @i < 3\nBEGIN\n  IF @i = 1 PRINT N'one';\n  SET @i += 1;\nEND;",
       "input": "DECLARE @i int=0; WHILE @i<3 BEGIN IF @i=1 PRINT N'one'; SET @i+=1; END;",
       "annotation": "IF / WHILE / BEGIN END：手続き的制御"
     },
     {
-      "display": "EXEC sys.sp_executesql N'SELECT * FROM dbo.Users WHERE Id=@id', N'@id int',\n@id=1;",
+      "display": "EXEC sys.sp_executesql N'SELECT * FROM dbo.Users WHERE Id=@id', N'@id int', @id = 1;",
       "input": "EXEC sys.sp_executesql N'SELECT * FROM dbo.Users WHERE Id=@id', N'@id int', @id=1;",
       "annotation": "sp_executesql：値をパラメーター化した動的SQL（未検証入力をSQL文字列へ連結しない）"
     }

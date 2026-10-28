@@ -22,17 +22,17 @@
       "annotation": "$disconnect：接続リソースを終了（短命スクリプトの終了時等。サーバーで毎リクエスト切断しない）"
     },
     {
-      "display": "datasource db { provider = \"postgresql\" }",
+      "display": "datasource db {\n  provider = \"postgresql\"\n}",
       "input": "datasource db { provider = \"postgresql\" }",
       "annotation": "datasource：DBプロバイダー指定（Prisma 7の接続URLはprisma.config.ts側）"
     },
     {
-      "display": "model Note { id Int @id @default(autoincrement()) body String }",
+      "display": "model Note {\n  id   Int    @id @default(autoincrement())\n  body String\n}",
       "input": "model Note { id Int @id @default(autoincrement()) body String }",
       "annotation": "model：モデル定義（Prisma Schema Language）"
     },
     {
-      "display": "name String?",
+      "display": "name String ?",
       "input": "name String?",
       "annotation": "String?：任意フィールド（DBでは通常NULL許容）"
     },
@@ -87,7 +87,7 @@
       "annotation": "@map / @@map：DB上の名前と対応付け（モデル内の別々の宣言例）"
     },
     {
-      "display": "enum Role { ADMIN MEMBER }",
+      "display": "enum Role {\n  ADMIN\n  MEMBER\n}",
       "input": "enum Role { ADMIN MEMBER }",
       "annotation": "enum：列挙型（モデル側で型として参照。DB対応を確認）"
     },
@@ -112,7 +112,7 @@
       "annotation": "null：NULL条件（undefinedと同じ意味ではない。未定義値の扱いは設定も確認）"
     },
     {
-      "display": "await prisma.user.findMany({ select: { id: true, email: true } });",
+      "display": "await prisma.user.findMany({ select: {\n    id: true,\n    email: true\n  } });",
       "input": "await prisma.user.findMany({ select: { id: true, email: true } });",
       "annotation": "select：取得するフィールドを限定（同じ階層でincludeと併用不可）"
     },

@@ -66,17 +66,17 @@
       "annotation": "& | ^ ~：ビット演算（&、|、^はbooleanにも利用可能）"
     },
     {
-      "display": "for (;;) { break; }",
+      "display": "for (; ; ) {\n  break;\n}",
       "input": "for (;;) { break; }",
       "annotation": "for (;;)：無限ループ"
     },
     {
-      "display": "if (done) { break; }",
+      "display": "if (done) {\n  break;\n}",
       "input": "if (done) { break; }",
       "annotation": "break：ループ等を抜ける（ループ・switch等の中で使用）"
     },
     {
-      "display": "if (skip) { continue; }",
+      "display": "if (skip) {\n  continue;\n}",
       "input": "if (skip) { continue; }",
       "annotation": "continue：次の反復へ（ループ内で使用）"
     },
@@ -86,7 +86,7 @@
       "annotation": "メソッド呼び出し：引数を渡して呼ぶ"
     },
     {
-      "display": "int[] nums = {1, 2, 3};",
+      "display": "int[] nums = { 1, 2, 3 };",
       "input": "int[] nums = {1, 2, 3};",
       "annotation": "型[] 名前 = {...}：配列リテラル（長さ固定）"
     },
@@ -121,12 +121,12 @@
       "annotation": "Map.put：追加・更新"
     },
     {
-      "display": "public void greet() {}",
+      "display": "public void greet() {\n}",
       "input": "public void greet() {}",
       "annotation": "public：公開（型・モジュール等のアクセス条件も関係）"
     },
     {
-      "display": "final class Utility {}",
+      "display": "final class Utility {\n}",
       "input": "final class Utility {}",
       "annotation": "final class：継承禁止"
     },
@@ -136,12 +136,12 @@
       "annotation": "import：型を読み込む"
     },
     {
-      "display": "class Dog extends Animal {}",
+      "display": "class Dog extends Animal {\n}",
       "input": "class Dog extends Animal {}",
       "annotation": "extends：クラス継承（直接の親クラスは1つ）"
     },
     {
-      "display": "interface A extends B {}",
+      "display": "interface A extends B {\n}",
       "input": "interface A extends B {}",
       "annotation": "interface extends：インターフェース継承"
     },
@@ -156,17 +156,17 @@
       "annotation": "enum値：列挙値を使用"
     },
     {
-      "display": "class Box<T> { T value; }",
+      "display": "class Box<T> {\n  T value;\n}",
       "input": "class Box<T> { T value; }",
       "annotation": "class Box<T>：型パラメーター付きクラス"
     },
     {
-      "display": "List<? extends Number> nums;",
+      "display": "List< ? extends Number> nums;",
       "input": "List<? extends Number> nums;",
       "annotation": "? extends 型：上限境界ワイルドカード（要素をNumberとして読める。一般に具体的な数値を追加できない）"
     },
     {
-      "display": "List<? super Integer> nums;",
+      "display": "List< ? super Integer> nums;",
       "input": "List<? super Integer> nums;",
       "annotation": "? super 型：下限境界ワイルドカード（Integerを追加可能。読み取りは一般にObject）"
     },

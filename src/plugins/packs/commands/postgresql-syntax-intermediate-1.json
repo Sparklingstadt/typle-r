@@ -102,7 +102,7 @@
       "annotation": "DELETE / WHERE：行を削除（WHEREなしは全行削除。外部キー制約で拒否される場合がある）"
     },
     {
-      "display": "CREATE TABLE items (id bigint PRIMARY KEY);",
+      "display": "CREATE TABLE items (\n  id bigint PRIMARY KEY\n);",
       "input": "CREATE TABLE items (id bigint PRIMARY KEY);",
       "annotation": "PRIMARY KEY：主キー（一意かつNOT NULL）"
     },
@@ -192,7 +192,7 @@
       "annotation": "unnest：配列を行へ展開"
     },
     {
-      "display": "BEGIN READ ONLY; SELECT * FROM users; COMMIT;",
+      "display": "BEGIN READ ONLY;\nSELECT * FROM users;\nCOMMIT;",
       "input": "BEGIN READ ONLY; SELECT * FROM users; COMMIT;",
       "annotation": "READ ONLY：読み取り専用トランザクション"
     },

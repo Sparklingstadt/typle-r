@@ -12,32 +12,32 @@
   ],
   "words": [
     {
-      "display": "test('トップページ', async ({ page }) => { await page.goto('/');\nawait expect(page.getByRole('heading', { name: 'ホーム' })).toBeVisible(); });",
+      "display": "test('トップページ', async ({ page }) => {\n  await page.goto('/');\n  await expect(page.getByRole('heading', { name: 'ホーム' })).toBeVisible();\n});",
       "input": "test('トップページ', async ({ page }) => { await page.goto('/'); await expect(page.getByRole('heading', { name: 'ホーム' })).toBeVisible(); });",
       "annotation": "test：ブラウザーテストを定義（pageはテストごとに準備されるfixture）"
     },
     {
-      "display": "test.describe('ログイン', () => { test('フォーム表示', async ({ page }) => {\nawait page.goto('/login'); await expect(page.getByLabel('メール')).toBeVisible(\n); }); });",
+      "display": "test.describe('ログイン', () => {\n  test('フォーム表示', async ({ page }) => {\n    await page.goto('/login');\n    await expect(page.getByLabel('メール')).toBeVisible();\n  });\n});",
       "input": "test.describe('ログイン', () => { test('フォーム表示', async ({ page }) => { await page.goto('/login'); await expect(page.getByLabel('メール')).toBeVisible(); }); });",
       "annotation": "test.describe：グループ化"
     },
     {
-      "display": "test.beforeEach(async ({ page }) => { await page.goto('/'); });",
+      "display": "test.beforeEach(async ({ page }) => {\n  await page.goto('/');\n});",
       "input": "test.beforeEach(async ({ page }) => { await page.goto('/'); });",
       "annotation": "test.beforeEach：各テスト前に実行"
     },
     {
-      "display": "test.afterEach(async ({ page }, testInfo) => {\nif (testInfo.status !== testInfo.expectedStatus) {\nawait testInfo.attach('failure', { body: await page.screenshot(),\ncontentType: 'image/png' }); } });",
+      "display": "test.afterEach(async ({ page }, testInfo) => {\n  if (testInfo.status !== testInfo.expectedStatus) {\n    await testInfo.attach('failure', {\n      body: await page.screenshot(),\n      contentType: 'image/png'\n    });\n  }\n});",
       "input": "test.afterEach(async ({ page }, testInfo) => { if (testInfo.status !== testInfo.expectedStatus) { await testInfo.attach('failure', { body: await page.screenshot(), contentType: 'image/png' }); } });",
       "annotation": "test.afterEach：各テスト後に実行（成果物に認証情報・個人情報が含まれないか確認）"
     },
     {
-      "display": "await test.step('フォーム入力', async () => {\nawait page.getByLabel('メール').fill('pomo@example.com'); });",
+      "display": "await test.step('フォーム入力', async () => {\n  await page.getByLabel('メール').fill('pomo@example.com');\n});",
       "input": "await test.step('フォーム入力', async () => { await page.getByLabel('メール').fill('pomo@example.com'); });",
       "annotation": "test.step：処理をレポート上で区切る（test内の例）"
     },
     {
-      "display": "test.skip('未対応', async ({ page }) => {}); test.fixme('修正待ち', async ({\npage }) => {});",
+      "display": "test.skip('未対応', async ({ page }) => {});\ntest.fixme('修正待ち', async ({ page }) => {});",
       "input": "test.skip('未対応', async ({ page }) => {}); test.fixme('修正待ち', async ({ page }) => {});",
       "annotation": "test.skip / test.fixme：スキップ・修正待ち（放置しない）"
     },
@@ -52,7 +52,7 @@
       "annotation": "Locator連結 / filter：候補を絞る（filterで一意になるようにする）"
     },
     {
-      "display": "const card = page.getByTestId('card').filter({ has: page.getByRole('heading', {\nname: 'Pomo', exact: true }) });",
+      "display": "const card = page.getByTestId('card').filter({\n  has: page.getByRole('heading', { name: 'Pomo', exact: true })\n});",
       "input": "const card = page.getByTestId('card').filter({ has: page.getByRole('heading', { name: 'Pomo', exact: true }) });",
       "annotation": "filter({ has })：子要素で絞る（hasのLocatorは外側を基準に評価）"
     },
@@ -87,17 +87,17 @@
       "annotation": "dragTo：ドラッグ（アプリのドラッグ実装に依存）"
     },
     {
-      "display": "page.once('dialog', dialog => dialog.accept()); await page.getByRole('button', {\nname: '削除' }).click();",
+      "display": "page.once('dialog', dialog => dialog.accept());\nawait page.getByRole('button', { name: '削除' }).click();",
       "input": "page.once('dialog', dialog => dialog.accept()); await page.getByRole('button', { name: '削除' }).click();",
       "annotation": "dialog：ダイアログへ応答（リスナーは操作前に登録。実際に削除する画面ではテストデータを使用）"
     },
     {
-      "display": "const popupPromise = page.waitForEvent('popup'); await page.getByRole('link', {\nname: '詳細' }).click(); const popup = await popupPromise;\nawait expect(popup).toHaveURL(/detail/);",
+      "display": "const popupPromise = page.waitForEvent('popup');\nawait page.getByRole('link', { name: '詳細' }).click();\nconst popup = await popupPromise;\nawait expect(popup).toHaveURL(/detail/);",
       "input": "const popupPromise = page.waitForEvent('popup'); await page.getByRole('link', { name: '詳細' }).click(); const popup = await popupPromise; await expect(popup).toHaveURL(/detail/);",
       "annotation": "popup：新規ページを取得（待機を操作前に登録）"
     },
     {
-      "display": "const downloadPromise = page.waitForEvent('download');\nawait page.getByRole('button', { name: 'CSV出力' }).click();\nconst download = await downloadPromise; await\ndownload.saveAs(testInfo.outputPath(download.suggestedFilename()));",
+      "display": "const downloadPromise = page.waitForEvent('download');\nawait page.getByRole('button', { name: 'CSV出力' }).click();\nconst download = await downloadPromise;\nawait download.saveAs(testInfo.outputPath(download.suggestedFilename()));",
       "input": "const downloadPromise = page.waitForEvent('download'); await page.getByRole('button', { name: 'CSV出力' }).click(); const download = await downloadPromise; await download.saveAs(testInfo.outputPath(download.suggestedFilename()));",
       "annotation": "download：ダウンロードを取得（testコールバックの第2引数等でtestInfoを受け取る）"
     },
@@ -122,7 +122,7 @@
       "annotation": "toBeChecked：チェック状態"
     },
     {
-      "display": "await expect(page.getByRole('link', { name: 'ヘルプ' })).toHaveAttribute('href',\n'/help');",
+      "display": "await expect(page.getByRole('link', { name: 'ヘルプ' })).toHaveAttribute('href', '/help');",
       "input": "await expect(page.getByRole('link', { name: 'ヘルプ' })).toHaveAttribute('href', '/help');",
       "annotation": "toHaveAttribute：属性値"
     },
@@ -137,17 +137,17 @@
       "annotation": "expect.soft：失敗後も続ける検証（テスト自体は失敗扱いになる）"
     },
     {
-      "display": "await expect.poll(async () => { const response = await\nrequest.get('/api/status'); const body = await response.json();\nreturn body.state; }).toBe('ready');",
+      "display": "await expect.poll(async () => {\n  const response = await request.get('/api/status');\n  const body = await response.json();\n  return body.state;\n}).toBe('ready');",
       "input": "await expect.poll(async () => { const response = await request.get('/api/status'); const body = await response.json(); return body.state; }).toBe('ready');",
       "annotation": "expect.poll：値を再取得して検証（request fixtureとAPIが必要）"
     },
     {
-      "display": "await page.route('**/api/users', route => route.fulfill({ json: [{ id: 1,\nname: 'Pomo' }] })); await page.goto('/users');",
+      "display": "await page.route('**/api/users', route => route.fulfill({ json: [{ id: 1, name: 'Pomo' }] }));\nawait page.goto('/users');",
       "input": "await page.route('**/api/users', route => route.fulfill({ json: [{ id: 1, name: 'Pomo' }] })); await page.goto('/users');",
       "annotation": "page.route / fulfill：通信をモック（対象リクエストより前に登録）"
     },
     {
-      "display": "const responsePromise = page.waitForResponse(r => r.url().endsWith('/api/users')\n&& r.request().method() === 'POST'); await page.getByRole('button', {\nname: '保存' }).click(); const response = await responsePromise;\nexpect(response.ok()).toBeTruthy();",
+      "display": "const responsePromise = page.waitForResponse(r => r.url().endsWith('/api/users') &&\n  r.request().method() === 'POST');\nawait page.getByRole('button', { name: '保存' }).click();\nconst response = await responsePromise;\nexpect(response.ok()).toBeTruthy();",
       "input": "const responsePromise = page.waitForResponse(r => r.url().endsWith('/api/users') && r.request().method() === 'POST'); await page.getByRole('button', { name: '保存' }).click(); const response = await responsePromise; expect(response.ok()).toBeTruthy();",
       "annotation": "waitForResponse：特定レスポンスを待つ（待機を操作前に登録。画面結果も別途検証）"
     },
@@ -167,22 +167,22 @@
       "annotation": "storageState：認証状態を保存（機密情報を含む。gitへコミットしない）"
     },
     {
-      "display": "import { test as base } from '@playwright/test'; const test = base.extend<{\nappName: string }>({ appName: async ({}, use) => { await use('Sample'); } });",
+      "display": "import { test as base } from '@playwright/test';\nconst test = base.extend<{\n  appName: string\n}>({\n  appName: async ({}, use) => {\n    await use('Sample');\n  }\n});",
       "input": "import { test as base } from '@playwright/test'; const test = base.extend<{ appName: string }>({ appName: async ({}, use) => { await use('Sample'); } });",
       "annotation": "test.extend：独自fixtureを作る（TypeScript例。準備・後片付けをuseの前後に配置）"
     },
     {
-      "display": "import { defineConfig } from '@playwright/test'; export default defineConfig({\ntestDir: './tests', forbidOnly: !!process.env.CI,\nretries: process.env.CI ? 2 : 0, use: { baseURL: 'http://localhost:3000',\ntrace: 'retain-on-failure', screenshot: 'only-on-failure' } });",
+      "display": "import { defineConfig } from '@playwright/test';\nexport default defineConfig({\n  testDir: './tests',\n  forbidOnly: !!process.env.CI,\n  retries: process.env.CI ? 2 : 0,\n  use: {\n    baseURL: 'http://localhost:3000',\n    trace: 'retain-on-failure',\n    screenshot: 'only-on-failure'\n  }\n});",
       "input": "import { defineConfig } from '@playwright/test'; export default defineConfig({ testDir: './tests', forbidOnly: !!process.env.CI, retries: process.env.CI ? 2 : 0, use: { baseURL: 'http://localhost:3000', trace: 'retain-on-failure', screenshot: 'only-on-failure' } });",
       "annotation": "defineConfig：テスト実行設定（playwright.config.ts。再試行で不安定なテストを放置しない）"
     },
     {
-      "display": "webServer: { command: 'npm run dev', url: 'http://localhost:3000',\nreuseExistingServer: !process.env.CI }",
+      "display": "webServer: {\n  command: 'npm run dev',\n  url: 'http://localhost:3000',\n  reuseExistingServer: !process.env.CI\n}",
       "input": "webServer: { command: 'npm run dev', url: 'http://localhost:3000', reuseExistingServer: !process.env.CI }",
       "annotation": "webServer：アプリ起動を管理（defineConfig内の断片）"
     },
     {
-      "display": "import { devices } from '@playwright/test';\n/* defineConfig内: */ /* projects: [{ name: 'chromium', use: {\n...devices['Desktop Chrome'] } }] */",
+      "display": "import { devices } from '@playwright/test';\n/* defineConfig内: */ /* projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }] */",
       "input": "import { devices } from '@playwright/test'; /* defineConfig内: */ /* projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }] */",
       "annotation": "projects / devices：複数ブラウザー等で実行（ブラウザーのインストールが必要）"
     }
