@@ -1,4 +1,4 @@
-import type { SavedWordList } from '../../../core/wordLists'
+import { isInputType, type SavedWordList } from '../../../core/wordLists'
 import list0 from './macos-zsh-commands.json'
 import list1 from './aws-cli-commands.json'
 import list2 from './gcloud-cli-commands.json'
@@ -136,6 +136,12 @@ const commands: SavedWordList[] = [
   list64,
   list65,
   list66,
-]
+].map(list => ({
+  ...list,
+  words: list.words.map(word => {
+    if (!isInputType(word.input_type)) throw new Error('Invalid official input_type')
+    return { ...word, input_type: word.input_type }
+  }),
+}))
 
 export default commands

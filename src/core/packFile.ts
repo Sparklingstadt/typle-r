@@ -1,7 +1,7 @@
 import { AppError } from './appError'
 import { copyName, MAX_LISTS, MAX_LIST_NAME } from './listOverview'
 import { settle, trimLevels } from './packEditing'
-import { MAX_CATEGORY, MAX_LEVEL, MAX_SAVED_LEVELS, MAX_TAG, MAX_TAGS, normalizeLabels, validateList, type SavedWordList } from './wordLists'
+import { MAX_CATEGORY, MAX_LEVEL, MAX_SAVED_LEVELS, MAX_TAG, MAX_TAGS, isInputType, normalizeLabels, validateList, type SavedWordList } from './wordLists'
 import { MAX_PACK_DESCRIPTION, MAX_PACK_NAME, nameKey, separateLevels, type Library, type WordPack } from './wordPacks'
 import { fit, unique } from './workspaceDocument'
 
@@ -13,7 +13,7 @@ export type PackFile = {
   format: 'typle-pack'
   version: 1
   pack: { name: string; description?: string; category?: string; tags?: string[] }
-  lists: { name: string; levels?: string[]; words: { display: string; input: string; annotation: string }[] }[]
+  lists: { name: string; levels?: string[]; words: SavedWordList['words'] }[]
 }
 
 /** The ids of a new pack and of its lists, one for each list in order. */
@@ -27,7 +27,9 @@ const findPack = (library: Library, packId: string) => {
   return pack
 }
 
-const wordsOf = (words: SavedWordList['words']) => words.map(({ display, input, annotation }) => ({ display, input, annotation }))
+const wordsOf = (words: SavedWordList['words']) => words.map(({ display, input, annotation, input_type }) => ({
+  display, input, annotation, ...(input_type === undefined ? {} : { input_type }),
+}))
 
 /** A pack of the library in the shape of a file. Empty optional fields are left out. */
 export function packFileOf(library: Library, packId: string): PackFile {
@@ -72,8 +74,10 @@ export function decodePackFile(text: string): PackFile {
   const lists = data.lists.map((list: unknown) => {
     if (!isObject(list) || !isString(list.name) || !optional(list.levels, isStrings) || !Array.isArray(list.words)) throw unreadable()
     const words = list.words.map((word: unknown) => {
-      if (!isObject(word) || !isString(word.display) || !isString(word.input) || !isString(word.annotation)) throw unreadable()
-      return { display: word.display, input: word.input, annotation: word.annotation }
+      if (!isObject(word) || !isString(word.display) || !isString(word.input) || !isString(word.annotation) ||
+        (word.input_type !== undefined && !isInputType(word.input_type))) throw unreadable()
+      return { display: word.display, input: word.input, annotation: word.annotation,
+        ...(word.input_type === undefined ? {} : { input_type: word.input_type }) }
     })
     return { name: list.name, ...present('levels', list.levels as string[] | null | undefined), words }
   })

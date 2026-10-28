@@ -25,6 +25,8 @@ type Word struct {
 	Display    string `json:"display"`
 	Input      string `json:"input"`
 	Annotation string `json:"annotation"`
+	// A missing type is a legacy/plain word. Keep it missing when writing old data.
+	InputType string `json:"input_type,omitempty"`
 	// Extra holds the stored fields Typle does not know (see extra.go).
 	Extra string `json:"-"`
 }
@@ -102,6 +104,7 @@ type rawWord struct {
 	Display    *string `json:"display"`
 	Input      *string `json:"input"`
 	Annotation *string `json:"annotation"`
+	InputType  string  `json:"input_type"`
 	extra      string
 }
 
@@ -231,7 +234,7 @@ func decodeList(raw *rawList) (List, error) {
 		if trimJS(*word.Display) == "" || trimJS(*word.Input) == "" {
 			return List{}, fmt.Errorf("word %d: display and input must not be empty", index+1)
 		}
-		words = append(words, Word{Display: *word.Display, Input: *word.Input, Annotation: *word.Annotation, Extra: word.extra})
+		words = append(words, Word{Display: *word.Display, Input: *word.Input, Annotation: *word.Annotation, InputType: word.InputType, Extra: word.extra})
 	}
 	// The category and tags are optional; decodeLists checks only that they are a string and strings.
 	category := ""
@@ -363,7 +366,45 @@ func decodeDevices(raw []json.RawMessage) ([]Device, error) {
 func (r *rawWord) UnmarshalJSON(data []byte) (err error) {
 	type plain rawWord
 	if err = json.Unmarshal(data, (*plain)(r)); err == nil {
-		r.extra, err = unknown(data, "display", "input", "annotation")
+		if r.InputType, err = wordInputType(data); err == nil {
+			r.extra, err = unknown(data, "display", "input", "annotation", "input_type")
+		}
+	}
+	return err
+}
+
+// The JSON field is optional, but a supplied value must be one of the three exact strings.
+// In particular, null and an empty string do not mean the same thing as a missing field.
+func readInputType(raw json.RawMessage) (string, error) {
+	if len(raw) == 0 {
+		return "", nil
+	}
+	var value string
+	if err := json.Unmarshal(raw, &value); err != nil || value == "" || !validInputType(value) {
+		return "", errors.New("input_type must be command, code or word")
+	}
+	return value, nil
+}
+
+func wordInputType(data []byte) (string, error) {
+	var fields struct {
+		InputType json.RawMessage `json:"input_type"`
+	}
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return "", err
+	}
+	return readInputType(fields.InputType)
+}
+
+func validInputType(value string) bool {
+	return value == "" || value == "command" || value == "code" || value == "word"
+}
+
+// Word is also read directly by list/pack mutation requests, outside rawList decoding.
+func (w *Word) UnmarshalJSON(data []byte) (err error) {
+	type plain Word
+	if err = json.Unmarshal(data, (*plain)(w)); err == nil {
+		w.InputType, err = wordInputType(data)
 	}
 	return err
 }

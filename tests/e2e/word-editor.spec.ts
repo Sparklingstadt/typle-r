@@ -41,10 +41,33 @@ test('Enter moves between words and adds rows instead of saving', async ({ page 
   await expect(page).toHaveURL(/\/edit\?pack=/)
   const saved = await page.evaluate(k => JSON.parse(localStorage.getItem(k) ?? 'null'), key)
   expect(saved.lists.find((list: { name: string }) => list.name === 'Enter list').words).toEqual([
-    { display: 'one', input: 'ichi', annotation: '' },
-    { display: 'two', input: 'two', annotation: '' },
+    { display: 'one', input: 'ichi', annotation: '', input_type: 'word' },
+    { display: 'two', input: 'two', annotation: '', input_type: 'word' },
   ])
   expect(errors).toEqual([])
+})
+
+test('legacy words default to word and type-only edits are saved and restored', async ({ page }) => {
+  await seedGoList(page)
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/edit?list=go')
+  const type = (n: number) => page.getByRole('combobox', { name: `入力の種類 ${n}`, exact: true })
+  await expect(type(1)).toHaveValue('word')
+  await type(1).selectOption('code')
+  await type(2).selectOption('command')
+  await page.getByRole('button', { name: 'キャンセル', exact: true }).click()
+  const confirmation = page.getByRole('alertdialog')
+  await expect(confirmation).toContainText('保存していない変更があります')
+  await confirmation.getByRole('button', { name: '編集を続ける', exact: true }).click()
+  await page.getByRole('button', { name: '保存', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Go構文 を編集', exact: true })).toBeVisible()
+  const saved = await page.evaluate(k => JSON.parse(localStorage.getItem(k) ?? 'null'), key)
+  expect(saved.lists.find((list: { id: string }) => list.id === 'go').words.map((word: { input_type: string }) => word.input_type))
+    .toEqual(['code', 'command'])
+  await page.getByRole('button', { name: 'Go構文 を編集', exact: true }).click()
+  await expect(type(1)).toHaveValue('code')
+  await expect(type(2)).toHaveValue('command')
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
 })
 
 test('a duplicate name is shown on the name field while the save bar stays visible', async ({ page }) => {

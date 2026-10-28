@@ -33,7 +33,7 @@
   "importQuote": "第 {line} 行的引號格式不正確。",
   "importHeaderRequired": "標題列需要包含 input 與 display。annotation 可以省略。",
   "importHeaderDuplicate": "標題列中有重複的欄位名稱。",
-  "importHeaderUnknown": "欄位名稱請使用 input、display、annotation。",
+  "importHeaderUnknown": "欄位名稱請使用 input、display、annotation 和 input_type。",
   "importNoRows": "請至少新增一行單字。",
   "importTooManyRows": "每個清單最多 1,000 個單字。",
   "importColumnCount": "第 {line} 行的欄位數與標題列不一致。",
@@ -61,5 +61,6 @@
   "adminRequired": "請以管理員身分登入。",
   "adminForbidden": "此 FFPF ID 不是管理員。",
   "adminUnavailable": "無法確認您是否為管理員。請稍後再試。",
-  "invalidPage": "頁碼無效。"
+  "invalidPage": "頁碼無效。",
+  "importInputTypeInvalid": "第 {line} 行的 input_type 必須是 command、code 或 word。"
 }

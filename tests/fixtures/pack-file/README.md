@@ -18,7 +18,7 @@ TS と Go は同じ `library` から **同じバイト列** を書き、`file` �
 ## Go で守る約束（書き出し）
 
 - TS の `JSON.stringify(value, null, 2) + '\n'` と同じ: 2 スペースのインデント、`": "` の後に空白1つ、末尾に改行1つ。空の配列・オブジェクトは出ない（空の任意項目は書かないため）。
-- 項目の順は上の形のとおり: `format`・`version`・`pack`・`lists`、`pack` は `name`・`description`・`category`・`tags`、リストは `name`・`levels`・`words`、単語は `display`・`input`・`annotation`。
+- 項目の順は上の形のとおり: `format`・`version`・`pack`・`lists`、`pack` は `name`・`description`・`category`・`tags`、リストは `name`・`levels`・`words`、単語は `display`・`input`・`annotation`・任意の `input_type`。
 - `description`・`category` が空文字、`tags`・`levels` が空配列またはないときは項目ごと書かない。`name` と単語の3項目は空でも書く。
 - 記録・ID・作成日時・`origin`・Typle が知らない項目は書かない。リストはそのパックのリストを保存データの順に並べる。
 - 文字列は `JSON.stringify` のとおりにエスケープする: `"` → `\"`、`\` → `\\`、`\b` `\f` `\n` `\r` `\t` は短い形、その他の U+0000〜U+001F は `\u00xx`（小文字の16進）。それ以外はそのまま書く（`/` も ASCII 以外も）。
@@ -30,6 +30,7 @@ TS と Go は同じ `library` から **同じバイト列** を書き、`file` �
 - JSON でない・オブジェクトでない・`format` が `"typle-pack"` でない・`version` が数値の `1` でない（`1.0` は JSON の数値として `1` と同じなので読める。Go も読む）・`pack` がオブジェクトでない・`lists` が配列でないか空、は `packFileUnreadable`。
 - `pack.name`・リストの `name`・単語の `display`・`input`・`annotation` は文字列が必須（`null` も読めない）。`description`・`category` は文字列、`tags`・`levels` は文字列の配列で、省略か `null` は「ない」として読む。型が違えば `packFileUnreadable`。
 - 知らない項目は捨てる。
+- 単語の `input_type` は省略可能で、指定する場合は `command`・`code`・`word` のいずれか。`null`・空文字・その他の値や型は `packFileUnreadable`。省略した旧ファイルはそのまま読み、画面では `word` として扱う。書き出しでは指定された値だけを `annotation` の後ろに保持する。
 
 ## Go で守る約束（取り込み・複製・公式パックの追加）
 

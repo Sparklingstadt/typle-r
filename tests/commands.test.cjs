@@ -14,6 +14,32 @@ test('the split command lists follow the shared manifest without missing or dupl
   assert.deepEqual(commands, names.map(name => JSON.parse(fs.readFileSync(path.join(directory, name), 'utf8'))))
 })
 
+test('each official word has its own command, code or word input type', () => {
+  const allowed = new Set(['command', 'code', 'word'])
+  for (const list of commands) {
+    for (const word of list.words) {
+      assert.ok(allowed.has(word.input_type), `${list.name}: ${word.input}`)
+    }
+  }
+  const typeOf = (name, input) => commands.find(list => list.name.normalize('NFC') === name)
+    .words.find(word => word.input === input).input_type
+  assert.equal(typeOf('Linuxコマンド：基本', 'pwd'), 'command')
+  assert.equal(typeOf('macOSターミナル（zsh）コマンド', 'project=ffpf-portal'), 'command')
+  assert.equal(typeOf('Linux：システムの仕組み', 'SIGTERM'), 'word')
+  assert.equal(typeOf('Linux：システムの仕組み', '/proc'), 'word')
+  assert.equal(typeOf('Linuxコマンド：オプション', '-a'), 'word')
+  assert.equal(typeOf('Linux：シェルとBash', '$?'), 'code')
+  assert.equal(typeOf('Linux：シェルとBash', '>'), 'code')
+  assert.equal(typeOf('Vimコマンド', '>'), 'command')
+  assert.equal(typeOf('Vimコマンド', ':w'), 'command')
+  assert.equal(typeOf('Go構文', 'go work()'), 'code')
+  assert.equal(typeOf('Go構文', 'gofmt -w main.go'), 'command')
+  assert.equal(typeOf('Prisma構文（初級）', 'npx prisma format'), 'command')
+  assert.equal(typeOf('Railsメソッド（初級）', 'bin/rails db:migrate'), 'command')
+  assert.equal(typeOf('SQL Server T-SQL構文（初級）', 'SELECT 1;'), 'code')
+  assert.equal(typeOf('国名：中国語・国連加盟193か国（小文字）', 'feilvbin'), 'word')
+})
+
 // Since v0.85.0 the official lists are a copy of the lists of the sparklingstadt account, in its order and without its
 // records. Some lists are kept both whole and as their 初級, 中級 and 上級 parts (`<id>-beginner`, `<id>-intermediate-1`,
 // ...); words(id) gives the whole list, or joins the parts when there is none. named(name) gives the words of a list
@@ -99,7 +125,7 @@ test('each command is typed as shown, in ASCII, once per list, with an explanati
     }
   }
   assert.ok(japanese.every(input => commands.some(list => list.words.some(word => word.input === input))))
-  assert.deepEqual(named('Linuxコマンド：基本')[0], { display: 'pwd', input: 'pwd', annotation: 'Print Working Directory：現在のディレクトリを表示' })
+  assert.deepEqual(named('Linuxコマンド：基本')[0], { display: 'pwd', input: 'pwd', annotation: 'Print Working Directory：現在のディレクトリを表示', input_type: 'command' })
   assert.equal(named('Linuxコマンド：基本').find(word => word.input === 'ls -la').annotation, 'ls（List）：ファイル・フォルダの一覧表示')
   assert.equal(named('Linux：システムの仕組み').find(word => word.input === 'SIGTERM').annotation, '15番（Terminate）：正常終了の要求')
   // The source puts two commands in one row and one command in two rows.

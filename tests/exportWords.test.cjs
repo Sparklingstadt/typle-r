@@ -34,3 +34,16 @@ test('files are read by their extension, in any case, and other files are refuse
   assert.deepEqual(tsvFormat.parse('input\tdisplay\nzi\t字'), [{ input: 'zi', display: '字', annotation: '' }])
   assert.equal(wordFilename('中国語', tsvFormat), '中国語.tsv')
 })
+
+test('CSV round-trips explicit input types mixed with legacy words without adding defaults', () => {
+  const words = [
+    { input: 'ls', display: 'ls', annotation: '', input_type: 'command' },
+    { input: 'return 1', display: 'return 1', annotation: 'code', input_type: 'code' },
+    { input: 'neko', display: '猫', annotation: '', input_type: 'word' },
+    { input: 'inu', display: '犬', annotation: '' },
+  ]
+  const csv = encodeWordCsv(words)
+  assert.ok(csv.startsWith('\ufeffinput,display,annotation,input_type\r\n'))
+  assert.deepEqual(parseWordFile(csv, ','), words)
+  assert.throws(() => encodeWordCsv([{ ...words[0], input_type: null }]), { key: 'savedDataCorrupted' })
+})

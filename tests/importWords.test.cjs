@@ -36,3 +36,18 @@ test('CSV preserves whitespace and duplicates through JSON save while rejecting 
   }
   assert.throws(() => parseWordFile('display,input,annotation,anotation\na,b,c,d', ','), { key: 'importHeaderDuplicate' })
 })
+
+test('CSV and TSV accept explicit word input types and leave blank or absent types missing', () => {
+  assert.deepEqual(parseWordFile('input_type,display,input,annotation\ncommand,ls,ls,\ncode,return 1,return 1,\nword,猫,neko,\n,犬,inu,', ','), [
+    { input: 'ls', display: 'ls', annotation: '', input_type: 'command' },
+    { input: 'return 1', display: 'return 1', annotation: '', input_type: 'code' },
+    { input: 'neko', display: '猫', annotation: '', input_type: 'word' },
+    { input: 'inu', display: '犬', annotation: '' },
+  ])
+  assert.deepEqual(parseWordFile('input\tdisplay\tinput_type\nls\tls\tcommand', '\t'), [
+    { input: 'ls', display: 'ls', annotation: '', input_type: 'command' },
+  ])
+  for (const value of ['other', 'CODE', ' code ', 'null', 'true', '1']) {
+    assert.throws(() => parseWordFile(`input,display,input_type\nls,ls,${value}`, ','), { key: 'importInputTypeInvalid', values: { line: 2 } })
+  }
+})

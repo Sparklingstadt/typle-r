@@ -1,5 +1,6 @@
 import { AppError } from "../../core/appError"
 import { MAX_IMPORT_BYTES, type Word, type WordFormat } from "../../core/wordFormat"
+import { isInputType } from "../../core/wordLists"
 
 /** Read CSV and TSV, including escaped quotes and quoted multiline fields. */
 export function parseWordFile(source: string, delimiter: "," | "\t"): Word[] {
@@ -36,13 +37,16 @@ export function parseWordFile(source: string, delimiter: "," | "\t"): Word[] {
   const header = rows.shift()?.cells.map(cell => cell.trim() === "anotation" ? "annotation" : cell.trim()) ?? []
   if (!header.includes("input") || !header.includes("display")) throw new AppError('importHeaderRequired')
   if (new Set(header).size !== header.length) throw new AppError('importHeaderDuplicate')
-  if (header.some(name => !["input", "display", "annotation"].includes(name))) throw new AppError('importHeaderUnknown')
+  if (header.some(name => !["input", "display", "annotation", "input_type"].includes(name))) throw new AppError('importHeaderUnknown')
   if (!rows.length) throw new AppError('importNoRows')
   if (rows.length > 1000) throw new AppError('importTooManyRows')
   return rows.map(({ cells, line }) => {
     if (cells.length !== header.length) throw new AppError('importColumnCount', { line })
     const get = (name: string) => (cells[header.indexOf(name)] ?? "")
-    const word = { input: get("input"), display: get("display"), annotation: get("annotation") }
+    const inputType = get("input_type")
+    if (inputType && !isInputType(inputType)) throw new AppError('importInputTypeInvalid', { line })
+    const word: Word = { input: get("input"), display: get("display"), annotation: get("annotation"),
+      ...(isInputType(inputType) ? { input_type: inputType } : {}) }
     if (!word.input.trim() || !word.display.trim()) throw new AppError('importFieldRequired', { line })
     if (word.input.length > 1000 || word.display.length > 1000 || word.annotation.length > 2000) throw new AppError('importFieldTooLong', { line })
     return word
@@ -52,8 +56,12 @@ export function parseWordFile(source: string, delimiter: "," | "\t"): Word[] {
 /** Preserve exact typing strings, including whitespace, quotes and newlines. */
 export function encodeWordCsv(words: Word[]) {
   const cell = (value: string) => `"${value.replaceAll('"', '""')}"`
-  return "\uFEFFinput,display,annotation\r\n" + words.map(word =>
-    [word.input, word.display, word.annotation].map(cell).join(",")
+  const typed = words.some(word => word.input_type !== undefined)
+  for (const word of words) {
+    if (word.input_type !== undefined && !isInputType(word.input_type)) throw new AppError('savedDataCorrupted')
+  }
+  return `\uFEFFinput,display,annotation${typed ? ',input_type' : ''}\r\n` + words.map(word =>
+    [word.input, word.display, word.annotation, ...(typed ? [word.input_type ?? ''] : [])].map(cell).join(",")
   ).join("\r\n") + "\r\n"
 }
 

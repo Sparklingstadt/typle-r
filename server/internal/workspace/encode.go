@@ -129,7 +129,7 @@ func CheckLimits(lists []List) error {
 			return &Error{Key: "invalidWorkspace"}
 		}
 		for _, word := range list.Words {
-			if length(word.Input) > MaxWordText || length(word.Display) > MaxWordText || length(word.Annotation) > MaxAnnotation {
+			if length(word.Input) > MaxWordText || length(word.Display) > MaxWordText || length(word.Annotation) > MaxAnnotation || !validInputType(word.InputType) {
 				return &Error{Key: "invalidWorkspace"}
 			}
 		}

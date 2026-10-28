@@ -15,7 +15,7 @@ import WordListImport from "./WordListImport"
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import SortableWordRow, { WORD_ROW_COLUMNS } from "./SortableWordRow"
-import type { SavedWordList } from "@/core/wordLists"
+import type { InputType, SavedWordList } from "@/core/wordLists"
 import type { WordPack } from "@/core/wordPacks"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
 import { AppError, type ErrorKey } from "@/core/appError"
@@ -26,11 +26,11 @@ import FieldError from "@/components/WordLists/FieldError"
 
 type Word = SavedWordList["words"][number]
 const MAX_WORDS = 1000
-const emptyWord = (): Word => ({ display: "", input: "", annotation: "" })
+const emptyWord = (): Word => ({ display: "", input: "", annotation: "", input_type: "word" })
 // An input equal to the display is shown as empty; saving uses the display for empty inputs.
-const normalize = (word: Word): Word => ({ ...word, input: word.input === word.display ? "" : word.input })
+const normalize = (word: Word): Word => ({ ...word, input: word.input === word.display ? "" : word.input, input_type: word.input_type ?? "word" })
 const snapshot = (name: string, packId: string | null, levels: string[], words: Word[]) =>
-  JSON.stringify([name, packId, levels, words.map(word => [word.display, word.input, word.annotation])])
+  JSON.stringify([name, packId, levels, words.map(word => [word.display, word.input, word.annotation, word.input_type ?? "word"])])
 const isFilled = (word: Word) => !!(word.display || word.input || word.annotation)
 const menuItem = "flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:size-4"
 
@@ -307,6 +307,14 @@ export default function WordListEditor({ title, description, storage, initial, p
                 <Input id={inputId(word.key)} data-word-key={word.key} aria-label={t("inputLabel", { n })} placeholder={word.display} value={word.input}
                   aria-invalid={inputError ? true : undefined} aria-describedby={inputError ? `${displayId(word.key)}-error` : undefined}
                   className="h-10" onChange={event => update(word.key, { input: event.target.value })} />
+                <Label htmlFor={`${baseId}-input-type-${word.key}`} className="text-xs text-muted-foreground">{t("inputType")}</Label>
+                <select id={`${baseId}-input-type-${word.key}`} aria-label={t("inputTypeLabel", { n })} value={word.input_type ?? "word"}
+                  className="h-9 w-full min-w-0 rounded-md border border-input bg-background px-2 text-sm focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-50"
+                  disabled={saving} onChange={event => update(word.key, { input_type: event.target.value as InputType })}>
+                  <option value="word">{t("inputTypeWord")}</option>
+                  <option value="command">{t("inputTypeCommand")}</option>
+                  <option value="code">{t("inputTypeCode")}</option>
+                </select>
               </div>
               <div className="space-y-1 md:col-start-4 md:row-start-1 md:space-y-0">
                 <Label htmlFor={`${baseId}-annotation-${word.key}`} className="text-xs text-muted-foreground md:sr-only">{t("annotation")}</Label>

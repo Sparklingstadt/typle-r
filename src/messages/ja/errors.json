@@ -33,7 +33,7 @@
   "importQuote": "{line}行目の引用符の形式が正しくありません。",
   "importHeaderRequired": "見出しに input と display が必要です。annotation は省略できます。",
   "importHeaderDuplicate": "見出しのカラム名が重複しています。",
-  "importHeaderUnknown": "カラム名は input、display、annotation を使用してください。",
+  "importHeaderUnknown": "カラム名は input、display、annotation、input_type を使用してください。",
   "importNoRows": "単語を1行以上追加してください。",
   "importTooManyRows": "単語は1リストにつき1,000件までです。",
   "importColumnCount": "{line}行目のカラム数が見出しと一致しません。",
@@ -61,5 +61,6 @@
   "adminRequired": "管理者としてログインしてください。",
   "adminForbidden": "このFFPF IDは管理者ではありません。",
   "adminUnavailable": "管理者かどうかを確認できませんでした。しばらくしてからもう一度お試しください。",
-  "invalidPage": "ページの指定が正しくありません。"
+  "invalidPage": "ページの指定が正しくありません。",
+  "importInputTypeInvalid": "{line}行目の input_type は command、code、word のいずれかにしてください。"
 }
