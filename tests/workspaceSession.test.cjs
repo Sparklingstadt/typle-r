@@ -256,7 +256,7 @@ test('updateInterests writes only the interests, also before the first save', as
   assert.deepEqual(saved.shown.at(-1).interests, ['programming'])
 })
 
-test('addRecord sends the run by its device id, without a revision, and shows what was saved', async () => {
+test('addRecord sends the run with its device as practised, without a revision, and shows what was saved', async () => {
   const fake = fakeStore()
   const mac = { id: 'mac', name: 'Mac', layout: 'JIS' }
   const s = await loaded(fake, { ...state(4, [list('mine')]), devices: [mac] })
@@ -265,8 +265,7 @@ test('addRecord sends the run by its device id, without a revision, and shows wh
   // Only one save runs at a time, as for every other save.
   assert.equal(await s.session.update(lists => lists), false)
   const { request, resolve } = fake.writes.at(-1)
-  const { device: _device, ...run } = record
-  assert.deepEqual(request, { accountId: 'github:1', listId: 'mine', record: { ...run, deviceId: 'mac' } })
+  assert.deepEqual(request, { accountId: 'github:1', listId: 'mine', record })
   assert.equal('revision' in request, false)
   const saved = [{ ...list('mine'), records: [{ ...record }] }]
   resolve({ ...state(6, saved), devices: [mac] })

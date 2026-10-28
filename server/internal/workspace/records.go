@@ -18,7 +18,9 @@ const (
 var recordID = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
 // RecordInput is a practice run as a request gives it. Numbers are read as JSON numbers so that a value such as 1.5
-// mistakes is refused as an invalid record rather than as invalid JSON.
+// mistakes is refused as an invalid record rather than as invalid JSON. The device is either named by DeviceID, and
+// saved as it is registered when the run is added, or given as Device, as it was when the run was practised (the
+// app's practice screen keeps its name then, though it is renamed or deleted meanwhile).
 type RecordInput struct {
 	ID        *string  `json:"id"`
 	Time      *float64 `json:"time"`
@@ -27,6 +29,7 @@ type RecordInput struct {
 	Accuracy  *float64 `json:"accuracy"`
 	WordCount *float64 `json:"wordCount"`
 	DeviceID  *string  `json:"deviceId"`
+	Device    *Device  `json:"device"`
 }
 
 func finite(value *float64) bool {
@@ -81,7 +84,12 @@ func AddRecord(w *Workspace, listID string, input RecordInput, newID string) (re
 		return Record{}, false, &Error{Key: "recordLimit"}
 	}
 	var device *Device
-	if input.DeviceID != nil {
+	switch {
+	case input.Device != nil && (input.DeviceID != nil || !isDevice(*input.Device)):
+		return Record{}, false, invalid
+	case input.Device != nil:
+		device = &Device{ID: input.Device.ID, Name: input.Device.Name, Layout: input.Device.Layout}
+	case input.DeviceID != nil:
 		if device, ok = findDevice(w, *input.DeviceID); !ok {
 			return Record{}, false, &Error{Key: "deviceNotFound"}
 		}

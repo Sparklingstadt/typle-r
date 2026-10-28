@@ -1,6 +1,6 @@
 import { AppError } from './appError'
 import type { PracticeDevice } from './devices'
-import { recordInput, type PracticeRecord } from './records'
+import type { PracticeRecord } from './records'
 import type { SavedWordList } from './wordLists'
 import { applyListChange, repairLibrary, viewLists, type Library, type WordPack } from './wordPacks'
 import { WorkspaceError, type WorkspaceState, type WorkspaceStore, type WorkspaceWrite } from './workspaceStore'
@@ -99,7 +99,7 @@ export function createWorkspaceSession({ store, accountId, initialLibrary, show,
     /** Adds a finished practice run to a list. It is an operation of its own (see `WorkspaceStore.addRecord`): a list
      * changed elsewhere meanwhile does not refuse it, and sending the same run again does not add it twice. */
     addRecord(listId: string, record: PracticeRecord) {
-      return run(previous => store.addRecord({ accountId, listId, record: recordInput(record, previous.devices) }))
+      return run(() => store.addRecord({ accountId, listId, record }))
     },
     /** Stops showing results; the account changed. */
     close() { closed = true },

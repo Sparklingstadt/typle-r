@@ -1,6 +1,6 @@
 import { AppError } from "./appError"
 import baseFormat from "../messages/ja/format.json"
-import { DEFAULT_DEVICE_ID, defaultDevice, deviceExists, type PracticeDevice } from "./devices"
+import { DEFAULT_DEVICE_ID, defaultDevice, isDevice, type PracticeDevice } from "./devices"
 import type { SavedWordList } from "./wordLists"
 import { sessionResult, TypingSession } from "./typing"
 
@@ -28,13 +28,10 @@ const MAX_RECORD_ID = 100
 const DEFAULT_DEVICE_NAME = baseFormat.defaultDevice
 
 /** A practice run to add, as the app sends it to /api/workspace/records and other programs to
- * POST /api/v1/lists/{listId}/records: the device by its id, looked up when the run is saved. */
-export type RecordInput = Omit<PracticeRecord, 'device'> & { deviceId?: string }
-
-/** The run to send for a finished practice. A device deleted while it ran is left out, as it can no longer be found. */
-export function recordInput({ device, ...record }: PracticeRecord, devices: PracticeDevice[]): RecordInput {
-  return device && deviceExists(devices, device.id) ? { ...record, deviceId: device.id } : record
-}
+ * POST /api/v1/lists/{listId}/records. The device is either given as it was when the run was practised (`device`,
+ * which the app sends, so the record keeps that name though the device is renamed or deleted meanwhile) or named by
+ * its id (`deviceId`) and saved as it is registered then. */
+export type RecordInput = PracticeRecord & { deviceId?: string }
 
 const finite = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value)
 const integer = (value: unknown, min: number) => finite(value) && Number.isSafeInteger(value) && value >= min
@@ -57,7 +54,10 @@ export function addRecord<T extends { lists: SavedWordList[]; devices: PracticeD
   if (saved) return { document, record: saved, added: false }
   if (list.records.length >= MAX_RECORDS) throw new AppError('recordLimit')
   let device: PracticeDevice | undefined
-  if (input.deviceId !== undefined) {
+  if (input.device !== undefined) {
+    if (input.deviceId !== undefined || !isDevice(input.device)) throw new AppError('invalidRecord')
+    device = { id: input.device.id, name: input.device.name, layout: input.device.layout }
+  } else if (input.deviceId !== undefined) {
     device = input.deviceId === DEFAULT_DEVICE_ID ? defaultDevice(DEFAULT_DEVICE_NAME) : document.devices.find(item => item.id === input.deviceId)
     if (!device) throw new AppError('deviceNotFound')
   }

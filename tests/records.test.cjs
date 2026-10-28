@@ -2,7 +2,7 @@ require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { newSession, typeInput } = require('../src/core/typing.ts')
-const { makeRecord, addRecord, recordInput } = require('../src/core/records.ts')
+const { makeRecord, addRecord } = require('../src/core/records.ts')
 const { encodeLists, decodeLists, saveList } = require('../src/core/wordLists.ts')
 
 test('completed records survive reload and editing; retry never duplicates', () => {
@@ -10,7 +10,7 @@ test('completed records survive reload and editing; retry never duplicates', () 
   let s = typeInput(newSession(), list.words, 'a', 1000)
   s = typeInput(s, list.words, 'ab', 3000)
   const record = makeRecord(s, 1, 'run-1')
-  const add = lists => addRecord({ lists, devices: [] }, 'a', recordInput(record, [])).document.lists
+  const add = lists => addRecord({ lists, devices: [] }, 'a', record).document.lists
   let lists = add([list])
   lists = add(lists)
   lists = saveList(lists, { ...list, words: [...list.words, ...list.words] }, true)
@@ -19,7 +19,7 @@ test('completed records survive reload and editing; retry never duplicates', () 
   assert.equal(restored[0].records[0].wordCount, 1)
   assert.equal(restored[0].records[0].time, 2)
   assert.deepEqual(decodeLists(encodeLists(restored.map(l => ({ ...l, records: l.records.filter(r => r.id !== record.id) }))))[0].records, [])
-  assert.throws(() => addRecord({ lists: [], devices: [] }, 'a', recordInput(record, [])), { key: 'recordListDeleted' })
+  assert.throws(() => addRecord({ lists: [], devices: [] }, 'a', record), { key: 'recordListDeleted' })
   assert.throws(() => makeRecord(newSession(), 1, 'incomplete'))
 })
 
@@ -112,11 +112,3 @@ for (const file of fs.readdirSync(recordFixtures).filter(name => name.endsWith('
     assert.equal(saved.length, fixture.lists.find(list => list.id === fixture.listId).records.length + (added ? 1 : 0))
   })
 }
-
-test('a run on a device deleted while it ran is sent without the device', () => {
-  const record = { id: 'r', time: 1, date: '2026-10-01T00:00:00.000Z', mistakes: 0, accuracy: 100, wordCount: 1, device: mac }
-  assert.equal(recordInput(record, [mac]).deviceId, 'mac')
-  assert.equal('deviceId' in recordInput(record, []), false)
-  assert.equal(recordInput({ ...record, device: { id: 'default', name: 'Default', layout: '' } }, []).deviceId, 'default')
-  assert.equal('device' in recordInput(record, [mac]), false)
-})

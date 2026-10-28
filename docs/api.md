@@ -336,7 +336,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 | `DELETE /api/v1/lists/{l}` | なし | `204`（本文なし）。記録も一緒に消える |
 | `POST /api/v1/lists/{l}/copy` | なし、または `{ "name"? }` | `201 { "list" }`。元のリストと同じパックの最後に入る（v0.95.0 から。それまでは1リストの新しいパック）。単語をコピーし、難易度・記録はコピーしない。名前を省略すると「元の名前（コピー）」、同じパックで使われていれば「（コピー2）」…（200文字に収まるよう元の名前を切る）。名前は同じパックのリストと違えばよい（v0.47.0 から） |
 | `POST /api/v1/lists/import?name=…&format=csv\|tsv&packId=…` | CSV・TSV のファイルそのもの（`Content-Type` は `text/csv`・`text/tab-separated-values`・`text/plain`。1MiB まで） | `201 { "list" }`。アプリの「CSV・TSVファイルから追加」と同じ読み方で単語を読み、`name` の名前のリストを作る（v0.48.0 から）。`packId` を指定するとそのパックの最後のリストになり、省略すると新しいパックを作る（v0.95.0 から） |
-| `POST /api/v1/lists/{l}/records` | `{ "id"?, "time", "date", "mistakes", "accuracy", "wordCount"?, "deviceId"? }` | 追加したら `201 { "record" }`。同じリストに同じ `id` の記録があれば追加せず、保存済みの記録を `200 { "record" }` で返す |
+| `POST /api/v1/lists/{l}/records` | `{ "id"?, "time", "date", "mistakes", "accuracy", "wordCount"?, "deviceId"? \| "device"? }` | 追加したら `201 { "record" }`。同じリストに同じ `id` の記録があれば追加せず、保存済みの記録を `200 { "record" }` で返す |
 | `POST /api/v1/devices` | `{ "name", "layout"? }` | `201 { "device" }`。IDはサーバーが UUID で決める。最後に追加する |
 | `PATCH /api/v1/devices/{d}` | `{ "name"?, "layout"? }`（少なくとも一方） | `200 { "device" }` |
 | `PATCH /api/v1/lists/{l}/records/{r}` | `{ "time"?, "date"?, "mistakes"?, "accuracy"?, "wordCount"?, "deviceId"? }`（少なくとも1つ） | `200 { "record" }`。送らなかった項目とTypleの知らない項目は残る。`id` は変えられない |
@@ -348,7 +348,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 | `POST /api/v1/packs/{p}/copy` | なし、または `{ "name"? }` | `201 { "pack" }`。元のパックの直後に入る。説明・カテゴリ・タグと、リストの名前・難易度・単語をコピーし、記録・`origin`（パックとリストの）はコピーしない。フォロー中の公式パックも複製でき、複製は自分のパックになる（v0.98.0 から）。名前を省略すると「元の名前（コピー）」、使われていれば「（コピー2）」…（v0.95.0 から） |
 | `POST /api/v1/packs/import` | パックのファイルそのもの（`Content-Type: application/json`。1MiB まで） | `201 { "pack" }`。アプリの「ファイルから追加」と同じ読み方でパックを最後に追加する（下の「パックのファイルの取り込み」。v0.95.0 から） |
 
-記録の追加は、アプリの練習画面（本番の `POST /api/workspace/records`）と同じ操作（`server/internal/operation` の `AddRecord`）です（v1.2.0 から）。revision を使わないため、別の画面でリストを編集していても拒否されず、同じ `id` の再送で記録が重複しません。ゲスト保存も同じ規則に従います（`tests/fixtures/records`）。
+記録の追加は、アプリの練習画面（本番の `POST /api/workspace/records`）と同じ操作（`server/internal/operation` の `AddRecord`）です（v1.2.0 から）。revision を使わないため、別の画面でリストを編集していても拒否されず、同じ `id` の再送で記録が重複しません。ゲスト保存も同じ規則に従います（`tests/fixtures/records`）。端末は `deviceId`（追加する時点で登録されている端末として保存）か、`device`（`{ "id", "name", "layout" }`。練習した時点の端末としてそのまま保存。アプリはこちらを送ります）のどちらかで指定します（`device` は v1.2.0 から）。
 
 ### フォロー中の公式パック
 

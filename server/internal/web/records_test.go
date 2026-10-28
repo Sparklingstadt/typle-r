@@ -141,7 +141,7 @@ func TestAddRecordRefused(t *testing.T) {
 		{"no device", recordBody(testOwner, "one", strings.Replace(aRun, `"mac"`, `"gone"`, 1)), http.StatusBadRequest, "deviceNotFound"},
 		{"bad accuracy", recordBody(testOwner, "one", strings.Replace(aRun, `95.5`, `101`, 1)), http.StatusBadRequest, "invalidRecord"},
 		{"no id", recordBody(testOwner, "one", strings.Replace(aRun, `"id":"run-1",`, ``, 1)), http.StatusBadRequest, "invalidRecord"},
-		{"unknown field", recordBody(testOwner, "one", strings.Replace(aRun, `{`, `{"device":{},`, 1)), http.StatusBadRequest, "invalidRecord"},
+		{"unknown field", recordBody(testOwner, "one", strings.Replace(aRun, `{`, `{"keys":[1],`, 1)), http.StatusBadRequest, "invalidRecord"},
 		{"extra field", payload(testOwner, `"listId":"one","record":`+aRun+`,"revision":1`), http.StatusBadRequest, "invalidRecord"},
 		{"no list id", payload(testOwner, `"record":`+aRun), http.StatusBadRequest, "invalidRecord"},
 		{"not an object", `[]`, http.StatusBadRequest, "invalidRecord"},
