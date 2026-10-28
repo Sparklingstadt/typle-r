@@ -1,0 +1,212 @@
+{
+  "id": "un-member-states-chinese-193-lowercase-beginner-2",
+  "name": "国名：中国語・国連加盟国（小文字・初級2）",
+  "category": "語学",
+  "tags": [
+    "中国語",
+    "国名"
+  ],
+  "group": "国名：中国語・国連加盟国（小文字）",
+  "levels": [
+    "初級2"
+  ],
+  "words": [
+    {
+      "display": "安道尔",
+      "input": "andaoer",
+      "annotation": "Āndào'ěr / アンドラ"
+    },
+    {
+      "display": "比利时",
+      "input": "bilishi",
+      "annotation": "Bǐlìshí / ベルギー"
+    },
+    {
+      "display": "贝宁",
+      "input": "beining",
+      "annotation": "Bèiníng / ベナン"
+    },
+    {
+      "display": "加拿大",
+      "input": "jianada",
+      "annotation": "Jiānádà / カナダ"
+    },
+    {
+      "display": "科摩罗",
+      "input": "kemoluo",
+      "annotation": "Kēmóluó / コモロ"
+    },
+    {
+      "display": "加蓬",
+      "input": "jiapeng",
+      "annotation": "Jiāpéng / ガボン"
+    },
+    {
+      "display": "几内亚",
+      "input": "jineiya",
+      "annotation": "Jǐnèiyà / ギニア"
+    },
+    {
+      "display": "圭亚那",
+      "input": "guiyana",
+      "annotation": "Guīyànà / ガイアナ"
+    },
+    {
+      "display": "冰岛",
+      "input": "bingdao",
+      "annotation": "Bīngdǎo / アイスランド"
+    },
+    {
+      "display": "爱尔兰",
+      "input": "aierlan",
+      "annotation": "Ài'ěrlán / アイルランド"
+    },
+    {
+      "display": "以色列",
+      "input": "yiselie",
+      "annotation": "Yǐsèliè / イスラエル"
+    },
+    {
+      "display": "肯尼亚",
+      "input": "kenniya",
+      "annotation": "Kěnníyà / ケニア"
+    },
+    {
+      "display": "科威特",
+      "input": "keweite",
+      "annotation": "Kēwēitè / クウェート"
+    },
+    {
+      "display": "黎巴嫩",
+      "input": "libanen",
+      "annotation": "Líbānèn / レバノン"
+    },
+    {
+      "display": "马拉维",
+      "input": "malawei",
+      "annotation": "Mǎlāwéi / マラウイ"
+    },
+    {
+      "display": "摩纳哥",
+      "input": "monage",
+      "annotation": "Mónàgē / モナコ"
+    },
+    {
+      "display": "蒙古",
+      "input": "menggu",
+      "annotation": "Měnggǔ / モンゴル"
+    },
+    {
+      "display": "黑山",
+      "input": "heishan",
+      "annotation": "Hēishān / モンテネグロ"
+    },
+    {
+      "display": "摩洛哥",
+      "input": "moluoge",
+      "annotation": "Móluògē / モロッコ"
+    },
+    {
+      "display": "尼泊尔",
+      "input": "niboer",
+      "annotation": "Níbó'ěr / ネパール"
+    },
+    {
+      "display": "尼日尔",
+      "input": "nirier",
+      "annotation": "Nírì'ěr / ニジェール"
+    },
+    {
+      "display": "挪威",
+      "input": "nuowei",
+      "annotation": "Nuówēi / ノルウェー"
+    },
+    {
+      "display": "巴拿马",
+      "input": "banama",
+      "annotation": "Bānámǎ / パナマ"
+    },
+    {
+      "display": "巴拉圭",
+      "input": "balagui",
+      "annotation": "Bālāguī / パラグアイ"
+    },
+    {
+      "display": "葡萄牙",
+      "input": "putaoya",
+      "annotation": "Pútáoyá / ポルトガル"
+    },
+    {
+      "display": "卡塔尔",
+      "input": "kataer",
+      "annotation": "Kǎtǎ'ěr / カタール"
+    },
+    {
+      "display": "萨摩亚",
+      "input": "samoya",
+      "annotation": "Sàmóyà / サモア"
+    },
+    {
+      "display": "索马里",
+      "input": "suomali",
+      "annotation": "Suǒmǎlǐ / ソマリア"
+    },
+    {
+      "display": "南非",
+      "input": "nanfei",
+      "annotation": "Nánfēi / 南アフリカ"
+    },
+    {
+      "display": "西班牙",
+      "input": "xibanya",
+      "annotation": "Xībānyá / スペイン"
+    },
+    {
+      "display": "苏里南",
+      "input": "sulinan",
+      "annotation": "Sūlǐnán / スリナム"
+    },
+    {
+      "display": "瑞典",
+      "input": "ruidian",
+      "annotation": "Ruìdiǎn / スウェーデン"
+    },
+    {
+      "display": "瑞士",
+      "input": "ruishi",
+      "annotation": "Ruìshì / スイス"
+    },
+    {
+      "display": "泰国",
+      "input": "taiguo",
+      "annotation": "Tàiguó / タイ"
+    },
+    {
+      "display": "汤加",
+      "input": "tangjia",
+      "annotation": "Tāngjiā / トンガ"
+    },
+    {
+      "display": "突尼斯",
+      "input": "tunisi",
+      "annotation": "Tūnísī / チュニジア"
+    },
+    {
+      "display": "土耳其",
+      "input": "tuerqi",
+      "annotation": "Tǔ'ěrqí / トルコ"
+    },
+    {
+      "display": "图瓦卢",
+      "input": "tuwalu",
+      "annotation": "Túwǎlú / ツバル"
+    },
+    {
+      "display": "越南",
+      "input": "yuenan",
+      "annotation": "Yuènán / ベトナム"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-10-23T00:00:00.000Z"
+}

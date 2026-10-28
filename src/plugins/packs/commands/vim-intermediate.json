@@ -1,0 +1,201 @@
+{
+  "id": "vim-intermediate",
+  "name": "Vimコマンド（中級）",
+  "category": "プログラミング",
+  "tags": [
+    "Vim"
+  ],
+  "group": "Vimコマンド",
+  "levels": [
+    "中級"
+  ],
+  "words": [
+    {
+      "display": ":w",
+      "input": ":w",
+      "annotation": "保存（Enterで実行）"
+    },
+    {
+      "display": ":q",
+      "input": ":q",
+      "annotation": "現在のウィンドウを閉じる（未保存変更があると通常は拒否）"
+    },
+    {
+      "display": ":wq",
+      "input": ":wq",
+      "annotation": "保存して閉じる"
+    },
+    {
+      "display": ":x",
+      "input": ":x",
+      "annotation": "変更があれば保存して閉じる"
+    },
+    {
+      "display": ":q!",
+      "input": ":q!",
+      "annotation": "変更を破棄して閉じる（未保存の変更が失われる場合がある）"
+    },
+    {
+      "display": ":qa",
+      "input": ":qa",
+      "annotation": "すべて閉じて終了（未保存変更があると拒否）"
+    },
+    {
+      "display": "10G",
+      "input": "10G",
+      "annotation": "10行目へ（数字を変更して行番号を指定）"
+    },
+    {
+      "display": ":10",
+      "input": ":10",
+      "annotation": "10行目へ（Enterで実行）"
+    },
+    {
+      "display": "dd",
+      "input": "dd",
+      "annotation": "現在行を削除"
+    },
+    {
+      "display": "3dd",
+      "input": "3dd",
+      "annotation": "現在行から3行削除"
+    },
+    {
+      "display": "dw",
+      "input": "dw",
+      "annotation": "次の単語の先頭まで削除（行末付近などでは例外的な動作がある）"
+    },
+    {
+      "display": "diw",
+      "input": "diw",
+      "annotation": "カーソル位置の単語を削除"
+    },
+    {
+      "display": "d$",
+      "input": "d$",
+      "annotation": "カーソル位置から行末まで削除（Dと同じ）"
+    },
+    {
+      "display": "cc",
+      "input": "cc",
+      "annotation": "現在行を変更して入力モードへ"
+    },
+    {
+      "display": "ciw",
+      "input": "ciw",
+      "annotation": "カーソル位置の単語を変更（新しい語を入力してEsc）"
+    },
+    {
+      "display": "c$",
+      "input": "c$",
+      "annotation": "行末まで変更（Cと同じ）"
+    },
+    {
+      "display": "ra",
+      "input": "ra",
+      "annotation": "r文字：現在位置の1文字を置換（例：raでaに置換）"
+    },
+    {
+      "display": "yy",
+      "input": "yy",
+      "annotation": "現在行をコピー（通常Vim内部のレジスタへ）"
+    },
+    {
+      "display": "3yy",
+      "input": "3yy",
+      "annotation": "現在行から3行コピー"
+    },
+    {
+      "display": "yiw",
+      "input": "yiw",
+      "annotation": "カーソル位置の単語をコピー"
+    },
+    {
+      "display": ".",
+      "input": ".",
+      "annotation": "直前の変更を繰り返す"
+    },
+    {
+      "display": ">",
+      "input": ">",
+      "annotation": "ビジュアルモードで選択中：インデントを増やす"
+    },
+    {
+      "display": "<",
+      "input": "<",
+      "annotation": "ビジュアルモードで選択中：インデントを減らす"
+    },
+    {
+      "display": "=",
+      "input": "=",
+      "annotation": "ビジュアルモードで選択中：インデントを整える（ファイル形式・設定に依存）"
+    },
+    {
+      "display": ">>",
+      "input": ">>",
+      "annotation": "現在行のインデントを増やす"
+    },
+    {
+      "display": "<<",
+      "input": "<<",
+      "annotation": "現在行のインデントを減らす"
+    },
+    {
+      "display": "*",
+      "input": "*",
+      "annotation": "現在の単語を下方向へ検索"
+    },
+    {
+      "display": "#",
+      "input": "#",
+      "annotation": "現在の単語を上方向へ検索"
+    },
+    {
+      "display": "ci\"",
+      "input": "ci\"",
+      "annotation": "二重引用符の内側を書き換える（対象範囲を認識できる位置で実行）"
+    },
+    {
+      "display": "di\"",
+      "input": "di\"",
+      "annotation": "二重引用符の内側を削除（対象範囲を認識できる位置で実行）"
+    },
+    {
+      "display": "yi\"",
+      "input": "yi\"",
+      "annotation": "二重引用符の内側をコピー（対象範囲を認識できる位置で実行）"
+    },
+    {
+      "display": "ci(",
+      "input": "ci(",
+      "annotation": "丸括弧の内側を書き換える（対象範囲を認識できる位置で実行）"
+    },
+    {
+      "display": "ci{",
+      "input": "ci{",
+      "annotation": "波括弧の内側を書き換える（対象範囲を認識できる位置で実行）"
+    },
+    {
+      "display": "da\"",
+      "input": "da\"",
+      "annotation": "二重引用符を含めて削除（周囲の空白も対象になる場合がある）"
+    },
+    {
+      "display": "vi(",
+      "input": "vi(",
+      "annotation": "丸括弧の内側を選択（iは内側、aは囲みも含む）"
+    },
+    {
+      "display": ":ls",
+      "input": ":ls",
+      "annotation": "バッファ一覧（Enterで実行）"
+    },
+    {
+      "display": ":bd",
+      "input": ":bd",
+      "annotation": "現在のバッファを一覧から外す（ファイル自体は削除しない。未保存変更があると拒否）"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-10-23T00:00:00.000Z"
+}

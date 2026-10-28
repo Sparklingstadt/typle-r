@@ -1,0 +1,86 @@
+{
+  "id": "php-syntax-intermediate",
+  "name": "PHP構文（中級）",
+  "category": "プログラミング",
+  "tags": [
+    "PHP"
+  ],
+  "group": "PHP構文",
+  "levels": [
+    "中級"
+  ],
+  "words": [
+    {
+      "display": "switch ($role) { case 'admin': echo '管理者'; break; default: echo '一般'; }",
+      "input": "switch ($role) { case 'admin': echo '管理者'; break; default: echo '一般'; }",
+      "annotation": "switch：値で分岐（通常は緩い比較。break漏れに注意）"
+    },
+    {
+      "display": "for($i=0;$i<3;$i++) { echo $i; } while(false) { break; }",
+      "input": "for($i=0;$i<3;$i++) { echo $i; } while(false) { break; }",
+      "annotation": "for / while / do：反復"
+    },
+    {
+      "display": "foreach(['a'=>1,'b'=>2] as $key=>$value) { echo \"$key:$value\\n\"; }",
+      "input": "foreach(['a'=>1,'b'=>2] as $key=>$value) { echo \"$key:$value\\n\"; }",
+      "annotation": "foreach：配列の要素を処理（参照付きforeach後は変数の参照残りに注意）"
+    },
+    {
+      "display": "$nums=[1,2,3]; $result=array_map(fn($n)=>$n*2,$nums); echo count($result);",
+      "input": "$nums=[1,2,3]; $result=array_map(fn($n)=>$n*2,$nums); echo count($result);",
+      "annotation": "count / array_map：数・変換"
+    },
+    {
+      "display": "$nums=[1,2,3]; $result=array_values(array_filter($nums,fn($n)=>$n>1));",
+      "input": "$nums=[1,2,3]; $result=array_values(array_filter($nums,fn($n)=>$n>1));",
+      "annotation": "array_filter / array_values：絞り込み・添字再構成（filterは通常キーを保持）"
+    },
+    {
+      "display": "function greet(string $name='Guest'):string { return \"Hello, $name\"; }\necho greet(name:'Pomo');",
+      "input": "function greet(string $name='Guest'):string { return \"Hello, $name\"; } echo greet(name:'Pomo');",
+      "annotation": "既定・名前付き引数：省略と指定"
+    },
+    {
+      "display": "function sum(int ...$nums):int { return array_sum($nums); } echo sum(...[1,2,\n3]);",
+      "input": "function sum(int ...$nums):int { return array_sum($nums); } echo sum(...[1,2,3]);",
+      "annotation": "...$args / ...配列：可変長と展開"
+    },
+    {
+      "display": "function label(int|string|null $value):string { return (string)$value; }",
+      "input": "function label(int|string|null $value):string { return (string)$value; }",
+      "annotation": "?T / union：NULL許容・共用型"
+    },
+    {
+      "display": "class Counter { private int $count=0; public function get():int {\nreturn $this->count; } }",
+      "input": "class Counter { private int $count=0; public function get():int { return $this->count; } }",
+      "annotation": "public / protected / private：アクセス範囲"
+    },
+    {
+      "display": "readonly class Point { public function __construct(public int $x,\npublic int $y) {} }",
+      "input": "readonly class Point { public function __construct(public int $x,public int $y) {} }",
+      "annotation": "readonly：一度だけ初期化（PHP 8.2以降。参照先内部の深い不変性ではない）"
+    },
+    {
+      "display": "trait Named { public function name():string { return 'Pomo'; } } class User {\nuse Named; }",
+      "input": "trait Named { public function name():string { return 'Pomo'; } } class User { use Named; }",
+      "annotation": "trait / use：実装の再利用（namespaceのuseとは別）"
+    },
+    {
+      "display": "enum Status:string { case Todo='todo'; case Done='done'; }\necho Status::Todo->value;",
+      "input": "enum Status:string { case Todo='todo'; case Done='done'; } echo Status::Todo->value;",
+      "annotation": "enum：値を限定（PHP 8.1以降）"
+    },
+    {
+      "display": "file_put_contents('memo.txt','Hello'); $text=file_get_contents('memo.txt');",
+      "input": "file_put_contents('memo.txt','Hello'); $text=file_get_contents('memo.txt');",
+      "annotation": "file_get_contents / file_put_contents：ファイル読み書き（書込は通常上書き。失敗はfalse等、警告・権限に注意）"
+    },
+    {
+      "display": "echo htmlspecialchars('<script>',ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');",
+      "input": "echo htmlspecialchars('<script>',ENT_QUOTES|ENT_SUBSTITUTE,'UTF-8');",
+      "annotation": "htmlspecialchars：HTML文脈のエスケープ（JS・URL等の文脈には別処理）"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-10-23T00:00:00.000Z"
+}

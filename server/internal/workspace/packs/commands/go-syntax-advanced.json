@@ -1,0 +1,196 @@
+{
+  "id": "go-syntax-advanced",
+  "name": "Go構文（上級）",
+  "category": "プログラミング",
+  "tags": [
+    "Go"
+  ],
+  "group": "Go構文",
+  "levels": [
+    "上級"
+  ],
+  "words": [
+    {
+      "display": "func main() { fmt.Println(\"Hello, Go!\") }",
+      "input": "func main() { fmt.Println(\"Hello, Go!\") }",
+      "annotation": "func main()：実行開始の関数（fmtのimportが必要）"
+    },
+    {
+      "display": "var label string; if age >= 20 { label = \"成人\" } else { label = \"未成年\" }",
+      "input": "var label string; if age >= 20 { label = \"成人\" } else { label = \"未成年\" }",
+      "annotation": "三項演算子なし：条件による値の選択（条件 ? A : Bは使わない）"
+    },
+    {
+      "display": "if age >= 20 { fmt.Println(\"成人\") } else { fmt.Println(\"未成年\") }",
+      "input": "if age >= 20 { fmt.Println(\"成人\") } else { fmt.Println(\"未成年\") }",
+      "annotation": "if / else：条件で分岐（条件を丸括弧で囲む必要はない。elseは直前の}と同じ行）"
+    },
+    {
+      "display": "if n := len(name); n > 0 { fmt.Println(n) }",
+      "input": "if n := len(name); n > 0 { fmt.Println(n) }",
+      "annotation": "if 初期化; 条件：初期化付きの条件分岐（nはこのifと続くelse内で有効）"
+    },
+    {
+      "display": "switch role { case \"admin\": fmt.Println(\"管理者\"); case \"member\",\n\"guest\": fmt.Println(\"一般利用者\"); default: fmt.Println(\"不明\") }",
+      "input": "switch role { case \"admin\": fmt.Println(\"管理者\"); case \"member\", \"guest\": fmt.Println(\"一般利用者\"); default: fmt.Println(\"不明\") }",
+      "annotation": "switch / case / default：値で分岐（通常はcase末尾にbreak不要）"
+    },
+    {
+      "display": "for i := 0; i < 5; i++ { fmt.Println(i) }",
+      "input": "for i := 0; i < 5; i++ { fmt.Println(i) }",
+      "annotation": "for 初期化; 条件; 更新：回数指定ループ（while構文はない）"
+    },
+    {
+      "display": "for i, v := range items { fmt.Println(i, v) }",
+      "input": "for i, v := range items { fmt.Println(i, v) }",
+      "annotation": "for i, v := range items：添字と値を取得（itemsは配列・スライス等）"
+    },
+    {
+      "display": "for _, v := range items { fmt.Println(v) }",
+      "input": "for _, v := range items { fmt.Println(v) }",
+      "annotation": "for _, v := range items：値だけを使用"
+    },
+    {
+      "display": "for k, v := range m { fmt.Println(k, v) }",
+      "input": "for k, v := range m { fmt.Println(k, v) }",
+      "annotation": "for k, v := range m：mapのキーと値を取得（mapの列挙順は保証されない）"
+    },
+    {
+      "display": "for i, r := range \"あいう\" { fmt.Println(i, r) }",
+      "input": "for i, r := range \"あいう\" { fmt.Println(i, r) }",
+      "annotation": "文字列のrange：バイト位置とruneを取得（添字は文字番号ではなくバイト位置）"
+    },
+    {
+      "display": "func greet(name string) { fmt.Println(name) }",
+      "input": "func greet(name string) { fmt.Println(name) }",
+      "annotation": "func 名前(引数)：戻り値なしの関数"
+    },
+    {
+      "display": "func add(a, b int) int { return a + b }",
+      "input": "func add(a, b int) int { return a + b }",
+      "annotation": "func 名前(引数) 型：戻り値ありの関数"
+    },
+    {
+      "display": "func pair() (int, string) { return 1, \"one\" }",
+      "input": "func pair() (int, string) { return 1, \"one\" }",
+      "annotation": "複数の戻り値：複数の値を返す"
+    },
+    {
+      "display": "func sum(nums ...int) int { total := 0; for _, n := range nums { total += n };\nreturn total }",
+      "input": "func sum(nums ...int) int { total := 0; for _, n := range nums { total += n }; return total }",
+      "annotation": "...型：可変長引数（可変長引数は最後に置く）"
+    },
+    {
+      "display": "f := func(x int) int { return x * 2 }",
+      "input": "f := func(x int) int { return x * 2 }",
+      "annotation": "無名関数：関数を値として保持"
+    },
+    {
+      "display": "func() { fmt.Println(\"実行\") }()",
+      "input": "func() { fmt.Println(\"実行\") }()",
+      "annotation": "func() { ... }()：無名関数を即時実行"
+    },
+    {
+      "display": "m := map[string]int{\"apple\": 100}",
+      "input": "m := map[string]int{\"apple\": 100}",
+      "annotation": "map[キー型]値型{...}：mapを作成（キー型はcomparable）"
+    },
+    {
+      "display": "type User struct { Name string; Age int }",
+      "input": "type User struct { Name string; Age int }",
+      "annotation": "type 名前 struct：構造体を定義"
+    },
+    {
+      "display": "u := User{Name: \"Pomo\", Age: 20}",
+      "input": "u := User{Name: \"Pomo\", Age: 20}",
+      "annotation": "型{フィールド: 値}：構造体の値を作る"
+    },
+    {
+      "display": "func (u User) Greet() string { return \"こんにちは、\" + u.Name }",
+      "input": "func (u User) Greet() string { return \"こんにちは、\" + u.Name }",
+      "annotation": "値レシーバー：値を受け取るメソッド"
+    },
+    {
+      "display": "func (u *User) Birthday() { u.Age++ }",
+      "input": "func (u *User) Birthday() { u.Age++ }",
+      "annotation": "ポインタレシーバー：参照先を変更するメソッド"
+    },
+    {
+      "display": "type Greeter interface { Greet() string }",
+      "input": "type Greeter interface { Greet() string }",
+      "annotation": "type 名前 interface：メソッドの集合を定義（必要なメソッドを持つ型が暗黙に満たす）"
+    },
+    {
+      "display": "var g Greeter = User{Name: \"Pomo\"}",
+      "input": "var g Greeter = User{Name: \"Pomo\"}",
+      "annotation": "インターフェースへ代入：実装を抽象型で扱う（UserにGreetメソッドが必要）"
+    },
+    {
+      "display": "switch x := v.(type) { case string: fmt.Println(x); case int: fmt.Println(x) }",
+      "input": "switch x := v.(type) { case string: fmt.Println(x); case int: fmt.Println(x) }",
+      "annotation": "switch x := v.(type)：型による分岐"
+    },
+    {
+      "display": "func divide(a, b int) (int, error) { if b == 0 { return 0,\nerrors.New(\"ゼロでは割れません\") }; return a / b, nil }",
+      "input": "func divide(a, b int) (int, error) { if b == 0 { return 0, errors.New(\"ゼロでは割れません\") }; return a / b, nil }",
+      "annotation": "errorの戻り値：通常の失敗を値で返す（errorsのimportが必要）"
+    },
+    {
+      "display": "result, err := divide(10, 2); if err != nil { fmt.Println(err); return };\nfmt.Println(result)",
+      "input": "result, err := divide(10, 2); if err != nil { fmt.Println(err); return }; fmt.Println(result)",
+      "annotation": "if err != nil：エラーを確認（例はmain関数内）"
+    },
+    {
+      "display": "err := errors.New(\"失敗しました\")",
+      "input": "err := errors.New(\"失敗しました\")",
+      "annotation": "errors.New：エラーを生成（errorsのimportが必要）"
+    },
+    {
+      "display": "return fmt.Errorf(\"読み込み失敗: %w\", err)",
+      "input": "return fmt.Errorf(\"読み込み失敗: %w\", err)",
+      "annotation": "fmt.Errorf / %w：元のエラーをラップ（errorを返す関数内。fmtのimportが必要）"
+    },
+    {
+      "display": "defer func() { if r := recover(); r != nil { fmt.Println(r) } }()",
+      "input": "defer func() { if r := recover(); r != nil { fmt.Println(r) } }()",
+      "annotation": "recover：同じgoroutineのpanicを回収（deferされた関数内で直接呼ぶ）"
+    },
+    {
+      "display": "func First[T any](items []T) (T, bool) { if len(items) == 0 { var zero T;\nreturn zero, false }; return items[0], true }",
+      "input": "func First[T any](items []T) (T, bool) { if len(items) == 0 { var zero T; return zero, false }; return items[0], true }",
+      "annotation": "[T any]：任意の型の型パラメーター"
+    },
+    {
+      "display": "func Equal[T comparable](a, b T) bool { return a == b }",
+      "input": "func Equal[T comparable](a, b T) bool { return a == b }",
+      "annotation": "[T comparable]：比較可能な型に制限"
+    },
+    {
+      "display": "n, ok := First[int]([]int{10, 20})",
+      "input": "n, ok := First[int]([]int{10, 20})",
+      "annotation": "関数[型](引数)：型引数を明示"
+    },
+    {
+      "display": "for v := range ch { fmt.Println(v) }",
+      "input": "for v := range ch { fmt.Println(v) }",
+      "annotation": "for v := range ch：終了まで受信（閉じられて値が尽きると終了）"
+    },
+    {
+      "display": "select { case v := <-ch: fmt.Println(v); case <-done: return }",
+      "input": "select { case v := <-ch: fmt.Println(v); case <-done: return }",
+      "annotation": "select：複数の通信を待つ（この例は関数内。chとdoneは初期化済み）"
+    },
+    {
+      "display": "ch := make(chan string); go func() { ch <- \"完了\" }(); message := <-ch;\nfmt.Println(message)",
+      "input": "ch := make(chan string); go func() { ch <- \"完了\" }(); message := <-ch; fmt.Println(message)",
+      "annotation": "goroutineとchannelの組合せ：送信・受信を同期（fmtのimportが必要）"
+    },
+    {
+      "display": "package main; import \"fmt\"; func main() { fmt.Println(\"Hello, Go!\") }",
+      "input": "package main; import \"fmt\"; func main() { fmt.Println(\"Hello, Go!\") }",
+      "annotation": "コード例の前提：コード断片の利用範囲（多くの例は関数内の断片。宣言・import・変数等を補って利用）"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-10-23T00:00:00.000Z"
+}

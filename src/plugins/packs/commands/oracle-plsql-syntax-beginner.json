@@ -1,0 +1,83 @@
+{
+  "id": "oracle-plsql-syntax-beginner",
+  "name": "Oracle PL/SQL構文（初級）",
+  "category": "プログラミング",
+  "tags": [
+    "Oracle",
+    "PL/SQL",
+    "SQL"
+  ],
+  "group": "Oracle PL/SQL構文",
+  "levels": [
+    "初級"
+  ],
+  "words": [
+    {
+      "display": "-- SQL/PLはOracleのPL/SQLとして整理",
+      "input": "-- SQL/PLはOracleのPL/SQLとして整理",
+      "annotation": "Oracle PL/SQL：対象・用語（Db2 SQL PL・PostgreSQL PL/pgSQLとは別。Oracle 19c以降の主要構文を中心に記載）"
+    },
+    {
+      "display": "SET SERVEROUTPUT ON",
+      "input": "SET SERVEROUTPUT ON",
+      "annotation": "出力を有効化（SQL*Plus等のクライアントコマンド。PL/SQL構文ではない）"
+    },
+    {
+      "display": "DECLARE v_name users.name%TYPE; BEGIN NULL; END;",
+      "input": "DECLARE v_name users.name%TYPE; BEGIN NULL; END;",
+      "annotation": "%TYPE：列等から型を継承（users表・name列が必要。制約・既定値をすべて継承するわけではない）"
+    },
+    {
+      "display": "DECLARE v_user users%ROWTYPE; BEGIN SELECT * INTO v_user FROM users WHERE id=1;\nEND;",
+      "input": "DECLARE v_user users%ROWTYPE; BEGIN SELECT * INTO v_user FROM users WHERE id=1; END;",
+      "annotation": "%ROWTYPE：行構造を変数化（users表が必要。SELECT INTOは正確に1行が必要）"
+    },
+    {
+      "display": "DECLARE i PLS_INTEGER:=0; BEGIN LOOP i:=i+1; EXIT WHEN i>=3; END LOOP; END;",
+      "input": "DECLARE i PLS_INTEGER:=0; BEGIN LOOP i:=i+1; EXIT WHEN i>=3; END LOOP; END;",
+      "annotation": "LOOP / EXIT WHEN：無限ループから脱出"
+    },
+    {
+      "display": "DECLARE i PLS_INTEGER:=0; BEGIN WHILE i<3 LOOP i:=i+1; END LOOP; END;",
+      "input": "DECLARE i PLS_INTEGER:=0; BEGIN WHILE i<3 LOOP i:=i+1; END LOOP; END;",
+      "annotation": "WHILE LOOP：条件反復"
+    },
+    {
+      "display": "BEGIN FOR i IN REVERSE 1..3 LOOP DBMS_OUTPUT.PUT_LINE(i); END LOOP; END;",
+      "input": "BEGIN FOR i IN REVERSE 1..3 LOOP DBMS_OUTPUT.PUT_LINE(i); END LOOP; END;",
+      "annotation": "FOR / REVERSE：整数範囲の反復（両端を含む。制御変数は暗黙宣言）"
+    },
+    {
+      "display": "BEGIN DELETE FROM users WHERE id=1; END;",
+      "input": "BEGIN DELETE FROM users WHERE id=1; END;",
+      "annotation": "DELETE：削除（実データ削除。COMMITまたはROLLBACKを判断）"
+    },
+    {
+      "display": "BEGIN RAISE NO_DATA_FOUND; EXCEPTION WHEN NO_DATA_FOUND THEN RAISE; END;",
+      "input": "BEGIN RAISE NO_DATA_FOUND; EXCEPTION WHEN NO_DATA_FOUND THEN RAISE; END;",
+      "annotation": "RAISE：例外を再送出（意図的に例外が伝播）"
+    },
+    {
+      "display": "BEGIN RAISE_APPLICATION_ERROR(-20001,'不正な入力'); END;",
+      "input": "BEGIN RAISE_APPLICATION_ERROR(-20001,'不正な入力'); END;",
+      "annotation": "RAISE_APPLICATION_ERROR：アプリ用エラー（通常-20000〜-20999）"
+    },
+    {
+      "display": "DECLARE v_result NUMBER; BEGIN double_value(p_in=>2,p_out=>v_result); END;",
+      "input": "DECLARE v_result NUMBER; BEGIN double_value(p_in=>2,p_out=>v_result); END;",
+      "annotation": "名前付き呼出：引数名で指定（double_valueが定義済み）"
+    },
+    {
+      "display": "CREATE OR REPLACE PACKAGE math_api AS FUNCTION twice(n NUMBER) RETURN NUMBER;\nEND;",
+      "input": "CREATE OR REPLACE PACKAGE math_api AS FUNCTION twice(n NUMBER) RETURN NUMBER; END;",
+      "annotation": "PACKAGE / PACKAGE BODY：宣言と実装を分離（呼出はmath_api.twice(2)等）"
+    },
+    {
+      "display": "SELECT name,type,line,position,text FROM user_errors ORDER BY name,sequence;",
+      "input": "SELECT name,type,line,position,text FROM user_errors ORDER BY name,sequence;",
+      "annotation": "USER_ERRORS：コンパイルエラー確認（SQL。SHOW ERRORSはクライアントコマンド）"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-10-23T00:00:00.000Z"
+}
