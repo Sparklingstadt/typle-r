@@ -286,7 +286,7 @@ function Practice({ wordLists, packs, listId, error, update, devices, accountId 
           {statsVisible && <LiveStats session={session} accuracy={result.accuracy} />}
           <div className="flex min-h-14 flex-wrap items-center gap-2 border-t px-4 py-2.5 sm:pr-3 sm:pl-6">
             <span className="text-xs text-muted-foreground">{t('upcoming.next')}</span>
-            {next.map((item, index) => <span key={index} className="inline-flex h-7 max-w-full items-center rounded-full border px-3 text-[13px] text-muted-foreground" title={item.display}><span className="truncate">{item.display}</span></span>)}
+            {next.map((item, index) => <span key={index} className="inline-flex h-7 max-w-full items-center rounded-full border px-3 text-[13px] text-muted-foreground" title={item.display}><span className="truncate whitespace-pre">{item.input_type === 'code' ? item.display.replace(/\r\n|\r|\n/g, '  ') : item.display}</span></span>)}
             {!next.length && <span className="text-xs text-muted-foreground">{t('upcoming.last')}</span>}
             {remaining > 0 && <span className="text-xs text-neutral-400 dark:text-neutral-500">{t('upcoming.more', { count: remaining })}</span>}
             <span className="flex-1" />
@@ -296,14 +296,15 @@ function Practice({ wordLists, packs, listId, error, update, devices, accountId 
             {showAll && <ul id="all-words" ref={allWords} aria-label={t('upcoming.allWords')} className="relative mt-1.5 flex max-h-44 basis-full flex-wrap gap-1.5 overflow-y-auto border-t border-dashed pt-2.5 pb-1">
               {words.map((item, index) => {
                 const done = index < session.index
-                const paragraph = Array.from(item.display).length > 24 || item.display.includes('\n')
+                const display = item.input_type === 'code' ? item.display.replace(/\r\n|\r|\n/g, '  ') : item.display
+                const paragraph = item.input_type !== 'code' && (Array.from(item.display).length > 24 || item.display.includes('\n'))
                 return <li key={index} className={cn('max-w-full', paragraph && 'w-full')}>
                   <span aria-current={index === session.index ? 'step' : undefined}
                     className={cn('min-h-7 max-w-full border px-3 text-[13px] text-muted-foreground',
-                      paragraph ? 'block rounded-lg py-2 text-left leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]' : 'inline-flex items-center rounded-full break-all',
+                      paragraph ? 'block rounded-lg py-2 text-left leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]' : 'inline-flex items-center rounded-full break-all whitespace-pre-wrap',
                       done && 'border-transparent bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300',
                       index === session.index && 'border-transparent bg-primary text-primary-foreground')}>
-                    {item.display}<span className="sr-only">{t(done ? 'upcoming.done' : index === session.index ? 'upcoming.current' : 'upcoming.pending')}</span>
+                    {display}<span className="sr-only">{t(done ? 'upcoming.done' : index === session.index ? 'upcoming.current' : 'upcoming.pending')}</span>
                   </span>
                 </li>
               })}

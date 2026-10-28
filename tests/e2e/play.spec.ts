@@ -166,7 +166,7 @@ test('long paragraphs keep a readable size at every length while short words kee
     await expect(display).toHaveText(text)
     await expect(display).toHaveCSS('font-size', '20px')
     await expect(display).toHaveCSS('line-height', '35px')
-    await expect(display).toHaveCSS('text-align', 'left')
+    await expect(display).toHaveCSS('text-align', 'center')
   }
   // Even the longest paragraph keeps the desktop size, then returns to the mobile size.
   await page.setViewportSize({ width: 1440, height: 900 })
@@ -260,4 +260,42 @@ test('the live stats can be hidden, the choice is remembered and the result stil
   await page.getByRole('button', { name: '最初からやり直す', exact: true }).click()
   await expect(stats).toBeVisible()
   expect(await page.evaluate(() => localStorage.getItem('typle-r:live-stats'))).toBeNull()
+})
+
+
+test('practice text stays centered at 80% width and code previews keep compact chips after word changes', async ({ page }) => {
+  const code = 'if true {\nfmt.Println("OK")\n}'
+  const lists = [{ id: 'code', name: 'Code', createdAt: '2026-09-01', records: [], words: [
+    { display: 'ab', input: 'ab', annotation: '', input_type: 'word' },
+    { display: code, input: 'if true { fmt.Println("OK") }', annotation: '', input_type: 'code' },
+    { display: 'end', input: 'end', annotation: '', input_type: 'word' },
+  ] }]
+  await page.addInitScript(([key, value]) => localStorage.setItem(key, value),
+    [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists, devices: [] })])
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/play')
+    const display = page.locator('#wordDisplay')
+    const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
+    await expect(input).toBeFocused()
+    const chip = page.locator('#all-words > li').nth(1)
+    await expect(chip).toContainText('if true {  fmt.Println("OK")  }')
+    expect(await chip.evaluate(element => element.textContent!.includes('\n'))).toBe(false)
+    expect(await chip.evaluate(element => element.clientWidth < element.parentElement!.clientWidth)).toBe(true)
+    await input.pressSequentially('ab')
+    await expect(display).toHaveText('if true { fmt.Println("OK") }')
+    await expect(display).toHaveCSS('text-align', 'center')
+    await expect(display).toHaveCSS('scrollbar-width', 'none')
+    const geometry = await display.evaluate(element => {
+      const parent = element.parentElement!
+      const style = getComputedStyle(parent)
+      const contentWidth = parent.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight)
+      const box = element.getBoundingClientRect()
+      const outer = parent.getBoundingClientRect()
+      return { ratio: box.width / contentWidth, center: box.x + box.width / 2, parentCenter: outer.x + outer.width / 2 }
+    })
+    expect(geometry.ratio).toBeCloseTo(0.8, 2)
+    expect(Math.abs(geometry.center - geometry.parentCenter)).toBeLessThan(1)
+    expect(await display.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true)
+  }
 })
