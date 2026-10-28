@@ -13,9 +13,8 @@
     "value": "{current} / {total, plural, one {# word} other {# words}}"
   },
   "feedback": {
-    "mismatch": "Doesn’t match from character {position}. Press Backspace to fix it.",
+    "mismatch": "Character {position} doesn’t match. Type the correct character.",
     "composing": "Text you are still composing is checked once you confirm it",
-    "backspace": "Delete one character",
     "restart": "Start over"
   },
   "header": {
@@ -29,7 +28,6 @@
   "word": {
     "typeThis": "Type",
     "resume": "Click or press any key to resume",
-    "placeholder": "Type here",
     "inputLabel": "Type the text shown"
   },
   "upcoming": {

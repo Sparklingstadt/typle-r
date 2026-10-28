@@ -45,10 +45,10 @@
     },
     "pending": {
       "label": "Pas encore saisi",
-      "note": "(gris)"
+      "note": "(blanc, noir avec le thème clair)"
     },
     "error": {
-      "label": "À partir du caractère erroné",
+      "label": "Caractère erroné",
       "note": "(rouge)"
     }
   },
@@ -56,7 +56,7 @@
     "lead": "Choisissez une liste de mots dans <play>S’entraîner</play> et tapez les mots affichés.",
     "colors": {
       "title": "Couleurs de saisie",
-      "text": "Si vous tapez un mauvais caractère, tout ce qui suit cette position devient rouge et le champ de saisie indique à partir de quel caractère la saisie diffère. Corrigez avec <keys>Backspace</keys>. Pour les mots dont l’affichage diffère de ce qu’il faut taper (par exemple taper « noel » pour « Noël »), les caractères à taper s’affichent sous le mot et ce sont eux qui sont colorés."
+      "text": "Les caractères bien tapés deviennent verts et vous passez au suivant. Si vous tapez un mauvais caractère, le caractère à taper devient rouge et vous n’avancez pas tant que vous n’avez pas tapé le bon. Il n’y a pas de champ de saisie : le soulignement dans le mot indique votre position. Pour les mots dont l’affichage diffère de ce qu’il faut taper (par exemple taper « noel » pour « Noël »), les caractères à taper s’affichent sous le mot et ce sont eux qui sont colorés."
     },
     "flow": {
       "title": "Déroulement de l’entraînement",
@@ -204,7 +204,6 @@
       "editor": "Créer une liste / Modifier une liste de mots"
     },
     "actions": {
-      "back": "Revenir d’un caractère",
       "restart": "Recommencer depuis le début",
       "resume": "Reprendre la saisie après avoir cliqué hors du champ",
       "again": "S’entraîner à nouveau",

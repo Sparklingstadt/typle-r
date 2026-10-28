@@ -64,16 +64,13 @@ test('long paragraphs follow the current character, corrections, restart and the
   await expect(input).toBeInViewport({ ratio: 1 })
   await page.screenshot({ path: testInfo.outputPath('multiline-mobile.png'), fullPage: true })
 
-  // The cursor remains visible after an error and after correcting it with Backspace.
+  // The cursor remains visible after a wrong key and after typing the right character.
   await input.pressSequentially('!')
   await expect(display.locator('[data-state="current-error"]')).toHaveCount(1)
   await expect.poll(async () => (await paragraphState(display)).caretVisible).toBe(true)
-  await input.press('Backspace')
+  await input.pressSequentially(paragraph.slice(-8, -7))
   await expect(input).toHaveAttribute('aria-invalid', 'false')
-  await input.press('ControlOrMeta+A')
-  await input.press('Backspace')
-  await expect.poll(async () => (await paragraphState(display)).scrollTop).toBe(0)
-  await expect(display.locator('[data-state="current"]')).toHaveText('T')
+  await expect(display.locator('[data-state="current-error"]')).toHaveCount(0)
 
   await input.fill(paragraph.slice(0, -1))
   await expect.poll(async () => (await paragraphState(display)).scrollTop).toBeGreaterThan(0)

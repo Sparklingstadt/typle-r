@@ -13,9 +13,8 @@
     "value": "{current} / {total, plural, one {# mot} other {# mots}}"
   },
   "feedback": {
-    "mismatch": "Différence à partir du caractère {position}. Corrigez avec Backspace.",
+    "mismatch": "Le caractère {position} ne correspond pas. Tapez le bon caractère.",
     "composing": "Le texte en cours de composition sera vérifié une fois validé",
-    "backspace": "Effacer un caractère",
     "restart": "Recommencer"
   },
   "header": {
@@ -29,7 +28,6 @@
   "word": {
     "typeThis": "À saisir",
     "resume": "Cliquez ou appuyez sur une touche pour reprendre",
-    "placeholder": "Saisissez ici",
     "inputLabel": "Saisissez le texte affiché"
   },
   "upcoming": {

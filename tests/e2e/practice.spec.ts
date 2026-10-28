@@ -59,9 +59,10 @@ test('create, reorder, edit, play, reload and delete records', async ({ page }) 
   // The only list is already chosen.
   await expect(page.getByRole('button', { name: 'Saved Practice を選択中', exact: true })).toBeVisible()
   const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
+  // A wrong key is counted but leaves the position; the right key moves on without deleting anything.
   await input.pressSequentially('x')
   await expect(input).toHaveAttribute('aria-invalid', 'true')
-  await input.press('Backspace')
+  await expect(input).toHaveValue('')
   await input.pressSequentially('c')
   await expect(input).toHaveValue('')
   await expect(page.getByRole('progressbar', { name: '単語の進捗' })).toHaveAttribute('aria-valuetext', '2 / 2 語')
@@ -194,12 +195,10 @@ test('target text is coloured from the first mismatch, guides differing input an
   const stateList = () => states.evaluateAll(elements => elements.map(element => (element as HTMLElement).dataset.state))
   await expect.poll(stateList).toEqual(['current', 'pending', 'pending', 'pending'])
   await input.fill('hx')
-  await expect.poll(stateList).toEqual(['done', 'error', 'current-error', 'pending'])
+  await expect.poll(stateList).toEqual(['done', 'current-error', 'pending', 'pending'])
   await expect(input).toHaveAttribute('aria-invalid', 'true')
-  await expect(feedback).toHaveText('2文字目から違います。Backspace で直してください。')
-  // A later character that matches by position is still part of the mistake.
-  await input.fill('hxge')
-  await expect.poll(stateList).toEqual(['done', 'error', 'error', 'error'])
+  await expect(input).toHaveValue('h')
+  await expect(feedback).toHaveText('2文字目が違います。正しい文字を入力してください。')
   await input.fill('ho')
   await expect.poll(stateList).toEqual(['done', 'done', 'current', 'pending'])
   await expect(input).toHaveAttribute('aria-invalid', 'false')
@@ -218,7 +217,7 @@ test('target text is coloured from the first mismatch, guides differing input an
   await input.fill('cuずt')
   await expect(input).toHaveValue('cuずt')
   await expect(guide.locator('[data-state="error"]')).toHaveCount(0)
-  await expect(feedback).toHaveText('変換中の文字は、確定してから判定します')
+  await expect(feedback).toHaveText('ずt変換中の文字は、確定してから判定します')
   await input.fill('cus')
   await input.dispatchEvent('compositionend', { data: 's' })
   await expect(guide.locator('[data-state="done"]')).toHaveCount(3)
@@ -249,8 +248,8 @@ test('optional word fields preserve overrides and annotations after saving', asy
   await openPacks(page)
   const workspace = await saved(page)
   expect(workspace.lists.find((list: { name: string }) => list.name === 'Defaults').words).toEqual([
-    { display: '表示', input: 'custom', annotation: 'ヒント' },
-    { display: 'default', input: 'default', annotation: '' },
+    { display: '表示', input: 'custom', annotation: 'ヒント', input_type: 'word' },
+    { display: 'default', input: 'default', annotation: '', input_type: 'word' },
   ])
   await page.getByRole('button', { name: 'Defaults を編集', exact: true }).click()
   await expect(input).toHaveValue('custom')
@@ -281,7 +280,8 @@ test('mobile drawer closes by link, Esc and backdrop and returns focus to the me
   await expect(drawer).toBeHidden()
   await expect(open).toBeFocused()
   await open.click()
-  await page.mouse.click(370, 420)
+  // Wait for the reopened backdrop to be actionable before clicking outside the drawer.
+  await page.locator('div.fixed.inset-0[data-state="open"]').click({ position: { x: 370, y: 420 } })
   await expect(drawer).toBeHidden()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await open.click()
@@ -569,9 +569,9 @@ test('CSV import preserves existing records and exact strings after a failed sav
   expect(lists).toHaveLength(2)
   expect(lists[0]).toEqual({ ...existing, packId: `pack-${existing.id}` })
   expect(lists[1].words).toEqual([
-    { display: ' 字 ', input: 'zi', annotation: '意味,補足\r\n"引用"' },
-    { display: '字', input: 'zi', annotation: '' },
-    { display: '字', input: 'zi', annotation: '' },
+    { display: ' 字 ', input: 'zi', annotation: '意味,補足\r\n"引用"', input_type: 'word' },
+    { display: '字', input: 'zi', annotation: '', input_type: 'word' },
+    { display: '字', input: 'zi', annotation: '', input_type: 'word' },
   ])
   expect(lists[1].records).toEqual([])
 })
@@ -608,7 +608,7 @@ for (const width of [390, 1440]) {
     await expect(page).toHaveURL(/\/edit\?pack=/)
     const lists = (await saved(page)).lists
     expect(lists[0]).toEqual({ ...list, packId: `pack-${list.id}` })
-    expect(lists[1].words).toEqual(words)
+    expect(lists[1].words).toEqual(words.map(word => ({ ...word, input_type: 'word' })))
     expect(lists[1].records).toEqual([])
   })
 }

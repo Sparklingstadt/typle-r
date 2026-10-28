@@ -7,10 +7,12 @@ export type TypingSession = {
   mistakes: number
   // When the input lost focus mid-practice; the clock stands still until it is resumed.
   pausedAt?: number | null
+  // The last key did not match the next character; it stays marked until the right character is typed.
+  missed?: boolean
 }
 
 export function newSession(): TypingSession {
-  return { index: 0, input: "", startedAt: null, finishedAt: null, attempts: 0, mistakes: 0, pausedAt: null }
+  return { index: 0, input: "", startedAt: null, finishedAt: null, attempts: 0, mistakes: 0, pausedAt: null, missed: false }
 }
 
 // Stops the clock of a running session. Before the first character or after the last there is nothing to stop.
@@ -31,25 +33,34 @@ export function elapsedTime(session: TypingSession, now: number) {
   return Math.max(0, (session.finishedAt ?? session.pausedAt ?? now) - session.startedAt)
 }
 
+// `value` is the typed text so far; only what was added since the last call counts as new keys. A key that matches the
+// next character moves on, any other key is a mistake and leaves the position where it was, so `input` only ever holds
+// correct characters. Removing characters does nothing: there is no wrong input to take back.
 export function typeInput(current: TypingSession, words: { input: string }[], value: string, now: number): TypingSession {
   if (current.finishedAt !== null || !words[current.index]) return current
-  // Typing always runs the clock, even if the input was not focused through the usual event.
-  const session = resumeSession(current, now)
-  const target = Array.from(words[session.index].input)
-  const previous = Array.from(session.input)
+  const previous = Array.from(current.input)
   const next = Array.from(value)
   let common = 0
   while (common < previous.length && common < next.length && previous[common] === next[common]) common++
   const inserted = next.slice(common)
-  const updated = {
-    ...session, input: value,
-    startedAt: session.startedAt ?? (value ? now : null),
-    attempts: session.attempts + inserted.length,
-    mistakes: session.mistakes + inserted.filter((char, index) => char !== target[common + index]).length,
+  if (!inserted.length) return current
+  // Typing always runs the clock, even if the input was not focused through the usual event.
+  const resumed = resumeSession(current, now)
+  let session: TypingSession = { ...resumed, startedAt: resumed.startedAt ?? now }
+  for (const char of inserted) {
+    if (session.finishedAt !== null) break
+    const target = words[session.index].input
+    const typed = Array.from(session.input)
+    if (char !== Array.from(target)[typed.length]) {
+      session = { ...session, attempts: session.attempts + 1, mistakes: session.mistakes + 1, missed: true }
+      continue
+    }
+    const input = session.input + char
+    session = { ...session, input, attempts: session.attempts + 1, missed: false }
+    if (input !== target) continue
+    session = session.index === words.length - 1 ? { ...session, finishedAt: now } : { ...session, index: session.index + 1, input: "" }
   }
-  if (value !== words[session.index].input) return updated
-  if (session.index === words.length - 1) return { ...updated, finishedAt: now }
-  return { ...updated, index: session.index + 1, input: "" }
+  return session
 }
 
 export function sessionResult(session: TypingSession) {
@@ -63,12 +74,13 @@ export function sessionResult(session: TypingSession) {
 export type CharacterState = 'done' | 'current' | 'error' | 'current-error' | 'pending'
 
 // Compare only committed input with the characters to type. Everything from the first mismatch on is an error,
-// so a later character that happens to match is not shown as correct.
-export function compareInput(target: string, typed: string) {
+// so a later character that happens to match is not shown as correct. `missed` marks the next character as mistyped.
+export function compareInput(target: string, typed: string, missed = false) {
   const characters = Array.from(target)
   const actual = Array.from(typed)
   let errorIndex = actual.findIndex((char, index) => index < characters.length && char !== characters[index])
   if (errorIndex === -1 && actual.length > characters.length) errorIndex = characters.length
+  if (errorIndex === -1 && missed) errorIndex = actual.length
   const states = characters.map((_, index): CharacterState => {
     if (index < actual.length) return errorIndex === -1 || index < errorIndex ? 'done' : 'error'
     if (index === actual.length) return errorIndex === -1 ? 'current' : 'current-error'

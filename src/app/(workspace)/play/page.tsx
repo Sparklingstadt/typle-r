@@ -8,7 +8,6 @@ import type { PracticeDevice } from "@/core/devices"
 import { useChosenDevice } from "@/lib/deviceSelection"
 import { useLiveStatsVisible } from "@/lib/liveStats"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -133,8 +132,8 @@ function Practice({ wordLists, packs, listId, error, update, devices, accountId 
   const selectedList = wordLists.find(item => item.id === list?.id)
   const selectedRecords = selectedList?.records ?? []
   const bestCandidates = selectedList ? comparableRecords(selectedList) : []
-  // Colour only committed text: IME composition (romaji, pinyin) is shown in the input but never judged.
-  const comparison = compareInput(word?.input ?? '', session.input)
+  // Colour only committed text: IME composition (romaji, pinyin) is shown below the word but never judged.
+  const comparison = compareInput(word?.input ?? '', session.input, session.missed)
   const hasError = comparison.errorIndex >= 0
   const dialogOpen = pickerOpen || pendingSwitch !== null || menuOpen
   const showResume = focusedOnce && !inputFocused && !finished && !dialogOpen && words.length > 0
@@ -212,8 +211,10 @@ function Practice({ wordLists, packs, listId, error, update, devices, accountId 
   const progressText = t('progress.value', { current: finished ? words.length : session.index + 1, total: words.length })
   const feedback = hasError
     ? <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{t('feedback.mismatch', { position: comparison.errorIndex + 1 })}</span>
-    : composition !== null ? <span>{t('feedback.composing')}</span>
-    : <span className="hidden flex-wrap items-center justify-center gap-x-4 gap-y-1 sm:flex"><span className="inline-flex items-center gap-1.5"><Kbd>Backspace</Kbd>{t('feedback.backspace')}</span><span className="inline-flex items-center gap-1.5"><Kbd>Esc</Kbd>{t('feedback.restart')}</span></span>
+    : composition !== null ? <span className="inline-flex flex-wrap items-center justify-center gap-x-2">
+      <span className="text-base text-foreground underline decoration-dotted underline-offset-4">{composition.startsWith(session.input) ? composition.slice(session.input.length) : composition}</span>{t('feedback.composing')}
+    </span>
+    : <span className="hidden items-center gap-1.5 sm:inline-flex"><Kbd>Esc</Kbd>{t('feedback.restart')}</span>
 
   return <main className="mx-auto my-6 w-11/12 max-w-7xl pb-12 sm:my-8">
     {error && <Alert variant="destructive" className="mb-4"><AlertDescription>{error}</AlertDescription></Alert>}
@@ -266,10 +267,12 @@ function Practice({ wordLists, packs, listId, error, update, devices, accountId 
               <span className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"><MousePointerClick className="size-4" aria-hidden="true" />{t('word.resume')}</span>
             </button>}
           </div>
-          <div className="flex flex-col items-center gap-2.5 px-4 pt-2 pb-4 sm:px-6 sm:pb-5">
-            <Input ref={input} id="wordInputField" placeholder={t('word.placeholder')} value={composition ?? session.input} autoComplete="off" autoCapitalize="off" spellCheck={false}
+          <div className="relative flex flex-col items-center gap-2.5 px-4 pt-2 pb-4 sm:px-6 sm:pb-5">
+            {/* No visible field: the word itself shows the progress. This input only takes the keys, including IME composition
+                and on-screen keyboards, and always holds the correct characters typed so far. */}
+            <input ref={input} id="wordInputField" value={composition ?? session.input} autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false}
               aria-label={t('word.inputLabel')} aria-invalid={hasError} aria-describedby="practice-feedback"
-              className={cn('h-13 w-full max-w-[440px] rounded-[10px] border-2 text-center text-[22px] md:text-2xl focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-ring/35 aria-invalid:ring-4 aria-invalid:focus-visible:border-destructive aria-invalid:focus-visible:ring-destructive/20 sm:h-14', composition !== null && 'underline decoration-dotted underline-offset-6')}
+              className="absolute top-0 left-1/2 size-px overflow-hidden border-0 bg-transparent p-0 text-transparent caret-transparent opacity-0 outline-none"
               onPaste={event => event.preventDefault()} onDrop={event => event.preventDefault()}
               onFocus={() => { setInputFocused(true); setFocusedOnce(true); resume() }} onBlur={() => { setInputFocused(false); pause() }}
               onKeyDown={event => { if (event.key === 'Escape' && composition === null && !event.nativeEvent.isComposing) { event.preventDefault(); restart() } }}
