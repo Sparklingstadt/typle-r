@@ -254,7 +254,9 @@ function Practice({ wordLists, packs, listId, error, update, devices, accountId 
         : <>
           <div key={`${list.id}:${session.index}:${displayRun}`} className="relative flex min-h-44 flex-1 flex-col items-center justify-center gap-3 px-4 pt-6 pb-2 text-center sm:min-h-52 sm:gap-3.5 sm:px-6 sm:pt-11">
             {word?.annotation && <p className="max-w-full text-base break-words text-foreground">{word.annotation}</p>}
-            {word && word.display === word.input
+            {/* Code is displayed with line breaks and indentation but typed on one line, so showing both would repeat the
+                same code. Only the characters to type are shown. */}
+            {word && (word.display === word.input || word.input_type === 'code')
               ? <TargetText id="wordDisplay" {...comparison} />
               : word && <>
                 <PracticeText id="wordDisplay" text={word.display} />
