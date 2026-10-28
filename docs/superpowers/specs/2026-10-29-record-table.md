@@ -39,6 +39,8 @@ ALTER TABLE typle_workspaces ADD COLUMN records_split boolean NOT NULL DEFAULT f
 （`PUT /api/workspace` のリスト保存、`/api/v1` と `/api/workspace/records` の変更）、同じトランザクションで記録をテーブルへ移し、
 `lists` には空の `records` を書き、`records_split` を true にする。新しく作る行は最初から true。
 
+ワークスペースの行を作るときは、その所有者のテーブルの行を消す（行だけが削除されたときに残った記録が、同じ id の新しいリストに出ないように）。
+
 一括の移行処理は置かない。書き込みのない行は JSON のまま読まれ、どちらの形でも同じ結果を返す。
 
 ### IDのない記録
