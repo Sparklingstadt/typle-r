@@ -31,4 +31,7 @@ export async function withDatabase<T>(run: (pool: import('pg').Pool) => Promise<
 
 /** Deletes the account's saved workspace. */
 export const deleteWorkspace = (accountId: string) =>
-  withDatabase(pool => pool.query('DELETE FROM typle_workspaces WHERE owner_id = $1', [accountId]))
+  withDatabase(async pool => {
+    await pool.query('DELETE FROM typle_workspaces WHERE owner_id = $1', [accountId])
+    await pool.query('DELETE FROM typle_records WHERE owner_id = $1', [accountId])
+  })

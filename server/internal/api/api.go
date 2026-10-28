@@ -77,6 +77,12 @@ type Source interface {
 	Read(ctx context.Context, owner string) (*workspace.Workspace, error)
 }
 
+// RecordSource is a Source that can read a page of one list's records without the rest of the workspace, as
+// store.Store.Records does: ok is false when it cannot, and the whole workspace is read instead.
+type RecordSource interface {
+	Records(ctx context.Context, owner, listID string, since *time.Time, limit int) (records []workspace.Record, ok bool, err error)
+}
+
 // Writer changes an account's workspace and saves it, as store.Store.Modify does. change reports whether it changed
 // anything; its errors, and a *workspace.Error for a change too large to save, come back unchanged.
 type Writer = operation.Writer
@@ -113,7 +119,7 @@ func New(source Source, writer Writer, verifier Verifier) http.Handler {
 	mux.Handle("/api/v1/lists/{listId}/copy", s.route(nil, write{http.MethodPost, s.copyList}))
 	mux.Handle("/api/v1/lists/{listId}/words.csv", s.route(wordsCSV))
 	mux.Handle("/api/v1/lists/{listId}", s.route(list, write{http.MethodPatch, s.updateList}, write{http.MethodDelete, s.deleteList}))
-	mux.Handle("/api/v1/lists/{listId}/records", s.route(records, write{http.MethodPost, s.addRecord}))
+	mux.Handle("/api/v1/lists/{listId}/records", s.routeFirst(s.recordPage, records, write{http.MethodPost, s.addRecord}))
 	mux.Handle("/api/v1/lists/{listId}/records/{recordId}", s.route(record, write{http.MethodPatch, s.updateRecord}, write{http.MethodDelete, s.deleteRecord}))
 	mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) { failure(w, http.StatusNotFound, "notFound") })
 	return mux
@@ -137,6 +143,12 @@ func unauthorized(w http.ResponseWriter) {
 // methods when the server is writable. Any other method is answered 405, before the token is checked. A path with no
 // read (nil) answers only its writes.
 func (s *server) route(read handler, writes ...write) http.Handler {
+	return s.routeFirst(nil, read, writes...)
+}
+
+// routeFirst is route where a GET or HEAD is first given to first, when it is not nil, to answer without reading the
+// whole workspace: read answers it only when first returns false.
+func (s *server) routeFirst(first func(w http.ResponseWriter, r *http.Request, owner string) bool, read handler, writes ...write) http.Handler {
 	allowed := []string{}
 	if read != nil {
 		allowed = append(allowed, http.MethodGet, http.MethodHead)
@@ -162,6 +174,9 @@ func (s *server) route(read handler, writes ...write) http.Handler {
 				write.handle(w, r, owner)
 				return
 			}
+		}
+		if first != nil && first(w, r, owner) {
+			return
 		}
 		ws, err := s.source.Read(r.Context(), owner)
 		if err != nil {
@@ -343,6 +358,31 @@ func record(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
 }
 
 var digits = regexp.MustCompile(`^\d+$`)
+
+// recordPage answers records from the list's records alone when the source can read them so (RecordSource). A query
+// that records would refuse is left to it.
+func (s *server) recordPage(w http.ResponseWriter, r *http.Request, owner string) bool {
+	source, ok := s.source.(RecordSource)
+	if !ok {
+		return false
+	}
+	query := r.URL.Query()
+	limit, okLimit := readLimit(query)
+	since, okSince := readSince(query)
+	if !okLimit || !okSince {
+		return false
+	}
+	page, ok, err := source.Records(r.Context(), owner, r.PathValue("listId"), since, limit)
+	if err != nil {
+		log.Printf("%s %s: %v", r.Method, r.URL.Path, err)
+		failure(w, http.StatusServiceUnavailable, "databaseUnavailable")
+		return true
+	}
+	if ok {
+		respond(w, http.StatusOK, map[string]any{"records": page})
+	}
+	return ok
+}
 
 // records lists the newest first. `since` keeps the ones after that time; `limit` is 1 to 1000 (100 by default).
 func records(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {

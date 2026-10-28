@@ -238,6 +238,8 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" http://127.0.0.1:8080/api/v1/lists
 
 記録は保存されている形のまま（Typleの知らない項目も含めて）返します。古い記録には `id`・`mistakes`・`accuracy`・`wordCount`・`device` がないことがあります。
 
+v1.3.0 から、記録は `typle_records` テーブルに保存されます。リストの記録がテーブルだけにあるときは、ワークスペース全体を読まずにテーブルから `since`・`limit` の分だけ読みます（答えは同じです）。`id` のない古い記録には、テーブルへ移すときに `legacy-` で始まる変わらない `id` が付きます。
+
 ### `GET /api/v1/lists/{l}/records/{r}`
 
 `id` が `{r}` の記録1件です（`{ "record": … }`、形は上と同じ）。`id` のない古い記録は指定できないため、`404 recordNotFound` です。

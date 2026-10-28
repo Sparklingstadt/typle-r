@@ -1,6 +1,7 @@
 package workspace
 
 import (
+	"encoding/json"
 	"math"
 	"regexp"
 	"slices"
@@ -222,4 +223,13 @@ func findDevice(w *Workspace, id string) (*Device, bool) {
 		}
 	}
 	return nil, false
+}
+
+// DecodeRecord reads one record as a list's records array holds it, with the checks of Decode.
+func DecodeRecord(data []byte) (Record, error) {
+	var raw *rawRecord
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return Record{}, err
+	}
+	return decodeRecord(raw)
 }
