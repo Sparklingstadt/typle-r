@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
 import { helpNavigation, isCurrentPath, mainNavigation, type NavLink } from "./navigation"
+import { version } from "../../../package.json"
 
 // 36px rows on desktop keep the whole sidebar within a 1280×768 screen; the drawer keeps 40px touch targets.
 const itemClass = (current: boolean) => cn(
@@ -53,5 +54,6 @@ export default function NavList({ onNavigate }: { onNavigate?: () => void }) {
         {helpNavigation.map(link => <Item key={link.path} link={link} pathname={pathname} onNavigate={onNavigate} />)}
       </ul>
     </nav>
+    <p className="px-3 pb-1 text-xs text-muted-foreground tabular-nums">{`v${version}`}</p>
   </div>
 }
