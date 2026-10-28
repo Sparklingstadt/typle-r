@@ -13,9 +13,8 @@
     "value": "{current} / {total} 个单词"
   },
   "feedback": {
-    "mismatch": "从第 {position} 个字符开始不一致。请按 Backspace 修改。",
+    "mismatch": "第 {position} 个字符不一致。请输入正确的字符。",
     "composing": "输入法中尚未确认的文字，确认后才会判定",
-    "backspace": "退回一个字符",
     "restart": "从头开始"
   },
   "header": {
@@ -29,7 +28,6 @@
   "word": {
     "typeThis": "需输入",
     "resume": "点击或按任意键继续",
-    "placeholder": "在此输入",
     "inputLabel": "输入显示的文字"
   },
   "upcoming": {

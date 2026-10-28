@@ -45,10 +45,10 @@
     },
     "pending": {
       "label": "Not typed yet",
-      "note": "(gray)"
+      "note": "(white, black in the light theme)"
     },
     "error": {
-      "label": "From the wrong character on",
+      "label": "Mistyped character",
       "note": "(red)"
     }
   },
@@ -56,7 +56,7 @@
     "lead": "Choose a word list in <play>Practice</play> and type the words shown.",
     "colors": {
       "title": "Input colors",
-      "text": "If you type a wrong character, everything from that position on turns red, and the input field shows at which character the mismatch starts. Fix it with <keys>Backspace</keys>. For words whose displayed text differs from what you type (for example, typing “cafe” for “café”), the characters to type appear below the word and are colored instead."
+      "text": "Correctly typed characters turn green and you move on to the next one. If you type a wrong character, the character to type turns red and you don’t move on until you type the right one. There is no input field: the underline in the word shows where you are. For words whose displayed text differs from what you type (for example, typing “cafe” for “café”), the characters to type appear below the word and are colored instead."
     },
     "flow": {
       "title": "How practice works",
@@ -204,7 +204,6 @@
       "editor": "Create a list / Edit a word list"
     },
     "actions": {
-      "back": "Go back one character",
       "restart": "Start over from the beginning",
       "resume": "Return to typing after clicking outside the input field",
       "again": "Practice again",

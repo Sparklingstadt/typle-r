@@ -13,9 +13,8 @@
     "value": "{current} / {total} 個單字"
   },
   "feedback": {
-    "mismatch": "從第 {position} 個字元開始不一致。請按 Backspace 修正。",
+    "mismatch": "第 {position} 個字元不一致。請輸入正確的字元。",
     "composing": "輸入法中尚未確認的文字，確認後才會判定",
-    "backspace": "退回一個字元",
     "restart": "從頭開始"
   },
   "header": {
@@ -29,7 +28,6 @@
   "word": {
     "typeThis": "需輸入",
     "resume": "點擊或按任意鍵繼續",
-    "placeholder": "在此輸入",
     "inputLabel": "輸入顯示的文字"
   },
   "upcoming": {

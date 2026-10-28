@@ -67,24 +67,25 @@ export function Keys({ keys }: { keys: string[] }) {
   </span>
 }
 
-const legend: { sample: string; typed: string; items: ('done' | 'current' | 'pending' | 'error')[] }[] = [
+// `typed` is what was pressed; a wrong last key (`missed`) is not taken, so only `ty` counts as typed.
+const legend: { sample: string; typed: string; missed?: boolean; items: ('done' | 'current' | 'pending' | 'error')[] }[] = [
   { sample: 'typle', typed: 'ty', items: ['done', 'current', 'pending'] },
-  { sample: 'typle', typed: 'tyo', items: ['error'] },
+  { sample: 'typle', typed: 'tyo', missed: true, items: ['error'] },
 ]
 
 const swatch: Record<'done' | 'current' | 'pending' | 'error', string> = {
   done: 'text-green-700 dark:text-green-400',
   current: 'underline decoration-foreground decoration-2 underline-offset-4',
-  pending: 'text-neutral-400 dark:text-neutral-500',
-  error: 'rounded-sm bg-red-100 px-0.5 text-red-700 dark:bg-red-950 dark:text-red-400',
+  pending: 'text-foreground',
+  error: 'text-red-700 underline decoration-destructive decoration-2 underline-offset-4 dark:text-red-400',
 }
 
 // Renders the practice screen's own character states, so the colors here always match what the player sees.
 export function ColorLegend() {
   const t = useTranslations('guide.legend')
   return <div className="grid gap-3 sm:grid-cols-2">
-    {legend.map(({ sample, typed, items }) => {
-      const { characters, states, extra } = compareInput(sample, typed)
+    {legend.map(({ sample, typed, missed, items }) => {
+      const { characters, states, extra } = compareInput(sample, missed ? typed.slice(0, -1) : typed, missed)
       return <figure key={typed} className="flex flex-col gap-4 rounded-xl border bg-card p-4">
         <div className="flex items-baseline justify-between gap-3">
           <TargetText characters={characters} states={states} extra={extra} className="text-3xl leading-tight tracking-wide" />

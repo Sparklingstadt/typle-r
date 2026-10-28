@@ -28,7 +28,7 @@ test('the guide links to each screen and shows the practice colors and keys', as
   const practice = page.getByRole('region', { name: '練習する' })
   await expect(practice.locator('[data-state="done"]')).not.toHaveCount(0)
   await expect(practice.locator('[data-state="current"]')).toHaveCount(1)
-  await expect(practice.locator('[data-state="error"]')).toHaveCount(1)
+  await expect(practice.locator('[data-state="current-error"]')).toHaveCount(1)
 
   const keys = page.getByRole('region', { name: 'キーボード操作' })
   await expect(keys.locator('kbd', { hasText: 'Esc' })).toBeVisible()

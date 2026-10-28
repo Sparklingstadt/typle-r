@@ -18,9 +18,8 @@ const steps: { icon: LucideIcon; key: "follow" | "create" | "review"; href: stri
   { icon: Trophy, key: "review", href: "/rankings" },
 ]
 
-const shortcuts: { screen: "practice" | "complete" | "editor"; rows: { keys: string[][]; action: "back" | "restart" | "resume" | "again" | "next" | "move" | "save" }[] }[] = [
+const shortcuts: { screen: "practice" | "complete" | "editor"; rows: { keys: string[][]; action: "restart" | "resume" | "again" | "next" | "move" | "save" }[] }[] = [
   { screen: "practice", rows: [
-    { keys: [["Backspace"]], action: "back" },
     { keys: [["Esc"]], action: "restart" },
     { keys: [["anyKey"]], action: "resume" },
   ] },

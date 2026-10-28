@@ -5,10 +5,12 @@ import PracticeText from './PracticeText'
 const caret = 'relative after:absolute after:inset-x-0 after:-bottom-[0.08em] after:h-[max(3px,0.06em)] after:rounded-full motion-safe:after:animate-pulse'
 const stateClass: Record<CharacterState, string> = {
   done: 'text-green-700 dark:text-green-400',
-  current: cn(caret, 'after:bg-foreground'),
+  current: cn(caret, 'text-foreground after:bg-foreground'),
   error: 'rounded-sm bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400',
-  'current-error': cn(caret, 'text-neutral-400 after:bg-destructive dark:text-neutral-500'),
-  pending: 'text-neutral-400 dark:text-neutral-500',
+  // A wrong key leaves the position where it was and turns the character to type red until it is typed correctly.
+  'current-error': cn(caret, 'text-red-700 after:bg-destructive dark:text-red-400'),
+  // The rest of the word to type stands out in the text colour (white in the dark theme).
+  pending: 'text-foreground',
 }
 
 // Characters are inline spans with pre-wrap, so spaces stay visible and long text wraps instead of overflowing.

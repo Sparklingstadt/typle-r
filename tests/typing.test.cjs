@@ -75,3 +75,24 @@ test('typing while paused resumes the clock first', () => {
   assert.equal(s.pausedAt, null)
   assert.equal(elapsedTime(s, 12000), 1000)
 })
+test('a wrong key is a mistake that keeps the position; only matching keys move on', () => {
+  const { compareInput } = require('../src/core/typing.ts')
+  const words = [{ input: 'Hello' }, { input: 'World' }]
+  let s = typeInput(newSession(), words, 'Hell', 1000)
+  s = typeInput(s, words, 'Hellx', 1100)
+  assert.equal(s.input, 'Hell')
+  assert.equal(s.missed, true)
+  assert.deepEqual(compareInput('Hello', s.input, s.missed).states, ['done', 'done', 'done', 'done', 'current-error'])
+  // Backspace has nothing to take back.
+  assert.equal(typeInput(s, words, 'Hel', 1200), s)
+  s = typeInput(s, words, 'Hello', 1300)
+  assert.equal(s.index, 1)
+  assert.equal(s.input, '')
+  assert.equal(s.missed, false)
+  assert.equal(s.mistakes, 1)
+  assert.equal(s.attempts, 6)
+  // Keys committed together carry on into the next word.
+  s = typeInput(newSession(), words, 'HelloWo', 0)
+  assert.equal(s.index, 1)
+  assert.equal(s.input, 'Wo')
+})
