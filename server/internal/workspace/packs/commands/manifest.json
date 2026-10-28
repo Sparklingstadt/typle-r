@@ -16,7 +16,6 @@
   "vim-beginner.json",
   "vim-intermediate.json",
   "vim-advanced.json",
-  "go-syntax.json",
   "go-syntax-beginner.json",
   "go-syntax-intermediate.json",
   "go-syntax-advanced.json",

@@ -21,8 +21,8 @@ test('each official word has its own command, code or word input type', () => {
       assert.ok(allowed.has(word.input_type), `${list.name}: ${word.input}`)
     }
   }
-  const typeOf = (name, input) => commands.find(list => list.name.normalize('NFC') === name)
-    .words.find(word => word.input === input).input_type
+  const typeOf = (name, input) => commands.filter(list => list.name.normalize('NFC') === name || list.group === name)
+    .flatMap(list => list.words).find(word => word.input === input).input_type
   assert.equal(typeOf('Linuxコマンド：基本', 'pwd'), 'command')
   assert.equal(typeOf('macOSターミナル（zsh）コマンド', 'project=ffpf-portal'), 'command')
   assert.equal(typeOf('Linux：システムの仕組み', 'SIGTERM'), 'word')
@@ -54,6 +54,17 @@ const sorted = list => [...list].sort((a, b) => a.input < b.input ? -1 : a.input
 // The lists of v0.75.0 come in three levels whatever their length.
 const leveled = ['typescript-syntax', 'hono-methods', 'php-syntax', 'rails-methods', 'express-methods', 'oracle-plsql-syntax', 'sql-server-tsql-syntax']
 
+test('Go has one official pack with only its three difficulty lists', () => {
+  const { officialLibrary } = require('../src/plugins/packs/index.ts')
+  const packs = officialLibrary.packs.filter(pack => pack.name.startsWith('Go構文'))
+  assert.equal(packs.length, 1)
+  assert.equal(packs[0].name, 'Go構文')
+  const lists = officialLibrary.lists.filter(list => list.packId === packs[0].id)
+  assert.deepEqual(lists.map(list => list.id), ['go-syntax-beginner', 'go-syntax-intermediate', 'go-syntax-advanced'])
+  assert.equal(lists.reduce((total, list) => total + list.words.length, 0), 109)
+  assert.ok(!commands.some(list => list.id === 'go-syntax'))
+})
+
 test('the initial lists decode in Typle with their own ids and names', () => {
   const lists = decodeLists(JSON.stringify({ version: 1, lists: commands }))
   assert.deepEqual(require('../src/plugins/packs/samples.json'), [])
@@ -62,7 +73,7 @@ test('the initial lists decode in Typle with their own ids and names', () => {
     ['8f3cf116-1f9f-4579-a071-e600094b104d', [90]], ['ef974a4b-3c7a-4eeb-9979-6721a0a1c81a', [46]], ['d6a056c2-9f2b-48ba-b4e6-1d851cc45f41', [35]],
     ['04450fbe-2974-417c-9350-39802a5c650c', [140]], ['d3638812-0c0a-4f37-a413-d17404344c32', [76]], ['3099bf52-7790-49b0-841d-5230d7d3dd68', [131]],
     ['78aaf407-fd11-4b12-92bd-2f0bffaf3779', [146]], ['0b27f311-38aa-40aa-9c29-ea17e374e1fe', [118]], ['eba3ec64-7d45-4f41-9de1-200ba5e957d5', [34]],
-    ['arch-linux', [96, 32, 32, 32]], ['vim', [112, 38, 37, 37]], ['go-syntax', [109, 37, 36, 36]],
+    ['arch-linux', [96, 32, 32, 32]], ['vim', [112, 38, 37, 37]], ['go-syntax', [37, 36, 36]],
     ['java-syntax', [33, 33, 32, 32]], ['kotlin-syntax', [33, 33, 33, 32, 32]], ['un-member-states-chinese-193-lowercase', [193, 39, 39, 39, 38, 38]],
     ['postgresql-syntax', [38, 38, 38, 38]], ['prisma-syntax', [32, 32]], ['jest-syntax', [34, 33]], ['playwright-syntax', [35, 35]],
     ['typescript-syntax', [18, 18, 18]], ['hono-methods', [12, 12, 12]], ['php-syntax', [14, 14, 13]], ['rails-methods', [15, 15, 14]],
@@ -76,7 +87,7 @@ test('the initial lists decode in Typle with their own ids and names', () => {
 })
 
 test('a list kept both whole and in parts holds the same words in each', () => {
-  for (const id of ['arch-linux', 'vim', 'go-syntax', 'un-member-states-chinese-193-lowercase']) {
+  for (const id of ['arch-linux', 'vim', 'un-member-states-chinese-193-lowercase']) {
     assert.deepEqual(sorted(parts(id).flatMap(list => list.words)), sorted(words(id)), id)
   }
 })

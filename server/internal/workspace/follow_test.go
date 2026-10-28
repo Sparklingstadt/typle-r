@@ -90,7 +90,7 @@ func TestOfficialPacks(t *testing.T) {
 		t.Fatal(err)
 	}
 	// The same catalog ids, in the same order, as officialPacks() in src/plugins/packs/catalog.ts.
-	if len(official) != 30 || official[0].CatalogID != "pack-8f3cf116-1f9f-4579-a071-e600094b104d" ||
+	if len(official) != 29 || official[0].CatalogID != "pack-8f3cf116-1f9f-4579-a071-e600094b104d" ||
 		official[1].CatalogID != "pack-ef974a4b-3c7a-4eeb-9979-6721a0a1c81a" {
 		t.Fatalf("official = %d packs, first %v", len(official), official[:min(2, len(official))])
 	}
@@ -108,7 +108,7 @@ func TestOfficialPacks(t *testing.T) {
 		count += len(entry.Lists)
 	}
 	// Since v0.85.0 the official lists are the lists of the sparklingstadt account, in its order.
-	if count != 67 || official[0].Lists[0].ID != "8f3cf116-1f9f-4579-a071-e600094b104d" {
+	if count != 66 || official[0].Lists[0].ID != "8f3cf116-1f9f-4579-a071-e600094b104d" {
 		t.Fatalf("%d lists, first %s", count, official[0].Lists[0].ID)
 	}
 	// The group Arch Linuxコマンド is named after the list arch-linux, which comes first and has no group.
