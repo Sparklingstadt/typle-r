@@ -198,3 +198,26 @@ test('a long name keeps the copy and number marks within 200 characters', () => 
     validateLibrary(importPackFile(library(), ok, { pack: 'n', lists: ['n0'] }, now))
   })
 }
+
+test('pack files, importing and copies preserve per-word input types and missing legacy values', () => {
+  const lib = library()
+  const typed = ['command', 'code', 'word'].map(input_type => ({ ...words('A')[0], input_type }))
+  typed.push(words('B')[0])
+  lib.lists[0].words = typed
+  const encoded = encodePackFile(lib, 'p')
+  const decoded = decodePackFile(encoded)
+  assert.deepEqual(decoded.lists[0].words, typed)
+  const imported = importPackFile(lib, decoded, { pack: 'new', lists: ['new-a', 'new-b'] }, now)
+  assert.deepEqual(imported.lists.find(list => list.id === 'new-a').words, typed)
+  const copied = copyPack(lib, 'p', { pack: 'copy', lists: ['copy-a', 'copy-b'] }, n => `copy${n}`, now)
+  assert.deepEqual(copied.lists.find(list => list.id === 'copy-a').words, typed)
+  assert.equal('input_type' in decodePackFile(encodePackFile(lib, 'q')).lists[0].words[0], false)
+})
+
+test('pack files reject unknown or non-string word input types', () => {
+  for (const input_type of ['', 'script', null, 0, false, {}, []]) {
+    const invalid = file([{ name: 'L', words: [{ ...words('A')[0], input_type }] }])
+    assert.throws(() => decodePackFile(JSON.stringify(invalid)), { key: 'packFileUnreadable' })
+    assert.throws(() => importPackFile(library(), invalid, { pack: 'new', lists: ['new-a'] }, now), { key: 'savedDataCorrupted' })
+  }
+})

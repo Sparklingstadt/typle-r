@@ -190,12 +190,17 @@
     "packWillBeDeleted": "包「{name}」將被刪除。",
     "levels": "難度（選填）",
     "levelPlaceholder": "例如：初級",
-    "levelsHelp": "在練習畫面中用於選擇包內的清單，例如：初級。"
+    "levelsHelp": "在練習畫面中用於選擇包內的清單，例如：初級。",
+    "inputType": "輸入類型",
+    "inputTypeLabel": "輸入類型 {n}",
+    "inputTypeWord": "單字",
+    "inputTypeCommand": "命令",
+    "inputTypeCode": "程式碼"
   },
   "import": {
     "open": "匯入 CSV/TSV",
     "title": "從 CSV/TSV 匯入",
-    "description": "第一列為欄位名稱。input 與 display 為必填，annotation 可省略。欄位順序不限。",
+    "description": "第一列為欄位名稱。input 和 display 為必填項，annotation 和 input_type 可省略。input_type 為 command、code 或 word。欄位順序不限。",
     "fileLabel": "選擇 CSV/TSV 檔案",
     "readFailed": "無法讀取檔案。",
     "addFailed": "無法新增單字。",

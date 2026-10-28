@@ -190,12 +190,17 @@
     "packWillBeDeleted": "Le pack « {name} » sera supprimé.",
     "levels": "Difficulté (facultatif)",
     "levelPlaceholder": "ex. Débutant",
-    "levelsHelp": "Sert à choisir parmi les listes d’un pack sur l’écran d’entraînement, par exemple Débutant."
+    "levelsHelp": "Sert à choisir parmi les listes d’un pack sur l’écran d’entraînement, par exemple Débutant.",
+    "inputType": "Type de saisie",
+    "inputTypeLabel": "Type de saisie {n}",
+    "inputTypeWord": "Mot",
+    "inputTypeCommand": "Commande",
+    "inputTypeCode": "Code"
   },
   "import": {
     "open": "Importer un CSV/TSV",
     "title": "Importer depuis un CSV/TSV",
-    "description": "La première ligne contient les noms de colonnes. input et display sont obligatoires ; annotation est facultative. L’ordre des colonnes est libre.",
+    "description": "La première ligne contient les noms des colonnes. input et display sont obligatoires ; annotation et input_type sont facultatifs. input_type vaut command, code ou word. L’ordre des colonnes est libre.",
     "fileLabel": "Choisir un fichier CSV ou TSV",
     "readFailed": "Impossible de lire le fichier.",
     "addFailed": "Impossible d’ajouter les mots.",

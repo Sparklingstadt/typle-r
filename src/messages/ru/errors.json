@@ -33,7 +33,7 @@
   "importQuote": "Строка {line}: неверный формат кавычек.",
   "importHeaderRequired": "В заголовке должны быть input и display. annotation можно не указывать.",
   "importHeaderDuplicate": "В заголовке повторяются названия столбцов.",
-  "importHeaderUnknown": "Используйте названия столбцов input, display и annotation.",
+  "importHeaderUnknown": "Используйте названия столбцов input, display, annotation и input_type.",
   "importNoRows": "Добавьте хотя бы одну строку со словом.",
   "importTooManyRows": "В одном списке может быть не более 1000 слов.",
   "importColumnCount": "Строка {line}: число столбцов не совпадает с заголовком.",
@@ -61,5 +61,6 @@
   "adminRequired": "Войдите как администратор.",
   "adminForbidden": "Этот FFPF ID не является администратором.",
   "adminUnavailable": "Не удалось проверить, являетесь ли вы администратором. Повторите попытку позже.",
-  "invalidPage": "Неверный номер страницы."
+  "invalidPage": "Неверный номер страницы.",
+  "importInputTypeInvalid": "Строка {line}: input_type должен быть command, code или word."
 }

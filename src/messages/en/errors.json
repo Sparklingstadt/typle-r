@@ -33,7 +33,7 @@
   "importQuote": "Line {line}: the quotation marks are not formatted correctly.",
   "importHeaderRequired": "The header needs input and display. annotation is optional.",
   "importHeaderDuplicate": "The header contains duplicate column names.",
-  "importHeaderUnknown": "Use input, display and annotation as column names.",
+  "importHeaderUnknown": "Use input, display, annotation and input_type as column names.",
   "importNoRows": "Add at least one row of words.",
   "importTooManyRows": "A list can contain up to 1,000 words.",
   "importColumnCount": "Line {line}: the number of columns does not match the header.",
@@ -61,5 +61,6 @@
   "adminRequired": "Please sign in as an administrator.",
   "adminForbidden": "This FFPF ID is not an administrator.",
   "adminUnavailable": "Could not check whether you are an administrator. Please try again later.",
-  "invalidPage": "The page number is not valid."
+  "invalidPage": "The page number is not valid.",
+  "importInputTypeInvalid": "Line {line}: input_type must be command, code or word."
 }

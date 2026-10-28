@@ -190,12 +190,17 @@
     "packWillBeDeleted": "パック「{name}」は削除されます。",
     "levels": "難易度（任意）",
     "levelPlaceholder": "初級など",
-    "levelsHelp": "練習画面で、パックの中のリストを選ぶのに使います。例：初級"
+    "levelsHelp": "練習画面で、パックの中のリストを選ぶのに使います。例：初級",
+    "inputType": "入力の種類",
+    "inputTypeLabel": "入力の種類 {n}",
+    "inputTypeWord": "単語",
+    "inputTypeCommand": "コマンド",
+    "inputTypeCode": "コード"
   },
   "import": {
     "open": "CSV・TSVを読み込む",
     "title": "CSV・TSVから読み込む",
-    "description": "1行目は列名です。input と display は必須、annotation は省略できます。列の順番は自由です。",
+    "description": "1行目は列名です。input と display は必須、annotation と input_type は省略できます。input_type は command・code・word のいずれかです。列の順番は自由です。",
     "fileLabel": "CSV・TSVファイルを選択",
     "readFailed": "ファイルを読み込めませんでした。",
     "addFailed": "単語を追加できませんでした。",

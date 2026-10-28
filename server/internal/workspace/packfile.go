@@ -192,10 +192,11 @@ func DecodePackFile(data []byte) (*PackFile, error) {
 			display, isDisplay := readString(word["display"])
 			input, isInput := readString(word["input"])
 			annotation, isAnnotation := readString(word["annotation"])
-			if !ok || !isDisplay || !isInput || !isAnnotation {
+			inputType, typeErr := readInputType(word["input_type"])
+			if !ok || !isDisplay || !isInput || !isAnnotation || typeErr != nil {
 				return nil, unreadable
 			}
-			list.Words = append(list.Words, Word{Display: display, Input: input, Annotation: annotation})
+			list.Words = append(list.Words, Word{Display: display, Input: input, Annotation: annotation, InputType: inputType})
 		}
 		file.Lists = append(file.Lists, list)
 	}

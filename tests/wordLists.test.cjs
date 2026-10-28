@@ -29,3 +29,23 @@ test('decodeLists drops sharing fields saved by older versions', () => {
     assert.equal('shareId' in item, false)
   }
 })
+
+test('word input types survive save and reload while legacy words remain unchanged', () => {
+  const words = ['command', 'code', 'word'].map(input_type => ({ ...list.words[0], input_type }))
+  words.push({ ...list.words[0] })
+  const saved = saveList([], { ...list, words }, false)
+  assert.deepEqual(decodeLists(encodeLists(saved))[0].words, words)
+  assert.equal('input_type' in decodeLists(encodeLists([list]))[0].words[0], false)
+})
+
+test('word input types reject invalid strings, null and non-string values', () => {
+  const { isInputType, validateList } = require('../src/core/wordLists.ts')
+  for (const value of ['command', 'code', 'word']) assert.equal(isInputType(value), true)
+  for (const input_type of ['', 'other', 'Code', null, 1, false, {}, []]) {
+    assert.equal(isInputType(input_type), false)
+    const invalid = { ...list, words: [{ ...list.words[0], input_type }] }
+    assert.throws(() => validateList(invalid), { key: 'savedDataCorrupted' })
+    assert.throws(() => saveList([], invalid, false), { key: 'savedDataCorrupted' })
+    assert.throws(() => decodeLists(JSON.stringify({ version: 1, lists: [invalid] })), { key: 'savedDataCorrupted' })
+  }
+})

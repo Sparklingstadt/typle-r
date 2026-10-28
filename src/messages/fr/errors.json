@@ -33,7 +33,7 @@
   "importQuote": "Ligne {line} : les guillemets ne sont pas correctement formés.",
   "importHeaderRequired": "L’en-tête doit contenir input et display. annotation est facultatif.",
   "importHeaderDuplicate": "L’en-tête contient des noms de colonnes en double.",
-  "importHeaderUnknown": "Utilisez input, display et annotation comme noms de colonnes.",
+  "importHeaderUnknown": "Utilisez input, display, annotation et input_type comme noms de colonnes.",
   "importNoRows": "Ajoutez au moins une ligne de mots.",
   "importTooManyRows": "Une liste peut contenir jusqu’à 1 000 mots.",
   "importColumnCount": "Ligne {line} : le nombre de colonnes ne correspond pas à l’en-tête.",
@@ -61,5 +61,6 @@
   "adminRequired": "Veuillez vous connecter en tant qu’administrateur.",
   "adminForbidden": "Ce FFPF ID n’est pas administrateur.",
   "adminUnavailable": "Impossible de vérifier si vous êtes administrateur. Veuillez réessayer plus tard.",
-  "invalidPage": "Le numéro de page n’est pas valide."
+  "invalidPage": "Le numéro de page n’est pas valide.",
+  "importInputTypeInvalid": "Ligne {line} : input_type doit être command, code ou word."
 }

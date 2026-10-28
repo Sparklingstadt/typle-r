@@ -190,12 +190,17 @@
     "packWillBeDeleted": "Набор «{name}» будет удалён.",
     "levels": "Сложность (необязательно)",
     "levelPlaceholder": "например, Начальный",
-    "levelsHelp": "Нужна, чтобы на экране тренировки выбирать списки набора, например: Начальный."
+    "levelsHelp": "Нужна, чтобы на экране тренировки выбирать списки набора, например: Начальный.",
+    "inputType": "Тип ввода",
+    "inputTypeLabel": "Тип ввода {n}",
+    "inputTypeWord": "Слово",
+    "inputTypeCommand": "Команда",
+    "inputTypeCode": "Код"
   },
   "import": {
     "open": "Импорт CSV/TSV",
     "title": "Импорт из CSV/TSV",
-    "description": "Первая строка содержит названия столбцов. Столбцы input и display обязательны, annotation можно не указывать. Порядок столбцов любой.",
+    "description": "Первая строка содержит названия столбцов. input и display обязательны; annotation и input_type необязательны. Значение input_type: command, code или word. Порядок столбцов произвольный.",
     "fileLabel": "Выберите файл CSV или TSV",
     "readFailed": "Не удалось прочитать файл.",
     "addFailed": "Не удалось добавить слова.",

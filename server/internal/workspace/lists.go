@@ -60,7 +60,7 @@ func checkWords(words []Word) error {
 	}
 	for _, word := range words {
 		if length(word.Display) > MaxWordText || length(word.Input) > MaxWordText || length(word.Annotation) > MaxAnnotation ||
-			strings.ContainsRune(word.Display+word.Input+word.Annotation, 0) {
+			strings.ContainsRune(word.Display+word.Input+word.Annotation, 0) || !validInputType(word.InputType) {
 			return &Error{Key: "invalidList"}
 		}
 	}

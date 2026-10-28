@@ -33,7 +33,7 @@
   "importQuote": "第 {line} 行的引号格式不正确。",
   "importHeaderRequired": "标题行需要包含 input 和 display。annotation 可以省略。",
   "importHeaderDuplicate": "标题行中有重复的列名。",
-  "importHeaderUnknown": "列名请使用 input、display、annotation。",
+  "importHeaderUnknown": "列名请使用 input、display、annotation 和 input_type。",
   "importNoRows": "请至少添加一行单词。",
   "importTooManyRows": "每个列表最多 1,000 个单词。",
   "importColumnCount": "第 {line} 行的列数与标题行不一致。",
@@ -61,5 +61,6 @@
   "adminRequired": "请以管理员身份登录。",
   "adminForbidden": "此 FFPF ID 不是管理员。",
   "adminUnavailable": "无法确认您是否为管理员。请稍后再试。",
-  "invalidPage": "页码无效。"
+  "invalidPage": "页码无效。",
+  "importInputTypeInvalid": "第 {line} 行的 input_type 必须是 command、code 或 word。"
 }

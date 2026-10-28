@@ -15,7 +15,7 @@ const maxImportRows = 1000
 var bom = string(rune(0xfeff))
 
 // ParseWordFile reads CSV (',') or TSV ('\t') words as parseWordFile (src/plugins/formats/delimited.ts) does: a
-// header of input, display and optionally annotation (anotation is read as annotation), fields in double quotes
+// header of input, display and optionally annotation and input_type (anotation is read as annotation), fields in double quotes
 // that may hold the delimiter, newlines and doubled quotes, and blank lines skipped. Errors name the line they found.
 func ParseWordFile(source string, delimiter rune) ([]Word, error) {
 	if len(source) > MaxImportBytes {
@@ -111,7 +111,7 @@ func ParseWordFile(source string, delimiter rune) ([]Word, error) {
 		seen[name] = true
 	}
 	for _, name := range header {
-		if name != "input" && name != "display" && name != "annotation" {
+		if name != "input" && name != "display" && name != "annotation" && name != "input_type" {
 			return nil, &Error{Key: "importHeaderUnknown"}
 		}
 	}
@@ -132,12 +132,15 @@ func ParseWordFile(source string, delimiter rune) ([]Word, error) {
 			}
 			return ""
 		}
-		word := Word{Input: get("input"), Display: get("display"), Annotation: get("annotation")}
+		word := Word{Input: get("input"), Display: get("display"), Annotation: get("annotation"), InputType: get("input_type")}
 		if trimJS(word.Input) == "" || trimJS(word.Display) == "" {
 			return nil, &Error{Key: "importFieldRequired", Line: r.line}
 		}
 		if length(word.Input) > MaxWordText || length(word.Display) > MaxWordText || length(word.Annotation) > MaxAnnotation {
 			return nil, &Error{Key: "importFieldTooLong", Line: r.line}
+		}
+		if !validInputType(word.InputType) {
+			return nil, &Error{Key: "importInputTypeInvalid", Line: r.line}
 		}
 		words = append(words, word)
 	}
@@ -148,9 +151,18 @@ func ParseWordFile(source string, delimiter rune) ([]Word, error) {
 func EncodeWordCSV(words []Word) string {
 	cell := func(value string) string { return `"` + strings.ReplaceAll(value, `"`, `""`) + `"` }
 	var b strings.Builder
-	b.WriteString(bom + "input,display,annotation\r\n")
+	typed := slices.ContainsFunc(words, func(word Word) bool { return word.InputType != "" })
+	b.WriteString(bom + "input,display,annotation")
+	if typed {
+		b.WriteString(",input_type")
+	}
+	b.WriteString("\r\n")
 	for _, word := range words {
-		b.WriteString(cell(word.Input) + "," + cell(word.Display) + "," + cell(word.Annotation) + "\r\n")
+		b.WriteString(cell(word.Input) + "," + cell(word.Display) + "," + cell(word.Annotation))
+		if typed {
+			b.WriteString("," + cell(word.InputType))
+		}
+		b.WriteString("\r\n")
 	}
 	return b.String()
 }

@@ -184,7 +184,7 @@ func newLists(packID string, inputs []PackListInput, ids []string, now time.Time
 func plainWords(words []Word) []Word {
 	plain := make([]Word, 0, len(words))
 	for _, word := range words {
-		plain = append(plain, Word{Display: word.Display, Input: word.Input, Annotation: word.Annotation})
+		plain = append(plain, Word{Display: word.Display, Input: word.Input, Annotation: word.Annotation, InputType: word.InputType})
 	}
 	return plain
 }

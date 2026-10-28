@@ -190,12 +190,17 @@
     "packWillBeDeleted": "包“{name}”将被删除。",
     "levels": "难度（可选）",
     "levelPlaceholder": "例如：初级",
-    "levelsHelp": "在练习界面中用于选择包内的列表，例如：初级。"
+    "levelsHelp": "在练习界面中用于选择包内的列表，例如：初级。",
+    "inputType": "输入类型",
+    "inputTypeLabel": "输入类型 {n}",
+    "inputTypeWord": "单词",
+    "inputTypeCommand": "命令",
+    "inputTypeCode": "代码"
   },
   "import": {
     "open": "导入 CSV/TSV",
     "title": "从 CSV/TSV 导入",
-    "description": "第一行为列名。input 和 display 为必填，annotation 可省略。列的顺序不限。",
+    "description": "第一行为列名。input 和 display 为必填项，annotation 和 input_type 可省略。input_type 为 command、code 或 word。列顺序不限。",
     "fileLabel": "选择 CSV/TSV 文件",
     "readFailed": "无法读取文件。",
     "addFailed": "无法添加单词。",

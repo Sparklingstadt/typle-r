@@ -1,6 +1,11 @@
 import { AppError } from "./appError"
 import { isDevice, type PracticeDevice } from "./devices"
 
+export type InputType = 'command' | 'code' | 'word'
+
+export const isInputType = (value: unknown): value is InputType =>
+  value === 'command' || value === 'code' || value === 'word'
+
 export type WordList = {
   id?: string,
   name: string,
@@ -20,7 +25,9 @@ export type WordList = {
   words: {
     display: string,
     input: string,
-    annotation: string
+    annotation: string,
+    /** Missing in older saved words; the interface treats those as ordinary words. */
+    input_type?: InputType
   }[],
   records: {
     id?: string,
@@ -71,6 +78,9 @@ export function validateList(list: WordList, others: WordList[] = []) {
   if (list.words.some(word => !word.display.trim() || !word.input.trim())) {
     throw new AppError('wordFieldsRequired')
   }
+  if (list.words.some(word => word.input_type !== undefined && !isInputType(word.input_type))) {
+    throw new AppError('savedDataCorrupted')
+  }
 }
 
 /** The group and levels as they are saved: trimmed, and left out when there is no group. */
@@ -93,7 +103,8 @@ export function decodeLists(raw: string): SavedWordList[] {
         (list.group !== undefined && typeof list.group !== "string") ||
         (list.packId !== undefined && typeof list.packId !== "string") ||
         (list.levels !== undefined && (!Array.isArray(list.levels) || list.levels.some((level: unknown) => typeof level !== "string"))) ||
-        list.words.some((word: WordList['words'][number]) => !word || typeof word.display !== "string" || typeof word.input !== "string" || typeof word.annotation !== "string") ||
+        list.words.some((word: WordList['words'][number]) => !word || typeof word.display !== "string" || typeof word.input !== "string" || typeof word.annotation !== "string" ||
+          (word.input_type !== undefined && !isInputType(word.input_type))) ||
         list.records.some((record: WordList['records'][number]) => !record || !Number.isFinite(record.time) || record.time < 0 || typeof record.date !== "string" ||
           !Number.isFinite(Date.parse(record.date)) ||
           (record.device !== undefined && !isDevice(record.device)) ||
