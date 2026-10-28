@@ -248,8 +248,8 @@ test('optional word fields preserve overrides and annotations after saving', asy
   await openPacks(page)
   const workspace = await saved(page)
   expect(workspace.lists.find((list: { name: string }) => list.name === 'Defaults').words).toEqual([
-    { display: '表示', input: 'custom', annotation: 'ヒント' },
-    { display: 'default', input: 'default', annotation: '' },
+    { display: '表示', input: 'custom', annotation: 'ヒント', input_type: 'word' },
+    { display: 'default', input: 'default', annotation: '', input_type: 'word' },
   ])
   await page.getByRole('button', { name: 'Defaults を編集', exact: true }).click()
   await expect(input).toHaveValue('custom')
@@ -280,7 +280,8 @@ test('mobile drawer closes by link, Esc and backdrop and returns focus to the me
   await expect(drawer).toBeHidden()
   await expect(open).toBeFocused()
   await open.click()
-  await page.mouse.click(370, 420)
+  // Wait for the reopened backdrop to be actionable before clicking outside the drawer.
+  await page.locator('div.fixed.inset-0[data-state="open"]').click({ position: { x: 370, y: 420 } })
   await expect(drawer).toBeHidden()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
   await open.click()
@@ -568,9 +569,9 @@ test('CSV import preserves existing records and exact strings after a failed sav
   expect(lists).toHaveLength(2)
   expect(lists[0]).toEqual({ ...existing, packId: `pack-${existing.id}` })
   expect(lists[1].words).toEqual([
-    { display: ' 字 ', input: 'zi', annotation: '意味,補足\r\n"引用"' },
-    { display: '字', input: 'zi', annotation: '' },
-    { display: '字', input: 'zi', annotation: '' },
+    { display: ' 字 ', input: 'zi', annotation: '意味,補足\r\n"引用"', input_type: 'word' },
+    { display: '字', input: 'zi', annotation: '', input_type: 'word' },
+    { display: '字', input: 'zi', annotation: '', input_type: 'word' },
   ])
   expect(lists[1].records).toEqual([])
 })
@@ -607,7 +608,7 @@ for (const width of [390, 1440]) {
     await expect(page).toHaveURL(/\/edit\?pack=/)
     const lists = (await saved(page)).lists
     expect(lists[0]).toEqual({ ...list, packId: `pack-${list.id}` })
-    expect(lists[1].words).toEqual(words)
+    expect(lists[1].words).toEqual(words.map(word => ({ ...word, input_type: 'word' })))
     expect(lists[1].records).toEqual([])
   })
 }
