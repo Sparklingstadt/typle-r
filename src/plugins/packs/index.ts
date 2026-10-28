@@ -2,10 +2,10 @@ import type { SavedWordList } from '../../core/wordLists'
 import { normalizeLibrary, type Library } from '../../core/wordPacks'
 import samples from './samples.json'
 import countries from './countries.json'
-import commands from './commands.json'
+import commands from './commands'
 
-// Since v0.85.0 the lists are those of the sparklingstadt account, all in commands.json. samples.json and countries.json
-// are empty but still read, as the Go backend and the apps read the same three files.
+// The official lists live in commands/, one JSON file per list. samples.json and countries.json
+// remain empty; the Go backend reads the same data and order (commands/manifest.json).
 const sampleLists: Omit<SavedWordList, 'id' | 'records'>[] = samples
 
 /** The lists of the official packs, before conversion to packs. */

@@ -3,6 +3,7 @@ package workspace
 import (
 	"bytes"
 	"errors"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -99,7 +100,34 @@ func TestDecodeLabels(t *testing.T) {
 }
 
 func TestPacksMatchApp(t *testing.T) {
-	for name, copy := range map[string][]byte{"samples.json": samplesJSON, "countries.json": countriesJSON, "commands.json": commandsJSON} {
+	copies := map[string][]byte{"samples.json": samplesJSON, "countries.json": countriesJSON}
+	entries, err := fs.ReadDir(commandFiles, "packs/commands")
+	if err != nil {
+		t.Fatal(err)
+	}
+	originals, err := os.ReadDir(filepath.Join("..", "..", "..", "src", "plugins", "packs", "commands"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var originalNames []string
+	for _, entry := range originals {
+		if strings.HasSuffix(entry.Name(), ".json") {
+			originalNames = append(originalNames, entry.Name())
+		}
+	}
+	var copyNames []string
+	for _, entry := range entries {
+		name := "commands/" + entry.Name()
+		copies[name], err = commandFiles.ReadFile("packs/" + name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		copyNames = append(copyNames, entry.Name())
+	}
+	if !slices.Equal(originalNames, copyNames) {
+		t.Fatal("command files differ from src/plugins/packs; run go generate ./...")
+	}
+	for name, copy := range copies {
 		original, err := os.ReadFile(filepath.Join("..", "..", "..", "src", "plugins", "packs", name))
 		if err != nil {
 			t.Fatal(err)

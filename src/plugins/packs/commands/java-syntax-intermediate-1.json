@@ -1,0 +1,181 @@
+{
+  "id": "java-syntax-intermediate-1",
+  "name": "Java構文（中級1）",
+  "category": "プログラミング",
+  "tags": [
+    "Java"
+  ],
+  "group": "Java構文",
+  "levels": [
+    "中級1"
+  ],
+  "words": [
+    {
+      "display": "System.out.println(\"Hello\");",
+      "input": "System.out.println(\"Hello\");",
+      "annotation": "System.out.println：表示して改行（標準API）"
+    },
+    {
+      "display": "/* 複数行の コメント */",
+      "input": "/* 複数行の コメント */",
+      "annotation": "/* ... */：複数行コメント"
+    },
+    {
+      "display": "/** 利用者を表します。 */",
+      "input": "/** 利用者を表します。 */",
+      "annotation": "/** ... */：Javadoc用コメント（型やメソッド等の宣言前に配置）"
+    },
+    {
+      "display": "String name = \"Pomo\";",
+      "input": "String name = \"Pomo\";",
+      "annotation": "String：文字列の変数（参照型）"
+    },
+    {
+      "display": "boolean enabled = true;",
+      "input": "boolean enabled = true;",
+      "annotation": "boolean：真偽値の変数"
+    },
+    {
+      "display": "static final int MAX = 100;",
+      "input": "static final int MAX = 100;",
+      "annotation": "static final：クラスに属する再代入不可フィールド（クラス内に記述）"
+    },
+    {
+      "display": "String text = \"hello\";",
+      "input": "String text = \"hello\";",
+      "annotation": "String：文字列（クラス。プリミティブ型ではない）"
+    },
+    {
+      "display": "int remainder = 10 % 3;",
+      "input": "int remainder = 10 % 3;",
+      "annotation": "+ - * / %：加減乗除・余り（整数同士の除算は小数部を切り捨て）"
+    },
+    {
+      "display": "boolean same = a == b;",
+      "input": "boolean same = a == b;",
+      "annotation": "== / !=：等値・不等値比較（参照型の==は参照の同一性を比較）"
+    },
+    {
+      "display": "boolean adult = age >= 20;",
+      "input": "boolean adult = age >= 20;",
+      "annotation": "< <= > >=：大小比較"
+    },
+    {
+      "display": "int masked = flags & 3;",
+      "input": "int masked = flags & 3;",
+      "annotation": "& | ^ ~：ビット演算（&、|、^はbooleanにも利用可能）"
+    },
+    {
+      "display": "for (;;) { break; }",
+      "input": "for (;;) { break; }",
+      "annotation": "for (;;)：無限ループ"
+    },
+    {
+      "display": "if (done) { break; }",
+      "input": "if (done) { break; }",
+      "annotation": "break：ループ等を抜ける（ループ・switch等の中で使用）"
+    },
+    {
+      "display": "if (skip) { continue; }",
+      "input": "if (skip) { continue; }",
+      "annotation": "continue：次の反復へ（ループ内で使用）"
+    },
+    {
+      "display": "int result = add(2, 3);",
+      "input": "int result = add(2, 3);",
+      "annotation": "メソッド呼び出し：引数を渡して呼ぶ"
+    },
+    {
+      "display": "int[] nums = {1, 2, 3};",
+      "input": "int[] nums = {1, 2, 3};",
+      "annotation": "型[] 名前 = {...}：配列リテラル（長さ固定）"
+    },
+    {
+      "display": "int[] nums = new int[3];",
+      "input": "int[] nums = new int[3];",
+      "annotation": "new 型[長さ]：配列を作成（要素は既定値）"
+    },
+    {
+      "display": "names.add(\"Pomo\");",
+      "input": "names.add(\"Pomo\");",
+      "annotation": "List.add：リストへ追加"
+    },
+    {
+      "display": "String first = names.get(0);",
+      "input": "String first = names.get(0);",
+      "annotation": "List.get：指定位置の値"
+    },
+    {
+      "display": "names.set(0, \"New\");",
+      "input": "names.set(0, \"New\");",
+      "annotation": "List.set：指定位置を書き換える"
+    },
+    {
+      "display": "int n = names.size();",
+      "input": "int n = names.size();",
+      "annotation": "List.size：リストの要素数"
+    },
+    {
+      "display": "scores.put(\"Pomo\", 100);",
+      "input": "scores.put(\"Pomo\", 100);",
+      "annotation": "Map.put：追加・更新"
+    },
+    {
+      "display": "public void greet() {}",
+      "input": "public void greet() {}",
+      "annotation": "public：公開（型・モジュール等のアクセス条件も関係）"
+    },
+    {
+      "display": "final class Utility {}",
+      "input": "final class Utility {}",
+      "annotation": "final class：継承禁止"
+    },
+    {
+      "display": "import java.util.List;",
+      "input": "import java.util.List;",
+      "annotation": "import：型を読み込む"
+    },
+    {
+      "display": "class Dog extends Animal {}",
+      "input": "class Dog extends Animal {}",
+      "annotation": "extends：クラス継承（直接の親クラスは1つ）"
+    },
+    {
+      "display": "interface A extends B {}",
+      "input": "interface A extends B {}",
+      "annotation": "interface extends：インターフェース継承"
+    },
+    {
+      "display": "abstract void speak();",
+      "input": "abstract void speak();",
+      "annotation": "abstractメソッド：実装のない抽象メソッド（抽象クラス等の適切な場所で宣言）"
+    },
+    {
+      "display": "Status status = Status.DOING;",
+      "input": "Status status = Status.DOING;",
+      "annotation": "enum値：列挙値を使用"
+    },
+    {
+      "display": "class Box<T> { T value; }",
+      "input": "class Box<T> { T value; }",
+      "annotation": "class Box<T>：型パラメーター付きクラス"
+    },
+    {
+      "display": "List<? extends Number> nums;",
+      "input": "List<? extends Number> nums;",
+      "annotation": "? extends 型：上限境界ワイルドカード（要素をNumberとして読める。一般に具体的な数値を追加できない）"
+    },
+    {
+      "display": "List<? super Integer> nums;",
+      "input": "List<? super Integer> nums;",
+      "annotation": "? super 型：下限境界ワイルドカード（Integerを追加可能。読み取りは一般にObject）"
+    },
+    {
+      "display": "var stream = names.stream();",
+      "input": "var stream = names.stream();",
+      "annotation": "stream：要素処理用Streamを作成（標準API。Streamは通常1回だけ消費）"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-10-23T00:00:00.000Z"
+}

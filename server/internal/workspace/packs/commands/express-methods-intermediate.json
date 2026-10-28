@@ -1,0 +1,77 @@
+{
+  "id": "express-methods-intermediate",
+  "name": "Expressメソッド（中級）",
+  "category": "プログラミング",
+  "tags": [
+    "Express",
+    "Node.js"
+  ],
+  "group": "Expressメソッド",
+  "levels": [
+    "中級"
+  ],
+  "words": [
+    {
+      "display": "const server=app.listen(3000,()=>console.log('http://localhost:3000'));",
+      "input": "const server=app.listen(3000,()=>console.log('http://localhost:3000'));",
+      "annotation": "app.listen：HTTPサーバー起動（環境のPORTや終了処理は用途に合わせる）"
+    },
+    {
+      "display": "app.get('/users/:id',(req,res)=>{res.json({id:req.params.id})});",
+      "input": "app.get('/users/:id',(req,res)=>{res.json({id:req.params.id})});",
+      "annotation": ":id / req.params：パス引数（文字列として取得。数値等は検証・変換）"
+    },
+    {
+      "display": "app.route('/items').get((_req,res)=>{res.json([])}).post((_req,res)=>{\nres.sendStatus(201)});",
+      "input": "app.route('/items').get((_req,res)=>{res.json([])}).post((_req,res)=>{res.sendStatus(201)});",
+      "annotation": "app.route：同じパスの処理を連結"
+    },
+    {
+      "display": "app.get('/files/*path',(req,res)=>{res.json({path:req.params.path})});",
+      "input": "app.get('/files/*path',(req,res)=>{res.json({path:req.params.path})});",
+      "annotation": "名前付きワイルドカード：Express 5のパス構文（Express 4の無名*とは異なる。ルート自体を含める場合/{*path}等）"
+    },
+    {
+      "display": "app.get('/sample',(_req,res)=>{res.status(200).json({name:'Pomo'})});",
+      "input": "app.get('/sample',(_req,res)=>{res.status(200).json({name:'Pomo'})});",
+      "annotation": "res.status / json：ステータスとJSON"
+    },
+    {
+      "display": "app.get('/text',(_req,res)=>{res.type('text/plain').send('Hello')});",
+      "input": "app.get('/text',(_req,res)=>{res.type('text/plain').send('Hello')});",
+      "annotation": "res.send / type：本文とContent-Type（HTMLへ未エスケープ入力を埋め込まない）"
+    },
+    {
+      "display": "app.use((req,res,next)=>{console.log(req.method,req.path);next()});",
+      "input": "app.use((req,res,next)=>{console.log(req.method,req.path);next()});",
+      "annotation": "next：次の処理へ（応答するかnextする。両方を行わない）"
+    },
+    {
+      "display": "app.get('/async',async(_req,res)=>{ const value=await Promise.resolve(42);\nres.json({value}); });",
+      "input": "app.get('/async',async(_req,res)=>{ const value=await Promise.resolve(42); res.json({value}); });",
+      "annotation": "asyncハンドラー：非同期処理と例外伝播（Express 5は返されたPromiseのrejectをエラー処理へ渡す。別コールバック等は別途扱う）"
+    },
+    {
+      "display": "app.get('/fail',(_req,_res,next)=>{next(new Error('failure'))});",
+      "input": "app.get('/fail',(_req,_res,next)=>{next(new Error('failure'))});",
+      "annotation": "next(err)：エラーを伝える（エラー処理へ移行）"
+    },
+    {
+      "display": "app.disable('x-powered-by'); /* 構成を確認してから: */ /* app.set('trust proxy',\n1); */",
+      "input": "app.disable('x-powered-by'); /* 構成を確認してから: */ /* app.set('trust proxy',1); */",
+      "annotation": "app.disable / trust proxy：ヘッダー・Proxy設定（trust proxyの誤設定はIP・HTTPS判定等を偽装可能にする）"
+    },
+    {
+      "display": "import cors from 'cors'; app.use(cors({origin:'https://app.example.com'}));",
+      "input": "import cors from 'cors'; app.use(cors({origin:'https://app.example.com'}));",
+      "annotation": "cors：CORSミドルウェア（corsと型を追加導入。CORSは認証やサーバー間通信の制限ではない）"
+    },
+    {
+      "display": "const server=app.listen(3000); process.on('SIGTERM',()=>{\nserver.close(()=>process.exit(0))});",
+      "input": "const server=app.listen(3000); process.on('SIGTERM',()=>{server.close(()=>process.exit(0))});",
+      "annotation": "終了時のserver.close：接続を閉じる（タイムアウト・DB切断等を追加。例は独立）"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-10-23T00:00:00.000Z"
+}

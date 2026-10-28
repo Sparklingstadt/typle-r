@@ -1,10 +1,20 @@
 require('./register.cjs')
 const test = require('node:test')
 const assert = require('node:assert/strict')
-const commands = require('../src/plugins/packs/commands.json')
+const commands = require('../src/plugins/packs/commands/index.ts').default
 const { decodeLists, validateList } = require('../src/core/wordLists.ts')
 
-// Since v0.85.0 the initial lists are a copy of the lists of the sparklingstadt account, in its order and without its
+test('the split command lists follow the shared manifest without missing or duplicate files', () => {
+  const fs = require('node:fs')
+  const path = require('node:path')
+  const directory = path.join(__dirname, '../src/plugins/packs/commands')
+  const names = require('../src/plugins/packs/commands/manifest.json')
+  assert.equal(new Set(names).size, names.length)
+  assert.deepEqual(fs.readdirSync(directory).filter(name => name.endsWith('.json') && name !== 'manifest.json').sort(), [...names].sort())
+  assert.deepEqual(commands, names.map(name => JSON.parse(fs.readFileSync(path.join(directory, name), 'utf8'))))
+})
+
+// Since v0.85.0 the official lists are a copy of the lists of the sparklingstadt account, in its order and without its
 // records. Some lists are kept both whole and as their 初級, 中級 and 上級 parts (`<id>-beginner`, `<id>-intermediate-1`,
 // ...); words(id) gives the whole list, or joins the parts when there is none. named(name) gives the words of a list
 // the account made itself, under an id of its own; some of those names were saved with a decomposed ド, kept as saved.
@@ -76,7 +86,9 @@ test('each command is typed as shown, in ASCII, once per list, with an explanati
   for (const list of commands.filter(list => source(list.id) !== 'un-member-states-chinese-193-lowercase')) {
     assert.equal(new Set(list.words.map(word => word.input)).size, list.words.length, list.name)
     for (const word of list.words) {
-      assert.equal(word.display, word.input)
+      // Display-only line breaks can replace one space or sit between code tokens.
+      const chunks = word.display.split('\n').map(line => line.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      assert.match(word.input, new RegExp(`^${chunks.join(' ?')}$`))
       // Go, Java, Kotlin, PostgreSQL, Prisma, Jest and Playwright examples hold Japanese strings and comments.
       assert.match(['go-syntax', 'java-syntax', 'kotlin-syntax', 'postgresql-syntax', 'prisma-syntax', 'jest-syntax', 'playwright-syntax', ...leveled].includes(source(list.id)) || japanese.includes(word.input) ? word.input.replace(/[^\x20-\x7e]/g, 'x') : word.input,
         /^[\x21-\x7e]([\x20-\x7e]*[\x21-\x7e])?$/, word.input)

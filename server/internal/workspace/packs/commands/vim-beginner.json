@@ -1,0 +1,206 @@
+{
+  "id": "vim-beginner",
+  "name": "Vimコマンド（初級）",
+  "category": "プログラミング",
+  "tags": [
+    "Vim"
+  ],
+  "group": "Vimコマンド",
+  "levels": [
+    "初級"
+  ],
+  "words": [
+    {
+      "display": "i",
+      "input": "i",
+      "annotation": "カーソルの前から入力（挿入モードへ）"
+    },
+    {
+      "display": "a",
+      "input": "a",
+      "annotation": "カーソルの後ろから入力（挿入モードへ）"
+    },
+    {
+      "display": "I",
+      "input": "I",
+      "annotation": "行の最初の空白以外の文字の前から入力"
+    },
+    {
+      "display": "A",
+      "input": "A",
+      "annotation": "行末から入力"
+    },
+    {
+      "display": "o",
+      "input": "o",
+      "annotation": "下に空行を作って入力"
+    },
+    {
+      "display": "O",
+      "input": "O",
+      "annotation": "上に空行を作って入力"
+    },
+    {
+      "display": "v",
+      "input": "v",
+      "annotation": "文字単位の範囲選択（ビジュアルモードへ）"
+    },
+    {
+      "display": "V",
+      "input": "V",
+      "annotation": "行単位の範囲選択"
+    },
+    {
+      "display": "R",
+      "input": "R",
+      "annotation": "文字を上書きしながら入力（置換モードへ）"
+    },
+    {
+      "display": ":",
+      "input": ":",
+      "annotation": "コマンドラインへ移る（コマンド入力後にEnter）"
+    },
+    {
+      "display": "h",
+      "input": "h",
+      "annotation": "左へ移動"
+    },
+    {
+      "display": "j",
+      "input": "j",
+      "annotation": "下へ移動"
+    },
+    {
+      "display": "k",
+      "input": "k",
+      "annotation": "上へ移動"
+    },
+    {
+      "display": "l",
+      "input": "l",
+      "annotation": "右へ移動"
+    },
+    {
+      "display": "w",
+      "input": "w",
+      "annotation": "次の単語の先頭へ"
+    },
+    {
+      "display": "b",
+      "input": "b",
+      "annotation": "前の単語の先頭へ"
+    },
+    {
+      "display": "e",
+      "input": "e",
+      "annotation": "単語の末尾へ"
+    },
+    {
+      "display": "0",
+      "input": "0",
+      "annotation": "行の先頭へ（数字のゼロ）"
+    },
+    {
+      "display": "^",
+      "input": "^",
+      "annotation": "行の最初の空白以外の文字へ"
+    },
+    {
+      "display": "$",
+      "input": "$",
+      "annotation": "行末へ"
+    },
+    {
+      "display": "gg",
+      "input": "gg",
+      "annotation": "ファイルの先頭へ"
+    },
+    {
+      "display": "G",
+      "input": "G",
+      "annotation": "ファイルの最終行へ"
+    },
+    {
+      "display": "%",
+      "input": "%",
+      "annotation": "対応する括弧へ"
+    },
+    {
+      "display": "zz",
+      "input": "zz",
+      "annotation": "現在行を画面中央に表示（スクロール位置を調整）"
+    },
+    {
+      "display": "5j",
+      "input": "5j",
+      "annotation": "5行下へ（数字で移動回数を指定）"
+    },
+    {
+      "display": "3w",
+      "input": "3w",
+      "annotation": "3単語先へ（数字で移動回数を指定）"
+    },
+    {
+      "display": "x",
+      "input": "x",
+      "annotation": "カーソル位置の文字を削除（削除内容は通常Vimのレジスタへ）"
+    },
+    {
+      "display": "D",
+      "input": "D",
+      "annotation": "カーソル位置から行末まで削除（d$と同じ）"
+    },
+    {
+      "display": "C",
+      "input": "C",
+      "annotation": "行末まで変更（c$と同じ）"
+    },
+    {
+      "display": "p",
+      "input": "p",
+      "annotation": "カーソルの後ろへ貼り付け（行単位なら下の行へ）"
+    },
+    {
+      "display": "P",
+      "input": "P",
+      "annotation": "カーソルの前へ貼り付け（行単位なら上の行へ）"
+    },
+    {
+      "display": "u",
+      "input": "u",
+      "annotation": "元に戻す"
+    },
+    {
+      "display": "J",
+      "input": "J",
+      "annotation": "次の行を現在行につなげる"
+    },
+    {
+      "display": "y",
+      "input": "y",
+      "annotation": "ビジュアルモードで選択中：選択範囲をコピー"
+    },
+    {
+      "display": "d",
+      "input": "d",
+      "annotation": "ビジュアルモードで選択中：選択範囲を削除"
+    },
+    {
+      "display": "c",
+      "input": "c",
+      "annotation": "ビジュアルモードで選択中：選択範囲を変更（入力後にEsc）"
+    },
+    {
+      "display": "n",
+      "input": "n",
+      "annotation": "同じ検索方向の次の一致へ"
+    },
+    {
+      "display": "N",
+      "input": "N",
+      "annotation": "検索方向と逆の一致へ"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-10-23T00:00:00.000Z"
+}

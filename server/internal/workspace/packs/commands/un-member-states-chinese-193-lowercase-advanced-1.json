@@ -1,0 +1,207 @@
+{
+  "id": "un-member-states-chinese-193-lowercase-advanced-1",
+  "name": "国名：中国語・国連加盟国（小文字・上級1）",
+  "category": "語学",
+  "tags": [
+    "中国語",
+    "国名"
+  ],
+  "group": "国名：中国語・国連加盟国（小文字）",
+  "levels": [
+    "上級1"
+  ],
+  "words": [
+    {
+      "display": "阿塞拜疆",
+      "input": "asaibaijiang",
+      "annotation": "Āsàibàijiāng / アゼルバイジャン"
+    },
+    {
+      "display": "孟加拉国",
+      "input": "mengjialaguo",
+      "annotation": "Mèngjiālāguó / バングラデシュ"
+    },
+    {
+      "display": "保加利亚",
+      "input": "baojialiya",
+      "annotation": "Bǎojiālìyà / ブルガリア"
+    },
+    {
+      "display": "布基纳法索",
+      "input": "bujina fasuo",
+      "annotation": "Bùjīnà Fǎsuǒ / ブルキナファソ"
+    },
+    {
+      "display": "柬埔寨",
+      "input": "jianpuzhai",
+      "annotation": "Jiǎnpǔzhài / カンボジア"
+    },
+    {
+      "display": "刚果（布）",
+      "input": "gangguo bu",
+      "annotation": "Gāngguǒ (Bù) / コンゴ共和国"
+    },
+    {
+      "display": "哥斯达黎加",
+      "input": "gesidalijia",
+      "annotation": "Gēsīdálíjiā / コスタリカ"
+    },
+    {
+      "display": "厄立特里亚",
+      "input": "eliteliya",
+      "annotation": "Èlìtèlǐyà / エリトリア"
+    },
+    {
+      "display": "爱沙尼亚",
+      "input": "aishaniya",
+      "annotation": "Àishāníyà / エストニア"
+    },
+    {
+      "display": "斯威士兰",
+      "input": "siweishilan",
+      "annotation": "Sīwēishìlán / エスワティニ"
+    },
+    {
+      "display": "埃塞俄比亚",
+      "input": "aisaiebiya",
+      "annotation": "Āisài'ébǐyà / エチオピア"
+    },
+    {
+      "display": "格林纳达",
+      "input": "gelinnada",
+      "annotation": "Gélínnádá / グレナダ"
+    },
+    {
+      "display": "危地马拉",
+      "input": "weidimala",
+      "annotation": "Wēidìmǎlā / グアテマラ"
+    },
+    {
+      "display": "洪都拉斯",
+      "input": "hongdulasi",
+      "annotation": "Hóngdūlāsī / ホンジュラス"
+    },
+    {
+      "display": "匈牙利",
+      "input": "xiongyali",
+      "annotation": "Xiōngyálì / ハンガリー"
+    },
+    {
+      "display": "印度尼西亚",
+      "input": "yindunixiya",
+      "annotation": "Yìndùníxīyà / インドネシア"
+    },
+    {
+      "display": "哈萨克斯坦",
+      "input": "hasakesitan",
+      "annotation": "Hāsàkèsītǎn / カザフスタン"
+    },
+    {
+      "display": "拉脱维亚",
+      "input": "latuoweiya",
+      "annotation": "Lātuōwéiyà / ラトビア"
+    },
+    {
+      "display": "莱索托",
+      "input": "laisuotuo",
+      "annotation": "Láisuǒtuō / レソト"
+    },
+    {
+      "display": "马来西亚",
+      "input": "malaixiya",
+      "annotation": "Mǎláixīyà / マレーシア"
+    },
+    {
+      "display": "马尔代夫",
+      "input": "maerdaifu",
+      "annotation": "Mǎ'ěrdàifū / モルディブ"
+    },
+    {
+      "display": "毛里塔尼亚",
+      "input": "maolitaniya",
+      "annotation": "Máolǐtǎníyà / モーリタニア"
+    },
+    {
+      "display": "毛里求斯",
+      "input": "maoliqiusi",
+      "annotation": "Máolǐqiúsī / モーリシャス"
+    },
+    {
+      "display": "莫桑比克",
+      "input": "mosangbike",
+      "annotation": "Mòsāngbǐkè / モザンビーク"
+    },
+    {
+      "display": "尼加拉瓜",
+      "input": "nijialagua",
+      "annotation": "Níjiālāguā / ニカラグア"
+    },
+    {
+      "display": "北马其顿",
+      "input": "bei maqidun",
+      "annotation": "Běi Mǎqídùn / 北マケドニア"
+    },
+    {
+      "display": "巴基斯坦",
+      "input": "bajisitan",
+      "annotation": "Bājīsītǎn / パキスタン"
+    },
+    {
+      "display": "罗马尼亚",
+      "input": "luomaniya",
+      "annotation": "Luómǎníyà / ルーマニア"
+    },
+    {
+      "display": "沙特阿拉伯",
+      "input": "shate alabo",
+      "annotation": "Shātè Ālābó / サウジアラビア"
+    },
+    {
+      "display": "塞内加尔",
+      "input": "saineijiaer",
+      "annotation": "Sàinèijiā'ěr / セネガル"
+    },
+    {
+      "display": "塞尔维亚",
+      "input": "saierweiya",
+      "annotation": "Sài'ěrwéiyà / セルビア"
+    },
+    {
+      "display": "塞拉利昂",
+      "input": "sailaliang",
+      "annotation": "Sāilālì'áng / シエラレオネ"
+    },
+    {
+      "display": "斯洛伐克",
+      "input": "siluofake",
+      "annotation": "Sīluòfákè / スロバキア"
+    },
+    {
+      "display": "南苏丹",
+      "input": "nan sudan",
+      "annotation": "Nán Sūdān / 南スーダン"
+    },
+    {
+      "display": "斯里兰卡",
+      "input": "sililanka",
+      "annotation": "Sīlǐlánkǎ / スリランカ"
+    },
+    {
+      "display": "塔吉克斯坦",
+      "input": "tajikesitan",
+      "annotation": "Tǎjíkèsītǎn / タジキスタン"
+    },
+    {
+      "display": "东帝汶",
+      "input": "dongdiwen",
+      "annotation": "Dōngdìwèn / 東ティモール"
+    },
+    {
+      "display": "津巴布韦",
+      "input": "jinbabuwei",
+      "annotation": "Jīnbābùwéi / ジンバブエ"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-10-23T00:00:00.000Z"
+}

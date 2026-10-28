@@ -1,21 +1,23 @@
 package workspace
 
 import (
-	_ "embed"
+	"embed"
 	"encoding/json"
 	"fmt"
 )
 
 // Copies of src/plugins/packs, checked against the originals by TestPacksMatchApp.
 //
-//go:generate cp ../../../src/plugins/packs/samples.json ../../../src/plugins/packs/countries.json ../../../src/plugins/packs/commands.json packs/
+//go:generate cp ../../../src/plugins/packs/samples.json ../../../src/plugins/packs/countries.json packs/
+//go:generate mkdir -p packs/commands
+//go:generate sh -c "cp ../../../src/plugins/packs/commands/*.json packs/commands/"
 var (
 	//go:embed packs/samples.json
 	samplesJSON []byte
 	//go:embed packs/countries.json
 	countriesJSON []byte
-	//go:embed packs/commands.json
-	commandsJSON []byte
+	//go:embed packs/commands/*.json
+	commandFiles embed.FS
 )
 
 // Initial is the workspace before anything is saved: no packs, lists or registered devices, as initialLibrary in
@@ -38,8 +40,24 @@ func OfficialPacks() ([]OfficialPack, error) {
 	if err := json.Unmarshal(countriesJSON, &countries); err != nil {
 		return nil, err
 	}
-	if err := json.Unmarshal(commandsJSON, &commands); err != nil {
+	manifest, err := commandFiles.ReadFile("packs/commands/manifest.json")
+	if err != nil {
 		return nil, err
+	}
+	var names []string
+	if err := json.Unmarshal(manifest, &names); err != nil {
+		return nil, err
+	}
+	for _, name := range names {
+		data, err := commandFiles.ReadFile("packs/commands/" + name)
+		if err != nil {
+			return nil, err
+		}
+		var list rawList
+		if err := json.Unmarshal(data, &list); err != nil {
+			return nil, fmt.Errorf("official list %s: %w", name, err)
+		}
+		commands = append(commands, &list)
 	}
 	for index, list := range samples {
 		id := fmt.Sprintf("sample-%d", index+1)

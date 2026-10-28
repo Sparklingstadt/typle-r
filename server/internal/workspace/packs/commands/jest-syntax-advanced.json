@@ -1,0 +1,182 @@
+{
+  "id": "jest-syntax-advanced",
+  "name": "Jest構文（上級）",
+  "category": "プログラミング",
+  "tags": [
+    "Jest",
+    "テスト"
+  ],
+  "group": "Jest構文",
+  "levels": [
+    "上級"
+  ],
+  "words": [
+    {
+      "display": "import { describe, test, expect, jest, beforeEach, afterEach, beforeAll,\nafterAll } from '@jest/globals';",
+      "input": "import { describe, test, expect, jest, beforeEach, afterEach, beforeAll, afterAll } from '@jest/globals';",
+      "annotation": "@jest/globals：テストAPIをimport（通常はグローバルでも利用可能。ESMではjestを明示import）"
+    },
+    {
+      "display": "test('足し算', () => { expect(1 + 2).toBe(3); });",
+      "input": "test('足し算', () => { expect(1 + 2).toBe(3); });",
+      "annotation": "test / it：テストを定義（itはtestの別名）"
+    },
+    {
+      "display": "describe('add', () => { test('正の数', () => expect(1 + 2).toBe(3)); });",
+      "input": "describe('add', () => { test('正の数', () => expect(1 + 2).toBe(3)); });",
+      "annotation": "describe：テストを分類（describe自体で非同期処理を待たない）"
+    },
+    {
+      "display": "test.each([[1, 2, 3], [2, 3, 5]])('%i + %i = %i', (a, b, expected) => {\nexpect(a + b).toBe(expected); });",
+      "input": "test.each([[1, 2, 3], [2, 3, 5]])('%i + %i = %i', (a, b, expected) => { expect(a + b).toBe(expected); });",
+      "annotation": "test.each：表形式のパラメーターテスト"
+    },
+    {
+      "display": "beforeAll(async () => { await setup(); }); afterAll(async () => {\nawait teardown(); });",
+      "input": "beforeAll(async () => { await setup(); }); afterAll(async () => { await teardown(); });",
+      "annotation": "beforeAll / afterAll：一度だけ準備・終了（setup・teardownを用意。Promiseを返すかawait）"
+    },
+    {
+      "display": "test.concurrent('独立した処理', async () => {\nexpect(await Promise.resolve(1)).toBe(1); });",
+      "input": "test.concurrent('独立した処理', async () => { expect(await Promise.resolve(1)).toBe(1); });",
+      "annotation": "test.concurrent：テストを並行実行（共有変数・DB・モック等の状態競合に注意）"
+    },
+    {
+      "display": "expect({ name: 'Pomo' }).toEqual({ name: 'Pomo' });",
+      "input": "expect({ name: 'Pomo' }).toEqual({ name: 'Pomo' });",
+      "annotation": "toEqual：内容の深い比較（undefinedプロパティ等の厳密さはtoStrictEqualと異なる）"
+    },
+    {
+      "display": "expect(null).toBeNull(); expect(undefined).toBeUndefined();",
+      "input": "expect(null).toBeNull(); expect(undefined).toBeUndefined();",
+      "annotation": "toBeNull / toBeUndefined：null・undefinedの判定"
+    },
+    {
+      "display": "expect(10).toBeGreaterThan(5); expect(1).toBeLessThan(5);",
+      "input": "expect(10).toBeGreaterThan(5); expect(1).toBeLessThan(5);",
+      "annotation": "toBeGreaterThan / toBeLessThan：大小（以上・以下はOrEqual付き）"
+    },
+    {
+      "display": "expect({ user: { name: 'Pomo' } }).toHaveProperty('user.name', 'Pomo');",
+      "input": "expect({ user: { name: 'Pomo' } }).toHaveProperty('user.name', 'Pomo');",
+      "annotation": "toHaveProperty：プロパティと値"
+    },
+    {
+      "display": "expect({ id: 1, name: 'Pomo' }).toMatchObject({ id: 1 });",
+      "input": "expect({ id: 1, name: 'Pomo' }).toMatchObject({ id: 1 });",
+      "annotation": "toMatchObject：オブジェクトの部分一致"
+    },
+    {
+      "display": "expect({ id: 1, name: 'Pomo' }).toEqual(expect.objectContaining({ id: 1 }));\nexpect([1, 2, 3]).toEqual(expect.arrayContaining([2]));",
+      "input": "expect({ id: 1, name: 'Pomo' }).toEqual(expect.objectContaining({ id: 1 })); expect([1, 2, 3]).toEqual(expect.arrayContaining([2]));",
+      "annotation": "objectContaining / arrayContaining：非対称の部分一致（arrayContainingは順序・完全一致を要求しない）"
+    },
+    {
+      "display": "expect({ id: 1 }).toEqual({ id: expect.any(Number) });\nexpect('x').toEqual(expect.anything());",
+      "input": "expect({ id: 1 }).toEqual({ id: expect.any(Number) }); expect('x').toEqual(expect.anything());",
+      "annotation": "expect.any / anything：型・値の大まかな検証（anythingはnullとundefinedを除く）"
+    },
+    {
+      "display": "expect(() => { throw new Error('失敗'); }).toThrow('失敗');",
+      "input": "expect(() => { throw new Error('失敗'); }).toThrow('失敗');",
+      "annotation": "toThrow：同期例外（実行結果ではなく関数を渡す）"
+    },
+    {
+      "display": "test('取得', async () => { const value = await Promise.resolve(42);\nexpect(value).toBe(42); });",
+      "input": "test('取得', async () => { const value = await Promise.resolve(42); expect(value).toBe(42); });",
+      "annotation": "async / await：非同期処理を待って検証（await・return漏れは検証前にテスト終了し得る）"
+    },
+    {
+      "display": "await expect(Promise.reject(new Error('失敗'))).rejects.toThrow('失敗');",
+      "input": "await expect(Promise.reject(new Error('失敗'))).rejects.toThrow('失敗');",
+      "annotation": "rejects：Promise失敗を検証（必ずawaitまたはreturn）"
+    },
+    {
+      "display": "test('非同期', async () => { expect.assertions(1);\nawait expect(Promise.resolve(42)).resolves.toBe(42); });",
+      "input": "test('非同期', async () => { expect.assertions(1); await expect(Promise.resolve(42)).resolves.toBe(42); });",
+      "annotation": "expect.assertions：アサーション実行数"
+    },
+    {
+      "display": "const fn = jest.fn().mockReturnValue(42); expect(fn()).toBe(42);",
+      "input": "const fn = jest.fn().mockReturnValue(42); expect(fn()).toBe(42);",
+      "annotation": "mockReturnValue：固定の戻り値"
+    },
+    {
+      "display": "const fn = jest.fn().mockReturnValueOnce('first').mockReturnValue('later');",
+      "input": "const fn = jest.fn().mockReturnValueOnce('first').mockReturnValue('later');",
+      "annotation": "mockReturnValueOnce：次の1回の戻り値"
+    },
+    {
+      "display": "const fn = jest.fn<() => Promise<number>>().mockResolvedValue(42);",
+      "input": "const fn = jest.fn<() => Promise<number>>().mockResolvedValue(42);",
+      "annotation": "mockResolvedValue：成功するPromise（このジェネリクス例はTypeScript）"
+    },
+    {
+      "display": "const fn = jest.fn<() => Promise<never>>().mockRejectedValue(new Error('失敗'));",
+      "input": "const fn = jest.fn<() => Promise<never>>().mockRejectedValue(new Error('失敗'));",
+      "annotation": "mockRejectedValue：失敗するPromise（TypeScriptの例）"
+    },
+    {
+      "display": "const spy = jest.spyOn(console, 'log').mockImplementation(() => {});\nconsole.log('Hello'); expect(spy).toHaveBeenCalledWith('Hello');\nspy.mockRestore();",
+      "input": "const spy = jest.spyOn(console, 'log').mockImplementation(() => {}); console.log('Hello'); expect(spy).toHaveBeenCalledWith('Hello'); spy.mockRestore();",
+      "annotation": "jest.spyOn：既存メソッドを監視（spyOn単体では通常元の実装も呼ぶ）"
+    },
+    {
+      "display": "const fn = jest.fn(); fn(); expect(fn).toHaveBeenCalled();",
+      "input": "const fn = jest.fn(); fn(); expect(fn).toHaveBeenCalled();",
+      "annotation": "toHaveBeenCalled：呼ばれたことを検証"
+    },
+    {
+      "display": "const fn = jest.fn(); fn(); expect(fn).toHaveBeenCalledTimes(1);",
+      "input": "const fn = jest.fn(); fn(); expect(fn).toHaveBeenCalledTimes(1);",
+      "annotation": "toHaveBeenCalledTimes：呼出回数"
+    },
+    {
+      "display": "const fn = jest.fn(); fn('Pomo'); expect(fn).toHaveBeenCalledWith('Pomo');",
+      "input": "const fn = jest.fn(); fn('Pomo'); expect(fn).toHaveBeenCalledWith('Pomo');",
+      "annotation": "toHaveBeenCalledWith：呼出引数"
+    },
+    {
+      "display": "const fn = jest.fn(); fn('first'); expect(fn).toHaveBeenNthCalledWith(1,\n'first');",
+      "input": "const fn = jest.fn(); fn('first'); expect(fn).toHaveBeenNthCalledWith(1, 'first');",
+      "annotation": "toHaveBeenNthCalledWith：指定回の引数"
+    },
+    {
+      "display": "const fn = jest.fn((n: number) => n * 2); fn(3);\nexpect(fn.mock.calls[0]).toEqual([3]); expect(fn.mock.results[0].value).toBe(6);",
+      "input": "const fn = jest.fn((n: number) => n * 2); fn(3); expect(fn.mock.calls[0]).toEqual([3]); expect(fn.mock.results[0].value).toBe(6);",
+      "annotation": "mock.calls / mock.results：呼出履歴・結果を確認（TypeScriptの例）"
+    },
+    {
+      "display": "jest.mock('./api', () => ({ fetchUser: jest.fn() }));",
+      "input": "jest.mock('./api', () => ({ fetchUser: jest.fn() }));",
+      "annotation": "jest.mock：モジュールをモック（CommonJSまたは対応する変換環境の例。native ESMでは別手順）"
+    },
+    {
+      "display": "jest.unstable_mockModule('./api.js', () => ({ fetchUser: jest.fn() }));\nconst api = await import('./api.js');",
+      "input": "jest.unstable_mockModule('./api.js', () => ({ fetchUser: jest.fn() })); const api = await import('./api.js');",
+      "annotation": "unstable_mockModule：native ESMモック（実験的API。対象・利用側のimport順とESM実行設定が重要）"
+    },
+    {
+      "display": "beforeEach(() => { jest.useFakeTimers(); }); afterEach(() => {\njest.useRealTimers(); });",
+      "input": "beforeEach(() => { jest.useFakeTimers(); }); afterEach(() => { jest.useRealTimers(); });",
+      "annotation": "useFakeTimers / useRealTimers：仮想タイマーと復元（実タイマーへ必ず戻す）"
+    },
+    {
+      "display": "jest.useFakeTimers(); const fn = jest.fn(); setTimeout(fn, 1000);\njest.advanceTimersByTime(1000); expect(fn).toHaveBeenCalled();\njest.useRealTimers();",
+      "input": "jest.useFakeTimers(); const fn = jest.fn(); setTimeout(fn, 1000); jest.advanceTimersByTime(1000); expect(fn).toHaveBeenCalled(); jest.useRealTimers();",
+      "annotation": "advanceTimersByTime：時間を進める"
+    },
+    {
+      "display": "jest.useFakeTimers(); jest.setSystemTime(new Date('2026-01-01T00:00:00Z'));\nexpect(new Date().getUTCFullYear()).toBe(2026); jest.useRealTimers();",
+      "input": "jest.useFakeTimers(); jest.setSystemTime(new Date('2026-01-01T00:00:00Z')); expect(new Date().getUTCFullYear()).toBe(2026); jest.useRealTimers();",
+      "annotation": "setSystemTime：システム時刻を固定（時刻変更だけではタイマーを自動発火しない）"
+    },
+    {
+      "display": "export default { testEnvironment: 'node', clearMocks: true, restoreMocks: true }\n;",
+      "input": "export default { testEnvironment: 'node', clearMocks: true, restoreMocks: true };",
+      "annotation": "jest.config：設定ファイル（ESM設定例。TypeScript変換等は別途）"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-10-23T00:00:00.000Z"
+}
