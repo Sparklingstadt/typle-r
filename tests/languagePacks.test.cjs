@@ -1,0 +1,40 @@
+require('./register.cjs')
+const { test } = require('node:test')
+const assert = require('node:assert/strict')
+const { initialLists } = require('../src/plugins/packs/index.ts')
+const languageLists = initialLists.filter(list => list.id.endsWith('-basics'))
+const { decodeLists } = require('../src/core/wordLists.ts')
+const { officialPacks, followOfficialPack } = require('../src/plugins/packs/catalog.ts')
+const { validateLibrary } = require('../src/core/wordPacks.ts')
+
+test('the six beginner language lists decode and can be followed with all their words intact', () => {
+  assert.deepEqual(languageLists.map(list => list.id), ['korean-basics', 'french-basics', 'czech-basics', 'german-basics', 'spanish-basics', 'chinese-basics'])
+  assert.deepEqual(decodeLists(JSON.stringify({ version: 1, lists: languageLists })), languageLists)
+  assert.equal(new Set(initialLists.map(list => list.id)).size, initialLists.length)
+  let library = { packs: [], lists: [] }
+  for (const list of languageLists) {
+    assert.equal(list.words.length, 80)
+    assert.ok(list.words.every(word => word.input_type === 'word'))
+    assert.equal(list.category, '語学')
+    assert.deepEqual(list.records, [])
+    assert.ok(list.words.every(word => word.annotation.startsWith(`${word.input} / `)))
+    const entry = officialPacks().find(pack => pack.lists.some(item => item.id === list.id))
+    assert.ok(entry, list.id)
+    library = followOfficialPack(library, entry.catalogId, { pack: `followed-${list.id}`, lists: [`mine-${list.id}`] })
+    const followed = library.lists.find(item => item.origin?.listId === list.id)
+    assert.deepEqual(followed.words, list.words)
+  }
+  validateLibrary(library)
+  assert.equal(library.packs.length, 6)
+  assert.equal(library.lists.reduce((count, list) => count + list.words.length, 0), 480)
+})
+
+test('native spelling, romanization and tone marks remain in the typing targets', () => {
+  const word = (id, display) => languageLists.find(list => list.id === id).words.find(item => item.display === display)
+  assert.equal(word('korean-basics', '저는 학생이에요.').input, 'jeoneun haksaengieyo.')
+  assert.equal(word('french-basics', 'être').input, 'être')
+  assert.equal(word('czech-basics', 'děkuji').input, 'děkuji')
+  assert.equal(word('german-basics', 'groß').input, 'groß')
+  assert.equal(word('spanish-basics', '¿Qué es esto?').input, '¿Qué es esto?')
+  assert.equal(word('chinese-basics', '你好').input, 'nǐ hǎo')
+})

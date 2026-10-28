@@ -64,5 +64,11 @@
   "oracle-plsql-syntax-advanced.json",
   "sql-server-tsql-syntax-beginner.json",
   "sql-server-tsql-syntax-intermediate.json",
-  "sql-server-tsql-syntax-advanced.json"
+  "sql-server-tsql-syntax-advanced.json",
+  "korean-basics.json",
+  "french-basics.json",
+  "czech-basics.json",
+  "german-basics.json",
+  "spanish-basics.json",
+  "chinese-basics.json"
 ]

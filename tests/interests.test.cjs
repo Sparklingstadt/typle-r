@@ -7,7 +7,7 @@ const corrupted = error => error.key === 'savedDataCorrupted'
 
 test('options follow the spec table', () => {
   assert.deepEqual(INTEREST_OPTIONS.map(option => [option.id, option.category]), [['language', '語学'], ['programming', 'プログラミング']])
-  assert.deepEqual(INTEREST_OPTIONS[0].children.map(child => child.id), ['language/zh', 'language/ru', 'language/ko', 'language/en', 'language/es', 'language/fr', 'language/de'])
+  assert.deepEqual(INTEREST_OPTIONS[0].children.map(child => child.id), ['language/zh', 'language/ru', 'language/ko', 'language/en', 'language/es', 'language/fr', 'language/de', 'language/cs'])
   assert.deepEqual(INTEREST_OPTIONS[1].children.map(child => child.tag), ['Go', 'Kotlin', 'Java', 'TypeScript', 'PHP', 'Ruby', 'SQL', 'Linux', 'Vim', 'テスト', 'Node.js', 'シェル', 'クラウド'])
 })
 

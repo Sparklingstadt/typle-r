@@ -14,7 +14,8 @@
       "en": "Anglais",
       "es": "Espagnol",
       "fr": "Français",
-      "de": "Allemand"
+      "de": "Allemand",
+      "cs": "Tchèque"
     },
     "programming": {
       "go": "Go",

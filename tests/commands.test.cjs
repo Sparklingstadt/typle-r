@@ -78,6 +78,7 @@ test('the initial lists decode in Typle with their own ids and names', () => {
     ['postgresql-syntax', [38, 38, 38, 38]], ['prisma-syntax', [32, 32]], ['jest-syntax', [34, 33]], ['playwright-syntax', [35, 35]],
     ['typescript-syntax', [18, 18, 18]], ['hono-methods', [12, 12, 12]], ['php-syntax', [14, 14, 13]], ['rails-methods', [15, 15, 14]],
     ['express-methods', [12, 12, 11]], ['oracle-plsql-syntax', [13, 12, 12]], ['sql-server-tsql-syntax', [15, 15, 15]],
+    ['korean-basics', [80]], ['french-basics', [80]], ['czech-basics', [80]], ['german-basics', [80]], ['spanish-basics', [80]], ['chinese-basics', [80]],
   ])
   assert.equal(lists.length, commands.length)
   const { initialLists } = require('../src/plugins/packs/index.ts')
@@ -120,7 +121,7 @@ test('each command is typed as shown, in ASCII, once per list, with an explanati
     'git clone https://aur.archlinux.org/パッケージ名.git', 'systemctl --user status 名前',
     ':w 名前', ':saveas パス', '/文字列', '?文字列', '/\\V文字列', ':sp ファイル', ':vsp ファイル']
   // The lowercase country list shows the Chinese name; its own test below checks it.
-  for (const list of commands.filter(list => source(list.id) !== 'un-member-states-chinese-193-lowercase')) {
+  for (const list of commands.filter(list => list.category !== '語学')) {
     assert.equal(new Set(list.words.map(word => word.input)).size, list.words.length, list.name)
     for (const word of list.words) {
       // The display formats code with spaces and indentation; the typing target stays on one line.
