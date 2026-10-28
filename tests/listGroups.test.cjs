@@ -60,7 +60,7 @@ test('the initial lists split into levels are put in groups, each list with leve
     if (!members || members.length < 2) return [{ group: null, items: [item] }]
     return members[0] === item ? [{ group: item.group, items: members }] : []
   })
-  assert.equal(entries.length, 29)
+  assert.equal(entries.length, 35)
   const groups = entries.filter(entry => entry.group)
   assert.equal(groups.length, 17)
   const kotlinGroup = groups.find(entry => entry.group === 'Kotlin構文')
@@ -71,6 +71,6 @@ test('the initial lists split into levels are put in groups, each list with leve
     for (const item of entry.items) assert.equal(listAtLevels(entry.items, item.levels), item)
   }
   // The lists the sparklingstadt account keeps whole (since v0.85.0 the initial lists are its lists) are not grouped.
-  assert.deepEqual(entries.filter(entry => !entry.group).map(entry => entry.items[0].id), [...initialLists.slice(0, 9).map(item => item.id), 'arch-linux', 'vim', 'un-member-states-chinese-193-lowercase'])
+  assert.deepEqual(entries.filter(entry => !entry.group).map(entry => entry.items[0].id), [...initialLists.slice(0, 9).map(item => item.id), 'arch-linux', 'vim', 'un-member-states-chinese-193-lowercase', 'korean-basics', 'french-basics', 'czech-basics', 'german-basics', 'spanish-basics', 'chinese-basics'])
   validateLists(initialLists)
 })

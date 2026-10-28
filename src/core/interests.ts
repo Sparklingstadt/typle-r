@@ -12,7 +12,7 @@ export const INTEREST_OPTIONS: InterestOption[] = [
     children: [
       child('language', 'zh', '中国語'), child('language', 'ru', 'ロシア語'), child('language', 'ko', '韓国語'), // i18n-ignore
       child('language', 'en', '英語'), child('language', 'es', 'スペイン語'), child('language', 'fr', 'フランス語'), // i18n-ignore
-      child('language', 'de', 'ドイツ語'), // i18n-ignore
+      child('language', 'de', 'ドイツ語'), child('language', 'cs', 'チェコ語'), // i18n-ignore
     ],
   },
   {

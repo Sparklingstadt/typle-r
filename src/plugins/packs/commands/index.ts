@@ -66,6 +66,13 @@ import list64 from './sql-server-tsql-syntax-beginner.json'
 import list65 from './sql-server-tsql-syntax-intermediate.json'
 import list66 from './sql-server-tsql-syntax-advanced.json'
 
+import korean from './korean-basics.json'
+import french from './french-basics.json'
+import czech from './czech-basics.json'
+import german from './german-basics.json'
+import spanish from './spanish-basics.json'
+import chinese from './chinese-basics.json'
+
 // Keep this order aligned with manifest.json, used by the Go backend.
 const commands: SavedWordList[] = [
   list0,
@@ -134,6 +141,12 @@ const commands: SavedWordList[] = [
   list64,
   list65,
   list66,
+  korean,
+  french,
+  czech,
+  german,
+  spanish,
+  chinese,
 ].map(list => ({
   ...list,
   words: list.words.map(word => {

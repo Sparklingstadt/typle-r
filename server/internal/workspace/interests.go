@@ -41,7 +41,7 @@ var errInvalidInterests = errors.New("interests are invalid")
 // src/core/interests.ts: every option, so that every official pack fits. tests/fixtures/default-interests.json is
 // checked by both. Callers do not change it.
 var DefaultInterests = []string{
-	"language", "language/zh", "language/ru", "language/ko", "language/en", "language/es", "language/fr", "language/de",
+	"language", "language/zh", "language/ru", "language/ko", "language/en", "language/es", "language/fr", "language/de", "language/cs",
 	"programming", "programming/go", "programming/kotlin", "programming/java", "programming/typescript", "programming/php",
 	"programming/ruby", "programming/sql", "programming/linux", "programming/vim", "programming/test", "programming/node",
 	"programming/shell", "programming/cloud",
