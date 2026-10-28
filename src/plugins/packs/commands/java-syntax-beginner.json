@@ -11,12 +11,12 @@
   ],
   "words": [
     {
-      "display": "public class Main { public static void main(String[] args) {\nSystem.out.println(\"Hello, Java!\"); } }",
+      "display": "public class Main {\n  public static void main(String[] args) {\n    System.out.println(\"Hello, Java!\");\n  }\n}",
       "input": "public class Main { public static void main(String[] args) { System.out.println(\"Hello, Java!\"); } }",
       "annotation": "class：クラス定義（Main.javaに保存する例） / コード例の利用：断片を適切な場所へ配置（多くの例はメソッド内の断片。未定義変数・型・import等を補って利用）"
     },
     {
-      "display": "public class Main {}",
+      "display": "public class Main {\n}",
       "input": "public class Main {}",
       "annotation": "public：外部に公開"
     },
@@ -26,7 +26,7 @@
       "annotation": "static：インスタンスではなくクラスに属する（クラス内に記述）"
     },
     {
-      "display": "void greet() {}",
+      "display": "void greet() {\n}",
       "input": "void greet() {}",
       "annotation": "void：戻り値なし"
     },
@@ -171,7 +171,7 @@
       "annotation": "super.method()：親クラスの実装呼び出し"
     },
     {
-      "display": "java -version",
+      "display": "java - version",
       "input": "java -version",
       "annotation": "Java 21基準：構文・APIの対象バージョン（java -versionはターミナルで実行するコマンド）"
     }

@@ -12,17 +12,17 @@
   ],
   "words": [
     {
-      "display": "class User < ApplicationRecord; end",
+      "display": "class User < ApplicationRecord;\nend",
       "input": "class User < ApplicationRecord; end",
       "annotation": "Rails 8系：対象・コード例（生成済みRailsアプリを想定。User(name,email,active,age)とPost(user_id,title,published)等のDBを準備）"
     },
     {
-      "display": "params.require(:user).permit(:name,:email)",
+      "display": "params.require(:user).permit(:name, :email)",
       "input": "params.require(:user).permit(:name,:email)",
       "annotation": "require / permit：従来のStrong Parameters（許可前の入力をそのままmass assignmentしない）"
     },
     {
-      "display": "render json: {id: 1}, status: :created",
+      "display": "render json: { id: 1 }, status: :created",
       "input": "render json: {id: 1}, status: :created",
       "annotation": "render json / status：JSON応答（アクション内。必要な属性に限定）"
     },
@@ -42,12 +42,12 @@
       "annotation": "scope：検索条件に名前（Userモデル内）"
     },
     {
-      "display": "enum :status, {draft: 0,published: 1}",
+      "display": "enum :status, { draft: 0, published: 1 }",
       "input": "enum :status, {draft: 0,published: 1}",
       "annotation": "enum：状態を定義（Post等に対応integer列が必要。メソッド名競合に注意）"
     },
     {
-      "display": "User.where(active: true).where('age >= ?',20)",
+      "display": "User.where(active: true).where('age >= ?', 20)",
       "input": "User.where(active: true).where('age >= ?',20)",
       "annotation": "all / where：検索条件（動的値はバインド。SQL文字列連結を避ける）"
     },

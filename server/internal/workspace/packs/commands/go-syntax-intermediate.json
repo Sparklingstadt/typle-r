@@ -11,7 +11,7 @@
   ],
   "words": [
     {
-      "display": "import ( \"fmt\"; \"errors\" )",
+      "display": "import (\n  \"fmt\";\n  \"errors\"\n)",
       "input": "import ( \"fmt\"; \"errors\" )",
       "annotation": "import (...)：複数パッケージを読み込む"
     },
@@ -21,7 +21,7 @@
       "annotation": "/* ... */：複数行コメント"
     },
     {
-      "display": "if true { fmt.Println(\"OK\") }",
+      "display": "if true {\n  fmt.Println(\"OK\")\n}",
       "input": "if true { fmt.Println(\"OK\") }",
       "annotation": "{ ... }：ブロック（通常は行末のセミコロンを省略。開始の{はifやfuncなどと同じ行）"
     },
@@ -76,12 +76,12 @@
       "annotation": "& | ^ &^：ビット演算（整数型で使用。&は文脈によってアドレス取得）"
     },
     {
-      "display": "for count < 5 { count++ }",
+      "display": "for count < 5 {\n  count++\n}",
       "input": "for count < 5 { count++ }",
       "annotation": "for 条件：条件ループ"
     },
     {
-      "display": "if skip { continue }",
+      "display": "if skip {\n  continue\n}",
       "input": "if skip { continue }",
       "annotation": "continue：次の繰り返しへ（ループ内で使用）"
     },
@@ -91,12 +91,12 @@
       "annotation": "引数...：スライスを可変長引数へ展開（valuesは[]int）"
     },
     {
-      "display": "a := [3]int{1, 2, 3}",
+      "display": "a := [3]int{ 1, 2, 3 }",
       "input": "a := [3]int{1, 2, 3}",
       "annotation": "[長さ]型{...}：固定長配列（長さは型の一部）"
     },
     {
-      "display": "s := []int{1, 2, 3}",
+      "display": "s := []int{ 1, 2, 3 }",
       "input": "s := []int{1, 2, 3}",
       "annotation": "[]型{...}：スライス"
     },
@@ -161,7 +161,7 @@
       "annotation": "panic：スタックを巻き戻して通常処理を中断（通常の失敗はerrorで扱う）"
     },
     {
-      "display": "n, ok := First([]int{10, 20})",
+      "display": "n, ok := First([]int{ 10, 20 })",
       "input": "n, ok := First([]int{10, 20})",
       "annotation": "型引数の推論：型引数を省略（推論できる場合のみ）"
     },
@@ -181,7 +181,7 @@
       "annotation": "受信値と状態（閉じてバッファが空ならok=false）"
     },
     {
-      "display": "func Exported() {}",
+      "display": "func Exported() {\n}",
       "input": "func Exported() {}",
       "annotation": "大文字開始の名前：パッケージ外へ公開（外側の型・パッケージ等のアクセス条件も関係）"
     },

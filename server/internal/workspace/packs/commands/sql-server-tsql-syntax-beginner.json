@@ -33,7 +33,7 @@
       "annotation": "; / GO / コメント：文・バッチの区切り（GOはSSMS・sqlcmd等のクライアント区切り。SQL文としてドライバーへ送らない）"
     },
     {
-      "display": "DECLARE @age int = 20; SET @age = 21; SELECT @age;",
+      "display": "DECLARE @age int = 20;\nSET @age = 21;\nSELECT @age;",
       "input": "DECLARE @age int = 20; SET @age = 21; SELECT @age;",
       "annotation": "DECLARE / SET：変数宣言と代入（補足: @変数の有効範囲はバッチ等）"
     },
@@ -83,7 +83,7 @@
       "annotation": "ALTER TABLE：列追加（スキーマ変更のロック等に注意）"
     },
     {
-      "display": "SELECT CAST('123' AS int), TRY_CONVERT(int,'abc');",
+      "display": "SELECT CAST('123' AS int), TRY_CONVERT(int, 'abc');",
       "input": "SELECT CAST('123' AS int), TRY_CONVERT(int,'abc');",
       "annotation": "CAST / CONVERT / TRY_CONVERT：型変換（TRY_CONVERTは通常変換失敗でNULL。禁止された変換等はエラー）"
     }

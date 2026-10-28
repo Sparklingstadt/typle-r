@@ -42,12 +42,12 @@
       "annotation": "STRING_AGG：文字列を連結（順番が必要なら集計内でORDER BY）"
     },
     {
-      "display": "SELECT * FROM orders WHERE amount > (SELECT AVG(amount) FROM orders);",
+      "display": "SELECT * FROM orders WHERE amount > (\n  SELECT AVG(amount) FROM orders\n);",
       "input": "SELECT * FROM orders WHERE amount > (SELECT AVG(amount) FROM orders);",
       "annotation": "スカラーサブクエリ：単一値を式に使う（複数行を返すとエラー）"
     },
     {
-      "display": "SELECT id FROM users WHERE active UNION ALL SELECT id FROM users WHERE NOT\nactive;",
+      "display": "SELECT id FROM users WHERE active UNION ALL SELECT id FROM users WHERE NOT active;",
       "input": "SELECT id FROM users WHERE active UNION ALL SELECT id FROM users WHERE NOT active;",
       "annotation": "UNION / UNION ALL：結果を連結（UNIONは重複排除、UNION ALLは保持）"
     },
@@ -67,7 +67,7 @@
       "annotation": "DELETE ... USING：結合条件で削除"
     },
     {
-      "display": "CREATE TABLE counters (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY);",
+      "display": "CREATE TABLE counters (\n  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY\n);",
       "input": "CREATE TABLE counters (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY);",
       "annotation": "IDENTITY：自動採番列（値の連続性・欠番なしを保証しない）"
     },
@@ -127,7 +127,7 @@
       "annotation": "-> / ->>：JSON要素の取得（->はJSON、->>はtext）"
     },
     {
-      "display": "SELECT * FROM users WHERE profile @> '{\"premium\":true}'::jsonb;",
+      "display": "SELECT * FROM users WHERE profile @ > '{\"premium\":true}'::jsonb;",
       "input": "SELECT * FROM users WHERE profile @> '{\"premium\":true}'::jsonb;",
       "annotation": "@>：JSONB包含"
     },
@@ -177,22 +177,22 @@
       "annotation": "CREATE VIEW：クエリをビューとして保存（通常は結果を保存しない）"
     },
     {
-      "display": "BEGIN; UPDATE users SET active = false WHERE id = 1; COMMIT;",
+      "display": "BEGIN;\nUPDATE users SET active = false WHERE id = 1;\nCOMMIT;",
       "input": "BEGIN; UPDATE users SET active = false WHERE id = 1; COMMIT;",
       "annotation": "BEGIN / COMMIT：処理をまとめて確定（実行すると変更が確定）"
     },
     {
-      "display": "BEGIN; UPDATE users SET active = false WHERE id = 1; ROLLBACK;",
+      "display": "BEGIN;\nUPDATE users SET active = false WHERE id = 1;\nROLLBACK;",
       "input": "BEGIN; UPDATE users SET active = false WHERE id = 1; ROLLBACK;",
       "annotation": "ROLLBACK：変更を取り消す（シーケンスの採番等は巻き戻らない）"
     },
     {
-      "display": "BEGIN ISOLATION LEVEL SERIALIZABLE; SELECT * FROM users WHERE id = 1; COMMIT;",
+      "display": "BEGIN ISOLATION LEVEL SERIALIZABLE;\nSELECT * FROM users WHERE id = 1;\nCOMMIT;",
       "input": "BEGIN ISOLATION LEVEL SERIALIZABLE; SELECT * FROM users WHERE id = 1; COMMIT;",
       "annotation": "ISOLATION LEVEL：分離レベルを指定（直列化失敗時はトランザクション全体の再試行が必要）"
     },
     {
-      "display": "BEGIN; SELECT * FROM users WHERE id = 1 FOR UPDATE; COMMIT;",
+      "display": "BEGIN;\nSELECT * FROM users WHERE id = 1 FOR UPDATE;\nCOMMIT;",
       "input": "BEGIN; SELECT * FROM users WHERE id = 1 FOR UPDATE; COMMIT;",
       "annotation": "FOR UPDATE：取得行を更新用にロック（ロックは通常トランザクション終了まで）"
     },

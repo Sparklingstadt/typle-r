@@ -32,12 +32,12 @@
       "annotation": "test.todo：未実装のテストを記録（テストを実装・検証したことにはならない）"
     },
     {
-      "display": "beforeEach(() => { jest.clearAllMocks(); });",
+      "display": "beforeEach(() => {\n  jest.clearAllMocks();\n});",
       "input": "beforeEach(() => { jest.clearAllMocks(); });",
       "annotation": "beforeEach：各テスト前に初期化（スコープ内の各テストが対象）"
     },
     {
-      "display": "afterEach(() => { jest.restoreAllMocks(); });",
+      "display": "afterEach(() => {\n  jest.restoreAllMocks();\n});",
       "input": "afterEach(() => { jest.restoreAllMocks(); });",
       "annotation": "afterEach：各テスト後に後片付け（spyOn等で差し替えたものを復元）"
     },
@@ -62,7 +62,7 @@
       "annotation": "toBeDefined：undefinedでないこと（nullは通る）"
     },
     {
-      "display": "expect('hello').toBeTruthy(); expect(0).toBeFalsy();",
+      "display": "expect('hello').toBeTruthy();\nexpect(0).toBeFalsy();",
       "input": "expect('hello').toBeTruthy(); expect(0).toBeFalsy();",
       "annotation": "toBeTruthy / toBeFalsy：真偽値変換後の判定（true/false自体を検証するならtoBe）"
     },
@@ -97,7 +97,7 @@
       "annotation": "resolves：Promise成功値を検証（必ずawaitまたはreturn）"
     },
     {
-      "display": "expect.hasAssertions(); expect(true).toBe(true);",
+      "display": "expect.hasAssertions();\nexpect(true).toBe(true);",
       "input": "expect.hasAssertions(); expect(true).toBe(true);",
       "annotation": "expect.hasAssertions：最低1回の検証を要求"
     },

@@ -11,22 +11,22 @@
   ],
   "words": [
     {
-      "display": "public static void main(String[] args) {}",
+      "display": "public static void main(String[] args) {\n}",
       "input": "public static void main(String[] args) {}",
       "annotation": "main(String[] args)：実行開始用メソッド（Java 21を基準とした通常の起動形式）"
     },
     {
-      "display": "if (true) { System.out.println(\"OK\"); }",
+      "display": "if (true) {\n  System.out.println(\"OK\");\n}",
       "input": "if (true) { System.out.println(\"OK\"); }",
       "annotation": "{ ... }：ブロック"
     },
     {
-      "display": "int n; n = 1; System.out.println(n);",
+      "display": "int n;\nn = 1;\nSystem.out.println(n);",
       "input": "int n; n = 1; System.out.println(n);",
       "annotation": "ローカル変数の初期化：使用前に初期化（未初期化のまま読み取れない）"
     },
     {
-      "display": "class Sample { int count; String name; }",
+      "display": "class Sample {\n  int count;\n  String name;\n}",
       "input": "class Sample { int count; String name; }",
       "annotation": "フィールドの初期値：フィールドは既定値で初期化（countは0、nameはnull）"
     },
@@ -61,22 +61,22 @@
       "annotation": "String.valueOf：文字列へ変換"
     },
     {
-      "display": "while (count < 5) { count++; }",
+      "display": "while (count < 5) {\n  count++;\n}",
       "input": "while (count < 5) { count++; }",
       "annotation": "while：条件が真の間繰り返す"
     },
     {
-      "display": "do { count++; } while (count < 5);",
+      "display": "do {\n  count++;\n}\nwhile (count < 5);",
       "input": "do { count++; } while (count < 5);",
       "annotation": "do / while：最低1回実行（末尾の;が必要）"
     },
     {
-      "display": "static int doubleOf(int n) { return n * 2; }",
+      "display": "static int doubleOf(int n) {\n  return n * 2;\n}",
       "input": "static int doubleOf(int n) { return n * 2; }",
       "annotation": "staticメソッド：クラスに属するメソッド"
     },
     {
-      "display": "record Result(int value, boolean ok) {}",
+      "display": "record Result(int value, boolean ok) {\n}",
       "input": "record Result(int value, boolean ok) {}",
       "annotation": "複数の値を返す：record等にまとめて返す（Goのような複数戻り値構文はない）"
     },
@@ -121,27 +121,27 @@
       "annotation": "new：インスタンス生成"
     },
     {
-      "display": "User(String name) { this.name = name; }",
+      "display": "User(String name) {\n  this.name = name;\n}",
       "input": "User(String name) { this.name = name; }",
       "annotation": "コンストラクター：初期化処理（クラス名と同名。戻り値型を書かない）"
     },
     {
-      "display": "interface Greeter { String greet(); }",
+      "display": "interface Greeter {\n  String greet();\n}",
       "input": "interface Greeter { String greet(); }",
       "annotation": "interface：インターフェース定義"
     },
     {
-      "display": "Dog(String name) { super(name); }",
+      "display": "Dog(String name) {\n  super(name);\n}",
       "input": "Dog(String name) { super(name); }",
       "annotation": "super(...)：親コンストラクター呼び出し（Java 21ではコンストラクターの先頭に記述）"
     },
     {
-      "display": "record User(String name, int age) {}",
+      "display": "record User(String name, int age) {\n}",
       "input": "record User(String name, int age) {}",
       "annotation": "record：データを保持する型（アクセサー・equals・hashCode・toString等を生成。深い不変性は保証しない）"
     },
     {
-      "display": "enum Status { TODO, DOING, DONE }",
+      "display": "enum Status {\n  TODO,\n  DOING,\n  DONE\n}",
       "input": "enum Status { TODO, DOING, DONE }",
       "annotation": "enum：値を限定した型"
     },

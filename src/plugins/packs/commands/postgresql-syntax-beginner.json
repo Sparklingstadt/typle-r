@@ -17,7 +17,7 @@
       "annotation": "対象バージョン：例の利用条件（PostgreSQL 15以降を想定した主要構文。各例は独立した断片で、表・列・権限等の準備が必要）"
     },
     {
-      "display": "SELECT 1; SELECT 2;",
+      "display": "SELECT 1;\nSELECT 2;",
       "input": "SELECT 1; SELECT 2;",
       "annotation": ";：文を区切る"
     },
@@ -112,7 +112,7 @@
       "annotation": "CREATE SCHEMA：スキーマを作る"
     },
     {
-      "display": "SELECT 123.45::numeric(12,2);",
+      "display": "SELECT 123.45::numeric(12, 2);",
       "input": "SELECT 123.45::numeric(12,2);",
       "annotation": "numeric(p,s)：正確な小数（金額等。精度・スケールに制約）"
     },

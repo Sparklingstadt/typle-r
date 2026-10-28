@@ -21,7 +21,7 @@
       "annotation": "/** ... */：KDocコメント（宣言の前に配置）"
     },
     {
-      "display": "val n = 1; println(n)",
+      "display": "val n = 1;\nprintln(n)",
       "input": "val n = 1; println(n)",
       "annotation": "文末のセミコロン省略：通常の文の区切り（通常は行末の;が不要）"
     },
@@ -36,7 +36,7 @@
       "annotation": "toInt()：文字列を整数へ（形式が不正なら例外）"
     },
     {
-      "display": "val f = 0.5f; val d = 0.5",
+      "display": "val f = 0.5f;\nval d = 0.5",
       "input": "val f = 0.5f; val d = 0.5",
       "annotation": "Float / Double：浮動小数点数"
     },
@@ -86,12 +86,12 @@
       "annotation": "名前付き引数：引数名を指定"
     },
     {
-      "display": "var name: String? = null",
+      "display": "var name: String ? = null",
       "input": "var name: String? = null",
       "annotation": "型?：nullを許容（String等の非null型にはnullを代入不可）"
     },
     {
-      "display": "val actual = name ?: return",
+      "display": "val actual = name?: return",
       "input": "val actual = name ?: return",
       "annotation": "?: return：nullなら早期return（関数内で戻り値型に合わせて使用）"
     },
@@ -101,7 +101,7 @@
       "annotation": "!!：非nullアサーション（nullなら例外）"
     },
     {
-      "display": "val nums = Array(3) { 0 }",
+      "display": "val nums = Array(3) {\n  0\n}",
       "input": "val nums = Array(3) { 0 }",
       "annotation": "Array(長さ) { 初期値 }：長さを指定した配列（この例はArray<Int>）"
     },
@@ -131,17 +131,17 @@
       "annotation": "varプロパティ：変更可能なプロパティ"
     },
     {
-      "display": "protected fun work() {}",
+      "display": "protected fun work() {\n}",
       "input": "protected fun work() {}",
       "annotation": "protected：クラス内部・サブクラス向け（トップレベル宣言には使えない）"
     },
     {
-      "display": "private fun helper() {}",
+      "display": "private fun helper() {\n}",
       "input": "private fun helper() {}",
       "annotation": "private：宣言した範囲に限定（トップレベルでは同じファイル内）"
     },
     {
-      "display": "val (name, age) = user",
+      "display": "val(name, age) = user",
       "input": "val (name, age) = user",
       "annotation": "分解宣言：コンポーネントを変数へ（componentN関数に基づく）"
     },
@@ -151,7 +151,7 @@
       "annotation": "as：キャスト（型が合わなければ例外）"
     },
     {
-      "display": "val text = value as? String",
+      "display": "val text = value as ? String",
       "input": "val text = value as? String",
       "annotation": "as?：安全キャスト（型が合わなければnull）"
     },

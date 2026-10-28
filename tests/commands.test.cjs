@@ -86,9 +86,12 @@ test('each command is typed as shown, in ASCII, once per list, with an explanati
   for (const list of commands.filter(list => source(list.id) !== 'un-member-states-chinese-193-lowercase')) {
     assert.equal(new Set(list.words.map(word => word.input)).size, list.words.length, list.name)
     for (const word of list.words) {
-      // Display-only line breaks can replace one space or sit between code tokens.
-      const chunks = word.display.split('\n').map(line => line.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-      assert.match(word.input, new RegExp(`^${chunks.join(' ?')}$`))
+      // The display formats code with spaces and indentation; the typing target stays on one line.
+      assert.equal(word.display.replace(/\s/g, ''), word.input.replace(/\s/g, ''), word.input)
+      // Whitespace inside strings and comments is part of the example, so it must remain exact.
+      const literals = /"""[\s\S]*?"""|\/\*[\s\S]*?\*\/|'(?:\\.|''|[^'\\])*'|"(?:\\.|""|[^"\\])*"|`(?:\\.|[^`\\])*`/g
+      assert.deepEqual(word.display.match(literals), word.input.match(literals), word.input)
+      assert.ok(word.display.length <= 1000, word.input)
       // Go, Java, Kotlin, PostgreSQL, Prisma, Jest and Playwright examples hold Japanese strings and comments.
       assert.match(['go-syntax', 'java-syntax', 'kotlin-syntax', 'postgresql-syntax', 'prisma-syntax', 'jest-syntax', 'playwright-syntax', ...leveled].includes(source(list.id)) || japanese.includes(word.input) ? word.input.replace(/[^\x20-\x7e]/g, 'x') : word.input,
         /^[\x21-\x7e]([\x20-\x7e]*[\x21-\x7e])?$/, word.input)
