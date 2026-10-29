@@ -60,3 +60,32 @@ test('English and Russian each have one pack of basic and intermediate words and
   assert.ok(russian.words.every(word => !/[a-z]/i.test(word.input)))
   assert.ok(russian.words.some(word => word.input === 'Меня зовут Кен.'))
 })
+
+test('Czech intermediate and Chinese HSK 5 and 6 packs each hold two lists of 40 words', () => {
+  const { officialLibrary } = require('../src/plugins/packs/index.ts')
+  for (const [name, tag, ids, levels] of [
+    ['チェコ語：中級', 'チェコ語', ['czech-intermediate-words', 'czech-intermediate-syntax'], ['中級単語', '中級構文']],
+    ['中国語：HSK5級レベル単語', '中国語', ['chinese-hsk5-words-1', 'chinese-hsk5-words-2'], ['単語1', '単語2']],
+    ['中国語：HSK6級レベル単語', '中国語', ['chinese-hsk6-words-1', 'chinese-hsk6-words-2'], ['単語1', '単語2']],
+  ]) {
+    const pack = officialLibrary.packs.find(item => item.name === name)
+    assert.ok(pack, name)
+    assert.equal(pack.category, '語学')
+    assert.deepEqual(pack.tags, [tag])
+    const lists = officialLibrary.lists.filter(list => list.packId === pack.id)
+    assert.deepEqual(lists.map(list => list.id), ids)
+    assert.deepEqual(lists.map(list => list.levels), levels.map(level => [level]))
+    for (const list of lists) {
+      assert.equal(list.words.length, 40, list.id)
+      assert.equal(new Set(list.words.map(word => word.input)).size, 40, list.id)
+      assert.ok(list.words.every(word => word.input_type === 'word' && word.annotation.startsWith(`${word.input} / `)), list.id)
+    }
+  }
+  // Chinese words show the characters and are typed in pinyin with tone marks; no word is in both HSK packs.
+  const hsk = officialLibrary.lists.filter(list => list.id.startsWith('chinese-hsk'))
+  const words = hsk.flatMap(list => list.words)
+  assert.equal(new Set(words.map(word => word.display)).size, 160)
+  assert.ok(words.every(word => /^\p{Script=Han}+$/u.test(word.display) && /^[\p{Script=Latin} ]+$/u.test(word.input)))
+  assert.equal(words.find(word => word.display === '规律').input, 'guīlǜ')
+  assert.equal(officialLibrary.lists.find(list => list.id === 'czech-intermediate-words').words[0].input, 'zkušenost')
+})

@@ -86,6 +86,8 @@ test('the initial lists decode in Typle with their own ids and names', () => {
     ['korean-basics', [80]], ['french-basics', [80]], ['czech-basics', [80]], ['german-basics', [80]], ['spanish-basics', [80]], ['chinese-basics', [80]],
     ['english-basic-words', [40]], ['english-basic-syntax', [40]], ['english-intermediate-words', [40]], ['english-intermediate-syntax', [40]],
     ['russian-basic-words', [40]], ['russian-basic-syntax', [40]], ['russian-intermediate-words', [40]], ['russian-intermediate-syntax', [40]],
+    ['czech-intermediate-words', [40]], ['czech-intermediate-syntax', [40]],
+    ['chinese-hsk5-words-1', [40]], ['chinese-hsk5-words-2', [40]], ['chinese-hsk6-words-1', [40]], ['chinese-hsk6-words-2', [40]],
   ])
   assert.equal(lists.length, commands.length)
   const { initialLists } = require('../src/plugins/packs/index.ts')
