@@ -70,5 +70,13 @@
   "czech-basics.json",
   "german-basics.json",
   "spanish-basics.json",
-  "chinese-basics.json"
+  "chinese-basics.json",
+  "english-basic-words.json",
+  "english-basic-syntax.json",
+  "english-intermediate-words.json",
+  "english-intermediate-syntax.json",
+  "russian-basic-words.json",
+  "russian-basic-syntax.json",
+  "russian-intermediate-words.json",
+  "russian-intermediate-syntax.json"
 ]
