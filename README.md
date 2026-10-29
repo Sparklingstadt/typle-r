@@ -972,6 +972,10 @@ France,フランス,
 
 `input` と `display` は見出し・各行の値とも必須です。`annotation` はカラム自体も値も省略できます。見出しの順番は自由で、その他のカラム名・重複した見出しはエラーになります。TSVではタブで区切ります。補足列の誤記 `anotation` も受け付けます。単語の前後空白・順序・重複は保存時にも保持します。引用符で囲ったカンマ・タブ・改行、二重引用符のエスケープ（`""`）、UTF-8 BOMに対応します。ファイル上限は1 MiB、単語数は1リスト1,000件です。
 
+### API の文書のサイトを Vercel でビルドできるようにする（v2.1.3）
+
+v2.1.2 で `.vercelignore` に `api-docs` を足したため、リポジトリ直下の `.vercelignore` が効く Vercel のプロジェクト `typle-api-docs`（ルートディレクトリ `api-docs`）では、ビルドの前に `api-docs/` ごと除かれ、リポジトリ直下の `vercel.json` のビルド（`db:migrate`）が走って失敗していました。除くのを `api-docs` のビルドの出力だけにしました。また、リポジトリ直下の `vercel.json` のビルドコマンドが `typle-api-docs` にも使われていたため、`api-docs/vercel.json` に文書サイトのインストール・ビルド（`docs:build` と `docs:check`）・出力先を書きました。本体のプロジェクトには原稿の数十KBが送られるだけで、ビルドと動作は変わりません。
+
 ### API の文書を VuePress のサイトにまとめる（v2.1.2）
 
 アプリのAPI（`/api/*`）と手元専用の `/api/v1` の仕様を、[VuePress v2](https://vuepress.vuejs.org/) のサイト `api-docs/` にまとめました。どちらも1枚の Markdown だったものを、ワークスペースと記録・共有・ログイン・管理画面、読み取り・書き込み・検証などのページに分け、`/api/workspace/records` の OpenAPI 定義（`docs/api/workspace-records.openapi.json`）はビルド時にそのまま読み込みます。`cd api-docs && npm ci && npm run docs:dev` で `http://localhost:8090` に開きます。サイトは本体とは別の npm のプロジェクトで、本体の依存・型チェック・Lint・Vercel へのデプロイには含めません。`docs/api.md`・`docs/app-api.md` は移った先への案内にしました。アプリの動作の変更はありません。
