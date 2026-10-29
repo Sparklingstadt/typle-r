@@ -10,7 +10,7 @@ import { workspaceStore } from '../plugins/storage'
 import { initialLibrary } from '../plugins/packs'
 
 import type { PracticeDevice } from '../core/devices'
-import type { PracticeRecord } from '../core/records'
+import { removeRecord, type PracticeRecord } from '../core/records'
 import { type SavedWordList } from '../core/wordLists'
 import type { Library, WordPack } from '../core/wordPacks'
 import { createWorkspaceSession, type WorkspaceSession } from '../core/workspaceSession'
@@ -108,6 +108,11 @@ function useWorkspace() {
     update: (change: (current: SavedWordList[]) => SavedWordList[], useDefaults?: boolean) => save(current => current.update(change, useDefaults)),
     /** Adds a finished practice run to a list, on its own: it is not refused for a list changed elsewhere. */
     addRecord: (listId: string, record: PracticeRecord) => save(current => current.addRecord(listId, record)),
+    /** Deletes a saved run from a list: on its own by its id, or, for a run saved without one, by saving the lists
+     * without it. */
+    deleteRecord: (listId: string, record: SavedWordList['records'][number]) => record.id
+      ? save(current => current.deleteRecord(listId, record.id!))
+      : save(current => current.update(lists => removeRecord(lists, listId, record))),
     /** Replaces the interests; only they are saved. */
     updateInterests: (change: (current: string[]) => string[]) => save(current => current.updateInterests(change)),
     /** Replaces the library in its saved shape; for pack edits. */

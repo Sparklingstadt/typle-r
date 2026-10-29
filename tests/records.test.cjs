@@ -2,7 +2,7 @@ require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { newSession, typeInput } = require('../src/core/typing.ts')
-const { makeRecord, addRecord } = require('../src/core/records.ts')
+const { makeRecord, addRecord, deleteRecord } = require('../src/core/records.ts')
 const { encodeLists, decodeLists, saveList } = require('../src/core/wordLists.ts')
 
 test('completed records survive reload and editing; retry never duplicates', () => {
@@ -112,3 +112,18 @@ for (const file of fs.readdirSync(recordFixtures).filter(name => name.endsWith('
     assert.equal(saved.length, fixture.lists.find(list => list.id === fixture.listId).records.length + (added ? 1 : 0))
   })
 }
+
+test('deleteRecord removes the run of that id only, and a run or list already gone changes nothing', () => {
+  const list = { id: 'a', name: 'A', createdAt: '2026-10-01', words: [], records: [
+    { id: 'r1', time: 1, date: '2026-10-01T00:00:00.000Z' }, { time: 2, date: '2026-10-02T00:00:00.000Z' }, { id: 'r2', time: 3, date: '2026-10-03T00:00:00.000Z' }] }
+  const document = { lists: [list], devices: [] }
+  const { document: after, deleted } = deleteRecord(document, 'a', 'r1')
+  assert.equal(deleted, true)
+  assert.deepEqual(after.lists[0].records.map(record => record.time), [2, 3])
+  assert.equal(document.lists[0].records.length, 3)
+  for (const [listId, recordId] of [['a', 'gone'], ['gone', 'r1'], ['a', '']]) {
+    const result = deleteRecord(document, listId, recordId)
+    assert.equal(result.deleted, false)
+    assert.equal(result.document, document)
+  }
+})

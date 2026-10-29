@@ -2,7 +2,7 @@ require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { normalizeLibrary } = require('../src/core/wordPacks.ts')
-const { readGuestWorkspace, writeGuestWorkspace, addGuestRecord, GUEST_STORAGE_KEY } = require('../src/plugins/storage/guest.ts')
+const { readGuestWorkspace, writeGuestWorkspace, addGuestRecord, deleteGuestRecord, GUEST_STORAGE_KEY } = require('../src/plugins/storage/guest.ts')
 function storage() {
   const values = new Map()
   return { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) }
@@ -170,4 +170,21 @@ test('a guest run is added without a revision, once, and keeps a list edit saved
   assert.equal(readGuestWorkspace(store).lists[0].records.length, 2)
   assert.throws(() => addGuestRecord({ accountId: 'guest:local', listId: 'gone', record }, store), { key: 'recordListDeleted' })
   assert.throws(() => addGuestRecord({ accountId: 'github:1', listId: 'l', record }, store), { key: 'storageChanged' })
+})
+
+test('a guest run is deleted without a revision, and deleting it again changes nothing', () => {
+  const store = storage()
+  const first = writeGuestWorkspace({ ...readGuestWorkspace(store), lists: [list], packs: [pack] }, store)
+  const record = { id: 'run-1', time: 2, date: '2026-10-01T00:00:00.000Z', mistakes: 0, accuracy: 100, wordCount: 1 }
+  addGuestRecord({ accountId: 'guest:local', listId: 'l', record }, store)
+  // Another tab renames the list after the run was added.
+  const current = readGuestWorkspace(store)
+  writeGuestWorkspace({ ...current, lists: [{ ...current.lists[0], name: 'Renamed' }] }, store)
+  const deleted = deleteGuestRecord({ accountId: 'guest:local', listId: 'l', recordId: 'run-1' }, store)
+  assert.equal(deleted.revision, first.revision + 3)
+  assert.equal(deleted.lists[0].name, 'Renamed')
+  assert.deepEqual(deleted.lists[0].records.map(item => item.id), [undefined])
+  const again = deleteGuestRecord({ accountId: 'guest:local', listId: 'l', recordId: 'run-1' }, store)
+  assert.equal(again.revision, deleted.revision)
+  assert.throws(() => deleteGuestRecord({ accountId: 'github:1', listId: 'l', recordId: 'run-1' }, store), { key: 'storageChanged' })
 })

@@ -69,6 +69,17 @@ export function addRecord<T extends { lists: SavedWordList[]; devices: PracticeD
 
 type StoredRecord = SavedWordList['records'][number]
 
+/**
+ * Deletes a run from a list, as workspace.DeleteRecord does in Go for the account's workspace. A run, or a list, that
+ * is already gone is not an error: `deleted` is false and nothing changes, so it can be sent again safely.
+ */
+export function deleteRecord<T extends { lists: SavedWordList[] }>(document: T, listId: string, recordId: string): { document: T; deleted: boolean } {
+  const list = document.lists.find(item => item.id === listId)
+  if (!recordId || !list?.records.some(item => item.id === recordId)) return { document, deleted: false }
+  const lists = document.lists.map(item => item === list ? { ...item, records: item.records.filter(record => record.id !== recordId) } : item)
+  return { document: { ...document, lists }, deleted: true }
+}
+
 export function recentRecords(lists: SavedWordList[]) {
   return lists.flatMap(list => list.records.map((record, index) => ({ list, record, index })))
     .sort((a, b) => Date.parse(b.record.date) - Date.parse(a.record.date))

@@ -208,3 +208,75 @@ func TestAddRecordWithEditsDatabase(t *testing.T) {
 		t.Fatalf("read = %s", read.Body)
 	}
 }
+
+func deleteBody(owner, listID, recordID string) string {
+	return payload(owner, `"listId":"`+listID+`","recordId":"`+recordID+`"`)
+}
+
+func (h *harness) deleteRecord(owner, body string) *httptest.ResponseRecorder {
+	return h.postRecord(owner, body, func(r *http.Request) { r.Method = http.MethodDelete })
+}
+
+func TestDeleteRecord(t *testing.T) {
+	memory := newMemoryWorkspace(t, `[`+oneList+`]`)
+	h := newHarness(t, memory, testBase)
+	if added := h.postRecord(testOwner, recordBody(testOwner, "one", aRun)); added.Code != http.StatusCreated {
+		t.Fatalf("added = %d %s", added.Code, added.Body)
+	}
+	deleted := h.deleteRecord(testOwner, deleteBody(testOwner, "one", "run-1"))
+	if deleted.Code != http.StatusOK || string(decodeBody(t, deleted)["revision"]) != "3" || len(savedRecords(t, deleted, "one")) != 0 {
+		t.Fatalf("deleted = %d %s", deleted.Code, deleted.Body)
+	}
+	expectPrivate(t, deleted)
+	// Sent again, or for a list that is gone: answered the same, and nothing is saved.
+	for _, body := range []string{deleteBody(testOwner, "one", "run-1"), deleteBody(testOwner, "gone", "run-1")} {
+		again := h.deleteRecord(testOwner, body)
+		if again.Code != http.StatusOK || string(decodeBody(t, again)["revision"]) != "3" {
+			t.Fatalf("again = %d %s", again.Code, again.Body)
+		}
+	}
+	for name, c := range map[string]struct {
+		body   string
+		status int
+		key    string
+	}{
+		"other account": {deleteBody("github:1", "one", "run-1"), http.StatusUnauthorized, "loginAccountChanged"},
+		"no record id":  {payload(testOwner, `"listId":"one"`), http.StatusBadRequest, "invalidRecord"},
+		"empty id":      {deleteBody(testOwner, "one", ""), http.StatusBadRequest, "invalidRecord"},
+		"extra field":   {payload(testOwner, `"listId":"one","recordId":"run-1","revision":3`), http.StatusBadRequest, "invalidRecord"},
+	} {
+		t.Run(name, func(t *testing.T) { expectError(t, h.deleteRecord(testOwner, c.body), c.status, c.key) })
+	}
+}
+
+// A record is deleted without a revision, so the lists changed meanwhile stay, and an edit made before the delete is
+// told to reload rather than bring the record back.
+func TestDeleteRecordWithEditsDatabase(t *testing.T) {
+	s, owner := realStore(t)
+	h := newHarness(t, s, testBase)
+	created := h.put(owner, payload(owner, `"revision":0,"lists":[`+oneList+`],"devices":[{"id":"mac","name":"MacBook","layout":"JIS"}]`))
+	if created.Code != http.StatusOK {
+		t.Fatalf("created = %d %s", created.Code, created.Body)
+	}
+	added := h.postRecord(owner, recordBody(owner, "one", aRun))
+	if added.Code != http.StatusCreated {
+		t.Fatalf("added = %d %s", added.Code, added.Body)
+	}
+	// Another screen renames the list, with its record, at the revision the record was saved in.
+	lists := strings.Replace(string(decodeBody(t, added)["lists"]), `"One"`, `"Renamed"`, 1)
+	renamed := h.put(owner, payload(owner, `"revision":2,"lists":`+lists))
+	if renamed.Code != http.StatusOK || len(savedRecords(t, renamed, "one")) != 1 {
+		t.Fatalf("renamed = %d %s", renamed.Code, renamed.Body)
+	}
+	deleted := h.deleteRecord(owner, deleteBody(owner, "one", "run-1"))
+	if deleted.Code != http.StatusOK || len(savedRecords(t, deleted, "one")) != 0 {
+		t.Fatalf("deleted = %d %s", deleted.Code, deleted.Body)
+	}
+	var names []struct{ Name string }
+	_ = json.Unmarshal(decodeBody(t, deleted)["lists"], &names)
+	if len(names) != 1 || names[0].Name != "Renamed" {
+		t.Fatalf("lists = %s", deleted.Body)
+	}
+	// The renaming screen still holds revision 3, with the record: its next save would bring it back, so it must reload.
+	expectError(t, h.put(owner, payload(owner, `"revision":3,"lists":`+lists)), http.StatusConflict, "conflict")
+}

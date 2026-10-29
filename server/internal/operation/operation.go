@@ -32,3 +32,25 @@ func AddRecord(ctx context.Context, writer Writer, owner, listID string, input w
 	}
 	return record, added, nil
 }
+
+// UpdateRecord changes a saved run and saves it (workspace.UpdateRecord), without a revision, as AddRecord does.
+func UpdateRecord(ctx context.Context, writer Writer, owner, listID, recordID string, change workspace.RecordChange) (record workspace.Record, err error) {
+	_, err = writer.Modify(ctx, owner, func(ws *workspace.Workspace) (bool, error) {
+		var err error
+		record, err = workspace.UpdateRecord(ws, listID, recordID, change)
+		return err == nil, err
+	})
+	if err != nil {
+		return workspace.Record{}, err
+	}
+	return record, nil
+}
+
+// DeleteRecord removes a saved run and saves it (workspace.DeleteRecord), without a revision, as AddRecord does. A run
+// that is not there, or whose list is not, is a *workspace.Error: recordNotFound or listNotFound.
+func DeleteRecord(ctx context.Context, writer Writer, owner, listID, recordID string) error {
+	_, err := writer.Modify(ctx, owner, func(ws *workspace.Workspace) (bool, error) {
+		return true, workspace.DeleteRecord(ws, listID, recordID)
+	})
+	return err
+}
