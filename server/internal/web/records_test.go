@@ -4,10 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"reflect"
+	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/sparklingstadt/typle-r/server/internal/store"
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
@@ -62,8 +69,13 @@ func (m *memoryWorkspace) ReadRevision(context.Context, string) (*store.Saved, e
 }
 
 // postRecord is a signed-in POST /api/workspace/records from the app's own origin unless the test changes it.
+// An empty body is none at all.
 func (h *harness) postRecord(owner, body string, change ...func(*http.Request)) *httptest.ResponseRecorder {
-	r := httptest.NewRequest(http.MethodPost, "/api/workspace/records", strings.NewReader(body))
+	var reader io.Reader
+	if body != "" {
+		reader = strings.NewReader(body)
+	}
+	r := httptest.NewRequest(http.MethodPost, "/api/workspace/records", reader)
 	r.Header.Set("Origin", testBase)
 	r.Header.Set("Content-Type", "application/json")
 	if owner != "" {
@@ -279,4 +291,157 @@ func TestDeleteRecordWithEditsDatabase(t *testing.T) {
 	}
 	// The renaming screen still holds revision 3, with the record: its next save would bring it back, so it must reload.
 	expectError(t, h.put(owner, payload(owner, `"revision":3,"lists":`+lists)), http.StatusConflict, "conflict")
+}
+
+// contract reads docs/api/workspace-records.openapi.json: for each method of /api/workspace/records, the error keys
+// each status may answer with ("" for a status without an error, such as 200).
+func contract(t *testing.T) (map[string]map[string][]string, map[string]any) {
+	t.Helper()
+	data, err := os.ReadFile(filepath.Join("..", "..", "..", "docs", "api", "workspace-records.openapi.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc struct {
+		Paths map[string]map[string]struct {
+			Responses map[string]struct {
+				Content map[string]struct {
+					Schema struct {
+						Properties struct {
+							Error struct{ Enum []string }
+						}
+					}
+				}
+			}
+		}
+		Components struct{ Schemas map[string]any }
+	}
+	if err := json.Unmarshal(data, &doc); err != nil {
+		t.Fatal(err)
+	}
+	methods := map[string]map[string][]string{}
+	for method, operation := range doc.Paths["/api/workspace/records"] {
+		statuses := map[string][]string{}
+		for status, response := range operation.Responses {
+			keys := response.Content["application/json"].Schema.Properties.Error.Enum
+			if len(keys) == 0 {
+				keys = []string{""}
+			}
+			statuses[status] = keys
+		}
+		methods[strings.ToUpper(method)] = statuses
+	}
+	return methods, doc.Components.Schemas
+}
+
+// Every answer of /api/workspace/records is one the contract declares, and every one it declares is answered to some
+// request, so the definition the app and other programs read is the handler's.
+func TestRecordsContract(t *testing.T) {
+	methods, _ := contract(t)
+	memory := newMemoryWorkspace(t, `[`+oneList+`,`+strings.Replace(oneList, `"one"`, `"full"`, 1)+`]`)
+	full := memory.w.Find("full")
+	for i := range workspace.MaxRecords {
+		id := fmt.Sprintf("r%d", i)
+		full.Records = append(full.Records, workspace.Record{ID: &id, Time: 1, Date: "2026-10-01T00:00:00.000Z"})
+	}
+	h := newHarness(t, memory, testBase)
+	down := newMemoryWorkspace(t, `[`+oneList+`]`)
+	down.err = errors.New("down")
+	hDown := newHarness(t, down, testBase)
+	sessionsDown := &revocations{fakeWorkspaces: fakeWorkspaces{}, revokedAt: map[string]time.Time{}, readErr: errors.New("down")}
+	hSessions := newHarness(t, memory, testBase)
+	hSessions.handler = New(Config{Store: memory, Sessions: sessionsDown, Keys: hSessions.keys, BaseURL: mustURL(t, testBase)})
+	del := func(r *http.Request) { r.Method = http.MethodDelete }
+	get := func(r *http.Request) { r.Method = http.MethodGet }
+	otherOrigin := func(r *http.Request) { r.Header.Set("Origin", "https://evil.example") }
+	tooLarge := payload(testOwner, `"listId":"one","record":`+aRun+`,"pad":"`+strings.Repeat("x", 1<<20)+`"`)
+	type call struct {
+		h      *harness
+		owner  string
+		body   string
+		change []func(*http.Request)
+	}
+	calls := []call{
+		{h, testOwner, recordBody(testOwner, "one", aRun), nil},
+		{h, testOwner, recordBody(testOwner, "one", aRun), nil},
+		{h, testOwner, "", nil},
+		{h, testOwner, recordBody(testOwner, "one", strings.Replace(aRun, `95.5`, `101`, 1)), nil},
+		// A new id: a saved one is answered as sent again before its device is looked at.
+		{h, testOwner, recordBody(testOwner, "one", strings.Replace(strings.Replace(aRun, `"mac"`, `"gone"`, 1), "run-1", "run-2", 1)), nil},
+		{h, testOwner, recordBody(testOwner, "full", strings.Replace(aRun, "run-1", "new", 1)), nil},
+		{h, testOwner, recordBody(testOwner, "gone", aRun), nil},
+		{h, "", recordBody(testOwner, "one", aRun), nil},
+		{h, testOwner, recordBody("github:1", "one", aRun), nil},
+		{h, testOwner, recordBody(testOwner, "one", aRun), []func(*http.Request){otherOrigin}},
+		{h, testOwner, tooLarge, nil},
+		{hDown, testOwner, recordBody(testOwner, "one", aRun), nil},
+		{hSessions, testOwner, recordBody(testOwner, "one", aRun), nil},
+		{h, testOwner, deleteBody(testOwner, "one", "run-1"), []func(*http.Request){del}},
+		{h, testOwner, "", []func(*http.Request){del}},
+		{h, testOwner, payload(testOwner, `"listId":"one"`), []func(*http.Request){del}},
+		{h, "", deleteBody(testOwner, "one", "run-1"), []func(*http.Request){del}},
+		{h, testOwner, deleteBody("github:1", "one", "run-1"), []func(*http.Request){del}},
+		{h, testOwner, deleteBody(testOwner, "one", "run-1"), []func(*http.Request){del, otherOrigin}},
+		{h, testOwner, tooLarge, []func(*http.Request){del}},
+		{hDown, testOwner, deleteBody(testOwner, "one", "run-1"), []func(*http.Request){del}},
+		{hSessions, testOwner, deleteBody(testOwner, "one", "run-1"), []func(*http.Request){del}},
+		{h, testOwner, "", []func(*http.Request){get}},
+	}
+	seen := map[string]bool{}
+	for i, c := range calls {
+		response := c.h.postRecord(c.owner, c.body, c.change...)
+		var answer struct{ Error string }
+		_ = json.Unmarshal(response.Body.Bytes(), &answer)
+		status := fmt.Sprint(response.Code)
+		requestMethod := http.MethodPost
+		for _, f := range c.change {
+			r := httptest.NewRequest(http.MethodPost, "/", nil)
+			f(r)
+			if r.Method != http.MethodPost {
+				requestMethod = r.Method
+			}
+		}
+		// 405 is answered to any other method; it is declared under each method the path has.
+		declaredUnder := requestMethod
+		if requestMethod == http.MethodGet {
+			declaredUnder = http.MethodPost
+		}
+		keys, ok := methods[declaredUnder][status]
+		if !ok || !slices.Contains(keys, answer.Error) {
+			t.Errorf("call %d (%s): %s %q is not declared for %s", i, requestMethod, status, answer.Error, declaredUnder)
+		}
+		seen[declaredUnder+" "+status+" "+answer.Error] = true
+	}
+	for method, statuses := range methods {
+		for status, keys := range statuses {
+			for _, key := range keys {
+				if !seen[method+" "+status+" "+key] {
+					if method == http.MethodDelete && status == "405" {
+						continue // The same answer as POST's 405, for the same requests.
+					}
+					t.Errorf("%s %s %q is declared but never answered", method, status, key)
+				}
+			}
+		}
+	}
+}
+
+// The record a request gives has the fields the contract's RecordInput declares, no more and no fewer.
+func TestRecordInputContract(t *testing.T) {
+	_, schemas := contract(t)
+	properties, _ := schemas["RecordInput"].(map[string]any)["properties"].(map[string]any)
+	var declared []string
+	for name := range properties {
+		declared = append(declared, name)
+	}
+	var fields []string
+	input := reflect.TypeFor[workspace.RecordInput]()
+	for i := range input.NumField() {
+		name, _, _ := strings.Cut(input.Field(i).Tag.Get("json"), ",")
+		fields = append(fields, name)
+	}
+	slices.Sort(declared)
+	slices.Sort(fields)
+	if !slices.Equal(declared, fields) {
+		t.Fatalf("RecordInput fields = %v; the contract declares %v", fields, declared)
+	}
 }
