@@ -193,7 +193,7 @@ func (s *Store) Modify(ctx context.Context, owner string, change func(*workspace
 		if _, err := workspace.Decode(after, devices, afterPacks); err != nil {
 			return fmt.Errorf("changed workspace of %s: %w", owner, err)
 		}
-		stored, err := workspace.Encode(withoutRecords(w.Lists))
+		stored, err := workspace.Encode(withoutRecords(workspace.WithoutFollowedWords(w.Packs, w.Lists)))
 		if err != nil {
 			return err
 		}
@@ -213,9 +213,10 @@ func (s *Store) Modify(ctx context.Context, owner string, change func(*workspace
 	return result, nil
 }
 
-// encodeLibrary writes the lists and packs of w as the app saves them, the lists with their records.
+// encodeLibrary writes the lists and packs of w as the app saves them: the lists with their records, and without the
+// words of followed packs (workspace.WithoutFollowedWords).
 func encodeLibrary(w *workspace.Workspace) (lists, packs []byte, err error) {
-	if lists, err = workspace.Encode(w.Lists); err != nil {
+	if lists, err = workspace.Encode(workspace.WithoutFollowedWords(w.Packs, w.Lists)); err != nil {
 		return nil, nil, err
 	}
 	packs, err = workspace.EncodePacks(w.Packs)
@@ -376,10 +377,12 @@ func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, c
 		if rows, err = recordRows(change.Lists); err != nil {
 			return nil, err
 		}
-		if full, err = workspace.Encode(change.Lists); err != nil {
+		// Followed packs' lists are saved without their words, which the catalog has.
+		slim := workspace.WithoutFollowedWords(change.Packs, change.Lists)
+		if full, err = workspace.Encode(slim); err != nil {
 			return nil, err
 		}
-		if lists, err = workspace.Encode(withoutRecords(change.Lists)); err != nil {
+		if lists, err = workspace.Encode(withoutRecords(slim)); err != nil {
 			return nil, err
 		}
 	}

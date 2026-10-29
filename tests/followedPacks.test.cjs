@@ -83,3 +83,16 @@ test('decodeLists keeps a list origin of the right shape and drops the others', 
   for (const bad of [null, 'x', {}, { listId: 1 }, [], { listId: null }]) assert.equal('origin' in read(bad), false)
   assert.equal('origin' in read(undefined), false)
 })
+
+test('followed packs are saved without their words, and following the catalog gives them back', () => {
+  const { withoutFollowedWords } = require('../src/core/followedPacks.ts')
+  const { officialPacks, followOfficialPack } = require('../src/plugins/packs/catalog.ts')
+  const own = { id: 'mine', name: 'Mine', packId: 'p', createdAt: '2026-10-01', words: [{ display: 'a', input: 'a', annotation: '' }], records: [] }
+  const entry = officialPacks()[0]
+  const ids = { pack: 'f', lists: entry.lists.map((_, i) => `f-${i}`) }
+  const library = followOfficialPack({ packs: [{ id: 'p', name: 'P', createdAt: '2026-10-01' }], lists: [own] }, entry.catalogId, ids)
+  const slim = withoutFollowedWords(library)
+  for (const list of slim.lists) assert.equal(list.words.length === 0, list.packId === 'f', list.id)
+  assert.ok(JSON.stringify(slim).length < JSON.stringify(library).length)
+  assert.deepEqual(followOfficial(slim, officialPacks()), followOfficial(library, officialPacks()))
+})

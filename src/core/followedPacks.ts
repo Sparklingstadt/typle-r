@@ -12,6 +12,15 @@ export const isFollowed = (pack: Pick<WordPack, 'origin'>) => pack.origin?.follo
 export const ownPacks = <T extends Pick<WordPack, 'origin'>>(packs: T[]) => packs.filter(pack => !isFollowed(pack))
 
 /**
+ * The lists as they are saved since v2.1.0: those of a followed pack without their words, which the catalog has and
+ * `followOfficial` puts back when the library is read (WithoutFollowedWords in Go).
+ */
+export function withoutFollowedWords<T extends Library>(library: T): T {
+  const followed = new Set(library.packs.filter(isFollowed).map(pack => pack.id))
+  return { ...library, lists: library.lists.map(list => followed.has(list.packId!) && list.origin ? { ...list, words: [] } : list) }
+}
+
+/**
  * Brings a library read from the saved data in line with the catalog, in two steps; applying it again changes nothing.
  * 1. Copies from before v0.98.0 are removed with their lists and records: a pack with an origin that is not followed,
  *    and a pack without an origin whose id is a catalogId.

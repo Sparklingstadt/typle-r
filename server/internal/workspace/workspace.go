@@ -224,7 +224,8 @@ func decodeList(raw *rawList) (List, error) {
 	if trimJS(*raw.Name) == "" {
 		return List{}, errors.New("name is empty")
 	}
-	if len(raw.Words) == 0 {
+	// A list of a followed pack (with an origin) is saved without its words, which followOfficial takes from the catalog.
+	if len(raw.Words) == 0 && raw.Origin == nil {
 		return List{}, errors.New("words are empty")
 	}
 	words := make([]Word, 0, len(raw.Words))

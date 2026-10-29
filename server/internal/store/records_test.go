@@ -430,3 +430,67 @@ func TestDropLegacyMigration(t *testing.T) {
 		}
 	}
 }
+
+// A followed pack's lists are saved without their words, by a change (Modify) and by the app's save (WriteRevision),
+// and read back with them from the catalog; the list of the account's own pack keeps its words.
+func TestFollowedWordsNotSaved(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	official, err := workspace.OfficialPacks()
+	if err != nil {
+		t.Fatal(err)
+	}
+	first := official[0]
+	packs := `[{"id":"f","name":"公式","origin":{"catalogId":"` + first.CatalogID + `","version":1,"followed":true},"createdAt":"x"},` +
+		`{"id":"q","name":"Mine","createdAt":"x"}]`
+	lists := `[{"id":"fl","name":"x","packId":"f","origin":{"listId":"` + first.Lists[0].ID + `"},"createdAt":"x",` +
+		`"words":[{"display":"a","input":"a","annotation":""}],"records":[]},` +
+		`{"id":"g","name":"G","packId":"q","createdAt":"x","words":[{"display":"g","input":"g","annotation":""}],"records":[]}]`
+	s := open(t, connection, true)
+	check := func(id string) {
+		t.Helper()
+		var stored []struct {
+			PackID string
+			Words  []json.RawMessage
+		}
+		raw, _, _ := row(t, conn, id)
+		if err := json.Unmarshal([]byte(raw), &stored); err != nil {
+			t.Fatal(err)
+		}
+		for _, list := range stored {
+			if (list.PackID == "f") == (len(list.Words) > 0) {
+				t.Fatalf("stored lists = %s", raw)
+			}
+		}
+		w, err := s.Read(ctx, id)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, list := range w.Lists {
+			if list.PackID == "f" && len(list.Words) == 0 {
+				t.Fatalf("read without words: %+v", list)
+			}
+		}
+		if len(w.Find("fl").Words) != len(first.Lists[0].Words) {
+			t.Fatalf("fl words = %d, catalog %d", len(w.Find("fl").Words), len(first.Lists[0].Words))
+		}
+	}
+	changed := owner(t, conn)
+	if _, err := conn.Exec(ctx, `INSERT INTO typle_workspaces (owner_id, lists, packs, devices) VALUES ($1, $2, $3, '[]')`,
+		changed, lists, packs); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Modify(ctx, changed, createList("c")); err != nil {
+		t.Fatal(err)
+	}
+	check(changed)
+	saved := owner(t, conn)
+	w, err := workspace.Decode([]byte(lists), []byte(`[]`), []byte(packs))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.WriteRevision(ctx, saved, 0, Change{Lists: w.Lists, Packs: w.Packs, HasLists: true, HasPacks: true}); err != nil {
+		t.Fatal(err)
+	}
+	check(saved)
+}

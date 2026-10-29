@@ -1,9 +1,9 @@
 import { AppError } from '../../core/appError'
 import { applyChange, decodeDocument, type WorkspaceDocument } from '../../core/workspaceDocument'
 import { MAX_WORKSPACE_BYTES, validateWorkspaceRequest } from '../../core/workspaceRequest'
-import { followOfficial } from '../../core/followedPacks'
+import { withoutFollowedWords } from '../../core/followedPacks'
 import { decodeInterests } from '../../core/interests'
-import { officialPacks } from '../packs/catalog'
+import { followed } from './official'
 import { addRecord, deleteRecord } from '../../core/records'
 import { WorkspaceError, type RecordAdd, type RecordDelete, type WorkspaceState, type WorkspaceStore, type WorkspaceWrite } from '../../core/workspaceStore'
 
@@ -39,18 +39,15 @@ function readDocument(storage: Storage): Stored {
 }
 
 function store(storage: Storage, { lists, packs, devices, interests, revision }: Stored): WorkspaceState {
-  const raw = JSON.stringify({ version: 1, accountId: GUEST_ACCOUNT_ID, revision, lists, packs, devices, interests })
+  const raw = JSON.stringify({ version: 1, accountId: GUEST_ACCOUNT_ID, revision, ...withoutFollowedWords({ lists, packs }), devices, interests })
   if (!Number.isSafeInteger(revision) || bytes(raw) > MAX_GUEST_BYTES) throw new AppError('guestQuotaExceeded')
   try { storage.setItem(GUEST_STORAGE_KEY, raw) }
   catch { throw new AppError('guestWriteFailed') }
   return { lists, packs, devices, interests, revision, accountId: GUEST_ACCOUNT_ID }
 }
 
-// Followed packs are brought in line with the catalog on every read and write. A read that changes them does not save
-// them; the next write does.
-function followed<T extends { lists: Stored['lists']; packs: Stored['packs'] }>(state: T): T {
-  return { ...state, ...followOfficial({ lists: state.lists, packs: state.packs }, officialPacks()) }
-}
+// Followed packs are brought in line with the catalog on every read and write (followed), and saved without their
+// words (withoutFollowedWords). A read that changes them does not save them; the next write does.
 
 export function readGuestWorkspace(storage: Storage = localStorage): WorkspaceState {
   return followed({ ...readDocument(storage), accountId: GUEST_ACCOUNT_ID })
