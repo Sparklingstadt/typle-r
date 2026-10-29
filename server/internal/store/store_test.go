@@ -963,34 +963,6 @@ func packsColumn(t *testing.T, conn *pgx.Conn, id string) []workspace.Pack {
 	return result
 }
 
-// A row saved before packs existed (packs NULL) is turned into packs when it is read, as the app does.
-func TestReadConvertsRowWithoutPacks(t *testing.T) {
-	ctx := context.Background()
-	connection, conn := database(t)
-	id := owner(t, conn)
-	lists := `[{"id":"l1","name":"基本","group":"Linux","category":"プログラミング","tags":["シェル"],"createdAt":"2026-10-10T01:23:45.000Z",` +
-		`"words":[{"display":"ls","input":"ls","annotation":""}],"records":[]},` +
-		`{"id":"l2","name":"応用","group":"Linux","createdAt":"2026-10-11T01:23:45.000Z","words":[{"display":"cd","input":"cd","annotation":""}],"records":[]}]`
-	if _, err := conn.Exec(ctx, `INSERT INTO typle_workspaces (owner_id, lists, devices) VALUES ($1, $2, '[]')`, id, lists); err != nil {
-		t.Fatal(err)
-	}
-	s := open(t, connection, false)
-	w, err := s.Read(ctx, id)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(w.Packs) != 1 || w.Packs[0].ID != "pack-l1" || w.Packs[0].Name != "Linux" || w.Packs[0].Category != "プログラミング" ||
-		w.Lists[1].PackID != "pack-l1" || w.Lists[1].Category != "プログラミング" {
-		t.Fatalf("packs = %+v, lists = %+v", w.Packs, w.Lists)
-	}
-	saved, err := s.ReadRevision(ctx, id)
-	if err != nil || saved.Packs != nil {
-		t.Fatalf("ReadRevision = %+v, %v; want packs NULL as nil", saved, err)
-	}
-}
-
-// Modify writes the packs with the lists: a new list gets a pack of its own, and a new category goes to the pack, not
-// the list. A row Modify inserts starts with the packs of the initial lists.
 func TestModifyWritesPacks(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
@@ -1062,24 +1034,19 @@ func TestWriteRevisionPacks(t *testing.T) {
 	if w := decoded(t, saved); len(w.Packs) != 1 || w.Packs[0].Category != "C" || w.Lists[0].Category != "C" {
 		t.Fatalf("saved = %s %s", saved.Lists, saved.Packs)
 	}
+	// Lists sent without packs are each put in a pack of their own; their labels are not kept, and packs are never NULL.
 	sent := newLists(2)
-	sent[0].PackID = "p"
 	sent[1].Category, sent[1].Tags = "語学", []string{"英語"}
 	saved, err = s.WriteRevision(ctx, id, 1, Change{Lists: sent, HasLists: true})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(saved.Lists), `"語学"`) || !strings.Contains(string(saved.Packs), `"C"`) {
+	if strings.Contains(string(saved.Lists), `"語学"`) || saved.Packs == nil {
 		t.Fatalf("saved = %s %s", saved.Lists, saved.Packs)
 	}
 	w := decoded(t, saved)
-	if len(w.Packs) != 2 || w.Lists[0].PackID != "p" || w.Lists[1].Category != "語学" || w.Find("l1").PackID == "p" {
+	if len(w.Packs) != 2 || w.Lists[0].PackID == w.Lists[1].PackID || w.Lists[1].Category != "" {
 		t.Fatalf("packs = %+v, lists = %+v", w.Packs, w.Lists)
-	}
-	// A row created without packs is one saved before them: NULL.
-	other := owner(t, conn)
-	if saved, err := s.WriteRevision(ctx, other, 0, Change{Lists: sent, HasLists: true}); err != nil || saved.Packs != nil {
-		t.Fatalf("saved = %+v, %v", saved, err)
 	}
 }
 

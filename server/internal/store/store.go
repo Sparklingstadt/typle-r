@@ -290,9 +290,8 @@ type Saved struct {
 
 // Change is what a save sets. A part that is not set (HasLists, HasPacks, HasDevices, HasInterests) stays as it is.
 // Interests are only the app's: Modify, which /api/v1 changes the workspace with, leaves them as they are. Packs are set
-// only with the lists they hold, which are then written without labels (workspace.Encode). Lists set without packs
-// come from an app that does not know packs: they are written as it sent them, labels and all
-// (workspace.EncodeWithLabels), for Decode to settle with the saved packs when they are read.
+// only with their lists, which are written without labels (workspace.Encode); lists set without packs are each put in
+// a pack of their own.
 type Change struct {
 	Lists        []workspace.List
 	Packs        []workspace.Pack
@@ -337,39 +336,50 @@ func (s *Store) ReadRevision(ctx context.Context, owner string) (*Saved, error) 
 // change that Decode would refuse is never written: the account would no longer load, here or in the app. All of this,
 // apart from the conflict and the saved number of lists, is checked before the database is touched.
 //
-// What is saved is not read back through Decode, except lists saved without packs (to find the packs they leave): only
-// the saved revision and number of lists are read, a part left out is kept by the UPDATE itself, and the result is the
-// row's JSON as stored, with its records put back in its lists. Lists saved bring their records: those of typle_records
-// become exactly theirs (see records.go), and the row's records_split is set. When packs are saved, the links to packs no longer among them are deleted in the same
-// transaction. So are those of lists saved without packs, against the packs the row then has (derived from the lists
-// when it has none); devices alone leave the links as they are.
+// What is saved is not read back through Decode: only the saved revision and number of lists are read, a part left out
+// is kept by the UPDATE itself, and the result is the row's JSON as stored, with its records put back in its lists.
+// Lists saved bring their records: those of typle_records become exactly theirs (see records.go), and the row's
+// records_split is set. When packs are saved, the links to packs no longer among them are deleted in the same
+// transaction; devices or interests alone leave the links as they are.
 func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, change Change) (*Saved, error) {
 	// nil is a part left out: NULL in the queries below. full is the lists with their records, as the app sent them;
 	// lists, as the column keeps them, have none: rows are their records, for typle_records.
 	var lists, full, packs, devices, interests []byte
 	var rows []recordRow
 	var err error
+	// Packs are saved only with their lists. Lists sent without packs are each put in a pack of their own, as Decode
+	// repairs lists without one.
 	if change.HasPacks && !change.HasLists {
 		return nil, &workspace.Error{Key: "invalidWorkspace"}
+	}
+	if change.HasLists && !change.HasPacks {
+		if err := workspace.CheckLimits(change.Lists); err != nil {
+			return nil, err
+		}
+		encoded, err := workspace.Encode(change.Lists)
+		if err != nil {
+			return nil, err
+		}
+		repaired, err := workspace.Decode(encoded, []byte("[]"), []byte("[]"))
+		if err != nil {
+			return nil, fmt.Errorf("changed workspace of %s: %w", owner, err)
+		}
+		change.Lists, change.Packs, change.HasPacks = repaired.Lists, repaired.Packs, true
 	}
 	if change.HasLists {
 		if err := workspace.CheckLimits(change.Lists); err != nil {
 			return nil, err
 		}
-		encode := workspace.EncodeWithLabels
-		if change.HasPacks {
-			encode = workspace.Encode
-			if packs, err = workspace.EncodePacks(change.Packs); err != nil {
-				return nil, err
-			}
+		if packs, err = workspace.EncodePacks(change.Packs); err != nil {
+			return nil, err
 		}
 		if rows, err = recordRows(change.Lists); err != nil {
 			return nil, err
 		}
-		if full, err = encode(change.Lists); err != nil {
+		if full, err = workspace.Encode(change.Lists); err != nil {
 			return nil, err
 		}
-		if lists, err = encode(withoutRecords(change.Lists)); err != nil {
+		if lists, err = workspace.Encode(withoutRecords(change.Lists)); err != nil {
 			return nil, err
 		}
 	}
@@ -387,9 +397,8 @@ func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, c
 			return nil, err
 		}
 	}
-	// A part left out is saved as it is, so only the other one can be refused; it is read with an empty one. Lists
-	// without packs are read as lists saved before packs existed.
-	if _, err := workspace.Decode(orEmpty(full), orEmpty(devices), packs); err != nil {
+	// A part left out is saved as it is, so only the other one can be refused; it is read with an empty one.
+	if _, err := workspace.Decode(orEmpty(full), orEmpty(devices), orEmpty(packs)); err != nil {
 		return nil, fmt.Errorf("changed workspace of %s: %w", owner, err)
 	}
 	var saved *Saved
@@ -407,16 +416,8 @@ func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, c
 		if saved, err = readSaved(ctx, tx, owner); err != nil {
 			return err
 		}
-		switch {
-		case change.HasPacks:
+		if change.HasPacks {
 			return deleteRemovedShares(ctx, tx, owner, change.Packs)
-		case change.HasLists:
-			// Lists without packs: the packs are the saved ones, or those derived from the saved lists.
-			w, err := workspace.Decode(saved.Lists, saved.Devices, saved.Packs)
-			if err != nil {
-				return fmt.Errorf("saved workspace of %s: %w", owner, err)
-			}
-			return deleteRemovedShares(ctx, tx, owner, w.Packs)
 		}
 		return nil
 	})

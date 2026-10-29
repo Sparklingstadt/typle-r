@@ -120,7 +120,8 @@ function labelsOf(category: string | undefined, tags: string[]) {
   return labels.tags ? { ...labels, tags: labels.tags.slice(0, MAX_TAGS) } : labels
 }
 
-/** Turns lists saved before packs existed into packs: one per group, one for each list without a group. */
+/** Makes packs of lists written with groups, as the catalog's lists (src/plugins/packs) are: one per group, one for
+ * each list without a group. */
 export function convertLibrary(lists: SavedWordList[]): Library {
   const packs: WordPack[] = []
   const packOf = new Map<string, WordPack>()
@@ -177,9 +178,10 @@ export function repairLibrary(library: Library): Library {
   }) })
 }
 
-/** `packs` is null for data saved before packs existed. */
+/** `packs` is null when none are saved (an account that has saved nothing): each list then gets a pack of its own, as
+ * any list without one does. Data from before packs is no longer converted by its groups (see 0032_drop_legacy). */
 export function normalizeLibrary(lists: SavedWordList[], packs: WordPack[] | null): Library {
-  return packs === null ? convertLibrary(lists) : repairLibrary({ packs, lists })
+  return repairLibrary({ packs: packs ?? [], lists })
 }
 
 /**

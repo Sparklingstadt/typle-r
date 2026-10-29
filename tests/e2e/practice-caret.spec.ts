@@ -1,4 +1,5 @@
 import { test, expect, type Locator } from '@playwright/test'
+import { guestWorkspace } from './guestData'
 
 async function expectCaretInsideText(current: Locator) {
   const metrics = await current.evaluate(element => {
@@ -23,11 +24,9 @@ async function expectCaretInsideText(current: Locator) {
 for (const width of [390, 1440]) for (const theme of ['light', 'dark']) {
   test(`caret stays visible on letters, spaces and errors in ${theme} at ${width}px`, async ({ page }, testInfo) => {
     const examples = ['import', 'package main', 'import ( "fmt"; "errors" )']
-    await page.addInitScript(texts => localStorage.setItem('typle-r:guest-workspace:v1', JSON.stringify({
-      version: 1, accountId: 'guest:local', revision: 1, devices: [],
-      lists: [{ id: 'caret', name: 'Caret', createdAt: '2026-10-28', records: [],
-        words: texts.map(text => ({ display: text, input: text, annotation: '', input_type: 'code' })) }],
-    })), examples)
+    const raw = guestWorkspace([{ id: 'caret', name: 'Caret', createdAt: '2026-10-28', records: [],
+      words: examples.map(text => ({ display: text, input: text, annotation: '', input_type: 'code' })) }])
+    await page.addInitScript(value => localStorage.setItem('typle-r:guest-workspace:v1', value), raw)
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/play')
     const themeToggle = page.getByRole('button', { name: 'ダークモード', exact: true })

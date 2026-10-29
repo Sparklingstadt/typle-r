@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
+import { guestWorkspace } from './guestData'
 const key = 'typle-r:guest-workspace:v1'
 const minute = 60 * 1000
 const day = 24 * 60 * minute
@@ -26,7 +27,7 @@ function lists() {
 function seed(page: Page, value: unknown[] = lists()) {
   return page.addInitScript(([key, raw]) => {
     if (!localStorage.getItem(key)) localStorage.setItem(key, raw)
-  }, [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists: value, devices: [mac, hhkb] })])
+  }, [key, guestWorkspace(value, { devices: [mac, hhkb] })])
 }
 
 const rows = (page: Page) => page.locator('[data-record-key]')

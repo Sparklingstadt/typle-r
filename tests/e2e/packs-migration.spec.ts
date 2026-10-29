@@ -2,62 +2,7 @@ import { test, expect, type Page } from '@playwright/test'
 import { deleteWorkspace, newAccountId, origin, signIn } from './account'
 const key = 'typle-r:guest-workspace:v1'
 const words = (...texts: string[]) => texts.map(text => ({ display: text, input: text, annotation: '' }))
-// The shape v0.90.0 saved: no packs, and group / category / tags on each list.
-const member = (id: string, levels: string[], ...texts: string[]) =>
-  ({ id, name: `Shell：${levels.join('・')}`, group: 'Shell', levels, category: 'CLI', tags: ['unix'], createdAt: '2026-09-01', words: words(...texts), records: [] })
-const oldLists = () => [
-  member('basic-1', ['基本', '初級'], 'ls', 'cd'),
-  member('basic-2', ['基本', '上級'], 'find'),
-  { id: 'plain', name: 'Plain', createdAt: '2026-09-02', words: words('x'), records: [] },
-]
-
 const saved = (page: Page) => page.evaluate(k => JSON.parse(localStorage.getItem(k) ?? 'null'), key)
-
-async function expectGroupedView(page: Page) {
-  // The two Shell lists are one pack row, and the list without a group is a pack row of its own.
-  const group = page.locator('li[data-pack-id="pack-basic-1"]')
-  await expect(group).toContainText('2リスト')
-  await expect(group).toContainText('3語')
-  await expect(page.locator('li[data-pack-id="pack-plain"]')).toContainText('1リスト')
-  await expect(page.locator('li[data-pack-id]')).toHaveCount(2)
-  return group
-}
-
-test('a guest workspace saved by v0.90.0 shows the same and is saved as packs when edited', async ({ page }) => {
-  const errors: string[] = []
-  page.on('pageerror', error => errors.push(error.message))
-  await page.addInitScript(([key, raw]) => { if (!localStorage.getItem(key)) localStorage.setItem(key, raw) },
-    [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists: oldLists(), devices: [] })])
-  await page.setViewportSize({ width: 1280, height: 900 })
-  await page.goto('/edit')
-  let group = await expectGroupedView(page)
-
-  await group.getByRole('button', { name: 'Shell', exact: true }).click()
-  await group.getByRole('button', { name: 'Shell：基本・上級 を編集' }).click()
-  await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('Shell：基本・上級 改')
-  await page.getByRole('button', { name: '保存', exact: true }).click()
-  await expect(page.getByText('「Shell：基本・上級 改」を更新しました。')).toBeVisible()
-
-  const workspace = await saved(page)
-  expect(Array.isArray(workspace.packs)).toBe(true)
-  expect(workspace.lists).toHaveLength(3)
-  for (const list of workspace.lists) {
-    expect(typeof list.packId).toBe('string')
-    expect(list).not.toHaveProperty('group')
-    expect(list).not.toHaveProperty('category')
-    expect(list).not.toHaveProperty('tags')
-    expect(workspace.packs.some((pack: { id: string }) => pack.id === list.packId)).toBe(true)
-  }
-  const shell = workspace.packs.find((pack: { id: string }) => pack.id === 'pack-basic-1')
-  expect(shell).toMatchObject({ name: 'Shell', category: 'CLI', tags: ['unix'] })
-  // A list has one level at most: the two levels of each old list were joined into one.
-  expect(workspace.lists.map((list: { levels: string[] }) => list.levels)).toEqual([['基本・初級'], ['基本・上級'], undefined])
-
-  await page.reload()
-  group = await expectGroupedView(page)
-  await expect(group.getByRole('button', { name: 'Shell', exact: true })).toBeVisible()
-  expect(errors).toEqual([])
-})
 
 test('a guest with nothing saved starts with no packs', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 })
@@ -107,36 +52,6 @@ test.describe('account', () => {
     await signIn(context, accountId)
   })
   test.afterEach(() => deleteWorkspace(accountId))
-
-  test('a row whose packs is NULL is read, shown, and gets packs when saved', async ({ page }) => {
-    const { Pool } = await import('pg')
-    const put = await page.request.put('/api/workspace', { headers: { Origin: origin }, data: { accountId, revision: 0, lists: oldLists() } })
-    expect(put.status()).toBe(200)
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL })
-    const packs = async () => (await pool.query('SELECT packs FROM typle_workspaces WHERE owner_id = $1', [accountId])).rows[0].packs
-    try {
-      await pool.query('UPDATE typle_workspaces SET packs = NULL WHERE owner_id = $1', [accountId])
-      expect(await packs()).toBeNull()
-
-      await page.setViewportSize({ width: 1280, height: 900 })
-      await page.goto('/edit')
-      const group = await expectGroupedView(page)
-      await group.getByRole('button', { name: 'Shell', exact: true }).click()
-      await group.getByRole('button', { name: 'Shell：基本・上級 を編集' }).click()
-      await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('Shell：基本・上級 改')
-      await page.getByRole('button', { name: '保存', exact: true }).click()
-      await expect(page.getByText('「Shell：基本・上級 改」を更新しました。')).toBeVisible()
-
-      await expect.poll(async () => (await packs())?.length ?? 0).toBeGreaterThan(0)
-      const body = await (await page.request.get('/api/workspace')).json()
-      expect(body.lists).toHaveLength(3)
-      for (const list of body.lists) {
-        expect(typeof list.packId).toBe('string')
-        expect(list).not.toHaveProperty('group')
-      }
-      expect(body.packs.find((pack: { id: string }) => pack.id === 'pack-basic-1')).toMatchObject({ name: 'Shell', category: 'CLI', tags: ['unix'] })
-    } finally { await pool.end() }
-  })
 
   test('an account row with copies of official packs loses the copies and their records, not its own pack', async ({ page }) => {
     const { packs, lists } = migratedWorkspace()

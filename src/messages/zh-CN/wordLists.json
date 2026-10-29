@@ -227,19 +227,6 @@
     "add": "添加 {count} 个单词",
     "replaceWith": "替换为 {count} 个单词"
   },
-  "legacy": {
-    "title": "迁移旧版数据",
-    "description": "将此浏览器中保留的 v0.1.x 单词列表和记录添加到{target}。原数据会保留。再次迁移相同的数据也不会重复。",
-    "currentAccount": "当前账号",
-    "thisBrowser": "此浏览器",
-    "none": "没有需要迁移的数据。",
-    "done": "迁移完成。原数据仍保留在此浏览器中。",
-    "failed": "无法读取保存的数据。原数据未作更改。",
-    "busy": "正在迁移…",
-    "toAccount": "迁移到此账号",
-    "toBrowser": "迁移到此浏览器",
-    "suffix": "（迁移 {n}）"
-  },
   "words": {
     "title": "单词一览",
     "description": "选择单词列表后，以表格显示该列表中输入的文字和备注。",

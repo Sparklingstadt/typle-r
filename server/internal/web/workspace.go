@@ -219,10 +219,6 @@ func (s *server) writeWorkspace(w http.ResponseWriter, r *http.Request) {
 	}
 	revision, change, err := decodeFields(fields)
 	var refused *workspace.Error
-	if errors.Is(err, errLegacy) {
-		refuse(w, http.StatusConflict, "conflict")
-		return
-	}
 	// Lists sent with their packs whose levels overlap (workspace.CheckPacks) are told so; anything else is invalid.
 	// Several levels of a list are not refused: the change stores the lists as Decode repairs them, joined into one.
 	if errors.As(err, &refused) && refused.Key == "levelsConflict" {

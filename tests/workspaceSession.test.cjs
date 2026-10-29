@@ -3,7 +3,9 @@ const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { createWorkspaceSession } = require('../src/core/workspaceSession.ts')
 const { WorkspaceError } = require('../src/core/workspaceStore.ts')
-const { normalizeLibrary, viewLists } = require('../src/core/wordPacks.ts')
+const { convertLibrary, normalizeLibrary: repaired, viewLists } = require('../src/core/wordPacks.ts')
+// The test's lists are written with groups, as the catalog's are: without packs, they are made into packs by group.
+const normalizeLibrary = (lists, packs) => packs === null ? convertLibrary(lists) : repaired(lists, packs)
 
 const list = (id, name = id) => ({ id, name, words: [{ display: name, input: name, annotation: '' }], records: [], createdAt: '2026-10-04' })
 const grouped = (id, name, group) => ({ ...list(id, name), group, category: 'C' })

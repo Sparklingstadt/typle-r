@@ -22,11 +22,7 @@ const maxSafeInteger = 1<<53 - 1
 
 var (
 	errTooLarge = errors.New("request body is too large")
-	// errLegacy is a save from a screen of the app before profiles were removed, for a profile other than the first or
-	// changing the profiles. It is answered with a conflict, so that screen reloads and shows the merged lists instead
-	// of overwriting them (LegacyProfileRequest in the app).
-	errLegacy  = errors.New("request for a profile that no longer exists")
-	errInvalid = errors.New("request is not a valid workspace")
+	errInvalid  = errors.New("request is not a valid workspace")
 )
 
 // readBody reads the body, giving up as soon as it is past maxBodyBytes rather than after reading all of it: one byte
@@ -63,8 +59,7 @@ func accountID(fields map[string]json.RawMessage) (string, bool) {
 	return id, json.Unmarshal(fields["accountId"], &id) == nil
 }
 
-// decodeRequest reads a save, as validateWorkspaceRequest does: the error is errLegacy for a profile that no longer
-// exists and any other error for a request to refuse (400). The limits of validateLists (workspace.CheckLimits) and the
+// decodeRequest reads a save, as validateWorkspaceRequest does: an error is a request to refuse (400). The limits of validateLists (workspace.CheckLimits) and the
 // number of lists are not checked here: Store.WriteRevision checks them, before it touches the database, and answers
 // a *workspace.Error that is refused with a 400 all the same.
 func decodeRequest(body []byte) (revision int, change store.Change, err error) {
@@ -75,26 +70,20 @@ func decodeRequest(body []byte) (revision int, change store.Change, err error) {
 	return decodeFields(fields)
 }
 
-// The revision is judged before the legacy profile, and that before the lists, as in validateWorkspaceRequest.
+// The revision is judged before the lists, as in validateWorkspaceRequest. Saves of apps from before packs (lists
+// alone, with their labels) or with profiles (profileId, profiles) are no longer taken: they are invalid.
 func decodeFields(fields map[string]json.RawMessage) (revision int, change store.Change, err error) {
 	revision, ok := safeInteger(fields["revision"])
 	if !ok {
 		return 0, store.Change{}, errInvalid
 	}
-	if raw, ok := fields["profileId"]; ok {
-		var id string
-		if json.Unmarshal(raw, &id) != nil || id != "default" {
-			return 0, store.Change{}, errLegacy
-		}
-	}
-	if _, ok := fields["profiles"]; ok {
-		return 0, store.Change{}, errLegacy
-	}
+	_, hasProfile := fields["profileId"]
+	_, hasProfiles := fields["profiles"]
 	lists, hasLists := fields["lists"]
 	packs, hasPacks := fields["packs"]
 	devices, hasDevices := fields["devices"]
-	// Packs only make sense with the lists that belong to them.
-	if hasPacks && !hasLists {
+	// Packs are saved only with their lists; lists sent without them are each put in a pack of their own.
+	if hasProfile || hasProfiles || (hasPacks && !hasLists) {
 		return 0, store.Change{}, errInvalid
 	}
 	// Interests may be all a save sets. They are judged after the other parts, as in validateWorkspaceRequest, so that
@@ -117,16 +106,19 @@ func decodeFields(fields map[string]json.RawMessage) (revision int, change store
 	if unstorable(lists) || unstorable(packs) || unstorable(devices) {
 		return 0, store.Change{}, errInvalid
 	}
-	// Lists sent with packs are checked as they were sent, before Decode repairs them.
+	// Lists sent with packs are checked with them as they were sent, before Decode repairs them.
 	if hasPacks {
 		if err := workspace.CheckLibrary(lists, packs); err != nil {
 			return 0, store.Change{}, err
 		}
 	} else {
-		packs = nil
+		packs = json.RawMessage("[]")
 	}
 	if !hasLists {
 		lists = json.RawMessage("[]")
+	} else if sent, err := workspace.DecodeLists(lists); err != nil || workspace.CheckLimits(sent) != nil {
+		// The limits of the lists as sent, such as their levels before Decode joins them.
+		return 0, store.Change{}, errInvalid
 	}
 	if !hasDevices {
 		devices = json.RawMessage("[]")
@@ -139,18 +131,9 @@ func decodeFields(fields map[string]json.RawMessage) (revision int, change store
 	if interestsErr != nil {
 		return 0, store.Change{}, interestsErr
 	}
-	// With packs, the lists are stored as Decode repaired them, so a list sent with several levels (by an app before
-	// v0.97.0) is stored with them joined into one.
-	change = store.Change{Lists: decoded.Lists, Packs: decoded.Packs, Devices: decoded.Devices, Interests: interests, HasLists: hasLists,
-		HasPacks: hasPacks, HasDevices: hasDevices, HasInterests: hasInterests}
-	if hasLists && !hasPacks {
-		// An app that does not know packs sends its lists with their labels, which are saved as it sent them (see
-		// store.Change).
-		if change.Lists, err = workspace.DecodeLists(lists); err != nil {
-			return 0, store.Change{}, err
-		}
-	}
-	return revision, change, nil
+	// The lists are stored as Decode repaired them, with the packs it made for lists sent without them.
+	return revision, store.Change{Lists: decoded.Lists, Packs: decoded.Packs, Devices: decoded.Devices, Interests: interests,
+		HasLists: hasLists, HasPacks: hasLists, HasDevices: hasDevices, HasInterests: hasInterests}, nil
 }
 
 // decodeInterests reads the interests of a save as decodeInterests (src/core/interests.ts) does: null is none. Left out

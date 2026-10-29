@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
+import { guestWorkspace } from './guestData'
 const key = 'typle-r:guest-workspace:v1'
 const selectedKey = 'typle-r:device:guest:local'
 const today = new Date().toISOString()
@@ -15,7 +16,7 @@ function seedGuest(page: Page, devices: unknown[], selected?: string) {
     if (localStorage.getItem(key)) return
     localStorage.setItem(key, value)
     if (selected) localStorage.setItem(selectedKey, selected)
-  }, [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists, devices }), selectedKey, selected ?? ''])
+  }, [key, guestWorkspace(lists, { devices }), selectedKey, selected ?? ''])
 }
 
 test('adding devices explains mistakes in place and remembers the device for this browser', async ({ page }) => {

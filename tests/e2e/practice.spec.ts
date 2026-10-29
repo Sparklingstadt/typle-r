@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import { openPacks } from './packRows'
+import { guestWorkspace } from './guestData'
 const key = 'typle-r:guest-workspace:v1'
 async function importWords(page: import('@playwright/test').Page, files: Parameters<import('@playwright/test').Locator['setInputFiles']>[0]) {
   await page.getByRole('button', { name: 'CSV・TSVを読み込む', exact: true }).click()
@@ -12,7 +13,7 @@ async function importWords(page: import('@playwright/test').Page, files: Paramet
 function seed(page: Page, lists: unknown[]) {
   return page.addInitScript(([key, value]) => {
     if (!localStorage.getItem(key)) localStorage.setItem(key, value)
-  }, [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists, devices: [] })])
+  }, [key, guestWorkspace(lists)])
 }
 // The workspace this browser saved.
 async function saved(page: Page) {
@@ -102,13 +103,6 @@ test('create, reorder, edit, play, reload and delete records', async ({ page }) 
   expect(errors).toEqual([])
 })
 
-test('damaged storage is not overwritten', async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem('typle-r:word-lists:v1', '{broken'))
-  await page.goto('/home')
-  await page.getByRole('button', { name: 'このブラウザーへ移行する' }).click()
-  await expect(page.getByRole('status').filter({ hasText: '保存データを読み込めません' })).toBeVisible()
-  expect(await page.evaluate(() => localStorage.getItem('typle-r:word-lists:v1'))).toBe('{broken')
-})
 
 test('supporting pages, root redirect and GitHub link', async ({ page }) => {
   await page.goto('/')
@@ -547,7 +541,8 @@ test('CSV import preserves existing records and exact strings after a failed sav
   await page.goto('/create')
   await importWords(page, { name: 'words.csv', mimeType: 'text/csv', buffer: Buffer.from('\ufeffdisplay,input,annotation\r\n" 字 ",zi,"意味,補足\r\n""引用"""\r\n字,zi,\r\n字,zi,') })
   await expect(page.getByRole('textbox', { name: '表示する単語 1', exact: true })).toHaveValue(' 字 ')
-  expect((await saved(page)).lists).toEqual([existing])
+  // The seed is saved as the app saves it: the list in a pack of its own.
+  expect((await saved(page)).lists).toEqual([{ ...existing, packId: `pack-${existing.id}` }])
   await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('Existing')
   // A name is only taken within its pack.
   await page.getByRole('combobox', { name: 'パック', exact: true }).selectOption({ label: 'Existing' })

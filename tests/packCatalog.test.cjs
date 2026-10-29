@@ -1,7 +1,7 @@
 require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
-const { validateLibrary, normalizeLibrary } = require('../src/core/wordPacks.ts')
+const { validateLibrary, convertLibrary } = require('../src/core/wordPacks.ts')
 const { deletePack } = require('../src/core/packEditing.ts')
 const { officialPacks, catalogEntries, followOfficialPack, applyCatalogChoices } = require('../src/plugins/packs/catalog.ts')
 const { MAX_LISTS } = require('../src/core/listOverview.ts')
@@ -29,7 +29,7 @@ test('the official packs are the packs of the official library, each with its li
 
 test('the packs of the official library carry their catalog origin', () => {
   for (const pack of officialLibrary.packs) assert.deepEqual(pack.origin, { catalogId: pack.id, version: 1 })
-  const converted = normalizeLibrary(initialLists, null)
+  const converted = convertLibrary(initialLists)
   assert.deepEqual(officialLibrary.packs.map(({ origin: _origin, ...pack }) => pack), converted.packs)
   assert.deepEqual(officialLibrary.lists, converted.lists)
   validateLibrary(officialLibrary)

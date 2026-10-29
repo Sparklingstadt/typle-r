@@ -69,38 +69,21 @@ test('each account uses its own store, says where it saves, and only the guest s
 
 test('guest data with old sharing fields loads and the next write drops them', () => {
   const store = storage()
-  store.setItem(GUEST_STORAGE_KEY, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists: [{ ...list, shared: true, shareId: 'x' }], devices: [] }))
+  store.setItem(GUEST_STORAGE_KEY, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists: [{ ...list, shared: true, shareId: 'x' }], packs: [pack], devices: [] }))
   const loaded = readGuestWorkspace(store)
   assert.equal('shared' in loaded.lists[0], false)
-  writeGuestWorkspace({ accountId: 'guest:local', revision: 1, lists: loaded.lists }, store)
+  writeGuestWorkspace({ accountId: 'guest:local', revision: 1, lists: loaded.lists, packs: loaded.packs }, store)
   const raw = store.getItem(GUEST_STORAGE_KEY)
   assert.doesNotMatch(raw, /shared|shareId/)
 })
 
-test('a workspace saved before packs is read as converted, and a save stores lists with packs', () => {
-  const store = storage()
-  const old = { ...list }
-  delete old.packId
-  store.setItem(GUEST_STORAGE_KEY, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 4, lists: [{ ...old, group: 'G', category: 'C' }, { ...old, id: 'm', name: 'M', group: 'G' }], devices: [] }))
-  const read = readGuestWorkspace(store)
-  assert.deepEqual([read.revision, read.packs.map(item => [item.id, item.name, item.category])], [4, [['pack-l', 'G', 'C']]])
-  assert.deepEqual(read.lists.map(item => item.packId), ['pack-l', 'pack-l'])
-  // Reading does not rewrite the stored data.
-  assert.equal('packs' in JSON.parse(store.getItem(GUEST_STORAGE_KEY)), false)
-  writeGuestWorkspace({ accountId: 'guest:local', revision: 4, lists: read.lists, packs: read.packs }, store)
-  const raw = JSON.parse(store.getItem(GUEST_STORAGE_KEY))
-  assert.deepEqual(raw.packs, read.packs)
-  assert.equal(raw.lists.every(item => typeof item.packId === 'string' && !('group' in item)), true)
-  assert.deepEqual(readGuestWorkspace(store).lists, raw.lists)
-})
-
-test('a save from a screen without packs keeps the saved packs, and lists that disagree with packs are refused', () => {
+test('lists saved without packs are each put in a pack of their own, and lists that disagree with packs are refused', () => {
   const store = storage()
   const saved = writeGuestWorkspace({ ...readGuestWorkspace(store), lists: [list], packs: [{ ...pack, description: 'D' }] }, store)
   const lonely = { ...list, id: 'n', name: 'N' }
   delete lonely.packId
   const next = writeGuestWorkspace({ accountId: 'guest:local', revision: saved.revision, lists: [list, lonely] }, store)
-  assert.deepEqual(next.packs.map(item => [item.id, item.description]), [['pack-l', 'D'], ['pack-n', undefined]])
+  assert.deepEqual(next.packs.map(item => [item.id, item.description]), [['pack-l', undefined], ['pack-n', undefined]])
   const before = store.getItem(GUEST_STORAGE_KEY)
   assert.throws(() => writeGuestWorkspace({ accountId: 'guest:local', revision: next.revision, lists: [{ ...list, packId: 'missing' }], packs: next.packs }, store), { message: 'Invalid packs' })
   assert.equal(store.getItem(GUEST_STORAGE_KEY), before)

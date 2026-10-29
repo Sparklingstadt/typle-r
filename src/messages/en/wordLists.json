@@ -227,19 +227,6 @@
     "add": "Add {count, plural, one {# word} other {# words}}",
     "replaceWith": "Replace with {count, plural, one {# word} other {# words}}"
   },
-  "legacy": {
-    "title": "Move data from an earlier version",
-    "description": "Adds the word lists and records from v0.1.x still stored in this browser to {target}. The original data is kept, and moving the same data again does not create duplicates.",
-    "currentAccount": "the current account",
-    "thisBrowser": "this browser",
-    "none": "There is no data to move.",
-    "done": "Data moved. The original data is still in this browser.",
-    "failed": "Could not read the saved data. The original data has not been changed.",
-    "busy": "Moving…",
-    "toAccount": "Move to this account",
-    "toBrowser": "Move to this browser",
-    "suffix": " (imported {n})"
-  },
   "words": {
     "title": "Browse words",
     "description": "Choose a word list to see all its words, with the text to type and its note.",

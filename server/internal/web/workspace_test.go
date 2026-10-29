@@ -50,16 +50,15 @@ func (f *fakeWorkspaces) WriteRevision(_ context.Context, _ string, revision int
 	if f.err != nil {
 		return nil, f.err
 	}
-	// As the store does: lists sent without packs keep their labels, and no packs are saved.
-	encode, packs := workspace.EncodeWithLabels, []byte(nil)
+	// Packs left out are not saved (null), as for a row saved without lists.
+	var packs []byte
 	if change.HasPacks {
-		encode = workspace.Encode
 		var err error
 		if packs, err = workspace.EncodePacks(change.Packs); err != nil {
 			return nil, err
 		}
 	}
-	lists, err := encode(change.Lists)
+	lists, err := workspace.Encode(change.Lists)
 	if err != nil {
 		return nil, err
 	}
@@ -438,28 +437,24 @@ func TestPutInvalid(t *testing.T) {
 	}
 }
 
-func TestPutLegacy(t *testing.T) {
+// Saves of the app from when it had profiles are no longer taken.
+func TestPutProfilesRefused(t *testing.T) {
 	fake := &fakeWorkspaces{}
 	h := newHarness(t, fake, testBase)
 	for name, fields := range map[string]string{
-		"other profile": `"revision":1,"profileId":"p2","lists":[]`,
-		"profiles":      `"revision":1,"profiles":[]`,
-		"null profiles": `"revision":1,"profiles":null`,
-		"null profile":  `"revision":1,"profileId":null`,
-		"number":        `"revision":1,"profileId":1`,
-		"with default":  `"revision":1,"profileId":"default","profiles":[{"id":"default","name":"メイン"}]`,
-		"before lists":  `"revision":1,"profileId":"p2","lists":null`,
+		"other profile":   `"revision":1,"profileId":"p2","lists":[]`,
+		"profiles":        `"revision":1,"profiles":[]`,
+		"null profiles":   `"revision":1,"profiles":null`,
+		"null profile":    `"revision":1,"profileId":null`,
+		"with default":    `"revision":1,"profileId":"default","profiles":[{"id":"default","name":"メイン"}]`,
+		"default profile": `"revision":1,"profileId":"default","lists":[` + oneList + `]`,
 	} {
 		t.Run(name, func(t *testing.T) {
-			expectError(t, h.put(testOwner, payload(testOwner, fields)), http.StatusConflict, "conflict")
+			expectError(t, h.put(testOwner, payload(testOwner, fields)), http.StatusBadRequest, "invalidWorkspace")
 		})
 	}
 	if fake.writes != 0 {
 		t.Fatalf("writes = %d", fake.writes)
-	}
-	response := h.put(testOwner, payload(testOwner, `"revision":1,"profileId":"default","lists":[`+oneList+`]`))
-	if response.Code != http.StatusOK {
-		t.Fatalf("response = %d %s", response.Code, response.Body)
 	}
 }
 
@@ -468,8 +463,9 @@ func TestPutAnswersAndPassesOn(t *testing.T) {
 	h := newHarness(t, fake, testBase)
 	device := `{"id":"mac","name":"MacBook","layout":"JIS"}`
 	response := h.put(testOwner, payload(testOwner, `"revision":3,"lists":[`+strings.Replace(oneList, `"records":[]`, `"records":[],"shared":true,"shareId":"x","keep":1`, 1)+`],"devices":[`+device+`]`))
-	want := `{"lists":[{"id":"one","name":"One","createdAt":"2026-09-06","words":[{"display":"a","input":"a","annotation":""}],"records":[],"keep":1}],` +
-		`"packs":null,"devices":[` + device + `],"interests":[],"revision":4,"accountId":"` + testOwner + `"}`
+	// Lists sent without packs are each put in a pack of their own.
+	want := `{"lists":[{"id":"one","name":"One","packId":"pack-one","createdAt":"2026-09-06","words":[{"display":"a","input":"a","annotation":""}],"records":[],"keep":1}],` +
+		`"packs":[{"id":"pack-one","name":"One","createdAt":"2026-09-06"}],"devices":[` + device + `],"interests":[],"revision":4,"accountId":"` + testOwner + `"}`
 	if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != want {
 		t.Fatalf("response = %d %s; want %s", response.Code, response.Body, want)
 	}
@@ -549,21 +545,6 @@ func TestPutLimits(t *testing.T) {
 	}
 }
 
-// A lists-only save stores the group it sends, which becomes a pack's name when it is read, so a group longer than
-// validateLists allows is refused, as the app does: a pack name over the limit would refuse every later save.
-func TestPutGroupLimit(t *testing.T) {
-	s, owner := realStore(t)
-	h := newHarness(t, s, testBase)
-	group := func(n int) string {
-		return strings.Replace(oneList, `"records":[]`, `"records":[],"group":"`+strings.Repeat("g", n)+`"`, 1)
-	}
-	expectError(t, h.put(owner, payload(owner, `"revision":0,"lists":[`+group(workspace.MaxGroup+1)+`]`)), http.StatusBadRequest, "invalidWorkspace")
-	if response := h.put(owner, payload(owner, `"revision":0,"lists":[`+group(workspace.MaxGroup)+`]`)); response.Code != http.StatusOK {
-		t.Fatalf("response = %d %s", response.Code, response.Body)
-	}
-}
-
-// The store's own refusals keep their keys; anything else is a failed save.
 func TestPutStoreErrors(t *testing.T) {
 	cases := map[string]struct {
 		err    error
@@ -686,11 +667,11 @@ func TestMatchesTypeScript(t *testing.T) {
 		{"revision 1.0", `{"revision":1.0,"lists":[]}`, accepted, 1, 0, -1},
 		{"revision 1e2", `{"revision":1e2,"lists":[]}`, accepted, 100, 0, -1},
 		{"revision -0", `{"revision":-0,"lists":[]}`, accepted, 0, 0, -1},
-		{"name of 201 characters", `{"revision":0,"lists":[` + aList("one", name201) + `]}`, limits, 0, 1, -1},
+		{"name of 201 characters", `{"revision":0,"lists":[` + aList("one", name201) + `]}`, invalid, 0, 0, 0},
 		{"name of 200 characters", `{"revision":0,"lists":[` + aList("one", name201[1:]) + `]}`, accepted, 0, 1, -1},
-		{"profileId default", `{"revision":0,"profileId":"default","lists":[` + oneList + `]}`, accepted, 0, 1, -1},
-		{"profileId zh", `{"revision":1,"profileId":"zh","lists":[]}`, legacy, 0, 0, 0},
-		{"profiles with default", `{"revision":1,"profileId":"default","profiles":[{"id":"default","name":"メイン"}]}`, legacy, 0, 0, 0},
+		{"profileId default", `{"revision":0,"profileId":"default","lists":[` + oneList + `]}`, invalid, 0, 0, 0},
+		{"profileId zh", `{"revision":1,"profileId":"zh","lists":[]}`, invalid, 0, 0, 0},
+		{"profiles with default", `{"revision":1,"profileId":"default","profiles":[{"id":"default","name":"メイン"}]}`, invalid, 0, 0, 0},
 		{"101 lists", `{"revision":1,"lists":[` + strings.Join(many, ",") + `]}`, accepted, 1, 101, -1},
 		{"devices", `{"revision":1,"devices":[{"id":"mac","name":" MacBook ","layout":"JIS"}]}`, accepted, 1, -1, 1},
 		{"duplicate devices", `{"revision":1,"devices":[{"id":"mac","name":"a","layout":""},{"id":"mac","name":"b","layout":""}]}`, invalid, 0, 0, 0},
@@ -706,12 +687,8 @@ func TestMatchesTypeScript(t *testing.T) {
 			revision, change, err := decodeRequest([]byte(c.body))
 			switch c.want {
 			case invalid:
-				if err == nil || errors.Is(err, errLegacy) {
+				if err == nil {
 					t.Fatalf("err = %v; want invalid", err)
-				}
-			case legacy:
-				if !errors.Is(err, errLegacy) {
-					t.Fatalf("err = %v; want legacy", err)
 				}
 			case limits:
 				var refused *workspace.Error
@@ -832,12 +809,13 @@ func TestPutPacks(t *testing.T) {
 	if !fake.change.HasLists || !fake.change.HasPacks || len(fake.change.Packs) != 1 || fake.change.Packs[0].Category != "C" {
 		t.Fatalf("change = %+v", fake.change)
 	}
-	// A save from an app that does not know packs keeps the labels it sent on its lists.
+	// Lists sent without packs are each put in a pack of their own (which takes labels left on a list, as any repair).
 	labeled := strings.Replace(oneList, `"records":[]`, `"records":[],"group":"G","category":"C","tags":["t"]`, 1)
 	if response := h.put(testOwner, payload(testOwner, `"revision":2,"lists":[`+labeled+`]`)); response.Code != http.StatusOK {
 		t.Fatalf("response = %d %s", response.Code, response.Body)
 	}
-	if list := fake.change.Lists[0]; fake.change.HasPacks || list.Group != "G" || list.Category != "C" || list.PackID != "" {
+	if list := fake.change.Lists[0]; !fake.change.HasPacks || len(fake.change.Packs) != 1 || list.PackID != fake.change.Packs[0].ID ||
+		list.Group != "" {
 		t.Fatalf("change = %+v", fake.change)
 	}
 	writes := fake.writes
@@ -909,8 +887,7 @@ func TestPutSeveralLevelsWithPacksRealStore(t *testing.T) {
 		http.StatusBadRequest, "invalidWorkspace")
 }
 
-// Lists sent alone by an app before v0.97.0 may have up to 5 levels: they are taken, and joined into one when they are
-// read. More than 5 is invalid, as before.
+// Lists sent alone may have up to 5 levels, which are joined into one; more than 5 is invalid.
 func TestPutSeveralLevelsWithoutPacksRealStore(t *testing.T) {
 	s, owner := realStore(t)
 	h := newHarness(t, s, testBase)
@@ -927,26 +904,6 @@ func TestPutSeveralLevelsWithoutPacksRealStore(t *testing.T) {
 	}
 }
 
-func TestPutLevelsWithoutPacksRealStore(t *testing.T) {
-	s, owner := realStore(t)
-	h := newHarness(t, s, testBase)
-	grouped := func(id string, levels string) string {
-		return strings.Replace(aList(id, id), `"records":[]`, `"records":[],"group":"G","levels":`+levels, 1)
-	}
-	if response := h.put(owner, payload(owner, `"revision":0,"lists":[`+grouped("a", `["初級"]`)+`,`+grouped("b", `["初級"]`)+`]`)); response.Code != http.StatusOK {
-		t.Fatalf("response = %d %s", response.Code, response.Body)
-	}
-	// GET gives the lists as they were saved, for the app to repair as it reads them; the server reads them repaired.
-	var lists []struct{ Levels []string }
-	if err := json.Unmarshal(decodeBody(t, h.get(owner))["lists"], &lists); err != nil || len(lists) != 2 || !slices.Equal(lists[1].Levels, []string{"初級"}) {
-		t.Fatalf("lists = %+v, %v", lists, err)
-	}
-	w, err := s.Read(context.Background(), owner)
-	if err != nil || len(w.Lists) != 2 || !slices.Equal(w.Lists[0].Levels, []string{"初級"}) || !slices.Equal(w.Lists[1].Levels, []string{"初級（2）"}) {
-		t.Fatalf("read = %+v, %v", w, err)
-	}
-}
-
 func TestPutPacksFlow(t *testing.T) {
 	s, owner := realStore(t)
 	h := newHarness(t, s, testBase)
@@ -956,8 +913,8 @@ func TestPutPacksFlow(t *testing.T) {
 	if response := h.put(owner, payload(owner, `"revision":0,"lists":[`+oneList+`]`)); response.Code != http.StatusOK {
 		t.Fatalf("response = %d %s", response.Code, response.Body)
 	}
-	if packs := decodeBody(t, h.get(owner))["packs"]; string(packs) != "null" {
-		t.Fatalf("packs = %s; want null for a row saved without packs", packs)
+	if packs := decodeBody(t, h.get(owner))["packs"]; !strings.Contains(string(packs), `"pack-one"`) {
+		t.Fatalf("packs = %s; want the list's own pack", packs)
 	}
 	saved := h.put(owner, payload(owner, `"revision":1,"lists":[`+packedOne+`],"packs":[`+aPack+`]`))
 	read := h.get(owner)
@@ -968,12 +925,12 @@ func TestPutPacksFlow(t *testing.T) {
 	if err := json.Unmarshal(decodeBody(t, read)["packs"], &packs); err != nil || len(packs) != 1 || packs[0]["category"] != "C" {
 		t.Fatalf("packs = %s", decodeBody(t, read)["packs"])
 	}
-	// Lists sent alone leave the saved packs as they are.
+	// Lists sent alone are each put in a pack of their own, in place of the saved packs.
 	if response := h.put(owner, payload(owner, `"revision":2,"lists":[`+packedOne+`,`+aList("two", "Two")+`]`)); response.Code != http.StatusOK {
 		t.Fatalf("response = %d %s", response.Code, response.Body)
 	}
-	if again := decodeBody(t, h.get(owner))["packs"]; !bytes.Equal(again, decodeBody(t, read)["packs"]) {
-		t.Fatalf("packs = %s; want %s", again, decodeBody(t, read)["packs"])
+	if again := decodeBody(t, h.get(owner))["packs"]; !strings.Contains(string(again), `"pack-one"`) || !strings.Contains(string(again), `"pack-two"`) {
+		t.Fatalf("packs = %s", again)
 	}
 }
 

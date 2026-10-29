@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
+import { guestWorkspace } from './guestData'
 const key = 'typle-r:guest-workspace:v1'
 const words = (...texts: string[]) => texts.map(text => ({ display: text, input: text, annotation: '' }))
 const member = (id: string, levels: string[], ...texts: string[]) =>
@@ -20,7 +21,7 @@ function lists() {
 function seed(page: Page, value = lists()) {
   return page.addInitScript(([key, raw]) => {
     if (!localStorage.getItem(key)) localStorage.setItem(key, raw)
-  }, [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists: value, devices: [] })])
+  }, [key, guestWorkspace(value)])
 }
 
 const fitsWidth = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)
