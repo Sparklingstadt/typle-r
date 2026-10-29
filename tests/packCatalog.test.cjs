@@ -17,7 +17,7 @@ test('the initial library is empty', () => {
 
 test('the official packs are the packs of the official library, each with its lists', () => {
   const official = officialPacks()
-  assert.equal(official.length, 37)
+  assert.equal(official.length, 40)
   assert.deepEqual(official.map(entry => entry.catalogId), officialLibrary.packs.map(pack => pack.id))
   assert.deepEqual(official.slice(0, 2).map(entry => entry.catalogId), OFFICIAL_FIRST_TWO)
   for (const entry of official) {

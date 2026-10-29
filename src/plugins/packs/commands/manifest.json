@@ -78,5 +78,11 @@
   "russian-basic-words.json",
   "russian-basic-syntax.json",
   "russian-intermediate-words.json",
-  "russian-intermediate-syntax.json"
+  "russian-intermediate-syntax.json",
+  "czech-intermediate-words.json",
+  "czech-intermediate-syntax.json",
+  "chinese-hsk5-words-1.json",
+  "chinese-hsk5-words-2.json",
+  "chinese-hsk6-words-1.json",
+  "chinese-hsk6-words-2.json"
 ]

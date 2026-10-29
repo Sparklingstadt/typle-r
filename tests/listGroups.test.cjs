@@ -60,9 +60,9 @@ test('the initial lists split into levels are put in groups, each list with leve
     if (!members || members.length < 2) return [{ group: null, items: [item] }]
     return members[0] === item ? [{ group: item.group, items: members }] : []
   })
-  assert.equal(entries.length, 37)
+  assert.equal(entries.length, 40)
   const groups = entries.filter(entry => entry.group)
-  assert.equal(groups.length, 19)
+  assert.equal(groups.length, 22)
   const kotlinGroup = groups.find(entry => entry.group === 'Kotlin構文')
   assert.deepEqual(levelSteps(kotlinGroup.items, [])[0].options, ['初級1', '初級2', '中級', '上級1', '上級2'])
   for (const entry of groups) {
