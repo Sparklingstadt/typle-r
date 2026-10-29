@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { graphql } from "@/core/graphql"
 import { MAX_LISTS } from "@/core/listOverview"
 import { decodePackFile, importPackFile, type PackFile } from "@/core/packFile"
 import { randomId } from "@/core/randomId"
@@ -29,10 +30,10 @@ export default function SharedPack() {
   useEffect(() => {
     let active = true
     const show = (next: Shared) => { if (active) setShared(next) }
-    fetch(`/api/shared?id=${encodeURIComponent(id)}`, { cache: 'no-store' }).then(async response => {
-      if (response.status === 404) return show({ state: 'ended' })
-      if (!response.ok) throw new Error(`Unexpected status ${response.status}`)
-      show({ state: 'ready', file: decodePackFile(await response.text()) })
+    // The file comes as the JSON value it was stored as, and null once the link is stopped.
+    graphql<{ sharedPack: unknown }>('query SharedPack($id: String!) { sharedPack(id: $id) }', { id }).then(({ sharedPack }) => {
+      if (sharedPack === null) return show({ state: 'ended' })
+      show({ state: 'ready', file: decodePackFile(JSON.stringify(sharedPack)) })
     }).catch(reason => show({ state: 'failed', reason }))
     return () => { active = false }
   }, [id])

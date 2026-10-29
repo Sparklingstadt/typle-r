@@ -1,0 +1,169 @@
+# The app's data as GraphQL, served at POST /api/graphql beside the REST paths (/api/workspace, /api/shares, /api/shared
+# and /api/admin/*), which the iPad, Mac, Android and Windows apps keep using. Each field does what its REST path does,
+# with the same checks and the same error keys: an error carries its key in extensions.code and the status the REST
+# path answers with in extensions.status. Login stays at /api/auth/*.
+
+"""
+A JSON value, sent and answered as it is stored: the workspace keeps fields Typle does not know.
+"""
+scalar JSON
+
+"""
+A time, as RFC 3339 with the fraction of a second.
+"""
+scalar Time
+
+type Query {
+  """
+  The signed-in account's workspace (GET /api/workspace).
+  """
+  workspace: Workspace!
+  """
+  The account's packs shared by link (GET /api/shares).
+  """
+  shares: [Share!]!
+  """
+  The pack a link shares, as the file it was copied into, or null when the link is gone (GET /api/shared). Anyone may
+  read it, signed in or not.
+  """
+  sharedPack(id: String!): JSON
+  """
+  The administrator's dashboard (GET /api/admin/dashboard).
+  """
+  adminDashboard: AdminDashboard!
+  """
+  One page of the user list, from 0 (GET /api/admin/users).
+  """
+  adminUsers(page: Int! = 0): AdminUsers!
+}
+
+type Mutation {
+  """
+  Saves the workspace at the revision it was read at (PUT /api/workspace): conflict when it has changed since.
+  """
+  saveWorkspace(input: SaveWorkspaceInput!): Workspace!
+  """
+  Adds a practice record (POST /api/workspace/records). added is false when the list already had it.
+  """
+  addRecord(input: AddRecordInput!): RecordAdded!
+  """
+  Deletes a practice record (DELETE /api/workspace/records), also when it is already gone.
+  """
+  deleteRecord(input: DeleteRecordInput!): Workspace!
+  """
+  Shares a pack by link, or copies it again into its link (PUT /api/shares).
+  """
+  sharePack(packId: String!): Share!
+  """
+  Stops sharing a pack (DELETE /api/shares), also when it is not shared.
+  """
+  stopSharing(packId: String!): Boolean!
+}
+
+"""
+The workspace as saved. packs is null for an account that has saved nothing.
+"""
+type Workspace {
+  lists: JSON!
+  packs: JSON
+  devices: JSON!
+  interests: JSON!
+  revision: Int!
+  accountId: String!
+}
+
+"""
+A save, as the body of PUT /api/workspace. A part that is left out stays as saved; null is refused.
+"""
+input SaveWorkspaceInput {
+  accountId: String!
+  revision: Int!
+  lists: JSON @goField(omittable: true)
+  packs: JSON @goField(omittable: true)
+  devices: JSON @goField(omittable: true)
+  interests: JSON @goField(omittable: true)
+}
+
+input AddRecordInput {
+  accountId: String!
+  listId: String!
+  """
+  The record, with its id.
+  """
+  record: JSON!
+}
+
+input DeleteRecordInput {
+  accountId: String!
+  listId: String!
+  recordId: String!
+}
+
+type RecordAdded {
+  workspace: Workspace!
+  record: JSON!
+  added: Boolean!
+}
+
+"""
+A pack shared by link. name is the pack's name in the shared copy, "" when it has none.
+"""
+type Share {
+  id: String!
+  packId: String!
+  name: String!
+  updatedAt: Time!
+}
+
+type AdminDashboard {
+  admin: Admin!
+  overview: AdminOverview!
+}
+
+type Admin {
+  email: String!
+  sub: String!
+}
+
+type AdminOverview {
+  workspaces: Int!
+  activeDay: Int!
+  activeWeek: Int!
+  activeMonth: Int!
+  sharedPacks: Int!
+  recentShares: [AdminShare!]!
+  admins: [AdminAccount!]!
+}
+
+type AdminShare {
+  id: String!
+  ownerId: String!
+  name: String!
+  updatedAt: Time!
+}
+
+type AdminAccount {
+  email: String!
+  ffpfSub: String
+  createdAt: Time!
+  lastSeenAt: Time
+}
+
+type AdminUsers {
+  page: Int!
+  pageSize: Int!
+  total: Int!
+  users: [AdminUser!]!
+}
+
+type AdminUser {
+  ownerId: String!
+  lists: Int!
+  packs: Int!
+  devices: Int!
+  shares: Int!
+  revision: Int!
+  updatedAt: Time!
+}
+
+directive @goField(forceResolver: Boolean, name: String, omittable: Boolean) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION

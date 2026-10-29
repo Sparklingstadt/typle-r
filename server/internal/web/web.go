@@ -92,11 +92,16 @@ type Config struct {
 	Report func(r *http.Request, err error, operation string)
 }
 
-type server struct{ config Config }
+type server struct {
+	config Config
+	// graphqlHandler serves /api/graphql (newGraphQL).
+	graphqlHandler http.Handler
+}
 
 // New serves the app's /api paths; any other path is a 404.
 func New(c Config) http.Handler {
 	s := &server{config: c}
+	s.graphqlHandler = s.newGraphQL()
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/health", s.health)
 	mux.HandleFunc("/api/workspace", s.workspace)
@@ -113,6 +118,7 @@ func New(c Config) http.Handler {
 	mux.HandleFunc("/api/auth/admin/signout", s.adminSignout)
 	mux.HandleFunc("/api/admin/dashboard", s.adminDashboard)
 	mux.HandleFunc("/api/admin/users", s.adminUsers)
+	mux.HandleFunc("/api/graphql", s.graphql)
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { refuse(w, http.StatusNotFound, "notFound") })
 	return withSecurityHeaders(mux)
 }

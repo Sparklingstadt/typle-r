@@ -2,6 +2,8 @@
 
 Typle 本体（Web版と iPad・Mac・Android・Windows 版）が使う、アプリ自身のバックエンドです。Go の `server/internal/web` で、本番では Vercel の Go の関数（リポジトリ直下の `api/*.go` → `server/vercel`）として動きます。手元では `server/cmd/typle-web`（既定 `127.0.0.1:8081`）で起動し、`npm run dev` と E2E が使います。
 
+Web版は v2.2.0 から、ワークスペース・練習記録・共有・共有リンク・管理者ダッシュボードを `POST /api/graphql` で読み書きします（[GraphQL API](graphql.md)）。各フィールドはこの文書の REST のパスと同じ処理とエラーのキーを使い、REST のパスはほかのアプリのために残しています。
+
 スクリプトや別のアプリから読み書きする手元専用の `/api/v1` は [API（Go）](api.md) を見てください。2つは `internal/store`・`internal/workspace`・`internal/auth` を共有します。
 
 ## 共通事項

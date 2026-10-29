@@ -23,8 +23,8 @@ import (
 //     keeps being answered, and a signed-in user stays signed in, while the database is down.
 //   - /api/health: needs the database only, so that it tells the database's state whatever the login settings are.
 //   - /api/shared: needs the database only too: a shared pack is read by anyone with the link, signed in or not.
-//   - everything else (/api/workspace, /api/shares, /api/admin/*): needs the login settings to read the session or
-//     administrator cookie, and the database.
+//   - everything else (/api/workspace, /api/shares, /api/admin/*, /api/graphql): needs the login settings to read the
+//     session or administrator cookie, and the database.
 //
 // Each part is built on first use and then found with one atomic load, without the lock.
 type Backend struct {

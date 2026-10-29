@@ -8,10 +8,11 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import PageContainer from '@/components/PageContainer/PageContainer'
+import { GraphQLError, graphql } from '@/core/graphql'
 import { useFormat } from '@/i18n/useFormat'
 import UserList from './user-list'
 
-// The answer of GET /api/admin/dashboard (server/internal/web/admin.go, server/internal/store/admin.go).
+// The adminDashboard of /api/graphql (server/internal/web/graph/schema.graphqls, server/internal/store/admin.go).
 type Overview = {
   workspaces: number
   activeDay: number
@@ -32,6 +33,11 @@ type State =
 type ErrorKey = Parameters<ReturnType<typeof useTranslations<'errors'>>>[0]
 
 const stats = ['workspaces', 'activeDay', 'activeWeek', 'activeMonth', 'sharedPacks'] as const
+
+const DASHBOARD = `query AdminDashboard { adminDashboard {
+  admin { email sub }
+  overview { ${stats.join(' ')} recentShares { id ownerId name updatedAt } admins { email ffpfSub createdAt lastSeenAt } }
+} }`
 
 // The errors a login to the dashboard comes back with (/admin?error=…, server/internal/web/admin.go).
 const loginErrors = ['adminForbidden', 'adminUnavailable'] as const
@@ -54,14 +60,13 @@ export default function AdminDashboard() {
 
   const fetchDashboard = useCallback(async (): Promise<State> => {
     try {
-      const response = await fetch('/api/admin/dashboard', { cache: 'no-store' })
-      const body = await response.json().catch(() => null)
-      if (response.ok) return { kind: 'ready', answer: body as Answer }
-      if (response.status === 401) return { kind: 'signedOut' }
-      if (response.status === 403) return { kind: 'signedOut', error: errorText(body?.error) }
-      return { kind: 'failed', error: errorText(body?.error) }
-    } catch {
-      return { kind: 'failed', error: t('loadFailed') }
+      const { adminDashboard } = await graphql<{ adminDashboard: Answer }>(DASHBOARD)
+      return { kind: 'ready', answer: adminDashboard }
+    } catch (reason) {
+      if (!(reason instanceof GraphQLError)) return { kind: 'failed', error: t('loadFailed') }
+      if (reason.status === 401) return { kind: 'signedOut' }
+      if (reason.status === 403) return { kind: 'signedOut', error: errorText(reason.key) }
+      return { kind: 'failed', error: errorText(reason.key) }
     }
   }, [errorText, t])
 

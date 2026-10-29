@@ -972,6 +972,16 @@ France,フランス,
 
 `input` と `display` は見出し・各行の値とも必須です。`annotation` はカラム自体も値も省略できます。見出しの順番は自由で、その他のカラム名・重複した見出しはエラーになります。TSVではタブで区切ります。補足列の誤記 `anotation` も受け付けます。単語の前後空白・順序・重複は保存時にも保持します。引用符で囲ったカンマ・タブ・改行、二重引用符のエスケープ（`""`）、UTF-8 BOMに対応します。ファイル上限は1 MiB、単語数は1リスト1,000件です。
 
+### GraphQL API（v2.2.0）
+
+Go のバックエンドに GraphQL の `POST /api/graphql` を足し、Web 版はアカウントのデータ（ワークスペース・練習記録・共有・共有リンクの表示・管理者ダッシュボード）をすべてここから読み書きするようにしました。スキーマは `server/internal/web/graph/schema.graphqls`、使い方は [docs/graphql.md](docs/graphql.md) です。
+
+- REST の `/api/workspace`・`/api/workspace/records`・`/api/shares`・`/api/shared`・`/api/admin/*` はそのまま残します。iPad・Mac・Android・Windows アプリと typle-kotlin-backend はこれまでどおり REST を使い、互換は変わりません。ログイン（`/api/auth/*`）と `/api/health` も REST のままです。
+- 各フィールドは対応する REST のパスと同じ処理を通ります（ログイン・Origin・本文の検証・DB）。断るときは GraphQL のエラーで、`extensions.code` に REST と同じエラーのキー、`extensions.status` に REST が返すステータスを入れます。Web 版はこの `status` で、これまでどおり 401（ログインし直す）・409（読み直して保存し直す）などを見分けます。
+- サーバーは [gqlgen](https://gqlgen.com) v0.17.94（Go 1.25 で動く最後の版）で、生成したコード（`server/internal/web/graph/generated.go`・`models_gen.go`）もコミットします。スキーマを変えたら `go generate ./server/internal/web/graph` を実行します。
+- Vercel の関数は `api/graphql.go`、ローカルでは `next.config.mjs` の rewrites で Go のバックエンドへ送ります。DB の変更はありません。
+- 別リポジトリ：typle-kotlin-backend には `/api/graphql` がまだありません。そのため `TYPLE_BACKEND=kotlin` の手元の開発と E2E では、Web 版のデータの読み書きが動きません（本番と CI は Go のため影響しません）。
+
 ### アプリのAPIの文書（v2.1.1）
 
 本番のアプリ自身のバックエンド（`/api/auth/*`・`/api/workspace`・`/api/workspace/records`・`/api/shares`・`/api/shared`・`/api/admin/*`・`/api/health`）の仕様を [docs/app-api.md](docs/app-api.md) にまとめました。手元専用の `/api/v1` はこれまでどおり [docs/api.md](docs/api.md) です。動作の変更はありません。

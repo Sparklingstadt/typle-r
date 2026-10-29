@@ -7,12 +7,17 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { GraphQLError, graphql } from '@/core/graphql'
 
-// The answer of GET /api/admin/users (server/internal/web/admin.go, server/internal/store/admin.go).
+// The adminUsers of /api/graphql (server/internal/web/graph/schema.graphqls, server/internal/store/admin.go).
 type User = { ownerId: string; lists: number; packs: number; devices: number; shares: number; revision: number; updatedAt: string }
 type Page = { page: number; pageSize: number; total: number; users: User[] }
 
 type State = { kind: 'loading' } | { kind: 'failed'; error: string } | { kind: 'ready'; answer: Page }
+
+const USERS = `query AdminUsers($page: Int!) { adminUsers(page: $page) {
+  page pageSize total users { ownerId lists packs devices shares revision updatedAt }
+} }`
 
 // A GitHub account is github:<numeric user id>, and GitHub serves its avatar by that id. The local account (github:0) and
 // FFPF ID accounts (ffpf:<sub>) have none.
@@ -28,12 +33,10 @@ export default function UserList({ time, errorText }: { time: (value: string) =>
 
   const fetchPage = useCallback(async (number: number): Promise<State> => {
     try {
-      const response = await fetch(`/api/admin/users?page=${number}`, { cache: 'no-store' })
-      const body = await response.json().catch(() => null)
-      if (response.ok) return { kind: 'ready', answer: body as Page }
-      return { kind: 'failed', error: errorText(body?.error) }
-    } catch {
-      return { kind: 'failed', error: errorText(null) }
+      const { adminUsers } = await graphql<{ adminUsers: Page }>(USERS, { page: number })
+      return { kind: 'ready', answer: adminUsers }
+    } catch (reason) {
+      return { kind: 'failed', error: errorText(reason instanceof GraphQLError ? reason.key : null) }
     }
   }, [errorText])
 
