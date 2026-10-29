@@ -1,4 +1,4 @@
-// Package api serves workspaces in the shapes of the removed /api/v1 (docs/api.md): read-only, or with packs, lists,
+// Package api serves workspaces in the shapes of the removed /api/v1 (api-docs/src/v1): read-only, or with packs, lists,
 // devices and records to create, change and delete when it is given a Writer. Each request names its GitHub account
 // with a token and reads and writes only that account's workspace.
 package api

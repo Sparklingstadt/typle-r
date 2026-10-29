@@ -38,3 +38,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env*
+
+# api-docs (VuePress)
+/api-docs/node_modules
+/api-docs/src/.vuepress/.temp
+/api-docs/src/.vuepress/.cache
+/api-docs/src/.vuepress/dist
