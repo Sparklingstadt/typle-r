@@ -72,3 +72,19 @@ test('cloud reads drop sharing fields saved by older versions', async t => {
   assert.equal('shared' in read, false)
   assert.equal('shareId' in read, false)
 })
+
+test('cloud reads give followed packs their words from the catalog, and saves send them without', async t => {
+  const { officialPacks, followOfficialPack } = require('../src/plugins/packs/catalog.ts')
+  const { withoutFollowedWords } = require('../src/core/followedPacks.ts')
+  const entry = officialPacks()[0]
+  const library = followOfficialPack({ packs: [], lists: [] }, entry.catalogId, { pack: 'f', lists: entry.lists.map((_, i) => `f-${i}`) })
+  const sent = []
+  t.mock.method(global, 'fetch', async (_url, init) => {
+    if (init?.body) sent.push(JSON.parse(init.body))
+    return Response.json({ accountId: 'github:1', revision: 2, devices: [], ...withoutFollowedWords(library) })
+  })
+  const read = await readWorkspace()
+  assert.deepEqual(read.lists.map(list => list.words.length), entry.lists.map(list => list.words.length))
+  await writeWorkspace({ accountId: 'github:1', revision: 2, ...read })
+  assert.ok(sent[0].lists.every(list => list.words.length === 0))
+})

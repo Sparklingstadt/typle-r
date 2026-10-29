@@ -93,3 +93,21 @@ func followOfficial(packs []Pack, lists []List, official []OfficialPack) ([]Pack
 	}
 	return kept, result
 }
+
+// WithoutFollowedWords copies the lists with no words for those of a followed pack, as they are saved since v2.1.0
+// (withoutFollowedWords in src/core/followedPacks.ts): the catalog has them, and Decode puts them back (followOfficial).
+func WithoutFollowedWords(packs []Pack, lists []List) []List {
+	followed := map[string]bool{}
+	for i := range packs {
+		if packs[i].followed() {
+			followed[packs[i].ID] = true
+		}
+	}
+	slim := slices.Clone(lists)
+	for i := range slim {
+		if followed[slim[i].PackID] && slim[i].Origin != nil {
+			slim[i].Words = nil
+		}
+	}
+	return slim
+}

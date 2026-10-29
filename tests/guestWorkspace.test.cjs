@@ -117,7 +117,8 @@ test('followed packs read back as the official words, and a read does not save t
   const saved = writeGuestWorkspace({ ...initial, ...edited }, store)
   assert.deepEqual(saved.lists[0].words, entry.lists[0].words)
   const stored = store.getItem(GUEST_STORAGE_KEY)
-  assert.deepEqual(JSON.parse(stored).lists[0].words, [{ display: 'x', input: 'x', annotation: '' }])
+  // Saved without its words, which the catalog has.
+  assert.deepEqual(JSON.parse(stored).lists[0].words, [])
   assert.deepEqual(readGuestWorkspace(store).lists[0].words, entry.lists[0].words)
   assert.equal(store.getItem(GUEST_STORAGE_KEY), stored)
 })
@@ -170,4 +171,16 @@ test('a guest run is deleted without a revision, and deleting it again changes n
   const again = deleteGuestRecord({ accountId: 'guest:local', listId: 'l', recordId: 'run-1' }, store)
   assert.equal(again.revision, deleted.revision)
   assert.throws(() => deleteGuestRecord({ accountId: 'github:1', listId: 'l', recordId: 'run-1' }, store), { key: 'storageChanged' })
+})
+
+test('the guest saves followed packs without their words, and reads them back with them', () => {
+  const { officialPacks, followOfficialPack } = require('../src/plugins/packs/catalog.ts')
+  const store = storage()
+  const entry = officialPacks()[0]
+  const library = followOfficialPack({ packs: [], lists: [] }, entry.catalogId, { pack: 'f', lists: entry.lists.map((_, i) => `f-${i}`) })
+  const saved = writeGuestWorkspace({ ...readGuestWorkspace(store), ...library }, store)
+  const raw = JSON.parse(store.getItem(GUEST_STORAGE_KEY))
+  assert.ok(raw.lists.length > 0 && raw.lists.every(list => list.words.length === 0))
+  assert.deepEqual(saved.lists.map(list => list.words.length), entry.lists.map(list => list.words.length))
+  assert.deepEqual(readGuestWorkspace(store).lists, saved.lists)
 })

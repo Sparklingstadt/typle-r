@@ -1,5 +1,7 @@
 import { AppError, type ErrorKey } from '../../../core/appError'
+import { withoutFollowedWords } from '../../../core/followedPacks'
 import { decodeDocument } from '../../../core/workspaceDocument'
+import { followed } from '../official'
 import { WorkspaceError, type RecordAdd, type RecordDelete, type WorkspaceState, type WorkspaceStore, type WorkspaceWrite } from '../../../core/workspaceStore'
 
 async function requestWorkspace(url: string, init?: RequestInit): Promise<WorkspaceState> {
@@ -11,7 +13,8 @@ async function requestWorkspace(url: string, init?: RequestInit): Promise<Worksp
   }
   // `packs` is null for an account that has saved nothing.
   const { lists, packs, devices, interests } = decodeDocument({ lists: data.lists, packs: data.packs, devices: data.devices, interests: data.interests })
-  return { accountId: data.accountId, revision: data.revision, lists, packs, devices, interests }
+  // Followed packs are saved without their words: the catalog gives them back.
+  return followed({ accountId: data.accountId, revision: data.revision, lists, packs, devices, interests })
 }
 
 export function readWorkspace() {
@@ -19,7 +22,9 @@ export function readWorkspace() {
 }
 
 export function writeWorkspace(request: WorkspaceWrite) {
-  return requestWorkspace('/api/workspace', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(request) })
+  // Followed packs' lists are sent without their words, as they are saved.
+  const sent = request.lists && request.packs ? { ...request, ...withoutFollowedWords({ lists: request.lists, packs: request.packs }) } : request
+  return requestWorkspace('/api/workspace', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(sent) })
 }
 
 export function addRecord(request: RecordAdd) {

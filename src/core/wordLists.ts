@@ -114,7 +114,10 @@ export function decodeLists(raw: string): SavedWordList[] {
           (record.wordCount !== undefined && (!Number.isInteger(record.wordCount) || record.wordCount < 1)))) {
       throw new AppError('savedDataCorrupted')
     }
-    validateList(list)
+    // A list of a followed pack (with an origin) is saved without its words, which the catalog gives back
+    // (withoutFollowedWords in followedPacks.ts).
+    if (list.words.length || typeof list.origin?.listId !== 'string') validateList(list)
+    else if (!list.name.trim()) throw new AppError('listNameRequired')
     ids.add(list.id)
   }
   // Lists saved while link sharing existed may still carry its fields; they mean nothing now.
