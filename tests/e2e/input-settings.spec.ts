@@ -34,3 +34,25 @@ test('simple special-character input lets plain letters stand for accented ones 
   await expect(result).toContainText('100%')
   expect(errors).toEqual([])
 })
+
+test('ignoring case lets lower-case letters stand for capitals in practice', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  const lists = [{ id: 'names', name: 'Names', createdAt: '2026-09-01', words: [{ display: 'Ana', input: 'Ana', annotation: '' }], records: [] }]
+  await page.addInitScript(([key, value]) => { if (!localStorage.getItem(key)) localStorage.setItem(key, value) }, [key, guestWorkspace(lists)])
+
+  await page.goto('/input')
+  const toggle = page.getByRole('switch', { name: '大文字・小文字を区別しない' })
+  await expect(toggle).not.toBeChecked()
+  await toggle.click()
+  await expect(toggle).toBeChecked()
+  // Each toggle is its own setting.
+  await expect(page.getByRole('switch', { name: '特殊文字の簡易入力を使う' })).not.toBeChecked()
+
+  await page.goto('/play')
+  const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
+  await input.pressSequentially('aNA')
+  const result = page.getByLabel('練習結果', { exact: true })
+  await expect(result).toContainText('ミス 0 文字')
+  expect(errors).toEqual([])
+})

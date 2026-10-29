@@ -36,6 +36,8 @@ export function elapsedTime(session: TypingSession, now: number) {
 export type TypingOptions = {
   // Simple special-character input: a Latin letter without its accent counts for the accented one (i for í, n for ñ, c for č).
   ignoreAccents?: boolean
+  // Upper and lower case count as the same letter (a for A, É for é).
+  ignoreCase?: boolean
 }
 
 // A Latin letter with its accents and other marks taken off, or null for anything else. Only Latin letters are folded:
@@ -46,6 +48,10 @@ function latinBase(char: string) {
 }
 
 export function matchesCharacter(typed: string, target: string, options: TypingOptions = {}) {
+  if (options.ignoreCase) {
+    typed = typed.toLowerCase()
+    target = target.toLowerCase()
+  }
   if (typed === target) return true
   if (!options.ignoreAccents) return false
   return latinBase(target) === typed

@@ -2,12 +2,18 @@
   "title": "Input",
   "metaTitle": "Input | Typle",
   "description": "Settings for how you type during practice.",
+  "note": "This setting is saved in this browser.",
+  "unsaved": "The setting can't be saved, so it applies only while this page is open.",
   "simpleSpecial": {
     "heading": "Simple special-character input",
     "description": "Lets you type letters with accents, tildes and other marks — like í, ó, ñ and č in Czech or Spanish — with the plain letter (i, o, n, c). Typing the marked letter itself is still correct.",
     "label": "Use simple special-character input",
-    "hint": "When on, special characters such as á and č count as correct when you type a and c.",
-    "note": "This setting is saved in this browser.",
-    "unsaved": "The setting can't be saved, so it applies only while this page is open."
+    "hint": "When on, special characters such as á and č count as correct when you type a and c."
+  },
+  "ignoreCase": {
+    "heading": "Ignore upper and lower case",
+    "description": "Treats upper and lower case, such as A and a, as the same letter. Typing with or without Shift is correct either way.",
+    "label": "Ignore upper and lower case",
+    "hint": "When on, capitals such as A and É count as correct when you type a and é (and the other way round)."
   }
 }
