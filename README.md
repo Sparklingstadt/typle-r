@@ -16,7 +16,7 @@
 
 どのアプリも、このリポジトリの Go のバックエンド（本番は `https://typle-r-six.vercel.app`）に同じ GitHub ログインでつなぎます。ほかのリポジトリは、このリポジトリのコードやデータの写しや対応する実装を持っています。ここを変えたら、合わせて直してください。
 
-- 公式の単語リスト（`src/plugins/packs`）：`commands/` の各 JSON が1リストです。`commands/index.ts`（Web）と `commands/manifest.json`（Go）の順序を揃えて読み込みます。追加・削除時は両方を更新し、`go generate ./server/internal/workspace` で Go の埋め込み用コピーを同期します。以前の `commands.json` 形式を使う他アプリには、`commands/manifest.json` の順に各 JSON を配列へまとめて渡してください。
+- 公式の単語リスト（`src/plugins/packs`）：`commands/` の各 JSON が1リストです。並び順の原本は `commands/manifest.json` です。追加・削除時は JSON と manifest を更新して `npm run packs:generate` を実行すると、Web が読み込む `commands/index.ts` と Go の埋め込み用コピー（`server/internal/workspace/packs`）を生成します（v1.5.0 から。`go generate ./server/internal/workspace` も同じスクリプトを実行します）。生成し忘れは単体テストで分かります。以前の `commands.json` 形式を使う他アプリには、`commands/manifest.json` の順に各 JSON を配列へまとめて渡してください。
 - 共通の fixture：typle-kotlin-backend の `src/test/resources` に、`tests/fixtures` の `follow/`・`packs/`・`pack-file/` の一部と `default-interests.json` の写しがあります。変えたら写して `./gradlew test` で確かめます。
 - iPad 版と Mac 版：typle-m の `Shared/`・`TypleCore/` は typle-ipad の `Typle/`・`TypleCore/` の v0.86.1 時点の写しで、自動では入りません。両方に必要な変更は、それぞれのリポジトリで同じように直します。
 - Go のバックエンド（`server/internal/*`）：typle-kotlin-backend の対応するコードを同じように直し、`TYPLE_BACKEND=kotlin npm run test:e2e` で確かめます。

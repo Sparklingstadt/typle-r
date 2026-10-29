@@ -286,3 +286,76 @@ func TestAddRecordFixtures(t *testing.T) {
 		})
 	}
 }
+
+// The fixtures are shared with tests/records.test.cjs: the same steps leave the same records in Go and in the app.
+func TestRecordOperationFixtures(t *testing.T) {
+	files, err := filepath.Glob(filepath.Join("..", "..", "..", "tests", "fixtures", "record-operations", "*.json"))
+	if err != nil || len(files) == 0 {
+		t.Fatalf("fixtures: %v, %v", files, err)
+	}
+	for _, file := range files {
+		t.Run(filepath.Base(file), func(t *testing.T) {
+			data, err := os.ReadFile(file)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var fixture struct {
+				Lists, Devices json.RawMessage
+				Steps          []struct {
+					Op, ListID, RecordID string
+					Input                RecordInput
+					Expected             struct {
+						Added, Deleted bool
+						Error          string
+					}
+				}
+				Expected map[string]json.RawMessage
+			}
+			if err := json.Unmarshal(data, &fixture); err != nil {
+				t.Fatal(err)
+			}
+			w, err := Decode(fixture.Lists, fixture.Devices, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for i, step := range fixture.Steps {
+				var refused *Error
+				switch step.Op {
+				case "add":
+					_, added, err := AddRecord(w, step.ListID, step.Input, "unused")
+					if step.Expected.Error != "" {
+						if !errors.As(err, &refused) || refused.Key != step.Expected.Error {
+							t.Fatalf("step %d: error = %v, want %s", i, err, step.Expected.Error)
+						}
+					} else if err != nil || added != step.Expected.Added {
+						t.Fatalf("step %d: added = %v, %v", i, added, err)
+					}
+				case "delete":
+					err := DeleteRecord(w, step.ListID, step.RecordID)
+					// The operation's answer to a record or list already gone (see operation.DeleteRecord's callers).
+					gone := errors.As(err, &refused) && (refused.Key == "recordNotFound" || refused.Key == "listNotFound")
+					if (err != nil && !gone) || (err == nil) != step.Expected.Deleted {
+						t.Fatalf("step %d: deleted = %v, want %v", i, err, step.Expected.Deleted)
+					}
+				default:
+					t.Fatalf("step %d: unknown op %q", i, step.Op)
+				}
+			}
+			for listID, want := range fixture.Expected {
+				list := w.Find(listID)
+				if list == nil {
+					t.Fatalf("no list %s", listID)
+				}
+				records := list.Records
+				if records == nil {
+					records = []Record{}
+				}
+				got, err := json.Marshal(records)
+				if err != nil {
+					t.Fatal(err)
+				}
+				sameJSON(t, listID, got, want)
+			}
+		})
+	}
+}
