@@ -127,3 +127,33 @@ test('deleteRecord removes the run of that id only, and a run or list already go
     assert.equal(result.document, document)
   }
 })
+
+// The fixtures are shared with server/internal/workspace/records_test.go: the same steps leave the same records in the app and in Go.
+const operationFixtures = path.join(__dirname, 'fixtures', 'record-operations')
+for (const file of fs.readdirSync(operationFixtures).filter(name => name.endsWith('.json'))) {
+  test(`record operations fixture ${file}`, () => {
+    const fixture = JSON.parse(fs.readFileSync(path.join(operationFixtures, file), 'utf8'))
+    let document = { lists: fixture.lists, devices: fixture.devices }
+    fixture.steps.forEach((step, i) => {
+      if (step.op === 'add') {
+        if (step.expected.error) {
+          const key = step.expected.error === 'listNotFound' ? 'recordListDeleted' : step.expected.error
+          assert.throws(() => addRecord(document, step.listId, step.input), { key }, `step ${i}`)
+          return
+        }
+        const result = addRecord(document, step.listId, step.input)
+        assert.equal(result.added, step.expected.added, `step ${i}`)
+        document = result.document
+      } else if (step.op === 'delete') {
+        const result = deleteRecord(document, step.listId, step.recordId)
+        assert.equal(result.deleted, step.expected.deleted, `step ${i}`)
+        document = result.document
+      } else {
+        assert.fail(`step ${i}: unknown op ${step.op}`)
+      }
+    })
+    for (const [listId, records] of Object.entries(fixture.expected)) {
+      assert.deepEqual(document.lists.find(list => list.id === listId).records, records, listId)
+    }
+  })
+}

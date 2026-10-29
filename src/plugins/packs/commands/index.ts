@@ -1,3 +1,4 @@
+// Made by scripts/generate-packs.cjs from manifest.json: run `npm run packs:generate` after changing the lists.
 import { isInputType, type SavedWordList } from '../../../core/wordLists'
 import list0 from './macos-zsh-commands.json'
 import list1 from './aws-cli-commands.json'
@@ -16,64 +17,62 @@ import list13 from './vim.json'
 import list14 from './vim-beginner.json'
 import list15 from './vim-intermediate.json'
 import list16 from './vim-advanced.json'
-import list18 from './go-syntax-beginner.json'
-import list19 from './go-syntax-intermediate.json'
-import list20 from './go-syntax-advanced.json'
-import list21 from './java-syntax-beginner.json'
-import list22 from './java-syntax-intermediate-1.json'
-import list23 from './java-syntax-intermediate-2.json'
-import list24 from './java-syntax-advanced.json'
-import list25 from './kotlin-syntax-beginner-1.json'
-import list26 from './kotlin-syntax-beginner-2.json'
-import list27 from './kotlin-syntax-intermediate.json'
-import list28 from './kotlin-syntax-advanced-1.json'
-import list29 from './kotlin-syntax-advanced-2.json'
-import list30 from './un-member-states-chinese-193-lowercase.json'
-import list31 from './un-member-states-chinese-193-lowercase-beginner-1.json'
-import list32 from './un-member-states-chinese-193-lowercase-beginner-2.json'
-import list33 from './un-member-states-chinese-193-lowercase-intermediate.json'
-import list34 from './un-member-states-chinese-193-lowercase-advanced-1.json'
-import list35 from './un-member-states-chinese-193-lowercase-advanced-2.json'
-import list36 from './postgresql-syntax-beginner.json'
-import list37 from './postgresql-syntax-intermediate-1.json'
-import list38 from './postgresql-syntax-intermediate-2.json'
-import list39 from './postgresql-syntax-advanced.json'
-import list40 from './prisma-syntax-beginner.json'
-import list41 from './prisma-syntax-advanced.json'
-import list42 from './jest-syntax-beginner.json'
-import list43 from './jest-syntax-advanced.json'
-import list44 from './playwright-syntax-beginner.json'
-import list45 from './playwright-syntax-advanced.json'
-import list46 from './typescript-syntax-beginner.json'
-import list47 from './typescript-syntax-intermediate.json'
-import list48 from './typescript-syntax-advanced.json'
-import list49 from './hono-methods-beginner.json'
-import list50 from './hono-methods-intermediate.json'
-import list51 from './hono-methods-advanced.json'
-import list52 from './php-syntax-beginner.json'
-import list53 from './php-syntax-intermediate.json'
-import list54 from './php-syntax-advanced.json'
-import list55 from './rails-methods-beginner.json'
-import list56 from './rails-methods-intermediate.json'
-import list57 from './rails-methods-advanced.json'
-import list58 from './express-methods-beginner.json'
-import list59 from './express-methods-intermediate.json'
-import list60 from './express-methods-advanced.json'
-import list61 from './oracle-plsql-syntax-beginner.json'
-import list62 from './oracle-plsql-syntax-intermediate.json'
-import list63 from './oracle-plsql-syntax-advanced.json'
-import list64 from './sql-server-tsql-syntax-beginner.json'
-import list65 from './sql-server-tsql-syntax-intermediate.json'
-import list66 from './sql-server-tsql-syntax-advanced.json'
+import list17 from './go-syntax-beginner.json'
+import list18 from './go-syntax-intermediate.json'
+import list19 from './go-syntax-advanced.json'
+import list20 from './java-syntax-beginner.json'
+import list21 from './java-syntax-intermediate-1.json'
+import list22 from './java-syntax-intermediate-2.json'
+import list23 from './java-syntax-advanced.json'
+import list24 from './kotlin-syntax-beginner-1.json'
+import list25 from './kotlin-syntax-beginner-2.json'
+import list26 from './kotlin-syntax-intermediate.json'
+import list27 from './kotlin-syntax-advanced-1.json'
+import list28 from './kotlin-syntax-advanced-2.json'
+import list29 from './un-member-states-chinese-193-lowercase.json'
+import list30 from './un-member-states-chinese-193-lowercase-beginner-1.json'
+import list31 from './un-member-states-chinese-193-lowercase-beginner-2.json'
+import list32 from './un-member-states-chinese-193-lowercase-intermediate.json'
+import list33 from './un-member-states-chinese-193-lowercase-advanced-1.json'
+import list34 from './un-member-states-chinese-193-lowercase-advanced-2.json'
+import list35 from './postgresql-syntax-beginner.json'
+import list36 from './postgresql-syntax-intermediate-1.json'
+import list37 from './postgresql-syntax-intermediate-2.json'
+import list38 from './postgresql-syntax-advanced.json'
+import list39 from './prisma-syntax-beginner.json'
+import list40 from './prisma-syntax-advanced.json'
+import list41 from './jest-syntax-beginner.json'
+import list42 from './jest-syntax-advanced.json'
+import list43 from './playwright-syntax-beginner.json'
+import list44 from './playwright-syntax-advanced.json'
+import list45 from './typescript-syntax-beginner.json'
+import list46 from './typescript-syntax-intermediate.json'
+import list47 from './typescript-syntax-advanced.json'
+import list48 from './hono-methods-beginner.json'
+import list49 from './hono-methods-intermediate.json'
+import list50 from './hono-methods-advanced.json'
+import list51 from './php-syntax-beginner.json'
+import list52 from './php-syntax-intermediate.json'
+import list53 from './php-syntax-advanced.json'
+import list54 from './rails-methods-beginner.json'
+import list55 from './rails-methods-intermediate.json'
+import list56 from './rails-methods-advanced.json'
+import list57 from './express-methods-beginner.json'
+import list58 from './express-methods-intermediate.json'
+import list59 from './express-methods-advanced.json'
+import list60 from './oracle-plsql-syntax-beginner.json'
+import list61 from './oracle-plsql-syntax-intermediate.json'
+import list62 from './oracle-plsql-syntax-advanced.json'
+import list63 from './sql-server-tsql-syntax-beginner.json'
+import list64 from './sql-server-tsql-syntax-intermediate.json'
+import list65 from './sql-server-tsql-syntax-advanced.json'
+import list66 from './korean-basics.json'
+import list67 from './french-basics.json'
+import list68 from './czech-basics.json'
+import list69 from './german-basics.json'
+import list70 from './spanish-basics.json'
+import list71 from './chinese-basics.json'
 
-import korean from './korean-basics.json'
-import french from './french-basics.json'
-import czech from './czech-basics.json'
-import german from './german-basics.json'
-import spanish from './spanish-basics.json'
-import chinese from './chinese-basics.json'
-
-// Keep this order aligned with manifest.json, used by the Go backend.
 const commands: SavedWordList[] = [
   list0,
   list1,
@@ -92,6 +91,7 @@ const commands: SavedWordList[] = [
   list14,
   list15,
   list16,
+  list17,
   list18,
   list19,
   list20,
@@ -141,12 +141,11 @@ const commands: SavedWordList[] = [
   list64,
   list65,
   list66,
-  korean,
-  french,
-  czech,
-  german,
-  spanish,
-  chinese,
+  list67,
+  list68,
+  list69,
+  list70,
+  list71,
 ].map(list => ({
   ...list,
   words: list.words.map(word => {

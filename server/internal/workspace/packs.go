@@ -6,11 +6,10 @@ import (
 	"fmt"
 )
 
-// Copies of src/plugins/packs, checked against the originals by TestPacksMatchApp.
+// Copies of src/plugins/packs, made by scripts/generate-packs.cjs (npm run packs:generate) and checked against the
+// originals by TestPacksMatchApp.
 //
-//go:generate cp ../../../src/plugins/packs/samples.json ../../../src/plugins/packs/countries.json packs/
-//go:generate mkdir -p packs/commands
-//go:generate sh -c "cp ../../../src/plugins/packs/commands/*.json packs/commands/"
+//go:generate node ../../../scripts/generate-packs.cjs
 var (
 	//go:embed packs/samples.json
 	samplesJSON []byte

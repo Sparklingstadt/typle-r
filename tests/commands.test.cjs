@@ -14,6 +14,11 @@ test('the split command lists follow the shared manifest without missing or dupl
   assert.deepEqual(commands, names.map(name => JSON.parse(fs.readFileSync(path.join(directory, name), 'utf8'))))
 })
 
+test('index.ts and the Go copies are what scripts/generate-packs.cjs makes from the manifest', () => {
+  const { check } = require('../scripts/generate-packs.cjs')
+  assert.deepEqual(check(), [])
+})
+
 test('each official word has its own command, code or word input type', () => {
   const allowed = new Set(['command', 'code', 'word'])
   for (const list of commands) {
