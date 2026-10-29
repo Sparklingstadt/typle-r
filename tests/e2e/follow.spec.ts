@@ -92,7 +92,8 @@ test('a followed list opened by URL shows the notice, and /create does not offer
   await expect(page.getByRole('textbox')).toHaveCount(0)
 
   await page.goto(`/create?pack=${encodeURIComponent(packId)}`)
-  const select = page.locator('select')
+  // The pack is chosen in the select named パック; each word has a select of its own for its input type.
+  const select = page.getByRole('combobox', { name: 'パック', exact: true })
   await expect(page.getByRole('textbox').first()).toBeVisible()
   if (await select.count()) await expect(select.locator('option', { hasText: 'Go構文' })).toHaveCount(0)
   await expect(select).not.toHaveValue(packId)
