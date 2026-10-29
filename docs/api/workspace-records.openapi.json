@@ -1,0 +1,548 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Typle: practice record operations",
+    "version": "1.6.0",
+    "description": "アプリが練習記録を1件ずつ変える /api/workspace/records の通信形式とエラーコードです（#174）。外部API（/api/v1）の記録の追加・削除と同じ操作（server/internal/operation）で、ゲスト保存も同じ規則に従います。Go は server/internal/web/records_test.go、TS は tests/recordSchema.test.cjs がこの定義と実装を照合します。エラーキーは画面のメッセージ（src/messages/*/errors.json）のキーです。 x-app-shows が false の応答はアプリが受け取ることのないもので、画面のメッセージを持たない。"
+  },
+  "paths": {
+    "/api/workspace/records": {
+      "post": {
+        "summary": "記録を追加する",
+        "description": "revision を使わない。同じリストに同じ id の記録があれば追加せず、保存済みの記録を 200 で返す。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordAdd"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "追加した",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordAdded"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "すでにあった",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordAdded"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "emptyRequest / invalidRecord / deviceNotFound / recordLimit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "enum": [
+                        "emptyRequest",
+                        "invalidRecord",
+                        "deviceNotFound",
+                        "recordLimit"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "recordListDeleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "enum": [
+                        "recordListDeleted"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "loginRequired / loginAccountChanged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "enum": [
+                        "loginRequired",
+                        "loginAccountChanged"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "forbiddenRequest",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "enum": [
+                        "forbiddenRequest"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "methodNotAllowed（POST・DELETE 以外のメソッド。アプリは送らないので、画面のメッセージはない）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "enum": [
+                        "methodNotAllowed"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "x-app-shows": false
+          },
+          "413": {
+            "description": "workspaceTooLarge",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "enum": [
+                        "workspaceTooLarge"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "databaseUnavailable / workspaceSaveFailed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "enum": [
+                        "databaseUnavailable",
+                        "workspaceSaveFailed"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "記録を削除する",
+        "description": "revision を使わない。すでに無い記録（やリスト）の削除も 200 で現在のワークスペースを返す。",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordDelete"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "削除した、またはすでに無い",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Workspace"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "emptyRequest / invalidRecord",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "enum": [
+                        "emptyRequest",
+                        "invalidRecord"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "loginRequired / loginAccountChanged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "enum": [
+                        "loginRequired",
+                        "loginAccountChanged"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "forbiddenRequest",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "enum": [
+                        "forbiddenRequest"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "methodNotAllowed（POST・DELETE 以外のメソッド。アプリは送らないので、画面のメッセージはない）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "enum": [
+                        "methodNotAllowed"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "x-app-shows": false
+          },
+          "413": {
+            "description": "workspaceTooLarge",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "enum": [
+                        "workspaceTooLarge"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "databaseUnavailable / workspaceSaveFailed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "enum": [
+                        "databaseUnavailable",
+                        "workspaceSaveFailed"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Device": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "layout"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "layout": {
+            "type": "string",
+            "maxLength": 200
+          }
+        }
+      },
+      "RecordInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "time",
+          "date",
+          "mistakes",
+          "accuracy"
+        ],
+        "description": "id は /api/workspace/records では必須（再送を安全にするため）、/api/v1 では省略するとサーバーが決める。端末は deviceId か device のどちらか一方。",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "maxLength": 100
+          },
+          "time": {
+            "type": "number",
+            "minimum": 0
+          },
+          "date": {
+            "type": "string",
+            "description": "Date.parse で読める日時。toISOString の形で保存する"
+          },
+          "mistakes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "accuracy": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "wordCount": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "省略するとリストの単語数"
+          },
+          "deviceId": {
+            "type": "string",
+            "description": "保存時に登録されている端末（default は組み込みの端末）"
+          },
+          "device": {
+            "$ref": "#/components/schemas/Device",
+            "description": "練習した時点の端末をそのまま保存する"
+          }
+        },
+        "not": {
+          "required": [
+            "deviceId",
+            "device"
+          ]
+        }
+      },
+      "RecordAdd": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "accountId",
+          "listId",
+          "record"
+        ],
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "listId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "record": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RecordInput"
+              },
+              {
+                "required": [
+                  "id"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "RecordDelete": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "accountId",
+          "listId",
+          "recordId"
+        ],
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "listId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "recordId": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "Workspace": {
+        "type": "object",
+        "required": [
+          "lists",
+          "packs",
+          "devices",
+          "interests",
+          "revision",
+          "accountId"
+        ],
+        "description": "GET /api/workspace と同じ。保存されている形のまま返す",
+        "properties": {
+          "lists": {
+            "type": "array"
+          },
+          "packs": {
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "devices": {
+            "type": "array"
+          },
+          "interests": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "accountId": {
+            "type": "string"
+          }
+        }
+      },
+      "RecordAdded": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Workspace"
+          },
+          {
+            "type": "object",
+            "required": [
+              "record"
+            ],
+            "properties": {
+              "record": {
+                "type": "object"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
