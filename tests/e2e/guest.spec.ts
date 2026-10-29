@@ -170,29 +170,17 @@ test('about page explains features and storage, marks the browser as the current
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
 })
 
-test('a guest’s lists of removed profiles are merged after the first profile’s once', async ({ page }) => {
+test('a guest workspace saved before v1.0.0 opens empty, and the first save replaces it', async ({ page }) => {
   const list = (id: string, name: string) => ({ id, name, createdAt: '2026-10-01T00:00:00.000Z', words: [{ display: 'a', input: 'a', annotation: '' }], records: [] })
-  // As the app with profiles saved it; set only before the first load, so later loads read what the app saved.
+  // As the app with profiles saved it, without packs; set only before the first load.
   const legacy = JSON.stringify({ version: 1, accountId: 'guest:local', revision: 2, lists: [list('main', 'Main')], devices: [],
-    profiles: [{ id: 'default', name: 'メイン' }, { id: 'zh', name: '中国語', lists: [list('zh-list', '中文'), list('dup', 'Main')] }] })
+    profiles: [{ id: 'default', name: 'メイン' }, { id: 'zh', name: '中国語', lists: [list('zh-list', '中文')] }] })
   await page.addInitScript(([key, value]) => { if (localStorage.getItem(key) === null) localStorage.setItem(key, value) }, [key, legacy])
   await page.goto('/edit')
-  await openPacks(page)
-  for (const name of ['Main', '中文', 'Main（中国語）']) await expect(page.getByRole('button', { name: `${name} を編集`, exact: true })).toBeVisible()
-  const stored = JSON.parse(await page.evaluate(key => localStorage.getItem(key) ?? '{}', key))
-  expect([stored.revision, 'profiles' in stored, stored.lists.map((item: { id: string }) => item.id)]).toEqual([3, false, ['main', 'zh-list', 'dup']])
-  await page.reload()
-  await openPacks(page)
-  await expect(page.getByRole('button', { name: 'Main（中国語） を編集', exact: true })).toBeVisible()
-  expect(JSON.parse(await page.evaluate(key => localStorage.getItem(key) ?? '{}', key)).revision).toBe(3)
-})
-
-test('the home page explains browser storage and offers to move old data only when this browser has some', async ({ page }) => {
+  await expect(page.getByRole('button', { name: 'Main を編集', exact: true })).toHaveCount(0)
+  // The home page no longer offers to move data of the versions before the cloud workspace.
   await page.goto('/home')
   await expect(page.getByText('ログインせずにすべての練習', { exact: false })).toBeVisible()
   await expect(page.getByRole('heading', { name: '以前のデータを移行', exact: true })).toHaveCount(0)
-  await page.evaluate(() => localStorage.setItem('typle-r:word-lists:v1', JSON.stringify({ version: 1, lists: [] })))
-  await page.reload()
-  await expect(page.getByRole('heading', { name: '以前のデータを移行', exact: true })).toBeVisible()
-  await expect(page.getByRole('region', { name: '以前のデータを移行' })).toContainText('このブラウザーに追加します。')
 })
+

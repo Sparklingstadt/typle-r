@@ -9,9 +9,7 @@ async function requestWorkspace(url: string, init?: RequestInit): Promise<Worksp
   if (!Number.isSafeInteger(data.revision) || data.revision < 0 || typeof data.accountId !== 'string') {
     throw new AppError('invalidServerData')
   }
-  // A server from before profiles were removed (e.g. while a deployment is switching over) answers with the first
-  // profile's lists, which is what it saves when no profile is named.
-  // Missing or null `packs` means the account's data was saved before packs; decodeDocument converts it.
+  // `packs` is null for an account that has saved nothing.
   const { lists, packs, devices, interests } = decodeDocument({ lists: data.lists, packs: data.packs, devices: data.devices, interests: data.interests })
   return { accountId: data.accountId, revision: data.revision, lists, packs, devices, interests }
 }

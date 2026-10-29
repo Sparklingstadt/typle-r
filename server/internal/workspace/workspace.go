@@ -179,14 +179,15 @@ func normalized(lists, devices, packs []byte) (*Workspace, error) {
 			return nil, err
 		}
 	}
+	// Data without packs is no longer converted by the lists' groups (data from before v1.0.0 is deleted, see
+	// prisma/migrations/0032_drop_legacy): a list without a pack is given one of its own, as any is.
 	w := &Workspace{Devices: registered}
-	w.Packs, w.Lists = normalizeLibrary(decoded, saved, packs == nil)
+	w.Packs, w.Lists = repairLibrary(saved, decoded)
 	return w, nil
 }
 
-// DecodeLists reads lists as they were sent or saved, with the checks Decode makes of them, but without packs made of
-// them: each keeps its packId, group, category and tags as they are. They are what an app that does not know packs
-// sends, to be written back with EncodeWithLabels.
+// DecodeLists reads lists as they were saved, with the checks Decode makes of them, but without their packs: each keeps
+// its packId, and any group, category and tags, as they are.
 func DecodeLists(data []byte) ([]List, error) {
 	var raw []*rawList
 	if err := json.Unmarshal(data, &raw); err != nil {

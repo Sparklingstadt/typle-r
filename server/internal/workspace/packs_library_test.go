@@ -453,31 +453,8 @@ func TestCheckLibrary(t *testing.T) {
 	}
 }
 
-// A save from an app that does not know packs keeps the labels on its lists, so that Decode makes packs of them when
-// they are read: DecodeLists reads them as sent and EncodeWithLabels writes them so.
-func TestListsWithLabelsRoundTrip(t *testing.T) {
-	sent := `[{"id":"a","name":"a","group":"G","category":"C","tags":["t"],"createdAt":"2026-10-01T00:00:00.000Z","words":[{"display":"ls","input":"ls","annotation":""}],"records":[]},` +
-		`{"id":"b","name":"b","group":"G","packId":"old","createdAt":"2026-10-02T00:00:00.000Z","words":[{"display":"cd","input":"cd","annotation":""}],"records":[]}]`
-	lists, err := DecodeLists([]byte(sent))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if lists[0].Group != "G" || lists[0].Category != "C" || !slices.Equal(lists[0].Tags, []string{"t"}) || lists[0].PackID != "" ||
-		lists[1].PackID != "old" {
-		t.Fatalf("lists = %+v", lists)
-	}
-	encoded, err := EncodeWithLabels(lists)
-	if err != nil {
-		t.Fatal(err)
-	}
-	sameJSON(t, "encoded", encoded, []byte(sent))
-	w, err := Decode(encoded, []byte(`[]`), nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(w.Packs) != 1 || w.Packs[0].Name != "G" || w.Packs[0].Category != "C" || w.Lists[1].PackID != w.Packs[0].ID {
-		t.Fatalf("packs = %+v, lists = %+v", w.Packs, w.Lists)
-	}
+// DecodeLists refuses what is not lists.
+func TestDecodeListsRefuses(t *testing.T) {
 	for _, bad := range []string{`{}`, `null`, `[{"id":""}]`} {
 		if _, err := DecodeLists([]byte(bad)); err == nil {
 			t.Errorf("DecodeLists(%s) succeeded", bad)

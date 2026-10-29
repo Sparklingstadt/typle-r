@@ -1,6 +1,5 @@
 "use client"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import LegacyImport from "@/components/LegacyImport"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
@@ -28,7 +27,6 @@ export default function Home() {
       </nav>
     </>}
     <p className="mt-8">{t(storage === "account" ? "storageAccount" : "storage")}</p>
-    <LegacyImport update={update} disabled={!ready || saving} />
     <p className="mt-4">{t.rich("links", {
       guide: chunks => <Link className="underline" href="/guide">{chunks}</Link>,
       about: chunks => <Link className="underline" href="/about">{chunks}</Link>,

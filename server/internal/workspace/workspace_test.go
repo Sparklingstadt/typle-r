@@ -30,7 +30,7 @@ func TestDecodeSavedRow(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(w.Lists) != 1 || w.Lists[0].Name != " 英単語 " || len(w.Lists[0].Records) != 2 {
+	if len(w.Lists) != 1 || w.Lists[0].Name != "英単語" || len(w.Lists[0].Records) != 2 {
 		t.Fatalf("lists = %+v", w.Lists)
 	}
 	record := w.Lists[0].Records[1]

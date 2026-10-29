@@ -10,7 +10,6 @@
 もう一度かけても変わりません。TS は `tests/followedPacks.test.cjs`、Go は `server/internal/workspace` のテストが読みます。
 
 - `official` は小さな架空のカタログ。各エントリは `{ catalogId, version, pack, lists }` で、`pack` と `lists` は保存された形（`lists` の `packId` は公式パックの `id`、`records` は空、`createdAt` あり）。
-- `packs` が `null` のときは未変換のデータで、`group` ごとにパックを作る（パックの `id` は `pack-<最初のリストの id>`）。
 
 ## 守る約束
 

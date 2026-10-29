@@ -1,4 +1,5 @@
 import { test, expect, type Locator, type Page } from '@playwright/test'
+import { guestWorkspace } from './guestData'
 
 const key = 'typle-r:guest-workspace:v1'
 const sentence = 'The quick brown fox jumps over the lazy dog and keeps running across the field'
@@ -8,11 +9,10 @@ type Word = { display: string; input: string; annotation: string; input_type?: s
 function seedWords(page: Page, words: Word[], otherWords?: Word[]) {
   return page.addInitScript(([storageKey, value]) => {
     if (!localStorage.getItem(storageKey)) localStorage.setItem(storageKey, value)
-  }, [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, devices: [],
-    lists: [
+  }, [key, guestWorkspace([
       { id: 'paragraphs', name: 'Paragraphs', createdAt: '2026-09-01', words, records: [] },
       ...(otherWords ? [{ id: 'other', name: 'Other paragraphs', createdAt: '2026-09-01', words: otherWords, records: [] }] : []),
-    ] })])
+    ])])
 }
 
 // Inspect the actual scrolling region, whether it is the paragraph or its containing element.

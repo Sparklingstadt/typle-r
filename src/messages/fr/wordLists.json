@@ -227,19 +227,6 @@
     "add": "Ajouter {count, plural, one {# mot} other {# mots}}",
     "replaceWith": "Remplacer par {count, plural, one {# mot} other {# mots}}"
   },
-  "legacy": {
-    "title": "Migrer les données d’une ancienne version",
-    "description": "Ajoute à {target} les listes de mots et résultats de la v0.1.x encore présents dans ce navigateur. Les données d’origine sont conservées, et migrer à nouveau les mêmes données ne crée pas de doublons.",
-    "currentAccount": "votre compte actuel",
-    "thisBrowser": "ce navigateur",
-    "none": "Aucune donnée à migrer.",
-    "done": "Migration terminée. Les données d’origine restent dans ce navigateur.",
-    "failed": "Impossible de lire les données enregistrées. Les données d’origine n’ont pas été modifiées.",
-    "busy": "Migration…",
-    "toAccount": "Migrer vers ce compte",
-    "toBrowser": "Migrer vers ce navigateur",
-    "suffix": " (migré {n})"
-  },
   "words": {
     "title": "Voir les mots",
     "description": "Choisissez une liste de mots pour voir tous ses mots : le texte à saisir et sa note.",

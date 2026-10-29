@@ -278,17 +278,8 @@ func earlier(a, b string) bool {
 	return okA && okB && at.Before(bt)
 }
 
-// normalizeLibrary follows normalizeLibrary (src/core/wordPacks.ts): lists saved before packs existed (unconverted)
-// are turned into packs, and saved packs are repaired.
-func normalizeLibrary(lists []List, packs []Pack, unconverted bool) ([]Pack, []List) {
-	if unconverted {
-		return convertLibrary(lists)
-	}
-	return repairLibrary(packs, lists)
-}
-
 // convertLibrary follows convertLibrary (src/core/wordPacks.ts): one pack for each group, named after it, and one for
-// each list without a group, named after the list.
+// each list without a group, named after the list. The catalog's lists (src/plugins/packs) are written so.
 func convertLibrary(lists []List) ([]Pack, []List) {
 	packs := []Pack{}
 	packOf := map[string]int{}

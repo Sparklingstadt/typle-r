@@ -1,6 +1,6 @@
 import { AppError } from '../../core/appError'
 import { applyChange, decodeDocument, type WorkspaceDocument } from '../../core/workspaceDocument'
-import { LegacyProfileRequest, MAX_WORKSPACE_BYTES, validateWorkspaceRequest } from '../../core/workspaceRequest'
+import { MAX_WORKSPACE_BYTES, validateWorkspaceRequest } from '../../core/workspaceRequest'
 import { followOfficial } from '../../core/followedPacks'
 import { decodeInterests } from '../../core/interests'
 import { officialPacks } from '../packs/catalog'
@@ -9,7 +9,7 @@ import { WorkspaceError, type RecordAdd, type RecordDelete, type WorkspaceState,
 
 export const GUEST_ACCOUNT_ID = 'guest:local'
 export const GUEST_STORAGE_KEY = 'typle-r:guest-workspace:v1'
-// Data from when the guest could have 10 profiles, each with lists up to the account's 1MB limit, is still read.
+// Larger than the account's limit, so that a save near it still fits with the rest of the workspace.
 const MAX_GUEST_BYTES = MAX_WORKSPACE_BYTES * 10
 
 function bytes(value: string) {
@@ -18,17 +18,21 @@ function bytes(value: string) {
 
 type Stored = WorkspaceDocument & { revision: number }
 
-function readDocument(storage: Storage): Stored & { legacy: boolean } {
+const empty = (revision: number): Stored => ({ lists: [], packs: [], devices: [], interests: decodeInterests(undefined), revision })
+
+function readDocument(storage: Storage): Stored {
   const raw = storage.getItem(GUEST_STORAGE_KEY)
-  if (raw === null) return { lists: [], packs: [], devices: [], interests: decodeInterests(undefined), revision: 0, legacy: false }
+  if (raw === null) return empty(0)
   try {
     if (bytes(raw) > MAX_GUEST_BYTES) throw new Error('Too large')
     const value = JSON.parse(raw)
     if (value.version !== 1 || value.accountId !== GUEST_ACCOUNT_ID) throw new Error('Invalid guest workspace')
     if (!Number.isSafeInteger(value.revision) || value.revision < 0) throw new Error('Invalid revision')
-    // Data saved before packs has none, which decodeDocument converts.
-    const { lists, packs, devices, interests, legacy } = decodeDocument(value)
-    return { lists, packs, devices, interests, legacy, revision: value.revision }
+    // Data saved before v1.0.0, with profiles or without packs, is no longer read: the workspace is empty, and the next
+    // save replaces it.
+    if (value.profiles !== undefined || value.packs === undefined || value.packs === null) return empty(value.revision)
+    const { lists, packs, devices, interests } = decodeDocument(value)
+    return { lists, packs, devices, interests, revision: value.revision }
   } catch {
     throw new AppError('guestReadFailed')
   }
@@ -42,7 +46,6 @@ function store(storage: Storage, { lists, packs, devices, interests, revision }:
   return { lists, packs, devices, interests, revision, accountId: GUEST_ACCOUNT_ID }
 }
 
-// The lists of removed profiles are merged once, with a new revision, as for an account.
 // Followed packs are brought in line with the catalog on every read and write. A read that changes them does not save
 // them; the next write does.
 function followed<T extends { lists: Stored['lists']; packs: Stored['packs'] }>(state: T): T {
@@ -50,18 +53,14 @@ function followed<T extends { lists: Stored['lists']; packs: Stored['packs'] }>(
 }
 
 export function readGuestWorkspace(storage: Storage = localStorage): WorkspaceState {
-  const { legacy, ...document } = readDocument(storage)
-  if (legacy) return followed(store(storage, { ...document, revision: document.revision + 1 }))
-  return followed({ ...document, accountId: GUEST_ACCOUNT_ID })
+  return followed({ ...readDocument(storage), accountId: GUEST_ACCOUNT_ID })
 }
 
 export function writeGuestWorkspace(request: WorkspaceWrite, storage: Storage = localStorage): WorkspaceState {
   if (request.accountId !== GUEST_ACCOUNT_ID) throw new AppError('storageChanged')
   const previous = readDocument(storage)
-  if (previous.revision !== request.revision || previous.legacy) throw new WorkspaceError('conflict', 409)
-  let change
-  try { change = validateWorkspaceRequest(request) }
-  catch (error) { throw error instanceof LegacyProfileRequest ? new WorkspaceError('conflict', 409) : error }
+  if (previous.revision !== request.revision) throw new WorkspaceError('conflict', 409)
+  const change = validateWorkspaceRequest(request)
   if ((change.lists || change.packs) && bytes(JSON.stringify({ lists: change.lists, packs: change.packs })) > MAX_WORKSPACE_BYTES) throw new AppError('guestQuotaExceeded')
   return followed(store(storage, { ...applyChange(previous, change), revision: change.revision + 1 }))
 }
@@ -70,9 +69,9 @@ export function writeGuestWorkspace(request: WorkspaceWrite, storage: Storage = 
 // lists as a read shows them (followed packs in line with the catalog), where the run was practised.
 export function addGuestRecord(request: RecordAdd, storage: Storage = localStorage): WorkspaceState {
   if (request.accountId !== GUEST_ACCOUNT_ID) throw new AppError('storageChanged')
-  const { legacy, ...previous } = followed(readDocument(storage))
+  const previous = followed(readDocument(storage))
   const { document, added } = addRecord(previous, request.listId, request.record)
-  if (!added && !legacy) return { ...previous, accountId: GUEST_ACCOUNT_ID }
+  if (!added) return { ...previous, accountId: GUEST_ACCOUNT_ID }
   if (bytes(JSON.stringify({ lists: document.lists, packs: document.packs })) > MAX_WORKSPACE_BYTES) throw new AppError('guestQuotaExceeded')
   return followed(store(storage, { ...document, revision: previous.revision + 1 }))
 }
@@ -80,9 +79,9 @@ export function addGuestRecord(request: RecordAdd, storage: Storage = localStora
 // Deletes a run as the account's /api/workspace/records does: on whatever is stored now, without a revision.
 export function deleteGuestRecord(request: RecordDelete, storage: Storage = localStorage): WorkspaceState {
   if (request.accountId !== GUEST_ACCOUNT_ID) throw new AppError('storageChanged')
-  const { legacy, ...previous } = followed(readDocument(storage))
+  const previous = followed(readDocument(storage))
   const { document, deleted } = deleteRecord(previous, request.listId, request.recordId)
-  if (!deleted && !legacy) return { ...previous, accountId: GUEST_ACCOUNT_ID }
+  if (!deleted) return { ...previous, accountId: GUEST_ACCOUNT_ID }
   return followed(store(storage, { ...document, revision: previous.revision + 1 }))
 }
 

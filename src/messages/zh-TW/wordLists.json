@@ -227,19 +227,6 @@
     "add": "新增 {count} 個單字",
     "replaceWith": "以 {count} 個單字取代"
   },
-  "legacy": {
-    "title": "移轉舊版資料",
-    "description": "將此瀏覽器中保留的 v0.1.x 單字清單和紀錄新增至{target}。原始資料會保留。再次移轉相同的資料也不會重複。",
-    "currentAccount": "目前的帳號",
-    "thisBrowser": "此瀏覽器",
-    "none": "沒有需要移轉的資料。",
-    "done": "移轉完成。原始資料仍保留在此瀏覽器中。",
-    "failed": "無法讀取儲存的資料。原始資料未變更。",
-    "busy": "移轉中…",
-    "toAccount": "移轉至此帳號",
-    "toBrowser": "移轉至此瀏覽器",
-    "suffix": "（移轉 {n}）"
-  },
   "words": {
     "title": "單字一覽",
     "description": "選擇單字清單後，以表格顯示該清單中輸入的文字與補充說明。",

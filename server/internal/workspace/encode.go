@@ -44,16 +44,12 @@ type Error struct {
 func (e *Error) Error() string { return e.Key }
 
 // The stored shape of a list. Words and records always have their arrays; a record leaves out what it does not have.
-// The category and tags belong to the list's pack, so Encode leaves them out (see EncodePacks); only EncodeWithLabels
-// writes them, and the group.
+// The category and tags belong to the list's pack, so they are left out (see EncodePacks).
 type storedList struct {
 	ID        string      `json:"id"`
 	Name      string      `json:"name"`
 	PackID    string      `json:"packId,omitempty"`
 	Levels    *[]string   `json:"levels,omitempty"`
-	Group     string      `json:"group,omitempty"`
-	Category  string      `json:"category,omitempty"`
-	Tags      []string    `json:"tags,omitempty"`
 	CreatedAt string      `json:"createdAt"`
 	Words     []Word      `json:"words"`
 	Records   []Record    `json:"records"`
@@ -69,16 +65,6 @@ func (l storedList) MarshalJSON() ([]byte, error) {
 
 // Encode writes lists as the app saves them in the lists column, which its decodeLists reads back.
 func Encode(lists []List) ([]byte, error) {
-	return encodeLists(lists, false)
-}
-
-// EncodeWithLabels writes lists as an app that does not know packs saves them: each with its group, category and tags,
-// which Decode moves into packs when it reads them (see DecodeLists).
-func EncodeWithLabels(lists []List) ([]byte, error) {
-	return encodeLists(lists, true)
-}
-
-func encodeLists(lists []List, labels bool) ([]byte, error) {
 	stored := make([]storedList, 0, len(lists))
 	for _, list := range lists {
 		words, records := list.Words, list.Records
@@ -92,9 +78,6 @@ func encodeLists(lists []List, labels bool) ([]byte, error) {
 			Origin: list.Origin, extra: list.Extra}
 		if list.Levels != nil {
 			item.Levels = &list.Levels
-		}
-		if labels {
-			item.Group, item.Category, item.Tags = list.Group, list.Category, list.Tags
 		}
 		stored = append(stored, item)
 	}

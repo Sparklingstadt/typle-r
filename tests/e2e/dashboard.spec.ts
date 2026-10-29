@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { guestWorkspace } from './guestData'
 const key = 'typle-r:guest-workspace:v1'
 const day = 24 * 60 * 60 * 1000
 
@@ -12,7 +13,7 @@ function seedGuest(page: import('@playwright/test').Page) {
     { id: 'unused', name: 'Unused', createdAt: '2026-09-01', words, records: [] },
   ]
   return page.addInitScript(([key, value]) => { if (!localStorage.getItem(key)) localStorage.setItem(key, value) },
-    [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists, devices: [] })])
+    [key, guestWorkspace(lists)])
 }
 
 test('home keeps the introduction until the first practice record exists', async ({ page }) => {

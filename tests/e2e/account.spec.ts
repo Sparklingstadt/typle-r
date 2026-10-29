@@ -62,22 +62,6 @@ test('real API rejects anonymous, cross-origin, account spoofing and stale write
   expect((await (await page.request.get('/api/workspace')).json()).lists[0].name).toBe('Private')
 })
 
-test('legacy data migrates once to the authenticated database account', async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem('typle-r:word-lists:v1', JSON.stringify({ version: 1, lists: [{ id: 'old', name: 'Legacy', createdAt: '2026-09-06', words: [{ display: 'a', input: 'a', annotation: '' }], records: [] }] })))
-  await page.goto('/home')
-  // Signed in, the home page describes the account, not the browser.
-  await expect(page.getByText('単語リスト・練習記録・端末はアカウントに保存され', { exact: false })).toBeVisible()
-  await expect(page.getByText('ログインせずにすべての練習', { exact: false })).toHaveCount(0)
-  const button = page.getByRole('button', { name: 'このアカウントへ移行する' })
-  await button.click()
-  await expect(page.getByRole('status')).toContainText('移行しました。')
-  await button.click()
-  await expect(page.getByRole('status')).toContainText('移行しました。')
-  await page.reload()
-  expect((await (await page.request.get('/api/workspace')).json()).lists).toHaveLength(1)
-  expect(await page.evaluate(() => localStorage.getItem('typle-r:word-lists:v1'))).toContain('Legacy')
-})
-
 test('switching account refreshes the workspace without exposing the previous list', async ({ page, context }) => {
   await seed(page, [{ id: 'private-switch', name: 'Previous account list', createdAt: '2026-09-06', records: [], words: [{ display: 'a', input: 'a', annotation: '' }] }])
   await page.goto('/edit')

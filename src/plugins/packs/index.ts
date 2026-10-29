@@ -1,5 +1,5 @@
 import type { SavedWordList } from '../../core/wordLists'
-import { normalizeLibrary, type Library } from '../../core/wordPacks'
+import { convertLibrary, type Library } from '../../core/wordPacks'
 import samples from './samples.json'
 import countries from './countries.json'
 import commands from './commands'
@@ -11,7 +11,7 @@ const sampleLists: Omit<SavedWordList, 'id' | 'records'>[] = samples
 /** The lists of the official packs, before conversion to packs. */
 export const initialLists: SavedWordList[] = [...sampleLists.map((list, index) => ({ ...list, id: `sample-${index + 1}`, records: [] })), ...countries, ...commands]
 
-const converted = normalizeLibrary(initialLists, null)
+const converted = convertLibrary(initialLists)
 
 /**
  * The same lists in the saved shape, with a pack for each group and for each list without one. Each pack is an

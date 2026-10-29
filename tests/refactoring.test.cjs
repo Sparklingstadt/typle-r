@@ -47,15 +47,15 @@ test('workspace transport validates responses and preserves conflict status', as
   }
 })
 
-test('cloud reads convert an account without packs and keep the packs of one with them', async t => {
+test('cloud reads give lists without packs a pack of their own and keep the packs of a workspace with them', async t => {
   const list = { id: 'l', name: 'L', createdAt: '2026-09-27', words: [{ display: 'a', input: 'a', annotation: '' }], records: [], group: 'G' }
   const body = { accountId: 'github:1', revision: 1, devices: [], lists: [list] }
   const fetch = t.mock.method(global, 'fetch', async () => Response.json(body))
-  // The server leaves out `packs`, or sends null, until the account's data is converted.
+  // packs are null for an account that has saved nothing; groups are no longer made into packs.
   for (const packs of [{}, { packs: null }]) {
     fetch.mock.mockImplementation(async () => Response.json({ ...body, ...packs }))
     const read = await readWorkspace()
-    assert.deepEqual(read.packs.map(pack => [pack.id, pack.name]), [['pack-l', 'G']])
+    assert.deepEqual(read.packs.map(pack => [pack.id, pack.name]), [['pack-l', 'L']])
     assert.deepEqual([read.lists[0].packId, 'group' in read.lists[0]], ['pack-l', false])
   }
   const pack = { id: 'p', name: 'P', createdAt: '2026-09-27' }

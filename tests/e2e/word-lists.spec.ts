@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import { openPacks } from './packRows'
+import { guestWorkspace } from './guestData'
 const key = 'typle-r:guest-workspace:v1'
 const hour = 60 * 60 * 1000
 const ago = (ms: number) => new Date(Date.now() - ms).toISOString()
@@ -18,7 +19,7 @@ function lists() {
 function seed(page: Page, value: unknown[] = lists()) {
   return page.addInitScript(([key, raw]) => {
     if (!localStorage.getItem(key)) localStorage.setItem(key, raw)
-  }, [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists: value, devices: [] })])
+  }, [key, guestWorkspace(value)])
 }
 
 const saved = (page: Page) => page.evaluate(k => JSON.parse(localStorage.getItem(k) ?? 'null').lists, key)
@@ -187,7 +188,7 @@ test('fits a phone without horizontal scrolling and keeps every action reachable
 })
 
 test('empty and failed loads say different things', async ({ page }) => {
-  await page.addInitScript(k => localStorage.setItem(k, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 2, lists: [], devices: [] })), key)
+  await page.addInitScript(([k, raw]) => localStorage.setItem(k, raw), [key, guestWorkspace([], { revision: 2 })])
   await page.goto('/edit')
   await expect(page.getByRole('heading', { name: '単語パックはまだありません' })).toBeVisible()
   await expect(page.getByRole('link', { name: '新しいパック' })).toHaveAttribute('href', '/packs/create')

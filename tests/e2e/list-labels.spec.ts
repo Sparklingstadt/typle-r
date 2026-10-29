@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test'
 import { openPacks } from './packRows'
 import { followPacks } from './follow'
+import { guestWorkspace } from './guestData'
 const key = 'typle-r:guest-workspace:v1'
 const words = (...texts: string[]) => texts.map(text => ({ display: text, input: text, annotation: '' }))
 
@@ -16,7 +17,7 @@ function lists() {
 function seed(page: Page) {
   return page.addInitScript(([key, raw]) => {
     if (!localStorage.getItem(key)) localStorage.setItem(key, raw)
-  }, [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists: lists(), devices: [] })])
+  }, [key, guestWorkspace(lists())])
 }
 
 // The saved lists as a screen sees them: a list's category and tags are its pack's, and a pack of two or more lists is a group.

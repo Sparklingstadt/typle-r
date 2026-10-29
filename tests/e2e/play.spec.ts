@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { guestWorkspace } from './guestData'
 const key = 'typle-r:guest-workspace:v1'
 const sentence = 'The quick brown fox jumps over the lazy dog and keeps running across the field'
 
@@ -11,7 +12,7 @@ function seedGuest(page: import('@playwright/test').Page) {
   ]
   const devices = [{ id: 'mac', name: 'Mac', layout: 'JIS' }]
   return page.addInitScript(([key, value]) => { if (!localStorage.getItem(key)) localStorage.setItem(key, value) },
-    [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists, devices })])
+    [key, guestWorkspace(lists, { devices })])
 }
 
 test('mid-practice switching asks first, Esc restarts and a lost focus can be resumed', async ({ page }) => {
@@ -157,7 +158,7 @@ test('long paragraphs keep a readable size at every length while short words kee
   const lists = [{ id: 'short', name: 'Short', createdAt: '2026-09-01', words: [word('ab')], records: [] },
     ...texts.map((text, index) => ({ id: `text-${index}`, name: `Text ${index + 1}`, createdAt: '2026-09-01', words: [word(text)], records: [] }))]
   await page.addInitScript(([key, value]) => { if (!localStorage.getItem(key)) localStorage.setItem(key, value) },
-    [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists, devices: [] })])
+    [key, guestWorkspace(lists)])
   const display = page.locator('#wordDisplay')
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/play')
@@ -188,7 +189,7 @@ test('with many lists the word to type stays on screen next to the input', async
   const word = (text: string) => ({ display: text, input: text, annotation: '' })
   const lists = Array.from({ length: 22 }, (_, index) => ({ id: `list-${index}`, name: `List ${index + 1}`, createdAt: '2026-09-01', words: [word(`word${index}`), word('end')], records: [] }))
   await page.addInitScript(([key, value]) => { if (!localStorage.getItem(key)) localStorage.setItem(key, value) },
-    [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists, devices: [] })])
+    [key, guestWorkspace(lists)])
   for (const size of [{ width: 1440, height: 900 }, { width: 1280, height: 720 }]) {
     await page.setViewportSize(size)
     await page.goto('/play')
@@ -206,7 +207,7 @@ test('the lists beside the practice card put recent ones first, scroll on their 
   const lists = Array.from({ length: 22 }, (_, index) => ({ id: `list-${index}`, name: `List ${index + 1}`, createdAt: '2026-09-01', words: [word('ab')],
     records: index === 15 ? [{ id: 'r', time: 3, date: '2026-10-01T00:00:00Z', mistakes: 0, accuracy: 100, wordCount: 1 }] : [] }))
   await page.addInitScript(([key, value]) => { if (!localStorage.getItem(key)) localStorage.setItem(key, value) },
-    [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists, devices: [] })])
+    [key, guestWorkspace(lists)])
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/play')
   const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
@@ -271,7 +272,7 @@ test('practice text stays centered at 80% width and code previews keep compact c
     { display: 'end', input: 'end', annotation: '', input_type: 'word' },
   ] }]
   await page.addInitScript(([key, value]) => localStorage.setItem(key, value),
-    [key, JSON.stringify({ version: 1, accountId: 'guest:local', revision: 1, lists, devices: [] })])
+    [key, guestWorkspace(lists)])
   for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/play')

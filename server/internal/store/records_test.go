@@ -362,3 +362,71 @@ func TestRecordsOfDeletedWorkspace(t *testing.T) {
 		})
 	}
 }
+
+// Migration 0032_drop_legacy deletes the workspaces saved in a shape from before v1.0.0, with their records and shared
+// links, and keeps those saved since.
+func TestDropLegacyMigration(t *testing.T) {
+	ctx := context.Background()
+	_, conn := database(t)
+	list := func(fields string) string {
+		return `{"id":"l","name":"l","createdAt":"x","words":[{"display":"a","input":"a","annotation":""}],"records":[]` + fields + `}`
+	}
+	current := `[` + list(`,"packId":"p"`) + `]`
+	pack := `[{"id":"p","name":"P","createdAt":"x"}]`
+	rows := map[string]struct {
+		lists, packs string
+		dropped      bool
+	}{
+		"current":       {current, pack, false},
+		"empty":         {`[]`, `[]`, false},
+		"no packs":      {current, ``, true},
+		"no pack id":    {`[` + list(``) + `]`, pack, true},
+		"group":         {`[` + list(`,"packId":"p","group":"G"`) + `]`, pack, true},
+		"category":      {`[` + list(`,"packId":"p","category":"C"`) + `]`, pack, true},
+		"tags":          {`[` + list(`,"packId":"p","tags":["t"]`) + `]`, pack, true},
+		"list a string": {`["l"]`, pack, true},
+	}
+	owners := map[string]string{}
+	for name, row := range rows {
+		id := owner(t, conn)
+		owners[name] = id
+		var packs any
+		if row.packs != "" {
+			packs = row.packs
+		}
+		if _, err := conn.Exec(ctx, `INSERT INTO typle_workspaces (owner_id, lists, packs, devices) VALUES ($1, $2, $3, '[]')`,
+			id, row.lists, packs); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := conn.Exec(ctx, `INSERT INTO typle_records (owner_id, list_id, record_id, position, at, data)
+			VALUES ($1, 'l', 'r', 0, now(), '{}')`, id); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := conn.Exec(ctx, `INSERT INTO typle_shared_packs (id, owner_id, pack_id, data) VALUES (gen_random_uuid(), $1, 'p', '{}')`,
+			id); err != nil {
+			t.Fatal(err)
+		}
+	}
+	script, err := os.ReadFile(filepath.Join("..", "..", "..", "prisma", "migrations", "0032_drop_legacy", "migration.sql"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := conn.Exec(ctx, string(script)); err != nil {
+		t.Fatal(err)
+	}
+	for name, row := range rows {
+		var workspaces, records, shares int
+		if err := conn.QueryRow(ctx, `SELECT (SELECT count(*) FROM typle_workspaces WHERE owner_id = $1),
+			(SELECT count(*) FROM typle_records WHERE owner_id = $1), (SELECT count(*) FROM typle_shared_packs WHERE owner_id = $1)`,
+			owners[name]).Scan(&workspaces, &records, &shares); err != nil {
+			t.Fatal(err)
+		}
+		left := 1
+		if row.dropped {
+			left = 0
+		}
+		if workspaces != left || records != left || shares != left {
+			t.Errorf("%s: workspaces %d, records %d, shares %d; want %d each", name, workspaces, records, shares, left)
+		}
+	}
+}

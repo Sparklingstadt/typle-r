@@ -2,13 +2,9 @@ import { decodeDevices } from './devices'
 import { decodeInterests } from './interests'
 import { decodeLists, MAX_CATEGORY, MAX_GROUP, MAX_LEVEL, MAX_SAVED_LEVELS, MAX_TAG, MAX_TAGS, type SavedWordList } from './wordLists'
 import { decodePacks, validateLibrary } from './wordPacks'
-import { LEGACY_PROFILE_ID, type WorkspaceChange } from './workspaceDocument'
+import type { WorkspaceChange } from './workspaceDocument'
 
 export const MAX_WORKSPACE_BYTES = 1024 * 1024
-
-/** A save from a screen of the app before profiles were removed, for a profile other than the first or changing the
- * profiles. It answers 409, so that screen reloads and shows the merged lists instead of overwriting them. */
-export class LegacyProfileRequest extends Error {}
 
 // The number of lists is checked against the saved ones when the change is applied (see `applyChange`). Lists sent
 // without packs by an app before v0.97.0 may hold up to MAX_SAVED_LEVELS levels, which are joined when read; with packs,
@@ -28,7 +24,8 @@ export function validateWorkspaceRequest(value: unknown): WorkspaceChange & { re
   if (!value || typeof value !== 'object') throw new Error('Invalid request')
   const body = value as Record<string, unknown>
   if (!Number.isSafeInteger(body.revision) || Number(body.revision) < 0) throw new Error('Invalid revision')
-  if ((body.profileId !== undefined && body.profileId !== LEGACY_PROFILE_ID) || body.profiles !== undefined) throw new LegacyProfileRequest()
+  // Saves of the app from when it had profiles are no longer taken.
+  if (body.profileId !== undefined || body.profiles !== undefined) throw new Error('Invalid request')
   // Packs only make sense with the lists that belong to them.
   if (body.packs !== undefined && body.lists === undefined) throw new Error('Invalid request')
   const lists = body.lists === undefined ? undefined : validateLists(body.lists)
