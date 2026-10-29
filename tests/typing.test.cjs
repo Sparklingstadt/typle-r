@@ -96,3 +96,31 @@ test('a wrong key is a mistake that keeps the position; only matching keys move 
   assert.equal(s.index, 1)
   assert.equal(s.input, 'Wo')
 })
+test('simple special-character input lets a Latin letter stand for its accented form', () => {
+  const words = [{ input: 'día' }, { input: 'ř' }]
+  const options = { ignoreAccents: true }
+  let s = typeInput(newSession(), words, 'di', 1000, options)
+  // The accented character is what goes into the input, so the word still completes.
+  assert.equal(s.input, 'dí')
+  assert.equal(s.mistakes, 0)
+  s = typeInput(s, words, 'día', 1100, options)
+  assert.equal(s.index, 1)
+  s = typeInput(s, words, 'r', 1200, options)
+  assert.notEqual(s.finishedAt, null)
+  assert.equal(s.mistakes, 0)
+  // Typing the accented character itself still counts, and a different letter is still a mistake.
+  assert.equal(typeInput(newSession(), words, 'dí', 0, options).input, 'dí')
+  assert.equal(typeInput(newSession(), words, 'do', 0, options).mistakes, 1)
+})
+test('accents still count when simple special-character input is off', () => {
+  const s = typeInput(newSession(), [{ input: 'ñ' }], 'n', 0)
+  assert.equal(s.mistakes, 1)
+  assert.equal(s.input, '')
+})
+test('only Latin letters are folded', () => {
+  const { matchesCharacter } = require('../src/core/typing.ts')
+  const options = { ignoreAccents: true }
+  for (const [typed, target] of [['i', 'í'], ['o', 'ó'], ['n', 'ñ'], ['c', 'č'], ['u', 'ů'], ['E', 'É']]) assert.ok(matchesCharacter(typed, target, options), `${typed} ${target}`)
+  // Kana also split into a base and a mark, but か is not が; case still counts, and only the plain letter stands in.
+  for (const [typed, target] of [['か', 'が'], ['e', 'É'], ['é', 'e'], ['é', 'ě'], ['i', 'o'], ['?', '¿']]) assert.ok(!matchesCharacter(typed, target, options), `${typed} ${target}`)
+})

@@ -1,0 +1,13 @@
+{
+  "title": "Saisie",
+  "metaTitle": "Saisie | Typle",
+  "description": "Réglages de la saisie pendant l'entraînement.",
+  "simpleSpecial": {
+    "heading": "Saisie simplifiée des caractères spéciaux",
+    "description": "Permet de saisir les lettres portant un accent, un tilde ou un autre signe — comme í, ó, ñ et č en tchèque ou en espagnol — avec la lettre simple (i, o, n, c). La lettre accentuée elle-même reste acceptée.",
+    "label": "Utiliser la saisie simplifiée des caractères spéciaux",
+    "hint": "Activée, les caractères spéciaux comme á et č sont acceptés si vous tapez a et c.",
+    "note": "Ce réglage est enregistré dans ce navigateur.",
+    "unsaved": "Le réglage ne peut pas être enregistré ; il ne s'applique que tant que cette page est ouverte."
+  }
+}

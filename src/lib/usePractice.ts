@@ -6,12 +6,14 @@ import type { SavedWordList } from '../core/wordLists'
 import type { RecordSave } from './useWordLists'
 import { makeRecord, type PracticeRecord } from '../core/records'
 import { newSession, pauseSession, resumeSession, sessionResult, typeInput } from '../core/typing'
+import { useSimpleSpecialInput } from './inputSettings'
 
 export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, device?: PracticeDevice, initialListId?: string | null) {
   const [list, setList] = useState<SavedWordList | undefined>(() => wordLists.find(item => item.id === initialListId) ?? wordLists[0])
   const selected = wordLists.findIndex(item => item.id === list?.id)
   const [practiceDevice, setPracticeDevice] = useState<PracticeDevice | undefined>()
   const [session, setSession] = useState(newSession)
+  const ignoreAccents = useSimpleSpecialInput()
   const [composition, setComposition] = useState<string | null>(null)
   const composing = useRef(false)
   const committedComposition = useRef<string | null>(null)
@@ -40,7 +42,7 @@ export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, d
 
   function enter(value: string) {
     if (completedRecord.current) return
-    const next = typeInput(session, list?.words ?? [], value, Date.now())
+    const next = typeInput(session, list?.words ?? [], value, Date.now(), { ignoreAccents })
     const snapshot = session.startedAt === null ? (device ? { ...device } : undefined) : practiceDevice
     if (session.startedAt === null && next.startedAt !== null) setPracticeDevice(snapshot)
     setSession(next)

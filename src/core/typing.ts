@@ -33,10 +33,29 @@ export function elapsedTime(session: TypingSession, now: number) {
   return Math.max(0, (session.finishedAt ?? session.pausedAt ?? now) - session.startedAt)
 }
 
+export type TypingOptions = {
+  // Simple special-character input: a Latin letter without its accent counts for the accented one (i for í, n for ñ, c for č).
+  ignoreAccents?: boolean
+}
+
+// A Latin letter with its accents and other marks taken off, or null for anything else. Only Latin letters are folded:
+// kana such as が also split into a base and a mark, and か must not count for it.
+function latinBase(char: string) {
+  const base = char.normalize('NFD').replace(/\p{M}/gu, '')
+  return /^\p{Script=Latin}$/u.test(base) ? base : null
+}
+
+export function matchesCharacter(typed: string, target: string, options: TypingOptions = {}) {
+  if (typed === target) return true
+  if (!options.ignoreAccents) return false
+  return latinBase(target) === typed
+}
+
 // `value` is the typed text so far; only what was added since the last call counts as new keys. A key that matches the
 // next character moves on, any other key is a mistake and leaves the position where it was, so `input` only ever holds
-// correct characters. Removing characters does nothing: there is no wrong input to take back.
-export function typeInput(current: TypingSession, words: { input: string }[], value: string, now: number): TypingSession {
+// correct characters. Removing characters does nothing: there is no wrong input to take back. A key matched without its
+// accent adds the character it stands for, so `input` still reads as the word.
+export function typeInput(current: TypingSession, words: { input: string }[], value: string, now: number, options: TypingOptions = {}): TypingSession {
   if (current.finishedAt !== null || !words[current.index]) return current
   const previous = Array.from(current.input)
   const next = Array.from(value)
@@ -50,12 +69,12 @@ export function typeInput(current: TypingSession, words: { input: string }[], va
   for (const char of inserted) {
     if (session.finishedAt !== null) break
     const target = words[session.index].input
-    const typed = Array.from(session.input)
-    if (char !== Array.from(target)[typed.length]) {
+    const expected = Array.from(target)[Array.from(session.input).length]
+    if (expected === undefined || !matchesCharacter(char, expected, options)) {
       session = { ...session, attempts: session.attempts + 1, mistakes: session.mistakes + 1, missed: true }
       continue
     }
-    const input = session.input + char
+    const input = session.input + expected
     session = { ...session, input, attempts: session.attempts + 1, missed: false }
     if (input !== target) continue
     session = session.index === words.length - 1 ? { ...session, finishedAt: now } : { ...session, index: session.index + 1, input: "" }
