@@ -27,6 +27,7 @@ function fakeStore({ staleReads = true } = {}) {
       read: () => { const d = deferred(); reads.push(d); return d.promise },
       write: request => { const d = deferred(); writes.push({ request, ...d }); return d.promise },
       addRecord: request => { const d = deferred(); writes.push({ request, ...d }); return d.promise },
+      deleteRecord: request => { const d = deferred(); writes.push({ request, ...d }); return d.promise },
     },
   }
 }
@@ -271,4 +272,15 @@ test('addRecord sends the run with its device as practised, without a revision, 
   resolve({ ...state(6, saved), devices: [mac] })
   assert.equal(await saving, true)
   assert.equal(s.shown.at(-1).lists[0].records.length, 1)
+})
+
+test('deleteRecord sends the run by its id, without a revision, and shows what was saved', async () => {
+  const fake = fakeStore()
+  const s = await loaded(fake, state(4, [{ ...list('mine'), records: [{ id: 'r1', time: 1, date: '2026-10-01T00:00:00.000Z' }] }]))
+  const deleting = s.session.deleteRecord('mine', 'r1')
+  const { request, resolve } = fake.writes.at(-1)
+  assert.deepEqual(request, { accountId: 'github:1', listId: 'mine', recordId: 'r1' })
+  resolve(state(5, [list('mine')]))
+  assert.equal(await deleting, true)
+  assert.equal(s.shown.at(-1).lists[0].records.length, 0)
 })

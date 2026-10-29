@@ -8,6 +8,8 @@ import (
 	"net/http"
 
 	"github.com/sparklingstadt/typle-r/server/internal/operation"
+	"github.com/sparklingstadt/typle-r/server/internal/session"
+	"github.com/sparklingstadt/typle-r/server/internal/store"
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
 
@@ -17,53 +19,83 @@ type recordAdded struct {
 	Record workspace.Record `json:"record"`
 }
 
-// addRecord takes { accountId, listId, record } and adds the record (workspace.RecordInput, which must have its id) to
-// the list with operation.AddRecord, as POST /api/v1/lists/{listId}/records does. It names no revision: a practice
-// run is saved however the lists were changed meanwhile, and sending it again does not add it twice. It answers 201 for
-// a new record and 200 when the list already had it, both with the workspace as now saved.
-func (s *server) addRecord(w http.ResponseWriter, r *http.Request) {
-	if !methods(w, r, http.MethodPost) {
+// records changes one practice record of the account's workspace at a time, with the operations /api/v1 uses
+// (server/internal/operation). Neither names a revision: a record is saved or deleted however the lists were changed
+// meanwhile, and a request sent again does the same. Both answer with the workspace as now saved, as GET does.
+//
+//   - POST { accountId, listId, record } adds the record (workspace.RecordInput, which must have its id): 201 for a new
+//     record and 200 when the list already had it, with the record.
+//   - DELETE { accountId, listId, recordId } deletes the record: 200, also when it, or its list, is already gone.
+func (s *server) records(w http.ResponseWriter, r *http.Request) {
+	if !methods(w, r, http.MethodPost, http.MethodDelete) {
 		return
 	}
-	// As for PUT /api/workspace.
-	if !(fromApp(r) || s.sameOrigin(r)) || !jsonContent(r) {
-		refuse(w, http.StatusForbidden, "forbiddenRequest")
-		return
+	reported := "record.add"
+	if r.Method == http.MethodDelete {
+		reported = "record.delete"
 	}
-	user, ok := s.signedIn(w, r)
+	user, fields, ok := s.recordRequest(w, r, reported)
 	if !ok {
 		return
 	}
+	if r.Method == http.MethodDelete {
+		s.deleteRecord(w, r, user.Sub, fields)
+		return
+	}
+	s.addRecord(w, r, user.Sub, fields)
+}
+
+// recordRequest checks a request to records as PUT /api/workspace is checked, and reads its body as a JSON object of
+// the signed-in account. Otherwise it answers the request.
+func (s *server) recordRequest(w http.ResponseWriter, r *http.Request, reported string) (session.Session, map[string]json.RawMessage, bool) {
+	if !(fromApp(r) || s.sameOrigin(r)) || !jsonContent(r) {
+		refuse(w, http.StatusForbidden, "forbiddenRequest")
+		return session.Session{}, nil, false
+	}
+	user, ok := s.signedIn(w, r)
+	if !ok {
+		return session.Session{}, nil, false
+	}
 	if r.Body == nil || r.Body == http.NoBody {
 		refuse(w, http.StatusBadRequest, "emptyRequest")
-		return
+		return session.Session{}, nil, false
 	}
 	body, err := readBody(r.Body)
 	if errors.Is(err, errTooLarge) {
 		refuse(w, http.StatusRequestEntityTooLarge, "workspaceTooLarge")
-		return
+		return session.Session{}, nil, false
 	}
 	if err != nil {
-		s.report(r, err, "record.add")
+		s.report(r, err, reported)
 		refuse(w, http.StatusServiceUnavailable, "workspaceSaveFailed")
-		return
+		return session.Session{}, nil, false
 	}
 	fields, err := parseObject(body)
 	if err != nil {
 		refuse(w, http.StatusBadRequest, "invalidRecord")
-		return
+		return session.Session{}, nil, false
 	}
 	if id, ok := accountID(fields); !ok || id != user.Sub {
 		refuse(w, http.StatusUnauthorized, "loginAccountChanged")
-		return
+		return session.Session{}, nil, false
 	}
-	var listID string
+	return user, fields, true
+}
+
+// stringField reads a field that must be a string other than "".
+func stringField(fields map[string]json.RawMessage, name string) (string, bool) {
+	var value string
+	return value, json.Unmarshal(fields[name], &value) == nil && value != ""
+}
+
+func (s *server) addRecord(w http.ResponseWriter, r *http.Request, owner string, fields map[string]json.RawMessage) {
+	listID, ok := stringField(fields, "listId")
 	input, err := decodeRecord(fields["record"])
-	if err != nil || json.Unmarshal(fields["listId"], &listID) != nil || listID == "" || len(fields) != 3 {
+	if err != nil || !ok || len(fields) != 3 {
 		refuse(w, http.StatusBadRequest, "invalidRecord")
 		return
 	}
-	record, added, err := operation.AddRecord(r.Context(), s.config.Store, user.Sub, listID, *input)
+	record, added, err := operation.AddRecord(r.Context(), s.config.Store, owner, listID, *input)
 	var refused *workspace.Error
 	switch {
 	case errors.As(err, &refused) && refused.Key == "listNotFound":
@@ -80,21 +112,60 @@ func (s *server) addRecord(w http.ResponseWriter, r *http.Request) {
 		refuse(w, http.StatusServiceUnavailable, "workspaceSaveFailed")
 		return
 	}
-	// The workspace is read as stored, as GET answers it. A save made since is in it too, with its own revision.
-	result, err := s.config.Store.ReadRevision(r.Context(), user.Sub)
-	if err == nil && result == nil {
-		err = errors.New("workspace missing after a record was added")
-	}
-	if err != nil {
-		s.report(r, err, "record.add")
-		refuse(w, http.StatusServiceUnavailable, "workspaceSaveFailed")
+	result, ok := s.savedAfter(w, r, owner, "record.add")
+	if !ok {
 		return
 	}
 	status := http.StatusOK
 	if added {
 		status = http.StatusCreated
 	}
-	reply(w, status, recordAdded{answer(result, user.Sub), record})
+	reply(w, status, recordAdded{answer(result, owner), record})
+}
+
+func (s *server) deleteRecord(w http.ResponseWriter, r *http.Request, owner string, fields map[string]json.RawMessage) {
+	listID, okList := stringField(fields, "listId")
+	recordID, okRecord := stringField(fields, "recordId")
+	if !okList || !okRecord || len(fields) != 3 {
+		refuse(w, http.StatusBadRequest, "invalidRecord")
+		return
+	}
+	err := operation.DeleteRecord(r.Context(), s.config.Store, owner, listID, recordID)
+	var refused *workspace.Error
+	// Already gone is what was asked for: a request sent again after a lost answer is answered as the first.
+	if errors.As(err, &refused) && (refused.Key == "recordNotFound" || refused.Key == "listNotFound") {
+		err = nil
+	}
+	switch {
+	case errors.As(err, &refused) && refused.Key == "workspaceTooLarge":
+		refuse(w, http.StatusRequestEntityTooLarge, refused.Key)
+		return
+	case errors.As(err, &refused):
+		refuse(w, http.StatusBadRequest, refused.Key)
+		return
+	case err != nil:
+		s.report(r, err, "record.delete")
+		refuse(w, http.StatusServiceUnavailable, "workspaceSaveFailed")
+		return
+	}
+	if result, ok := s.savedAfter(w, r, owner, "record.delete"); ok {
+		reply(w, http.StatusOK, answer(result, owner))
+	}
+}
+
+// savedAfter reads the workspace as stored after a change, as GET answers it; a save made since is in it too, with its
+// own revision. Otherwise it answers the request.
+func (s *server) savedAfter(w http.ResponseWriter, r *http.Request, owner, reported string) (*store.Saved, bool) {
+	result, err := s.config.Store.ReadRevision(r.Context(), owner)
+	if err == nil && result == nil {
+		err = errors.New("workspace missing after a record was changed")
+	}
+	if err != nil {
+		s.report(r, err, reported)
+		refuse(w, http.StatusServiceUnavailable, "workspaceSaveFailed")
+		return nil, false
+	}
+	return result, true
 }
 
 // decodeRecord reads the record of an addRecord request: one object of workspace.RecordInput's fields, with its id.

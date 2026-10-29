@@ -101,6 +101,10 @@ export function createWorkspaceSession({ store, accountId, initialLibrary, show,
     addRecord(listId: string, record: PracticeRecord) {
       return run(() => store.addRecord({ accountId, listId, record }))
     },
+    /** Deletes a saved run from a list by its id, as an operation of its own like `addRecord`. */
+    deleteRecord(listId: string, recordId: string) {
+      return run(() => store.deleteRecord({ accountId, listId, recordId }))
+    },
     /** Stops showing results; the account changed. */
     close() { closed = true },
   }

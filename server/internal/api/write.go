@@ -290,21 +290,17 @@ func (s *server) updateRecord(w http.ResponseWriter, r *http.Request, owner stri
 		failure(w, http.StatusBadRequest, "invalidJson")
 		return
 	}
-	var updated workspace.Record
-	if !s.modify(w, r, owner, func(ws *workspace.Workspace) (bool, error) {
-		var err error
-		updated, err = workspace.UpdateRecord(ws, r.PathValue("listId"), r.PathValue("recordId"), *change)
-		return err == nil, err
-	}) {
+	updated, err := operation.UpdateRecord(r.Context(), s.writer, owner, r.PathValue("listId"), r.PathValue("recordId"), *change)
+	if err != nil {
+		fail(w, r, err)
 		return
 	}
 	respond(w, http.StatusOK, map[string]any{"record": updated})
 }
 
 func (s *server) deleteRecord(w http.ResponseWriter, r *http.Request, owner string) {
-	if !s.modify(w, r, owner, func(ws *workspace.Workspace) (bool, error) {
-		return true, workspace.DeleteRecord(ws, r.PathValue("listId"), r.PathValue("recordId"))
-	}) {
+	if err := operation.DeleteRecord(r.Context(), s.writer, owner, r.PathValue("listId"), r.PathValue("recordId")); err != nil {
+		fail(w, r, err)
 		return
 	}
 	w.Header().Set("Cache-Control", "no-store")

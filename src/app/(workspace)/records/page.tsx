@@ -13,10 +13,10 @@ import FilterMenu, { type FilterOption } from "@/components/Records/FilterMenu"
 import ListSummary from "@/components/Records/ListSummary"
 import RecordRow, { recordColumns, RecordTime } from "@/components/Records/RecordRow"
 import { useFormat } from "@/i18n/useFormat"
-import { useWordLists } from "@/lib/useWordLists"
+import { useWordLists, type Workspace } from "@/lib/useWordLists"
 import PracticeName, { usePracticeName } from "@/components/PracticeName"
 import { dayKind } from "@/core/dashboard"
-import { deviceOptions, filterRows, formatAccuracy, groupByDay, listBest, recordRows, removeRecord, type RecordFilter, type RecordRow as Row } from "@/core/records"
+import { deviceOptions, filterRows, formatAccuracy, groupByDay, listBest, recordRows, type RecordFilter, type RecordRow as Row } from "@/core/records"
 import { levelName } from "@/core/listOverview"
 import { packRecordOptions } from "@/core/packRecords"
 import type { SavedWordList } from "@/core/wordLists"
@@ -54,7 +54,7 @@ function RecordsPage() {
       {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
     </header>
     {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
-    {!workspace.ready ? <Loading /> : <RecordHistory key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} saving={workspace.saving} update={workspace.update} />}
+    {!workspace.ready ? <Loading /> : <RecordHistory key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} saving={workspace.saving} deleteRecord={workspace.deleteRecord} />}
   </main>
 }
 
@@ -83,11 +83,11 @@ function useDayHeading(now: Date) {
   }
 }
 
-function RecordHistory({ lists, packs, saving, update }: {
+function RecordHistory({ lists, packs, saving, deleteRecord }: {
   lists: SavedWordList[]
   packs: WordPack[]
   saving: boolean
-  update: (change: (current: SavedWordList[]) => SavedWordList[]) => Promise<boolean>
+  deleteRecord: Workspace['deleteRecord']
 }) {
   const t = useTranslations('records')
   const format = useFormat()
@@ -177,7 +177,7 @@ function RecordHistory({ lists, packs, saving, update }: {
       onConfirm={async () => {
         const row = deleting.row
         if (!row) return false
-        const saved = await update(current => removeRecord(current, row.list.id, row.record))
+        const saved = await deleteRecord(row.list.id, row.record)
         if (saved) {
           deleted.current = true
           const date = new Date(row.record.date)

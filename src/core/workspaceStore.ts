@@ -6,6 +6,8 @@ export type WorkspaceState = WorkspaceDocument & { revision: number; accountId: 
 export type WorkspaceWrite = WorkspaceChange & { revision: number; accountId: string }
 /** A practice run to add to a list: an operation of its own, which names no revision. */
 export type RecordAdd = { accountId: string; listId: string; record: RecordInput }
+/** A practice run to delete from a list, by its id: an operation of its own, as `RecordAdd`. */
+export type RecordDelete = { accountId: string; listId: string; recordId: string }
 /** Where the data is kept, as screens tell the reader: this browser only, or the login's account. */
 export type WorkspaceLocation = 'browser' | 'account'
 
@@ -25,6 +27,9 @@ export interface WorkspaceStore {
   /** Adds the run with the rules of `addRecord` (src/core/records.ts) and resolves with the state it was saved in. It
    * names no revision, so a change saved meanwhile neither refuses it nor is undone by it; sending a run again is safe. */
   addRecord(request: RecordAdd): Promise<WorkspaceState>
+  /** Deletes the run with the rules of `deleteRecord` (src/core/records.ts), without a revision, as `addRecord`. A run
+   * already gone is not an error. */
+  deleteRecord(request: RecordDelete): Promise<WorkspaceState>
   /** A read can finish after a later save (a network request), so a lower revision than the one shown is stale.
    * Otherwise a lower revision is the store's real state, e.g. after the browser's data was cleared. */
   readonly staleReads: boolean

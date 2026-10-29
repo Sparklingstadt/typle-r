@@ -100,7 +100,7 @@ func New(c Config) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/health", s.health)
 	mux.HandleFunc("/api/workspace", s.workspace)
-	mux.HandleFunc("/api/workspace/records", s.addRecord)
+	mux.HandleFunc("/api/workspace/records", s.records)
 	mux.HandleFunc("/api/shares", s.shares)
 	mux.HandleFunc("/api/shared", s.shared)
 	mux.HandleFunc("/api/auth/signin", s.signin)

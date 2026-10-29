@@ -4,8 +4,8 @@ import { LegacyProfileRequest, MAX_WORKSPACE_BYTES, validateWorkspaceRequest } f
 import { followOfficial } from '../../core/followedPacks'
 import { decodeInterests } from '../../core/interests'
 import { officialPacks } from '../packs/catalog'
-import { addRecord } from '../../core/records'
-import { WorkspaceError, type RecordAdd, type WorkspaceState, type WorkspaceStore, type WorkspaceWrite } from '../../core/workspaceStore'
+import { addRecord, deleteRecord } from '../../core/records'
+import { WorkspaceError, type RecordAdd, type RecordDelete, type WorkspaceState, type WorkspaceStore, type WorkspaceWrite } from '../../core/workspaceStore'
 
 export const GUEST_ACCOUNT_ID = 'guest:local'
 export const GUEST_STORAGE_KEY = 'typle-r:guest-workspace:v1'
@@ -77,6 +77,15 @@ export function addGuestRecord(request: RecordAdd, storage: Storage = localStora
   return followed(store(storage, { ...document, revision: previous.revision + 1 }))
 }
 
+// Deletes a run as the account's /api/workspace/records does: on whatever is stored now, without a revision.
+export function deleteGuestRecord(request: RecordDelete, storage: Storage = localStorage): WorkspaceState {
+  if (request.accountId !== GUEST_ACCOUNT_ID) throw new AppError('storageChanged')
+  const { legacy, ...previous } = followed(readDocument(storage))
+  const { document, deleted } = deleteRecord(previous, request.listId, request.recordId)
+  if (!deleted && !legacy) return { ...previous, accountId: GUEST_ACCOUNT_ID }
+  return followed(store(storage, { ...document, revision: previous.revision + 1 }))
+}
+
 // Serialize read/check/write across tabs where the Web Locks API is available.
 function locked<T>(action: () => T): Promise<T> {
   if (typeof navigator !== 'undefined' && navigator.locks) return navigator.locks.request(GUEST_STORAGE_KEY, action)
@@ -93,6 +102,7 @@ export const guestStore: WorkspaceStore = {
   read: async () => readGuestWorkspace(localStorage),
   write: saveGuestWorkspace,
   addRecord: request => locked(() => addGuestRecord(request)),
+  deleteRecord: request => locked(() => deleteGuestRecord(request)),
   staleReads: false,
   subscribe(onChange) {
     // `key` is null when another tab clears the whole storage.
