@@ -1,6 +1,6 @@
 # API（Go）
 
-GitHubでログインしたアカウントのクラウド保存（`typle_workspaces`）を、スクリプトや別のアプリから読み書きするためのAPIです。`server/` のGoサーバーで、Typle本体とは別に起動します。Vercelの本番には載せていません（v0.55.0 でもそのままです。本番の Go の関数は、アプリ自身のログインと保存の `/api/auth/*`・`/api/workspace`・`/api/health` だけです）。
+GitHubでログインしたアカウントのクラウド保存（`typle_workspaces`）を、スクリプトや別のアプリから読み書きするためのAPIです。`server/` のGoサーバーで、Typle本体とは別に起動します。Vercelの本番には載せていません。本番の Go の関数は、アプリ自身のバックエンド（`/api/auth/*`・`/api/workspace`・`/api/workspace/records`・`/api/shares`・`/api/shared`・`/api/admin/*`・`/api/health`）だけで、[アプリのAPI](app-api.md) にまとめています。
 
 - iPad 版は v0.56.0 から、Android 版は v0.57.0 から、この API を使いません。Windows 版（v0.59.0 から）と Mac 版（v0.60.0 から）も使いません。どれも Web版と同じ GitHub ログインで本番の `/api/workspace` を使います（[README の「iPad と Mac と Android と Windows のログイン」](../README.md#ipad-と-mac-と-android-と-windows-のログイン)）。
 - 既定は読み取り専用です。`GET`・`HEAD` 以外は `405 methodNotAllowed` で、DBへの接続も読み取り専用（`default_transaction_read_only=on`）のため、書き込みはDBが拒否します。
