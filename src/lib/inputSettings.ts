@@ -1,19 +1,26 @@
 "use client"
 import { useSyncExternalStore } from 'react'
+import type { TypingOptions } from '../core/typing'
 
-// Simple special-character input: whether a Latin letter without its accent counts for the accented one in practice.
-// Remembered per browser; off by default.
-export const SIMPLE_SPECIAL_INPUT_KEY = 'typle-r:simple-special-input'
-const changeEvent = 'typle-r:simple-special-input-change'
-// Kept here as well, so the toggle still works for this visit when browser storage is unavailable.
-let fallback = false
+// How practice matches typed characters, remembered per browser; every option is off by default.
+// simpleSpecial: a Latin letter without its accent counts for the accented one. ignoreCase: upper and lower case count as the same.
+export const INPUT_SETTINGS = {
+  simpleSpecial: { key: 'typle-r:simple-special-input', option: 'ignoreAccents' },
+  ignoreCase: { key: 'typle-r:ignore-case', option: 'ignoreCase' },
+} as const satisfies Record<string, { key: string; option: keyof TypingOptions }>
+export type InputSetting = keyof typeof INPUT_SETTINGS
 
-function getSnapshot() {
-  try { return localStorage.getItem(SIMPLE_SPECIAL_INPUT_KEY) === 'on' } catch { return fallback }
+const changeEvent = 'typle-r:input-settings-change'
+// Kept here as well, so a toggle still works for this visit when browser storage is unavailable.
+const fallback: Partial<Record<InputSetting, boolean>> = {}
+
+function read(setting: InputSetting) {
+  try { return localStorage.getItem(INPUT_SETTINGS[setting].key) === 'on' } catch { return fallback[setting] ?? false }
 }
 
 function subscribe(onChange: () => void) {
-  const storage = (event: StorageEvent) => { if (event.key === SIMPLE_SPECIAL_INPUT_KEY || event.key === null) onChange() }
+  const keys: string[] = Object.values(INPUT_SETTINGS).map(setting => setting.key)
+  const storage = (event: StorageEvent) => { if (event.key === null || keys.includes(event.key)) onChange() }
   window.addEventListener('storage', storage)
   window.addEventListener(changeEvent, onChange)
   return () => {
@@ -23,17 +30,22 @@ function subscribe(onChange: () => void) {
 }
 
 // Returns whether the browser saved the choice.
-export function setSimpleSpecialInput(next: boolean) {
-  fallback = next
+export function setInputSetting(setting: InputSetting, next: boolean) {
+  fallback[setting] = next
   let saved = true
   try {
-    if (next) localStorage.setItem(SIMPLE_SPECIAL_INPUT_KEY, 'on')
-    else localStorage.removeItem(SIMPLE_SPECIAL_INPUT_KEY)
+    if (next) localStorage.setItem(INPUT_SETTINGS[setting].key, 'on')
+    else localStorage.removeItem(INPUT_SETTINGS[setting].key)
   } catch { saved = false }
   window.dispatchEvent(new Event(changeEvent))
   return saved
 }
 
-export function useSimpleSpecialInput() {
-  return useSyncExternalStore(subscribe, getSnapshot, () => false)
+export function useInputSetting(setting: InputSetting) {
+  return useSyncExternalStore(subscribe, () => read(setting), () => false)
+}
+
+// The typing options the settings turn on.
+export function useTypingOptions(): TypingOptions {
+  return { ignoreAccents: useInputSetting('simpleSpecial'), ignoreCase: useInputSetting('ignoreCase') }
 }

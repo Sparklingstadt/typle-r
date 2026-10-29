@@ -124,3 +124,20 @@ test('only Latin letters are folded', () => {
   // Kana also split into a base and a mark, but か is not が; case still counts, and only the plain letter stands in.
   for (const [typed, target] of [['か', 'が'], ['e', 'É'], ['é', 'e'], ['é', 'ě'], ['i', 'o'], ['?', '¿']]) assert.ok(!matchesCharacter(typed, target, options), `${typed} ${target}`)
 })
+test('ignoring case lets either case stand for the other, and adds the character of the word', () => {
+  const words = [{ input: 'Ab' }]
+  let s = typeInput(newSession(), words, 'aB', 0, { ignoreCase: true })
+  assert.equal(s.mistakes, 0)
+  assert.notEqual(s.finishedAt, null)
+  assert.equal(typeInput(newSession(), words, 'a', 0).mistakes, 1)
+  s = typeInput(newSession(), words, 'a', 0, { ignoreCase: true })
+  assert.equal(s.input, 'A')
+})
+test('ignoring case combines with simple special-character input', () => {
+  const { matchesCharacter } = require('../src/core/typing.ts')
+  assert.ok(matchesCharacter('é', 'É', { ignoreCase: true }))
+  assert.ok(!matchesCharacter('e', 'É', { ignoreCase: true }))
+  assert.ok(matchesCharacter('e', 'É', { ignoreCase: true, ignoreAccents: true }))
+  assert.ok(matchesCharacter('C', 'č', { ignoreCase: true, ignoreAccents: true }))
+  assert.ok(!matchesCharacter('b', 'A', { ignoreCase: true, ignoreAccents: true }))
+})
