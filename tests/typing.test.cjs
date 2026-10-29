@@ -141,3 +141,54 @@ test('ignoring case combines with simple special-character input', () => {
   assert.ok(matchesCharacter('C', 'č', { ignoreCase: true, ignoreAccents: true }))
   assert.ok(!matchesCharacter('b', 'A', { ignoreCase: true, ignoreAccents: true }))
 })
+
+test('simple special-character input accepts ss for sharp s across keystrokes', () => {
+  const words = [{ input: 'groß' }, { input: 'Straße' }]
+  const options = { ignoreAccents: true }
+  let s = typeInput(newSession(), words, 'gros', 1000, options)
+  assert.equal(s.input, 'gro')
+  assert.equal(s.index, 0)
+  assert.equal(s.mistakes, 0)
+  // The input field contains only committed target characters between events.
+  s = typeInput(s, words, s.input + 's', 1100, options)
+  assert.equal(s.index, 1)
+  s = typeInput(s, words, 'Strasse', 1200, options)
+  assert.notEqual(s.finishedAt, null)
+  assert.equal(s.mistakes, 0)
+  assert.equal(s.attempts, 12)
+})
+
+test('sharp s requires both letters and recovers from a wrong second letter', () => {
+  const words = [{ input: 'ßa' }]
+  const options = { ignoreAccents: true }
+  let s = typeInput(newSession(), words, 's', 0, options)
+  s = typeInput(s, words, 'a', 100, options)
+  assert.equal(s.input, '')
+  assert.equal(s.mistakes, 1)
+  assert.equal(s.missed, true)
+  s = typeInput(s, words, 'sa', 200, options)
+  assert.equal(s.input, 'ßa')
+  assert.equal(s.missed, false)
+  assert.notEqual(s.finishedAt, null)
+  assert.equal(s.mistakes, 1)
+})
+
+test('sharp s alternatives respect special-character and case settings', () => {
+  for (const options of [{}, { ignoreCase: true }]) {
+    const s = typeInput(newSession(), [{ input: 'ß' }], 'ss', 0, options)
+    assert.equal(s.finishedAt, null)
+    assert.equal(s.mistakes, 2)
+  }
+  assert.equal(typeInput(newSession(), [{ input: 'ß' }], 'SS', 0, { ignoreAccents: true }).mistakes, 2)
+  for (const [target, value, options] of [
+    ['ß', 'ß', {}],
+    ['ß', 'ß', { ignoreAccents: true }],
+    ['ẞ', 'SS', { ignoreAccents: true }],
+    ['ß', 'Ss', { ignoreAccents: true, ignoreCase: true }],
+    ['ẞ', 'ss', { ignoreAccents: true, ignoreCase: true }],
+  ]) {
+    const s = typeInput(newSession(), [{ input: target }], value, 0, options)
+    assert.notEqual(s.finishedAt, null, `${target}: ${value}`)
+    assert.equal(s.mistakes, 0)
+  }
+})

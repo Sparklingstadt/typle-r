@@ -9,6 +9,8 @@ export type TypingSession = {
   pausedAt?: number | null
   // The last key did not match the next character; it stays marked until the right character is typed.
   missed?: boolean
+  // The first s of the two-key alternative for ß has been accepted; input stays at the target position.
+  pendingSharpS?: boolean
 }
 
 export function newSession(): TypingSession {
@@ -34,7 +36,7 @@ export function elapsedTime(session: TypingSession, now: number) {
 }
 
 export type TypingOptions = {
-  // Simple special-character input: a Latin letter without its accent counts for the accented one (i for í, n for ñ, c for č).
+  // Simple special-character input: plain Latin letters stand for accented ones, and ss stands for ß.
   ignoreAccents?: boolean
   // Upper and lower case count as the same letter (a for A, É for é).
   ignoreCase?: boolean
@@ -76,12 +78,18 @@ export function typeInput(current: TypingSession, words: { input: string }[], va
     if (session.finishedAt !== null) break
     const target = words[session.index].input
     const expected = Array.from(target)[Array.from(session.input).length]
-    if (expected === undefined || !matchesCharacter(char, expected, options)) {
+    const sharpSKey = options.ignoreAccents && (expected === 'ß' || expected === 'ẞ')
+      && matchesCharacter(char, expected === 'ß' ? 's' : 'S', options)
+    if (sharpSKey && !session.pendingSharpS) {
+      session = { ...session, pendingSharpS: true, attempts: session.attempts + 1, missed: false }
+      continue
+    }
+    if (expected === undefined || (!sharpSKey && !matchesCharacter(char, expected, options))) {
       session = { ...session, attempts: session.attempts + 1, mistakes: session.mistakes + 1, missed: true }
       continue
     }
     const input = session.input + expected
-    session = { ...session, input, attempts: session.attempts + 1, missed: false }
+    session = { ...session, input, attempts: session.attempts + 1, missed: false, pendingSharpS: false }
     if (input !== target) continue
     session = session.index === words.length - 1 ? { ...session, finishedAt: now } : { ...session, index: session.index + 1, input: "" }
   }
