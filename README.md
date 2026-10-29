@@ -974,7 +974,7 @@ France,フランス,
 
 ### API の文書のサイトを Vercel でビルドできるようにする（v2.1.3）
 
-v2.1.2 で `.vercelignore` に `api-docs` を足したため、リポジトリ直下の `.vercelignore` が効く Vercel のプロジェクト `typle-api-docs`（ルートディレクトリ `api-docs`）では、ビルドの前に `api-docs/` ごと除かれ、リポジトリ直下の `vercel.json` のビルド（`db:migrate`）が走って失敗していました。除くのを `api-docs` のビルドの出力だけにしました。本体のプロジェクトには原稿の数十KBが送られるだけで、ビルドと動作は変わりません。
+v2.1.2 で `.vercelignore` に `api-docs` を足したため、リポジトリ直下の `.vercelignore` が効く Vercel のプロジェクト `typle-api-docs`（ルートディレクトリ `api-docs`）では、ビルドの前に `api-docs/` ごと除かれ、リポジトリ直下の `vercel.json` のビルド（`db:migrate`）が走って失敗していました。除くのを `api-docs` のビルドの出力だけにしました。また、リポジトリ直下の `vercel.json` のビルドコマンドが `typle-api-docs` にも使われていたため、`api-docs/vercel.json` に文書サイトのインストール・ビルド（`docs:build` と `docs:check`）・出力先を書きました。本体のプロジェクトには原稿の数十KBが送られるだけで、ビルドと動作は変わりません。
 
 ### API の文書を VuePress のサイトにまとめる（v2.1.2）
 
