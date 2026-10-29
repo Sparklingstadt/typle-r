@@ -1,5 +1,6 @@
 import { AppError } from './appError'
 import type { PracticeDevice } from './devices'
+import type { PracticeRecord } from './records'
 import type { SavedWordList } from './wordLists'
 import { applyListChange, repairLibrary, viewLists, type Library, type WordPack } from './wordPacks'
 import { WorkspaceError, type WorkspaceState, type WorkspaceStore, type WorkspaceWrite } from './workspaceStore'
@@ -44,15 +45,13 @@ export function createWorkspaceSession({ store, accountId, initialLibrary, show,
   }
 
   /** Resolves false when nothing was saved without an error: nothing is loaded yet, a save is running, or the session closed. */
-  async function save(change: (previous: WorkspaceState, currentLibrary: () => Library) => Change, useDefaults = true): Promise<boolean> {
+  async function run(action: (previous: WorkspaceState) => Promise<WorkspaceState>): Promise<boolean> {
     const previous = state
     if (closed || busy || !previous) return false
     busy = true
     saving(true)
     try {
-      // The initial library shown before the first save is what the first save starts from.
-      const request = change(previous, () => previous.revision === 0 && useDefaults ? initialLibrary : previous)
-      const data = await store.write({ ...request, revision: previous.revision, accountId })
+      const data = await action(previous)
       if (closed || data.accountId !== accountId) throw new AppError('accountChanged')
       display(data)
       return true
@@ -64,6 +63,14 @@ export function createWorkspaceSession({ store, accountId, initialLibrary, show,
       if (closed) return false
       throw reason
     } finally { if (!closed) { busy = false; saving(false) } }
+  }
+
+  function save(change: (previous: WorkspaceState, currentLibrary: () => Library) => Change, useDefaults = true) {
+    return run(previous => {
+      // The initial library shown before the first save is what the first save starts from.
+      const request = change(previous, () => previous.revision === 0 && useDefaults ? initialLibrary : previous)
+      return store.write({ ...request, revision: previous.revision, accountId })
+    })
   }
 
   return {
@@ -88,6 +95,11 @@ export function createWorkspaceSession({ store, accountId, initialLibrary, show,
     /** Replaces the interests. Only they are sent, so lists, packs and devices stay as saved, also before the first save. */
     updateInterests(change: (current: string[]) => string[]) {
       return save(previous => ({ interests: change(previous.interests) }), false)
+    },
+    /** Adds a finished practice run to a list. It is an operation of its own (see `WorkspaceStore.addRecord`): a list
+     * changed elsewhere meanwhile does not refuse it, and sending the same run again does not add it twice. */
+    addRecord(listId: string, record: PracticeRecord) {
+      return run(() => store.addRecord({ accountId, listId, record }))
     },
     /** Stops showing results; the account changed. */
     close() { closed = true },

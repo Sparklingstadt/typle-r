@@ -1,6 +1,6 @@
 import { AppError, type ErrorKey } from '../../../core/appError'
 import { decodeDocument } from '../../../core/workspaceDocument'
-import { WorkspaceError, type WorkspaceState, type WorkspaceStore, type WorkspaceWrite } from '../../../core/workspaceStore'
+import { WorkspaceError, type RecordAdd, type WorkspaceState, type WorkspaceStore, type WorkspaceWrite } from '../../../core/workspaceStore'
 
 async function requestWorkspace(url: string, init?: RequestInit): Promise<WorkspaceState> {
   const response = await fetch(url, { cache: 'no-store', ...init })
@@ -24,5 +24,9 @@ export function writeWorkspace(request: WorkspaceWrite) {
   return requestWorkspace('/api/workspace', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(request) })
 }
 
+export function addRecord(request: RecordAdd) {
+  return requestWorkspace('/api/workspace/records', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(request) })
+}
+
 /** The account's workspace on the server, through `/api/workspace`. */
-export const cloudStore: WorkspaceStore = { location: 'account', read: readWorkspace, write: writeWorkspace, staleReads: true }
+export const cloudStore: WorkspaceStore = { location: 'account', read: readWorkspace, write: writeWorkspace, addRecord, staleReads: true }

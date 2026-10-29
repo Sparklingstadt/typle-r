@@ -12,6 +12,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/sparklingstadt/typle-r/server/internal/operation"
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
 
@@ -114,17 +115,23 @@ func (s *server) modify(w http.ResponseWriter, r *http.Request, owner string, ch
 // the workspace returned, not kept from change.
 func (s *server) save(w http.ResponseWriter, r *http.Request, owner string, change func(*workspace.Workspace) (bool, error)) *workspace.Workspace {
 	saved, err := s.writer.Modify(r.Context(), owner, change)
-	if err == nil {
-		return saved
+	if err != nil {
+		fail(w, r, err)
+		return nil
 	}
+	return saved
+}
+
+// fail answers a change that could not be saved: the key of a *workspace.Error, or 503 databaseUnavailable for anything
+// else.
+func fail(w http.ResponseWriter, r *http.Request, err error) {
 	var refused *workspace.Error
 	if !errors.As(err, &refused) {
 		log.Printf("%s %s: %v", r.Method, r.URL.Path, err)
 		failure(w, http.StatusServiceUnavailable, "databaseUnavailable")
-		return nil
+		return
 	}
 	refuse(w, r, refused)
-	return nil
 }
 
 // modifyList is modify for a change that makes or edits one list, which it answers with in its saved shape.
@@ -209,14 +216,9 @@ func (s *server) addRecord(w http.ResponseWriter, r *http.Request, owner string)
 	if !ok {
 		return
 	}
-	id := workspace.NewID()
-	var record workspace.Record
-	var added bool
-	if !s.modify(w, r, owner, func(ws *workspace.Workspace) (bool, error) {
-		var err error
-		record, added, err = workspace.AddRecord(ws, r.PathValue("listId"), *input, id)
-		return added, err
-	}) {
+	record, added, err := operation.AddRecord(r.Context(), s.writer, owner, r.PathValue("listId"), *input)
+	if err != nil {
+		fail(w, r, err)
 		return
 	}
 	status := http.StatusOK

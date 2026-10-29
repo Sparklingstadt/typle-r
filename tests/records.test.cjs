@@ -10,15 +10,16 @@ test('completed records survive reload and editing; retry never duplicates', () 
   let s = typeInput(newSession(), list.words, 'a', 1000)
   s = typeInput(s, list.words, 'ab', 3000)
   const record = makeRecord(s, 1, 'run-1')
-  let lists = addRecord([list], 'a', record)
-  lists = addRecord(lists, 'a', record)
+  const add = lists => addRecord({ lists, devices: [] }, 'a', record).document.lists
+  let lists = add([list])
+  lists = add(lists)
   lists = saveList(lists, { ...list, words: [...list.words, ...list.words] }, true)
   const restored = decodeLists(encodeLists(lists))
   assert.equal(restored[0].records.length, 1)
   assert.equal(restored[0].records[0].wordCount, 1)
   assert.equal(restored[0].records[0].time, 2)
   assert.deepEqual(decodeLists(encodeLists(restored.map(l => ({ ...l, records: l.records.filter(r => r.id !== record.id) }))))[0].records, [])
-  assert.throws(() => addRecord([], 'a', record))
+  assert.throws(() => addRecord({ lists: [], devices: [] }, 'a', record), { key: 'recordListDeleted' })
   assert.throws(() => makeRecord(newSession(), 1, 'incomplete'))
 })
 
@@ -89,3 +90,25 @@ test('lists to choose from put the most recently practised first and keep the sa
   assert.deepEqual(byRecentPractice(lists).map(item => item.id), ['d', 'b', 'a', 'c', 'e'])
   assert.deepEqual(lists.map(item => item.id), ['a', 'b', 'c', 'd', 'e'])
 })
+
+// The fixtures are shared with server/internal/workspace/records_test.go, so the guest's workspace adds a run as the account's does.
+const fs = require('node:fs')
+const path = require('node:path')
+const recordFixtures = path.join(__dirname, 'fixtures', 'records')
+for (const file of fs.readdirSync(recordFixtures).filter(name => name.endsWith('.json'))) {
+  test(`add-record fixture ${file}`, () => {
+    const fixture = JSON.parse(fs.readFileSync(path.join(recordFixtures, file), 'utf8'))
+    const run = () => addRecord({ lists: fixture.lists, devices: fixture.devices }, fixture.listId, fixture.input)
+    if (fixture.expected.error) {
+      const key = fixture.expected.error === 'listNotFound' ? 'recordListDeleted' : fixture.expected.error
+      assert.throws(run, { key })
+      return
+    }
+    const { document, record, added } = run()
+    assert.equal(added, fixture.expected.added)
+    assert.deepEqual(record, fixture.expected.record)
+    const saved = document.lists.find(list => list.id === fixture.listId).records
+    assert.deepEqual(saved.at(-1), fixture.expected.record)
+    assert.equal(saved.length, fixture.lists.find(list => list.id === fixture.listId).records.length + (added ? 1 : 0))
+  })
+}

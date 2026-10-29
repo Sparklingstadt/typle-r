@@ -1,5 +1,6 @@
 import { AppError } from "./appError"
-import type { PracticeDevice } from "./devices"
+import baseFormat from "../messages/ja/format.json"
+import { DEFAULT_DEVICE_ID, defaultDevice, isDevice, type PracticeDevice } from "./devices"
 import type { SavedWordList } from "./wordLists"
 import { sessionResult, TypingSession } from "./typing"
 
@@ -20,10 +21,50 @@ export function makeRecord(session: TypingSession, wordCount: number, id: string
   return { ...(device ? { device: { ...device } } : {}), ...sessionResult(session), id, wordCount, date: new Date(session.finishedAt).toISOString() }
 }
 
-export function addRecord(lists: SavedWordList[], listId: string, record: PracticeRecord) {
-  if (!lists.some(list => list.id === listId)) throw new AppError('recordListDeleted')
-  return lists.map(list => list.id !== listId || list.records.some(item => item.id === record.id)
-    ? list : { ...list, records: [...list.records, record] })
+export const MAX_RECORDS = 10000
+const MAX_RECORD_ID = 100
+// The built-in device's name in the app's base language, as Go saves it (defaultDeviceName in server/internal/workspace);
+// screens show it by its id.
+const DEFAULT_DEVICE_NAME = baseFormat.defaultDevice
+
+/** A practice run to add, as the app sends it to /api/workspace/records and other programs to
+ * POST /api/v1/lists/{listId}/records. The device is either given as it was when the run was practised (`device`,
+ * which the app sends, so the record keeps that name though the device is renamed or deleted meanwhile) or named by
+ * its id (`deviceId`) and saved as it is registered then. */
+export type RecordInput = PracticeRecord & { deviceId?: string }
+
+const finite = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value)
+const integer = (value: unknown, min: number) => finite(value) && Number.isSafeInteger(value) && value >= min
+
+/**
+ * Adds a run to a list, as workspace.AddRecord does in Go for the account's workspace (the guest's follows the same
+ * rules, see tests/fixtures/records). A run with the id of one the list already has is not added again: that saved
+ * record is returned with `added` false, so it can be sent again safely.
+ */
+export function addRecord<T extends { lists: SavedWordList[]; devices: PracticeDevice[] }>(document: T, listId: string, input: RecordInput):
+  { document: T; record: StoredRecord; added: boolean } {
+  const list = document.lists.find(item => item.id === listId)
+  if (!list) throw new AppError('recordListDeleted')
+  const date = typeof input.date === 'string' ? new Date(Date.parse(input.date)) : null
+  const year = date?.getUTCFullYear() ?? NaN
+  if (!finite(input.time) || input.time < 0 || !finite(input.accuracy) || input.accuracy < 0 || input.accuracy > 100 ||
+    !(year >= 0 && year <= 9999) || !integer(input.mistakes, 0) || (input.wordCount !== undefined && !integer(input.wordCount, 1)) ||
+    typeof input.id !== 'string' || input.id.length > MAX_RECORD_ID || !/^[A-Za-z0-9_-]+$/.test(input.id)) throw new AppError('invalidRecord')
+  const saved = list.records.find(item => item.id === input.id)
+  if (saved) return { document, record: saved, added: false }
+  if (list.records.length >= MAX_RECORDS) throw new AppError('recordLimit')
+  let device: PracticeDevice | undefined
+  if (input.device !== undefined) {
+    if (input.deviceId !== undefined || !isDevice(input.device)) throw new AppError('invalidRecord')
+    device = { id: input.device.id, name: input.device.name, layout: input.device.layout }
+  } else if (input.deviceId !== undefined) {
+    device = input.deviceId === DEFAULT_DEVICE_ID ? defaultDevice(DEFAULT_DEVICE_NAME) : document.devices.find(item => item.id === input.deviceId)
+    if (!device) throw new AppError('deviceNotFound')
+  }
+  const record: PracticeRecord = { id: input.id, time: input.time, date: date!.toISOString(), mistakes: input.mistakes,
+    accuracy: input.accuracy, wordCount: input.wordCount ?? list.words.length, ...(device ? { device: { ...device } } : {}) }
+  const lists = document.lists.map(item => item === list ? { ...item, records: [...item.records, record] } : item)
+  return { document: { ...document, lists }, record, added: true }
 }
 
 type StoredRecord = SavedWordList['records'][number]

@@ -24,7 +24,7 @@ const nextConfig = (phase) => withNextIntl({
   // Locally the Go backend (npm run dev starts it) answers these paths; on Vercel the root api/*.go functions do.
   // beforeFiles wins over the app's own routes.
   rewrites: async () => process.env.VERCEL === '1' ? [] : {
-    beforeFiles: ['/api/workspace', '/api/shares', '/api/shared', '/api/health', '/api/auth/:path*', '/api/admin/:path*'].map(source => ({ source, destination: `${typleWebUrl}${source}` })),
+    beforeFiles: ['/api/workspace', '/api/workspace/records', '/api/shares', '/api/shared', '/api/health', '/api/auth/:path*', '/api/admin/:path*'].map(source => ({ source, destination: `${typleWebUrl}${source}` })),
     afterFiles: [],
     fallback: [],
   },

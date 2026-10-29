@@ -508,9 +508,8 @@ test('devices persist, are locked during practice, and survive rename and deleti
   // Another screen changes the registered name while this practice is underway.
   await page.evaluate(([key, value]) => localStorage.setItem(key, value),
     [key, JSON.stringify({ ...workspace, revision: workspace.revision + 1, devices: [{ ...device, name: 'Changed elsewhere' }] })])
+  // The record is saved on its own, so the change made elsewhere neither refuses it nor is undone by it.
   await input.pressSequentially('b')
-  await expect(page.getByText('別の画面で更新されています。最新データを読み込んでから再試行してください。')).toBeVisible()
-  await page.getByRole('button', { name: '記録の保存を再試行' }).click()
   await expect(page.getByLabel('練習結果', { exact: true })).toContainText('練習記録を保存しました。')
   await expect(page.getByLabel('練習結果', { exact: true })).toContainText('MacBook（JIS）')
   await page.goto('/devices')

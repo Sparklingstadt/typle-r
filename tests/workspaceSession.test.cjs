@@ -26,6 +26,7 @@ function fakeStore({ staleReads = true } = {}) {
       location: 'account', staleReads,
       read: () => { const d = deferred(); reads.push(d); return d.promise },
       write: request => { const d = deferred(); writes.push({ request, ...d }); return d.promise },
+      addRecord: request => { const d = deferred(); writes.push({ request, ...d }); return d.promise },
     },
   }
 }
@@ -253,4 +254,21 @@ test('updateInterests writes only the interests, also before the first save', as
   assert.deepEqual(s.shown.at(-1).interests, ['language', 'language/zh'])
   const saved = await loaded(fake, { ...state(3, [list('a')]), interests: ['programming'] })
   assert.deepEqual(saved.shown.at(-1).interests, ['programming'])
+})
+
+test('addRecord sends the run with its device as practised, without a revision, and shows what was saved', async () => {
+  const fake = fakeStore()
+  const mac = { id: 'mac', name: 'Mac', layout: 'JIS' }
+  const s = await loaded(fake, { ...state(4, [list('mine')]), devices: [mac] })
+  const record = { id: 'run-1', time: 1, date: '2026-10-01T00:00:00.000Z', mistakes: 0, accuracy: 100, wordCount: 1, device: mac }
+  const saving = s.session.addRecord('mine', record)
+  // Only one save runs at a time, as for every other save.
+  assert.equal(await s.session.update(lists => lists), false)
+  const { request, resolve } = fake.writes.at(-1)
+  assert.deepEqual(request, { accountId: 'github:1', listId: 'mine', record })
+  assert.equal('revision' in request, false)
+  const saved = [{ ...list('mine'), records: [{ ...record }] }]
+  resolve({ ...state(6, saved), devices: [mac] })
+  assert.equal(await saving, true)
+  assert.equal(s.shown.at(-1).lists[0].records.length, 1)
 })
