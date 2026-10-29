@@ -109,7 +109,7 @@ test('the interests screen lists the fitting official packs with switches, and �
 
   // プログラミング adds its packs; a switch left off is not followed.
   await page.getByRole('button', { name: 'プログラミング', exact: true }).click()
-  await expect(section.getByRole('heading', { name: 'Go構文（2）', exact: true })).toBeVisible()
+  await expect(section.getByRole('heading', { name: 'Go構文', exact: true })).toBeVisible()
   await toggle.click()
   await expect(toggle).toBeChecked()
   await add.click()
