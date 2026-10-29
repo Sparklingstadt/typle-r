@@ -38,3 +38,25 @@ test('native spelling, romanization and tone marks remain in the typing targets'
   assert.equal(word('spanish-basics', '¿Qué es esto?').input, '¿Qué es esto?')
   assert.equal(word('chinese-basics', '你好').input, 'nǐ hǎo')
 })
+
+test('English and Russian each have one pack of basic and intermediate words and syntax', () => {
+  const { officialLibrary } = require('../src/plugins/packs/index.ts')
+  for (const [slug, language] of [['english', '英語'], ['russian', 'ロシア語']]) {
+    const pack = officialLibrary.packs.find(item => item.name === `${language}：基礎・中級`)
+    assert.ok(pack, language)
+    assert.equal(pack.category, '語学')
+    assert.deepEqual(pack.tags, [language])
+    const lists = officialLibrary.lists.filter(list => list.packId === pack.id)
+    assert.deepEqual(lists.map(list => list.id), ['basic-words', 'basic-syntax', 'intermediate-words', 'intermediate-syntax'].map(level => `${slug}-${level}`))
+    assert.deepEqual(lists.map(list => list.levels), [['基礎単語'], ['基礎構文'], ['中級単語'], ['中級構文']])
+    for (const list of lists) {
+      assert.equal(list.words.length, 40, list.id)
+      assert.equal(new Set(list.words.map(word => word.input)).size, 40, list.id)
+      assert.ok(list.words.every(word => word.input_type === 'word' && word.display === word.input && word.annotation.startsWith(`${word.input} / `)), list.id)
+    }
+  }
+  // Russian is typed in Cyrillic, as written.
+  const russian = officialLibrary.lists.find(list => list.id === 'russian-basic-syntax')
+  assert.ok(russian.words.every(word => !/[a-z]/i.test(word.input)))
+  assert.ok(russian.words.some(word => word.input === 'Меня зовут Кен.'))
+})

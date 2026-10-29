@@ -72,6 +72,14 @@ import list68 from './czech-basics.json'
 import list69 from './german-basics.json'
 import list70 from './spanish-basics.json'
 import list71 from './chinese-basics.json'
+import list72 from './english-basic-words.json'
+import list73 from './english-basic-syntax.json'
+import list74 from './english-intermediate-words.json'
+import list75 from './english-intermediate-syntax.json'
+import list76 from './russian-basic-words.json'
+import list77 from './russian-basic-syntax.json'
+import list78 from './russian-intermediate-words.json'
+import list79 from './russian-intermediate-syntax.json'
 
 const commands: SavedWordList[] = [
   list0,
@@ -146,6 +154,14 @@ const commands: SavedWordList[] = [
   list69,
   list70,
   list71,
+  list72,
+  list73,
+  list74,
+  list75,
+  list76,
+  list77,
+  list78,
+  list79,
 ].map(list => ({
   ...list,
   words: list.words.map(word => {
