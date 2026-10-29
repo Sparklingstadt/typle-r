@@ -972,6 +972,13 @@ France,フランス,
 
 `input` と `display` は見出し・各行の値とも必須です。`annotation` はカラム自体も値も省略できます。見出しの順番は自由で、その他のカラム名・重複した見出しはエラーになります。TSVではタブで区切ります。補足列の誤記 `anotation` も受け付けます。単語の前後空白・順序・重複は保存時にも保持します。引用符で囲ったカンマ・タブ・改行、二重引用符のエスケープ（`""`）、UTF-8 BOMに対応します。ファイル上限は1 MiB、単語数は1リスト1,000件です。
 
+### API の文書を VuePress のサイトにまとめる（v2.1.2）
+
+アプリのAPI（`/api/*`）と手元専用の `/api/v1` の仕様を、[VuePress v2](https://vuepress.vuejs.org/) のサイト `api-docs/` にまとめました。どちらも1枚の Markdown だったものを、ワークスペースと記録・共有・ログイン・管理画面、読み取り・書き込み・検証などのページに分け、`/api/workspace/records` の OpenAPI 定義（`docs/api/workspace-records.openapi.json`）はビルド時にそのまま読み込みます。`cd api-docs && npm ci && npm run docs:dev` で `http://localhost:8090` に開きます。サイトは本体とは別の npm のプロジェクトで、本体の依存・型チェック・Lint・Vercel へのデプロイには含めません。`docs/api.md`・`docs/app-api.md` は移った先への案内にしました。動作の変更はありません。
+
+- 文書の誤りを直しました：`/api/v1` は、まだ一度も保存していないアカウントで最初の単語リストではなく空のワークスペースを返します（v0.98.0 から）。
+- v2.1.0 の変更を書き足しました：`GET /api/workspace` の応答では、フォロー中の公式パックのリストの `words` が空です。
+
 ### アプリのAPIの文書（v2.1.1）
 
 本番のアプリ自身のバックエンド（`/api/auth/*`・`/api/workspace`・`/api/workspace/records`・`/api/shares`・`/api/shared`・`/api/admin/*`・`/api/health`）の仕様を [docs/app-api.md](docs/app-api.md) にまとめました。手元専用の `/api/v1` はこれまでどおり [docs/api.md](docs/api.md) です。動作の変更はありません。
