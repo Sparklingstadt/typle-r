@@ -96,6 +96,7 @@ func realStore(t *testing.T) (*store.Store, string) {
 	owner := fmt.Sprintf("github:%d", binary.BigEndian.Uint64(random)>>1)
 	t.Cleanup(func() {
 		_, _ = conn.Exec(ctx, `DELETE FROM typle_workspaces WHERE owner_id = $1`, owner)
+		_, _ = conn.Exec(ctx, `DELETE FROM typle_records WHERE owner_id = $1`, owner)
 		conn.Close(ctx)
 	})
 	return s, owner

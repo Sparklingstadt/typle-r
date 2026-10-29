@@ -10,6 +10,7 @@ test.beforeEach(() => {
 test.afterEach(() => withDatabase(async pool => {
   await pool.query('DELETE FROM typle_shared_packs WHERE owner_id = $1', [accountId])
   await pool.query('DELETE FROM typle_workspaces WHERE owner_id = $1', [accountId])
+  await pool.query('DELETE FROM typle_records WHERE owner_id = $1', [accountId])
 }))
 
 async function signIn(page: Page) {

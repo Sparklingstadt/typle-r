@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"reflect"
 	"slices"
 	"strings"
 	"testing"
@@ -80,6 +81,7 @@ func owner(t *testing.T, conn *pgx.Conn) string {
 	t.Cleanup(func() {
 		_, _ = conn.Exec(context.Background(), `DELETE FROM typle_workspaces WHERE owner_id = $1`, id)
 		_, _ = conn.Exec(context.Background(), `DELETE FROM typle_shared_packs WHERE owner_id = $1`, id)
+		_, _ = conn.Exec(context.Background(), `DELETE FROM typle_records WHERE owner_id = $1`, id)
 	})
 	return id
 }
@@ -445,9 +447,50 @@ func TestModifyRecords(t *testing.T) {
 		t.Fatal(err)
 	}
 	stored, revision, _ := row(t, conn, id)
-	want := `"records": [{"id": "r1", "date": "2026-10-10T00:00:00.000Z", "keys": [1], "time": 1, "accuracy": 99.5}, {"date": "2024/09/22 10:05", "time": 3}]`
-	if !strings.Contains(stored, want) || revision != 3 {
+	if !strings.Contains(stored, `"records": []`) || revision != 3 {
 		t.Fatalf("lists = %s, revision = %d", stored, revision)
+	}
+	// The record saved without an id is given the one it keeps from now on.
+	legacy := legacyID("l1", 2, workspace.Record{Date: "2024/09/22 10:05", Time: 3})
+	want := `[{"id":"r1","date":"2026-10-10T00:00:00.000Z","keys":[1],"time":1,"accuracy":99.5},` +
+		`{"id":"` + legacy + `","date":"2024/09/22 10:05","time":3}]`
+	sameJSON(t, listRecords(t, s, id, "l1"), want)
+}
+
+// listRecords reads a list's records as the store answers them, with the records put back in their list.
+func listRecords(t *testing.T, s *Store, owner, listID string) json.RawMessage {
+	t.Helper()
+	saved, err := s.ReadRevision(context.Background(), owner)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var lists []struct {
+		ID      string
+		Records json.RawMessage
+	}
+	if err := json.Unmarshal(saved.Lists, &lists); err != nil {
+		t.Fatal(err)
+	}
+	for _, list := range lists {
+		if list.ID == listID {
+			return list.Records
+		}
+	}
+	t.Fatalf("no list %s in %s", listID, saved.Lists)
+	return nil
+}
+
+func sameJSON(t *testing.T, got json.RawMessage, want string) {
+	t.Helper()
+	var g, w any
+	if err := json.Unmarshal(got, &g); err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal([]byte(want), &w); err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(g, w) {
+		t.Fatalf("got %s, want %s", got, want)
 	}
 }
 
@@ -471,9 +514,11 @@ func TestModifyCopiesList(t *testing.T) {
 	stored, _, _ := row(t, conn, id)
 	// The copy goes in its source's pack.
 	want := `{"id": "c1", "name": "英単語（コピー）", "words": [{"input": "a", "display": "a", "reading": "エー", "annotation": ""}], "packId": "pack-l1", "records": [], "createdAt": "2026-10-21T00:00:00.000Z"}`
-	if !strings.Contains(stored, want) || !strings.Contains(stored, `"color": "red"`) || !strings.Contains(stored, `"records": [{"id": "r1"`) {
+	if !strings.Contains(stored, want) || !strings.Contains(stored, `"color": "red"`) {
 		t.Fatalf("lists = %s", stored)
 	}
+	sameJSON(t, listRecords(t, s, id, "l1"), `[{"id":"r1","time":1,"date":"2026-10-10T00:00:00.000Z"}]`)
+	sameJSON(t, listRecords(t, s, id, "c1"), `[]`)
 }
 
 func TestModifyImportsList(t *testing.T) {

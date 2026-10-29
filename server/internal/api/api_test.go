@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -346,4 +347,52 @@ func TestDashboard(t *testing.T) {
 	expect(t, serveAs(saved(t), "Bearer bob", "GET", "/api/v1/dashboard?tz=UTC"), 200, `{"summary":{"weekStart":"2026-09-28T00:00:00.000Z",
 	  "weekCount":0,"previousWeekCount":0,"weekSeconds":0,"previousWeekSeconds":0,"streak":0,"practicedToday":false,"accuracy":null},
 	  "next":[],"trends":[]}`)
+}
+
+// pagedSource answers pages of records itself (RecordSource) when ok, and counts the workspaces read.
+type pagedSource struct {
+	*source
+	ok    bool
+	err   error
+	asked []string
+}
+
+func (p *pagedSource) Records(_ context.Context, owner, listID string, since *time.Time, limit int) ([]workspace.Record, bool, error) {
+	p.asked = append(p.asked, fmt.Sprintf("%s %s %v %d", owner, listID, since != nil, limit))
+	if p.err != nil || !p.ok {
+		return nil, false, p.err
+	}
+	id := "from-table"
+	return []workspace.Record{{ID: &id, Time: 1, Date: "2026-10-04T00:00:00.000Z"}}, true, nil
+}
+
+func servePaged(p *pagedSource, target string) *httptest.ResponseRecorder {
+	request := httptest.NewRequest(http.MethodGet, target, nil)
+	request.Header.Set("Authorization", "Bearer alice")
+	response := httptest.NewRecorder()
+	New(p, nil, verifier{}).ServeHTTP(response, request)
+	return response
+}
+
+// A list's records come from the source's page when it has one, without reading the workspace; otherwise, or for a
+// query to refuse, from the workspace as before.
+func TestRecordsPagedBySource(t *testing.T) {
+	paged := &pagedSource{source: saved(t), ok: true}
+	expect(t, servePaged(paged, "/api/v1/lists/l1/records?limit=2&since=2026-10-01"), http.StatusOK,
+		`{"records":[{"id":"from-table","time":1,"date":"2026-10-04T00:00:00.000Z"}]}`)
+	if len(paged.owners) != 0 || len(paged.asked) != 1 || paged.asked[0] != "github:1 l1 true 2" {
+		t.Fatalf("read %v, asked %v", paged.owners, paged.asked)
+	}
+	unpaged := &pagedSource{source: saved(t)}
+	response := servePaged(unpaged, "/api/v1/lists/l1/records?limit=1")
+	if response.Code != http.StatusOK || !strings.Contains(body(t, response), `"id":"new"`) || len(unpaged.owners) != 1 {
+		t.Fatalf("fallback = %d %s, read %v", response.Code, response.Body, unpaged.owners)
+	}
+	refused := &pagedSource{source: saved(t), ok: true}
+	expect(t, servePaged(refused, "/api/v1/lists/l1/records?limit=0"), http.StatusBadRequest, `{"error":"invalidQuery"}`)
+	if len(refused.asked) != 0 {
+		t.Fatalf("asked %v", refused.asked)
+	}
+	failing := &pagedSource{source: saved(t), err: errors.New("down")}
+	expect(t, servePaged(failing, "/api/v1/lists/l1/records"), http.StatusServiceUnavailable, `{"error":"databaseUnavailable"}`)
 }

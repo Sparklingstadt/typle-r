@@ -14,8 +14,25 @@ model Workspace {
   interests Json?    @db.JsonB
   revision  Int      @default(1)
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  // Whether the records are in typle_records rather than in the lists (each list's records is then empty).
+  recordsSplit Boolean @default(false) @map("records_split")
 
   @@map("typle_workspaces")
+}
+
+// A practice record of a list, moved out of the list's records array. data is the record as the list held it, with its
+// id; position is its place in that array and at its date, for paging.
+model Record {
+  ownerId  String   @map("owner_id") @db.Text
+  listId   String   @map("list_id") @db.Text
+  recordId String   @map("record_id") @db.Text
+  position Int
+  at       DateTime @db.Timestamptz(6)
+  data     Json     @db.JsonB
+
+  @@id([ownerId, listId, recordId])
+  @@index([ownerId, listId, at(sort: Desc)], map: "typle_records_list_at")
+  @@map("typle_records")
 }
 
 // A pack shared by link: data is a snapshot of the pack as a file (typle-pack v1), without records or the owner.
