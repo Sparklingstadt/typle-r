@@ -9,7 +9,8 @@ import { cn } from '@/lib/utils'
 export default function ListLabels({ list, className }: { list: Pick<SavedWordList, 'category' | 'tags'>; className?: string }) {
   const t = useTranslations('wordLists.labels')
   if (!list.category && !list.tags?.length) return null
-  return <span data-list-labels className={cn('flex min-w-0 flex-wrap items-center gap-1', className)}>
+  // Contain the absolutely positioned screen-reader text, including in scrolling pack choosers.
+  return <span data-list-labels className={cn('relative flex min-w-0 flex-wrap items-center gap-1', className)}>
     {list.category && <span className="inline-flex h-5 max-w-full items-center gap-1 rounded-md bg-secondary px-1.5 text-[11px] font-medium text-secondary-foreground">
       <Folder className="size-3 shrink-0" aria-hidden="true" /><span className="sr-only">{t('category')}: </span><span className="truncate">{list.category}</span>
     </span>}
