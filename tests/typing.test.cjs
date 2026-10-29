@@ -122,7 +122,7 @@ test('only Latin letters are folded', () => {
   const options = { ignoreAccents: true }
   for (const [typed, target] of [['i', 'í'], ['o', 'ó'], ['n', 'ñ'], ['c', 'č'], ['u', 'ů'], ['E', 'É']]) assert.ok(matchesCharacter(typed, target, options), `${typed} ${target}`)
   // Kana also split into a base and a mark, but か is not が; case still counts, and only the plain letter stands in.
-  for (const [typed, target] of [['か', 'が'], ['e', 'É'], ['é', 'e'], ['é', 'ě'], ['i', 'o'], ['?', '¿']]) assert.ok(!matchesCharacter(typed, target, options), `${typed} ${target}`)
+  for (const [typed, target] of [['か', 'が'], ['e', 'É'], ['é', 'e'], ['é', 'ě'], ['i', 'o']]) assert.ok(!matchesCharacter(typed, target, options), `${typed} ${target}`)
 })
 test('ignoring case lets either case stand for the other, and adds the character of the word', () => {
   const words = [{ input: 'Ab' }]
@@ -190,5 +190,32 @@ test('sharp s alternatives respect special-character and case settings', () => {
     const s = typeInput(newSession(), [{ input: target }], value, 0, options)
     assert.notEqual(s.finishedAt, null, `${target}: ${value}`)
     assert.equal(s.mistakes, 0)
+  }
+})
+
+test('simple special-character input accepts ? for the Spanish opening question mark', () => {
+  const words = [{ input: '¿Qué?' }]
+  const options = { ignoreAccents: true }
+  let s = typeInput(newSession(), words, '?', 0, options)
+  assert.equal(s.input, '¿')
+  assert.equal(s.mistakes, 0)
+  s = typeInput(s, words, s.input + 'Que?', 100, options)
+  assert.equal(s.input, '¿Qué?')
+  assert.notEqual(s.finishedAt, null)
+  assert.equal(s.mistakes, 0)
+  assert.equal(s.attempts, 5)
+})
+
+test('opening question mark substitution requires simple input and is one-way', () => {
+  const { matchesCharacter } = require('../src/core/typing.ts')
+  for (const options of [{}, { ignoreCase: true }]) {
+    const s = typeInput(newSession(), [{ input: '¿' }], '?', 0, options)
+    assert.equal(s.input, '')
+    assert.equal(s.mistakes, 1)
+    assert.equal(s.finishedAt, null)
+  }
+  assert.equal(matchesCharacter('¿', '?', { ignoreAccents: true }), false)
+  for (const options of [{}, { ignoreAccents: true }]) {
+    assert.equal(typeInput(newSession(), [{ input: '¿' }], '¿', 0, options).finishedAt, 0)
   }
 })

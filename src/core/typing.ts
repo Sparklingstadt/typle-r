@@ -36,7 +36,7 @@ export function elapsedTime(session: TypingSession, now: number) {
 }
 
 export type TypingOptions = {
-  // Simple special-character input: plain Latin letters stand for accented ones, and ss stands for ß.
+  // Simple special-character input: plain Latin letters stand for accented ones, ss for ß, and ? for ¿.
   ignoreAccents?: boolean
   // Upper and lower case count as the same letter (a for A, É for é).
   ignoreCase?: boolean
@@ -56,6 +56,7 @@ export function matchesCharacter(typed: string, target: string, options: TypingO
   }
   if (typed === target) return true
   if (!options.ignoreAccents) return false
+  if (target === '¿' && typed === '?') return true
   return latinBase(target) === typed
 }
 
