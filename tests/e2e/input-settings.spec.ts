@@ -56,3 +56,28 @@ test('ignoring case lets lower-case letters stand for capitals in practice', asy
   await expect(result).toContainText('ミス 0 文字')
   expect(errors).toEqual([])
 })
+
+test('simple input accepts Latin keystrokes for Cyrillic letters in practice', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  const lists = [{ id: 'russian', name: 'Russian', createdAt: '2026-09-01', words: [{ display: 'школа', input: 'школа', annotation: '' }], records: [] }]
+  await page.addInitScript(([key, value]) => { if (!localStorage.getItem(key)) localStorage.setItem(key, value) }, [key, guestWorkspace(lists)])
+
+  await page.goto('/play')
+  const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
+  await input.pressSequentially('sh')
+  await expect(input).toHaveValue('')
+
+  await page.goto('/input')
+  await page.getByRole('switch', { name: '特殊文字の簡易入力を使う' }).click()
+  await page.goto('/play')
+  await input.pressSequentially('s')
+  await expect(input).toHaveValue('')
+  await input.pressSequentially('h')
+  await expect(input).toHaveValue('ш')
+  await input.pressSequentially('kola')
+  const result = page.getByLabel('練習結果', { exact: true })
+  await expect(result).toContainText('ミス 0 文字')
+  await expect(result).toContainText('100%')
+  expect(errors).toEqual([])
+})

@@ -6,9 +6,9 @@
   "unsaved": "The setting can't be saved, so it applies only while this page is open.",
   "simpleSpecial": {
     "heading": "Simple special-character input",
-    "description": "Lets you type letters with accents, tildes and other marks — like í, ó, ñ and č in Czech or Spanish — with the plain letter (i, o, n, c). Typing the marked letter itself is still correct.",
+    "description": "Lets you type letters with accents, tildes and other marks — like í, ó, ñ and č in Czech or Spanish — with the plain letter (i, o, n, c). Typing the marked letter itself is still correct. Russian Cyrillic letters also accept Latin input, for example привет → privet, школа → shkola and я → ya. Direct Cyrillic input is still correct.",
     "label": "Use simple special-character input",
-    "hint": "When on, special characters such as á and č count as correct when you type a and c."
+    "hint": "When on, you can type á → a, č → c, ш → sh and я → ya."
   },
   "ignoreCase": {
     "heading": "Ignore upper and lower case",

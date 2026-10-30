@@ -219,3 +219,76 @@ test('opening question mark substitution requires simple input and is one-way', 
     assert.equal(typeInput(newSession(), [{ input: '¿' }], '¿', 0, options).finishedAt, 0)
   }
 })
+
+test('simple input accepts the Russian alphabet through Latin keystrokes', () => {
+  const words = [{ input: 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя' }]
+  const latin = 'abvgdeyozhziyklmnoprstufkhtschshshch"y\'eyuya'
+  let s = newSession()
+  for (const char of latin) s = typeInput(s, words, s.input + char, 100, { ignoreAccents: true })
+  assert.equal(s.input, words[0].input)
+  assert.equal(s.finishedAt, 100)
+  assert.equal(s.mistakes, 0)
+  assert.equal(s.attempts, latin.length)
+})
+
+test('Cyrillic transliteration accepts batched text and carries on across words', () => {
+  const s = typeInput(newSession(), [{ input: 'привет' }, { input: 'школа' }, { input: 'я' }], 'privetshkolaya', 100, { ignoreAccents: true })
+  assert.equal(s.index, 2)
+  assert.equal(s.input, 'я')
+  assert.equal(s.finishedAt, 100)
+  assert.equal(s.mistakes, 0)
+})
+
+test('Cyrillic multi-key input waits for completion and retains progress after a mistake', () => {
+  const words = [{ input: 'ща' }]
+  const options = { ignoreAccents: true }
+  let s = typeInput(newSession(), words, 'sh', 100, options)
+  assert.equal(s.input, '')
+  assert.equal(s.finishedAt, null)
+  assert.equal(s.mistakes, 0)
+  s = typeInput(s, words, 'x', 200, options)
+  assert.equal(s.input, '')
+  assert.equal(s.missed, true)
+  s = typeInput(s, words, 'cha', 300, options)
+  assert.equal(s.input, 'ща')
+  assert.equal(s.finishedAt, 300)
+  assert.equal(s.missed, false)
+  assert.equal(s.mistakes, 1)
+  assert.equal(s.attempts, 6)
+})
+
+test('direct Cyrillic input can complete a pending transliteration without leaking progress', () => {
+  const words = [{ input: 'шя' }]
+  const options = { ignoreAccents: true }
+  let s = typeInput(newSession(), words, 's', 100, options)
+  s = typeInput(s, words, 'шya', 200, options)
+  assert.equal(s.input, 'шя')
+  assert.equal(s.finishedAt, 200)
+  assert.equal(s.mistakes, 0)
+  assert.equal(typeInput(newSession(), words, 'шя', 100).finishedAt, 100)
+})
+
+test('Cyrillic alternatives respect simple-input and case settings', () => {
+  const { matchesCharacter } = require('../src/core/typing.ts')
+  for (const options of [{}, { ignoreCase: true }]) {
+    const s = typeInput(newSession(), [{ input: 'я' }], 'ya', 100, options)
+    assert.equal(s.finishedAt, null)
+    assert.equal(s.mistakes, 2)
+  }
+  for (const [target, value, options] of [
+    ['Яна', 'Yana', { ignoreAccents: true }],
+    ['Ш', 'Sh', { ignoreAccents: true }],
+    ['Ш', 'SH', { ignoreAccents: true }],
+    ['Ш', 'sh', { ignoreAccents: true, ignoreCase: true }],
+    ['я', 'YA', { ignoreAccents: true, ignoreCase: true }],
+  ]) {
+    const s = typeInput(newSession(), [{ input: target }], value, 100, options)
+    assert.equal(s.finishedAt, 100, `${target}: ${value}`)
+    assert.equal(s.mistakes, 0)
+  }
+  assert.equal(typeInput(newSession(), [{ input: 'Я' }], 'ya', 100, { ignoreAccents: true }).finishedAt, null)
+  assert.equal(typeInput(newSession(), [{ input: 'я' }], 'Ya', 100, { ignoreAccents: true }).finishedAt, null)
+  assert.equal(matchesCharacter('p', 'п', { ignoreAccents: true }), true)
+  assert.equal(matchesCharacter('ya', 'я', { ignoreAccents: true }), true)
+  assert.equal(matchesCharacter('п', 'p', { ignoreAccents: true }), false)
+})

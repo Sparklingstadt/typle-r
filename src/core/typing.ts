@@ -11,6 +11,8 @@ export type TypingSession = {
   missed?: boolean
   // The first s of the two-key alternative for ß has been accepted; input stays at the target position.
   pendingSharpS?: boolean
+  // Accepted Latin keys for the current Cyrillic letter; only complete letters enter input.
+  pendingCyrillic?: string
 }
 
 export function newSession(): TypingSession {
@@ -36,7 +38,7 @@ export function elapsedTime(session: TypingSession, now: number) {
 }
 
 export type TypingOptions = {
-  // Simple special-character input: plain Latin letters stand for accented ones, ss for ß, and ? for ¿.
+  // Simple input: plain Latin letters for accents and Cyrillic, ss for ß, and ? for ¿.
   ignoreAccents?: boolean
   // Upper and lower case count as the same letter (a for A, É for é).
   ignoreCase?: boolean
@@ -49,6 +51,21 @@ function latinBase(char: string) {
   return /^\p{Script=Latin}$/u.test(base) ? base : null
 }
 
+const cyrillicLatin: Record<string, string> = {
+  а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'yo', ж: 'zh', з: 'z',
+  и: 'i', й: 'y', к: 'k', л: 'l', м: 'm', н: 'n', о: 'o', п: 'p', р: 'r',
+  с: 's', т: 't', у: 'u', ф: 'f', х: 'kh', ц: 'ts', ч: 'ch', ш: 'sh', щ: 'shch',
+  ъ: '"', ы: 'y', ь: "'", э: 'e', ю: 'yu', я: 'ya',
+}
+
+function cyrillicAlternatives(target: string): string[] {
+  const lower = target.toLowerCase()
+  const latin = cyrillicLatin[lower]
+  if (!latin) return []
+  // Capital letters accept title case (Sh) and all caps (SH).
+  return target === lower ? [latin] : [latin[0].toUpperCase() + latin.slice(1), latin.toUpperCase()]
+}
+
 export function matchesCharacter(typed: string, target: string, options: TypingOptions = {}) {
   if (options.ignoreCase) {
     typed = typed.toLowerCase()
@@ -57,6 +74,7 @@ export function matchesCharacter(typed: string, target: string, options: TypingO
   if (typed === target) return true
   if (!options.ignoreAccents) return false
   if (target === '¿' && typed === '?') return true
+  if (cyrillicAlternatives(target).includes(typed)) return true
   return latinBase(target) === typed
 }
 
@@ -79,18 +97,28 @@ export function typeInput(current: TypingSession, words: { input: string }[], va
     if (session.finishedAt !== null) break
     const target = words[session.index].input
     const expected = Array.from(target)[Array.from(session.input).length]
+    let cyrillicKey = false
+    if (expected !== undefined && options.ignoreAccents && !matchesCharacter(char, expected, options)) {
+      const candidate = (session.pendingCyrillic ?? '') + (options.ignoreCase ? char.toLowerCase() : char)
+      const alternatives = cyrillicAlternatives(options.ignoreCase ? expected.toLowerCase() : expected)
+      cyrillicKey = alternatives.includes(candidate)
+      if (!cyrillicKey && alternatives.some(value => value.startsWith(candidate))) {
+        session = { ...session, pendingCyrillic: candidate, attempts: session.attempts + 1, missed: false }
+        continue
+      }
+    }
     const sharpSKey = options.ignoreAccents && (expected === 'ß' || expected === 'ẞ')
       && matchesCharacter(char, expected === 'ß' ? 's' : 'S', options)
     if (sharpSKey && !session.pendingSharpS) {
       session = { ...session, pendingSharpS: true, attempts: session.attempts + 1, missed: false }
       continue
     }
-    if (expected === undefined || (!sharpSKey && !matchesCharacter(char, expected, options))) {
+    if (expected === undefined || (!cyrillicKey && !sharpSKey && !matchesCharacter(char, expected, options))) {
       session = { ...session, attempts: session.attempts + 1, mistakes: session.mistakes + 1, missed: true }
       continue
     }
     const input = session.input + expected
-    session = { ...session, input, attempts: session.attempts + 1, missed: false, pendingSharpS: false }
+    session = { ...session, input, attempts: session.attempts + 1, missed: false, pendingSharpS: false, pendingCyrillic: '' }
     if (input !== target) continue
     session = session.index === words.length - 1 ? { ...session, finishedAt: now } : { ...session, index: session.index + 1, input: "" }
   }
