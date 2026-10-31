@@ -28,7 +28,7 @@ Typle のバックエンドは Go（`server/`）で、性格の違う2つの API
 |---|---|---|
 | パス | `/api/auth/*`・`/api/workspace`・`/api/workspace/records`・`/api/shares`・`/api/shared`・`/api/admin/*`・`/api/health` | `/api/v1/*` |
 | 使う人 | Typle 本体（Web版と iPad・Mac・Android・Windows 版） | スクリプト・別のアプリ |
-| 動く場所 | 本番は Vercel の Go の関数（`api/*.go`）。手元は `server/cmd/typle-web` | 手元の `server/cmd/typle-api` だけ（本番には載せない） |
+| 動く場所 | 本番は Vercel の Go の関数（`api/index.go`）。手元は `server/cmd/typle-web` | 手元の `server/cmd/typle-api` だけ（本番には載せない） |
 | 認証 | セッションの Cookie、またはアプリのトークン | GitHub の Fine-grained の個人用アクセストークン |
 | 書き込み | ワークスペース全体の保存（`revision` で競合を検出）と、記録の追加・削除 | `-writable` で起動したときだけ。リスト・パック・端末・記録を1件ずつ |
 

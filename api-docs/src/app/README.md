@@ -1,6 +1,6 @@
 # 概要と共通事項
 
-Typle 本体（Web版と iPad・Mac・Android・Windows 版）が使う、アプリ自身のバックエンドです。Go の `server/internal/web` で、本番では Vercel の Go の関数（リポジトリ直下の `api/*.go` → `server/vercel`）として動きます。手元では `server/cmd/typle-web`（既定 `127.0.0.1:8081`）で起動し、`npm run dev` と E2E が使います。
+Typle 本体（Web版と iPad・Mac・Android・Windows 版）が使う、アプリ自身のバックエンドです。Go の `server/internal/web` で、本番では Vercel の Go の関数（リポジトリ直下の `api/index.go` → `server/vercel`）として動きます。手元では `server/cmd/typle-web`（既定 `127.0.0.1:8081`）で起動し、`npm run dev` と E2E が使います。
 
 スクリプトや別のアプリから読み書きする手元専用の `/api/v1` は [API（Go）](/v1/) を見てください。2つは `internal/store`・`internal/workspace`・`internal/auth` を共有します。
 
@@ -73,7 +73,7 @@ Cookie で書き込むリクエストは、`Origin` がアプリの origin（`AU
 
 | 場所 | 内容 |
 |---|---|
-| `api/**/*.go` | Vercel の Go の関数。パスごとに1つで、すべて `server/vercel` の同じハンドラーを呼ぶ |
+| `api/index.go` | Vercel の Go の関数（1つだけ）。`vercel.json` の `rewrites` がバックエンドのパスをすべてここへ送り、`server/vercel` が元のパスで振り分ける |
 | `server/vercel` | 環境変数から `internal/web` を組み立てる。`/api/auth` はセッションの応答が DB を待たないよう、DB を開かずに組み立てる |
 | `server/cmd/typle-web` | 手元でこの API を起動するコマンド |
 | `server/internal/web` | HTTPハンドラー（`web.go` がパスの一覧） |
