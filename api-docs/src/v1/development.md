@@ -30,7 +30,7 @@ curl -H "Authorization: Bearer $TYPLE_TOKEN" -H 'Content-Type: application/json'
 | `server/internal/workspace` | 保存データの検証とリスト・記録・端末の変更 |
 | `server/internal/operation` | 記録の追加・変更・削除（アプリのAPIと共通） |
 | `server/internal/web` | アプリのバックエンドのHTTPハンドラー（[アプリのAPI](/app/)）。Cookie は `server/internal/session` で署名する |
-| `server/vercel` | `internal/web` を Vercel の Go の関数（リポジトリ直下の `api/*.go`）から呼ぶ橋渡し |
+| `server/vercel` | `internal/web` を Vercel の Go の関数（リポジトリ直下の `api/index.go`）から呼ぶ橋渡し |
 
 ## 開発
 

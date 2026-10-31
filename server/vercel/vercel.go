@@ -1,4 +1,4 @@
-// Package vercel builds the handler that the Vercel Go functions under api/ serve, and that server/cmd/typle-web serves
+// Package vercel builds the handler that the Vercel Go function api/index.go serves, and that server/cmd/typle-web serves
 // locally. It is outside server/internal because api/ at the repository root may not import internal packages.
 package vercel
 
