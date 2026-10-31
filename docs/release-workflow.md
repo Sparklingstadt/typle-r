@@ -91,6 +91,7 @@ DBの自動ロールバックは行いません。
 - Release作成失敗: デプロイは実行されません。
 - deploy失敗: 先に作成したReleaseは残ります。Releaseの存在だけでは本番反映成功を意味しません。
 - docs-deploy失敗: アプリの本番は更新済みです。Secretやトークンの権限を直し、同じ実行の`docs-deploy`を再実行します。手元から`wrangler`で公開しません。
+- GitHub の課金制限でジョブが起動しない（注釈が「The job was not started because recent account payments have failed or your spending limit needs to be increased」）: 例外として手動で公開します。verify と同じ検査を手元で行い、squash merge、Releaseの作成、Vercel本番デプロイと確認、API の文書の公開を同じ順序で行います。手順は `CLAUDE.md` の「Exception: GitHub Actions blocked by billing」を見てください。ほかの失敗では手動で公開しません。
 - 認証・通信などの一時的な問題: 原因を直して同じActions実行の失敗ジョブを再実行します。
   既存Releaseは非draft・非prerelease・同じタグ・同じSHAの場合だけ再利用します。
   タグを移動したり、同じバージョンを別コミットに使ったりしません。
