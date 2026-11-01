@@ -8,7 +8,10 @@
 -- workspace's revision moves on, so a screen that loaded it before saves only after reloading (409). Rows of lists that
 -- are no longer saved are dropped with the rest. It runs in one transaction and may be run again.
 BEGIN;
-LOCK TABLE typle_workspaces IN SHARE ROW EXCLUSIVE MODE;
+-- EXCLUSIVE, not SHARE ROW EXCLUSIVE: a save takes the row with SELECT ... FOR UPDATE before it writes, and that row
+-- lock does not wait for SHARE ROW EXCLUSIVE, so the script and the save would wait for each other (deadlock). This
+-- mode waits for the saves already started and holds back new ones until the end; reads go on.
+LOCK TABLE typle_workspaces IN EXCLUSIVE MODE;
 UPDATE typle_workspaces w SET lists = COALESCE((
     SELECT jsonb_agg(CASE WHEN moved.records IS NULL THEN l.value
       ELSE jsonb_set(l.value, '{records}', COALESCE(l.value -> 'records', '[]'::jsonb) || moved.records) END ORDER BY l.ordinality)
