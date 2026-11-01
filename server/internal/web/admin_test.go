@@ -300,6 +300,9 @@ func TestAdminSignout(t *testing.T) {
 	if response.Code != http.StatusNoContent || c == nil || c.MaxAge >= 0 || c.SameSite != http.SameSiteStrictMode {
 		t.Fatalf("signout = %d %+v", response.Code, c)
 	}
+	if relogin := findCookie(response, reloginCookie); relogin == nil || relogin.Value != "1" || relogin.MaxAge <= 0 {
+		t.Fatalf("relogin cookie = %+v", relogin)
+	}
 }
 
 // usersStore answers the user list and remembers the page it was asked for.

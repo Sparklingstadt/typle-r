@@ -86,8 +86,9 @@ func NewFFPF(issuer, clientID, clientSecret string) *FFPF {
 }
 
 // AuthorizeURL is where to send the browser to sign in. challenge is the S256 code challenge of the verifier later
-// given to Exchange, and nonce is the one Exchange will require in the ID token.
-func (f *FFPF) AuthorizeURL(state, challenge, nonce, redirectURI string) string {
+// given to Exchange, and nonce is the one Exchange will require in the ID token. With login, the portal asks for the
+// password even when the browser is still signed in to it (prompt=login).
+func (f *FFPF) AuthorizeURL(state, challenge, nonce, redirectURI string, login bool) string {
 	query := url.Values{
 		"client_id":             {f.ClientID},
 		"redirect_uri":          {redirectURI},
@@ -97,6 +98,9 @@ func (f *FFPF) AuthorizeURL(state, challenge, nonce, redirectURI string) string 
 		"nonce":                 {nonce},
 		"code_challenge":        {challenge},
 		"code_challenge_method": {"S256"},
+	}
+	if login {
+		query.Set("prompt", "login")
 	}
 	return f.Issuer + "/oauth/authorize?" + query.Encode()
 }
