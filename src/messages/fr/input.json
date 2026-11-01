@@ -10,6 +10,16 @@
     "label": "Utiliser la saisie simplifiée des caractères spéciaux",
     "hint": "Activée, vous pouvez saisir á → a, č → c, ш → sh et я → ya."
   },
+  "simpleTable": {
+    "heading": "Tableau de la saisie simplifiée",
+    "description": "Les touches que vous pouvez taper à la place de chaque lettre quand la saisie simplifiée des caractères spéciaux est activée.",
+    "latin": "Lettres latines avec signes",
+    "other": "Autres symboles",
+    "cyrillic": "Cyrillique (russe)",
+    "letter": "Lettre",
+    "key": "À taper",
+    "capitals": "Les majuscules fonctionnent de la même façon (Á → A, Ш → Sh ou SH)."
+  },
   "ignoreCase": {
     "heading": "Ignorer les majuscules et minuscules",
     "description": "Considère les majuscules et les minuscules, comme A et a, comme la même lettre. Taper avec ou sans Maj est accepté.",

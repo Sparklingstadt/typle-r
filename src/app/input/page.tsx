@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import InputSettings from '@/components/Settings/InputSettings'
+import SimpleInputTable from '@/components/Settings/SimpleInputTable'
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('input')
@@ -17,6 +18,7 @@ export default async function Input() {
     <div className="space-y-6">
       <InputSettings setting="simpleSpecial" />
       <InputSettings setting="ignoreCase" />
+      <SimpleInputTable />
     </div>
   </main>
 }
