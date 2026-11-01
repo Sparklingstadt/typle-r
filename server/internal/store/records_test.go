@@ -300,14 +300,9 @@ func TestRecordsRollback(t *testing.T) {
 		t.Fatal(err)
 	}
 	keptBefore, _, _ := row(t, conn, kept)
-	script, err := os.ReadFile(filepath.Join("..", "..", "..", "scripts", "records-rollback.sql"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	// The script locks typle_workspaces; this test's own rows are the only ones it changes that the test looks at.
-	if _, err := conn.Exec(ctx, string(script)); err != nil {
-		t.Fatal(err)
-	}
+	// The script changes every split workspace and empties typle_records, so it would change the rows of the tests
+	// running in other packages against the same database too; it is run inside a transaction rolled back at the end.
+	uncommitted(t, conn, rollbackScript(t))
 	if keys, split := tableRows(t, conn, moved); len(keys) != 0 || split {
 		t.Fatalf("rows after rollback = %v, %v", keys, split)
 	}
@@ -320,6 +315,71 @@ func TestRecordsRollback(t *testing.T) {
 	if keptAfter, _, _ := row(t, conn, kept); keptAfter != keptBefore {
 		t.Fatalf("unmoved lists = %s, were %s", keptAfter, keptBefore)
 	}
+}
+
+// The rollback script run while a save holds its row (lock, then UPDATE, as Modify does) waits for the save instead of
+// the two waiting for each other (deadlock), and both finish.
+func TestRecordsRollbackDuringSave(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	if _, err := s.WriteRevision(ctx, id, 0, Change{HasDevices: true}); err != nil {
+		t.Fatal(err)
+	}
+	save, err := conn.Begin(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer save.Rollback(ctx)
+	if _, err := save.Exec(ctx, `SELECT 1 FROM typle_workspaces WHERE owner_id = $1 FOR UPDATE`, id); err != nil {
+		t.Fatal(err)
+	}
+	_, scriptConn := database(t)
+	script := rollbackScript(t)
+	if _, err := scriptConn.Exec(ctx, "BEGIN"); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _, _ = scriptConn.Exec(ctx, "ROLLBACK") })
+	done := make(chan error, 1)
+	go func() {
+		_, err := scriptConn.Exec(ctx, script)
+		done <- err
+	}()
+	deadline := time.Now().Add(10 * time.Second)
+	for {
+		var waiting bool
+		if err := conn.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM pg_stat_activity WHERE pid = $1 AND wait_event_type = 'Lock')`,
+			scriptConn.PgConn().PID()).Scan(&waiting); err != nil {
+			t.Fatal(err)
+		}
+		if waiting {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("the script did not wait for the save")
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	if _, err := save.Exec(ctx, `UPDATE typle_workspaces SET revision = revision + 1 WHERE owner_id = $1`, id); err != nil {
+		t.Fatalf("save: %v", err)
+	}
+	if err := save.Commit(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if err := <-done; err != nil {
+		t.Fatalf("script: %v", err)
+	}
+}
+
+// rollbackScript is scripts/records-rollback.sql without its BEGIN and COMMIT, to run with uncommitted.
+func rollbackScript(t *testing.T) string {
+	t.Helper()
+	script, err := os.ReadFile(filepath.Join("..", "..", "..", "scripts", "records-rollback.sql"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return strings.TrimSuffix(strings.Replace(strings.TrimSpace(string(script)), "\nBEGIN;\n", "\n", 1), "\nCOMMIT;")
 }
 
 func sameLists(t *testing.T, got, want json.RawMessage) {
@@ -411,9 +471,8 @@ func TestDropLegacyMigration(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := conn.Exec(ctx, string(script)); err != nil {
-		t.Fatal(err)
-	}
+	// The script deletes any workspace in the old shape, so it is run inside a transaction rolled back at the end.
+	uncommitted(t, conn, string(script))
 	for name, row := range rows {
 		var workspaces, records, shares int
 		if err := conn.QueryRow(ctx, `SELECT (SELECT count(*) FROM typle_workspaces WHERE owner_id = $1),
@@ -493,4 +552,23 @@ func TestFollowedWordsNotSaved(t *testing.T) {
 		t.Fatal(err)
 	}
 	check(saved)
+}
+
+// uncommitted runs script on conn in a transaction that is rolled back when the test ends: the script's changes are
+// read on conn alone and never reach the other tests, which share the database (go test runs packages in parallel).
+// script must not end the transaction itself.
+func uncommitted(t *testing.T, conn *pgx.Conn, script string) {
+	t.Helper()
+	if strings.Contains(script, "BEGIN;") || strings.Contains(script, "COMMIT;") {
+		t.Fatalf("script ends the transaction itself:\n%s", script)
+	}
+	ctx := context.Background()
+	if _, err := conn.Exec(ctx, "BEGIN"); err != nil {
+		t.Fatal(err)
+	}
+	// Registered after database's Close, so it runs first.
+	t.Cleanup(func() { _, _ = conn.Exec(ctx, "ROLLBACK") })
+	if _, err := conn.Exec(ctx, script); err != nil {
+		t.Fatal(err)
+	}
 }
