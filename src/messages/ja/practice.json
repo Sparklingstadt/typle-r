@@ -23,12 +23,15 @@
     "restart": "最初からやり直す",
     "restartTitle": "最初からやり直す（Esc）",
     "restartShort": "やり直す",
-    "liveStats": "練習中の記録を表示"
+    "liveStats": "練習中の記録を表示",
+    "aside": "サイドパネル（単語リストとベスト記録）を表示"
   },
   "word": {
     "typeThis": "入力する文字",
     "resume": "クリックまたは任意のキーで再開",
-    "inputLabel": "表示された文字を入力"
+    "inputLabel": "表示された文字を入力",
+    "simpleKeys": "簡易入力",
+    "simpleKeysAll": "すべての対応表"
   },
   "upcoming": {
     "next": "次の単語",

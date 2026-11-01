@@ -23,12 +23,15 @@
     "restart": "Recommencer",
     "restartTitle": "Recommencer (Esc)",
     "restartShort": "Recommencer",
-    "liveStats": "Afficher les statistiques en direct"
+    "liveStats": "Afficher les statistiques en direct",
+    "aside": "Afficher le panneau latéral (listes de mots et meilleurs scores)"
   },
   "word": {
     "typeThis": "À saisir",
     "resume": "Cliquez ou appuyez sur une touche pour reprendre",
-    "inputLabel": "Saisissez le texte affiché"
+    "inputLabel": "Saisissez le texte affiché",
+    "simpleKeys": "Saisie simplifiée",
+    "simpleKeysAll": "Tableau complet"
   },
   "upcoming": {
     "next": "À suivre",

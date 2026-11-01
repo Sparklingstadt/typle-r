@@ -292,3 +292,11 @@ test('Cyrillic alternatives respect simple-input and case settings', () => {
   assert.equal(matchesCharacter('ya', 'я', { ignoreAccents: true }), true)
   assert.equal(matchesCharacter('п', 'p', { ignoreAccents: true }), false)
 })
+test('simpleInputKeys lists the characters simple input folds, once each, with their key', () => {
+  const { simpleInputKeys } = require('../src/core/typing.ts')
+  assert.deepEqual(simpleInputKeys('café crème'), [['é', 'e'], ['è', 'e']])
+  assert.deepEqual(simpleInputKeys('Шишка'), [['Ш', 'Sh'], ['и', 'i'], ['ш', 'sh'], ['к', 'k'], ['а', 'a']])
+  assert.deepEqual(simpleInputKeys('¿Straße?'), [['¿', '?'], ['ß', 'ss']])
+  // Plain letters, kana and letters without a plain base (ł) have nothing to show.
+  assert.deepEqual(simpleInputKeys('hello がか łódź'), [['ó', 'o'], ['ź', 'z']])
+})

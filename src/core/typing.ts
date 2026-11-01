@@ -66,6 +66,18 @@ function cyrillicAlternatives(target: string): string[] {
   return target === lower ? [latin] : [latin[0].toUpperCase() + latin.slice(1), latin.toUpperCase()]
 }
 
+// The characters of `text` that simple input lets you type with other keys, each once and in order, with the key to press:
+// [['é', 'e'], ['ш', 'sh']]. Capitals show their title case (Ш → Sh).
+export function simpleInputKeys(text: string): [string, string][] {
+  const keys = new Map<string, string>()
+  for (const char of Array.from(text)) {
+    if (keys.has(char)) continue
+    const key = char === 'ß' ? 'ss' : char === '¿' ? '?' : cyrillicAlternatives(char)[0] ?? latinBase(char)
+    if (key && key !== char) keys.set(char, key)
+  }
+  return [...keys]
+}
+
 export function matchesCharacter(typed: string, target: string, options: TypingOptions = {}) {
   if (options.ignoreCase) {
     typed = typed.toLowerCase()
