@@ -151,7 +151,7 @@ func (p *fakePortal) exchange() (FFPFUser, error) {
 
 func TestFFPFAuthorizeURL(t *testing.T) {
 	f := NewFFPF("https://portal.example/", "client-id", "client-secret")
-	raw := f.AuthorizeURL("the state", "the challenge", "the nonce", testRedirectURI)
+	raw := f.AuthorizeURL("the state", "the challenge", "the nonce", testRedirectURI, false)
 	if !strings.HasPrefix(raw, "https://portal.example/oauth/authorize?") {
 		t.Fatalf("url = %s", raw)
 	}
@@ -180,6 +180,13 @@ func TestFFPFAuthorizeURL(t *testing.T) {
 	}
 	if strings.Contains(raw, "client-secret") {
 		t.Error("the authorize URL has the client secret")
+	}
+	login, err := url.Parse(f.AuthorizeURL("the state", "the challenge", "the nonce", testRedirectURI, true))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := login.Query(); got.Get("prompt") != "login" || len(got) != len(want)+1 {
+		t.Errorf("query with login = %v", got)
 	}
 }
 

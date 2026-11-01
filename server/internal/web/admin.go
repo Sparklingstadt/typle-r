@@ -50,6 +50,7 @@ func (s *server) finishAdmin(w http.ResponseWriter, r *http.Request, user auth.F
 		return
 	}
 	value := s.config.Keys.SealAdmin(session.NewAdmin(email, user.Sub, s.now()))
+	http.SetCookie(w, s.relogin(-1))
 	http.SetCookie(w, s.adminCookie(value, int(session.AdminMaxAge.Seconds())))
 	goTo(w, adminPage)
 }
@@ -167,7 +168,8 @@ type adminUsersAnswer struct {
 	Users    []store.AdminUser `json:"users"`
 }
 
-// adminSignout forgets the administrator's cookie. Like signout, it needs the app's own Origin.
+// adminSignout forgets the administrator's cookie. Like signout, it needs the app's own Origin, and it marks the browser
+// the same way (reloginCookie).
 func (s *server) adminSignout(w http.ResponseWriter, r *http.Request) {
 	if !methods(w, r, http.MethodPost) {
 		return
@@ -177,5 +179,6 @@ func (s *server) adminSignout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.SetCookie(w, s.adminCookie("", -1))
+	http.SetCookie(w, s.relogin(int(session.MaxAge.Seconds())))
 	noContent(w)
 }
