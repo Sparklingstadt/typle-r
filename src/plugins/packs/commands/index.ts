@@ -86,6 +86,9 @@ import list82 from './chinese-hsk5-words-1.json'
 import list83 from './chinese-hsk5-words-2.json'
 import list84 from './chinese-hsk6-words-1.json'
 import list85 from './chinese-hsk6-words-2.json'
+import list86 from './postgresql-error-codes-beginner.json'
+import list87 from './postgresql-error-codes-intermediate.json'
+import list88 from './postgresql-error-codes-advanced.json'
 
 const commands: SavedWordList[] = [
   list0,
@@ -174,6 +177,9 @@ const commands: SavedWordList[] = [
   list83,
   list84,
   list85,
+  list86,
+  list87,
+  list88,
 ].map(list => ({
   ...list,
   words: list.words.map(word => {

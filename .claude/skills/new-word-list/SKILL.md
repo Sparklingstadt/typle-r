@@ -122,6 +122,7 @@ node $S check <ファイル>...
      - リストを分けたときは、`grouped.length` の数も直します。
      - 語学以外のリストは、input が ASCII であることなどを確かめる規則に従います。従えないときは、その規則の例外一覧（`japanese` や `leveled` など）に足します。
    - `tests/packCatalog.test.cjs`：`official.length`（公式パックの数）
+   - `tests/e2e/interests.spec.ts`：「every interest is picked at first…」の `toHaveCount`（公式パックの数。2か所）
    - `tests/listGroups.test.cjs`：`entries.length` と `groups.length`
    - `server/internal/workspace/follow_test.go`：`len(official)` とリストの数 `count`、そのコメント
    - 新しいパックの構成（パック名、カテゴリー、タグ、リストの id と levels、語数）を確かめるテストを足します。語学なら `tests/languagePacks.test.cjs` に置きます。
