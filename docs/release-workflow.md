@@ -47,7 +47,7 @@ squash限定とproduction Environmentのmain限定は利用できます。
 現プランではmainへの直接push自体は防げませんが、policyでRelease・deployを拒否します。
 GitHub Proへ変更した場合は、上記のmain保護ルールを追加してください。
 CI用Vercelトークンは90日期限で作成しています。期限前にSecretを更新してください。
-本番ビルドのNode.jsはVercelプロジェクトと同じ24系を使います。
+本番ビルドのNode.jsは24系です。`package.json` の `engines` を `"24.x"` に固定しています（v2.5.9 から）。`">=24.0.0"` のような上限のない指定では、Vercel が新しいメジャー版（26系）を自動で選び、CI の verify（24系）と食い違うためです。
 
 ## 毎回の開発
 
