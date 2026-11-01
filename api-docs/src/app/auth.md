@@ -14,7 +14,7 @@
 |---|---|
 | `provider` | `github`（既定）か `ffpf` |
 | `returnTo` | ログイン後に戻るアプリ内のパス（既定 `/home`）。サイト内のパスでなければ既定にする |
-| `client`・`code_challenge` | アプリのログイン。`client` は `ipad`・`macos`・`android`・`windows`、`code_challenge` はアプリが作った S256 のチャレンジ（43文字） |
+| `client`・`code_challenge` | アプリのログイン。`client` は `ipad`・`macos`・`android`・`windows`（Android 版・Windows 版はアーカイブ済みですが、受け付けます）、`code_challenge` はアプリが作った S256 のチャレンジ（43文字） |
 | `admin=1` | 管理画面のログイン。`provider` によらず FFPF ID を通り、必ず `/admin` に戻る |
 
 ログインの途中の状態（state・verifier・戻り先など）を署名した Cookie `typle-oauth`（`Path=/api/auth`、10分）に入れ、GitHub か FFPF ID へリダイレクト（`302`）します。そのログイン方法の設定がなければ `503 authUnavailable` です。
