@@ -10,6 +10,16 @@
     "label": "使用特殊字符简易输入",
     "hint": "开启后，可以输入 á → a、č → c、ш → sh、я → ya。"
   },
+  "simpleTable": {
+    "heading": "简易输入对照表",
+    "description": "开启特殊字符简易输入后，可以代替各个字母输入的按键。",
+    "latin": "带符号的拉丁字母",
+    "other": "其他符号",
+    "cyrillic": "西里尔字母（俄语）",
+    "letter": "字母",
+    "key": "输入的按键",
+    "capitals": "大写字母也同样适用（Á → A，Ш → Sh 或 SH）。"
+  },
   "ignoreCase": {
     "heading": "不区分大小写",
     "description": "将 A 和 a 这样的大写和小写字母视为同一个字母。无论是否按 Shift 键输入都算正确。",

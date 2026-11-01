@@ -46,12 +46,12 @@ export type TypingOptions = {
 
 // A Latin letter with its accents and other marks taken off, or null for anything else. Only Latin letters are folded:
 // kana such as が also split into a base and a mark, and か must not count for it.
-function latinBase(char: string) {
+export function latinBase(char: string) {
   const base = char.normalize('NFD').replace(/\p{M}/gu, '')
   return /^\p{Script=Latin}$/u.test(base) ? base : null
 }
 
-const cyrillicLatin: Record<string, string> = {
+export const cyrillicLatin: Readonly<Record<string, string>> = {
   а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'yo', ж: 'zh', з: 'z',
   и: 'i', й: 'y', к: 'k', л: 'l', м: 'm', н: 'n', о: 'o', п: 'p', р: 'r',
   с: 's', т: 't', у: 'u', ф: 'f', х: 'kh', ц: 'ts', ч: 'ch', ш: 'sh', щ: 'shch',

@@ -10,6 +10,16 @@
     "label": "Use simple special-character input",
     "hint": "When on, you can type á → a, č → c, ш → sh and я → ya."
   },
+  "simpleTable": {
+    "heading": "Simple input reference",
+    "description": "The keys you can type instead of each letter when simple special-character input is on.",
+    "latin": "Latin letters with marks",
+    "other": "Other symbols",
+    "cyrillic": "Cyrillic (Russian)",
+    "letter": "Letter",
+    "key": "Type",
+    "capitals": "Capitals work the same way (Á → A, Ш → Sh or SH)."
+  },
   "ignoreCase": {
     "heading": "Ignore upper and lower case",
     "description": "Treats upper and lower case, such as A and a, as the same letter. Typing with or without Shift is correct either way.",
