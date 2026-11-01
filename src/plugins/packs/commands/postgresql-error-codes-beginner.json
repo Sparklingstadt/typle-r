@@ -1,0 +1,257 @@
+{
+  "id": "postgresql-error-codes-beginner",
+  "name": "PostgreSQLエラーコード（初級）",
+  "category": "プログラミング",
+  "tags": [
+    "PostgreSQL",
+    "SQL"
+  ],
+  "group": "PostgreSQLエラーコード",
+  "levels": [
+    "初級"
+  ],
+  "words": [
+    {
+      "display": "warning",
+      "input": "warning",
+      "annotation": "01000：警告",
+      "input_type": "word"
+    },
+    {
+      "display": "no_data",
+      "input": "no_data",
+      "annotation": "02000：対象のデータがない",
+      "input_type": "word"
+    },
+    {
+      "display": "io_error",
+      "input": "io_error",
+      "annotation": "58030：入出力エラー",
+      "input_type": "word"
+    },
+    {
+      "display": "disk_full",
+      "input": "disk_full",
+      "annotation": "53100：ディスクがいっぱい",
+      "input_type": "word"
+    },
+    {
+      "display": "fdw_error",
+      "input": "fdw_error",
+      "annotation": "HV000：外部データラッパーのエラー",
+      "input_type": "word"
+    },
+    {
+      "display": "syntax_error",
+      "input": "syntax_error",
+      "annotation": "42601：構文エラー",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_name",
+      "input": "invalid_name",
+      "annotation": "42602：名前が不正",
+      "input_type": "word"
+    },
+    {
+      "display": "system_error",
+      "input": "system_error",
+      "annotation": "58000：システムエラー",
+      "input_type": "word"
+    },
+    {
+      "display": "cannot_coerce",
+      "input": "cannot_coerce",
+      "annotation": "42846：型を変換できない",
+      "input_type": "word"
+    },
+    {
+      "display": "reserved_name",
+      "input": "reserved_name",
+      "annotation": "42939：予約された名前",
+      "input_type": "word"
+    },
+    {
+      "display": "plpgsql_error",
+      "input": "plpgsql_error",
+      "annotation": "P0000：PL/pgSQLのエラー",
+      "input_type": "word"
+    },
+    {
+      "display": "data_exception",
+      "input": "data_exception",
+      "annotation": "22000：データの例外",
+      "input_type": "word"
+    },
+    {
+      "display": "name_too_long",
+      "input": "name_too_long",
+      "annotation": "42622：名前が長すぎる",
+      "input_type": "word"
+    },
+    {
+      "display": "grouping_error",
+      "input": "grouping_error",
+      "annotation": "42803：GROUP BYにない列を参照した",
+      "input_type": "word"
+    },
+    {
+      "display": "out_of_memory",
+      "input": "out_of_memory",
+      "annotation": "53200：メモリが足りない",
+      "input_type": "word"
+    },
+    {
+      "display": "object_in_use",
+      "input": "object_in_use",
+      "annotation": "55006：オブジェクトが使用中",
+      "input_type": "word"
+    },
+    {
+      "display": "query_canceled",
+      "input": "query_canceled",
+      "annotation": "57014：問い合わせを取り消した（statement_timeoutなど）",
+      "input_type": "word"
+    },
+    {
+      "display": "admin_shutdown",
+      "input": "admin_shutdown",
+      "annotation": "57P01：管理者の指示でサーバーを停止",
+      "input_type": "word"
+    },
+    {
+      "display": "crash_shutdown",
+      "input": "crash_shutdown",
+      "annotation": "57P02：クラッシュによる停止",
+      "input_type": "word"
+    },
+    {
+      "display": "undefined_file",
+      "input": "undefined_file",
+      "annotation": "58P01：ファイルが存在しない",
+      "input_type": "word"
+    },
+    {
+      "display": "no_data_found",
+      "input": "no_data_found",
+      "annotation": "P0002：SELECT INTO STRICTで行が見つからない",
+      "input_type": "word"
+    },
+    {
+      "display": "too_many_rows",
+      "input": "too_many_rows",
+      "annotation": "P0003：SELECT INTO STRICTで複数行が返った",
+      "input_type": "word"
+    },
+    {
+      "display": "assert_failure",
+      "input": "assert_failure",
+      "annotation": "P0004：ASSERTの失敗",
+      "input_type": "word"
+    },
+    {
+      "display": "internal_error",
+      "input": "internal_error",
+      "annotation": "XX000：内部エラー",
+      "input_type": "word"
+    },
+    {
+      "display": "data_corrupted",
+      "input": "data_corrupted",
+      "annotation": "XX001：データが壊れている",
+      "input_type": "word"
+    },
+    {
+      "display": "case_not_found",
+      "input": "case_not_found",
+      "annotation": "20000：CASE文で一致する分岐がない（PL/pgSQL）",
+      "input_type": "word"
+    },
+    {
+      "display": "check_violation",
+      "input": "check_violation",
+      "annotation": "23514：CHECK制約違反",
+      "input_type": "word"
+    },
+    {
+      "display": "duplicate_alias",
+      "input": "duplicate_alias",
+      "annotation": "42712：別名が重複している",
+      "input_type": "word"
+    },
+    {
+      "display": "undefined_table",
+      "input": "undefined_table",
+      "annotation": "42P01：テーブルが存在しない",
+      "input_type": "word"
+    },
+    {
+      "display": "duplicate_table",
+      "input": "duplicate_table",
+      "annotation": "42P07：テーブルがすでに存在する",
+      "input_type": "word"
+    },
+    {
+      "display": "windowing_error",
+      "input": "windowing_error",
+      "annotation": "42P20：ウィンドウ関数の使い方が不正",
+      "input_type": "word"
+    },
+    {
+      "display": "raise_exception",
+      "input": "raise_exception",
+      "annotation": "P0001：RAISE EXCEPTIONで発生させたエラー",
+      "input_type": "word"
+    },
+    {
+      "display": "index_corrupted",
+      "input": "index_corrupted",
+      "annotation": "XX002：インデックスが壊れている",
+      "input_type": "word"
+    },
+    {
+      "display": "unique_violation",
+      "input": "unique_violation",
+      "annotation": "23505：一意制約違反（値が重複した）",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_password",
+      "input": "invalid_password",
+      "annotation": "28P01：パスワードが違う",
+      "input_type": "word"
+    },
+    {
+      "display": "duplicate_column",
+      "input": "duplicate_column",
+      "annotation": "42701：列名が重複している",
+      "input_type": "word"
+    },
+    {
+      "display": "ambiguous_column",
+      "input": "ambiguous_column",
+      "annotation": "42702：列名があいまい（複数のテーブルにある）",
+      "input_type": "word"
+    },
+    {
+      "display": "undefined_column",
+      "input": "undefined_column",
+      "annotation": "42703：列が存在しない",
+      "input_type": "word"
+    },
+    {
+      "display": "undefined_object",
+      "input": "undefined_object",
+      "annotation": "42704：オブジェクトが存在しない",
+      "input_type": "word"
+    },
+    {
+      "display": "duplicate_object",
+      "input": "duplicate_object",
+      "annotation": "42710：オブジェクトがすでに存在する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-01T00:00:00.000Z"
+}
