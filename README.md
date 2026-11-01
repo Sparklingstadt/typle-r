@@ -26,8 +26,8 @@
 | typle-r（このリポジトリ） | Web 版（Next.js）、Go のバックエンドと API（`server/`） |
 | [typle-ipad](https://github.com/Sparklingstadt/typle-ipad) | iPad 版（SwiftUI） |
 | [typle-m](https://github.com/Sparklingstadt/typle-m) | Mac 版（SwiftUI） |
-| [typle-w](https://github.com/Sparklingstadt/typle-w) | Windows 11 版（C#・WinUI 3） |
-| [typle-a](https://github.com/Sparklingstadt/typle-a) | Android タブレット版（Kotlin・Jetpack Compose） |
+| [typle-w](https://github.com/Sparklingstadt/typle-w) | Windows 11 版（C#・WinUI 3）。v2.6.9 でアーカイブし、開発を止めました |
+| [typle-a](https://github.com/Sparklingstadt/typle-a) | Android タブレット版（Kotlin・Jetpack Compose）。v2.6.9 でアーカイブし、開発を止めました |
 | [typle-kotlin-backend](https://github.com/Sparklingstadt/typle-kotlin-backend) | Go のバックエンドと同じ API の Kotlin（Ktor）版。手元の開発と E2E で Go の代わりに使います（本番には載せません） |
 
 どのアプリも、このリポジトリの Go のバックエンド（本番は `https://typle-r-six.vercel.app`）に同じ GitHub ログインでつなぎます。ほかのリポジトリは、このリポジトリのコードやデータの写しや対応する実装を持っています。ここを変えたら、合わせて直してください。
@@ -36,7 +36,8 @@
 - 共通の fixture：typle-kotlin-backend の `src/test/resources` に、`tests/fixtures` の `follow/`・`packs/`・`pack-file/` の一部と `default-interests.json` の写しがあります。変えたら写して `./gradlew test` で確かめます。
 - iPad 版と Mac 版：typle-m の `Shared/`・`TypleCore/` は typle-ipad の `Typle/`・`TypleCore/` の v0.86.1 時点の写しで、自動では入りません。両方に必要な変更は、それぞれのリポジトリで同じように直します。
 - Go のバックエンド（`server/internal/*`）：typle-kotlin-backend の対応するコードを同じように直し、`TYPLE_BACKEND=kotlin npm run test:e2e` で確かめます。
-- ログイン（`client=ipad|macos|android|windows`）とトークンの形：各アプリが使うので、互換を保ちます。
+- ログイン（`client=ipad|macos|android|windows`）とトークンの形：各アプリが使うので、互換を保ちます。アーカイブした Android 版・Windows 版も、入っているアプリがそのままログインできるよう `android`・`windows` を受け付け続けます。
+- アーカイブした typle-w・typle-a は、このリポジトリを変えても直しません。
 
 ## 開発環境のセットアップ
 
@@ -132,6 +133,8 @@ API（`server/`）はNext.jsとは独立したGoのコードで、モジュー�
 | `server/internal/serve` | `typle-web` と `typle-api` の待受です。止めるとき（SIGINT・SIGTERM）は、処理中のリクエストが終わるまで最大5秒待ってから DB を閉じます |
 
 ### iPad と Mac と Android と Windows のログイン
+
+Android 版（typle-a）と Windows 版（typle-w）は v2.6.9 でアーカイブしました。サーバーは今も `client=android`・`windows` を受け付けます。この節の Android・Windows の動作は、アーカイブした時点のものです。
 
 iPad アプリ（[typle-ipad](https://github.com/Sparklingstadt/typle-ipad) リポジトリ）・Mac アプリ（[typle-m](https://github.com/Sparklingstadt/typle-m) リポジトリ）・Android アプリ（[typle-a](https://github.com/Sparklingstadt/typle-a) リポジトリ）・Windows アプリ（[typle-w](https://github.com/Sparklingstadt/typle-w) リポジトリ）は、Web版と同じ GitHub OAuth App でログインし、Cookie の代わりにトークンを使います（RFC 8252 のネイティブアプリの形）。サーバーの側は `client` が `ipad`・`macos`・`android`・`windows` のどれかだけが違い、流れは同じです。
 
