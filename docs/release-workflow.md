@@ -64,11 +64,14 @@ CI用Vercelトークンは90日期限で作成しています。期限前にSecr
 7. 同じSHAをチェックアウトし、ReleaseのタグのSHAを再確認します。
    Vercel CLI 60.1.3の`vercel deploy --prod`でソースを送り、Vercel内で本番ビルド・デプロイします。
    CLIはバージョンごとにmainのキャッシュに保存します。版を上げるときは`ci.yml`の`VERCEL_CLI_VERSION`だけを変えます。
-   CLIはインストールスクリプトを実行せずに入れ、`VERCEL_TOKEN`はSecretの確認とデプロイの手順だけに渡します。
+   CLIはインストールスクリプトを実行せずに入れ、`VERCEL_TOKEN`はSecretの確認、デプロイ、次の待機の手順だけに渡します。
    読み出し不可のSecretが`[SENSITIVE]`になるため、Actionsでは`vercel pull`・`vercel build`を行いません。
 8. 本番のドメインが新しいデプロイを返すまで待ちます（v0.56.1 から）。`vercel deploy --prod` は、ドメインがまだ前のデプロイを返しているうちに終わることがあり、
-   前のデプロイにもあるパスは同じ応答になるため、そのままでは確認が新しいデプロイを見ません。デプロイ前に本番の `/home` が示すデプロイ（`data-dpl-id`）を記録し、
-   それと違うデプロイを返すまで5秒ごとに最大5分待ちます。変わらなければ失敗します。
+   前のデプロイにもあるパスは同じ応答になるため、そのままでは確認が新しいデプロイを見ません。Vercel の API
+   （`GET /v13/deployments/typle-r-six.vercel.app`）で本番のドメインが指すデプロイを調べ、`vercel deploy` が返したデプロイの URL と
+   一致するまで5秒ごとに最大5分待ちます。一致しなければ失敗します。v2.5.10 より前は本番の `/home` の `data-dpl-id` で比べていましたが、
+   Next.js がこの属性を書くのは Skew Protection が有効なときだけで、このプロジェクトでは書かれなくなっていたため、
+   v2.5.8 の deploy がここで失敗しました（デプロイ自体は成功していました）。
    その後、本番ホームの成功応答、Goの関数が返す`/api/health`の200（本番DBへの接続を含む）、匿名APIアクセスの401を確認します。
    ログインの関数も確認します。`/api/auth/session`が200で、本文の`user`が`null`、`providers`が`"github"`を含む配列であること（FFPF IDを設定している場合は`"ffpf"`も入りますが、確認はしません）、
    `/api/auth/signin`がリダイレクトを辿らずに302を返し、`Location`が`https://github.com/login/oauth/authorize?`で始まり
