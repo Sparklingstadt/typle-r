@@ -60,10 +60,10 @@ test('every interest is picked at first, so every official pack is listed and ma
     await expect(page.getByRole('button', { name, exact: true })).toHaveAttribute('aria-pressed', 'true')
   }
   const section = page.getByRole('region', { name: '関心に合う公式パック' })
-  await expect(section.locator('li[data-catalog-id]')).toHaveCount(40)
+  await expect(section.locator('li[data-catalog-id]')).toHaveCount(41)
   for (const toggle of await section.getByRole('switch').all()) await expect(toggle).not.toBeChecked()
   await page.goto('/packs/catalog')
-  await expect(page.getByRole('region', { name: '関心に合うパック' }).locator('li[data-catalog-id]')).toHaveCount(40)
+  await expect(page.getByRole('region', { name: '関心に合うパック' }).locator('li[data-catalog-id]')).toHaveCount(41)
   await expect(page.getByRole('region', { name: 'そのほかのパック' })).toHaveCount(0)
 })
 

@@ -84,5 +84,8 @@
   "chinese-hsk5-words-1.json",
   "chinese-hsk5-words-2.json",
   "chinese-hsk6-words-1.json",
-  "chinese-hsk6-words-2.json"
+  "chinese-hsk6-words-2.json",
+  "postgresql-error-codes-beginner.json",
+  "postgresql-error-codes-intermediate.json",
+  "postgresql-error-codes-advanced.json"
 ]

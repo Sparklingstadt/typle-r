@@ -1,0 +1,257 @@
+{
+  "id": "postgresql-error-codes-intermediate",
+  "name": "PostgreSQLエラーコード（中級）",
+  "category": "プログラミング",
+  "tags": [
+    "PostgreSQL",
+    "SQL"
+  ],
+  "group": "PostgreSQLエラーコード",
+  "levels": [
+    "中級"
+  ],
+  "words": [
+    {
+      "display": "generated_always",
+      "input": "generated_always",
+      "annotation": "428C9：GENERATED ALWAYSの列に値を入れた",
+      "input_type": "word"
+    },
+    {
+      "display": "duplicate_schema",
+      "input": "duplicate_schema",
+      "annotation": "42P06：スキーマがすでに存在する",
+      "input_type": "word"
+    },
+    {
+      "display": "database_dropped",
+      "input": "database_dropped",
+      "annotation": "57P04：データベースが削除された",
+      "input_type": "word"
+    },
+    {
+      "display": "division_by_zero",
+      "input": "division_by_zero",
+      "annotation": "22012：0で割った",
+      "input_type": "word"
+    },
+    {
+      "display": "deadlock_detected",
+      "input": "deadlock_detected",
+      "annotation": "40P01：デッドロックを検出した",
+      "input_type": "word"
+    },
+    {
+      "display": "datatype_mismatch",
+      "input": "datatype_mismatch",
+      "annotation": "42804：データ型が合わない",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_recursion",
+      "input": "invalid_recursion",
+      "annotation": "42P19：再帰の使い方が不正",
+      "input_type": "word"
+    },
+    {
+      "display": "too_many_columns",
+      "input": "too_many_columns",
+      "annotation": "54011：列が多すぎる",
+      "input_type": "word"
+    },
+    {
+      "display": "lock_file_exists",
+      "input": "lock_file_exists",
+      "annotation": "F0001：ロックファイルがすでにある",
+      "input_type": "word"
+    },
+    {
+      "display": "deprecated_feature",
+      "input": "deprecated_feature",
+      "annotation": "01P01：非推奨の機能を使った（警告）",
+      "input_type": "word"
+    },
+    {
+      "display": "connection_failure",
+      "input": "connection_failure",
+      "annotation": "08006：接続の失敗",
+      "input_type": "word"
+    },
+    {
+      "display": "protocol_violation",
+      "input": "protocol_violation",
+      "annotation": "08P01：プロトコル違反",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_json_text",
+      "input": "invalid_json_text",
+      "annotation": "22032：JSONのテキストが不正",
+      "input_type": "word"
+    },
+    {
+      "display": "restrict_violation",
+      "input": "restrict_violation",
+      "annotation": "23001：RESTRICTの外部キーで削除・更新を拒否",
+      "input_type": "word"
+    },
+    {
+      "display": "duplicate_function",
+      "input": "duplicate_function",
+      "annotation": "42723：関数がすでに存在する",
+      "input_type": "word"
+    },
+    {
+      "display": "ambiguous_function",
+      "input": "ambiguous_function",
+      "annotation": "42725：関数の呼び出しがあいまい",
+      "input_type": "word"
+    },
+    {
+      "display": "wrong_object_type",
+      "input": "wrong_object_type",
+      "annotation": "42809：オブジェクトの種類が違う",
+      "input_type": "word"
+    },
+    {
+      "display": "undefined_function",
+      "input": "undefined_function",
+      "annotation": "42883：関数が存在しない（引数の型が合わない）",
+      "input_type": "word"
+    },
+    {
+      "display": "duplicate_database",
+      "input": "duplicate_database",
+      "annotation": "42P04：データベースがすでに存在する",
+      "input_type": "word"
+    },
+    {
+      "display": "collation_mismatch",
+      "input": "collation_mismatch",
+      "annotation": "42P21：照合順序が合わない",
+      "input_type": "word"
+    },
+    {
+      "display": "config_file_error",
+      "input": "config_file_error",
+      "annotation": "F0000：設定ファイルのエラー",
+      "input_type": "word"
+    },
+    {
+      "display": "not_null_violation",
+      "input": "not_null_violation",
+      "annotation": "23502：NOT NULL制約違反",
+      "input_type": "word"
+    },
+    {
+      "display": "exclusion_violation",
+      "input": "exclusion_violation",
+      "annotation": "23P01：排他制約違反",
+      "input_type": "word"
+    },
+    {
+      "display": "too_many_arguments",
+      "input": "too_many_arguments",
+      "annotation": "54023：引数が多すぎる",
+      "input_type": "word"
+    },
+    {
+      "display": "lock_not_available",
+      "input": "lock_not_available",
+      "annotation": "55P03：ロックを取れない（NOWAITなど）",
+      "input_type": "word"
+    },
+    {
+      "display": "cannot_connect_now",
+      "input": "cannot_connect_now",
+      "annotation": "57P03：今は接続できない（起動中など）",
+      "input_type": "word"
+    },
+    {
+      "display": "connection_exception",
+      "input": "connection_exception",
+      "annotation": "08000：接続の例外",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_cursor_name",
+      "input": "invalid_cursor_name",
+      "annotation": "34000：カーソル名が不正",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_schema_name",
+      "input": "invalid_schema_name",
+      "annotation": "3F000：スキーマが存在しない",
+      "input_type": "word"
+    },
+    {
+      "display": "transaction_rollback",
+      "input": "transaction_rollback",
+      "annotation": "40000：トランザクションのロールバック",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_foreign_key",
+      "input": "invalid_foreign_key",
+      "annotation": "42830：外部キーの定義が不正",
+      "input_type": "word"
+    },
+    {
+      "display": "successful_completion",
+      "input": "successful_completion",
+      "annotation": "00000：正常終了",
+      "input_type": "word"
+    },
+    {
+      "display": "cardinality_violation",
+      "input": "cardinality_violation",
+      "annotation": "21000：1行を返すべき副問い合わせが複数行を返した",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_cursor_state",
+      "input": "invalid_cursor_state",
+      "annotation": "24000：カーソルの状態が不正",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_catalog_name",
+      "input": "invalid_catalog_name",
+      "annotation": "3D000：データベースが存在しない",
+      "input_type": "word"
+    },
+    {
+      "display": "serialization_failure",
+      "input": "serialization_failure",
+      "annotation": "40001：直列化の失敗（再試行する）",
+      "input_type": "word"
+    },
+    {
+      "display": "too_many_connections",
+      "input": "too_many_connections",
+      "annotation": "53300：接続数が多すぎる",
+      "input_type": "word"
+    },
+    {
+      "display": "operator_intervention",
+      "input": "operator_intervention",
+      "annotation": "57000：管理者の介入",
+      "input_type": "word"
+    },
+    {
+      "display": "idle_session_timeout",
+      "input": "idle_session_timeout",
+      "annotation": "57P05：アイドル時間切れで切断",
+      "input_type": "word"
+    },
+    {
+      "display": "feature_not_supported",
+      "input": "feature_not_supported",
+      "annotation": "0A000：対応していない機能",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-01T00:00:00.000Z"
+}

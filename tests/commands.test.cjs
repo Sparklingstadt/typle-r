@@ -70,6 +70,25 @@ test('Go has one official pack with only its three difficulty lists', () => {
   assert.ok(!commands.some(list => list.id === 'go-syntax'))
 })
 
+test('PostgreSQL error codes have one official pack of three lists that type the condition names', () => {
+  const { officialLibrary } = require('../src/plugins/packs/index.ts')
+  const pack = officialLibrary.packs.find(item => item.name === 'PostgreSQLエラーコード')
+  assert.ok(pack)
+  assert.equal(pack.category, 'プログラミング')
+  assert.deepEqual(pack.tags, ['PostgreSQL', 'SQL'])
+  const lists = officialLibrary.lists.filter(list => list.packId === pack.id)
+  assert.deepEqual(lists.map(list => list.id), ['postgresql-error-codes-beginner', 'postgresql-error-codes-intermediate', 'postgresql-error-codes-advanced'])
+  assert.deepEqual(lists.map(list => list.levels), [['初級'], ['中級'], ['上級']])
+  const all = lists.flatMap(list => list.words)
+  assert.equal(all.length, 120)
+  assert.equal(new Set(all.map(word => word.input)).size, 120)
+  // The display is the condition name; the annotation opens with its five-character SQLSTATE code.
+  assert.ok(all.every(word => word.input_type === 'word' && word.display === word.input && /^[a-z0-9_]+$/.test(word.input) &&
+    /^[0-9A-Z]{5}：/.test(word.annotation)))
+  assert.equal(all.find(word => word.input === 'unique_violation').annotation, '23505：一意制約違反（値が重複した）')
+  assert.equal(all.find(word => word.input === 'raise_exception').annotation, 'P0001：RAISE EXCEPTIONで発生させたエラー')
+})
+
 test('the initial lists decode in Typle with their own ids and names', () => {
   const lists = decodeLists(JSON.stringify({ version: 1, lists: commands }))
   assert.deepEqual(require('../src/plugins/packs/samples.json'), [])
@@ -88,6 +107,7 @@ test('the initial lists decode in Typle with their own ids and names', () => {
     ['russian-basic-words', [40]], ['russian-basic-syntax', [40]], ['russian-intermediate-words', [40]], ['russian-intermediate-syntax', [40]],
     ['czech-intermediate-words', [40]], ['czech-intermediate-syntax', [40]],
     ['chinese-hsk5-words-1', [40]], ['chinese-hsk5-words-2', [40]], ['chinese-hsk6-words-1', [40]], ['chinese-hsk6-words-2', [40]],
+    ['postgresql-error-codes', [40, 40, 40]],
   ])
   assert.equal(lists.length, commands.length)
   const { initialLists } = require('../src/plugins/packs/index.ts')
@@ -110,7 +130,7 @@ test('a list split into parts has the fewest parts of at most 40, from the easie
   const labels = { 2: ['初級', '上級'], 3: ['初級', '中級', '上級'], 4: ['初級', '中級1', '中級2', '上級'], 5: ['初級1', '初級2', '中級', '上級1', '上級2'] }
   const grouped = [...new Set(initialLists.map(list => source(list.id)))]
     .map(id => initialLists.filter(list => list.id !== id && source(list.id) === id)).filter(group => group.length > 1)
-  assert.equal(grouped.length, 17)
+  assert.equal(grouped.length, 18)
   for (const group of grouped) {
     const total = group.reduce((sum, list) => sum + list.words.length, 0)
     assert.equal(group.length, Math.max(Math.ceil(total / 40), leveled.includes(source(group[0].id)) ? 3 : 1), group[0].id)
