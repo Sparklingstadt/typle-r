@@ -42,7 +42,7 @@
 
 ### Dockerでの仮運用
 
-Node.js 24以上、npm、Go 1.25以上、Docker Composeを使用します。
+Node.js 24（`package.json` の `engines` で24系に固定）、npm、Go 1.25以上、Docker Composeを使用します。
 
 ```sh
 npm ci
