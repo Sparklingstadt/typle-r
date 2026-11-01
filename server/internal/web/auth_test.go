@@ -49,6 +49,7 @@ func (f *fakeUsers) User(context.Context, string) (auth.User, error) {
 // fakeFFPF stands in for FFPF ID: it remembers what the handler gave it, and answers user or err.
 type fakeFFPF struct {
 	state, challenge, nonce, redirectURI string
+	login                                bool
 	exchanges                            int
 	code, verifier, exchangeURI          string
 	exchangeNonce                        string
@@ -56,8 +57,8 @@ type fakeFFPF struct {
 	err                                  error
 }
 
-func (f *fakeFFPF) AuthorizeURL(state, challenge, nonce, redirectURI string) string {
-	f.state, f.challenge, f.nonce, f.redirectURI = state, challenge, nonce, redirectURI
+func (f *fakeFFPF) AuthorizeURL(state, challenge, nonce, redirectURI string, login bool) string {
+	f.state, f.challenge, f.nonce, f.redirectURI, f.login = state, challenge, nonce, redirectURI, login
 	return "https://id.test/oauth/authorize?state=" + url.QueryEscape(state)
 }
 
@@ -487,6 +488,11 @@ func TestSignout(t *testing.T) {
 	cleared := findCookie(response, "typle-session")
 	if cleared == nil || cleared.Value != "" || cleared.MaxAge >= 0 || cleared.Path != "/" || !cleared.HttpOnly {
 		t.Fatalf("cookie = %+v", cleared)
+	}
+	relogin := findCookie(response, reloginCookie)
+	if relogin == nil || relogin.Value != "1" || relogin.MaxAge != 30*24*60*60 || relogin.Path != "/api/auth" ||
+		!relogin.HttpOnly || relogin.SameSite != http.SameSiteLaxMode {
+		t.Fatalf("relogin cookie = %+v", relogin)
 	}
 }
 

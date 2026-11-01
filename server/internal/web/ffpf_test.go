@@ -70,6 +70,42 @@ func TestFFPFSignin(t *testing.T) {
 	}
 }
 
+// A browser that signed out asks FFPF ID for the password on its next login (prompt=login), whether it then signs in to
+// the app or to the dashboard, and only until it signs in with FFPF ID. One that did not sign out does not.
+func TestFFPFSigninAfterSignout(t *testing.T) {
+	h := newLoginHarness(t, testBase, false)
+	h.ffpfSignin(t, "")
+	if h.ffpf.login {
+		t.Fatal("prompt=login without a signout")
+	}
+	signedOut := withCookie(&http.Cookie{Name: reloginCookie, Value: "1"})
+	for _, query := range []string{"?provider=ffpf", "?admin=1"} {
+		h.ffpf.login = false
+		h.do(http.MethodGet, "/api/auth/signin"+query, signedOut)
+		if !h.ffpf.login {
+			t.Fatalf("%s: no prompt=login after a signout", query)
+		}
+	}
+	h.do(http.MethodGet, "/api/auth/signin", signedOut)
+	if h.oauth.state == "" {
+		t.Fatal("GitHub was not asked")
+	}
+
+	cookie, opened := h.ffpfSignin(t, "")
+	response := h.do(http.MethodGet, "/api/auth/callback/ffpf?code=the-code&state="+url.QueryEscape(opened.State),
+		withCookie(cookie), signedOut)
+	if cleared := findCookie(response, reloginCookie); cleared == nil || cleared.MaxAge >= 0 || cleared.Path != "/api/auth" {
+		t.Fatalf("relogin cookie = %+v", cleared)
+	}
+	h.ffpf.err = auth.ErrFFPFRejected
+	cookie, opened = h.ffpfSignin(t, "")
+	response = h.do(http.MethodGet, "/api/auth/callback/ffpf?code=the-code&state="+url.QueryEscape(opened.State),
+		withCookie(cookie), signedOut)
+	if findCookie(response, reloginCookie) != nil {
+		t.Fatal("a failed login removed the relogin cookie")
+	}
+}
+
 // Without provider, or with any other value, the login is GitHub's, and its OAuth cookie has neither a provider nor a
 // nonce, so it is the same as before FFPF ID.
 func TestSigninDefaultsToGitHub(t *testing.T) {

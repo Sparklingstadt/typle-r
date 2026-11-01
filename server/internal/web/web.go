@@ -44,7 +44,7 @@ type UserSource interface {
 
 // FFPFLogin is the "Sign in with FFPF ID" client (auth.FFPF): the OpenID Connect provider of ffpf-portal.
 type FFPFLogin interface {
-	AuthorizeURL(state, challenge, nonce, redirectURI string) string
+	AuthorizeURL(state, challenge, nonce, redirectURI string, login bool) string
 	Exchange(ctx context.Context, code, verifier, redirectURI, nonce string) (auth.FFPFUser, error)
 }
 
