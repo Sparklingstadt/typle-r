@@ -23,12 +23,15 @@
     "restart": "Start over",
     "restartTitle": "Start over (Esc)",
     "restartShort": "Start over",
-    "liveStats": "Show live stats"
+    "liveStats": "Show live stats",
+    "aside": "Show side panel (word lists and best records)"
   },
   "word": {
     "typeThis": "Type",
     "resume": "Click or press any key to resume",
-    "inputLabel": "Type the text shown"
+    "inputLabel": "Type the text shown",
+    "simpleKeys": "Simple input",
+    "simpleKeysAll": "Full table"
   },
   "upcoming": {
     "next": "Next",

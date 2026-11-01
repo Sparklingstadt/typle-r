@@ -23,12 +23,15 @@
     "restart": "從頭開始",
     "restartTitle": "從頭開始（Esc）",
     "restartShort": "重來",
-    "liveStats": "顯示本次練習數據"
+    "liveStats": "顯示本次練習數據",
+    "aside": "顯示側邊欄（單字列表和最佳紀錄）"
   },
   "word": {
     "typeThis": "需輸入",
     "resume": "點擊或按任意鍵繼續",
-    "inputLabel": "輸入顯示的文字"
+    "inputLabel": "輸入顯示的文字",
+    "simpleKeys": "簡易輸入",
+    "simpleKeysAll": "完整對照表"
   },
   "upcoming": {
     "next": "接下來",

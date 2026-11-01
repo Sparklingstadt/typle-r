@@ -3,10 +3,12 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
-import { ArrowRight, ChevronDown, ChevronsUpDown, ChevronUp, CircleAlert, Eye, EyeOff, Gauge, List, MousePointerClick, Plus, RotateCcw, Search, Target, Timer, X } from "lucide-react"
+import { ArrowRight, ChevronDown, ChevronsUpDown, ChevronUp, CircleAlert, Eye, EyeOff, Gauge, List, MousePointerClick, PanelRightClose, PanelRightOpen, Plus, RotateCcw, Search, Target, Timer, X } from "lucide-react"
 import type { PracticeDevice } from "@/core/devices"
 import { useChosenDevice } from "@/lib/deviceSelection"
 import { useLiveStatsVisible } from "@/lib/liveStats"
+import { usePlayAsideOpen } from "@/lib/playAside"
+import { useTypingOptions } from "@/lib/inputSettings"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -15,7 +17,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useWordLists, type RecordSave } from "@/lib/useWordLists"
 import type { SavedWordList } from "@/core/wordLists"
 import { usePractice } from "@/lib/usePractice"
-import { compareInput, elapsedTime, typingSpeed, type TypingSession } from "@/core/typing"
+import { compareInput, elapsedTime, simpleInputKeys, typingSpeed, type TypingSession } from "@/core/typing"
 import { comparableRecords } from "@/core/records"
 import { listLabels, matchesFilter } from "@/core/listOverview"
 import { matchesPackQuery, packOverviews, type PackOverview } from "@/core/packEditing"
@@ -107,6 +109,8 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   const practiceName = usePracticeName()
   const [device, chooseDevice] = useChosenDevice(accountId, devices)
   const [statsVisible, setStatsVisible] = useLiveStatsVisible()
+  const [asideOpen, setAsideOpen] = usePlayAsideOpen()
+  const typingOptions = useTypingOptions()
   const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart: restartPractice, retrySave, pause, resume } = usePractice(wordLists, addRecord, device, listId)
   const [displayRun, setDisplayRun] = useState(0)
   const [pickerOpen, setPickerOpen] = useState(false)
@@ -135,6 +139,8 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   // Colour only committed text: IME composition (romaji, pinyin) is shown below the word but never judged.
   const comparison = compareInput(word?.input ?? '', session.input, session.missed)
   const hasError = comparison.errorIndex >= 0
+  // With simple input on, the keys that stand for the word's accented and Cyrillic letters are shown under it.
+  const simpleKeys = typingOptions.ignoreAccents && word ? simpleInputKeys(word.input) : []
   const dialogOpen = pickerOpen || pendingSwitch !== null || menuOpen
   const showResume = focusedOnce && !inputFocused && !finished && !dialogOpen && words.length > 0
 
@@ -222,7 +228,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
       catalog: chunks => <Link href="/packs/catalog" className="underline">{chunks}</Link>,
       create: chunks => <Link href="/packs/create" className="underline">{chunks}</Link>,
     })}</p></Card> :
-    <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <div className={cn("grid items-start gap-6", asideOpen && "lg:grid-cols-[minmax(0,1fr)_20rem]")}>
       <Card className="min-w-0 gap-0 py-0 text-base">
         <div className="flex h-14 items-center gap-1.5 border-b px-2 sm:h-16 sm:gap-3 sm:px-3">
           <button type="button" onClick={openPicker} aria-haspopup="dialog" aria-label={t('header.switchList', { name: practiceName(list) })}
@@ -238,6 +244,11 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
           <Button variant="ghost" size="icon-lg" className="shrink-0" aria-pressed={statsVisible} aria-label={t('header.liveStats')} title={t('header.liveStats')}
             onClick={() => { setStatsVisible(!statsVisible); if (!finished) input.current?.focus() }}>
             {statsVisible ? <Eye aria-hidden="true" /> : <EyeOff aria-hidden="true" />}
+          </Button>
+          {/* Only wide screens put the panel beside the card; below that it follows the card and stays shown. */}
+          <Button variant="ghost" size="icon-lg" className="hidden shrink-0 lg:inline-flex" aria-pressed={asideOpen} aria-controls="practice-aside" aria-label={t('header.aside')} title={t('header.aside')}
+            onClick={() => { setAsideOpen(!asideOpen); if (!finished) input.current?.focus() }}>
+            {asideOpen ? <PanelRightClose aria-hidden="true" /> : <PanelRightOpen aria-hidden="true" />}
           </Button>
           <Button variant="ghost" size="lg" className="shrink-0 px-2 sm:px-2.5" onClick={() => restart()} aria-label={t('header.restart')} aria-keyshortcuts="Escape" title={t('header.restartTitle')}>
             <RotateCcw aria-hidden="true" /><span className="hidden sm:inline">{t('header.restartShort')}</span><Kbd className="hidden sm:inline-flex">Esc</Kbd>
@@ -282,6 +293,17 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
               onCompositionEnd={event => endComposition(event.currentTarget.value)}
               onChange={event => changeInput(event.target.value, (event.nativeEvent as InputEvent).isComposing)} />
             <p id="practice-feedback" aria-live="polite" className="flex min-h-5 flex-wrap items-center justify-center text-xs text-muted-foreground">{feedback}</p>
+            {simpleKeys.length > 0 && <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-xs text-muted-foreground">
+              <span>{t('word.simpleKeys')}</span>
+              <dl className="contents">
+                {simpleKeys.map(([char, key]) => <div key={char} className="inline-flex items-center gap-1">
+                  <dt className="text-sm text-foreground" lang="und">{char}</dt>
+                  <ArrowRight className="size-3" aria-hidden="true" />
+                  <dd><Kbd className="font-mono">{key}</Kbd></dd>
+                </div>)}
+              </dl>
+              <Link href="/input" className="rounded-sm underline-offset-2 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">{t('word.simpleKeysAll')}</Link>
+            </div>}
           </div>
           {statsVisible && <LiveStats session={session} accuracy={result.accuracy} />}
           <div className="flex min-h-14 flex-wrap items-center gap-2 border-t px-4 py-2.5 sm:pr-3 sm:pl-6">
@@ -312,7 +334,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
           </div>
         </>}
       </Card>
-      <aside aria-label={t('aside.label')} className="grid min-w-0 gap-6">
+      <aside id="practice-aside" aria-label={t('aside.label')} className={cn("grid min-w-0 gap-6", !asideOpen && "lg:hidden")}>
         <Card className="gap-1 p-3">
           <div className="flex items-center gap-2 pl-2">
             <h2 className="text-[15px] font-bold">{t('aside.lists')}</h2>
