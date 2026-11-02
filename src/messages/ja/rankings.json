@@ -117,5 +117,8 @@
     "words": "{count}語",
     "unknownWords": "?語",
     "oldAccuracy": "正確率を記録する前の古い記録です"
-  }
+  },
+  "modeLabel": "練習の方法",
+  "modeTyping": "タイピング",
+  "modeWriting": "Writing"
 }

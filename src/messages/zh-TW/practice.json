@@ -118,5 +118,12 @@
     "listsOf": "{name} 的清單",
     "chooseList": "請選擇清單。",
     "match": "符合搜尋"
-  }
+  },
+  "modeLabel": "練習方式",
+  "modeTyping": "打字",
+  "modeWriting": "Writing",
+  "writingJudge": "判定",
+  "writingSkip": "跳過",
+  "writingRead": "辨識為「{text}」",
+  "writingInput": "在此手寫輸入"
 }

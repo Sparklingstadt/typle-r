@@ -118,5 +118,12 @@
     "listsOf": "Lists of {name}",
     "chooseList": "Choose a list.",
     "match": "Matches the search"
-  }
+  },
+  "modeLabel": "Practice mode",
+  "modeTyping": "Typing",
+  "modeWriting": "Writing",
+  "writingJudge": "Check",
+  "writingSkip": "Skip",
+  "writingRead": "Read as “{text}”",
+  "writingInput": "Write here by hand"
 }

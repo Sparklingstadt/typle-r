@@ -78,5 +78,7 @@
     "best": "Meilleur",
     "rankings": "Meilleurs résultats",
     "practice": "S’entraîner"
-  }
+  },
+  "modeTyping": "Frappe",
+  "modeWriting": "Writing"
 }

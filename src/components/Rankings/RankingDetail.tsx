@@ -11,18 +11,19 @@ import PracticeName, { usePracticeName } from '@/components/PracticeName'
 import { useFormat } from '@/i18n/useFormat'
 import type { PracticeDevice } from '@/core/devices'
 import { speedScale } from '@/core/dashboard'
-import { formatAccuracy, type RankOrder } from '@/core/records'
+import { formatAccuracy, type PracticeMode, type RankOrder } from '@/core/records'
 import { listRanking, RANKING_TOP, rankingStats } from '@/core/rankings'
 import type { SavedWordList } from '@/core/wordLists'
 import { cn } from '@/lib/utils'
 
 // Remount per list (key) so "show all" and "include other word counts" start closed for each list.
-export default function RankingDetail({ list, devices, device, deviceName, order, now, onBack, onShowAllDevices }: {
+export default function RankingDetail({ list, devices, device, deviceName, order, mode = 'typing', now, onBack, onShowAllDevices }: {
   list: SavedWordList
   devices: PracticeDevice[]
   device: string | null
   deviceName: string
   order: RankOrder
+  mode?: PracticeMode
   now: Date
   onBack: () => void
   onShowAllDevices: () => void
@@ -31,7 +32,7 @@ export default function RankingDetail({ list, devices, device, deviceName, order
   const format = useFormat()
   const [includeOthers, setIncludeOthers] = useState(false)
   const [showAll, setShowAll] = useState(false)
-  const ranking = listRanking(list, { device, order, includeOthers, now })
+  const ranking = listRanking(list, { device, order, includeOthers, mode, now })
   const { ranked, best } = ranking
   const practice = `/play?list=${encodeURIComponent(list.id)}`
   const lastPracticed = list.records.reduce((latest, record) => Math.max(latest, Date.parse(record.date)), 0)

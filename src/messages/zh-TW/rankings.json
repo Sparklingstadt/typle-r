@@ -117,5 +117,8 @@
     "words": "{count, plural, other {# 個單字}}",
     "unknownWords": "? 個單字",
     "oldAccuracy": "開始記錄正確率之前的舊紀錄"
-  }
+  },
+  "modeLabel": "練習方式",
+  "modeTyping": "打字",
+  "modeWriting": "Writing"
 }

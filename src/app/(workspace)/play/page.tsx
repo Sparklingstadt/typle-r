@@ -3,7 +3,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
-import { ArrowRight, ChevronDown, ChevronsUpDown, ChevronUp, CircleAlert, Eye, EyeOff, Gauge, List, MousePointerClick, PanelRightClose, PanelRightOpen, Plus, RotateCcw, Search, Target, Timer, X } from "lucide-react"
+import { ArrowRight, ChevronDown, ChevronsUpDown, ChevronUp, CircleAlert, Eye, EyeOff, List, MousePointerClick, PanelRightClose, PanelRightOpen, Plus, RotateCcw, Search } from "lucide-react"
 import type { PracticeDevice } from "@/core/devices"
 import { useChosenDevice } from "@/lib/deviceSelection"
 import { useLiveStatsVisible } from "@/lib/liveStats"
@@ -17,8 +17,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useWordLists, type RecordSave } from "@/lib/useWordLists"
 import type { SavedWordList } from "@/core/wordLists"
 import { usePractice } from "@/lib/usePractice"
-import { compareInput, elapsedTime, simpleInputKeys, typingSpeed, type TypingSession } from "@/core/typing"
-import { comparableRecords } from "@/core/records"
+import { compareInput, simpleInputKeys, typingSpeed } from "@/core/typing"
+import { comparableRecords, recordMode } from "@/core/records"
+import { practiceMode, useWritingMode } from "@/lib/writingMode"
 import { listLabels, matchesFilter } from "@/core/listOverview"
 import { matchesPackQuery, packOverviews, type PackOverview } from "@/core/packEditing"
 import { packsByRecentPractice } from "@/core/packPractice"
@@ -35,6 +36,10 @@ import CategorySelect from "@/components/Practice/CategorySelect"
 import PracticeBestRecords from "@/components/Practice/PracticeBestRecords"
 import PracticeName, { usePracticeName } from "@/components/PracticeName"
 import PracticeResult from "@/components/Practice/PracticeResult"
+import PracticeProgress from "@/components/Practice/PracticeProgress"
+import LiveStats from "@/components/Practice/LiveStats"
+import ModeToggle from "@/components/Practice/ModeToggle"
+import WritingPractice, { type WritingRun } from "@/components/Practice/WritingPractice"
 
 // The packs of `category` (null for every category) that `query` finds, in the order given.
 function matchingPacks(items: PackOverview[], category: string | null, query: string) {
@@ -58,44 +63,6 @@ function PlayWorkspace() {
   return <Practice key={accountId} accountId={accountId ?? ""} devices={devices} wordLists={lists} packs={packs} listId={listId} error={error} addRecord={addRecord} />
 }
 
-// Ticks only while a session is running, for the live elapsed time and speed.
-function useNow(active: boolean) {
-  const [now, setNow] = useState(0)
-  useEffect(() => {
-    if (!active) return
-    const timer = window.setInterval(() => setNow(Date.now()), 200)
-    return () => window.clearInterval(timer)
-  }, [active])
-  return now
-}
-
-function formatClock(milliseconds: number) {
-  const seconds = Math.max(0, milliseconds) / 1000
-  return `${Math.floor(seconds / 60)}:${(seconds % 60).toFixed(1).padStart(4, '0')}`
-}
-
-// Owns the ticking clock, so only these four values re-render every 200ms instead of the whole page.
-function LiveStats({ session, accuracy }: { session: TypingSession; accuracy: number }) {
-  const running = session.startedAt !== null && session.finishedAt === null
-  // While paused the values stand still, so the clock stops ticking too.
-  const now = useNow(running && session.pausedAt == null)
-  const elapsed = running ? elapsedTime(session, now) : 0
-  const speed = running ? typingSpeed(session, now) : null
-  const t = useTranslations('practice.stats')
-  const stats = [
-    { icon: Timer, term: t('elapsed'), value: formatClock(elapsed) },
-    { icon: Gauge, term: t('speed'), value: speed === null ? '—' : String(speed), unit: t('speedUnit') },
-    { icon: Target, term: t('accuracy'), value: session.attempts ? `${Math.round(accuracy * 10) / 10}%` : '—' },
-    { icon: X, term: t('mistakes'), value: String(session.mistakes) },
-  ]
-  return <dl aria-label={t('label')} className="mx-4 mb-4 grid grid-cols-4 rounded-xl border bg-muted/40 px-1 py-2.5 text-center sm:mx-6 sm:mb-5 sm:px-2 sm:py-3">
-    {stats.map(stat => <div key={stat.term} className="grid gap-0.5">
-      <dt className="inline-flex items-center justify-center gap-1 text-[11px] text-muted-foreground sm:text-xs"><stat.icon className="size-3" aria-hidden="true" />{stat.term}</dt>
-      <dd className="text-base font-medium tabular-nums sm:text-xl">{stat.value}{stat.unit && <span className="ml-0.5 text-[11px] font-normal text-muted-foreground sm:text-xs">{stat.unit}</span>}</dd>
-    </div>)}
-  </dl>
-}
-
 function Practice({ wordLists, packs, listId, error, addRecord, devices, accountId }: {
   devices: PracticeDevice[]
   accountId: string
@@ -113,6 +80,9 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   const typingOptions = useTypingOptions()
   const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart: restartPractice, retrySave, pause, resume } = usePractice(wordLists, addRecord, device, listId)
   const [displayRun, setDisplayRun] = useState(0)
+  // Typing or writing is decided when a list is chosen and on every restart; a run keeps its mode to the end.
+  const [preferredMode, setPreferredMode] = useWritingMode()
+  const [mode, setMode] = useState(() => practiceMode(list, preferredMode))
   const [pickerOpen, setPickerOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [asideQuery, setAsideQuery] = useState('')
@@ -131,18 +101,21 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   const allWords = useRef<HTMLUListElement>(null)
   const pickerOpener = useRef<HTMLElement | null>(null)
   const started = session.startedAt !== null
-  const running = started && !finished
+  // WritingPractice reports its run, so switching lists asks first and the device stays locked as when typing.
+  const [writingRun, setWritingRun] = useState<WritingRun | null>(null)
+  const running = mode === 'writing' ? writingRun !== null : started && !finished
+  const runDevice = mode === 'writing' ? writingRun?.device : practiceDevice
   const words = list?.words ?? []
   const selectedList = wordLists.find(item => item.id === list?.id)
-  const selectedRecords = selectedList?.records ?? []
-  const bestCandidates = selectedList ? comparableRecords(selectedList) : []
+  const selectedRecords = (selectedList?.records ?? []).filter(record => recordMode(record) === mode)
+  const bestCandidates = selectedList ? comparableRecords(selectedList, selectedRecords) : []
   // Colour only committed text: IME composition (romaji, pinyin) is shown below the word but never judged.
   const comparison = compareInput(word?.input ?? '', session.input, session.missed)
   const hasError = comparison.errorIndex >= 0
   // With simple input on, the keys that stand for the word's accented and Cyrillic letters are shown under it.
   const simpleKeys = typingOptions.ignoreAccents && word ? simpleInputKeys(word.input) : []
   const dialogOpen = pickerOpen || pendingSwitch !== null || menuOpen
-  const showResume = focusedOnce && !inputFocused && !finished && !dialogOpen && words.length > 0
+  const showResume = mode === 'typing' && focusedOnce && !inputFocused && !finished && !dialogOpen && words.length > 0
 
   useEffect(() => {
     const box = allWords.current
@@ -173,11 +146,17 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
     return () => document.removeEventListener('keydown', resume)
   }, [showResume, input])
 
+  // The typing input, or the writing field (which WritingPractice owns) while writing.
+  function focusInput() {
+    if (mode === 'writing') document.getElementById('writingInputField')?.focus()
+    else input.current?.focus()
+  }
   // After a dialog or menu closes, typing continues in the input; on the result screen focus returns to the trigger.
   function focusPractice(event: Event) {
-    if (finished) return
+    if (finished && mode === 'typing') return
+    if (mode === 'writing' && !document.getElementById('writingInputField')) return
     event.preventDefault()
-    input.current?.focus()
+    focusInput()
   }
   // The picker is opened from buttons that are not its Radix trigger, so remember where focus should return.
   function openPicker() {
@@ -186,13 +165,18 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   }
   function closePicker(event: Event) {
     event.preventDefault()
-    if (finished) pickerOpener.current?.focus()
-    else input.current?.focus()
+    if ((mode === 'typing' && finished) || (mode === 'writing' && !document.getElementById('writingInputField'))) pickerOpener.current?.focus()
+    else focusInput()
   }
-  function restart(index = selected) {
+  function restart(index = selected, preferred = preferredMode) {
     // Also reset manually scrolled display-only text, including an identical word on a fresh attempt.
     setDisplayRun(value => value + 1)
+    setMode(practiceMode(wordLists[index], preferred))
     restartPractice(index)
+  }
+  function chooseMode(next: typeof mode) {
+    setPreferredMode(next)
+    restart(selected, next)
   }
   function switchTo(index: number) {
     setShowAll(true)
@@ -214,7 +198,6 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   const asidePacks = useMemo(() => matchingPacks(overviews, category, asideQuery), [overviews, category, asideQuery])
   const next = words.slice(session.index + 1, session.index + 4)
   const remaining = words.length - session.index - 1 - next.length
-  const progressText = t('progress.value', { current: finished ? words.length : session.index + 1, total: words.length })
   const feedback = hasError
     ? <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{t('feedback.mismatch', { position: comparison.errorIndex + 1 })}</span>
     : composition !== null ? <span className="inline-flex flex-wrap items-center justify-center gap-x-2">
@@ -239,27 +222,29 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
             <ChevronsUpDown className="size-4 shrink-0" aria-hidden="true" />
           </button>
           <span className="flex-1" />
-          <DeviceMenu devices={devices} device={running ? practiceDevice : device} locked={running} onChange={chooseDevice} onOpenChange={setMenuOpen} onCloseAutoFocus={focusPractice} />
+          <DeviceMenu devices={devices} device={running ? runDevice : device} locked={running} onChange={chooseDevice} onOpenChange={setMenuOpen} onCloseAutoFocus={focusPractice} />
           {/* Hiding the live stats only changes the display: timing, saving and the result screen stay the same. */}
           <Button variant="ghost" size="icon-lg" className="shrink-0" aria-pressed={statsVisible} aria-label={t('header.liveStats')} title={t('header.liveStats')}
-            onClick={() => { setStatsVisible(!statsVisible); if (!finished) input.current?.focus() }}>
+            onClick={() => { setStatsVisible(!statsVisible); if (!finished) focusInput() }}>
             {statsVisible ? <Eye aria-hidden="true" /> : <EyeOff aria-hidden="true" />}
           </Button>
           {/* Only wide screens put the panel beside the card; below that it follows the card and stays shown. */}
           <Button variant="ghost" size="icon-lg" className="hidden shrink-0 lg:inline-flex" aria-pressed={asideOpen} aria-controls="practice-aside" aria-label={t('header.aside')} title={t('header.aside')}
-            onClick={() => { setAsideOpen(!asideOpen); if (!finished) input.current?.focus() }}>
+            onClick={() => { setAsideOpen(!asideOpen); if (!finished) focusInput() }}>
             {asideOpen ? <PanelRightClose aria-hidden="true" /> : <PanelRightOpen aria-hidden="true" />}
           </Button>
           <Button variant="ghost" size="lg" className="shrink-0 px-2 sm:px-2.5" onClick={() => restart()} aria-label={t('header.restart')} aria-keyshortcuts="Escape" title={t('header.restartTitle')}>
             <RotateCcw aria-hidden="true" /><span className="hidden sm:inline">{t('header.restartShort')}</span><Kbd className="hidden sm:inline-flex">Esc</Kbd>
           </Button>
         </div>
-        <div className="flex items-center gap-3 px-4 pt-3 text-sm font-medium tabular-nums sm:px-6 sm:pt-4">
-          <div role="progressbar" aria-label={t('progress.label')} aria-valuemin={0} aria-valuemax={words.length} aria-valuenow={finished ? words.length : session.index} aria-valuetext={progressText} className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-            <div className="h-full rounded-full bg-primary transition-[width] motion-reduce:transition-none" style={{ width: `${(finished ? 1 : session.index / words.length) * 100}%` }} />
-          </div>
-          <span aria-hidden="true">{progressText}</span>
-        </div>
+        {/* Only a list marked for writing offers the choice; a run already going keeps its mode though the mark is removed. */}
+        {selectedList?.writing && <div className="flex justify-center border-b px-4 py-2">
+          <ModeToggle value={mode} onChange={chooseMode} label={t('modeLabel')} labels={{ typing: t('modeTyping'), writing: t('modeWriting') }} />
+        </div>}
+        {mode === 'writing' ? <WritingPractice key={`${list.id}:${displayRun}`} list={list} listName={practiceName(list)} records={selectedRecords} addRecord={addRecord} device={device}
+          statsVisible={statsVisible} onRun={setWritingRun} onRestart={() => restart()} onChooseList={openPicker} />
+        : <>
+        <PracticeProgress index={session.index} total={words.length} finished={finished} />
         {finished ? <PracticeResult listName={practiceName(list)} wordCount={words.length} result={result} correct={session.attempts - session.mistakes} speed={typingSpeed(session, 0)}
           device={practiceDevice} record={record} records={selectedRecords} saveState={saveState} onRestart={() => restart()} onRetry={retrySave} onChooseList={openPicker} />
         : <>
@@ -312,7 +297,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
             {!next.length && <span className="text-xs text-muted-foreground">{t('upcoming.last')}</span>}
             {remaining > 0 && <span className="text-xs text-neutral-400 dark:text-neutral-500">{t('upcoming.more', { count: remaining })}</span>}
             <span className="flex-1" />
-            <Button variant="ghost" size="lg" aria-expanded={showAll} aria-controls="all-words" onClick={() => { setShowAll(value => !value); input.current?.focus() }}>
+            <Button variant="ghost" size="lg" aria-expanded={showAll} aria-controls="all-words" onClick={() => { setShowAll(value => !value); focusInput() }}>
               {t('upcoming.showAll')}{showAll ? <ChevronUp aria-hidden="true" /> : <ChevronDown aria-hidden="true" />}
             </Button>
             {showAll && <ul id="all-words" ref={allWords} aria-label={t('upcoming.allWords')} className="relative mt-1.5 flex max-h-44 basis-full flex-wrap gap-1.5 overflow-y-auto border-t border-dashed pt-2.5 pb-1">
@@ -332,6 +317,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
               })}
             </ul>}
           </div>
+        </>}
         </>}
       </Card>
       <aside id="practice-aside" aria-label={t('aside.label')} className={cn("grid min-w-0 gap-6", !asideOpen && "lg:hidden")}>
@@ -361,7 +347,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
           </div>
           <p className="text-xs text-muted-foreground">{bestCandidates.length < selectedRecords.length ? t('aside.bestOrderAtCount', { count: selectedList?.words.length ?? 0 }) : t('aside.bestOrder')}</p>
           <PracticeBestRecords records={bestCandidates} highlightId={saveState === 'saved' ? record?.id : undefined} />
-          <Link href={`/rankings?list=${encodeURIComponent(list.id)}`} className="inline-flex w-fit items-center gap-1 rounded-sm px-2 pt-1 text-[13px] font-medium outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">{t('aside.allBest')}<ArrowRight className="size-3.5" aria-hidden="true" /></Link>
+          <Link href={`/rankings?list=${encodeURIComponent(list.id)}${mode === 'writing' ? '&mode=writing' : ''}`} className="inline-flex w-fit items-center gap-1 rounded-sm px-2 pt-1 text-[13px] font-medium outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">{t('aside.allBest')}<ArrowRight className="size-3.5" aria-hidden="true" /></Link>
         </Card>
       </aside>
     </div>}
@@ -386,7 +372,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
         <AlertDialogHeader>
           <AlertDialogTitle>{t('switch.title')}</AlertDialogTitle>
           <AlertDialogDescription>
-            {t('switch.description', { list: list ? practiceName(list) : '', done: session.index, total: words.length, next: pendingSwitch === null || !wordLists[pendingSwitch] ? '' : practiceName(wordLists[pendingSwitch]) })}
+            {t('switch.description', { list: list ? practiceName(list) : '', done: mode === 'writing' ? writingRun?.index ?? 0 : session.index, total: words.length, next: pendingSwitch === null || !wordLists[pendingSwitch] ? '' : practiceName(wordLists[pendingSwitch]) })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

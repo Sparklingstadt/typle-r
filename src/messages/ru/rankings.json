@@ -117,5 +117,8 @@
     "words": "{count, plural, one {# слово} few {# слова} many {# слов} other {# слова}}",
     "unknownWords": "? слов",
     "oldAccuracy": "Старый результат, сохранённый до того, как точность начала записываться"
-  }
+  },
+  "modeLabel": "Режим практики",
+  "modeTyping": "Набор",
+  "modeWriting": "Writing"
 }

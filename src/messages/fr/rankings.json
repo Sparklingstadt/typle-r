@@ -117,5 +117,8 @@
     "words": "{count, plural, one {# mot} other {# mots}}",
     "unknownWords": "? mots",
     "oldAccuracy": "Ancien résultat, enregistré avant que la précision ne soit mesurée"
-  }
+  },
+  "modeLabel": "Mode d’entraînement",
+  "modeTyping": "Frappe",
+  "modeWriting": "Writing"
 }

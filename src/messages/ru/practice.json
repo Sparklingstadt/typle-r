@@ -118,5 +118,12 @@
     "listsOf": "Списки: {name}",
     "chooseList": "Выберите список.",
     "match": "Совпадает с поиском"
-  }
+  },
+  "modeLabel": "Режим практики",
+  "modeTyping": "Набор",
+  "modeWriting": "Writing",
+  "writingJudge": "Проверить",
+  "writingSkip": "Пропустить",
+  "writingRead": "Распознано как «{text}»",
+  "writingInput": "Пишите здесь от руки"
 }

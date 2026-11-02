@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl'
-import { Trash2, Trophy } from 'lucide-react'
+import { PenLine, Trash2, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useFormat } from '@/i18n/useFormat'
 import { LOW_ACCURACY } from '@/core/dashboard'
@@ -32,6 +32,7 @@ export function RecordTime({ seconds, className }: { seconds: number; className?
 // With a pack chosen (`inPack`) the pack name is left out of the row's name, since every row is in that pack.
 export default function RecordRow({ row, showList, inPack = false, disabled, onDelete }: { row: Row; showList: boolean; inPack?: boolean; disabled: boolean; onDelete: () => void }) {
   const t = useTranslations('records.row')
+  const records = useTranslations('records')
   const nameOf = usePracticeName()
   const format = useFormat()
   const { list, record, best } = row
@@ -48,6 +49,7 @@ export default function RecordRow({ row, showList, inPack = false, disabled, onD
     <div className="min-w-0">
       <div className="flex min-w-0 items-center gap-2">
         <h3 className={cn('truncate font-medium', !showList && !record.device && 'text-muted-foreground')} title={title}>{title}</h3>
+        {row.mode === 'writing' && <span className="inline-flex h-5 shrink-0 items-center gap-1 rounded-full border px-2 text-xs font-medium"><PenLine className="size-3" aria-hidden="true" />{records('modeWriting')}</span>}
         {best && <BestBadge />}
       </div>
       <p className="truncate text-[13px] text-muted-foreground">
