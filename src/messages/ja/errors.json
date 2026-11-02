@@ -69,6 +69,7 @@
   "invalidQuery": "検索の条件が正しくありません。",
   "invalidReport": "通報の内容が正しくありません。",
   "notInGallery": "ギャラリーに載っていないパックは通報できません。",
+  "tooManyRequests": "しばらくしてからもう一度お試しください。",
   "invalidRequest": "リクエストの内容が正しくありません。",
   "sharedPackHidden": "このパックは管理者により非公開にされているため、ギャラリーに載せられません。"
 }

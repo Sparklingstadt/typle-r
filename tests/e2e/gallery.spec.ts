@@ -165,6 +165,28 @@ test('reporting a pack that is only shared by link says it failed', async ({ pag
   expect((await reports(id)).rows).toHaveLength(0)
 })
 
+// The real count is tested in Go (server/internal/web, server/internal/store). Here every request comes from 127.0.0.1,
+// so really sending more than 10 reports would use up the allowance that the other tests (and workers) share; the
+// answer of an over-the-limit report is mocked to check what the dialog shows.
+test('a report refused for too many requests says to try again later', async ({ page, browser }) => {
+  const id = await share(page, true)
+  const guest = await browser.newContext({ baseURL: origin })
+  try {
+    const view = await guest.newPage()
+    await view.route('**/api/gallery/reports', route => route.fulfill({
+      status: 429, headers: { 'Retry-After': '30' }, contentType: 'application/json', body: '{"error":"tooManyRequests"}',
+    }))
+    await view.goto(`/shared/${id}`)
+    await view.getByRole('button', { name: '通報' }).click()
+    const dialog = view.getByRole('dialog')
+    await dialog.getByRole('radio', { name: 'スパム・宣伝' }).check()
+    await dialog.getByRole('button', { name: '送る' }).click()
+    await expect(dialog.getByRole('alert')).toHaveText('しばらくしてからもう一度お試しください。')
+    await expect(view.getByRole('status').filter({ hasText: '通報を受け付けました' })).toHaveCount(0)
+  } finally { await guest.close() }
+  expect((await reports(id)).rows).toHaveLength(0)
+})
+
 test('the owner puts a pack in the gallery from the share dialog and takes it out', async ({ page }) => {
   await savePack(page)
   await page.goto('/edit')

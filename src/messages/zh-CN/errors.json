@@ -69,6 +69,7 @@
   "invalidQuery": "搜索条件无效。",
   "invalidReport": "举报内容无效。",
   "notInGallery": "未在图库中展示的词包无法举报。",
+  "tooManyRequests": "请求过于频繁。请稍后再试。",
   "invalidRequest": "请求内容无效。",
   "sharedPackHidden": "管理员已隐藏此词包，无法在图库中展示。"
 }

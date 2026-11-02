@@ -69,6 +69,7 @@
   "invalidQuery": "搜尋條件無效。",
   "invalidReport": "檢舉內容無效。",
   "notInGallery": "未在圖庫中展示的包無法檢舉。",
+  "tooManyRequests": "請求過於頻繁。請稍後再試。",
   "invalidRequest": "請求內容無效。",
   "sharedPackHidden": "管理員已隱藏此包，無法在圖庫中展示。"
 }
