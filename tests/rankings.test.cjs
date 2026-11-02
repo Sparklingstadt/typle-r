@@ -42,6 +42,13 @@ test('only runs at the current word count are compared, unless there are none', 
   assert.deepEqual(rows.filter(row => row.best).map(row => row.record.id), ['new2'])
 })
 
+test('the best badge is per mode: a recall record competes with recall records only', () => {
+  const list = edited()
+  list.records.push({ ...record('r1', 30, 90, 12, 29), mode: 'recall' }, { ...record('r2', 25, 95, 12, 29), mode: 'recall' })
+  const rows = recordRows([list])
+  assert.deepEqual(rows.filter(row => row.best).map(row => row.record.id).sort(), ['new2', 'r2'])
+})
+
 test('a list ranking separates other word counts and can include them', () => {
   const list = edited()
   const ranking = listRanking(list, { now })

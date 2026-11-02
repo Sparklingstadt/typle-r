@@ -143,9 +143,10 @@ export type RecordRow = { list: SavedWordList; record: StoredRecord; index: numb
 export type RecordFilter = { pack: string | null; list: string | null; device: string | null }
 export const NO_DEVICE = 'none'
 
-// Every record with its list, newest first. `best` marks the record that currently ranks first in its list.
+// Every record with its list, newest first. `best` marks the record that currently ranks first in its list among records of its own mode.
 export function recordRows(lists: SavedWordList[]): RecordRow[] {
-  const best = new Set(lists.flatMap(list => listBest(list) ?? []))
+  // The badge means "best of its own mode": a recall record competes with recall records only.
+  const best = new Set(lists.flatMap(list => [listBest(list, 'normal'), listBest(list, 'recall')].flatMap(record => record ?? [])))
   return recentRecords(lists).map(({ list, record, index }) =>
     ({ list, record, index, key: `${list.id}-${record.id ?? `${index}-${record.date}`}`, best: best.has(record) }))
 }

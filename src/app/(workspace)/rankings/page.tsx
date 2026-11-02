@@ -14,7 +14,7 @@ import RankingList from "@/components/Rankings/RankingList"
 import { useFormat } from "@/i18n/useFormat"
 import { useWordLists } from "@/lib/useWordLists"
 import { deviceExists, type PracticeDevice } from "@/core/devices"
-import { deviceOptions, matchesDevice, NO_DEVICE, type RankOrder } from "@/core/records"
+import { deviceOptions, matchesDevice, NO_DEVICE, type PracticeMode, type RankOrder } from "@/core/records"
 import { listRanking, type ListSort } from "@/core/rankings"
 import { packRankings, sortPackRankings } from "@/core/packRecords"
 import type { SavedWordList } from "@/core/wordLists"
@@ -61,9 +61,9 @@ export default function Rankings() {
   </main>
 }
 
-type View = { list: string | null; device: string | null; order: RankOrder }
+type View = { list: string | null; device: string | null; order: RankOrder; mode: PracticeMode }
 
-// `?list=<id>&device=<id>&order=speed` keep the view in the URL, so other screens can open one list's ranking.
+// `?list=<id>&device=<id>&order=speed&mode=recall` keep the view in the URL, so other screens can open one list's ranking.
 // Below `xl`, opening a list pushes a history entry, so the browser's back button returns to the list.
 function RankingsView({ lists, packs, devices }: { lists: SavedWordList[]; packs: WordPack[]; devices: PracticeDevice[] }) {
   const t = useTranslations('rankings')
@@ -83,7 +83,8 @@ function RankingsView({ lists, packs, devices }: { lists: SavedWordList[]; packs
   }), [lists, devices, format, t])
   const device = devicesOptions.some(option => option.value === params.get('device')) ? params.get('device') : null
   const order: RankOrder = params.get('order') === 'speed' ? 'speed' : 'accuracy'
-  const packRanks = useMemo(() => sortPackRankings(packRankings(packs, lists.map(list => listRanking(list, { device, order, now }))), sort, locale), [lists, packs, device, order, now, sort, locale])
+  const mode: PracticeMode = params.get('mode') === 'recall' ? 'recall' : 'normal'
+  const packRanks = useMemo(() => sortPackRankings(packRankings(packs, lists.map(list => listRanking(list, { device, order, now, mode }))), sort, locale), [lists, packs, device, order, mode, now, sort, locale])
   const requested = lists.find(list => list.id === params.get('list'))
   // On wide screens something is always open: the most recent list with a record in the first pack with one, like the top of the list.
   const firstPack = packRanks.find(item => item.items.some(ranking => ranking.ranked.length)) ?? packRanks[0]
@@ -107,11 +108,12 @@ function RankingsView({ lists, packs, devices }: { lists: SavedWordList[]; packs
   }, [opened])
 
   function navigate(next: Partial<View>, mode: 'push' | 'replace' = 'replace') {
-    const view = { list: requested?.id ?? null, device, order, ...next }
+    const view = { list: requested?.id ?? null, device, order, mode, ...next }
     const query = new URLSearchParams()
     if (view.list) query.set('list', view.list)
     if (view.device) query.set('device', view.device)
     if (view.order === 'speed') query.set('order', 'speed')
+    if (view.mode === 'recall') query.set('mode', 'recall')
     const url = `${window.location.pathname}${query.size ? `?${query}` : ''}`
     if (mode === 'push') window.history.pushState(null, '', url)
     else window.history.replaceState(null, '', url)
@@ -142,6 +144,7 @@ function RankingsView({ lists, packs, devices }: { lists: SavedWordList[]; packs
   return <div className="space-y-4">
     <div className="flex flex-wrap items-center gap-2">
       <FilterMenu name={t('filter.device')} allLabel={t('filter.allDevices')} value={device} options={devicesOptions} onChange={changeDevice} />
+      <ModeToggle value={mode} onChange={value => navigate({ mode: value })} />
       <OrderToggle value={order} onChange={value => navigate({ order: value })} />
       <p className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
         <Info className="size-3.5 shrink-0" aria-hidden="true" />{t(`orderNotes.${order}`)}
@@ -153,11 +156,23 @@ function RankingsView({ lists, packs, devices }: { lists: SavedWordList[]; packs
         <RankingList packs={packRanks} selectedId={opened || wide ? selected?.id : undefined} filtered={device !== null} sort={sort} onSort={setSort} now={now} onChoose={choose} />
       </section>
       {selected && <section aria-labelledby="ranking-title" className={cn('min-w-0 rounded-xl border bg-card', !opened && 'hidden xl:block')}>
-        <RankingDetail key={selected.id} list={selected} devices={devices} device={device} deviceName={deviceName} order={order} now={now}
+        <RankingDetail key={selected.id} list={selected} devices={devices} device={device} deviceName={deviceName} order={order} mode={mode} now={now}
           onBack={back} onShowAllDevices={() => navigate({ device: null })} />
       </section>}
     </div>
   </div>
+}
+
+function ModeToggle({ value, onChange }: { value: PracticeMode; onChange: (value: PracticeMode) => void }) {
+  const t = useTranslations('rankings.mode')
+  return <RadioGroup.Root value={value} onValueChange={next => onChange(next as PracticeMode)} aria-label={t('label')} orientation="horizontal"
+    className="inline-flex h-9 items-center rounded-full border bg-muted/60 p-0.5 text-[13px]">
+    {(['normal', 'recall'] as const).map(option =>
+      <RadioGroup.Item key={option} value={option}
+        className="h-full rounded-full px-3 text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 data-[state=checked]:bg-background data-[state=checked]:font-medium data-[state=checked]:text-foreground data-[state=checked]:shadow-sm dark:data-[state=checked]:bg-input">
+        {t(option)}
+      </RadioGroup.Item>)}
+  </RadioGroup.Root>
 }
 
 function OrderToggle({ value, onChange }: { value: RankOrder; onChange: (value: RankOrder) => void }) {

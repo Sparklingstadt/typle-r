@@ -30,6 +30,7 @@
     "heading": "{relative} · {date}",
     "summary": "{count, plural, one {# entraînement} other {# entraînements}} · {duration}"
   },
+  "recallBadge": "De mémoire",
   "more": "Afficher plus ({count, number} restants)",
   "note": "Le nombre de mots et le nom de l’appareil sont ceux du moment de l’entraînement.",
   "noteMissing": "« — » indique une valeur non enregistrée (par exemple, pour les résultats enregistrés par une version précédente).",

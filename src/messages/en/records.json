@@ -30,6 +30,7 @@
     "heading": "{relative} · {date}",
     "summary": "{count, plural, one {# run} other {# runs}} · {duration}"
   },
+  "recallBadge": "Recall",
   "more": "Show more ({count, number} left)",
   "note": "Word counts and device names are as they were at the time of practice.",
   "noteMissing": "“—” marks items that were not recorded (for example, records saved by an earlier version).",
