@@ -22,8 +22,6 @@ import (
 // and nothing is said. Without it the FFPF ID login and the administrator's dashboard login answer 503. The Store and Report are left to the caller: nothing is opened here, and the
 // Keys always come from a successful session.NewKeys, because the zero Keys cannot seal a cookie.
 //
-// OnVercel is on when VERCEL is set, read here once.
-//
 // local is for the typle-web command: only then may LocalLogin be turned on. It is on under the conditions of
 // localDevelopmentEnabled (src/lib/localDevelopment.ts) except NODE_ENV, which a Go server does not have.
 func FromEnv(getenv func(string) string, local bool) (Config, error) {
@@ -47,7 +45,7 @@ func FromEnv(getenv func(string) string, local bool) (Config, error) {
 	if len(problems) > 0 {
 		return Config{}, errors.New("the login settings are incomplete: " + strings.Join(problems, "; "))
 	}
-	config := Config{Keys: keys, BaseURL: base, LocalLogin: local && localLoginAllowed(getenv, base), OnVercel: getenv("VERCEL") != ""}
+	config := Config{Keys: keys, BaseURL: base, LocalLogin: local && localLoginAllowed(getenv, base)}
 	if id != "" && clientSecret != "" {
 		// Assigned only here: a nil *auth.OAuth in the interface would not be nil.
 		config.OAuth, config.GitHub = auth.NewOAuth(id, clientSecret), auth.NewGitHub()

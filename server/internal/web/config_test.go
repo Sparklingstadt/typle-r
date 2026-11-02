@@ -298,15 +298,13 @@ func TestUnavailable(t *testing.T) {
 	}
 }
 
-func TestFromEnvOnVercel(t *testing.T) {
-	local, err := FromEnv(env(validEnv()), true)
-	if err != nil || local.OnVercel {
-		t.Fatalf("without VERCEL: OnVercel = %v, %v", local.OnVercel, err)
-	}
+// OnVercel is for server/vercel to set: neither the environment nor the typle-web flag turns it on.
+func TestFromEnvLeavesOnVercelOff(t *testing.T) {
 	values := validEnv()
 	values["VERCEL"] = "1"
-	config, err := FromEnv(env(values), false)
-	if err != nil || !config.OnVercel {
-		t.Fatalf("with VERCEL: OnVercel = %v, %v", config.OnVercel, err)
+	for _, local := range []bool{true, false} {
+		if config, err := FromEnv(env(values), local); err != nil || config.OnVercel {
+			t.Fatalf("local=%v: OnVercel = %v, %v", local, config.OnVercel, err)
+		}
 	}
 }

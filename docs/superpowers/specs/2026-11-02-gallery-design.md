@@ -105,7 +105,7 @@ CREATE INDEX IF NOT EXISTS "typle_gallery_reports_share" ON "typle_gallery_repor
 - DB に届かないときはどの API も `503 databaseUnavailable`
 - 通報と追加数は、IP ごとに1分の固定窓で数える（通報10回、追加数60回）。窓の中の回数を超えた要求は `429 tooManyRequests` と `Retry-After`（窓が終わるまでの秒数、1以上）で断り、何も書かない。確かめる順は、メソッド → `Origin`・`Content-Type` → 本文の検証 → 回数 → 書き込みで、断られた要求は数えない。数えられなければ `503 databaseUnavailable`（制限なしで通さない）。アプリのトークン付きも同じ
 - 回数は DB の `typle_gallery_hits(action, client, window_start, hits)`（マイグレーション `0034_gallery_rate_limit`）に置く。`client` は IP の HMAC-SHA256（`AUTH_SECRET` から HKDF で導いた専用の鍵、先頭16バイト）で、IP は保存しない。10分より古い行は、次の更新のときに消す
-- IP は、Vercel 上（環境変数 `VERCEL` がある）では `X-Forwarded-For` の最初の値、なければ `X-Real-Ip`、なければ接続元。それ以外では、クライアントが書ける転送ヘッダーを無視して接続元のホストだけ
+- IP は、Vercel の関数（`server/vercel` が `Config.OnVercel` を立てる。環境変数は見ない）では `X-Vercel-Forwarded-For`、`X-Forwarded-For`、`X-Real-Ip` の順に、先頭の値が IP として読めるもの。どれも読めなければ共通の「不明」のクライアントとして数え（制限は外れない）、`gallery.limit.ip` を報告する。それ以外では、クライアントが書ける転送ヘッダーを無視して接続元のホストだけ
 - 新しいエラーコード（`sharedPackHidden`・`invalidQuery`・`invalidReport`・`notInGallery`・`invalidRequest`・`tooManyRequests`）は `useErrorText` の文言に6ロケールで入れる
 - Vercel Firewall の Rate Limiting は現在のプランで使えない（402）ため、連打の制限はコードで行う。README の「ギャラリーのレート制限」に書く
 

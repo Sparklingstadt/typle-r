@@ -34,29 +34,53 @@ func TestClientIP(t *testing.T) {
 		}
 		return r
 	}
-	forwarded := func(value string) http.Header { return http.Header{"X-Forwarded-For": {value}} }
+	h := func(pairs ...string) http.Header {
+		header := http.Header{}
+		for i := 0; i < len(pairs); i += 2 {
+			header.Set(pairs[i], pairs[i+1])
+		}
+		return header
+	}
 	for name, tc := range map[string]struct {
 		vercel bool
 		r      *http.Request
 		want   string
+		known  bool
 	}{
-		"vercel: first entry":     {true, request("10.0.0.1:443", forwarded("203.0.113.7, 198.51.100.1")), "203.0.113.7"},
-		"vercel: trimmed":         {true, request("10.0.0.1:443", forwarded("  203.0.113.7 ,198.51.100.1")), "203.0.113.7"},
-		"vercel: single":          {true, request("10.0.0.1:443", forwarded("203.0.113.7")), "203.0.113.7"},
-		"vercel: ipv6":            {true, request("10.0.0.1:443", forwarded("2001:db8::1")), "2001:db8::1"},
-		"vercel: real ip":         {true, request("10.0.0.1:443", http.Header{"X-Real-Ip": {" 203.0.113.9 "}}), "203.0.113.9"},
-		"vercel: forwarded first": {true, request("10.0.0.1:443", http.Header{"X-Forwarded-For": {"203.0.113.7"}, "X-Real-Ip": {"203.0.113.9"}}), "203.0.113.7"},
-		"vercel: empty entry":     {true, request("10.0.0.1:443", http.Header{"X-Forwarded-For": {" , 198.51.100.1"}, "X-Real-Ip": {"203.0.113.9"}}), "203.0.113.9"},
-		"vercel: no headers":      {true, request("10.0.0.1:443", nil), "10.0.0.1"},
-		"local: remote host only": {false, request("127.0.0.1:5000", nil), "127.0.0.1"},
-		"local: ipv6 remote":      {false, request("[::1]:5000", nil), "::1"},
-		"local: spoofed forwarded": {false, request("127.0.0.1:5000", http.Header{
-			"X-Forwarded-For": {"203.0.113.7"}, "X-Real-Ip": {"203.0.113.9"}}), "127.0.0.1"},
-		"local: no port": {false, request("192.0.2.5", nil), "192.0.2.5"},
+		"vercel: x-vercel first":      {true, request("10.0.0.1:443", h("X-Vercel-Forwarded-For", "203.0.113.1, 198.51.100.1", "X-Forwarded-For", "203.0.113.2", "X-Real-Ip", "203.0.113.3")), "203.0.113.1", true},
+		"vercel: x-forwarded second":  {true, request("10.0.0.1:443", h("X-Forwarded-For", "  203.0.113.2 ,198.51.100.1", "X-Real-Ip", "203.0.113.3")), "203.0.113.2", true},
+		"vercel: real ip last":        {true, request("10.0.0.1:443", h("X-Real-Ip", " 203.0.113.3 ")), "203.0.113.3", true},
+		"vercel: ipv6":                {true, request("10.0.0.1:443", h("X-Forwarded-For", "2001:DB8::1")), "2001:db8::1", true},
+		"vercel: unparsable skipped":  {true, request("10.0.0.1:443", h("X-Vercel-Forwarded-For", "not-an-ip", "X-Forwarded-For", "", "X-Real-Ip", "203.0.113.3")), "203.0.113.3", true},
+		"vercel: empty first skipped": {true, request("10.0.0.1:443", h("X-Forwarded-For", " , 198.51.100.1", "X-Real-Ip", "203.0.113.3")), "203.0.113.3", true},
+		"vercel: no headers":          {true, request("10.0.0.1:443", nil), unknownClient, false},
+		"vercel: only garbage":        {true, request("10.0.0.1:443", h("X-Forwarded-For", "x", "X-Real-Ip", "y")), unknownClient, false},
+		"local: remote host only":     {false, request("127.0.0.1:5000", nil), "127.0.0.1", true},
+		"local: ipv6 remote":          {false, request("[::1]:5000", nil), "::1", true},
+		"local: spoofed headers": {false, request("127.0.0.1:5000", h(
+			"X-Vercel-Forwarded-For", "203.0.113.1", "X-Forwarded-For", "203.0.113.7", "X-Real-Ip", "203.0.113.9")), "127.0.0.1", true},
+		"local: no port": {false, request("192.0.2.5", nil), "192.0.2.5", true},
 	} {
 		s := &server{config: Config{OnVercel: tc.vercel}}
-		if got := s.clientIP(tc.r); got != tc.want {
-			t.Errorf("%s: clientIP = %q; want %q", name, got, tc.want)
+		if got, known := s.clientIP(tc.r); got != tc.want || known != tc.known {
+			t.Errorf("%s: clientIP = %q, %v; want %q, %v", name, got, known, tc.want, tc.known)
 		}
+	}
+}
+
+func TestLimitWithoutClientIP(t *testing.T) {
+	fake := &fakeGallery{found: true}
+	h := newHarness(t, fake, testBase)
+	h.handler = New(Config{Store: fake, Keys: h.keys, BaseURL: mustURL(t, testBase), OnVercel: true, Report: func(r *http.Request, err error, operation string) {
+		h.reports = append(h.reports, operation)
+	}})
+	for i := 1; i <= 11; i++ {
+		response := h.shareRequest(http.MethodPost, "/api/gallery/reports", `{"id":"`+aSharedID+`","reason":"spam"}`, "")
+		if i <= 10 && response.Code != http.StatusNoContent || i == 11 && response.Code != http.StatusTooManyRequests {
+			t.Fatalf("request %d = %d %s", i, response.Code, response.Body)
+		}
+	}
+	if len(h.reports) != 11 || h.reports[0] != "gallery.limit.ip" {
+		t.Fatalf("reports = %v", h.reports)
 	}
 }
