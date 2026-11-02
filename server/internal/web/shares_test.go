@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -27,12 +28,13 @@ type fakeShares struct {
 	calls    []string
 	owner    string
 	packID   string
+	listed   *bool
 	sharedID string
 }
 
-func (f *fakeShares) PutShare(_ context.Context, owner, packID string, _ *bool) (*store.Share, error) {
+func (f *fakeShares) PutShare(_ context.Context, owner, packID string, listed *bool) (*store.Share, error) {
 	f.calls = append(f.calls, "put")
-	f.owner, f.packID = owner, packID
+	f.owner, f.packID, f.listed = owner, packID, listed
 	return f.put, f.putErr
 }
 
@@ -125,6 +127,8 @@ func TestSharesPutInvalid(t *testing.T) {
 	h := newHarness(t, fake, testBase)
 	for _, body := range []string{
 		`[]`, `null`, `"p"`, `{}`, `{"packId":""}`, `{"packId":1}`, `{"packId":null}`, `{"packId":"p","more":1}`, `{`,
+		`{"packId":"p","listed":"yes"}`, `{"packId":"p","listed":null}`, `{"packId":"p","listed":1}`,
+		`{"packId":"p","listed":true,"more":1}`, `{"listed":true}`,
 		`{"packId":"` + strings.Repeat("p", 5000) + `"}`,
 	} {
 		expectError(t, h.shareRequest(http.MethodPut, "/api/shares", body, testOwner), http.StatusBadRequest, "invalidWorkspace")
@@ -142,13 +146,40 @@ func TestSharesPut(t *testing.T) {
 	fake := &fakeShares{put: &store.Share{ID: "0b6f2c1e-3d4a-4f5b-8c9d-0e1f2a3b4c5d", PackID: "pk", Name: "Pack K", UpdatedAt: sharedAt}}
 	h := newHarness(t, fake, testBase)
 	response := h.shareRequest(http.MethodPut, "/api/shares", `{"packId":"pk"}`, testOwner)
-	want := `{"id":"0b6f2c1e-3d4a-4f5b-8c9d-0e1f2a3b4c5d","packId":"pk","name":"Pack K","updatedAt":"2026-10-26T09:30:15.123Z"}`
+	want := `{"id":"0b6f2c1e-3d4a-4f5b-8c9d-0e1f2a3b4c5d","packId":"pk","name":"Pack K","updatedAt":"2026-10-26T09:30:15.123Z","listed":false,"hidden":false}`
 	if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != want {
 		t.Fatalf("response = %d %s; want %s", response.Code, response.Body, want)
 	}
 	expectPrivate(t, response)
-	if fake.owner != testOwner || fake.packID != "pk" {
-		t.Fatalf("store got %s %s", fake.owner, fake.packID)
+	if fake.owner != testOwner || fake.packID != "pk" || fake.listed != nil {
+		t.Fatalf("store got %s %s %v", fake.owner, fake.packID, fake.listed)
+	}
+}
+
+func TestSharesPutListed(t *testing.T) {
+	fake := &fakeShares{put: &store.Share{ID: "i", PackID: "p", Name: "P", UpdatedAt: sharedAt, Listed: true}}
+	h := newHarness(t, fake, testBase)
+	for _, want := range []bool{true, false} {
+		body := `{"packId":"p","listed":` + strconv.FormatBool(want) + `}`
+		response := h.shareRequest(http.MethodPut, "/api/shares", body, testOwner)
+		if response.Code != http.StatusOK || !strings.Contains(response.Body.String(), `"listed":true,"hidden":false`) {
+			t.Fatalf("%s: %d %s", body, response.Code, response.Body)
+		}
+		if fake.listed == nil || *fake.listed != want {
+			t.Fatalf("%s: store got %v", body, fake.listed)
+		}
+	}
+	h.shareRequest(http.MethodPut, "/api/shares", `{"packId":"p"}`, testOwner)
+	if fake.listed != nil {
+		t.Fatalf("without listed: store got %v", *fake.listed)
+	}
+}
+
+func TestSharesPutHidden(t *testing.T) {
+	h := newHarness(t, &fakeShares{putErr: &workspace.Error{Key: "sharedPackHidden"}}, testBase)
+	expectError(t, h.shareRequest(http.MethodPut, "/api/shares", `{"packId":"p","listed":true}`, testOwner), http.StatusConflict, "sharedPackHidden")
+	if len(h.reports) != 0 {
+		t.Fatalf("reports = %v", h.reports)
 	}
 }
 
@@ -209,12 +240,12 @@ func TestSharesList(t *testing.T) {
 	expectPrivate(t, response)
 
 	fake.shares = []store.Share{
-		{ID: "b", PackID: "two", Name: "Two", UpdatedAt: sharedAt},
+		{ID: "b", PackID: "two", Name: "Two", UpdatedAt: sharedAt, Listed: true, Hidden: true},
 		{ID: "a", PackID: "one", Name: "One", UpdatedAt: sharedAt.Add(-time.Hour)},
 	}
 	response = h.shareRequest(http.MethodGet, "/api/shares", "", testOwner)
-	want := `{"shares":[{"id":"b","packId":"two","name":"Two","updatedAt":"2026-10-26T09:30:15.123Z"},` +
-		`{"id":"a","packId":"one","name":"One","updatedAt":"2026-10-26T08:30:15.123Z"}]}`
+	want := `{"shares":[{"id":"b","packId":"two","name":"Two","updatedAt":"2026-10-26T09:30:15.123Z","listed":true,"hidden":true},` +
+		`{"id":"a","packId":"one","name":"One","updatedAt":"2026-10-26T08:30:15.123Z","listed":false,"hidden":false}]}`
 	if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != want || fake.owner != testOwner {
 		t.Fatalf("response = %d %s (owner %s)", response.Code, response.Body, fake.owner)
 	}
