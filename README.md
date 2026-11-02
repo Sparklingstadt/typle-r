@@ -100,7 +100,7 @@ npm run test:e2e
 
 Goのバックエンドと API はリポジトリ直下で `gofmt -l .`・`go vet ./...`・`go test ./...` を実行します。ログインの Cookie、GitHub の OAuth（`httptest` で作った偽の GitHub を相手にします）、`/api/workspace`（検証・`revision` の競合・`409`）、iPad・Mac・Android・Windows のログイン（コード・トークン・Bearer）、セキュリティヘッダーなど、`server/internal/web` のハンドラーのテストも含みます。マイグレーション済みのテスト用DBを `TYPLE_TEST_DATABASE_URL` で指定すると、DBの読み書きも確かめます（CIの `verify` は `db:migrate` の後に実行します）。
 
-`npm test` は入力判定、記録、移行、形式検証などの単体テストです。E2Eは上限2 workersでファイル内も並列実行します。テストごとにランダムなアカウントIDを使用します。Playwright が Go のバックエンド（`go run ./server/cmd/typle-web`、ポート8081）と、本番ビルドの `next start`（ポート3101）を両方起動し、実PostgreSQLとAPIを通して作成・編集・練習・再読み込み・削除、アカウント分離、401/403/409応答を確認します。GitHub にはつながず、`tests/e2e/sessionCookie.ts` がテスト専用の秘密値で署名したログインの Cookie を作ります（Go の `server/internal/session` と同じ値になることは `tests/sessionCookie.test.cjs` が確かめます）。GitHub OAuth画面の実ログインは自動テストできないため、公開後に本番で別途確認が必要です。テストユーザーの行だけを終了後に削除します。
+`npm test` は入力判定、記録、移行、形式検証などの単体テストです。速さのため全ファイルを1つのプロセスで動かす（`--test-isolation=none`）ので、`process.env` や `globalThis` を変えるテストは終わりに元へ戻してください。E2Eは上限2 workersでファイル内も並列実行します。テストごとにランダムなアカウントIDを使用します。Playwright が Go のバックエンド（`go run ./server/cmd/typle-web`、ポート8081）と、本番ビルドの `next start`（ポート3101）を両方起動し、実PostgreSQLとAPIを通して作成・編集・練習・再読み込み・削除、アカウント分離、401/403/409応答を確認します。GitHub にはつながず、`tests/e2e/sessionCookie.ts` がテスト専用の秘密値で署名したログインの Cookie を作ります（Go の `server/internal/session` と同じ値になることは `tests/sessionCookie.test.cjs` が確かめます）。GitHub OAuth画面の実ログインは自動テストできないため、公開後に本番で別途確認が必要です。テストユーザーの行だけを終了後に削除します。
 
 元リポジトリではGitHub ActionsのCIを停止していました。この独立コピーにはCI定義を引き継いでいます。開発ビルド `.next` と本番ビルド `.next-production` は分離しています。
 
