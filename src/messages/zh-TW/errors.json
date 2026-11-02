@@ -66,5 +66,8 @@
   "adminUnavailable": "無法確認您是否為管理員。請稍後再試。",
   "invalidPage": "頁碼無效。",
   "importInputTypeInvalid": "第 {line} 行的 input_type 必須是 command、code 或 word。",
-  "invalidQuery": "搜尋條件無效。"
+  "invalidQuery": "搜尋條件無效。",
+  "invalidReport": "檢舉內容無效。",
+  "notInGallery": "未在圖庫中展示的單字包無法檢舉。",
+  "invalidRequest": "請求內容無效。"
 }

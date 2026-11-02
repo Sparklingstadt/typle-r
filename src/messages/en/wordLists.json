@@ -347,5 +347,19 @@
     "noResults": "No packs found",
     "loadFailed": "Couldn’t load the gallery. Try again in a moment.",
     "retry": "Try again"
+  },
+  "report": {
+    "open": "Report",
+    "title": "Report this pack",
+    "description": "Let the administrators know about a problem with this pack. Choose a reason and send it.",
+    "reasons": {
+      "inappropriate": "Inappropriate content",
+      "spam": "Spam or advertising",
+      "personalInfo": "Contains personal information",
+      "other": "Other"
+    },
+    "send": "Send",
+    "sent": "Your report was received",
+    "failed": "The report could not be sent. Please try again."
   }
 }

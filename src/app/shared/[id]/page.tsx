@@ -3,11 +3,12 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { CircleAlert, Plus } from "lucide-react"
+import { CircleAlert, Flag, Plus } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import ReportDialog from "@/components/Gallery/ReportDialog"
 import { MAX_LISTS } from "@/core/listOverview"
 import { decodePackFile, importPackFile, type PackFile } from "@/core/packFile"
 import { randomId } from "@/core/randomId"
@@ -83,6 +84,8 @@ function Pack({ id, file }: { id: string; file: PackFile }) {
   const { packs, lists, ready, updateLibrary, error } = useWordLists()
   const [adding, setAdding] = useState(false)
   const [failure, setFailure] = useState('')
+  const [reporting, setReporting] = useState(false)
+  const [reported, setReported] = useState(false)
   const { name, description, category, tags } = file.pack
   const full = ready && lists.length + file.lists.length > MAX_LISTS
 
@@ -117,7 +120,10 @@ function Pack({ id, file }: { id: string; file: PackFile }) {
       <div className="flex flex-wrap items-center gap-3">
         <Button disabled={!ready || adding || full} aria-describedby={full ? 'shared-full' : undefined} onClick={() => void add()}><Plus aria-hidden="true" />{t('sharedPage.add')}</Button>
         <OpenPacks />
+        <Button variant="ghost" onClick={() => setReporting(true)}><Flag aria-hidden="true" />{t('report.open')}</Button>
       </div>
+      <ReportDialog shareId={id} open={reporting} onOpenChange={setReporting} onSent={() => setReported(true)} />
+      {reported ? <p role="status" className="text-sm text-muted-foreground">{t('report.sent')}</p> : null}
       {full ? <p id="shared-full" className="text-sm text-muted-foreground">{t('catalog.full', { max: MAX_LISTS })}</p> : null}
       {message ? <Alert variant="destructive"><CircleAlert aria-hidden="true" /><AlertDescription>{message}</AlertDescription></Alert> : null}
     </header>

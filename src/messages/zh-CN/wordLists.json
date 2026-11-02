@@ -347,5 +347,19 @@
     "noResults": "没有找到",
     "loadFailed": "无法加载图库。请稍后再试。",
     "retry": "重试"
+  },
+  "report": {
+    "open": "举报",
+    "title": "举报此词包",
+    "description": "向管理员反馈此词包的问题。请选择理由后发送。",
+    "reasons": {
+      "inappropriate": "内容不当",
+      "spam": "垃圾信息或广告",
+      "personalInfo": "包含个人信息",
+      "other": "其他"
+    },
+    "send": "发送",
+    "sent": "已收到你的举报",
+    "failed": "无法发送举报，请重试。"
   }
 }

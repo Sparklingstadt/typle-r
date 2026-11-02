@@ -114,3 +114,41 @@ test('a pack that is not in the gallery is not listed and its add is not counted
   const rows = await withDatabase(pool => pool.query('SELECT add_count FROM typle_shared_packs WHERE owner_id = $1', [accountId]))
   expect(rows.rows.map(row => Number(row.add_count))).toEqual([0])
 })
+
+const reports = (shareId: string) => withDatabase(pool => pool.query('SELECT reason FROM typle_gallery_reports WHERE share_id = $1', [shareId]))
+
+test('a guest reports a pack in the gallery and an administrator sees it', async ({ page, browser }) => {
+  const id = await share(page, true)
+  const guest = await browser.newContext({ baseURL: origin })
+  try {
+    const view = await guest.newPage()
+    await view.goto(`/shared/${id}`)
+    await view.getByRole('button', { name: '通報' }).click()
+    const dialog = view.getByRole('dialog')
+    const send = dialog.getByRole('button', { name: '送る' })
+    // Nothing can be sent before a reason is chosen.
+    await expect(send).toBeDisabled()
+    await dialog.getByRole('radio', { name: 'スパム・宣伝' }).check()
+    await expect(send).toBeEnabled()
+    await send.click()
+    await expect(dialog).toBeHidden()
+    await expect(view.getByRole('status').filter({ hasText: '通報を受け付けました' })).toBeVisible()
+  } finally { await guest.close() }
+  expect((await reports(id)).rows.map(row => row.reason)).toEqual(['spam'])
+})
+
+test('reporting a pack that is only shared by link says it failed', async ({ page, browser }) => {
+  const id = await share(page, false)
+  const guest = await browser.newContext({ baseURL: origin })
+  try {
+    const view = await guest.newPage()
+    await view.goto(`/shared/${id}`)
+    await view.getByRole('button', { name: '通報' }).click()
+    const dialog = view.getByRole('dialog')
+    await dialog.getByRole('radio', { name: 'その他' }).check()
+    await dialog.getByRole('button', { name: '送る' }).click()
+    await expect(dialog.getByRole('alert')).toHaveText('ギャラリーに載っていないパックは通報できません。')
+    await expect(view.getByRole('status').filter({ hasText: '通報を受け付けました' })).toHaveCount(0)
+  } finally { await guest.close() }
+  expect((await reports(id)).rows).toHaveLength(0)
+})

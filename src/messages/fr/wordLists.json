@@ -347,5 +347,19 @@
     "noResults": "Aucun résultat",
     "loadFailed": "Impossible de charger la galerie. Réessayez dans un instant.",
     "retry": "Réessayer"
+  },
+  "report": {
+    "open": "Signaler",
+    "title": "Signaler ce pack",
+    "description": "Informez les administrateurs d’un problème avec ce pack. Choisissez un motif puis envoyez le signalement.",
+    "reasons": {
+      "inappropriate": "Contenu inapproprié",
+      "spam": "Spam ou publicité",
+      "personalInfo": "Contient des informations personnelles",
+      "other": "Autre"
+    },
+    "send": "Envoyer",
+    "sent": "Votre signalement a été reçu",
+    "failed": "Le signalement n’a pas pu être envoyé. Veuillez réessayer."
   }
 }

@@ -347,5 +347,19 @@
     "noResults": "找不到",
     "loadFailed": "無法載入圖庫。請稍後再試。",
     "retry": "重試"
+  },
+  "report": {
+    "open": "檢舉",
+    "title": "檢舉此單字包",
+    "description": "向管理員回報此單字包的問題。請選擇理由後送出。",
+    "reasons": {
+      "inappropriate": "內容不當",
+      "spam": "垃圾訊息或廣告",
+      "personalInfo": "包含個人資料",
+      "other": "其他"
+    },
+    "send": "送出",
+    "sent": "已收到你的檢舉",
+    "failed": "無法送出檢舉，請再試一次。"
   }
 }
