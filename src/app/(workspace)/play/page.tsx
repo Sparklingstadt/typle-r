@@ -320,6 +320,15 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
               aria-label={t('word.inputLabel')} aria-invalid={hasError} aria-describedby="practice-feedback"
               className="absolute top-0 left-1/2 size-px overflow-hidden border-0 bg-transparent p-0 text-transparent caret-transparent opacity-0 outline-none"
               onPaste={event => event.preventDefault()} onDrop={event => event.preventDefault()}
+              // Input only grows at the end: a click or tap on the field would leave the caret earlier, and a key typed
+              // there would make the characters after it count as new input (and as mistakes) again. Text being composed by an
+              // input method is left alone: its caret belongs to the IME.
+              onSelect={event => {
+                const field = event.currentTarget
+                const end = field.value.length
+                if (composition !== null || field.value !== session.input) return
+                if (field.selectionStart !== end || field.selectionEnd !== end) field.setSelectionRange(end, end)
+              }}
               onFocus={() => { setInputFocused(true); setFocusedOnce(true); resume() }} onBlur={() => { setInputFocused(false); pause() }}
               onKeyDown={event => { if (event.key === 'Escape' && composition === null && !event.nativeEvent.isComposing) { event.preventDefault(); restart() } }}
               onCompositionStart={startComposition}
