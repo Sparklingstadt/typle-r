@@ -91,23 +91,30 @@ func TestGalleryEscapesWildcards(t *testing.T) {
 	connection, conn := database(t)
 	id := owner(t, conn)
 	s := open(t, connection, true)
-	percent := insertShare(t, conn, id, 1, galleryRow{pack: map[string]any{"name": "100%" + id}, listed: listedIn(0)})
-	underscore := insertShare(t, conn, id, 2, galleryRow{pack: map[string]any{"name": "a_b" + id}, listed: listedIn(0)})
-	backslash := insertShare(t, conn, id, 3, galleryRow{pack: map[string]any{"name": `c\d` + id}, listed: listedIn(0)})
-	plain := insertShare(t, conn, id, 4, galleryRow{pack: map[string]any{"name": "100x" + id + " axb"}, listed: listedIn(0)})
+	// Each wildcard has a plain pack that the search would also find if the character were not escaped.
+	listed := func(n int, name string) string {
+		return insertShare(t, conn, id, n, galleryRow{pack: map[string]any{"name": name}, listed: listedIn(0)})
+	}
+	percent, plainPercent := listed(1, "100%"+id), listed(2, "100x"+id)
+	underscore, plainUnderscore := listed(3, "a_"+id), listed(4, "ab"+id)
+	backslash, plainBackslash := listed(5, `c\`+id), listed(6, "cd"+id)
 
-	// Without escaping, "%"+id or "_b"+id would also match the plain pack's name.
-	for text, want := range map[string]string{"%" + id: percent, "_b" + id: underscore, `\d` + id: backslash} {
-		got := galleryIDs(t, s, GalleryQuery{Text: text, Sort: GalleryNew, Page: 1})
-		if !slices.Equal(got, []string{want}) {
-			t.Errorf("Text %q = %v, want %s (plain %s)", text, got, want, plain)
+	// Unescaped, "%"+id and "_"+id match the plain names, and a backslash makes the next character literal.
+	for _, c := range []struct{ text, want, plain string }{
+		{"%" + id, percent, plainPercent},
+		{"_" + id, underscore, plainUnderscore},
+		{`\` + id, backslash, plainBackslash},
+	} {
+		got := galleryIDs(t, s, GalleryQuery{Text: c.text, Sort: GalleryNew, Page: 1})
+		if !slices.Equal(got, []string{c.want}) {
+			t.Errorf("Text %q = %v, want only %s (not %s)", c.text, got, c.want, c.plain)
 		}
 	}
-	// A lone wildcard matches only the names that contain it.
-	for text, want := range map[string]string{"%": percent, "_": underscore} {
+	// A lone wildcard matches only the names that contain it, not every pack.
+	for text, c := range map[string][2]string{"%": {percent, plainPercent}, "_": {underscore, plainUnderscore}} {
 		got := galleryIDs(t, s, GalleryQuery{Text: text, Sort: GalleryNew, Page: 1})
-		if !slices.Contains(got, want) || slices.Contains(got, plain) {
-			t.Errorf("Text %q = %v, want %s without %s", text, got, want, plain)
+		if !slices.Contains(got, c[0]) || slices.Contains(got, c[1]) {
+			t.Errorf("Text %q = %v, want %s without %s", text, got, c[0], c[1])
 		}
 	}
 }
@@ -182,14 +189,20 @@ func TestGalleryPackWithoutLabels(t *testing.T) {
 	id := owner(t, conn)
 	s := open(t, connection, true)
 	w := saved(t, s, id)
-	// Give the pack some words in two lists: the lists a and b share the first pack's id only when moved there.
 	pack := w.Packs[0].ID
+	name := "ラベルなし" + id
+	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) {
+		_, err := workspace.UpdatePack(w, pack, workspace.PackInput{Name: &name})
+		return true, err
+	}); err != nil {
+		t.Fatal(err)
+	}
 	yes := true
 	share, err := s.PutShare(ctx, id, pack, &yes)
 	if err != nil {
 		t.Fatal(err)
 	}
-	page, err := s.Gallery(ctx, GalleryQuery{Text: share.Name, Sort: GalleryNew, Page: 1})
+	page, err := s.Gallery(ctx, GalleryQuery{Text: id, Sort: GalleryNew, Page: 1})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -202,7 +215,7 @@ func TestGalleryPackWithoutLabels(t *testing.T) {
 	if got == nil {
 		t.Fatalf("%s not in %+v", share.ID, page.Packs)
 	}
-	if got.Description != "" || got.Category != "" || got.Tags != nil || got.Name != share.Name {
+	if got.Description != "" || got.Category != "" || got.Tags != nil || got.Name != name {
 		t.Errorf("pack = %+v", got)
 	}
 
