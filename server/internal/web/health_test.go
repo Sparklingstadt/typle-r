@@ -101,7 +101,9 @@ func TestHealthAlone(t *testing.T) {
 }
 
 // Nor links.
-func (f fakeStore) PutShare(context.Context, string, string) (*store.Share, error) { return nil, f.err }
+func (f fakeStore) PutShare(context.Context, string, string, *bool) (*store.Share, error) {
+	return nil, f.err
+}
 
 func (f fakeStore) DeleteShare(context.Context, string, string) error { return f.err }
 

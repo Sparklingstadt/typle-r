@@ -30,7 +30,7 @@ type fakeShares struct {
 	sharedID string
 }
 
-func (f *fakeShares) PutShare(_ context.Context, owner, packID string) (*store.Share, error) {
+func (f *fakeShares) PutShare(_ context.Context, owner, packID string, _ *bool) (*store.Share, error) {
 	f.calls = append(f.calls, "put")
 	f.owner, f.packID = owner, packID
 	return f.put, f.putErr

@@ -83,7 +83,7 @@ func (s *server) putShare(w http.ResponseWriter, r *http.Request) {
 		refuse(w, http.StatusBadRequest, "invalidWorkspace")
 		return
 	}
-	share, err := s.config.Store.PutShare(r.Context(), user.Sub, packID)
+	share, err := s.config.Store.PutShare(r.Context(), user.Sub, packID, nil)
 	var refused *workspace.Error
 	switch {
 	case errors.As(err, &refused) && refused.Key == "packNotFound":

@@ -21,7 +21,7 @@ type Store interface {
 	ReadRevision(ctx context.Context, owner string) (*store.Saved, error)
 	WriteRevision(ctx context.Context, owner string, revision int, change store.Change) (*store.Saved, error)
 	operation.Writer
-	PutShare(ctx context.Context, owner, packID string) (*store.Share, error)
+	PutShare(ctx context.Context, owner, packID string, listed *bool) (*store.Share, error)
 	DeleteShare(ctx context.Context, owner, packID string) error
 	ListShares(ctx context.Context, owner string) ([]store.Share, error)
 	SharedPack(ctx context.Context, id string) (json.RawMessage, error)

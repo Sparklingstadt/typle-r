@@ -40,7 +40,7 @@ func (fakeStore) WriteRevision(context.Context, string, int, store.Change) (*sto
 func (fakeStore) Modify(context.Context, string, func(*workspace.Workspace) (bool, error)) (*workspace.Workspace, error) {
 	return nil, errors.New("not used")
 }
-func (fakeStore) PutShare(context.Context, string, string) (*store.Share, error) {
+func (fakeStore) PutShare(context.Context, string, string, *bool) (*store.Share, error) {
 	return nil, errors.New("not used")
 }
 func (fakeStore) DeleteShare(context.Context, string, string) error { return errors.New("not used") }
