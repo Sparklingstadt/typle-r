@@ -32,7 +32,7 @@ Typle 本体（Web版と iPad・Mac・Android・Windows 版）が使う、アプ
 
 ## 共通事項
 
-- 本文はJSON（`Content-Type: application/json; charset=utf-8`）で、`Cache-Control: private, no-store`・`Vary: Cookie` を付けます。`/api/shared`・`/api/gallery`・`/api/gallery/categories` は `Cache-Control: no-store` です。
+- 本文はJSON（`Content-Type: application/json; charset=utf-8`）で、`Cache-Control: private, no-store`・`Vary: Cookie` を付けます。`/api/shared`・`/api/gallery`・`/api/gallery/categories`・`/api/gallery/added` は `Cache-Control: no-store` で、`X-Robots-Tag: noindex` も付けます。
 - エラーは `{ "error": "<キー>" }` です。キーはアプリの `errors` のメッセージのキーで、画面が利用者の言語で表示します。
 - すべての応答に `Content-Security-Policy: frame-ancestors 'none'; base-uri 'self'; object-src 'none'`・`X-Frame-Options: DENY`・`X-Content-Type-Options: nosniff`・`Referrer-Policy: strict-origin-when-cross-origin` を付けます（Vercel では `next.config.mjs` のヘッダーが Go の関数に届かないため）。
 - `HEAD` は `GET` と同じに答えます（本文なし）。

@@ -15,7 +15,7 @@
 
 ## ギャラリー
 
-ギャラリーは、掲載中で非公開にされていない共有の一覧です。3つとも `/api/shared` と同じくログイン不要で、すべての応答（エラーも）に `X-Robots-Tag: noindex`・`Cache-Control: no-store` を付けます。
+ギャラリーは、掲載中で非公開にされていない共有の一覧です。3つとも `/api/shared` と同じくログイン不要（ユーザーの確認はしません）で、すべての応答（エラーも）に `X-Robots-Tag: noindex`・`Cache-Control: no-store` を付けます。
 
 | メソッドとパス | 本文 | 応答 |
 |---|---|---|
@@ -23,4 +23,4 @@
 | `GET /api/gallery/categories` | なし | `200 { "categories": [{ "name", "count" }] }`（件数の多い順、同じなら名前の順） |
 | `POST /api/gallery/added?id=<共有のID>` | なし（`Content-Type` は見ない。`Origin` は見る） | `204`。掲載中の共有なら追加数（`added`）を1増やす。そうでない共有・ない共有でも `204` で、何も変えない（載っているかどうかを知らせない） |
 
-- DB に届かないときは `503 databaseUnavailable` です。Vercel では `/api/shared` と同じく、ログインの設定がなくても DB だけで答えます。
+- DB に届かないときは `503 databaseUnavailable` です。Vercel では、`GET /api/gallery` と `GET /api/gallery/categories` は `/api/shared` と同じく、ログインの設定がなくても DB だけで答えます。`POST /api/gallery/added` は `Origin` を確かめるため、`/api/shares` と同じ経路を通り、ログインの設定（`AUTH_SECRET`・`AUTH_URL`）がなければ `503 authUnavailable` です。
