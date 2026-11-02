@@ -318,3 +318,220 @@ func TestCountAddedOnlyListed(t *testing.T) {
 		t.Errorf("counts = %d %d %d", added(listed), added(unlisted), added(hidden))
 	}
 }
+
+func reportRows(t *testing.T, conn *pgx.Conn, share string) int {
+	t.Helper()
+	var n int
+	if err := conn.QueryRow(context.Background(), `SELECT count(*)::int FROM typle_gallery_reports WHERE share_id = $1`, share).Scan(&n); err != nil {
+		t.Fatal(err)
+	}
+	return n
+}
+
+func TestReport(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	listed := insertShare(t, conn, id, 1, galleryRow{pack: map[string]any{"name": "a"}, listed: listedIn(0)})
+	unlisted := insertShare(t, conn, id, 2, galleryRow{pack: map[string]any{"name": "b"}})
+	hidden := insertShare(t, conn, id, 3, galleryRow{pack: map[string]any{"name": "c"}, listed: listedIn(0), hidden: listedIn(0)})
+
+	if ok, err := s.Report(ctx, listed, "spam"); err != nil || !ok {
+		t.Fatalf("Report(listed) = %v, %v", ok, err)
+	}
+	if n := reportRows(t, conn, listed); n != 1 {
+		t.Errorf("rows = %d, want 1", n)
+	}
+	for _, target := range []string{unlisted, hidden, workspace.NewID(), "x"} {
+		if ok, err := s.Report(ctx, target, "spam"); err != nil || ok {
+			t.Errorf("Report(%q) = %v, %v; want false, nil", target, ok, err)
+		}
+	}
+	if reportRows(t, conn, unlisted) != 0 || reportRows(t, conn, hidden) != 0 {
+		t.Error("a report was recorded for an unlisted or hidden share")
+	}
+}
+
+func TestReportsGoWithShare(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	w := saved(t, s, id)
+	pack := w.Packs[0].ID
+	yes := true
+	share, err := s.PutShare(ctx, id, pack, &yes)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok, err := s.Report(ctx, share.ID, "other"); err != nil || !ok {
+		t.Fatalf("Report = %v, %v", ok, err)
+	}
+	if err := s.DeleteShare(ctx, id, pack); err != nil {
+		t.Fatal(err)
+	}
+	if n := reportRows(t, conn, share.ID); n != 0 {
+		t.Errorf("rows = %d, want 0", n)
+	}
+}
+
+func TestAdminGallery(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	category := "管理" + id
+	pack := func(name string) map[string]any { return map[string]any{"name": name, "category": category} }
+	many := insertShare(t, conn, id, 1, galleryRow{pack: pack("many"), listed: listedIn(-time.Hour)})
+	one := insertShare(t, conn, id, 2, galleryRow{pack: pack("one"), listed: listedIn(0)})
+	hidden := insertShare(t, conn, id, 3, galleryRow{pack: pack("hidden"), listed: listedIn(-2 * time.Hour), hidden: listedIn(0)})
+	plain := insertShare(t, conn, id, 4, galleryRow{pack: pack("plain"), listed: listedIn(-3 * time.Hour)})
+	unlisted := insertShare(t, conn, id, 5, galleryRow{pack: pack("unlisted")})
+	// Hiding a share that was never listed still shows it.
+	hiddenOnly := insertShare(t, conn, id, 6, galleryRow{pack: pack("hiddenOnly"), hidden: listedIn(0)})
+
+	// Reports of hidden shares are inserted directly, as Report refuses them.
+	for share, reasons := range map[string][]string{
+		many:   {"spam", "spam", "inappropriate"},
+		one:    {"other"},
+		hidden: {"personalInfo"},
+	} {
+		for _, reason := range reasons {
+			if _, err := conn.Exec(ctx, `INSERT INTO typle_gallery_reports (id, share_id, reason) VALUES ($1, $2, $3)`,
+				workspace.NewID(), share, reason); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+
+	packs, err := s.AdminGallery(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(packs) > AdminGalleryRows {
+		t.Errorf("rows = %d, want at most %d", len(packs), AdminGalleryRows)
+	}
+	index := map[string]int{}
+	byID := map[string]AdminGalleryPack{}
+	for i, p := range packs {
+		index[p.ID] = i
+		byID[p.ID] = p
+	}
+	for _, want := range []string{many, one, hidden, plain, hiddenOnly} {
+		if _, ok := byID[want]; !ok {
+			t.Fatalf("%s missing from the admin gallery", want)
+		}
+	}
+	if _, ok := byID[unlisted]; ok {
+		t.Error("an unlisted, unhidden share is in the admin gallery")
+	}
+	// one and hidden have a report each, so their order depends on which report is the more recent.
+	if index[many] > min(index[one], index[hidden]) || max(index[one], index[hidden]) > index[plain] {
+		t.Errorf("order: many %d, one %d, hidden %d, plain %d", index[many], index[one], index[hidden], index[plain])
+	}
+	got := byID[many]
+	if got.Reports != 3 || got.Reasons["spam"] != 2 || got.Reasons["inappropriate"] != 1 || len(got.Reasons) != 2 ||
+		got.Name != "many" || got.Category != category || got.ListedAt == nil || got.HiddenAt != nil {
+		t.Errorf("many = %+v", got)
+	}
+	if h := byID[hidden]; h.HiddenAt == nil || h.ListedAt == nil || h.Reports != 1 {
+		t.Errorf("hidden = %+v", h)
+	}
+	if h := byID[hiddenOnly]; h.HiddenAt == nil || h.ListedAt != nil {
+		t.Errorf("hiddenOnly = %+v", h)
+	}
+	if p := byID[plain]; p.Reports != 0 || p.Reasons == nil || len(p.Reasons) != 0 {
+		t.Errorf("plain = %+v", p)
+	}
+}
+
+func hiddenAt(t *testing.T, conn *pgx.Conn, id string) *time.Time {
+	t.Helper()
+	var at *time.Time
+	if err := conn.QueryRow(context.Background(), `SELECT hidden_at FROM typle_shared_packs WHERE id = $1`, id).Scan(&at); err != nil {
+		t.Fatal(err)
+	}
+	return at
+}
+
+func TestSetHidden(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	w := saved(t, s, id)
+	name := "非公開" + id
+	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) {
+		_, err := workspace.UpdatePack(w, w.Packs[0].ID, workspace.PackInput{Name: &name})
+		return true, err
+	}); err != nil {
+		t.Fatal(err)
+	}
+	yes := true
+	shared, err := s.PutShare(ctx, id, w.Packs[0].ID, &yes)
+	if err != nil {
+		t.Fatal(err)
+	}
+	share := shared.ID
+	query := GalleryQuery{Text: name, Sort: GalleryNew, Page: 1}
+
+	if ok, err := s.SetHidden(ctx, share, true); err != nil || !ok {
+		t.Fatalf("hide = %v, %v", ok, err)
+	}
+	first := hiddenAt(t, conn, share)
+	if first == nil {
+		t.Fatal("hidden_at not set")
+	}
+	if got := galleryIDs(t, s, query); len(got) != 0 {
+		t.Errorf("gallery = %v, want none", got)
+	}
+	if data, err := s.SharedPack(ctx, share); err != nil || data != nil {
+		t.Errorf("SharedPack = %s, %v; want nil", data, err)
+	}
+	time.Sleep(10 * time.Millisecond)
+	if ok, err := s.SetHidden(ctx, share, true); err != nil || !ok {
+		t.Fatalf("hide again = %v, %v", ok, err)
+	}
+	if again := hiddenAt(t, conn, share); again == nil || !again.Equal(*first) {
+		t.Errorf("hidden_at = %v, want %v", again, first)
+	}
+	if ok, err := s.SetHidden(ctx, share, false); err != nil || !ok {
+		t.Fatalf("unhide = %v, %v", ok, err)
+	}
+	if hiddenAt(t, conn, share) != nil {
+		t.Error("hidden_at not cleared")
+	}
+	if got := galleryIDs(t, s, query); !slices.Equal(got, []string{share}) {
+		t.Errorf("gallery = %v", got)
+	}
+	if data, err := s.SharedPack(ctx, share); err != nil || data == nil {
+		t.Errorf("SharedPack = %s, %v", data, err)
+	}
+	for _, missing := range []string{workspace.NewID(), "x"} {
+		if ok, err := s.SetHidden(ctx, missing, true); err != nil || ok {
+			t.Errorf("SetHidden(%q) = %v, %v; want false, nil", missing, ok, err)
+		}
+	}
+}
+
+func TestSetHiddenKeepsListing(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	category := "掲載維持" + id
+	share := insertShare(t, conn, id, 1, galleryRow{pack: map[string]any{"name": "a", "category": category}, listed: listedIn(-time.Hour)})
+	before := listedAt(t, conn, share)
+	for _, hide := range []bool{true, false} {
+		if ok, err := s.SetHidden(ctx, share, hide); err != nil || !ok {
+			t.Fatalf("SetHidden(%v) = %v, %v", hide, ok, err)
+		}
+		if at := listedAt(t, conn, share); at == nil || !at.Equal(*before) {
+			t.Fatalf("listed_at = %v, want %v", at, before)
+		}
+	}
+	if got := galleryIDs(t, s, GalleryQuery{Category: category, Sort: GalleryNew, Page: 1}); !slices.Equal(got, []string{share}) {
+		t.Errorf("gallery = %v", got)
+	}
+}
