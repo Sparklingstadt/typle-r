@@ -16,6 +16,9 @@ const (
 	maxSafeInteger = 1<<53 - 1
 )
 
+// RecallMode is the mode of a run practised by recalling the words. A normal run has no mode.
+const RecallMode = "recall"
+
 var recordID = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
 // RecordInput is a practice run as a request gives it. Numbers are read as JSON numbers so that a value such as 1.5
@@ -31,6 +34,8 @@ type RecordInput struct {
 	WordCount *float64 `json:"wordCount"`
 	DeviceID  *string  `json:"deviceId"`
 	Device    *Device  `json:"device"`
+	// Mode is RecallMode or left out. /api/v1 does not accept it (see the api package's addRecord).
+	Mode *string `json:"mode"`
 }
 
 func finite(value *float64) bool {
@@ -95,9 +100,16 @@ func AddRecord(w *Workspace, listID string, input RecordInput, newID string) (re
 			return Record{}, false, &Error{Key: "deviceNotFound"}
 		}
 	}
+	mode := ""
+	if input.Mode != nil {
+		if *input.Mode != RecallMode {
+			return Record{}, false, invalid
+		}
+		mode = *input.Mode
+	}
 	accuracy := *input.Accuracy
 	record = Record{ID: &id, Time: *input.Time, Date: FormatTime(date), Mistakes: &mistakes, Accuracy: &accuracy,
-		WordCount: &wordCount, Device: device, At: date}
+		WordCount: &wordCount, Device: device, Mode: mode, At: date}
 	list.Records = append(list.Records, record)
 	return record, true, nil
 }

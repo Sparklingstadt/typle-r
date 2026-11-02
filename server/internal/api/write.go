@@ -216,6 +216,11 @@ func (s *server) addRecord(w http.ResponseWriter, r *http.Request, owner string)
 	if !ok {
 		return
 	}
+	if input.Mode != nil {
+		// A recall run is saved by the app only; the API does not take a mode.
+		failure(w, http.StatusBadRequest, "invalidJson")
+		return
+	}
 	record, added, err := operation.AddRecord(r.Context(), s.writer, owner, r.PathValue("listId"), *input)
 	if err != nil {
 		fail(w, r, err)

@@ -255,3 +255,28 @@ func TestRepeatedWallClockIsTheEarlier(t *testing.T) {
 		t.Errorf("week before %s", got)
 	}
 }
+
+func withRecall() dashOption { return func(r *Record) { r.Mode = RecallMode } }
+
+func TestDashboardLeavesOutRecall(t *testing.T) {
+	// Recall runs count in the week's summary but not in the accuracy, the next lists or the trends.
+	only := dashList("only", dash("2026-09-26T00:00:00Z", 10, withRecall()))
+	mixed := dashList("mixed", dash("2026-09-20T00:00:00Z", 10, withAccuracy(float(80))),
+		dash("2026-09-26T00:00:00Z", 10, withRecall(), withAccuracy(float(10))))
+	lists := []List{only, mixed}
+	summary := Summarize(lists, dashNow)
+	if summary.WeekCount != 2 {
+		t.Errorf("week count %d", summary.WeekCount)
+	}
+	if summary.Accuracy == nil || summary.Accuracy.RecentCount != 1 || summary.Accuracy.Recent != 80 {
+		t.Errorf("accuracy %+v", summary.Accuracy)
+	}
+	trends := ListTrends(lists)
+	if len(trends) != 1 || trends[0].List.ID != "mixed" || trends[0].Count != 1 {
+		t.Errorf("trends %+v", trends)
+	}
+	next := NextLists(lists, dashNow, 5)
+	if len(next) == 0 || next[0].List.ID != "only" || next[0].Reason.Kind != "new" {
+		t.Errorf("next %+v", next)
+	}
+}

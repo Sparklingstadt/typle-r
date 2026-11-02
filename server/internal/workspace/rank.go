@@ -51,8 +51,9 @@ func RankRecords(records []Record, order string) []Record {
 }
 
 // comparable is comparableRecords (src/core/records.ts): editing a list changes the task, so only runs at its current
-// word count are compared. With none of those, every record is.
+// word count are compared, and never a run practised in a mode (recall). With none of those, every normal record is.
 func comparable(list *List, records []*Record) []*Record {
+	records = slices.DeleteFunc(slices.Clone(records), func(r *Record) bool { return r.Mode != "" })
 	same := slices.DeleteFunc(slices.Clone(records), func(r *Record) bool { return r.WordCount == nil || *r.WordCount != len(list.Words) })
 	if len(same) > 0 {
 		return same

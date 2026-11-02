@@ -359,3 +359,16 @@ func TestRecordOperationFixtures(t *testing.T) {
 		})
 	}
 }
+
+func TestAddRecordKeepsMode(t *testing.T) {
+	input := run()
+	input.Mode = text(RecallMode)
+	record, added, err := AddRecord(two(), "l1", input, "new")
+	if err != nil || !added || record.Mode != RecallMode {
+		t.Fatalf("record = %+v, added = %v, err = %v", record, added, err)
+	}
+	input.Mode = text("other")
+	if _, _, err := AddRecord(two(), "l1", input, "new"); err == nil || err.(*Error).Key != "invalidRecord" {
+		t.Fatalf("err = %v", err)
+	}
+}

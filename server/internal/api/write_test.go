@@ -214,6 +214,15 @@ func TestAddRecord(t *testing.T) {
 	}
 }
 
+func TestAddRecordRefusesMode(t *testing.T) {
+	w := writable(t)
+	run := `{"id":"r9","time":3,"date":"2026-10-12T00:00:00Z","mistakes":0,"accuracy":100,"mode":"recall"}`
+	expect(t, send(w, "POST", "/api/v1/lists/l1/records", run), 400, `{"error":"invalidJson"}`)
+	if len(w.owners) != 0 || len(w.workspace.Lists[0].Records) != 3 {
+		t.Fatalf("records = %+v", w.workspace.Lists[0].Records)
+	}
+}
+
 func TestReadOnlyRefusesWrites(t *testing.T) {
 	s := saved(t)
 	request := httptest.NewRequest("POST", "/api/v1/lists", strings.NewReader(`{"name":"a","words":[{"display":"a","input":"a"}]}`))

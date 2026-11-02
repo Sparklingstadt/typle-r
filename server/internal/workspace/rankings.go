@@ -50,7 +50,7 @@ func onDevice(record *Record, device string) bool {
 func ListRanking(list *List, device, order string, includeOthers bool, now time.Time) Ranking {
 	records := []*Record{}
 	for i := range list.Records {
-		if onDevice(&list.Records[i], device) {
+		if list.Records[i].Mode == "" && onDevice(&list.Records[i], device) {
 			records = append(records, &list.Records[i])
 		}
 	}
