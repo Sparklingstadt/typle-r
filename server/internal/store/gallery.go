@@ -3,11 +3,13 @@ package store
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"slices"
 	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
 
@@ -166,6 +168,11 @@ func (s *Store) Report(ctx context.Context, id, reason string) (bool, error) {
 	tag, err := s.pool.Exec(ctx, `INSERT INTO typle_gallery_reports (id, share_id, reason)
 		SELECT $1, id, $3 FROM typle_shared_packs WHERE id = $2 AND listed_at IS NOT NULL AND hidden_at IS NULL`,
 		workspace.NewID(), id, reason)
+	// The share can be deleted between the statement's snapshot and the foreign key check; it is gone then.
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) && pgErr.Code == "23503" {
+		return false, nil
+	}
 	if err != nil {
 		return false, err
 	}

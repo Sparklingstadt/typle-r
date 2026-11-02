@@ -383,25 +383,33 @@ func TestAdminGallery(t *testing.T) {
 	s := open(t, connection, true)
 	category := "管理" + id
 	pack := func(name string) map[string]any { return map[string]any{"name": name, "category": category} }
+	// Every share the test looks for has a report, so it ranks above the shares without one that other tests leave in
+	// the shared database and cannot be pushed out of the first AdminGalleryRows.
 	many := insertShare(t, conn, id, 1, galleryRow{pack: pack("many"), listed: listedIn(-time.Hour)})
-	one := insertShare(t, conn, id, 2, galleryRow{pack: pack("one"), listed: listedIn(0)})
-	hidden := insertShare(t, conn, id, 3, galleryRow{pack: pack("hidden"), listed: listedIn(-2 * time.Hour), hidden: listedIn(0)})
-	plain := insertShare(t, conn, id, 4, galleryRow{pack: pack("plain"), listed: listedIn(-3 * time.Hour)})
-	unlisted := insertShare(t, conn, id, 5, galleryRow{pack: pack("unlisted")})
-	// Hiding a share that was never listed still shows it.
+	newer := insertShare(t, conn, id, 2, galleryRow{pack: pack("newer"), listed: listedIn(-5 * time.Hour)})
+	older := insertShare(t, conn, id, 3, galleryRow{pack: pack("older"), listed: listedIn(-4 * time.Hour)})
+	listedNew := insertShare(t, conn, id, 4, galleryRow{pack: pack("listedNew"), listed: listedIn(-2 * time.Hour)})
+	hidden := insertShare(t, conn, id, 5, galleryRow{pack: pack("hidden"), listed: listedIn(-3 * time.Hour), hidden: listedIn(0)})
+	// Hiding a share that was never listed still shows it, after the listed ones.
 	hiddenOnly := insertShare(t, conn, id, 6, galleryRow{pack: pack("hiddenOnly"), hidden: listedIn(0)})
+	linkOnly := insertShare(t, conn, id, 7, galleryRow{pack: pack("linkOnly")})
 
-	// Reports of hidden shares are inserted directly, as Report refuses them.
-	for share, reasons := range map[string][]string{
-		many:   {"spam", "spam", "inappropriate"},
-		one:    {"other"},
-		hidden: {"personalInfo"},
+	// Reports are inserted directly (Report refuses hidden shares), each at a fixed time: three for many, two for newer
+	// and older (newer has the more recent last report), and one each for the rest at the same time, so that only
+	// listed_at (the newest first, a share never listed last) tells them apart.
+	base := time.Now().Add(-time.Hour)
+	for _, r := range []struct {
+		share, reason string
+		at            time.Time
+	}{
+		{many, "spam", base.Add(-30 * time.Minute)}, {many, "spam", base.Add(-20 * time.Minute)}, {many, "inappropriate", base.Add(-10 * time.Minute)},
+		{newer, "other", base.Add(-40 * time.Minute)}, {newer, "spam", base.Add(-5 * time.Minute)},
+		{older, "other", base.Add(-50 * time.Minute)}, {older, "spam", base.Add(-6 * time.Minute)},
+		{listedNew, "other", base}, {hidden, "personalInfo", base}, {hiddenOnly, "other", base},
 	} {
-		for _, reason := range reasons {
-			if _, err := conn.Exec(ctx, `INSERT INTO typle_gallery_reports (id, share_id, reason) VALUES ($1, $2, $3)`,
-				workspace.NewID(), share, reason); err != nil {
-				t.Fatal(err)
-			}
+		if _, err := conn.Exec(ctx, `INSERT INTO typle_gallery_reports (id, share_id, reason, created_at) VALUES ($1, $2, $3, $4)`,
+			workspace.NewID(), r.share, r.reason, r.at); err != nil {
+			t.Fatal(err)
 		}
 	}
 
@@ -418,31 +426,28 @@ func TestAdminGallery(t *testing.T) {
 		index[p.ID] = i
 		byID[p.ID] = p
 	}
-	for _, want := range []string{many, one, hidden, plain, hiddenOnly} {
-		if _, ok := byID[want]; !ok {
-			t.Fatalf("%s missing from the admin gallery", want)
+	order := []string{many, newer, older, listedNew, hidden, hiddenOnly}
+	for i, share := range order {
+		if _, ok := byID[share]; !ok {
+			t.Fatalf("%s missing from the admin gallery", share)
+		}
+		if i > 0 && index[order[i-1]] >= index[share] {
+			t.Errorf("order: %s (%d) should come before %s (%d)", order[i-1], index[order[i-1]], share, index[share])
 		}
 	}
-	if _, ok := byID[unlisted]; ok {
-		t.Error("an unlisted, unhidden share is in the admin gallery")
-	}
-	// one and hidden have a report each, so their order depends on which report is the more recent.
-	if index[many] > min(index[one], index[hidden]) || max(index[one], index[hidden]) > index[plain] {
-		t.Errorf("order: many %d, one %d, hidden %d, plain %d", index[many], index[one], index[hidden], index[plain])
+	if _, ok := byID[linkOnly]; ok {
+		t.Error("a link-only share is in the admin gallery")
 	}
 	got := byID[many]
 	if got.Reports != 3 || got.Reasons["spam"] != 2 || got.Reasons["inappropriate"] != 1 || len(got.Reasons) != 2 ||
 		got.Name != "many" || got.Category != category || got.ListedAt == nil || got.HiddenAt != nil {
 		t.Errorf("many = %+v", got)
 	}
-	if h := byID[hidden]; h.HiddenAt == nil || h.ListedAt == nil || h.Reports != 1 {
+	if h := byID[hidden]; h.HiddenAt == nil || h.ListedAt == nil || h.Reports != 1 || h.Reasons["personalInfo"] != 1 {
 		t.Errorf("hidden = %+v", h)
 	}
 	if h := byID[hiddenOnly]; h.HiddenAt == nil || h.ListedAt != nil {
 		t.Errorf("hiddenOnly = %+v", h)
-	}
-	if p := byID[plain]; p.Reports != 0 || p.Reasons == nil || len(p.Reasons) != 0 {
-		t.Errorf("plain = %+v", p)
 	}
 }
 
