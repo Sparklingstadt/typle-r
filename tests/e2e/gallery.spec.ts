@@ -185,7 +185,11 @@ test('the owner puts a pack in the gallery from the share dialog and takes it ou
   await expect(row(page).getByText('ギャラリーに掲載中', { exact: true })).toBeVisible()
   const again = await openShare(page)
   await expect(again.getByRole('switch', { name: 'ギャラリーに載せる' })).toBeChecked()
-  await again.getByRole('button', { name: '共有を更新' }).click()
+  const [updated] = await Promise.all([
+    page.waitForResponse(r => r.url().endsWith('/api/shares') && r.request().method() === 'PUT'),
+    again.getByRole('button', { name: '共有を更新' }).click(),
+  ])
+  expect(updated.status()).toBe(200)
   await expect(again.getByRole('button', { name: '共有を更新' })).toBeEnabled()
   expect(await galleryEntry(page)).toHaveLength(1)
 
@@ -201,7 +205,7 @@ test('a pack without a category is told it would be easier to find', async ({ pa
   await savePack(page, '')
   await page.goto('/edit')
   const dialog = await openShare(page)
-  await expect(dialog.getByText('カテゴリーを付けると見つけてもらいやすくなります')).toBeVisible()
+  await expect(dialog.getByText('カテゴリを付けると見つけてもらいやすくなります')).toBeVisible()
   await dialog.getByRole('switch', { name: 'ギャラリーに載せる' }).click()
   await expect(row(page).getByText('ギャラリーに掲載中', { exact: true })).toBeVisible()
   expect(await galleryEntry(page)).toHaveLength(1)
@@ -212,7 +216,7 @@ test('a pack with a category is not told to add one', async ({ page }) => {
   await page.goto('/edit')
   const dialog = await openShare(page)
   await expect(dialog.getByRole('switch', { name: 'ギャラリーに載せる' })).toBeVisible()
-  await expect(dialog.getByText('カテゴリーを付けると見つけてもらいやすくなります')).toHaveCount(0)
+  await expect(dialog.getByText('カテゴリを付けると見つけてもらいやすくなります')).toHaveCount(0)
 })
 
 test('a pack hidden by an administrator says so and cannot be put back by its owner', async ({ page }) => {
@@ -224,7 +228,11 @@ test('a pack hidden by an administrator says so and cannot be put back by its ow
   const dialog = await openShare(page)
   await expect(dialog.getByRole('switch', { name: 'ギャラリーに載せる' })).toBeDisabled()
   await expect(dialog.getByText('管理者により非公開にされたため')).toBeVisible()
-  await dialog.getByRole('button', { name: '共有を更新' }).click()
+  const [updated] = await Promise.all([
+    page.waitForResponse(r => r.url().endsWith('/api/shares') && r.request().method() === 'PUT'),
+    dialog.getByRole('button', { name: '共有を更新' }).click(),
+  ])
+  expect(updated.status()).toBe(200)
   await expect(dialog.getByRole('alert')).toHaveCount(0)
   await expect(dialog.getByRole('button', { name: '共有を更新' })).toBeEnabled()
   const guest = await page.context().browser()!.newContext({ baseURL: origin })
@@ -246,4 +254,18 @@ test('a failed change puts the switch back and says why', async ({ page }) => {
   await expect(toggle).toBeEnabled()
   await expect(row(page).getByText('ギャラリーに掲載中', { exact: true })).toHaveCount(0)
   expect(await galleryEntry(page)).toHaveLength(0)
+})
+
+test('a pack hidden while the dialog is open is shown as hidden after the refused change', async ({ page }) => {
+  await share(page, false)
+  await page.goto('/edit')
+  await page.route('**/api/shares', route => route.request().method() === 'PUT'
+    ? route.fulfill({ status: 409, contentType: 'application/json', body: JSON.stringify({ error: 'sharedPackHidden' }) })
+    : route.continue())
+  const dialog = await openShare(page)
+  await dialog.getByRole('switch', { name: 'ギャラリーに載せる' }).click()
+  await expect(dialog.getByRole('alert')).toBeVisible()
+  await expect(dialog.getByRole('switch', { name: 'ギャラリーに載せる' })).toBeDisabled()
+  await expect(dialog.getByRole('switch', { name: 'ギャラリーに載せる' })).not.toBeChecked()
+  await expect(row(page).getByText('非公開にされました', { exact: true })).toBeVisible()
 })

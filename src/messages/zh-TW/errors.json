@@ -68,7 +68,7 @@
   "importInputTypeInvalid": "第 {line} 行的 input_type 必須是 command、code 或 word。",
   "invalidQuery": "搜尋條件無效。",
   "invalidReport": "檢舉內容無效。",
-  "notInGallery": "未在圖庫中展示的單字包無法檢舉。",
+  "notInGallery": "未在圖庫中展示的包無法檢舉。",
   "invalidRequest": "請求內容無效。",
-  "sharedPackHidden": "管理員已隱藏此單字包，無法在圖庫中展示。"
+  "sharedPackHidden": "管理員已隱藏此包，無法在圖庫中展示。"
 }

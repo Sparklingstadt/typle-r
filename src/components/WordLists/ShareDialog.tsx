@@ -22,6 +22,8 @@ export default function ShareDialog({ pack, hasCategory, share, onShare, onStop,
   const locale = useLocale()
   const errorText = useErrorText()
   const [busy, setBusy] = useState(false)
+  // Set at once, where `busy` only changes on the next render, so two clicks in one frame send one request.
+  const running = useRef(false)
   const [error, setError] = useState('')
   // The switch's value while its request is on its way; null when it shows what is saved.
   const [pendingListed, setPendingListed] = useState<boolean | null>(null)
@@ -34,10 +36,11 @@ export default function ShareDialog({ pack, hasCategory, share, onShare, onStop,
   useEffect(() => () => window.clearTimeout(copiedTimer.current), [])
 
   async function run(action: (packId: string) => Promise<unknown>) {
-    if (!pack || busy) return
+    if (!pack || running.current) return
+    running.current = true
     setBusy(true)
     setError('')
-    try { await action(pack.id) } catch (reason) { setError(errorText(reason, t('failed'))) } finally { setBusy(false) }
+    try { await action(pack.id) } catch (reason) { setError(errorText(reason, t('failed'))) } finally { running.current = false; setBusy(false) }
   }
 
   const listed = pendingListed ?? (!!share?.listed && !share.hidden)

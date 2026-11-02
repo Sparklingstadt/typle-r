@@ -64,7 +64,21 @@ export function useShares() {
 
   const share = useCallback(async (packId: string, listed?: boolean): Promise<Share> => {
     // Without `listed` the server keeps the listing as it is.
-    const result = toShare(await request('/api/shares', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(listed === undefined ? { packId } : { packId, listed }) }) as ShareResponse)
+    let response: ShareResponse
+    try {
+      response = await request('/api/shares', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(listed === undefined ? { packId } : { packId, listed }) }) as ShareResponse
+    } catch (reason) {
+      // An administrator hid the share while the dialog was open: show it as hidden, not only the error.
+      if (reason instanceof AppError && reason.key === 'sharedPackHidden') {
+        changes.current++
+        setLoaded(state => {
+          const known = state.owner === accountId ? state.shares.get(packId) : undefined
+          return known ? { ...state, shares: new Map(state.shares).set(packId, { ...known, hidden: true }) } : state
+        })
+      }
+      throw reason
+    }
+    const result = toShare(response)
     changes.current++
     setLoaded(state => state.owner === accountId
       ? { ...state, shares: new Map(state.shares).set(packId, result) }
