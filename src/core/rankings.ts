@@ -68,3 +68,15 @@ export function rankingStats(ranked: StoredRecord[]) {
     points: byDate.slice(-TREND_POINTS).map(record => ({ date: record.date, value: record.time })),
   }
 }
+
+export type RankingView = { list: string | null; device: string | null; order: RankOrder; mode: PracticeMode }
+
+// The query string of a rankings view: only non-default values are written (`mode=recall`, `order=speed`).
+export function rankingQuery(view: RankingView) {
+  const query = new URLSearchParams()
+  if (view.list) query.set('list', view.list)
+  if (view.device) query.set('device', view.device)
+  if (view.order === 'speed') query.set('order', 'speed')
+  if (view.mode === 'recall') query.set('mode', 'recall')
+  return query.toString()
+}

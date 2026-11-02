@@ -15,7 +15,7 @@ import { useFormat } from "@/i18n/useFormat"
 import { useWordLists } from "@/lib/useWordLists"
 import { deviceExists, type PracticeDevice } from "@/core/devices"
 import { deviceOptions, matchesDevice, NO_DEVICE, type PracticeMode, type RankOrder } from "@/core/records"
-import { listRanking, type ListSort } from "@/core/rankings"
+import { listRanking, rankingQuery, type ListSort, type RankingView } from "@/core/rankings"
 import { packRankings, sortPackRankings } from "@/core/packRecords"
 import type { SavedWordList } from "@/core/wordLists"
 import type { WordPack } from "@/core/wordPacks"
@@ -61,7 +61,7 @@ export default function Rankings() {
   </main>
 }
 
-type View = { list: string | null; device: string | null; order: RankOrder; mode: PracticeMode }
+type View = RankingView
 
 // `?list=<id>&device=<id>&order=speed&mode=recall` keep the view in the URL, so other screens can open one list's ranking.
 // Below `xl`, opening a list pushes a history entry, so the browser's back button returns to the list.
@@ -107,15 +107,10 @@ function RankingsView({ lists, packs, devices }: { lists: SavedWordList[]; packs
     }
   }, [opened])
 
-  function navigate(next: Partial<View>, mode: 'push' | 'replace' = 'replace') {
-    const view = { list: requested?.id ?? null, device, order, mode, ...next }
-    const query = new URLSearchParams()
-    if (view.list) query.set('list', view.list)
-    if (view.device) query.set('device', view.device)
-    if (view.order === 'speed') query.set('order', 'speed')
-    if (view.mode === 'recall') query.set('mode', 'recall')
-    const url = `${window.location.pathname}${query.size ? `?${query}` : ''}`
-    if (mode === 'push') window.history.pushState(null, '', url)
+  function navigate(next: Partial<View>, history: 'push' | 'replace' = 'replace') {
+    const query = rankingQuery({ list: requested?.id ?? null, device, order, mode, ...next })
+    const url = `${window.location.pathname}${query ? `?${query}` : ''}`
+    if (history === 'push') window.history.pushState(null, '', url)
     else window.history.replaceState(null, '', url)
   }
 

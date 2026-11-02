@@ -2,7 +2,7 @@ require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { rankRecords, bestRecords, comparableRecords, listBest, recordRows, deviceOptions, matchesDevice, NO_DEVICE } = require('../src/core/records.ts')
-const { listRanking, sortRankings, rankingStats } = require('../src/core/rankings.ts')
+const { listRanking, sortRankings, rankingStats, rankingQuery } = require('../src/core/rankings.ts')
 
 const mac = { id: 'mac', name: 'MacBook Air', layout: 'JIS' }
 const pad = { id: 'pad', name: 'iPad', layout: '' }
@@ -140,4 +140,13 @@ test('listRanking ranks the chosen mode', () => {
   assert.deepEqual(ranking.records.map(r => r.id), ['r'])
   assert.deepEqual(ranking.ranked.map(r => r.id), ['r'])
   assert.equal(ranking.best.id, 'r')
+})
+
+test('the rankings query keeps recall through every view change and writes nothing for defaults', () => {
+  const base = { list: 'a', device: 'mac', order: 'accuracy', mode: 'recall' }
+  for (const next of [{ order: 'speed' }, { device: null }, { device: 'pad' }, { list: 'b' }, { list: null }]) {
+    assert.equal(new URLSearchParams(rankingQuery({ ...base, ...next })).get('mode'), 'recall')
+  }
+  assert.equal(rankingQuery({ list: null, device: null, order: 'accuracy', mode: 'normal' }), '')
+  assert.equal(rankingQuery({ list: 'a', device: null, order: 'speed', mode: 'recall' }), 'list=a&order=speed&mode=recall')
 })
