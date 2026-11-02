@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-18-words-2",
+  "name": "中国語HSK6級 手書き18（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語18",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "严厉",
+      "input": "yánlì",
+      "annotation": "yánlì / 厳しい",
+      "input_type": "word"
+    },
+    {
+      "display": "言论",
+      "input": "yánlùn",
+      "annotation": "yánlùn / 言論",
+      "input_type": "word"
+    },
+    {
+      "display": "淹没",
+      "input": "yānmò",
+      "annotation": "yānmò / 水没する、かき消す",
+      "input_type": "word"
+    },
+    {
+      "display": "延期",
+      "input": "yánqī",
+      "annotation": "yánqī / 延期する",
+      "input_type": "word"
+    },
+    {
+      "display": "眼色",
+      "input": "yǎnsè",
+      "annotation": "yǎnsè / 目配せ",
+      "input_type": "word"
+    },
+    {
+      "display": "延伸",
+      "input": "yánshēn",
+      "annotation": "yánshēn / 延びる、延長する",
+      "input_type": "word"
+    },
+    {
+      "display": "眼神",
+      "input": "yǎnshén",
+      "annotation": "yǎnshén / 目つき",
+      "input_type": "word"
+    },
+    {
+      "display": "掩饰",
+      "input": "yǎnshì",
+      "annotation": "yǎnshì / ごまかす、取り繕う",
+      "input_type": "word"
+    },
+    {
+      "display": "验收",
+      "input": "yànshōu",
+      "annotation": "yànshōu / 検収する",
+      "input_type": "word"
+    },
+    {
+      "display": "演习",
+      "input": "yǎnxí",
+      "annotation": "yǎnxí / 演習する",
+      "input_type": "word"
+    },
+    {
+      "display": "延续",
+      "input": "yánxù",
+      "annotation": "yánxù / 継続する",
+      "input_type": "word"
+    },
+    {
+      "display": "验证",
+      "input": "yànzhèng",
+      "annotation": "yànzhèng / 検証する",
+      "input_type": "word"
+    },
+    {
+      "display": "演奏",
+      "input": "yǎnzòu",
+      "annotation": "yǎnzòu / 演奏する",
+      "input_type": "word"
+    },
+    {
+      "display": "摇摆",
+      "input": "yáobǎi",
+      "annotation": "yáobǎi / 揺れ動く",
+      "input_type": "word"
+    },
+    {
+      "display": "摇滚",
+      "input": "yáogǔn",
+      "annotation": "yáogǔn / ロック音楽",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

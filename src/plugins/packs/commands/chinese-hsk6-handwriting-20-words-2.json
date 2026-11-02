@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-20-words-2",
+  "name": "中国語HSK6級 手書き20（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語20",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "支援",
+      "input": "zhīyuán",
+      "annotation": "zhīyuán / 支援する",
+      "input_type": "word"
+    },
+    {
+      "display": "指责",
+      "input": "zhǐzé",
+      "annotation": "zhǐzé / 非難する",
+      "input_type": "word"
+    },
+    {
+      "display": "制止",
+      "input": "zhìzhǐ",
+      "annotation": "zhìzhǐ / 制止する",
+      "input_type": "word"
+    },
+    {
+      "display": "执着",
+      "input": "zhízhuó",
+      "annotation": "zhízhuó / 執着する",
+      "input_type": "word"
+    },
+    {
+      "display": "侄子",
+      "input": "zhízi",
+      "annotation": "zhízi / おい",
+      "input_type": "word"
+    },
+    {
+      "display": "知足常乐",
+      "input": "zhīzú chánglè",
+      "annotation": "zhīzú chánglè / 足るを知る者は常に楽しい",
+      "input_type": "word"
+    },
+    {
+      "display": "终点",
+      "input": "zhōngdiǎn",
+      "annotation": "zhōngdiǎn / 終点",
+      "input_type": "word"
+    },
+    {
+      "display": "中断",
+      "input": "zhōngduàn",
+      "annotation": "zhōngduàn / 中断する",
+      "input_type": "word"
+    },
+    {
+      "display": "中立",
+      "input": "zhōnglì",
+      "annotation": "zhōnglì / 中立",
+      "input_type": "word"
+    },
+    {
+      "display": "肿瘤",
+      "input": "zhǒngliú",
+      "annotation": "zhǒngliú / 腫瘍",
+      "input_type": "word"
+    },
+    {
+      "display": "忠实",
+      "input": "zhōngshí",
+      "annotation": "zhōngshí / 忠実な",
+      "input_type": "word"
+    },
+    {
+      "display": "众所周知",
+      "input": "zhòngsuǒ zhōuzhī",
+      "annotation": "zhòngsuǒ zhōuzhī / 周知のとおり",
+      "input_type": "word"
+    },
+    {
+      "display": "重心",
+      "input": "zhòngxīn",
+      "annotation": "zhòngxīn / 重心、中心",
+      "input_type": "word"
+    },
+    {
+      "display": "种植",
+      "input": "zhòngzhí",
+      "annotation": "zhòngzhí / 植える、栽培する",
+      "input_type": "word"
+    },
+    {
+      "display": "终止",
+      "input": "zhōngzhǐ",
+      "annotation": "zhōngzhǐ / 終了する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

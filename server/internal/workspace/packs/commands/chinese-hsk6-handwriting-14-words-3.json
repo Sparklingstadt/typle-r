@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-14-words-3",
+  "name": "中国語HSK6級 手書き14（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語14",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "人质",
+      "input": "rénzhì",
+      "annotation": "rénzhì / 人質",
+      "input_type": "word"
+    },
+    {
+      "display": "任重道远",
+      "input": "rènzhòng dàoyuǎn",
+      "annotation": "rènzhòng dàoyuǎn / 任重くして道遠し",
+      "input_type": "word"
+    },
+    {
+      "display": "日新月异",
+      "input": "rìxīn yuèyì",
+      "annotation": "rìxīn yuèyì / 日進月歩",
+      "input_type": "word"
+    },
+    {
+      "display": "融化",
+      "input": "rónghuà",
+      "annotation": "rónghuà / 溶ける",
+      "input_type": "word"
+    },
+    {
+      "display": "溶解",
+      "input": "róngjiě",
+      "annotation": "róngjiě / 溶解する",
+      "input_type": "word"
+    },
+    {
+      "display": "容纳",
+      "input": "róngnà",
+      "annotation": "róngnà / 収容する",
+      "input_type": "word"
+    },
+    {
+      "display": "容器",
+      "input": "róngqì",
+      "annotation": "róngqì / 容器",
+      "input_type": "word"
+    },
+    {
+      "display": "容忍",
+      "input": "róngrěn",
+      "annotation": "róngrěn / 容認する、我慢する",
+      "input_type": "word"
+    },
+    {
+      "display": "荣幸",
+      "input": "róngxìng",
+      "annotation": "róngxìng / 光栄な",
+      "input_type": "word"
+    },
+    {
+      "display": "荣誉",
+      "input": "róngyù",
+      "annotation": "róngyù / 栄誉",
+      "input_type": "word"
+    },
+    {
+      "display": "儒家",
+      "input": "rújiā",
+      "annotation": "rújiā / 儒家",
+      "input_type": "word"
+    },
+    {
+      "display": "弱点",
+      "input": "ruòdiǎn",
+      "annotation": "ruòdiǎn / 弱点",
+      "input_type": "word"
+    },
+    {
+      "display": "散布",
+      "input": "sànbù",
+      "annotation": "sànbù / ばらまく、広める",
+      "input_type": "word"
+    },
+    {
+      "display": "散发",
+      "input": "sànfā",
+      "annotation": "sànfā / 発散する、配る",
+      "input_type": "word"
+    },
+    {
+      "display": "散文",
+      "input": "sǎnwén",
+      "annotation": "sǎnwén / 散文",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

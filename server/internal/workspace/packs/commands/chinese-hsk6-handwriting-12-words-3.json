@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-12-words-3",
+  "name": "中国語HSK6級 手書き12（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語12",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "举足轻重",
+      "input": "jǔzú qīngzhòng",
+      "annotation": "jǔzú qīngzhòng / 重要な位置を占める",
+      "input_type": "word"
+    },
+    {
+      "display": "侃侃而谈",
+      "input": "kǎnkǎn értán",
+      "annotation": "kǎnkǎn értán / 堂々と語る",
+      "input_type": "word"
+    },
+    {
+      "display": "考验",
+      "input": "kǎoyàn",
+      "annotation": "kǎoyàn / 試練",
+      "input_type": "word"
+    },
+    {
+      "display": "客户",
+      "input": "kèhù",
+      "annotation": "kèhù / 顧客",
+      "input_type": "word"
+    },
+    {
+      "display": "空隙",
+      "input": "kòngxì",
+      "annotation": "kòngxì / すき間",
+      "input_type": "word"
+    },
+    {
+      "display": "空虚",
+      "input": "kōngxū",
+      "annotation": "kōngxū / むなしい",
+      "input_type": "word"
+    },
+    {
+      "display": "旷课",
+      "input": "kuàngkè",
+      "annotation": "kuàngkè / 授業をサボる",
+      "input_type": "word"
+    },
+    {
+      "display": "扩充",
+      "input": "kuòchōng",
+      "annotation": "kuòchōng / 拡充する",
+      "input_type": "word"
+    },
+    {
+      "display": "来历",
+      "input": "láilì",
+      "annotation": "láilì / 来歴",
+      "input_type": "word"
+    },
+    {
+      "display": "狼吞虎咽",
+      "input": "lángtūn hǔyàn",
+      "annotation": "lángtūn hǔyàn / がつがつ食べる",
+      "input_type": "word"
+    },
+    {
+      "display": "冷却",
+      "input": "lěngquè",
+      "annotation": "lěngquè / 冷却する",
+      "input_type": "word"
+    },
+    {
+      "display": "谅解",
+      "input": "liàngjiě",
+      "annotation": "liàngjiě / 了承する",
+      "input_type": "word"
+    },
+    {
+      "display": "联络",
+      "input": "liánluò",
+      "annotation": "liánluò / 連絡する",
+      "input_type": "word"
+    },
+    {
+      "display": "立方",
+      "input": "lìfāng",
+      "annotation": "lìfāng / 立方",
+      "input_type": "word"
+    },
+    {
+      "display": "灵魂",
+      "input": "línghún",
+      "annotation": "línghún / 魂",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

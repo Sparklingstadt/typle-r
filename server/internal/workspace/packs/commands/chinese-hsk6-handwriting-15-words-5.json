@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-15-words-5",
+  "name": "中国語HSK6級 手書き15（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語15",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "素食",
+      "input": "sùshí",
+      "annotation": "sùshí / 菜食",
+      "input_type": "word"
+    },
+    {
+      "display": "苏醒",
+      "input": "sūxǐng",
+      "annotation": "sūxǐng / 意識を取り戻す",
+      "input_type": "word"
+    },
+    {
+      "display": "塑造",
+      "input": "sùzào",
+      "annotation": "sùzào / 形作る、描き出す",
+      "input_type": "word"
+    },
+    {
+      "display": "素质",
+      "input": "sùzhì",
+      "annotation": "sùzhì / 資質、素養",
+      "input_type": "word"
+    },
+    {
+      "display": "台风",
+      "input": "táifēng",
+      "annotation": "táifēng / 台風",
+      "input_type": "word"
+    },
+    {
+      "display": "太空",
+      "input": "tàikōng",
+      "annotation": "tàikōng / 宇宙",
+      "input_type": "word"
+    },
+    {
+      "display": "倘若",
+      "input": "tǎngruò",
+      "annotation": "tǎngruò / もし〜ならば",
+      "input_type": "word"
+    },
+    {
+      "display": "瘫痪",
+      "input": "tānhuàn",
+      "annotation": "tānhuàn / 麻痺する",
+      "input_type": "word"
+    },
+    {
+      "display": "叹气",
+      "input": "tànqì",
+      "annotation": "tànqì / ため息をつく",
+      "input_type": "word"
+    },
+    {
+      "display": "探索",
+      "input": "tànsuǒ",
+      "annotation": "tànsuǒ / 探索する",
+      "input_type": "word"
+    },
+    {
+      "display": "探讨",
+      "input": "tàntǎo",
+      "annotation": "tàntǎo / 検討する",
+      "input_type": "word"
+    },
+    {
+      "display": "贪污",
+      "input": "tānwū",
+      "annotation": "tānwū / 汚職をする",
+      "input_type": "word"
+    },
+    {
+      "display": "弹性",
+      "input": "tánxìng",
+      "annotation": "tánxìng / 弾力性",
+      "input_type": "word"
+    },
+    {
+      "display": "淘汰",
+      "input": "táotài",
+      "annotation": "táotài / 淘汰する",
+      "input_type": "word"
+    },
+    {
+      "display": "滔滔不绝",
+      "input": "tāotāo bùjué",
+      "annotation": "tāotāo bùjué / とうとうと話す",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

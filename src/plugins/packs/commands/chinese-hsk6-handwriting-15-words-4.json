@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-15-words-4",
+  "name": "中国語HSK6級 手書き15（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語15",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "司法",
+      "input": "sīfǎ",
+      "annotation": "sīfǎ / 司法",
+      "input_type": "word"
+    },
+    {
+      "display": "司空见惯",
+      "input": "sīkōng jiànguàn",
+      "annotation": "sīkōng jiànguàn / 見慣れている",
+      "input_type": "word"
+    },
+    {
+      "display": "寺庙",
+      "input": "sìmiào",
+      "annotation": "sìmiào / 寺院",
+      "input_type": "word"
+    },
+    {
+      "display": "思念",
+      "input": "sīniàn",
+      "annotation": "sīniàn / 恋しく思う",
+      "input_type": "word"
+    },
+    {
+      "display": "思索",
+      "input": "sīsuǒ",
+      "annotation": "sīsuǒ / 思索する",
+      "input_type": "word"
+    },
+    {
+      "display": "思维",
+      "input": "sīwéi",
+      "annotation": "sīwéi / 思考",
+      "input_type": "word"
+    },
+    {
+      "display": "斯文",
+      "input": "sīwen",
+      "annotation": "sīwen / 上品な、おとなしい",
+      "input_type": "word"
+    },
+    {
+      "display": "饲养",
+      "input": "sìyǎng",
+      "annotation": "sìyǎng / 飼育する",
+      "input_type": "word"
+    },
+    {
+      "display": "四肢",
+      "input": "sìzhī",
+      "annotation": "sìzhī / 手足",
+      "input_type": "word"
+    },
+    {
+      "display": "算数",
+      "input": "suànshù",
+      "annotation": "suànshù / 有効とする、約束を守る",
+      "input_type": "word"
+    },
+    {
+      "display": "俗话",
+      "input": "súhuà",
+      "annotation": "súhuà / ことわざ",
+      "input_type": "word"
+    },
+    {
+      "display": "隧道",
+      "input": "suìdào",
+      "annotation": "suìdào / トンネル",
+      "input_type": "word"
+    },
+    {
+      "display": "岁月",
+      "input": "suìyuè",
+      "annotation": "suìyuè / 歳月",
+      "input_type": "word"
+    },
+    {
+      "display": "损坏",
+      "input": "sǔnhuài",
+      "annotation": "sǔnhuài / 損なう、壊す",
+      "input_type": "word"
+    },
+    {
+      "display": "索性",
+      "input": "suǒxìng",
+      "annotation": "suǒxìng / いっそのこと",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

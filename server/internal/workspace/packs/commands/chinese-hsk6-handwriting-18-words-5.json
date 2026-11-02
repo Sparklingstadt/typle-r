@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-18-words-5",
+  "name": "中国語HSK6級 手書き18（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語18",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "隐患",
+      "input": "yǐnhuàn",
+      "annotation": "yǐnhuàn / 潜在的な危険",
+      "input_type": "word"
+    },
+    {
+      "display": "阴谋",
+      "input": "yīnmóu",
+      "annotation": "yīnmóu / 陰謀",
+      "input_type": "word"
+    },
+    {
+      "display": "引擎",
+      "input": "yǐnqíng",
+      "annotation": "yǐnqíng / エンジン",
+      "input_type": "word"
+    },
+    {
+      "display": "饮食",
+      "input": "yǐnshí",
+      "annotation": "yǐnshí / 飲食",
+      "input_type": "word"
+    },
+    {
+      "display": "音响",
+      "input": "yīnxiǎng",
+      "annotation": "yīnxiǎng / 音響、オーディオ",
+      "input_type": "word"
+    },
+    {
+      "display": "引用",
+      "input": "yǐnyòng",
+      "annotation": "yǐnyòng / 引用する",
+      "input_type": "word"
+    },
+    {
+      "display": "仪器",
+      "input": "yíqì",
+      "annotation": "yíqì / 計器、機器",
+      "input_type": "word"
+    },
+    {
+      "display": "毅然",
+      "input": "yìrán",
+      "annotation": "yìrán / 毅然として",
+      "input_type": "word"
+    },
+    {
+      "display": "衣裳",
+      "input": "yīshang",
+      "annotation": "yīshang / 服",
+      "input_type": "word"
+    },
+    {
+      "display": "仪式",
+      "input": "yíshì",
+      "annotation": "yíshì / 儀式",
+      "input_type": "word"
+    },
+    {
+      "display": "意图",
+      "input": "yìtú",
+      "annotation": "yìtú / 意図",
+      "input_type": "word"
+    },
+    {
+      "display": "以往",
+      "input": "yǐwǎng",
+      "annotation": "yǐwǎng / 以前",
+      "input_type": "word"
+    },
+    {
+      "display": "意味着",
+      "input": "yìwèizhe",
+      "annotation": "yìwèizhe / 意味する",
+      "input_type": "word"
+    },
+    {
+      "display": "意向",
+      "input": "yìxiàng",
+      "annotation": "yìxiàng / 意向",
+      "input_type": "word"
+    },
+    {
+      "display": "意志",
+      "input": "yìzhì",
+      "annotation": "yìzhì / 意志",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

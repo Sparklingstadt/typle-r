@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-12-words-1",
+  "name": "中国語HSK6級 手書き12（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語12",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "花蕾",
+      "input": "huālěi",
+      "annotation": "huālěi / つぼみ",
+      "input_type": "word"
+    },
+    {
+      "display": "环节",
+      "input": "huánjié",
+      "annotation": "huánjié / 一環",
+      "input_type": "word"
+    },
+    {
+      "display": "悔恨",
+      "input": "huǐhèn",
+      "annotation": "huǐhèn / 悔やむ",
+      "input_type": "word"
+    },
+    {
+      "display": "挥霍",
+      "input": "huīhuò",
+      "annotation": "huīhuò / 浪費する",
+      "input_type": "word"
+    },
+    {
+      "display": "混浊",
+      "input": "hùnzhuó",
+      "annotation": "hùnzhuó / 濁った",
+      "input_type": "word"
+    },
+    {
+      "display": "火药",
+      "input": "huǒyào",
+      "annotation": "huǒyào / 火薬",
+      "input_type": "word"
+    },
+    {
+      "display": "家常",
+      "input": "jiācháng",
+      "annotation": "jiācháng / 日常の",
+      "input_type": "word"
+    },
+    {
+      "display": "鉴定",
+      "input": "jiàndìng",
+      "annotation": "jiàndìng / 鑑定する",
+      "input_type": "word"
+    },
+    {
+      "display": "间接",
+      "input": "jiànjiē",
+      "annotation": "jiànjiē / 間接の",
+      "input_type": "word"
+    },
+    {
+      "display": "尖锐",
+      "input": "jiānruì",
+      "annotation": "jiānruì / 鋭い",
+      "input_type": "word"
+    },
+    {
+      "display": "简体字",
+      "input": "jiǎntǐzì",
+      "annotation": "jiǎntǐzì / 簡体字",
+      "input_type": "word"
+    },
+    {
+      "display": "坚硬",
+      "input": "jiānyìng",
+      "annotation": "jiānyìng / 硬い",
+      "input_type": "word"
+    },
+    {
+      "display": "交代",
+      "input": "jiāodài",
+      "annotation": "jiāodài / 説明する、引き継ぐ",
+      "input_type": "word"
+    },
+    {
+      "display": "较量",
+      "input": "jiàoliàng",
+      "annotation": "jiàoliàng / 勝負する",
+      "input_type": "word"
+    },
+    {
+      "display": "季度",
+      "input": "jìdù",
+      "annotation": "jìdù / 四半期",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

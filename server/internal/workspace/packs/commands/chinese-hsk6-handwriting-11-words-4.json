@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-11-words-4",
+  "name": "中国語HSK6級 手書き11（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語11",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "得罪",
+      "input": "dézuì",
+      "annotation": "dézuì / 機嫌を損ねる",
+      "input_type": "word"
+    },
+    {
+      "display": "奠定",
+      "input": "diàndìng",
+      "annotation": "diàndìng / 基礎を固める",
+      "input_type": "word"
+    },
+    {
+      "display": "堤坝",
+      "input": "dībà",
+      "annotation": "dībà / 堤防",
+      "input_type": "word"
+    },
+    {
+      "display": "定期",
+      "input": "dìngqī",
+      "annotation": "dìngqī / 定期的な",
+      "input_type": "word"
+    },
+    {
+      "display": "冻结",
+      "input": "dòngjié",
+      "annotation": "dòngjié / 凍結する",
+      "input_type": "word"
+    },
+    {
+      "display": "动脉",
+      "input": "dòngmài",
+      "annotation": "dòngmài / 動脈",
+      "input_type": "word"
+    },
+    {
+      "display": "东张西望",
+      "input": "dōngzhāng xīwàng",
+      "annotation": "dōngzhāng xīwàng / きょろきょろする",
+      "input_type": "word"
+    },
+    {
+      "display": "独裁",
+      "input": "dúcái",
+      "annotation": "dúcái / 独裁",
+      "input_type": "word"
+    },
+    {
+      "display": "对应",
+      "input": "duìyìng",
+      "annotation": "duìyìng / 対応する",
+      "input_type": "word"
+    },
+    {
+      "display": "恩怨",
+      "input": "ēnyuàn",
+      "annotation": "ēnyuàn / 恩と恨み",
+      "input_type": "word"
+    },
+    {
+      "display": "发呆",
+      "input": "fādāi",
+      "annotation": "fādāi / ぼんやりする",
+      "input_type": "word"
+    },
+    {
+      "display": "范畴",
+      "input": "fànchóu",
+      "annotation": "fànchóu / 範疇",
+      "input_type": "word"
+    },
+    {
+      "display": "方针",
+      "input": "fāngzhēn",
+      "annotation": "fāngzhēn / 方針",
+      "input_type": "word"
+    },
+    {
+      "display": "纺织",
+      "input": "fǎngzhī",
+      "annotation": "fǎngzhī / 紡織する",
+      "input_type": "word"
+    },
+    {
+      "display": "反射",
+      "input": "fǎnshè",
+      "annotation": "fǎnshè / 反射する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

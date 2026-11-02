@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-17-words-4",
+  "name": "中国語HSK6級 手書き17（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語17",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "兴隆",
+      "input": "xīnglóng",
+      "annotation": "xīnglóng / 繁盛する",
+      "input_type": "word"
+    },
+    {
+      "display": "性命",
+      "input": "xìngmìng",
+      "annotation": "xìngmìng / 命",
+      "input_type": "word"
+    },
+    {
+      "display": "刑事",
+      "input": "xíngshì",
+      "annotation": "xíngshì / 刑事の",
+      "input_type": "word"
+    },
+    {
+      "display": "形态",
+      "input": "xíngtài",
+      "annotation": "xíngtài / 形態",
+      "input_type": "word"
+    },
+    {
+      "display": "行政",
+      "input": "xíngzhèng",
+      "annotation": "xíngzhèng / 行政",
+      "input_type": "word"
+    },
+    {
+      "display": "兴致勃勃",
+      "input": "xìngzhì bóbó",
+      "annotation": "xìngzhì bóbó / 興味津々の",
+      "input_type": "word"
+    },
+    {
+      "display": "新郎",
+      "input": "xīnláng",
+      "annotation": "xīnláng / 新郎",
+      "input_type": "word"
+    },
+    {
+      "display": "心灵",
+      "input": "xīnlíng",
+      "annotation": "xīnlíng / 心、精神",
+      "input_type": "word"
+    },
+    {
+      "display": "信念",
+      "input": "xìnniàn",
+      "annotation": "xìnniàn / 信念",
+      "input_type": "word"
+    },
+    {
+      "display": "辛勤",
+      "input": "xīnqín",
+      "annotation": "xīnqín / 勤勉な",
+      "input_type": "word"
+    },
+    {
+      "display": "薪水",
+      "input": "xīnshui",
+      "annotation": "xīnshui / 給料",
+      "input_type": "word"
+    },
+    {
+      "display": "心疼",
+      "input": "xīnténg",
+      "annotation": "xīnténg / かわいがる、惜しむ",
+      "input_type": "word"
+    },
+    {
+      "display": "欣欣向荣",
+      "input": "xīnxīn xiàngróng",
+      "annotation": "xīnxīn xiàngróng / 生き生きと栄える",
+      "input_type": "word"
+    },
+    {
+      "display": "信仰",
+      "input": "xìnyǎng",
+      "annotation": "xìnyǎng / 信仰、信じる",
+      "input_type": "word"
+    },
+    {
+      "display": "新颖",
+      "input": "xīnyǐng",
+      "annotation": "xīnyǐng / 斬新な",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

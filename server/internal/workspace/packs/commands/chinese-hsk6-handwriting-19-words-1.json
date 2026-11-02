@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-19-words-1",
+  "name": "中国語HSK6級 手書き19（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語19",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "原理",
+      "input": "yuánlǐ",
+      "annotation": "yuánlǐ / 原理",
+      "input_type": "word"
+    },
+    {
+      "display": "圆满",
+      "input": "yuánmǎn",
+      "annotation": "yuánmǎn / 円満な、申し分ない",
+      "input_type": "word"
+    },
+    {
+      "display": "源泉",
+      "input": "yuánquán",
+      "annotation": "yuánquán / 源泉",
+      "input_type": "word"
+    },
+    {
+      "display": "原始",
+      "input": "yuánshǐ",
+      "annotation": "yuánshǐ / 原始的な、最初の",
+      "input_type": "word"
+    },
+    {
+      "display": "元素",
+      "input": "yuánsù",
+      "annotation": "yuánsù / 元素、要素",
+      "input_type": "word"
+    },
+    {
+      "display": "冤枉",
+      "input": "yuānwang",
+      "annotation": "yuānwang / ぬれぎぬを着せる",
+      "input_type": "word"
+    },
+    {
+      "display": "元宵节",
+      "input": "yuánxiāojié",
+      "annotation": "yuánxiāojié / 元宵節",
+      "input_type": "word"
+    },
+    {
+      "display": "愚蠢",
+      "input": "yúchǔn",
+      "annotation": "yúchǔn / 愚かな",
+      "input_type": "word"
+    },
+    {
+      "display": "乐谱",
+      "input": "yuèpǔ",
+      "annotation": "yuèpǔ / 楽譜",
+      "input_type": "word"
+    },
+    {
+      "display": "约束",
+      "input": "yuēshù",
+      "annotation": "yuēshù / 拘束する",
+      "input_type": "word"
+    },
+    {
+      "display": "预料",
+      "input": "yùliào",
+      "annotation": "yùliào / 予想する",
+      "input_type": "word"
+    },
+    {
+      "display": "愚昧",
+      "input": "yúmèi",
+      "annotation": "yúmèi / 無知な",
+      "input_type": "word"
+    },
+    {
+      "display": "渔民",
+      "input": "yúmín",
+      "annotation": "yúmín / 漁民",
+      "input_type": "word"
+    },
+    {
+      "display": "酝酿",
+      "input": "yùnniàng",
+      "annotation": "yùnniàng / 醸成する、下準備する",
+      "input_type": "word"
+    },
+    {
+      "display": "运算",
+      "input": "yùnsuàn",
+      "annotation": "yùnsuàn / 演算する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-16-words-2",
+  "name": "中国語HSK6級 手書き16（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語16",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "通用",
+      "input": "tōngyòng",
+      "annotation": "tōngyòng / 通用する",
+      "input_type": "word"
+    },
+    {
+      "display": "统治",
+      "input": "tǒngzhì",
+      "annotation": "tǒngzhì / 統治する",
+      "input_type": "word"
+    },
+    {
+      "display": "投机",
+      "input": "tóujī",
+      "annotation": "tóujī / 投機する、気が合う",
+      "input_type": "word"
+    },
+    {
+      "display": "投票",
+      "input": "tóupiào",
+      "annotation": "tóupiào / 投票する",
+      "input_type": "word"
+    },
+    {
+      "display": "投诉",
+      "input": "tóusù",
+      "annotation": "tóusù / 苦情を訴える",
+      "input_type": "word"
+    },
+    {
+      "display": "投掷",
+      "input": "tóuzhì",
+      "annotation": "tóuzhì / 投げる",
+      "input_type": "word"
+    },
+    {
+      "display": "团结",
+      "input": "tuánjié",
+      "annotation": "tuánjié / 団結する",
+      "input_type": "word"
+    },
+    {
+      "display": "团体",
+      "input": "tuántǐ",
+      "annotation": "tuántǐ / 団体",
+      "input_type": "word"
+    },
+    {
+      "display": "徒弟",
+      "input": "túdì",
+      "annotation": "túdì / 弟子",
+      "input_type": "word"
+    },
+    {
+      "display": "推测",
+      "input": "tuīcè",
+      "annotation": "tuīcè / 推測する",
+      "input_type": "word"
+    },
+    {
+      "display": "推理",
+      "input": "tuīlǐ",
+      "annotation": "tuīlǐ / 推理する",
+      "input_type": "word"
+    },
+    {
+      "display": "推论",
+      "input": "tuīlùn",
+      "annotation": "tuīlùn / 推論する",
+      "input_type": "word"
+    },
+    {
+      "display": "途径",
+      "input": "tújìng",
+      "annotation": "tújìng / 手段、ルート",
+      "input_type": "word"
+    },
+    {
+      "display": "涂抹",
+      "input": "túmǒ",
+      "annotation": "túmǒ / 塗る",
+      "input_type": "word"
+    },
+    {
+      "display": "吞吞吐吐",
+      "input": "tūntūn tǔtǔ",
+      "annotation": "tūntūn tǔtǔ / 口ごもる",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-14-words-1",
+  "name": "中国語HSK6級 手書き14（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語14",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "拳头",
+      "input": "quántou",
+      "annotation": "quántou / 拳",
+      "input_type": "word"
+    },
+    {
+      "display": "权威",
+      "input": "quánwēi",
+      "annotation": "quánwēi / 権威",
+      "input_type": "word"
+    },
+    {
+      "display": "权益",
+      "input": "quányì",
+      "annotation": "quányì / 権益",
+      "input_type": "word"
+    },
+    {
+      "display": "取缔",
+      "input": "qǔdì",
+      "annotation": "qǔdì / 取り締まる",
+      "input_type": "word"
+    },
+    {
+      "display": "确保",
+      "input": "quèbǎo",
+      "annotation": "quèbǎo / 確保する",
+      "input_type": "word"
+    },
+    {
+      "display": "确立",
+      "input": "quèlì",
+      "annotation": "quèlì / 確立する",
+      "input_type": "word"
+    },
+    {
+      "display": "确切",
+      "input": "quèqiè",
+      "annotation": "quèqiè / 確かな、正確な",
+      "input_type": "word"
+    },
+    {
+      "display": "缺陷",
+      "input": "quēxiàn",
+      "annotation": "quēxiàn / 欠陥",
+      "input_type": "word"
+    },
+    {
+      "display": "确信",
+      "input": "quèxìn",
+      "annotation": "quèxìn / 確信する",
+      "input_type": "word"
+    },
+    {
+      "display": "区分",
+      "input": "qūfēn",
+      "annotation": "qūfēn / 区分する",
+      "input_type": "word"
+    },
+    {
+      "display": "群众",
+      "input": "qúnzhòng",
+      "annotation": "qúnzhòng / 大衆",
+      "input_type": "word"
+    },
+    {
+      "display": "趣味",
+      "input": "qùwèi",
+      "annotation": "qùwèi / 面白み、趣",
+      "input_type": "word"
+    },
+    {
+      "display": "曲折",
+      "input": "qūzhé",
+      "annotation": "qūzhé / 曲がりくねった、複雑な",
+      "input_type": "word"
+    },
+    {
+      "display": "驱逐",
+      "input": "qūzhú",
+      "annotation": "qūzhú / 追い払う",
+      "input_type": "word"
+    },
+    {
+      "display": "让步",
+      "input": "ràngbù",
+      "annotation": "ràngbù / 譲歩する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

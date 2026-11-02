@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-15-words-1",
+  "name": "中国語HSK6級 手書き15（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語15",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "是非",
+      "input": "shìfēi",
+      "annotation": "shìfēi / 是非、もめごと",
+      "input_type": "word"
+    },
+    {
+      "display": "时光",
+      "input": "shíguāng",
+      "annotation": "shíguāng / 時間、歳月",
+      "input_type": "word"
+    },
+    {
+      "display": "实惠",
+      "input": "shíhuì",
+      "annotation": "shíhuì / 実益がある、お得な",
+      "input_type": "word"
+    },
+    {
+      "display": "事迹",
+      "input": "shìjì",
+      "annotation": "shìjì / 事績",
+      "input_type": "word"
+    },
+    {
+      "display": "施加",
+      "input": "shījiā",
+      "annotation": "shījiā / 加える、与える",
+      "input_type": "word"
+    },
+    {
+      "display": "事件",
+      "input": "shìjiàn",
+      "annotation": "shìjiàn / 事件",
+      "input_type": "word"
+    },
+    {
+      "display": "势力",
+      "input": "shìlì",
+      "annotation": "shìlì / 勢力",
+      "input_type": "word"
+    },
+    {
+      "display": "使命",
+      "input": "shǐmìng",
+      "annotation": "shǐmìng / 使命",
+      "input_type": "word"
+    },
+    {
+      "display": "时事",
+      "input": "shíshì",
+      "annotation": "shíshì / 時事",
+      "input_type": "word"
+    },
+    {
+      "display": "逝世",
+      "input": "shìshì",
+      "annotation": "shìshì / 逝去する",
+      "input_type": "word"
+    },
+    {
+      "display": "实事求是",
+      "input": "shíshì qiúshì",
+      "annotation": "shíshì qiúshì / 事実に基づいて真理を求める",
+      "input_type": "word"
+    },
+    {
+      "display": "事态",
+      "input": "shìtài",
+      "annotation": "shìtài / 事態",
+      "input_type": "word"
+    },
+    {
+      "display": "尸体",
+      "input": "shītǐ",
+      "annotation": "shītǐ / 死体",
+      "input_type": "word"
+    },
+    {
+      "display": "示威",
+      "input": "shìwēi",
+      "annotation": "shìwēi / デモをする、威力を示す",
+      "input_type": "word"
+    },
+    {
+      "display": "事务",
+      "input": "shìwù",
+      "annotation": "shìwù / 事務、業務",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-13-words-2",
+  "name": "中国語HSK6級 手書き13（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語13",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "评论",
+      "input": "pínglùn",
+      "annotation": "pínglùn / 評論する",
+      "input_type": "word"
+    },
+    {
+      "display": "屏幕",
+      "input": "píngmù",
+      "annotation": "píngmù / スクリーン",
+      "input_type": "word"
+    },
+    {
+      "display": "平坦",
+      "input": "píngtǎn",
+      "annotation": "píngtǎn / 平らな",
+      "input_type": "word"
+    },
+    {
+      "display": "平庸",
+      "input": "píngyōng",
+      "annotation": "píngyōng / 凡庸な",
+      "input_type": "word"
+    },
+    {
+      "display": "平原",
+      "input": "píngyuán",
+      "annotation": "píngyuán / 平原",
+      "input_type": "word"
+    },
+    {
+      "display": "贫困",
+      "input": "pínkùn",
+      "annotation": "pínkùn / 貧しい",
+      "input_type": "word"
+    },
+    {
+      "display": "频率",
+      "input": "pínlǜ",
+      "annotation": "pínlǜ / 周波数、頻度",
+      "input_type": "word"
+    },
+    {
+      "display": "拼命",
+      "input": "pīnmìng",
+      "annotation": "pīnmìng / 必死に",
+      "input_type": "word"
+    },
+    {
+      "display": "批判",
+      "input": "pīpàn",
+      "annotation": "pīpàn / 批判する",
+      "input_type": "word"
+    },
+    {
+      "display": "譬如",
+      "input": "pìrú",
+      "annotation": "pìrú / たとえば",
+      "input_type": "word"
+    },
+    {
+      "display": "迫害",
+      "input": "pòhài",
+      "annotation": "pòhài / 迫害する",
+      "input_type": "word"
+    },
+    {
+      "display": "破例",
+      "input": "pòlì",
+      "annotation": "pòlì / 例外とする",
+      "input_type": "word"
+    },
+    {
+      "display": "普及",
+      "input": "pǔjí",
+      "annotation": "pǔjí / 普及する",
+      "input_type": "word"
+    },
+    {
+      "display": "朴实",
+      "input": "pǔshí",
+      "annotation": "pǔshí / 素朴な、誠実な",
+      "input_type": "word"
+    },
+    {
+      "display": "恰当",
+      "input": "qiàdàng",
+      "annotation": "qiàdàng / 適切な",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

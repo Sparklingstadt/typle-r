@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-20-words-4",
+  "name": "中国語HSK6級 手書き20（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語20",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "专题",
+      "input": "zhuāntí",
+      "annotation": "zhuāntí / 特定のテーマ",
+      "input_type": "word"
+    },
+    {
+      "display": "转折",
+      "input": "zhuǎnzhé",
+      "annotation": "zhuǎnzhé / 転換する",
+      "input_type": "word"
+    },
+    {
+      "display": "主办",
+      "input": "zhǔbàn",
+      "annotation": "zhǔbàn / 主催する",
+      "input_type": "word"
+    },
+    {
+      "display": "主导",
+      "input": "zhǔdǎo",
+      "annotation": "zhǔdǎo / 主導する",
+      "input_type": "word"
+    },
+    {
+      "display": "主管",
+      "input": "zhǔguǎn",
+      "annotation": "zhǔguǎn / 主管する、責任者",
+      "input_type": "word"
+    },
+    {
+      "display": "追悼",
+      "input": "zhuīdào",
+      "annotation": "zhuīdào / 追悼する",
+      "input_type": "word"
+    },
+    {
+      "display": "助理",
+      "input": "zhùlǐ",
+      "annotation": "zhùlǐ / アシスタント",
+      "input_type": "word"
+    },
+    {
+      "display": "主流",
+      "input": "zhǔliú",
+      "annotation": "zhǔliú / 主流",
+      "input_type": "word"
+    },
+    {
+      "display": "准则",
+      "input": "zhǔnzé",
+      "annotation": "zhǔnzé / 準則、規範",
+      "input_type": "word"
+    },
+    {
+      "display": "着手",
+      "input": "zhuóshǒu",
+      "annotation": "zhuóshǒu / 着手する",
+      "input_type": "word"
+    },
+    {
+      "display": "着想",
+      "input": "zhuóxiǎng",
+      "annotation": "zhuóxiǎng / 〜のためを考える",
+      "input_type": "word"
+    },
+    {
+      "display": "主权",
+      "input": "zhǔquán",
+      "annotation": "zhǔquán / 主権",
+      "input_type": "word"
+    },
+    {
+      "display": "注射",
+      "input": "zhùshè",
+      "annotation": "zhùshè / 注射する",
+      "input_type": "word"
+    },
+    {
+      "display": "助手",
+      "input": "zhùshǒu",
+      "annotation": "zhùshǒu / 助手",
+      "input_type": "word"
+    },
+    {
+      "display": "诸位",
+      "input": "zhūwèi",
+      "annotation": "zhūwèi / 皆様",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

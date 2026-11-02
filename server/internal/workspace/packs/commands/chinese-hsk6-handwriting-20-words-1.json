@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-20-words-1",
+  "name": "中国語HSK6級 手書き20（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語20",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "指甲",
+      "input": "zhǐjia",
+      "annotation": "zhǐjia / 爪",
+      "input_type": "word"
+    },
+    {
+      "display": "直径",
+      "input": "zhíjìng",
+      "annotation": "zhíjìng / 直径",
+      "input_type": "word"
+    },
+    {
+      "display": "致力",
+      "input": "zhìlì",
+      "annotation": "zhìlì / 力を尽くす",
+      "input_type": "word"
+    },
+    {
+      "display": "治理",
+      "input": "zhìlǐ",
+      "annotation": "zhìlǐ / 治める、管理する",
+      "input_type": "word"
+    },
+    {
+      "display": "滞留",
+      "input": "zhìliú",
+      "annotation": "zhìliú / 滞留する",
+      "input_type": "word"
+    },
+    {
+      "display": "支流",
+      "input": "zhīliú",
+      "annotation": "zhīliú / 支流",
+      "input_type": "word"
+    },
+    {
+      "display": "殖民地",
+      "input": "zhímíndì",
+      "annotation": "zhímíndì / 植民地",
+      "input_type": "word"
+    },
+    {
+      "display": "职能",
+      "input": "zhínéng",
+      "annotation": "zhínéng / 職能、機能",
+      "input_type": "word"
+    },
+    {
+      "display": "智能",
+      "input": "zhìnéng",
+      "annotation": "zhìnéng / 知能、スマート",
+      "input_type": "word"
+    },
+    {
+      "display": "志气",
+      "input": "zhìqì",
+      "annotation": "zhìqì / 気概",
+      "input_type": "word"
+    },
+    {
+      "display": "智商",
+      "input": "zhìshāng",
+      "annotation": "zhìshāng / 知能指数",
+      "input_type": "word"
+    },
+    {
+      "display": "指示",
+      "input": "zhǐshì",
+      "annotation": "zhǐshì / 指示する",
+      "input_type": "word"
+    },
+    {
+      "display": "指望",
+      "input": "zhǐwàng",
+      "annotation": "zhǐwàng / 当てにする",
+      "input_type": "word"
+    },
+    {
+      "display": "职位",
+      "input": "zhíwèi",
+      "annotation": "zhíwèi / 職位",
+      "input_type": "word"
+    },
+    {
+      "display": "执行",
+      "input": "zhíxíng",
+      "annotation": "zhíxíng / 執行する、実行する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-13-words-3",
+  "name": "中国語HSK6級 手書き13（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語13",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "牵扯",
+      "input": "qiānchě",
+      "annotation": "qiānchě / 巻き込む、関わる",
+      "input_type": "word"
+    },
+    {
+      "display": "千方百计",
+      "input": "qiānfāng bǎijì",
+      "annotation": "qiānfāng bǎijì / あらゆる手を尽くす",
+      "input_type": "word"
+    },
+    {
+      "display": "抢救",
+      "input": "qiǎngjiù",
+      "annotation": "qiǎngjiù / 救急処置する",
+      "input_type": "word"
+    },
+    {
+      "display": "强迫",
+      "input": "qiǎngpò",
+      "annotation": "qiǎngpò / 強いる",
+      "input_type": "word"
+    },
+    {
+      "display": "前景",
+      "input": "qiánjǐng",
+      "annotation": "qiánjǐng / 前途、見通し",
+      "input_type": "word"
+    },
+    {
+      "display": "迁就",
+      "input": "qiānjiù",
+      "annotation": "qiānjiù / 妥協する、大目に見る",
+      "input_type": "word"
+    },
+    {
+      "display": "签署",
+      "input": "qiānshǔ",
+      "annotation": "qiānshǔ / 署名する",
+      "input_type": "word"
+    },
+    {
+      "display": "前提",
+      "input": "qiántí",
+      "annotation": "qiántí / 前提",
+      "input_type": "word"
+    },
+    {
+      "display": "迁徙",
+      "input": "qiānxǐ",
+      "annotation": "qiānxǐ / 移住する",
+      "input_type": "word"
+    },
+    {
+      "display": "潜移默化",
+      "input": "qiányí mòhuà",
+      "annotation": "qiányí mòhuà / 知らず知らず感化される",
+      "input_type": "word"
+    },
+    {
+      "display": "潜在",
+      "input": "qiánzài",
+      "annotation": "qiánzài / 潜在的な",
+      "input_type": "word"
+    },
+    {
+      "display": "牵制",
+      "input": "qiānzhì",
+      "annotation": "qiānzhì / 牽制する",
+      "input_type": "word"
+    },
+    {
+      "display": "侨胞",
+      "input": "qiáobāo",
+      "annotation": "qiáobāo / 海外在住の同胞",
+      "input_type": "word"
+    },
+    {
+      "display": "桥梁",
+      "input": "qiáoliáng",
+      "annotation": "qiáoliáng / 橋、架け橋",
+      "input_type": "word"
+    },
+    {
+      "display": "敲诈",
+      "input": "qiāozhà",
+      "annotation": "qiāozhà / ゆすり取る",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

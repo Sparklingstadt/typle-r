@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-14-words-4",
+  "name": "中国語HSK6級 手書き14（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語14",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "骚扰",
+      "input": "sāorǎo",
+      "annotation": "sāorǎo / かき乱す、嫌がらせをする",
+      "input_type": "word"
+    },
+    {
+      "display": "嫂子",
+      "input": "sǎozi",
+      "annotation": "sǎozi / 兄嫁",
+      "input_type": "word"
+    },
+    {
+      "display": "筛选",
+      "input": "shāixuǎn",
+      "annotation": "shāixuǎn / ふるい分ける、選別する",
+      "input_type": "word"
+    },
+    {
+      "display": "商标",
+      "input": "shāngbiāo",
+      "annotation": "shāngbiāo / 商標",
+      "input_type": "word"
+    },
+    {
+      "display": "上进",
+      "input": "shàngjìn",
+      "annotation": "shàngjìn / 向上する",
+      "input_type": "word"
+    },
+    {
+      "display": "伤脑筋",
+      "input": "shāngnǎojīn",
+      "annotation": "shāngnǎojīn / 頭を悩ませる",
+      "input_type": "word"
+    },
+    {
+      "display": "上任",
+      "input": "shàngrèn",
+      "annotation": "shàngrèn / 就任する",
+      "input_type": "word"
+    },
+    {
+      "display": "上瘾",
+      "input": "shàngyǐn",
+      "annotation": "shàngyǐn / 病みつきになる",
+      "input_type": "word"
+    },
+    {
+      "display": "上游",
+      "input": "shàngyóu",
+      "annotation": "shàngyóu / 上流",
+      "input_type": "word"
+    },
+    {
+      "display": "闪烁",
+      "input": "shǎnshuò",
+      "annotation": "shǎnshuò / きらめく、明滅する",
+      "input_type": "word"
+    },
+    {
+      "display": "擅自",
+      "input": "shànzì",
+      "annotation": "shànzì / 勝手に、無断で",
+      "input_type": "word"
+    },
+    {
+      "display": "涉及",
+      "input": "shèjí",
+      "annotation": "shèjí / 関わる、及ぶ",
+      "input_type": "word"
+    },
+    {
+      "display": "设立",
+      "input": "shèlì",
+      "annotation": "shèlì / 設立する",
+      "input_type": "word"
+    },
+    {
+      "display": "审查",
+      "input": "shěnchá",
+      "annotation": "shěnchá / 審査する",
+      "input_type": "word"
+    },
+    {
+      "display": "深沉",
+      "input": "shēnchén",
+      "annotation": "shēnchén / 重々しい、深く沈んだ",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

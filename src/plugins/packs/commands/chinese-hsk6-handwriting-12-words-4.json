@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-12-words-4",
+  "name": "中国語HSK6級 手書き12（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語12",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "力所能及",
+      "input": "lìsuǒ néngjí",
+      "annotation": "lìsuǒ néngjí / 力の及ぶ限り",
+      "input_type": "word"
+    },
+    {
+      "display": "留恋",
+      "input": "liúliàn",
+      "annotation": "liúliàn / 名残を惜しむ",
+      "input_type": "word"
+    },
+    {
+      "display": "流氓",
+      "input": "liúmáng",
+      "annotation": "liúmáng / ごろつき",
+      "input_type": "word"
+    },
+    {
+      "display": "笼罩",
+      "input": "lǒngzhào",
+      "annotation": "lǒngzhào / 覆う",
+      "input_type": "word"
+    },
+    {
+      "display": "轮船",
+      "input": "lúnchuán",
+      "annotation": "lúnchuán / 汽船",
+      "input_type": "word"
+    },
+    {
+      "display": "埋没",
+      "input": "máimò",
+      "annotation": "máimò / 埋もれさせる",
+      "input_type": "word"
+    },
+    {
+      "display": "麻木",
+      "input": "mámù",
+      "annotation": "mámù / しびれる、無感覚な",
+      "input_type": "word"
+    },
+    {
+      "display": "茫茫",
+      "input": "mángmáng",
+      "annotation": "mángmáng / 果てしない",
+      "input_type": "word"
+    },
+    {
+      "display": "美满",
+      "input": "měimǎn",
+      "annotation": "měimǎn / 円満な",
+      "input_type": "word"
+    },
+    {
+      "display": "勉励",
+      "input": "miǎnlì",
+      "annotation": "miǎnlì / 励ます",
+      "input_type": "word"
+    },
+    {
+      "display": "密度",
+      "input": "mìdù",
+      "annotation": "mìdù / 密度",
+      "input_type": "word"
+    },
+    {
+      "display": "迷惑",
+      "input": "míhuò",
+      "annotation": "míhuò / 惑わす",
+      "input_type": "word"
+    },
+    {
+      "display": "民间",
+      "input": "mínjiān",
+      "annotation": "mínjiān / 民間",
+      "input_type": "word"
+    },
+    {
+      "display": "魔术",
+      "input": "móshù",
+      "annotation": "móshù / 手品",
+      "input_type": "word"
+    },
+    {
+      "display": "谋求",
+      "input": "móuqiú",
+      "annotation": "móuqiú / 図る",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

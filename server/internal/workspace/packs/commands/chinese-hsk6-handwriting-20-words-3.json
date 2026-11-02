@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-20-words-3",
+  "name": "中国語HSK6級 手書き20（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語20",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "周边",
+      "input": "zhōubiān",
+      "annotation": "zhōubiān / 周辺",
+      "input_type": "word"
+    },
+    {
+      "display": "周密",
+      "input": "zhōumì",
+      "annotation": "zhōumì / 綿密な",
+      "input_type": "word"
+    },
+    {
+      "display": "周期",
+      "input": "zhōuqī",
+      "annotation": "zhōuqī / 周期",
+      "input_type": "word"
+    },
+    {
+      "display": "皱纹",
+      "input": "zhòuwén",
+      "annotation": "zhòuwén / しわ",
+      "input_type": "word"
+    },
+    {
+      "display": "昼夜",
+      "input": "zhòuyè",
+      "annotation": "zhòuyè / 昼夜",
+      "input_type": "word"
+    },
+    {
+      "display": "周转",
+      "input": "zhōuzhuǎn",
+      "annotation": "zhōuzhuǎn / 回転する、やりくりする",
+      "input_type": "word"
+    },
+    {
+      "display": "专长",
+      "input": "zhuāncháng",
+      "annotation": "zhuāncháng / 専門技能",
+      "input_type": "word"
+    },
+    {
+      "display": "转达",
+      "input": "zhuǎndá",
+      "annotation": "zhuǎndá / 伝える",
+      "input_type": "word"
+    },
+    {
+      "display": "装备",
+      "input": "zhuāngbèi",
+      "annotation": "zhuāngbèi / 装備",
+      "input_type": "word"
+    },
+    {
+      "display": "庄稼",
+      "input": "zhuāngjia",
+      "annotation": "zhuāngjia / 農作物",
+      "input_type": "word"
+    },
+    {
+      "display": "壮丽",
+      "input": "zhuànglì",
+      "annotation": "zhuànglì / 壮麗な",
+      "input_type": "word"
+    },
+    {
+      "display": "壮烈",
+      "input": "zhuàngliè",
+      "annotation": "zhuàngliè / 壮烈な",
+      "input_type": "word"
+    },
+    {
+      "display": "庄重",
+      "input": "zhuāngzhòng",
+      "annotation": "zhuāngzhòng / 荘重な",
+      "input_type": "word"
+    },
+    {
+      "display": "传记",
+      "input": "zhuànjì",
+      "annotation": "zhuànjì / 伝記",
+      "input_type": "word"
+    },
+    {
+      "display": "转让",
+      "input": "zhuǎnràng",
+      "annotation": "zhuǎnràng / 譲渡する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

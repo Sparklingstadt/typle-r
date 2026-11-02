@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-18-words-1",
+  "name": "中国語HSK6級 手書き18（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語18",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "熏陶",
+      "input": "xūntáo",
+      "annotation": "xūntáo / 感化する",
+      "input_type": "word"
+    },
+    {
+      "display": "需求",
+      "input": "xūqiú",
+      "annotation": "xūqiú / 需要",
+      "input_type": "word"
+    },
+    {
+      "display": "虚荣",
+      "input": "xūróng",
+      "annotation": "xūróng / 虚栄",
+      "input_type": "word"
+    },
+    {
+      "display": "序言",
+      "input": "xùyán",
+      "annotation": "xùyán / 序文",
+      "input_type": "word"
+    },
+    {
+      "display": "须知",
+      "input": "xūzhī",
+      "annotation": "xūzhī / 心得、注意事項",
+      "input_type": "word"
+    },
+    {
+      "display": "演变",
+      "input": "yǎnbiàn",
+      "annotation": "yǎnbiàn / 変遷する",
+      "input_type": "word"
+    },
+    {
+      "display": "掩盖",
+      "input": "yǎngài",
+      "annotation": "yǎngài / 覆い隠す",
+      "input_type": "word"
+    },
+    {
+      "display": "扬长避短",
+      "input": "yángcháng bìduǎn",
+      "annotation": "yángcháng bìduǎn / 長所を生かし短所を避ける",
+      "input_type": "word"
+    },
+    {
+      "display": "氧气",
+      "input": "yǎngqì",
+      "annotation": "yǎngqì / 酸素",
+      "input_type": "word"
+    },
+    {
+      "display": "眼光",
+      "input": "yǎnguāng",
+      "annotation": "yǎnguāng / 視線、見る目",
+      "input_type": "word"
+    },
+    {
+      "display": "洋溢",
+      "input": "yángyì",
+      "annotation": "yángyì / 満ちあふれる",
+      "input_type": "word"
+    },
+    {
+      "display": "养育",
+      "input": "yǎngyù",
+      "annotation": "yǎngyù / 養育する",
+      "input_type": "word"
+    },
+    {
+      "display": "严寒",
+      "input": "yánhán",
+      "annotation": "yánhán / 厳寒",
+      "input_type": "word"
+    },
+    {
+      "display": "掩护",
+      "input": "yǎnhù",
+      "annotation": "yǎnhù / 援護する、かばう",
+      "input_type": "word"
+    },
+    {
+      "display": "烟花爆竹",
+      "input": "yānhuā bàozhú",
+      "annotation": "yānhuā bàozhú / 花火と爆竹",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}
