@@ -73,7 +73,7 @@ test('the search, category and order are kept in the URL', async ({ page, browse
   try {
     const view = await guest.newPage()
     await view.goto('/gallery')
-    await view.getByRole('combobox', { name: 'カテゴリー' }).selectOption('E2E')
+    await view.getByRole('combobox', { name: 'カテゴリ' }).selectOption('E2E')
     await expect(view).toHaveURL(/category=E2E/)
     await view.getByRole('combobox', { name: '並べ替え' }).selectOption('popular')
     await expect(view).toHaveURL(/sort=popular/)
@@ -84,7 +84,7 @@ test('the search, category and order are kept in the URL', async ({ page, browse
 
     await view.reload()
     await expect(view.getByRole('searchbox', { name: '検索' })).toHaveValue(accountId)
-    await expect(view.getByRole('combobox', { name: 'カテゴリー' })).toHaveValue('E2E')
+    await expect(view.getByRole('combobox', { name: 'カテゴリ' })).toHaveValue('E2E')
     await expect(view.getByRole('combobox', { name: '並べ替え' })).toHaveValue('popular')
     await expect(view.getByRole('main').getByRole('listitem')).toHaveCount(1)
   } finally { await guest.close() }

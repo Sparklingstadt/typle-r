@@ -243,7 +243,7 @@ func (w noStore) WriteHeader(status int) {
 }
 
 // databaseHandler serves /api/workspace, /api/shares, /api/admin/* and any other path outside /api/auth/, /api/health,
-// /api/shared and the gallery's reads (/api/gallery/added is here, as it checks the Origin). When it cannot be built
+// /api/shared and the gallery's reads (/api/gallery/added and /api/gallery/reports are here, as they check the Origin). When it cannot be built
 // the request gets a 503, the reason is logged, and nothing is kept, so a later request tries again:
 //
 //   - the login settings are missing or invalid: authUnavailable. The database is not opened.

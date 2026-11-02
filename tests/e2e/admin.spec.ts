@@ -34,6 +34,7 @@ test('an unknown error in the URL is not shown', async ({ page }) => {
 })
 
 test('the administrator sees the figures and can sign out', async ({ page }) => {
+  await page.route('**/api/admin/gallery', route => route.fulfill({ json: { packs: [] } }))
   await page.route('**/api/admin/dashboard', route => route.fulfill({ json: {
     admin: { email: 'admin@example.com', sub: 'cadmin' },
     overview: {
