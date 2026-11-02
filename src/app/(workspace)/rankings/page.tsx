@@ -11,10 +11,11 @@ import { Skeleton } from "@/components/ui/skeleton"
 import FilterMenu from "@/components/Records/FilterMenu"
 import RankingDetail from "@/components/Rankings/RankingDetail"
 import RankingList from "@/components/Rankings/RankingList"
+import ModeToggle from "@/components/Practice/ModeToggle"
 import { useFormat } from "@/i18n/useFormat"
 import { useWordLists } from "@/lib/useWordLists"
 import { deviceExists, type PracticeDevice } from "@/core/devices"
-import { deviceOptions, matchesDevice, NO_DEVICE, type PracticeMode, type RankOrder } from "@/core/records"
+import { deviceOptions, matchesDevice, NO_DEVICE, PRACTICE_MODES, recordsOfMode, type PracticeMode, type RankOrder } from "@/core/records"
 import { listRanking, rankingQuery, type ListSort, type RankingView } from "@/core/rankings"
 import { packRankings, sortPackRankings } from "@/core/packRecords"
 import type { SavedWordList } from "@/core/wordLists"
@@ -63,10 +64,11 @@ export default function Rankings() {
 
 type View = RankingView
 
-// `?list=<id>&device=<id>&order=speed&mode=recall` keep the view in the URL, so other screens can open one list's ranking.
+// `?list=<id>&device=<id>&order=speed&mode=recall` (or `mode=writing`) keep the view in the URL, so other screens can open one list's ranking.
 // Below `xl`, opening a list pushes a history entry, so the browser's back button returns to the list.
 function RankingsView({ lists, packs, devices }: { lists: SavedWordList[]; packs: WordPack[]; devices: PracticeDevice[] }) {
   const t = useTranslations('rankings')
+  const modes = useTranslations('rankings.mode')
   const format = useFormat()
   const locale = useLocale()
   const params = useSearchParams()
@@ -83,7 +85,8 @@ function RankingsView({ lists, packs, devices }: { lists: SavedWordList[]; packs
   }), [lists, devices, format, t])
   const device = devicesOptions.some(option => option.value === params.get('device')) ? params.get('device') : null
   const order: RankOrder = params.get('order') === 'speed' ? 'speed' : 'accuracy'
-  const mode: PracticeMode = params.get('mode') === 'recall' ? 'recall' : 'normal'
+  // Normal, recall and handwriting runs are ranked apart.
+  const mode: PracticeMode = PRACTICE_MODES.find(value => value !== 'normal' && value === params.get('mode')) ?? 'normal'
   const packRanks = useMemo(() => sortPackRankings(packRankings(packs, lists.map(list => listRanking(list, { device, order, now, mode }))), sort, locale), [lists, packs, device, order, mode, now, sort, locale])
   const requested = lists.find(list => list.id === params.get('list'))
   // On wide screens something is always open: the most recent list with a record in the first pack with one, like the top of the list.
@@ -132,14 +135,15 @@ function RankingsView({ lists, packs, devices }: { lists: SavedWordList[]; packs
 
   // Keep the detail useful after filtering: on wide screens, move to a list that has records on that device.
   function changeDevice(next: string | null) {
-    const keep = !requested || !wide || requested.records.some(record => matchesDevice(record, next))
+    // Only the chosen mode's records count: a list with none of them on that device is closed.
+    const keep = !requested || !wide || recordsOfMode(requested.records, mode).some(record => matchesDevice(record, next))
     navigate({ device: next, list: keep ? requested?.id ?? null : null })
   }
 
   return <div className="space-y-4">
     <div className="flex flex-wrap items-center gap-2">
       <FilterMenu name={t('filter.device')} allLabel={t('filter.allDevices')} value={device} options={devicesOptions} onChange={changeDevice} />
-      <ModeToggle value={mode} onChange={value => navigate({ mode: value })} />
+      <ModeToggle options={PRACTICE_MODES} value={mode} onChange={value => navigate({ mode: value })} label={modes('label')} labels={{ normal: modes('normal'), recall: modes('recall'), writing: modes('writing') }} />
       <OrderToggle value={order} onChange={value => navigate({ order: value })} />
       <p className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
         <Info className="size-3.5 shrink-0" aria-hidden="true" />{t(`orderNotes.${order}`)}
@@ -156,18 +160,6 @@ function RankingsView({ lists, packs, devices }: { lists: SavedWordList[]; packs
       </section>}
     </div>
   </div>
-}
-
-function ModeToggle({ value, onChange }: { value: PracticeMode; onChange: (value: PracticeMode) => void }) {
-  const t = useTranslations('rankings.mode')
-  return <RadioGroup.Root value={value} onValueChange={next => onChange(next as PracticeMode)} aria-label={t('label')} orientation="horizontal"
-    className="inline-flex h-9 items-center rounded-full border bg-muted/60 p-0.5 text-[13px]">
-    {(['normal', 'recall'] as const).map(option =>
-      <RadioGroup.Item key={option} value={option}
-        className="h-full rounded-full px-3 text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 data-[state=checked]:bg-background data-[state=checked]:font-medium data-[state=checked]:text-foreground data-[state=checked]:shadow-sm dark:data-[state=checked]:bg-input">
-        {t(option)}
-      </RadioGroup.Item>)}
-  </RadioGroup.Root>
 }
 
 function OrderToggle({ value, onChange }: { value: RankOrder; onChange: (value: RankOrder) => void }) {

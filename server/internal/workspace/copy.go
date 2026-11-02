@@ -75,9 +75,13 @@ func CopyList(w *Workspace, sourceID string, name *string, id string, now time.T
 		name = &generated
 	}
 	words := slices.Clone(source.Words)
+	writing := source.Writing
+	if writing == nil {
+		writing = &Writing{}
+	}
 	if pack != nil {
-		return CreateList(w, ListInput{Name: name, PackID: &pack.ID, Words: words}, id, now)
+		return CreateList(w, ListInput{Name: name, PackID: &pack.ID, Writing: writing, Words: words}, id, now)
 	}
 	tags := slices.Clone(source.Tags)
-	return CreateList(w, ListInput{Name: name, Category: &source.Category, Tags: &tags, Words: words}, id, now)
+	return CreateList(w, ListInput{Name: name, Category: &source.Category, Tags: &tags, Writing: writing, Words: words}, id, now)
 }

@@ -25,6 +25,7 @@
   "wordFieldsRequired": "表示する単語と入力する文字をすべて入力してください。",
   "savedDataUnreadable": "保存データの形式を読み取れません。",
   "savedDataCorrupted": "保存データが壊れています。元のデータは変更していません。",
+  "invalidWritingLanguage": "手書き練習の言語が正しくありません。",
   "listDeleted": "この単語リストは削除されています。画面を開き直してください。",
   "listLimit": "単語リストは{max}件まで保存できます。",
   "importFileType": "CSVまたはTSVファイルを選択してください。",

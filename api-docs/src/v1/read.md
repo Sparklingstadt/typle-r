@@ -57,11 +57,12 @@
 | `category`・`tags` | リストではなくパックの値（同じパックのリストは同じ値になる） |
 | `levels` | 練習画面でパックの中のリストを選ぶ難易度。ないときは `[]`（v0.95.0 から。v0.97.0 から多くても 1 つ） |
 | `origin` | フォロー中の公式パックのリストだけが持つ元の公式リストの ID（`{ "listId": "…" }`）。ほかのリストは `null`（v0.98.0 から。[フォロー中の公式パック](./write.md#フォロー中の公式パック)） |
-| `practiceCount` | 練習回数。`recordCount` と同じ値（v0.50.0 から） |
-| `lastPracticed` | 最も新しい記録の日時。なければ `null`（v0.50.0 から） |
-| `currentRecordCount` | 今の単語数と同じ単語数の記録の数。ベスト記録の比較に使う記録（v0.50.0 から） |
+| `writing` | 手書き練習（Typle Handwriting）のできるリストだけが持つ `{ "language": "ja" }`。ほかのリストでは項目ごと省く。言語は `en`・`ja`・`zh-Hans`・`zh-Hant`・`ko`・`fr`・`de`・`es`・`ru`・`cs` |
+| `practiceCount` | 練習回数。`recordCount` と同じ値で、思い出して打った記録と手書き練習の記録も数える（v0.50.0 から） |
+| `lastPracticed` | 最も新しい記録の日時（どのモードの記録でも）。なければ `null`（v0.50.0 から） |
+| `currentRecordCount` | 今の単語数と同じ単語数の通常の記録（`mode` のない記録）の数。ベスト記録の比較に使う記録（v0.50.0 から） |
 
-`packId`・`levels`・`origin`・`practiceCount`・`lastPracticed`・`currentRecordCount` は [`GET /api/v1/lists/{l}`](#get-api-v1-lists-l) と作成・更新の応答の `list` にもあります。作成・変更での `packId`・`levels` は [書き込み](./write.md) を見てください。
+`packId`・`levels`・`writing`・`origin`・`practiceCount`・`lastPracticed`・`currentRecordCount` は [`GET /api/v1/lists/{l}`](#get-api-v1-lists-l) と作成・更新の応答の `list` にもあります。作成・変更での `packId`・`levels` は [書き込み](./write.md) を見てください。
 
 並べ方と検索はアプリの「単語リスト」画面と同じです。名前順は Go の照合表（CLDR 23）を使うため、半角カナ・ギリシャ文字・記号で始まる名前は、ブラウザーと順序が違うことがあります。
 
@@ -78,6 +79,7 @@
     "category": "語学",
     "tags": ["英語"],
     "levels": [],
+    "writing": { "language": "en" },
     "wordCount": 1,
     "recordCount": 8,
     "createdAt": "2026-10-10T01:23:45.000Z",
@@ -170,7 +172,7 @@
 }
 ```
 
-記録は保存されている形のまま（Typleの知らない項目も含めて）返します。古い記録には `id`・`mistakes`・`accuracy`・`wordCount`・`device` がないことがあります。
+記録は保存されている形のまま（Typleの知らない項目も含めて）返します。古い記録には `id`・`mistakes`・`accuracy`・`wordCount`・`device` がないことがあります。練習のモードは `mode` で分かります。思い出して打った記録には `"mode": "recall"`、手書き練習（Typle Handwriting）の記録には `"mode": "writing"` が付き、通常のタイピングの記録には `mode` がありません。
 
 v1.3.0 から、記録は `typle_records` テーブルに保存されます。リストの記録がテーブルだけにあるときは、ワークスペース全体を読まずにテーブルから `since`・`limit` の分だけ読みます（答えは同じです）。`id` のない古い記録には、テーブルへ移すときに `legacy-` で始まる変わらない `id` が付きます。
 
@@ -205,18 +207,19 @@ v1.3.0 から、記録は `typle_records` テーブルに保存されます。�
 |---|---|
 | `device` | その端末の記録だけで順位を付ける。`none` は端末のない記録。省略すると全部 |
 | `order` | `accuracy`（既定。正確率の高い順、同じなら速い順）か `speed`（速い順、同じなら正確率の高い順）。正確率のない古い記録は最後 |
+| `mode` | `normal`（既定。通常のタイピング）、`recall`（思い出して打った記録）か `writing`（手書き練習）。そのモードの記録だけで順位を付ける。それ以外は `400 invalidQuery` |
 | `sort` | `recent`（既定。最後に練習した順）、`name`（名前順。日本語の照合で、数字は文字として比べる）、`count`（記録の多い順） |
 
 ```json
 { "rankings": [{ "listId": "l1", "listName": "英単語", "wordCount": 20, "recordCount": 8, "best": { …記録… }, "lastPracticed": "2026-10-20T02:00:00.000Z", "improved": true }] }
 ```
 
-- 順位は、今の単語数と同じ単語数の記録で付けます（その記録がなければ全部で）。`best` はその1位で、記録がなければ `null`。`recordCount` は選んだ端末での記録の数です。
+- 順位は、今の単語数と同じ単語数の記録で付けます（その記録がなければ全部で）。`best` はその1位で、記録がなければ `null`。`recordCount` は選んだ端末・選んだ `mode` の記録の数です。
 - `improved` は、ベストが7日以内に出て、それより前の記録がある（記録を更新した）ことを表します。
 
 ### `GET /api/v1/rankings/{l}`
 
-1つのリストの順位の詳細です（v0.52.0 から）。`device`・`order` は上と同じで、`includeOthers=true` にすると今と違う単語数の記録も順位に入れます。
+1つのリストの順位の詳細です（v0.52.0 から）。`device`・`order`・`mode` は上と同じで、`includeOthers=true` にすると今と違う単語数の記録も順位に入れます。
 
 ```json
 {
@@ -263,4 +266,5 @@ v1.3.0 から、記録は `typle_records` テーブルに保存されます。�
 - `summary`：`weekStart` は今週の月曜0時です。`previousWeekCount`・`previousWeekSeconds` は先週の同じ曜日・時刻までの数です（週のはじめに1週間分と比べないため）。`streak` は練習した日の連続日数で、今日まだ練習していなければ昨日から数えます。`accuracy` は正確率のある直近10回の平均で、`change` はその前の10回（あれば最大10回）との比較です。正確率のある記録がなければ `null`。
 - `next`：次に練習するリストを最大3件、理由ごとに順に選びます。`new` は記録のないリスト、`stale` は最後の練習から3日以上たったリスト（日数の多い順）、`accuracy` は直近5回の平均正確率が90%未満のリスト（低い順）です。
 - `trends`：記録のあるリストを最後に練習した順に並べます。`speed` は1単語あたりの秒数、`accuracy` は正確率の推移で、`points` は直近20回（古い順）、`change` は新しい半分（最大5回）とその前の同じ数との比較です（比べられなければ `null`）。`best` はそのリストのベストです（[`GET /api/v1/rankings`](#get-api-v1-rankings) の `best` と同じ）。
+- 思い出して打った記録と手書き練習の記録は、`summary` の回数・練習時間・`streak` に数えます。`summary.accuracy`・`next`・`trends` は通常の記録（`mode` のない記録）だけで比べます。
 - 記録が1件もなくても、同じ形で返します（`weekCount` は `0`、`accuracy` は `null`、`trends` は `[]`）。

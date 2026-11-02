@@ -23,7 +23,8 @@ func Feed(lists []List, listID, device string) []FeedRow {
 		if listID != "" && list.ID != listID {
 			continue
 		}
-		best, bestRecall := ListBest(list), ListBestOf(list, RecallMode)
+		// Each mode has its own best, as in recordRows: a record competes only with records of the same mode.
+		bests := map[string]*Record{"": ListBest(list), RecallMode: ListBestOf(list, RecallMode), WritingMode: ListBestOf(list, WritingMode)}
 		for j := range list.Records {
 			record := &list.Records[j]
 			if device != "" && (device == NoDevice) != (record.Device == nil) {
@@ -32,7 +33,7 @@ func Feed(lists []List, listID, device string) []FeedRow {
 			if device != "" && device != NoDevice && record.Device.ID != device {
 				continue
 			}
-			rows = append(rows, FeedRow{List: list, Record: record, Best: record == best || record == bestRecall})
+			rows = append(rows, FeedRow{List: list, Record: record, Best: record == bests[record.Mode]})
 		}
 	}
 	slices.SortStableFunc(rows, func(a, b FeedRow) int { return b.Record.At.Compare(a.Record.At) })

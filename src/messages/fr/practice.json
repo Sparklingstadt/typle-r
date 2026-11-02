@@ -6,7 +6,8 @@
     "speed": "Vitesse",
     "speedUnit": "frappes/min",
     "accuracy": "Précision",
-    "mistakes": "Erreurs"
+    "mistakes": "Erreurs",
+    "wordSpeedUnit": "mots/min"
   },
   "progress": {
     "label": "Progression des mots",
@@ -98,7 +99,10 @@
     "saving": "Enregistrement du résultat…",
     "again": "Encore",
     "chooseList": "Choisir une autre liste",
-    "viewRecords": "Voir l’historique"
+    "viewRecords": "Voir l’historique",
+    "wordSpeedUnit": "mots/min",
+    "correctWords": "{count, plural, one {# mot} other {# mots}}",
+    "mistakesWords": "{count, plural, one {# erreur} other {# erreurs}}"
   },
   "best": {
     "label": "Top 5 des meilleurs résultats",
@@ -124,5 +128,12 @@
     "listsOf": "Listes de {name}",
     "chooseList": "Choisissez une liste.",
     "match": "Correspond à la recherche"
-  }
+  },
+  "modeLabel": "Mode d’entraînement",
+  "modeTyping": "Frappe",
+  "modeWriting": "Handwriting",
+  "writingJudge": "Vérifier",
+  "writingSkip": "Passer",
+  "writingRead": "Lu comme « {text} »",
+  "writingInput": "Écrivez ici à la main"
 }

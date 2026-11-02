@@ -76,3 +76,11 @@ test('currentRecordCount counts normal records only', () => {
   const list = { words: [{ display: 'a', input: 'a', annotation: '' }], records: [r('a'), r('b', { mode: 'recall' })] }
   assert.equal(currentRecordCount(list), 1)
 })
+
+test('writing records count as practice in the overview, like recall, but not towards the current record count', () => {
+  const list = { id: 'w', name: 'w', createdAt: '2026-09-01', words: words('a', 'b'), records: [
+    record('2026-09-20T10:00:00Z', 2), record('2026-09-21T10:00:00Z', 2), { ...record('2026-09-28T10:00:00Z', 2), mode: 'writing' }] }
+  const [overview] = listOverviews([list])
+  assert.deepEqual([overview.practiceCount, overview.lastPracticed], [3, Date.parse('2026-09-28T10:00:00Z')])
+  assert.equal(currentRecordCount(list), 2)
+})

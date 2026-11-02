@@ -76,8 +76,9 @@
     "words": "{count, plural, one {# word} other {# words}}",
     "runs": "{count, plural, one {# run} other {# runs}}",
     "last": "Last: {day}",
-    "best": "Best",
+    "best": "Best ({mode})",
     "rankings": "Best records",
     "practice": "Practice"
-  }
+  },
+  "modeWriting": "Handwriting"
 }

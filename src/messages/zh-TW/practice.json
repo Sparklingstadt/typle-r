@@ -6,7 +6,8 @@
     "speed": "速度",
     "speedUnit": "鍵/分",
     "accuracy": "正確率",
-    "mistakes": "錯誤"
+    "mistakes": "錯誤",
+    "wordSpeedUnit": "詞/分"
   },
   "progress": {
     "label": "單字進度",
@@ -98,7 +99,10 @@
     "saving": "正在儲存紀錄…",
     "again": "再來一次",
     "chooseList": "選擇其他清單",
-    "viewRecords": "查看紀錄"
+    "viewRecords": "查看紀錄",
+    "wordSpeedUnit": "詞/分",
+    "correctWords": "{count} 個詞",
+    "mistakesWords": "錯誤 {count} 個詞"
   },
   "best": {
     "label": "最佳紀錄前 5 名",
@@ -124,5 +128,12 @@
     "listsOf": "{name} 的清單",
     "chooseList": "請選擇清單。",
     "match": "符合搜尋"
-  }
+  },
+  "modeLabel": "練習方式",
+  "modeTyping": "打字",
+  "modeWriting": "Handwriting",
+  "writingJudge": "判定",
+  "writingSkip": "跳過",
+  "writingRead": "辨識為「{text}」",
+  "writingInput": "在此手寫輸入"
 }

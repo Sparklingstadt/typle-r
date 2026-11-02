@@ -17,8 +17,15 @@ const (
 	maxSafeInteger = 1<<53 - 1
 )
 
-// RecallMode is the mode of a run practised by recalling the words. A normal run has no mode.
-const RecallMode = "recall"
+// The modes a run can be saved with: RecallMode for a run practised by recalling the words, WritingMode for a Typle
+// Handwriting run. A normal typing run has no mode (""), and the records of each mode are ranked apart.
+const (
+	RecallMode  = "recall"
+	WritingMode = "writing"
+)
+
+// validMode is whether mode can be saved: a mode of the app, or "" for a normal run.
+func validMode(mode string) bool { return mode == "" || mode == RecallMode || mode == WritingMode }
 
 var recordID = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
@@ -35,9 +42,9 @@ type RecordInput struct {
 	WordCount *float64 `json:"wordCount"`
 	DeviceID  *string  `json:"deviceId"`
 	Device    *Device  `json:"device"`
-	// Mode is RecallMode or left out. /api/v1 does not accept it (see the api package's addRecord).
+	// Mode is RecallMode, WritingMode or left out. /api/v1 does not accept it (see the api package's addRecord).
 	Mode *string `json:"mode"`
-	// ModeNull is set when the request has "mode": null, which is refused like any other mode that is not RecallMode.
+	// ModeNull is set when the request has "mode": null, which is refused like any other mode that is not RecallMode or WritingMode.
 	ModeNull bool `json:"-"`
 }
 
@@ -89,6 +96,14 @@ func AddRecord(w *Workspace, listID string, input RecordInput, newID string) (re
 	if !ok {
 		return Record{}, false, invalid
 	}
+	// The mode is checked before a resend is looked up, as addRecord does in the app.
+	mode := ""
+	if input.Mode != nil {
+		mode = *input.Mode
+	}
+	if input.ModeNull || (input.Mode != nil && (mode == "" || !validMode(mode))) {
+		return Record{}, false, invalid
+	}
 	wordCount := len(list.Words)
 	if input.WordCount != nil {
 		if wordCount, ok = integer(input.WordCount, 1); !ok {
@@ -118,16 +133,6 @@ func AddRecord(w *Workspace, listID string, input RecordInput, newID string) (re
 		if device, ok = findDevice(w, *input.DeviceID); !ok {
 			return Record{}, false, &Error{Key: "deviceNotFound"}
 		}
-	}
-	mode := ""
-	if input.ModeNull {
-		return Record{}, false, invalid
-	}
-	if input.Mode != nil {
-		if *input.Mode != RecallMode {
-			return Record{}, false, invalid
-		}
-		mode = *input.Mode
 	}
 	accuracy := *input.Accuracy
 	record = Record{ID: &id, Time: *input.Time, Date: FormatTime(date), Mistakes: &mistakes, Accuracy: &accuracy,

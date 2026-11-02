@@ -1,0 +1,71 @@
+{
+  "library": {
+    "packs": [
+      {
+        "id": "pack-w",
+        "name": "Kanji",
+        "createdAt": "2026-10-01T00:00:00.000Z"
+      }
+    ],
+    "lists": [
+      {
+        "id": "a",
+        "name": "漢字",
+        "packId": "pack-w",
+        "writing": {
+          "language": "ja"
+        },
+        "words": [
+          {
+            "display": "木",
+            "input": "ki",
+            "annotation": "tree"
+          },
+          {
+            "display": "森",
+            "input": "mori",
+            "annotation": "forest"
+          }
+        ],
+        "records": [],
+        "createdAt": "2026-10-01T00:00:00.000Z"
+      },
+      {
+        "id": "b",
+        "name": "Typing only",
+        "packId": "pack-w",
+        "words": [
+          {
+            "display": "sun",
+            "input": "sun",
+            "annotation": ""
+          }
+        ],
+        "records": [],
+        "createdAt": "2026-10-01T00:00:00.000Z"
+      },
+      {
+        "id": "c",
+        "name": "한글",
+        "packId": "pack-w",
+        "levels": [
+          "1級"
+        ],
+        "writing": {
+          "language": "ko"
+        },
+        "words": [
+          {
+            "display": "나무",
+            "input": "namu",
+            "annotation": ""
+          }
+        ],
+        "records": [],
+        "createdAt": "2026-10-01T00:00:00.000Z"
+      }
+    ]
+  },
+  "packId": "pack-w",
+  "file": "{\n  \"format\": \"typle-pack\",\n  \"version\": 1,\n  \"pack\": {\n    \"name\": \"Kanji\"\n  },\n  \"lists\": [\n    {\n      \"name\": \"漢字\",\n      \"writing\": {\n        \"language\": \"ja\"\n      },\n      \"words\": [\n        {\n          \"display\": \"木\",\n          \"input\": \"ki\",\n          \"annotation\": \"tree\"\n        },\n        {\n          \"display\": \"森\",\n          \"input\": \"mori\",\n          \"annotation\": \"forest\"\n        }\n      ]\n    },\n    {\n      \"name\": \"Typing only\",\n      \"words\": [\n        {\n          \"display\": \"sun\",\n          \"input\": \"sun\",\n          \"annotation\": \"\"\n        }\n      ]\n    },\n    {\n      \"name\": \"한글\",\n      \"levels\": [\n        \"1級\"\n      ],\n      \"writing\": {\n        \"language\": \"ko\"\n      },\n      \"words\": [\n        {\n          \"display\": \"나무\",\n          \"input\": \"namu\",\n          \"annotation\": \"\"\n        }\n      ]\n    }\n  ]\n}\n"
+}

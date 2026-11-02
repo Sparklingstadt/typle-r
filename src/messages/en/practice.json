@@ -6,7 +6,8 @@
     "speed": "Speed",
     "speedUnit": "keys/min",
     "accuracy": "Accuracy",
-    "mistakes": "Mistakes"
+    "mistakes": "Mistakes",
+    "wordSpeedUnit": "words/min"
   },
   "progress": {
     "label": "Word progress",
@@ -98,7 +99,10 @@
     "saving": "Saving the record…",
     "again": "Again",
     "chooseList": "Choose another list",
-    "viewRecords": "View history"
+    "viewRecords": "View history",
+    "wordSpeedUnit": "words/min",
+    "correctWords": "{count, plural, one {# word} other {# words}}",
+    "mistakesWords": "{count, plural, one {# mistake} other {# mistakes}}"
   },
   "best": {
     "label": "Top 5 best records",
@@ -124,5 +128,12 @@
     "listsOf": "Lists of {name}",
     "chooseList": "Choose a list.",
     "match": "Matches the search"
-  }
+  },
+  "modeLabel": "Practice mode",
+  "modeTyping": "Typing",
+  "modeWriting": "Handwriting",
+  "writingJudge": "Check",
+  "writingSkip": "Skip",
+  "writingRead": "Read as “{text}”",
+  "writingInput": "Write here by hand"
 }

@@ -215,3 +215,44 @@ func TestListNameTrimsAsJavaScript(t *testing.T) {
 	_, err = CreateList(two(), ListInput{Name: text("a"), Words: []Word{{Display: bom, Input: "a"}}}, "new", now)
 	wantKey(t, err, "wordFieldsRequired")
 }
+
+func TestListInputWriting(t *testing.T) {
+	w := two()
+	words := []Word{{Display: "a", Input: "a"}}
+	list, err := CreateList(w, ListInput{Name: text("新"), Writing: &Writing{"ko"}, Words: words}, "new", now)
+	if err != nil || list.Writing == nil || list.Writing.Language != "ko" {
+		t.Fatalf("created = %+v, err = %v", list, err)
+	}
+	if list, err = UpdateList(w, "new", ListInput{Name: text("新2")}); err != nil || list.Writing == nil || list.Writing.Language != "ko" {
+		t.Fatalf("nil changed it: %+v, %v", list, err)
+	}
+	if list, err = UpdateList(w, "new", ListInput{Writing: &Writing{"fr"}}); err != nil || list.Writing.Language != "fr" {
+		t.Fatalf("changed = %+v, %v", list, err)
+	}
+	if list, err = UpdateList(w, "new", ListInput{Writing: &Writing{""}}); err != nil || list.Writing != nil {
+		t.Fatalf("removed = %+v, %v", list, err)
+	}
+	for _, language := range WritingLanguages {
+		if _, err := UpdateList(w, "new", ListInput{Writing: &Writing{language}}); err != nil {
+			t.Fatalf("%s: %v", language, err)
+		}
+	}
+	before := w.Lists[2].Writing
+	_, err = UpdateList(w, "new", ListInput{Name: text("変更"), Writing: &Writing{"xx"}})
+	wantKey(t, err, "invalidWritingLanguage")
+	if w.Lists[2].Writing != before || w.Lists[2].Name != "新2" {
+		t.Fatalf("refused update changed the list: %+v", w.Lists[2])
+	}
+	_, err = CreateList(w, ListInput{Name: text("別"), Writing: &Writing{"JA"}, Words: words}, "x", now)
+	wantKey(t, err, "invalidWritingLanguage")
+	if len(w.Lists) != 3 {
+		t.Fatalf("lists = %d", len(w.Lists))
+	}
+	// A copy keeps the mark, as duplicateList does.
+	if _, err := UpdateList(w, "new", ListInput{Writing: &Writing{"de"}}); err != nil {
+		t.Fatal(err)
+	}
+	if list, err = CopyList(w, "new", nil, "copy", now); err != nil || list.Writing == nil || list.Writing.Language != "de" || list.Writing == w.Lists[2].Writing {
+		t.Fatalf("copy = %+v, %v", list, err)
+	}
+}

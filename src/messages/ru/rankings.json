@@ -10,7 +10,8 @@
   "mode": {
     "label": "Режим практики",
     "normal": "Обычный",
-    "recall": "По памяти"
+    "recall": "По памяти",
+    "writing": "Handwriting"
   },
   "order": {
     "label": "Порядок рейтинга",

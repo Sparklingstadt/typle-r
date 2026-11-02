@@ -1,5 +1,5 @@
 {
-  "description": "mode は recall のほかは拒否する。",
+  "description": "mode は recall と writing のほかは拒否する。",
   "lists": [
     {
       "id": "a",

@@ -55,7 +55,7 @@ export function summarize(lists: SavedWordList[], now = new Date()): DashboardSu
   const practicedToday = days.has(dayKey(today))
   let streak = 0
   for (let day = practicedToday ? today : addDays(today, -1); days.has(dayKey(day)); day = addDays(day, -1)) streak++
-  // Recall runs count towards the week and the streak, but their accuracy is not compared with normal runs.
+  // Recall and handwriting runs count towards the week and the streak, but their accuracy is not compared with normal runs.
   const newest = accuracies(newestFirst(recordsOfMode(records, 'normal')))
   const recentCount = Math.min(10, newest.length)
   return {

@@ -31,7 +31,7 @@ function Editor() {
       // The pack of a list that starts a pack is made while saving, so its id is read from the result.
       let target = packId
       const saved = await updateLibrary(library => {
-        const next = saveListInPack(library, { id: list.id, name: list.name, words: list.words, levels: list.levels, createdAt: list.createdAt }, packId, false)
+        const next = saveListInPack(library, { id: list.id, name: list.name, words: list.words, levels: list.levels, ...(list.writing ? { writing: list.writing } : {}), createdAt: list.createdAt }, packId, false)
         target = next.lists.find(item => item.id === list.id)?.packId ?? packId
         return next
       })

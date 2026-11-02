@@ -25,6 +25,7 @@
   "wordFieldsRequired": "Fill in both the word to display and the text to type for every word.",
   "savedDataUnreadable": "The format of the saved data cannot be read.",
   "savedDataCorrupted": "The saved data is corrupted. The original data has not been changed.",
+  "invalidWritingLanguage": "The handwriting practice language is not valid.",
   "listDeleted": "This word list has been deleted. Please reopen this page.",
   "listLimit": "You can save up to {max} word lists.",
   "importFileType": "Choose a CSV or TSV file.",

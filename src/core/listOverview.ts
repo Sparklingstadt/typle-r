@@ -145,6 +145,7 @@ export function duplicateList(lists: SavedWordList[], id: string, copyId: string
   const copy: SavedWordList = { id: copyId, name: copyName(taken, source.name, suffix),
     createdAt: now.toISOString(), ...(source.packId === undefined ? {} : { packId: source.packId }),
     ...(source.category === undefined ? {} : { category: source.category }), ...(source.tags ? { tags: [...source.tags] } : {}),
+    ...(source.writing ? { writing: { ...source.writing } } : {}),
     words: source.words.map(word => ({ ...word })), records: [] }
   return { lists: [...lists, copy], copy }
 }
