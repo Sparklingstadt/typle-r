@@ -66,6 +66,9 @@ func AddRecord(w *Workspace, listID string, input RecordInput, newID string) (re
 	if !ok {
 		return Record{}, false, invalid
 	}
+	if input.Mode != nil && *input.Mode != "writing" {
+		return Record{}, false, invalid
+	}
 	wordCount := len(list.Words)
 	if input.WordCount != nil {
 		if wordCount, ok = integer(input.WordCount, 1); !ok {
@@ -95,9 +98,6 @@ func AddRecord(w *Workspace, listID string, input RecordInput, newID string) (re
 		if device, ok = findDevice(w, *input.DeviceID); !ok {
 			return Record{}, false, &Error{Key: "deviceNotFound"}
 		}
-	}
-	if input.Mode != nil && *input.Mode != "writing" {
-		return Record{}, false, invalid
 	}
 	accuracy := *input.Accuracy
 	record = Record{ID: &id, Time: *input.Time, Date: FormatTime(date), Mistakes: &mistakes, Accuracy: &accuracy,

@@ -30,7 +30,7 @@
 
 | メソッドとパス | 本文 | 応答 |
 |---|---|---|
-| `POST /api/v1/lists/{l}/records` | `{ "id"?, "time", "date", "mistakes", "accuracy", "wordCount"?, "deviceId"? \| "device"? }` | 追加したら `201 { "record" }`。同じリストに同じ `id` の記録があれば追加せず、保存済みの記録を `200 { "record" }` で返す |
+| `POST /api/v1/lists/{l}/records` | `{ "id"?, "time", "date", "mistakes", "accuracy", "wordCount"?, "mode"?, "deviceId"? \| "device"? }` | 追加したら `201 { "record" }`。同じリストに同じ `id` の記録があれば追加せず、保存済みの記録を `200 { "record" }` で返す |
 | `PATCH /api/v1/lists/{l}/records/{r}` | `{ "time"?, "date"?, "mistakes"?, "accuracy"?, "wordCount"?, "deviceId"? }`（少なくとも1つ） | `200 { "record" }`。送らなかった項目とTypleの知らない項目は残る。`id` は変えられない |
 | `DELETE /api/v1/lists/{l}/records/{r}` | なし | `204`（本文なし） |
 
