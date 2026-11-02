@@ -60,7 +60,7 @@ export const cyrillicLatin: Readonly<Record<string, string>> = {
   ъ: '"', ы: 'y', ь: "'", э: 'e', ю: 'yu', я: 'ya',
 }
 
-function cyrillicAlternatives(target: string): string[] {
+export function cyrillicAlternatives(target: string): string[] {
   const lower = target.toLowerCase()
   const latin = cyrillicLatin[lower]
   if (!latin) return []

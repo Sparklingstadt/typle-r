@@ -123,6 +123,18 @@ test('device options count by id with the newest name, and put records without a
   ])
 })
 
+test('rankings are per mode: normal by default, writing on request', () => {
+  const list = { id: 'm', name: 'm', createdAt: '2026-09-01', words: words(3), records: [
+    record('t1', 10, 96, 3, 20), record('t2', 12, 98, 3, 21), { ...record('w1', 5, 100, 3, 22), mode: 'writing' },
+  ] }
+  const typing = listRanking(list, { now })
+  assert.deepEqual(typing.ranked.map(item => item.id), ['t2', 't1'])
+  assert.equal(typing.best.id, 't2')
+  const writing = listRanking(list, { mode: 'writing', now })
+  assert.deepEqual(writing.ranked.map(item => item.id), ['w1'])
+  assert.equal(writing.records.length, 1)
+})
+
 test('comparableRecords and listBest compare records of one mode', () => {
   const list = { id: 'm', name: 'M', createdAt: '2026-09-01', words: words(2), records: [
     { ...record('n', 10, 100, 2, 1) }, { ...record('r', 5, 100, 2, 2), mode: 'recall' }] }
@@ -149,4 +161,5 @@ test('the rankings query keeps recall through every view change and writes nothi
   }
   assert.equal(rankingQuery({ list: null, device: null, order: 'accuracy', mode: 'normal' }), '')
   assert.equal(rankingQuery({ list: 'a', device: null, order: 'speed', mode: 'recall' }), 'list=a&order=speed&mode=recall')
+  assert.equal(rankingQuery({ list: 'a', device: null, order: 'accuracy', mode: 'writing' }), 'list=a&mode=writing')
 })

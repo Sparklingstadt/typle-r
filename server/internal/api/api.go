@@ -30,10 +30,13 @@ type listSummary struct {
 	Category *string  `json:"category"`
 	Tags     []string `json:"tags"`
 	// Levels are what the practice screen picks the list of its pack by; empty when it has none.
-	Levels      []string `json:"levels"`
-	WordCount   int      `json:"wordCount"`
-	RecordCount int      `json:"recordCount"`
-	CreatedAt   string   `json:"createdAt"`
+	Levels []string `json:"levels"`
+	// Writing is the mark of a list that can be practised by handwriting; other lists leave it out, so what the API answers
+	// for them does not change.
+	Writing     *workspace.Writing `json:"writing,omitempty"`
+	WordCount   int                `json:"wordCount"`
+	RecordCount int                `json:"recordCount"`
+	CreatedAt   string             `json:"createdAt"`
 	// What the app's list of word lists shows: practiceCount is recordCount by the app's name for it.
 	PracticeCount      int     `json:"practiceCount"`
 	LastPracticed      *string `json:"lastPracticed"`
@@ -66,7 +69,7 @@ func summary(list *workspace.List) listSummary {
 	if levels == nil {
 		levels = []string{}
 	}
-	return listSummary{ID: list.ID, Name: list.Name, PackID: list.PackID, Category: category, Tags: tags, Levels: levels, WordCount: len(list.Words),
+	return listSummary{ID: list.ID, Name: list.Name, PackID: list.PackID, Category: category, Tags: tags, Levels: levels, Writing: list.Writing, WordCount: len(list.Words),
 		RecordCount: len(list.Records), CreatedAt: list.CreatedAt, PracticeCount: overview.PracticeCount, LastPracticed: last,
 		CurrentRecordCount: workspace.CurrentRecordCount(list), Origin: list.Origin}
 }

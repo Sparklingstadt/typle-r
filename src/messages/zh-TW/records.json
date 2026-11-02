@@ -76,8 +76,9 @@
     "words": "{count, plural, other {# 個單字}}",
     "runs": "練習 {count, plural, other {# 次}}",
     "last": "最近 {day}",
-    "best": "最佳",
+    "best": "最佳（{mode}）",
     "rankings": "最佳紀錄",
     "practice": "開始練習"
-  }
+  },
+  "modeWriting": "Handwriting"
 }

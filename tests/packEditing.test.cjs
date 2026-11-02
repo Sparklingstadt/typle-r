@@ -254,3 +254,18 @@ test('copyPack of a followed pack is an own pack without origin', () => {
   assert.ok(lists.every(item => !('origin' in item)))
   assert.equal(updatePack(copied, 'c', { name: 'mine' }).packs.find(item => item.id === 'c').name, 'mine')
 })
+
+test('saveListInPack sets and removes writing', () => {
+  const marked = saveListInPack(library(), input('w', 'Words', { writing: { language: 'en' } }), 'q', false)
+  assert.deepEqual(marked.lists.find(item => item.id === 'w').writing, { language: 'en' })
+  const edited = saveListInPack(marked, input('w', 'Words'), 'q', true)
+  assert.equal('writing' in edited.lists.find(item => item.id === 'w'), false)
+  const changed = saveListInPack(marked, input('w', 'Words', { writing: { language: 'ja' } }), 'q', true)
+  assert.deepEqual(changed.lists.find(item => item.id === 'w').writing, { language: 'ja' })
+  assert.throws(() => saveListInPack(library(), input('w', 'Words', { writing: { language: 'xx' } }), 'q', false), { key: 'invalidWritingLanguage' })
+})
+
+test('duplicateList keeps writing', () => {
+  const lists = [list('a', 'A', 'p', { writing: { language: 'fr' } })]
+  assert.deepEqual(duplicateList(lists, 'a', 'b', n => `（${n}）`).copy.writing, { language: 'fr' })
+})

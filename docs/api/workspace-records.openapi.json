@@ -429,9 +429,10 @@
           "mode": {
             "type": "string",
             "enum": [
-              "recall"
+              "recall",
+              "writing"
             ],
-            "description": "思い出して打った記録だけが持つ。/api/workspace/records だけが受け付け、/api/v1 は 400 invalidJson にする"
+            "description": "思い出して打った記録（recall）と手書きで書いた記録（Typle Handwriting、writing）だけが持つ。通常のタイピングの記録では省く。/api/workspace/records だけが受け付け、/api/v1 は 400 invalidJson にする。null を含むほかの値は 400 invalidRecord"
           }
         },
         "not": {

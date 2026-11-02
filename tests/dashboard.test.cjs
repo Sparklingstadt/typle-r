@@ -135,3 +135,20 @@ test('dashboard trends and next lists use normal records; the week counts all', 
   assert.equal(summary.accuracy.recentCount, 1)
   assert.equal(summary.accuracy.recent, 100)
 })
+
+test('writing records count towards the week and the streak like recall, but not towards accuracy, next lists or trends', () => {
+  const week = ['2026-09-21T10:00:00Z', '2026-09-22T10:00:00Z']
+  const mixed = list('mixed', [record(week[0], 10), record(week[1], 12), record('2026-09-26T10:00:00Z', 1, { mode: 'writing', accuracy: 10 })])
+  const summary = summarize([mixed], now)
+  assert.equal(summary.weekCount, 3)
+  // The writing run of the day before is what keeps the streak going.
+  assert.ok(summary.streak > summarize([list('typed', mixed.records.slice(0, 2))], now).streak)
+  assert.equal(summary.accuracy.recentCount, 2)
+  const onlyWriting = list('w', [record('2026-09-26T10:00:00Z', 1, { mode: 'writing' })])
+  assert.deepEqual(nextLists([onlyWriting], now).map(item => item.reason.kind), ['new'])
+  assert.equal(nextLists([mixed], now)[0].lastPracticed.getTime(), Date.parse(week[1]))
+  const trends = listTrends([mixed, onlyWriting])
+  assert.equal(trends.length, 1)
+  assert.equal(trends[0].count, 2)
+  assert.equal(trends[0].best.time, 10)
+})

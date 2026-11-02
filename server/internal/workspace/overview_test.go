@@ -99,3 +99,18 @@ func TestCompareNames(t *testing.T) {
 		t.Fatal("order")
 	}
 }
+
+// Writing runs count as practice in the overview, like recall runs, but not towards the current record count (the case
+// of tests/listOverview.test.cjs).
+func TestWritingRecordsInOverview(t *testing.T) {
+	writing := dated("2026-09-28T10:00:00Z", 2)
+	writing.Mode = WritingMode
+	list := List{ID: "w", Words: []Word{{}, {}}, Records: []Record{dated("2026-09-20T10:00:00Z", 2), dated("2026-09-21T10:00:00Z", 2), writing}}
+	item := Overviews([]List{list})[0]
+	if item.PracticeCount != 3 || !item.LastPracticed.Equal(time.Date(2026, 9, 28, 10, 0, 0, 0, time.UTC)) {
+		t.Fatalf("overview = %+v", item)
+	}
+	if got := CurrentRecordCount(&list); got != 2 {
+		t.Fatalf("CurrentRecordCount = %d", got)
+	}
+}

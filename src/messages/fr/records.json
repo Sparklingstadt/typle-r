@@ -76,8 +76,9 @@
     "words": "{count, plural, one {# mot} other {# mots}}",
     "runs": "{count, plural, one {# entraînement} other {# entraînements}}",
     "last": "Dernier : {day}",
-    "best": "Meilleur",
+    "best": "Meilleur ({mode})",
     "rankings": "Meilleurs résultats",
     "practice": "S’entraîner"
-  }
+  },
+  "modeWriting": "Handwriting"
 }

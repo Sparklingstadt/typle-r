@@ -46,7 +46,7 @@
 
 | メソッド | 本文 | 応答 |
 |---|---|---|
-| `POST` | `{ "accountId", "listId", "record": { "id", "time", "date", "mistakes", "accuracy", "wordCount"?, "deviceId"? \| "device"? } }` | 追加したら `201`、同じリストに同じ `id` があれば追加せず `200`。どちらも保存後のワークスペースに `record` を足したもの |
+| `POST` | `{ "accountId", "listId", "record": { "id", "time", "date", "mistakes", "accuracy", "wordCount"?, "mode"?, "deviceId"? \| "device"? } }` | 追加したら `201`、同じリストに同じ `id` があれば追加せず `200`。どちらも保存後のワークスペースに `record` を足したもの |
 | `DELETE` | `{ "accountId", "listId", "recordId" }` | `200` と保存後のワークスペース。記録やリストがすでになくても `200` |
 
 - 本文のほかの項目と、`record` の知らない項目は `400 invalidRecord` です。`record.id` は必須です。

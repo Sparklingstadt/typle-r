@@ -10,7 +10,8 @@
   "mode": {
     "label": "Practice mode",
     "normal": "Normal",
-    "recall": "Recall"
+    "recall": "Recall",
+    "writing": "Handwriting"
   },
   "order": {
     "label": "Ranking order",
