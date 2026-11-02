@@ -298,7 +298,7 @@ func TestShared(t *testing.T) {
 	fake := &fakeShares{shared: json.RawMessage(snapshot)}
 	for name, handler := range map[string]http.Handler{
 		"New":    newHarness(t, fake, testBase).handler,
-		"Shared": Shared(fake, nil),
+		"Public": Public(fake, nil),
 	} {
 		response := getShared(t, handler, http.MethodGet, "/api/shared?id="+aSharedID)
 		if response.Code != http.StatusOK || response.Body.String() != snapshot {
@@ -346,7 +346,7 @@ func TestSharedHeadAndMethod(t *testing.T) {
 
 func TestSharedDown(t *testing.T) {
 	var reported []string
-	handler := Shared(&fakeShares{fakeStore: fakeStore{err: errors.New("down")}}, func(_ *http.Request, _ error, operation string) {
+	handler := Public(&fakeShares{fakeStore: fakeStore{err: errors.New("down")}}, func(_ *http.Request, _ error, operation string) {
 		reported = append(reported, operation)
 	})
 	down := getShared(t, handler, http.MethodGet, "/api/shared?id="+aSharedID)

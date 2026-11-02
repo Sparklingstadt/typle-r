@@ -25,7 +25,7 @@ const nextConfig = (phase) => withNextIntl({
   // does, which vercel.json rewrites the same paths to (tests/backendPaths.test.cjs keeps the two lists alike).
   // beforeFiles wins over the app's own routes.
   rewrites: async () => process.env.VERCEL === '1' ? [] : {
-    beforeFiles: ['/api/workspace', '/api/workspace/records', '/api/shares', '/api/shared', '/api/health', '/api/auth/:path*', '/api/admin/:path*'].map(source => ({ source, destination: `${typleWebUrl}${source}` })),
+    beforeFiles: ['/api/workspace', '/api/workspace/records', '/api/shares', '/api/shared', '/api/gallery', '/api/gallery/:path*', '/api/health', '/api/auth/:path*', '/api/admin/:path*'].map(source => ({ source, destination: `${typleWebUrl}${source}` })),
     afterFiles: [],
     fallback: [],
   },

@@ -111,6 +111,16 @@ func (f fakeStore) ListShares(context.Context, string) ([]store.Share, error) { 
 
 func (f fakeStore) SharedPack(context.Context, string) (json.RawMessage, error) { return nil, f.err }
 
+func (f fakeStore) Gallery(context.Context, store.GalleryQuery) (*store.GalleryPage, error) {
+	return nil, f.err
+}
+
+func (f fakeStore) GalleryCategories(context.Context) ([]store.GalleryCategory, error) {
+	return nil, f.err
+}
+
+func (f fakeStore) CountAdded(context.Context, string) error { return f.err }
+
 func (f fakeStore) Admin(context.Context, string, string) (bool, error) { return false, f.err }
 
 func (f fakeStore) Overview(context.Context) (*store.AdminOverview, error) { return nil, f.err }

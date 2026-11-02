@@ -30,10 +30,17 @@ func shareOf(share store.Share) shareJSON {
 	return shareJSON{share.ID, share.PackID, share.Name, share.UpdatedAt.UTC().Format("2006-01-02T15:04:05.000Z07:00"), share.Listed, share.Hidden}
 }
 
-// Shared serves /api/shared from the database alone, for a backend that has no login settings to build New with: a
-// link is read by anyone, signed in or not. Its answers are the same as New's.
-func Shared(s Store, report func(r *http.Request, err error, operation string)) http.Handler {
-	return withSecurityHeaders(http.HandlerFunc((&server{config: Config{Store: s, Report: report}}).shared))
+// Public serves /api/shared and the gallery's reads (/api/gallery, /api/gallery/categories) from the database alone, for
+// a backend that has no login settings to build New with: they are read by anyone, signed in or not. Their answers are
+// the same as New's. POST /api/gallery/added checks the Origin against the app's address, so it is New's alone.
+func Public(s Store, report func(r *http.Request, err error, operation string)) http.Handler {
+	srv := &server{config: Config{Store: s, Report: report}}
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api/shared", srv.shared)
+	mux.HandleFunc("/api/gallery", srv.gallery)
+	mux.HandleFunc("/api/gallery/categories", srv.galleryCategories)
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { refuse(w, http.StatusNotFound, "notFound") })
+	return withSecurityHeaders(mux)
 }
 
 // HEAD is served as GET; net/http leaves the body out.

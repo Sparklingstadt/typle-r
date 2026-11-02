@@ -87,16 +87,16 @@ var (
 // Handler returns the handler of the Vercel functions: the Backend of this process.
 func Handler() http.Handler { return shared }
 
-// ServeHTTP serves /api/auth/* from the login part, /api/health and /api/shared from the database part and any other
-// path from both.
+// ServeHTTP serves /api/auth/* from the login part, /api/health, /api/shared, /api/gallery and /api/gallery/categories
+// from the database part and any other path from both.
 func (b *Backend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case strings.HasPrefix(r.URL.Path, "/api/auth/"):
 		b.authHandler().ServeHTTP(w, r)
 	case r.URL.Path == "/api/health":
 		b.healthHandler().ServeHTTP(w, r)
-	case r.URL.Path == "/api/shared":
-		b.sharedHandler().ServeHTTP(w, r)
+	case r.URL.Path == "/api/shared", r.URL.Path == "/api/gallery", r.URL.Path == "/api/gallery/categories":
+		b.publicHandler().ServeHTTP(w, r)
 	default:
 		b.databaseHandler().ServeHTTP(w, r)
 	}
@@ -210,9 +210,9 @@ func (b *Backend) healthHandler() http.Handler {
 	return *b.health.Load()
 }
 
-// sharedHandler serves /api/shared from the database alone, as healthHandler serves /api/health. A failure is reported
-// to the error tracker when SENTRY_DSN is set, which needs no login settings either.
-func (b *Backend) sharedHandler() http.Handler {
+// publicHandler serves /api/shared and the gallery's reads from the database alone, as healthHandler serves /api/health.
+// A failure is reported to the error tracker when SENTRY_DSN is set, which needs no login settings either.
+func (b *Backend) publicHandler() http.Handler {
 	if built := b.public.Load(); built != nil {
 		return *built
 	}
@@ -220,21 +220,30 @@ func (b *Backend) sharedHandler() http.Handler {
 	if source == nil {
 		return noindex(databaseUnavailable)
 	}
-	handler := web.Shared(source, web.NewReporter(os.Getenv))
+	handler := web.Public(source, web.NewReporter(os.Getenv))
 	b.public.CompareAndSwap(nil, &handler)
 	return *b.public.Load()
 }
 
-// noindex answers as next does, with X-Robots-Tag: noindex, as every answer of /api/shared has.
+// noindex answers as next does, with X-Robots-Tag: noindex, as every answer of /api/shared and the gallery has, and with
+// Cache-Control: no-store.
 func noindex(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Robots-Tag", "noindex")
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(noStore{w}, r)
 	})
 }
 
-// databaseHandler serves /api/workspace, /api/shares, /api/admin/* and any other path outside /api/auth/, /api/health and
-// /api/shared. When it cannot be built
+// noStore makes the answer carry Cache-Control: no-store, over the private, no-store that the handlers write.
+type noStore struct{ http.ResponseWriter }
+
+func (w noStore) WriteHeader(status int) {
+	w.Header().Set("Cache-Control", "no-store")
+	w.ResponseWriter.WriteHeader(status)
+}
+
+// databaseHandler serves /api/workspace, /api/shares, /api/admin/* and any other path outside /api/auth/, /api/health,
+// /api/shared and the gallery's reads (/api/gallery/added is here, as it checks the Origin). When it cannot be built
 // the request gets a 503, the reason is logged, and nothing is kept, so a later request tries again:
 //
 //   - the login settings are missing or invalid: authUnavailable. The database is not opened.
