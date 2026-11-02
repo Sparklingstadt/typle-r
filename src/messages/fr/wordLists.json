@@ -352,6 +352,7 @@
     "open": "Signaler",
     "title": "Signaler ce pack",
     "description": "Informez les administrateurs d’un problème avec ce pack. Choisissez un motif puis envoyez le signalement.",
+    "reason": "Motif du signalement",
     "reasons": {
       "inappropriate": "Contenu inapproprié",
       "spam": "Spam ou publicité",

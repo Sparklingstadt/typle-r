@@ -352,6 +352,7 @@
     "open": "举报",
     "title": "举报此词包",
     "description": "向管理员反馈此词包的问题。请选择理由后发送。",
+    "reason": "举报理由",
     "reasons": {
       "inappropriate": "内容不当",
       "spam": "垃圾信息或广告",

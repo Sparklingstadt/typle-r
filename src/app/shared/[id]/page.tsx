@@ -120,10 +120,10 @@ function Pack({ id, file }: { id: string; file: PackFile }) {
       <div className="flex flex-wrap items-center gap-3">
         <Button disabled={!ready || adding || full} aria-describedby={full ? 'shared-full' : undefined} onClick={() => void add()}><Plus aria-hidden="true" />{t('sharedPage.add')}</Button>
         <OpenPacks />
-        <Button variant="ghost" onClick={() => setReporting(true)}><Flag aria-hidden="true" />{t('report.open')}</Button>
+        <Button variant="ghost" onClick={() => { setReported(false); setReporting(true) }}><Flag aria-hidden="true" />{t('report.open')}</Button>
       </div>
-      <ReportDialog shareId={id} open={reporting} onOpenChange={setReporting} onSent={() => setReported(true)} />
-      {reported ? <p role="status" className="text-sm text-muted-foreground">{t('report.sent')}</p> : null}
+      <ReportDialog shareId={id} open={reporting} onOpenChange={open => { if (open) setReported(false); setReporting(open) }} onSent={() => setReported(true)} />
+      <p role="status" className="text-sm text-muted-foreground">{reported ? t('report.sent') : ''}</p>
       {full ? <p id="shared-full" className="text-sm text-muted-foreground">{t('catalog.full', { max: MAX_LISTS })}</p> : null}
       {message ? <Alert variant="destructive"><CircleAlert aria-hidden="true" /><AlertDescription>{message}</AlertDescription></Alert> : null}
     </header>

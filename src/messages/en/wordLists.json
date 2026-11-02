@@ -352,6 +352,7 @@
     "open": "Report",
     "title": "Report this pack",
     "description": "Let the administrators know about a problem with this pack. Choose a reason and send it.",
+    "reason": "Reason for the report",
     "reasons": {
       "inappropriate": "Inappropriate content",
       "spam": "Spam or advertising",

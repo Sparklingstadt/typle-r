@@ -55,13 +55,14 @@ export default function ReportDialog({ shareId, open, onOpenChange, onSent }: {
         <DialogTitle>{t('title')}</DialogTitle>
         <DialogDescription>{t('description')}</DialogDescription>
       </DialogHeader>
-      <div className="space-y-2">
+      <fieldset className="space-y-2">
+        <legend className="sr-only">{t('reason')}</legend>
         {REASONS.map(value => <label key={value} className="flex items-center gap-2 text-sm">
           <input type="radio" name="report-reason" value={value} checked={reason === value} disabled={busy}
             onChange={() => setReason(value)} className="size-4 accent-primary" />
           {t(`reasons.${value}`)}
         </label>)}
-      </div>
+      </fieldset>
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       <DialogFooter>
         <Button disabled={!reason || busy} onClick={() => void send()}>{t('send')}</Button>
