@@ -133,3 +133,50 @@ test('the interests screen lists the fitting official packs with switches, and �
   await page.goto('/edit')
   await expect(page.locator('li[data-pack-id]')).toHaveCount(0)
 })
+
+test('the checked packs are followed and unfollowed at once from the bar', async ({ page }) => {
+  await page.goto('/interests')
+  await clearInterests(page)
+  await page.getByRole('button', { name: '語学', exact: true }).click()
+  const section = page.getByRole('region', { name: '関心に合う公式パック' })
+  await expect(section.locator('li[data-catalog-id]')).toHaveCount(33)
+  const names = ['国名：中国語・国連加盟193か国（小文字）', '国名：中国語・国連加盟国（小文字）']
+  const follow = page.getByRole('button', { name: 'まとめてフォロー', exact: true })
+  const unfollow = page.getByRole('button', { name: 'まとめて解除', exact: true })
+  const all = page.getByRole('checkbox', { name: /すべて選択/ })
+  await expect(follow).toBeDisabled()
+  await expect(unfollow).toBeDisabled()
+
+  // すべて選択 checks every pack, and unchecks them again.
+  await all.check()
+  await expect(page.getByText('33個を選択中')).toBeVisible()
+  await all.uncheck()
+  await expect(page.getByText('0個を選択中')).toBeVisible()
+
+  // Two checked packs are followed at once; they leave the selection and their switches turn on.
+  for (const name of names) await section.getByRole('checkbox', { name: `${name} を選ぶ` }).check()
+  await expect(all).toHaveJSProperty('indeterminate', true)
+  await expect(unfollow).toBeDisabled()
+  await follow.click()
+  await expect(page.getByText('2個のパックをフォローしました。')).toBeVisible()
+  for (const name of names) {
+    await expect(section.getByRole('checkbox', { name: `${name} を選ぶ` })).not.toBeChecked()
+    await expect(section.getByRole('switch', { name: `${name} をフォローする` })).toBeChecked()
+  }
+  await page.goto('/edit')
+  await expect(page.locator('li[data-pack-id]')).toHaveCount(2)
+
+  // With every pack checked, まとめて解除 unfollows only the followed ones, after asking.
+  await page.goto('/interests')
+  await all.check()
+  await expect(follow).toBeEnabled()
+  await unfollow.click()
+  const dialog = page.getByRole('alertdialog')
+  await expect(dialog.getByText(`「${names[0]}」、「${names[1]}」のフォローを解除します。これらのパックの記録も消えます。`)).toBeVisible()
+  await dialog.getByRole('button', { name: 'まとめて解除', exact: true }).click()
+  await expect(page.getByText('2個のパックのフォローを解除しました。')).toBeVisible()
+  await expect(page.getByText('31個を選択中')).toBeVisible()
+  for (const name of names) await expect(section.getByRole('switch', { name: `${name} をフォローする` })).not.toBeChecked()
+  await page.goto('/edit')
+  await expect(page.locator('li[data-pack-id]')).toHaveCount(0)
+})
