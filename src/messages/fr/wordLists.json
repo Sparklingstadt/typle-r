@@ -114,7 +114,9 @@
     "copy": "Dupliquer",
     "export": "Exporter",
     "share": "Partager",
-    "shared": "Partagé"
+    "shared": "Partagé",
+    "listed": "Dans la galerie",
+    "hidden": "Masqué"
   },
   "wordRow": {
     "label": "Mot {n}",
@@ -303,6 +305,10 @@
     "update": "Mettre à jour",
     "stop": "Arrêter le partage",
     "failed": "Impossible de modifier le partage.",
+    "gallery": "Afficher dans la galerie",
+    "galleryNotice": "Tout le monde peut le voir dans la galerie. Votre nom n’est pas affiché. Un administrateur peut masquer un contenu inapproprié.",
+    "galleryCategoryHint": "Ajouter une catégorie le rend plus facile à trouver.",
+    "hiddenNotice": "Un administrateur a masqué ce pack : il ne peut pas être affiché dans la galerie.",
     "orphans": {
       "title": "Partages sans pack",
       "description": "Le pack de ces liens de partage n’existe plus. Toute personne qui a le lien peut encore le voir. Arrêtez le partage de ceux dont vous n’avez plus besoin.",
@@ -347,5 +353,20 @@
     "noResults": "Aucun résultat",
     "loadFailed": "Impossible de charger la galerie. Réessayez dans un instant.",
     "retry": "Réessayer"
+  },
+  "report": {
+    "open": "Signaler",
+    "title": "Signaler ce pack",
+    "description": "Informez les administrateurs d’un problème avec ce pack. Choisissez un motif puis envoyez le signalement.",
+    "reason": "Motif du signalement",
+    "reasons": {
+      "inappropriate": "Contenu inapproprié",
+      "spam": "Spam ou publicité",
+      "personalInfo": "Contient des informations personnelles",
+      "other": "Autre"
+    },
+    "send": "Envoyer",
+    "sent": "Votre signalement a été reçu",
+    "failed": "Le signalement n’a pas pu être envoyé. Veuillez réessayer."
   }
 }

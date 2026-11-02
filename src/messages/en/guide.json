@@ -103,7 +103,10 @@
       "p1": "When you are logged in, \"Share\" in a pack's \"…\" menu creates a share link. Choose \"Create link\", then \"Copy\" it and send it to others.",
       "p2": "Anyone with the link can see the pack's name, description, lists, and words without logging in, and add it to their own packs with \"Add to my packs\". Your practice records and your name are not visible.",
       "p3": "Editing the pack does not change the link automatically. \"Update share\" brings it up to date (the link stays the same). \"Stop sharing\" ends the link, and it then shows that the share has ended. A shared pack is marked \"Shared\".",
-      "p4": "Deleting a shared pack also ends its share."
+      "p4": "Deleting a shared pack also ends its share.",
+      "p5": "Turn on \"List in the gallery\" in the share dialog to put the pack in the gallery (under \"Word lists\" in the sidebar). Anyone can see the gallery without logging in, and your name is not shown. A listed pack is marked \"In the gallery\". Turn it off or stop sharing to remove it from the gallery.",
+      "p6": "When you open a pack from the gallery or a share link, use \"Report\" to tell the administrators about a problem. Choose a reason: inappropriate content, spam or advertising, personal information, or other.",
+      "p7": "After receiving reports, an administrator may hide a pack. A hidden pack is marked \"Hidden\" and no longer appears in the gallery or at its share link. The owner cannot list this share in the gallery again (you can still update the pack or stop sharing it)."
     },
     "input": {
       "title": "Entering words",

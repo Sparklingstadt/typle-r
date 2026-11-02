@@ -55,6 +55,9 @@ func (fakeStore) Gallery(context.Context, store.GalleryQuery) (*store.GalleryPag
 }
 func (fakeStore) GalleryCategories(context.Context) ([]store.GalleryCategory, error) { return nil, nil }
 func (fakeStore) CountAdded(context.Context, string) error                           { return nil }
+func (fakeStore) Report(context.Context, string, string) (bool, error)               { return false, nil }
+func (fakeStore) AdminGallery(context.Context) ([]store.AdminGalleryPack, error)     { return nil, nil }
+func (fakeStore) SetHidden(context.Context, string, bool) (bool, error)              { return false, nil }
 func (fakeStore) Admin(context.Context, string, string) (bool, error)                { return false, nil }
 func (fakeStore) Overview(context.Context) (*store.AdminOverview, error) {
 	return nil, errors.New("not used")

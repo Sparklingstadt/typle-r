@@ -57,5 +57,24 @@
     "page": "第 {page} / {pages} 页",
     "previous": "上一页",
     "next": "下一页"
+  },
+  "gallery": {
+    "title": "图库",
+    "description": "图库中的词包，按被举报次数从多到少排列。",
+    "loading": "正在加载",
+    "retry": "重试",
+    "empty": "图库中没有词包。",
+    "name": "词包名称",
+    "category": "分类",
+    "added": "添加次数",
+    "listedAt": "上架时间",
+    "reports": "举报",
+    "reportCount": "{count}次",
+    "state": "状态",
+    "actions": "操作",
+    "hidden": "已隐藏（{time}）",
+    "hide": "隐藏",
+    "unhide": "恢复",
+    "failed": "操作失败，请重试。"
   }
 }

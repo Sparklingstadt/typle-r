@@ -66,5 +66,9 @@
   "adminUnavailable": "Could not check whether you are an administrator. Please try again later.",
   "invalidPage": "The page number is not valid.",
   "importInputTypeInvalid": "Line {line}: input_type must be command, code or word.",
-  "invalidQuery": "The search conditions are not valid."
+  "invalidQuery": "The search conditions are not valid.",
+  "invalidReport": "The report is not valid.",
+  "notInGallery": "A pack that is not in the gallery cannot be reported.",
+  "invalidRequest": "The request is not valid.",
+  "sharedPackHidden": "An administrator has hidden this pack, so it cannot be listed in the gallery."
 }

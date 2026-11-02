@@ -28,6 +28,9 @@ type Store interface {
 	Gallery(ctx context.Context, q store.GalleryQuery) (*store.GalleryPage, error)
 	GalleryCategories(ctx context.Context) ([]store.GalleryCategory, error)
 	CountAdded(ctx context.Context, id string) error
+	Report(ctx context.Context, id, reason string) (bool, error)
+	AdminGallery(ctx context.Context) ([]store.AdminGalleryPack, error)
+	SetHidden(ctx context.Context, id string, hidden bool) (bool, error)
 	Admin(ctx context.Context, email, sub string) (bool, error)
 	Overview(ctx context.Context) (*store.AdminOverview, error)
 	Users(ctx context.Context, page int) (*store.AdminUsers, error)
@@ -109,6 +112,7 @@ func New(c Config) http.Handler {
 	mux.HandleFunc("/api/gallery", s.gallery)
 	mux.HandleFunc("/api/gallery/categories", s.galleryCategories)
 	mux.HandleFunc("/api/gallery/added", s.galleryAdded)
+	mux.HandleFunc("/api/gallery/reports", s.galleryReport)
 	mux.HandleFunc("/api/auth/signin", s.signin)
 	mux.HandleFunc(githubCallback, s.callback(providerGitHub))
 	mux.HandleFunc(ffpfCallback, s.callback(providerFFPF))
@@ -119,6 +123,9 @@ func New(c Config) http.Handler {
 	mux.HandleFunc("/api/auth/admin/signout", s.adminSignout)
 	mux.HandleFunc("/api/admin/dashboard", s.adminDashboard)
 	mux.HandleFunc("/api/admin/users", s.adminUsers)
+	mux.HandleFunc("/api/admin/gallery", s.adminGallery)
+	mux.HandleFunc("/api/admin/gallery/hide", s.adminHide)
+	mux.HandleFunc("/api/admin/gallery/unhide", s.adminUnhide)
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { refuse(w, http.StatusNotFound, "notFound") })
 	return withSecurityHeaders(mux)
 }

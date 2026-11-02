@@ -57,5 +57,24 @@
     "page": "Page {page} sur {pages}",
     "previous": "Précédent",
     "next": "Suivant"
+  },
+  "gallery": {
+    "title": "Galerie",
+    "description": "Les packs de la galerie, les plus signalés en premier.",
+    "loading": "Chargement",
+    "retry": "Réessayer",
+    "empty": "Aucun pack dans la galerie.",
+    "name": "Nom du pack",
+    "category": "Catégorie",
+    "added": "Ajouts",
+    "listedAt": "Publié le",
+    "reports": "Signalements",
+    "reportCount": "{count, plural, one {# signalement} other {# signalements}}",
+    "state": "État",
+    "actions": "Actions",
+    "hidden": "Masqué ({time})",
+    "hide": "Masquer",
+    "unhide": "Rétablir",
+    "failed": "Impossible d’effectuer l’action. Veuillez réessayer."
   }
 }

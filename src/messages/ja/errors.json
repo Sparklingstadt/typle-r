@@ -66,5 +66,9 @@
   "adminUnavailable": "管理者かどうかを確認できませんでした。しばらくしてからもう一度お試しください。",
   "invalidPage": "ページの指定が正しくありません。",
   "importInputTypeInvalid": "{line}行目の input_type は command、code、word のいずれかにしてください。",
-  "invalidQuery": "検索の条件が正しくありません。"
+  "invalidQuery": "検索の条件が正しくありません。",
+  "invalidReport": "通報の内容が正しくありません。",
+  "notInGallery": "ギャラリーに載っていないパックは通報できません。",
+  "invalidRequest": "リクエストの内容が正しくありません。",
+  "sharedPackHidden": "このパックは管理者により非公開にされているため、ギャラリーに載せられません。"
 }

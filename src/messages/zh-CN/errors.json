@@ -66,5 +66,9 @@
   "adminUnavailable": "无法确认您是否为管理员。请稍后再试。",
   "invalidPage": "页码无效。",
   "importInputTypeInvalid": "第 {line} 行的 input_type 必须是 command、code 或 word。",
-  "invalidQuery": "搜索条件无效。"
+  "invalidQuery": "搜索条件无效。",
+  "invalidReport": "举报内容无效。",
+  "notInGallery": "未在图库中展示的词包无法举报。",
+  "invalidRequest": "请求内容无效。",
+  "sharedPackHidden": "管理员已隐藏此词包，无法在图库中展示。"
 }
