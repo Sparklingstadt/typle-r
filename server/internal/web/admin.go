@@ -182,3 +182,57 @@ func (s *server) adminSignout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, s.relogin(int(session.MaxAge.Seconds())))
 	noContent(w)
 }
+
+// adminGallery answers the listed and hidden shares with their reports to the administrator.
+func (s *server) adminGallery(w http.ResponseWriter, r *http.Request) {
+	if !methods(w, r, http.MethodGet, http.MethodHead) {
+		return
+	}
+	if _, ok := s.allowAdmin(w, r); !ok {
+		return
+	}
+	packs, err := s.config.Store.AdminGallery(r.Context())
+	if err != nil {
+		s.report(r, err, "admin.gallery")
+		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
+		return
+	}
+	if packs == nil {
+		packs = []store.AdminGalleryPack{}
+	}
+	reply(w, http.StatusOK, map[string][]store.AdminGalleryPack{"packs": packs})
+}
+
+func (s *server) adminHide(w http.ResponseWriter, r *http.Request)   { s.adminSetHidden(w, r, true) }
+func (s *server) adminUnhide(w http.ResponseWriter, r *http.Request) { s.adminSetHidden(w, r, false) }
+
+// adminSetHidden hides the share "id" from the gallery, or shows it again. Like adminSignout it needs the app's own
+// Origin, and the body is JSON.
+func (s *server) adminSetHidden(w http.ResponseWriter, r *http.Request, hidden bool) {
+	if !methods(w, r, http.MethodPost) {
+		return
+	}
+	if _, ok := s.allowAdmin(w, r); !ok {
+		return
+	}
+	if !s.sameOrigin(r) || !jsonContent(r) {
+		refuse(w, http.StatusForbidden, "forbiddenRequest")
+		return
+	}
+	fields, ok := readStringFields(r, maxIDBodyBytes, "id")
+	if !ok {
+		refuse(w, http.StatusBadRequest, "invalidRequest")
+		return
+	}
+	found, err := s.config.Store.SetHidden(r.Context(), fields["id"], hidden)
+	if err != nil {
+		s.report(r, err, "admin.hide")
+		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
+		return
+	}
+	if !found {
+		refuse(w, http.StatusNotFound, "sharedPackNotFound")
+		return
+	}
+	noContent(w)
+}
