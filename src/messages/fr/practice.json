@@ -125,7 +125,7 @@
   },
   "modeLabel": "Mode d’entraînement",
   "modeTyping": "Frappe",
-  "modeWriting": "Writing",
+  "modeWriting": "Handwriting",
   "writingJudge": "Vérifier",
   "writingSkip": "Passer",
   "writingRead": "Lu comme « {text} »",

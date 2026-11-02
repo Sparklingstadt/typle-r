@@ -187,8 +187,8 @@
     "pack": "Pack",
     "newPack": "Nouveau pack (nommé d’après la liste)",
     "packHelp": "Le pack auquel appartient cette liste. En choisir un autre y déplace la liste.",
-    "writingToggle": "Utiliser pour l'écriture manuscrite (Typle Writing)",
-    "writingToggleHelp": "Permet de s'entraîner à écrire cette liste à la main. La langue sert à reconnaître l'écriture.",
+    "writingToggle": "Utiliser pour l’écriture manuscrite (Typle Handwriting)",
+    "writingToggleHelp": "Permet de s’entraîner à écrire cette liste à la main. La langue sert à reconnaître l’écriture.",
     "writingLanguage": "Langue de reconnaissance",
     "writingLanguages": {
       "en": "English",

@@ -72,6 +72,13 @@
       "p2": "If you choose another list in the middle of a practice, you are asked to confirm before stopping. An unfinished practice is not recorded.",
       "p3": "“Start over” or <keys>Esc</keys> starts the same list over from the beginning.",
       "p4": "Use “Device” at the top to choose the device you are practicing on before typing the first character (<devicesSection>Register devices</devicesSection>)."
+    },
+    "writing": {
+      "title": "Typle Handwriting",
+      "p1": "In the list editor, turn on “Use for handwriting practice (Typle Handwriting)” and pick a language, and you can practise that list by hand. When you choose it on the practice screen, a Typing / Handwriting switch appears.",
+      "p2": "Look at the word shown and write it in the field with your OS’s handwriting input (the Windows handwriting panel, an Android handwriting keyboard, an IME’s handwriting, and so on). The web version has no drawing canvas.",
+      "p3": "When the input matches the word, you move on. Pressing “Check” (<keys>Enter</keys>) without a match counts one miss, and “Skip” counts one miss and moves on. Text still being converted is not judged.",
+      "p4": "Handwriting records are kept apart from typing, and you switch between Typing and Handwriting on the best-records screen. The home totals count typing only. Smartphones are a future target."
     }
   },
   "lists": {

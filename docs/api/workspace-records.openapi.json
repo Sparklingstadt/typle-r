@@ -429,7 +429,7 @@
           "mode": {
             "type": "string",
             "enum": ["writing"],
-            "description": "手書き練習（Typle Writing）の記録の印。タイピングの記録では省く"
+            "description": "手書き練習（Typle Handwriting）の記録の印。タイピングの記録では省く"
           }
         },
         "not": {

@@ -1,4 +1,4 @@
-# Writing の照合 共通 fixture
+# Handwriting の照合 共通 fixture
 
 `match.json` は配列で、1 要素が 1 ケースです。形は次のとおりです。
 

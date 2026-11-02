@@ -187,7 +187,7 @@
     "pack": "包",
     "newPack": "建立新包（以清單名稱命名）",
     "packHelp": "此清單所屬的包。選擇其他包會將清單移到該包。",
-    "writingToggle": "用於手寫練習（Typle Writing）",
+    "writingToggle": "用於手寫練習（Typle Handwriting）",
     "writingToggleHelp": "讓此清單可以用手寫來練習。辨識語言用於讀取手寫的文字。",
     "writingLanguage": "辨識語言",
     "writingLanguages": {

@@ -224,7 +224,7 @@ test('CSV import can append to or replace the entered words', async ({ page }) =
 
 test('writing flag survives reload', async ({ page }) => {
   await seedGoList(page)
-  const flag = () => page.getByRole('switch', { name: '手書き練習（Typle Writing）に使う', exact: true })
+  const flag = () => page.getByRole('switch', { name: '手書き練習（Typle Handwriting）に使う', exact: true })
   const language = () => page.getByRole('combobox', { name: '認識する言語', exact: true })
   const mark = async () => (await page.evaluate(k => JSON.parse(localStorage.getItem(k) ?? 'null').lists, key)).find((list: { id: string }) => list.id === 'go')
   await page.goto('/edit?list=go')

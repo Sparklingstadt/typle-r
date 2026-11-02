@@ -25,7 +25,7 @@ const model = (page: Page) => page.locator('#wordDisplay')
 async function startWriting(page: Page) {
   await seed(page)
   await page.goto('/play?list=hand')
-  await page.getByRole('radio', { name: 'Writing', exact: true }).click()
+  await page.getByRole('radio', { name: 'Handwriting', exact: true }).click()
   await expect(field(page)).toBeVisible()
   await expect(field(page)).toHaveAttribute('lang', 'en')
   await expect(model(page)).toHaveText('cat')
@@ -50,7 +50,7 @@ test('wrong word counts a mistake on Enter', async ({ page }) => {
   await expect(model(page)).toHaveText('dog')
   await field(page).fill('dog')
   const result = page.getByLabel('練習結果', { exact: true })
-  await expect(result).toContainText('Writing')
+  await expect(result).toContainText('Handwriting')
   await expect(result).toContainText('66.67%')
   await expect(result).toContainText('練習記録を保存しました。')
 })
@@ -74,7 +74,7 @@ test('skip counts a mistake', async ({ page }) => {
   await field(page).fill('dog')
   const result = page.getByLabel('練習結果', { exact: true })
   await expect(result).toContainText('50%')
-  // Writing counts words, not characters or keys.
+  // Handwriting counts words, not characters or keys.
   await expect(result).toContainText('ミス 1 語')
   await expect(result).toContainText('語/分')
   await expect(result).not.toContainText('打/分')
@@ -105,12 +105,12 @@ test('writing records are separate', async ({ page }) => {
 
   await page.goto('/records')
   await expect(page.locator('[data-record-key]')).toHaveCount(1)
-  await expect(page.locator('[data-record-key]')).toContainText('Writing')
+  await expect(page.locator('[data-record-key]')).toContainText('Handwriting')
 
   await page.goto('/rankings?list=hand')
   await expect(page.getByRole('radio', { name: 'タイピング', exact: true })).toHaveAttribute('aria-checked', 'true')
   await expect(page.getByRole('heading', { name: 'まだ練習していません', exact: true })).toBeVisible()
-  await page.getByRole('radio', { name: 'Writing', exact: true }).click()
+  await page.getByRole('radio', { name: 'Handwriting', exact: true }).click()
   await expect(page).toHaveURL(/mode=writing/)
   await expect(page.getByRole('heading', { name: 'まだ練習していません', exact: true })).toHaveCount(0)
   await expect(page.getByRole('table', { name: 'Hand の上位の記録', exact: true }).or(page.getByRole('list', { name: 'Hand の上位の記録', exact: true })).first()).toBeVisible()
@@ -119,12 +119,12 @@ test('writing records are separate', async ({ page }) => {
 test('unflagged list hides the switch', async ({ page }) => {
   await startWriting(page)
   await page.getByRole('button', { name: 'Plain を選択', exact: true }).click()
-  await expect(page.getByRole('radio', { name: 'Writing', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('radio', { name: 'Handwriting', exact: true })).toHaveCount(0)
   await expect(field(page)).toHaveCount(0)
   await expect(page.getByRole('textbox', { name: '表示された文字を入力', exact: true })).toBeFocused()
   // The stored choice comes back with a marked list.
   await page.getByRole('button', { name: 'Hand を選択', exact: true }).click()
-  await expect(page.getByRole('radio', { name: 'Writing', exact: true })).toHaveAttribute('aria-checked', 'true')
+  await expect(page.getByRole('radio', { name: 'Handwriting', exact: true })).toHaveAttribute('aria-checked', 'true')
   await expect(field(page)).toBeVisible()
 })
 

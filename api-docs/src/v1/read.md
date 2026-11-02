@@ -57,7 +57,7 @@
 | `category`・`tags` | リストではなくパックの値（同じパックのリストは同じ値になる） |
 | `levels` | 練習画面でパックの中のリストを選ぶ難易度。ないときは `[]`（v0.95.0 から。v0.97.0 から多くても 1 つ） |
 | `origin` | フォロー中の公式パックのリストだけが持つ元の公式リストの ID（`{ "listId": "…" }`）。ほかのリストは `null`（v0.98.0 から。[フォロー中の公式パック](./write.md#フォロー中の公式パック)） |
-| `writing` | 手書き練習（Typle Writing）のできるリストだけが持つ `{ "language": "ja" }`。ほかのリストでは項目ごと省く。言語は `en`・`ja`・`zh-Hans`・`zh-Hant`・`ko`・`fr`・`de`・`es`・`ru`・`cs` |
+| `writing` | 手書き練習（Typle Handwriting）のできるリストだけが持つ `{ "language": "ja" }`。ほかのリストでは項目ごと省く。言語は `en`・`ja`・`zh-Hans`・`zh-Hant`・`ko`・`fr`・`de`・`es`・`ru`・`cs` |
 | `practiceCount` | タイピングの練習回数。`recordCount` は手書き練習（`mode` が `"writing"`）の記録も数えるため、手書き練習があると少なくなる（v0.50.0 から） |
 | `lastPracticed` | タイピングの最も新しい記録の日時。なければ `null`（v0.50.0 から） |
 | `currentRecordCount` | 今の単語数と同じ単語数のタイピングの記録の数。ベスト記録の比較に使う記録（v0.50.0 から） |
@@ -172,7 +172,7 @@
 }
 ```
 
-記録は保存されている形のまま（Typleの知らない項目も含めて）返します。古い記録には `id`・`mistakes`・`accuracy`・`wordCount`・`device` がないことがあります。手書き練習（Typle Writing）の記録には `"mode": "writing"` が付き、タイピングの記録には `mode` がありません。
+記録は保存されている形のまま（Typleの知らない項目も含めて）返します。古い記録には `id`・`mistakes`・`accuracy`・`wordCount`・`device` がないことがあります。手書き練習（Typle Handwriting）の記録には `"mode": "writing"` が付き、タイピングの記録には `mode` がありません。
 
 v1.3.0 から、記録は `typle_records` テーブルに保存されます。リストの記録がテーブルだけにあるときは、ワークスペース全体を読まずにテーブルから `since`・`limit` の分だけ読みます（答えは同じです）。`id` のない古い記録には、テーブルへ移すときに `legacy-` で始まる変わらない `id` が付きます。
 

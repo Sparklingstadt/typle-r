@@ -187,7 +187,7 @@
     "pack": "Pack",
     "newPack": "New pack (named after the list)",
     "packHelp": "The pack this list belongs to. Choosing another pack moves the list there.",
-    "writingToggle": "Use for handwriting practice (Typle Writing)",
+    "writingToggle": "Use for handwriting practice (Typle Handwriting)",
     "writingToggleHelp": "Lets this list be practised by handwriting. The language is used to read the handwritten characters.",
     "writingLanguage": "Recognition language",
     "writingLanguages": {

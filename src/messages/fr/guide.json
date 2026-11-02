@@ -72,6 +72,13 @@
       "p2": "Si vous choisissez une autre liste en cours d’entraînement, une confirmation vous est demandée avant l’interruption. Un entraînement inachevé n’est pas enregistré.",
       "p3": "« Recommencer » ou <keys>Esc</keys> relance la même liste depuis le début.",
       "p4": "Avant de taper le premier caractère, choisissez l’appareil utilisé avec « Appareil » en haut (<devicesSection>Enregistrer des appareils</devicesSection>)."
+    },
+    "writing": {
+      "title": "Typle Handwriting (écriture manuscrite)",
+      "p1": "Dans l’éditeur de liste, activez « Utiliser pour l’écriture manuscrite (Typle Handwriting) » et choisissez une langue pour vous entraîner à écrire cette liste à la main. En la choisissant sur l’écran d’entraînement, un sélecteur Frappe / Handwriting apparaît.",
+      "p2": "Regardez le mot affiché et écrivez-le dans le champ avec la saisie manuscrite de votre système (panneau d’écriture de Windows, clavier manuscrit d’Android, écriture manuscrite d’un IME, etc.). La version web n’a pas de zone de dessin.",
+      "p3": "Quand la saisie correspond au mot, vous passez au suivant. « Vérifier » (<keys>Enter</keys>) sans correspondance compte une erreur, et « Passer » compte une erreur et passe au mot suivant. Le texte en cours de conversion n’est pas évalué.",
+      "p4": "Les records Handwriting sont séparés de la frappe ; on bascule entre Frappe et Handwriting sur l’écran des meilleurs records. Les totaux de l’accueil ne comptent que la saisie. Les smartphones seront pris en charge plus tard."
     }
   },
   "lists": {

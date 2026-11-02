@@ -125,7 +125,7 @@
   },
   "modeLabel": "Режим практики",
   "modeTyping": "Набор",
-  "modeWriting": "Writing",
+  "modeWriting": "Handwriting",
   "writingJudge": "Проверить",
   "writingSkip": "Пропустить",
   "writingRead": "Распознано как «{text}»",
