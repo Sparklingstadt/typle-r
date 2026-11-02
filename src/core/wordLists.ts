@@ -6,6 +6,17 @@ export type InputType = 'command' | 'code' | 'word'
 export const isInputType = (value: unknown): value is InputType =>
   value === 'command' || value === 'code' || value === 'word'
 
+export const WRITING_LANGUAGES = ['en', 'ja', 'zh-Hans', 'zh-Hant', 'ko', 'fr', 'de', 'es', 'ru', 'cs'] as const
+export type WritingLanguage = typeof WRITING_LANGUAGES[number]
+
+export const isWritingLanguage = (value: unknown): value is WritingLanguage =>
+  (WRITING_LANGUAGES as readonly unknown[]).includes(value)
+
+/** A valid mark: an object whose only key is a known language. */
+export const isWritingMark = (value: unknown): value is { language: WritingLanguage } =>
+  !!value && typeof value === 'object' && !Array.isArray(value) &&
+  Object.keys(value).length === 1 && isWritingLanguage((value as { language?: unknown }).language)
+
 export type WordList = {
   id?: string,
   name: string,
@@ -22,6 +33,8 @@ export type WordList = {
   packId?: string,
   /** Set on the lists of a followed official pack: the id of the official list (see followedPacks.ts). */
   origin?: { listId: string },
+  /** Set when the author lets the list be practised by handwriting (Typle Writing). Left out otherwise. */
+  writing?: { language: WritingLanguage },
   words: {
     display: string,
     input: string,
@@ -81,6 +94,7 @@ export function validateList(list: WordList, others: WordList[] = []) {
   if (list.words.some(word => word.input_type !== undefined && !isInputType(word.input_type))) {
     throw new AppError('savedDataCorrupted')
   }
+  if (list.writing !== undefined && !isWritingMark(list.writing)) throw new AppError('invalidWritingLanguage')
 }
 
 /** The group and levels as they are saved: trimmed, and left out when there is no group. */
@@ -102,6 +116,7 @@ export function decodeLists(raw: string): SavedWordList[] {
         (list.tags !== undefined && (!Array.isArray(list.tags) || list.tags.some((tag: unknown) => typeof tag !== "string"))) ||
         (list.group !== undefined && typeof list.group !== "string") ||
         (list.packId !== undefined && typeof list.packId !== "string") ||
+        (list.writing !== undefined && !isWritingMark(list.writing)) ||
         (list.levels !== undefined && (!Array.isArray(list.levels) || list.levels.some((level: unknown) => typeof level !== "string"))) ||
         list.words.some((word: WordList['words'][number]) => !word || typeof word.display !== "string" || typeof word.input !== "string" || typeof word.annotation !== "string" ||
           (word.input_type !== undefined && !isInputType(word.input_type))) ||

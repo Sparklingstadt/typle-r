@@ -25,6 +25,7 @@
   "wordFieldsRequired": "Renseignez le mot affiché et le texte à saisir pour chaque mot.",
   "savedDataUnreadable": "Le format des données enregistrées est illisible.",
   "savedDataCorrupted": "Les données enregistrées sont corrompues. Les données d’origine n’ont pas été modifiées.",
+  "invalidWritingLanguage": "La langue de l’entraînement à l’écriture manuscrite n’est pas valide.",
   "listDeleted": "Cette liste de mots a été supprimée. Veuillez rouvrir la page.",
   "listLimit": "Vous pouvez enregistrer jusqu’à {max} listes de mots.",
   "importFileType": "Choisissez un fichier CSV ou TSV.",

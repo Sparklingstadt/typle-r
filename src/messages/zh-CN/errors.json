@@ -25,6 +25,7 @@
   "wordFieldsRequired": "请填写所有单词的显示内容和输入内容。",
   "savedDataUnreadable": "无法读取保存数据的格式。",
   "savedDataCorrupted": "保存的数据已损坏。原始数据未被更改。",
+  "invalidWritingLanguage": "手写练习的语言无效。",
   "listDeleted": "此单词列表已被删除。请重新打开页面。",
   "listLimit": "最多可以保存 {max} 个单词列表。",
   "importFileType": "请选择 CSV 或 TSV 文件。",

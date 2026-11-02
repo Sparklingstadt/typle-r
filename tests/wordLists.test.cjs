@@ -1,7 +1,7 @@
 require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
-const { saveList, encodeLists, decodeLists } = require('../src/core/wordLists.ts')
+const { saveList, encodeLists, decodeLists, validateList } = require('../src/core/wordLists.ts')
 const list = { id: 'a', name: 'First', words: [{ display: 'one', input: 'one', annotation: '' }], records: [], createdAt: '2026-09-06' }
 
 test('create, edit, reorder, delete and reload lists', () => {
@@ -48,4 +48,15 @@ test('word input types reject invalid strings, null and non-string values', () =
     assert.throws(() => saveList([], invalid, false), { key: 'savedDataCorrupted' })
     assert.throws(() => decodeLists(JSON.stringify({ version: 1, lists: [invalid] })), { key: 'savedDataCorrupted' })
   }
+})
+
+test('writing is kept, checked and optional', () => {
+  const marked = { ...list, writing: { language: 'zh-Hans' } }
+  assert.deepEqual(decodeLists(encodeLists([marked]))[0].writing, { language: 'zh-Hans' })
+  assert.equal('writing' in decodeLists(encodeLists([list]))[0], false)
+  for (const writing of [{ language: 'xx' }, { language: 'ja', extra: 1 }, 'ja', null, [], {}]) {
+    assert.throws(() => decodeLists(JSON.stringify({ version: 1, lists: [{ ...list, writing }] })), { key: 'savedDataCorrupted' })
+    assert.throws(() => validateList({ ...list, writing }), { key: 'invalidWritingLanguage' })
+  }
+  validateList(marked)
 })
