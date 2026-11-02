@@ -38,3 +38,21 @@ models:
         fieldName: FFPFSub
   AdminUser:
     model: github.com/sparklingstadt/typle-r/server/internal/store.AdminUser
+  GalleryPack:
+    model: github.com/sparklingstadt/typle-r/server/internal/store.GalleryPack
+    fields:
+      description:
+        resolver: true
+      category:
+        resolver: true
+      tags:
+        resolver: true
+  GalleryCategory:
+    model: github.com/sparklingstadt/typle-r/server/internal/store.GalleryCategory
+  AdminGalleryPack:
+    model: github.com/sparklingstadt/typle-r/server/internal/store.AdminGalleryPack
+    fields:
+      category:
+        resolver: true
+      reasons:
+        resolver: true

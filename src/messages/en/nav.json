@@ -20,11 +20,13 @@
     "words": "Browse words",
     "create": "Create a pack",
     "general": "General",
+    "input": "Input",
     "interests": "Interests",
     "devices": "Devices",
     "guide": "How to use",
     "about": "About Typle",
-    "github": "GitHub"
+    "github": "GitHub",
+    "gallery": "Gallery"
   },
   "storage": {
     "label": "Saved to: ",

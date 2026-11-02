@@ -70,3 +70,17 @@ test('a copy of a shared list is not shared', () => {
   assert.equal('shared' in copy, false)
   assert.equal('shareId' in copy, false)
 })
+
+test('currentRecordCount counts normal records only', () => {
+  const r = (id, extra = {}) => ({ id, time: 1, date: '2026-09-01T00:00:00.000Z', wordCount: 1, ...extra })
+  const list = { words: [{ display: 'a', input: 'a', annotation: '' }], records: [r('a'), r('b', { mode: 'recall' })] }
+  assert.equal(currentRecordCount(list), 1)
+})
+
+test('writing records count as practice in the overview, like recall, but not towards the current record count', () => {
+  const list = { id: 'w', name: 'w', createdAt: '2026-09-01', words: words('a', 'b'), records: [
+    record('2026-09-20T10:00:00Z', 2), record('2026-09-21T10:00:00Z', 2), { ...record('2026-09-28T10:00:00Z', 2), mode: 'writing' }] }
+  const [overview] = listOverviews([list])
+  assert.deepEqual([overview.practiceCount, overview.lastPracticed], [3, Date.parse('2026-09-28T10:00:00Z')])
+  assert.equal(currentRecordCount(list), 2)
+})

@@ -15,7 +15,23 @@ type ListInput struct {
 	Category *string   `json:"category"`
 	Tags     *[]string `json:"tags"`
 	Levels   *[]string `json:"levels"`
-	Words    []Word    `json:"words"`
+	// Writing marks the list for handwriting practice: nil leaves it as it is, an empty language removes the mark, and
+	// any other language must be one of WritingLanguages.
+	Writing *Writing `json:"writing"`
+	Words   []Word   `json:"words"`
+}
+
+// checkWriting returns the mark a request leaves a list with, given the one it has.
+func checkWriting(current, given *Writing) (*Writing, error) {
+	switch {
+	case given == nil:
+		return current, nil
+	case given.Language == "":
+		return nil, nil
+	case !validWritingLanguage(given.Language):
+		return nil, &Error{Key: "invalidWritingLanguage"}
+	}
+	return &Writing{Language: given.Language}, nil
 }
 
 func missing() error { return &Error{Key: "listNotFound"} }
@@ -138,12 +154,16 @@ func CreateList(w *Workspace, input ListInput, id string, now time.Time) (*List,
 			return nil, err
 		}
 	}
+	writing, err := checkWriting(nil, input.Writing)
+	if err != nil {
+		return nil, err
+	}
 	if pack != nil {
 		if err := checkReach(w, pack.ID, "", name, levels); err != nil {
 			return nil, err
 		}
 	}
-	w.Lists = append(w.Lists, List{ID: id, Name: name, Levels: levels, PackID: packID, Category: category, Tags: tags, Words: input.Words,
+	w.Lists = append(w.Lists, List{ID: id, Name: name, Levels: levels, Writing: writing, PackID: packID, Category: category, Tags: tags, Words: input.Words,
 		Records: []Record{}, CreatedAt: FormatTime(now)})
 	return &w.Lists[len(w.Lists)-1], nil
 }
@@ -218,6 +238,10 @@ func UpdateList(w *Workspace, id string, input ListInput) (*List, error) {
 			return nil, err
 		}
 	}
+	writing, err := checkWriting(list.Writing, input.Writing)
+	if err != nil {
+		return nil, err
+	}
 	// Only a new name, new levels or a move can leave a list of the pack out of reach.
 	if target != "" && (input.Name != nil || input.Levels != nil || moving) {
 		if err := checkReach(w, target, id, name, levels); err != nil {
@@ -225,7 +249,7 @@ func UpdateList(w *Workspace, id string, input ListInput) (*List, error) {
 		}
 	}
 	source := list.PackID
-	list.Name, list.Levels, list.PackID, list.Category, list.Tags = name, levels, target, category, tags
+	list.Name, list.Levels, list.Writing, list.PackID, list.Category, list.Tags = name, levels, writing, target, category, tags
 	if !moving {
 		w.Lists[at] = list
 		return &w.Lists[at], nil

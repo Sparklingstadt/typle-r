@@ -14,11 +14,26 @@ export type PracticeRecord = {
   accuracy: number
   device?: PracticeDevice
   wordCount: number
+  /** Only runs practised in recall mode or by handwriting carry it; a normal typing run has no `mode` key. */
+  mode?: 'recall' | 'writing'
 }
 
-export function makeRecord(session: TypingSession, wordCount: number, id: string, device?: PracticeDevice): PracticeRecord {
+/** How a run was practised: normal typing (no `mode`), recall (typed from memory) or writing (Typle Handwriting). */
+export type PracticeMode = 'normal' | 'recall' | 'writing'
+
+export const PRACTICE_MODES: readonly PracticeMode[] = ['normal', 'recall', 'writing']
+
+export function recordMode(record: { mode?: string }): PracticeMode {
+  return record.mode === 'recall' || record.mode === 'writing' ? record.mode : 'normal'
+}
+
+export function recordsOfMode<T extends { mode?: string }>(records: T[], mode: PracticeMode): T[] {
+  return records.filter(record => recordMode(record) === mode)
+}
+
+export function makeRecord(session: TypingSession, wordCount: number, id: string, device?: PracticeDevice, mode: PracticeMode = 'normal'): PracticeRecord {
   if (session.finishedAt === null || session.startedAt === null) throw new AppError('practiceIncomplete')
-  return { ...(device ? { device: { ...device } } : {}), ...sessionResult(session), id, wordCount, date: new Date(session.finishedAt).toISOString() }
+  return { ...(device ? { device: { ...device } } : {}), ...(mode !== 'normal' ? { mode } : {}), ...sessionResult(session), id, wordCount, date: new Date(session.finishedAt).toISOString() }
 }
 
 export const MAX_RECORDS = 10000
@@ -49,7 +64,7 @@ export function addRecord<T extends { lists: SavedWordList[]; devices: PracticeD
   const year = date?.getUTCFullYear() ?? NaN
   if (!finite(input.time) || input.time < 0 || !finite(input.accuracy) || input.accuracy < 0 || input.accuracy > 100 ||
     !(year >= 0 && year <= 9999) || !integer(input.mistakes, 0) || (input.wordCount !== undefined && !integer(input.wordCount, 1)) ||
-    typeof input.id !== 'string' || input.id.length > MAX_RECORD_ID || !/^[A-Za-z0-9_-]+$/.test(input.id)) throw new AppError('invalidRecord')
+    (input.mode !== undefined && input.mode !== 'recall' && input.mode !== 'writing') || typeof input.id !== 'string' || input.id.length > MAX_RECORD_ID || !/^[A-Za-z0-9_-]+$/.test(input.id)) throw new AppError('invalidRecord')
   const saved = list.records.find(item => item.id === input.id)
   if (saved) return { document, record: saved, added: false }
   if (list.records.length >= MAX_RECORDS) throw new AppError('recordLimit')
@@ -62,7 +77,7 @@ export function addRecord<T extends { lists: SavedWordList[]; devices: PracticeD
     if (!device) throw new AppError('deviceNotFound')
   }
   const record: PracticeRecord = { id: input.id, time: input.time, date: date!.toISOString(), mistakes: input.mistakes,
-    accuracy: input.accuracy, wordCount: input.wordCount ?? list.words.length, ...(device ? { device: { ...device } } : {}) }
+    accuracy: input.accuracy, wordCount: input.wordCount ?? list.words.length, ...(input.mode !== undefined ? { mode: input.mode } : {}), ...(device ? { device: { ...device } } : {}) }
   const lists = document.lists.map(item => item === list ? { ...item, records: [...item.records, record] } : item)
   return { document: { ...document, lists }, record, added: true }
 }
@@ -107,15 +122,17 @@ export function bestRecords(records: StoredRecord[], limit = 5, order: RankOrder
 }
 
 // Editing a list changes the task, so only runs at its current word count are compared. Records without a word
-// count predate that field and cannot be matched. With no matching run, every record is compared instead.
-export function comparableRecords(list: Pick<SavedWordList, 'words' | 'records'>, records: StoredRecord[] = list.records) {
-  const same = records.filter(record => record.wordCount === list.words.length)
-  return same.length ? same : records
+// count predate that field and cannot be matched. With no matching run, every record is compared instead. Only
+// records of the given mode are compared: normal, recall and writing runs are never ranked together.
+export function comparableRecords(list: Pick<SavedWordList, 'words' | 'records'>, records: StoredRecord[] = list.records, mode: PracticeMode = 'normal') {
+  const ofMode = recordsOfMode(records, mode)
+  const same = ofMode.filter(record => record.wordCount === list.words.length)
+  return same.length ? same : ofMode
 }
 
 // The record every screen shows as a list's best: ベスト記録, the practice result, 練習記録 and the home dashboard.
-export function listBest(list: Pick<SavedWordList, 'words' | 'records'>) {
-  return bestRecords(comparableRecords(list), 1)[0]
+export function listBest(list: Pick<SavedWordList, 'words' | 'records'>, mode: PracticeMode = 'normal') {
+  return bestRecords(comparableRecords(list, list.records, mode), 1)[0]
 }
 
 export function removeRecord(lists: SavedWordList[], listId: string, record: StoredRecord) {
@@ -125,15 +142,16 @@ export function removeRecord(lists: SavedWordList[], listId: string, record: Sto
   })
 }
 
-export type RecordRow = { list: SavedWordList; record: StoredRecord; index: number; key: string; best: boolean }
+export type RecordRow = { list: SavedWordList; record: StoredRecord; index: number; key: string; best: boolean; mode: PracticeMode }
 export type RecordFilter = { pack: string | null; list: string | null; device: string | null }
 export const NO_DEVICE = 'none'
 
-// Every record with its list, newest first. `best` marks the record that currently ranks first in its list.
+// Every record with its list, newest first. `best` marks the record that currently ranks first in its list among records of its own mode.
 export function recordRows(lists: SavedWordList[]): RecordRow[] {
-  const best = new Set(lists.flatMap(list => listBest(list) ?? []))
+  // The badge means "best of its own mode": a record competes only with records of the same mode.
+  const best = new Set(lists.flatMap(list => PRACTICE_MODES.flatMap(mode => listBest(list, mode) ?? [])))
   return recentRecords(lists).map(({ list, record, index }) =>
-    ({ list, record, index, key: `${list.id}-${record.id ?? `${index}-${record.date}`}`, best: best.has(record) }))
+    ({ list, record, index, key: `${list.id}-${record.id ?? `${index}-${record.date}`}`, best: best.has(record), mode: recordMode(record) }))
 }
 
 export function matchesDevice(record: StoredRecord, device: string | null) {

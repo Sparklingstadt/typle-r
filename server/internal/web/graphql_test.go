@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -363,4 +364,152 @@ func testBaseURL(t *testing.T) *url.URL {
 		t.Fatal(err)
 	}
 	return parsed
+}
+
+func TestGraphQLSharePackListed(t *testing.T) {
+	f := &fakeShares{put: &store.Share{ID: "s1", PackID: "p1", Listed: true, UpdatedAt: time.Unix(0, 0)}}
+	h := newHarness(t, f, testBase)
+	share := `mutation($listed: Boolean) { sharePack(packId: "p1", listed: $listed) { listed hidden } }`
+	for _, listed := range []bool{true, false} {
+		answer := decodeGraphQL(t, h.graphql(t, testOwner, share, map[string]any{"listed": listed}))
+		if string(answer.Data["sharePack"]) != `{"listed":true,"hidden":false}` || f.listed == nil || *f.listed != listed {
+			t.Fatalf("listed %v = %s, store got %v", listed, answer.Data["sharePack"], f.listed)
+		}
+	}
+	// Left out or null, the listing stays as it is.
+	for _, variables := range []map[string]any{nil, {"listed": nil}} {
+		if decodeGraphQL(t, h.graphql(t, testOwner, share, variables)); f.listed != nil {
+			t.Fatalf("%v sent listed %v", variables, *f.listed)
+		}
+	}
+	f.putErr = &workspace.Error{Key: "sharedPackHidden"}
+	expectGraphQLError(t, h.graphql(t, testOwner, share, nil), http.StatusConflict, "sharedPackHidden")
+}
+
+const gallerySearch = `query($q: String!, $category: String!, $sort: GallerySort!, $page: Int!) {
+  gallery(q: $q, category: $category, sort: $sort, page: $page) { more packs { id name description category tags lists words added updatedAt } }
+}`
+
+func TestGraphQLGallery(t *testing.T) {
+	at := time.Date(2026, 11, 1, 2, 3, 4, 0, time.UTC)
+	fake := &fakeGallery{page: &store.GalleryPage{More: true, Packs: []store.GalleryPack{
+		{ID: aSharedID, Name: "Go", Description: "basics", Category: "Code", Tags: []string{"go"}, Lists: 2, Words: 30, Added: 4, UpdatedAt: at},
+		{ID: "other", Name: "Bare", Lists: 1, Words: 3, UpdatedAt: at},
+	}}, categories: []store.GalleryCategory{{Name: "Code", Count: 2}}}
+	h := newHarness(t, fake, testBase)
+	search := map[string]any{"q": "  go  ", "category": "Code", "sort": "POPULAR", "page": 2}
+	// Anyone may read the gallery, signed in or not.
+	answer := decodeGraphQL(t, h.graphql(t, "", gallerySearch, search))
+	want := `{"more":true,"packs":[{"id":"` + aSharedID + `","name":"Go","description":"basics","category":"Code","tags":["go"],` +
+		`"lists":2,"words":30,"added":4,"updatedAt":"2026-11-01T02:03:04Z"},` +
+		`{"id":"other","name":"Bare","description":null,"category":null,"tags":[],"lists":1,"words":3,"added":0,"updatedAt":"2026-11-01T02:03:04Z"}]}`
+	if string(answer.Data["gallery"]) != want {
+		t.Fatalf("gallery = %s", answer.Data["gallery"])
+	}
+	if fake.query != (store.GalleryQuery{Text: "go", Category: "Code", Sort: store.GalleryPopular, Page: 2}) {
+		t.Fatalf("query = %+v", fake.query)
+	}
+	if decodeGraphQL(t, h.graphql(t, "", `{ gallery { more } }`, nil)); fake.query != (store.GalleryQuery{Sort: store.GalleryNew, Page: 1}) {
+		t.Fatalf("defaults = %+v", fake.query)
+	}
+	for _, page := range []int{0, maxGalleryPage + 1} {
+		search["page"] = page
+		expectGraphQLError(t, h.graphql(t, "", gallerySearch, search), http.StatusBadRequest, "invalidQuery")
+	}
+	search["page"], search["q"] = 1, "a\x00b"
+	expectGraphQLError(t, h.graphql(t, "", gallerySearch, search), http.StatusBadRequest, "invalidQuery")
+
+	answer = decodeGraphQL(t, h.graphql(t, "", `{ galleryCategories { name count } }`, nil))
+	if string(answer.Data["galleryCategories"]) != `[{"name":"Code","count":2}]` {
+		t.Fatalf("categories = %s", answer.Data["galleryCategories"])
+	}
+	fake.categories = nil
+	if answer := decodeGraphQL(t, h.graphql(t, "", `{ galleryCategories { name } }`, nil)); string(answer.Data["galleryCategories"]) != `[]` {
+		t.Fatalf("no categories = %s", answer.Data["galleryCategories"])
+	}
+	fake.err = errors.New("down")
+	expectGraphQLError(t, h.graphql(t, "", `{ gallery { more } }`, nil), http.StatusServiceUnavailable, "databaseUnavailable")
+}
+
+func TestGraphQLGalleryWrites(t *testing.T) {
+	fake := &fakeGallery{found: true}
+	h := newHarness(t, fake, testBase)
+	added := `mutation($id: String!) { countAdded(id: $id) }`
+	report := `mutation($id: String!, $reason: String!) { reportPack(id: $id, reason: $reason) }`
+	// No login is needed, only the app's own Origin.
+	if answer := decodeGraphQL(t, h.graphql(t, "", added, map[string]any{"id": aSharedID})); string(answer.Data["countAdded"]) != "true" ||
+		len(fake.added) != 1 || fake.added[0] != aSharedID {
+		t.Fatalf("added = %+v %v", answer, fake.added)
+	}
+	if answer := decodeGraphQL(t, h.graphql(t, "", report, map[string]any{"id": aSharedID, "reason": "spam"})); string(answer.Data["reportPack"]) != "true" ||
+		len(fake.reported) != 1 || fake.reported[0] != [2]string{aSharedID, "spam"} {
+		t.Fatalf("report = %+v %v", answer, fake.reported)
+	}
+	expectGraphQLError(t, h.graphql(t, "", added, map[string]any{"id": aSharedID}, withOrigin("https://evil.example")), http.StatusForbidden, "forbiddenRequest")
+	expectGraphQLError(t, h.graphql(t, "", report, map[string]any{"id": aSharedID, "reason": "spam"}, withOrigin("")), http.StatusForbidden, "forbiddenRequest")
+	for _, variables := range []map[string]any{{"id": aSharedID, "reason": "boring"}, {"id": "", "reason": "spam"}} {
+		expectGraphQLError(t, h.graphql(t, "", report, variables), http.StatusBadRequest, "invalidReport")
+	}
+	if len(fake.added) != 1 || len(fake.reported) != 1 {
+		t.Fatalf("refused writes reached the database: %v %v", fake.added, fake.reported)
+	}
+	fake.found = false
+	expectGraphQLError(t, h.graphql(t, "", report, map[string]any{"id": "gone", "reason": "spam"}), http.StatusNotFound, "notInGallery")
+
+	// The limits are those of REST, counted per client, and say when to come back.
+	fake.found = true
+	for range reportsPerMinute - 2 {
+		decodeGraphQL(t, h.graphql(t, "", report, map[string]any{"id": aSharedID, "reason": "spam"}))
+	}
+	response := h.graphql(t, "", report, map[string]any{"id": aSharedID, "reason": "spam"})
+	expectGraphQLError(t, response, http.StatusTooManyRequests, "tooManyRequests")
+	if seconds, err := strconv.Atoi(response.Header().Get("Retry-After")); err != nil || seconds < 1 || seconds > 60 {
+		t.Fatalf("Retry-After = %q", response.Header().Get("Retry-After"))
+	}
+	fake.hitErr = errors.New("down")
+	expectGraphQLError(t, h.graphql(t, "", added, map[string]any{"id": aSharedID}), http.StatusServiceUnavailable, "databaseUnavailable")
+}
+
+func TestGraphQLAdminGallery(t *testing.T) {
+	listed := time.Unix(1700000000, 0).UTC()
+	m := &moderationStore{adminStore: adminStore{allowed: true}, found: true, packs: []store.AdminGalleryPack{
+		{ID: aSharedID, Name: "N", Added: 2, ListedAt: &listed, Reports: 3, Reasons: map[string]int{"spam": 3}}}}
+	lh := newModerationHarness(t, m)
+	h := &harness{handler: lh.handler, keys: lh.keys}
+	admin := withCookie(lh.adminCookie("admin@example.com", "cadmin"))
+	list := `{ adminGallery { id name category added listedAt hiddenAt reports reasons } }`
+
+	answer := decodeGraphQL(t, h.graphql(t, "", list, nil, admin))
+	want := `[{"id":"` + aSharedID + `","name":"N","category":null,"added":2,"listedAt":"2023-11-14T22:13:20Z","hiddenAt":null,"reports":3,"reasons":{"spam":3}}]`
+	if string(answer.Data["adminGallery"]) != want {
+		t.Fatalf("gallery = %s", answer.Data["adminGallery"])
+	}
+	m.packs = nil
+	if answer := decodeGraphQL(t, h.graphql(t, "", list, nil, admin)); string(answer.Data["adminGallery"]) != `[]` {
+		t.Fatalf("empty = %s", answer.Data["adminGallery"])
+	}
+
+	hide := `mutation($id: String!, $hidden: Boolean!) { setPackHidden(id: $id, hidden: $hidden) }`
+	for _, hidden := range []bool{true, false} {
+		m.hidden, m.set = nil, nil
+		answer := decodeGraphQL(t, h.graphql(t, "", hide, map[string]any{"id": aSharedID, "hidden": hidden}, admin))
+		if string(answer.Data["setPackHidden"]) != "true" || len(m.hidden) != 1 || m.hidden[0] != aSharedID || m.set[0] != hidden {
+			t.Fatalf("hidden %v = %+v %v %v", hidden, answer, m.hidden, m.set)
+		}
+	}
+	m.hidden = nil
+	expectGraphQLError(t, h.graphql(t, "", hide, map[string]any{"id": aSharedID, "hidden": true}), http.StatusUnauthorized, "adminRequired")
+	expectGraphQLError(t, h.graphql(t, "", hide, map[string]any{"id": aSharedID, "hidden": true}, admin, withOrigin("https://evil.example")),
+		http.StatusForbidden, "forbiddenRequest")
+	// The administrator has no app token: a request without the Origin is refused even with an Authorization header.
+	expectGraphQLError(t, h.graphql(t, "", hide, map[string]any{"id": aSharedID, "hidden": true}, admin, withOrigin(""), bearer("x")),
+		http.StatusForbidden, "forbiddenRequest")
+	expectGraphQLError(t, h.graphql(t, "", hide, map[string]any{"id": "", "hidden": true}, admin), http.StatusBadRequest, "invalidRequest")
+	if len(m.hidden) != 0 {
+		t.Fatalf("refused requests reached the database: %v", m.hidden)
+	}
+	m.found = false
+	expectGraphQLError(t, h.graphql(t, "", hide, map[string]any{"id": aSharedID, "hidden": true}, admin), http.StatusNotFound, "sharedPackNotFound")
+	m.allowed = false
+	expectGraphQLError(t, h.graphql(t, "", list, nil, admin), http.StatusForbidden, "adminForbidden")
 }

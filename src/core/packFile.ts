@@ -1,7 +1,7 @@
 import { AppError } from './appError'
 import { copyName, MAX_LISTS, MAX_LIST_NAME } from './listOverview'
 import { settle, trimLevels } from './packEditing'
-import { MAX_CATEGORY, MAX_LEVEL, MAX_SAVED_LEVELS, MAX_TAG, MAX_TAGS, isInputType, normalizeLabels, validateList, type SavedWordList } from './wordLists'
+import { MAX_CATEGORY, MAX_LEVEL, MAX_SAVED_LEVELS, MAX_TAG, MAX_TAGS, isInputType, isWritingMark, normalizeLabels, validateList, type SavedWordList } from './wordLists'
 import { MAX_PACK_DESCRIPTION, MAX_PACK_NAME, nameKey, separateLevels, type Library, type WordPack } from './wordPacks'
 import { fit, unique } from './workspaceDocument'
 
@@ -13,7 +13,7 @@ export type PackFile = {
   format: 'typle-pack'
   version: 1
   pack: { name: string; description?: string; category?: string; tags?: string[] }
-  lists: { name: string; levels?: string[]; words: SavedWordList['words'] }[]
+  lists: { name: string; levels?: string[]; writing?: SavedWordList['writing']; words: SavedWordList['words'] }[]
 }
 
 /** The ids of a new pack and of its lists, one for each list in order. */
@@ -38,7 +38,8 @@ export function packFileOf(library: Library, packId: string): PackFile {
     format: FORMAT, version: 1,
     pack: { name, ...(description ? { description } : {}), ...(category ? { category } : {}), ...(tags?.length ? { tags: [...tags] } : {}) },
     lists: library.lists.filter(list => list.packId === packId)
-      .map(list => ({ name: list.name, ...(list.levels?.length ? { levels: [...list.levels] } : {}), words: wordsOf(list.words) })),
+      .map(list => ({ name: list.name, ...(list.levels?.length ? { levels: [...list.levels] } : {}),
+        ...(list.writing ? { writing: { ...list.writing } } : {}), words: wordsOf(list.words) })),
   }
 }
 
@@ -72,14 +73,16 @@ export function decodePackFile(text: string): PackFile {
   const { name, description, category, tags } = data.pack
   if (!isString(name) || !optional(description, isString) || !optional(category, isString) || !optional(tags, isStrings)) throw unreadable()
   const lists = data.lists.map((list: unknown) => {
-    if (!isObject(list) || !isString(list.name) || !optional(list.levels, isStrings) || !Array.isArray(list.words)) throw unreadable()
+    if (!isObject(list) || !isString(list.name) || !optional(list.levels, isStrings) || !Array.isArray(list.words) ||
+      (list.writing !== undefined && list.writing !== null && !isWritingMark(list.writing))) throw unreadable()
     const words = list.words.map((word: unknown) => {
       if (!isObject(word) || !isString(word.display) || !isString(word.input) || !isString(word.annotation) ||
         (word.input_type !== undefined && !isInputType(word.input_type))) throw unreadable()
       return { display: word.display, input: word.input, annotation: word.annotation,
         ...(word.input_type === undefined ? {} : { input_type: word.input_type }) }
     })
-    return { name: list.name, ...present('levels', list.levels as string[] | null | undefined), words }
+    return { name: list.name, ...present('levels', list.levels as string[] | null | undefined),
+      ...present('writing', list.writing as SavedWordList['writing'] | null | undefined), words }
   })
   return {
     format: FORMAT, version: 1,
@@ -131,7 +134,7 @@ export function addPackFile(library: Library, file: PackFile, ids: NewPackIds, n
   const lists: SavedWordList[] = []
   file.lists.forEach((item, n) => {
     validateList({ name: item.name, words: item.words, records: [], createdAt }, lists)
-    lists.push({ id: ids.lists[n], name: item.name.trim(), ...trimLevels(item.levels), packId: ids.pack, words: wordsOf(item.words), records: [], createdAt })
+    lists.push({ id: ids.lists[n], name: item.name.trim(), ...trimLevels(item.levels), ...(item.writing ? { writing: { ...item.writing } } : {}), packId: ids.pack, words: wordsOf(item.words), records: [], createdAt })
   })
   const names = new Set(library.packs.map(pack => nameKey(pack.name)))
   const description = file.pack.description?.trim()
@@ -165,7 +168,7 @@ export function copyPack(library: Library, packId: string, ids: NewPackIds, suff
     ...(description ? { description } : {}), ...(category ? { category } : {}), ...(tags?.length ? { tags: [...tags] } : {}), createdAt,
   }
   const lists = mine.map((list, n): SavedWordList => ({
-    id: ids.lists[n], name: list.name, ...(list.levels?.length ? { levels: [...list.levels] } : {}), packId: ids.pack,
+    id: ids.lists[n], name: list.name, ...(list.levels?.length ? { levels: [...list.levels] } : {}), ...(list.writing ? { writing: { ...list.writing } } : {}), packId: ids.pack,
     words: wordsOf(list.words), records: [], createdAt,
   }))
   const at = library.packs.indexOf(source) + 1

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-3-words-1",
+  "name": "中国語HSK6級 手書き3（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語3",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "放大",
+      "input": "fàngdà",
+      "annotation": "fàngdà / 拡大する",
+      "input_type": "word"
+    },
+    {
+      "display": "飞禽走兽",
+      "input": "fēiqín zǒushòu",
+      "annotation": "fēiqín zǒushòu / 鳥獣",
+      "input_type": "word"
+    },
+    {
+      "display": "飞跃",
+      "input": "fēiyuè",
+      "annotation": "fēiyuè / 飛躍する",
+      "input_type": "word"
+    },
+    {
+      "display": "诽谤",
+      "input": "fěibàng",
+      "annotation": "fěibàng / 誹謗する",
+      "input_type": "word"
+    },
+    {
+      "display": "废寝忘食",
+      "input": "fèiqǐn wàngshí",
+      "annotation": "fèiqǐn wàngshí / 寝食を忘れる",
+      "input_type": "word"
+    },
+    {
+      "display": "分辨",
+      "input": "fēnbiàn",
+      "annotation": "fēnbiàn / 見分ける",
+      "input_type": "word"
+    },
+    {
+      "display": "分红",
+      "input": "fēnhóng",
+      "annotation": "fēnhóng / 配当",
+      "input_type": "word"
+    },
+    {
+      "display": "分泌",
+      "input": "fēnmì",
+      "annotation": "fēnmì / 分泌する",
+      "input_type": "word"
+    },
+    {
+      "display": "分散",
+      "input": "fēnsàn",
+      "annotation": "fēnsàn / 分散する",
+      "input_type": "word"
+    },
+    {
+      "display": "粉末",
+      "input": "fěnmò",
+      "annotation": "fěnmò / 粉末",
+      "input_type": "word"
+    },
+    {
+      "display": "粉碎",
+      "input": "fěnsuì",
+      "annotation": "fěnsuì / 粉砕する",
+      "input_type": "word"
+    },
+    {
+      "display": "丰满",
+      "input": "fēngmǎn",
+      "annotation": "fēngmǎn / 豊満な",
+      "input_type": "word"
+    },
+    {
+      "display": "丰收",
+      "input": "fēngshōu",
+      "annotation": "fēngshōu / 豊作",
+      "input_type": "word"
+    },
+    {
+      "display": "风光",
+      "input": "fēngguāng",
+      "annotation": "fēngguāng / 風景",
+      "input_type": "word"
+    },
+    {
+      "display": "风趣",
+      "input": "fēngqù",
+      "annotation": "fēngqù / ユーモア",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

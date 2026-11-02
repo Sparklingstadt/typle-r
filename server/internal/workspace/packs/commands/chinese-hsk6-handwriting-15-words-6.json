@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-15-words-6",
+  "name": "中国語HSK6級 手書き15（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語15",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "天才",
+      "input": "tiāncái",
+      "annotation": "tiāncái / 天才",
+      "input_type": "word"
+    },
+    {
+      "display": "天赋",
+      "input": "tiānfù",
+      "annotation": "tiānfù / 天賦の才",
+      "input_type": "word"
+    },
+    {
+      "display": "田径",
+      "input": "tiánjìng",
+      "annotation": "tiánjìng / 陸上競技",
+      "input_type": "word"
+    },
+    {
+      "display": "天然气",
+      "input": "tiānránqì",
+      "annotation": "tiānránqì / 天然ガス",
+      "input_type": "word"
+    },
+    {
+      "display": "天生",
+      "input": "tiānshēng",
+      "annotation": "tiānshēng / 生まれつき",
+      "input_type": "word"
+    },
+    {
+      "display": "天文",
+      "input": "tiānwén",
+      "annotation": "tiānwén / 天文",
+      "input_type": "word"
+    },
+    {
+      "display": "挑拨",
+      "input": "tiǎobō",
+      "annotation": "tiǎobō / そそのかす",
+      "input_type": "word"
+    },
+    {
+      "display": "调剂",
+      "input": "tiáojì",
+      "annotation": "tiáojì / 調整する",
+      "input_type": "word"
+    },
+    {
+      "display": "调节",
+      "input": "tiáojié",
+      "annotation": "tiáojié / 調節する",
+      "input_type": "word"
+    },
+    {
+      "display": "调解",
+      "input": "tiáojiě",
+      "annotation": "tiáojiě / 調停する",
+      "input_type": "word"
+    },
+    {
+      "display": "条理",
+      "input": "tiáolǐ",
+      "annotation": "tiáolǐ / 筋道",
+      "input_type": "word"
+    },
+    {
+      "display": "调料",
+      "input": "tiáoliào",
+      "annotation": "tiáoliào / 調味料",
+      "input_type": "word"
+    },
+    {
+      "display": "挑衅",
+      "input": "tiǎoxìn",
+      "annotation": "tiǎoxìn / 挑発する",
+      "input_type": "word"
+    },
+    {
+      "display": "条约",
+      "input": "tiáoyuē",
+      "annotation": "tiáoyuē / 条約",
+      "input_type": "word"
+    },
+    {
+      "display": "提拔",
+      "input": "tíbá",
+      "annotation": "tíbá / 抜擢する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-7-words-1",
+  "name": "中国語HSK6級 手書き7（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語7",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "承办",
+      "input": "chéngbàn",
+      "annotation": "chéngbàn / 引き受けて行う",
+      "input_type": "word"
+    },
+    {
+      "display": "承诺",
+      "input": "chéngnuò",
+      "annotation": "chéngnuò / 約束する",
+      "input_type": "word"
+    },
+    {
+      "display": "惩罚",
+      "input": "chéngfá",
+      "annotation": "chéngfá / 罰する",
+      "input_type": "word"
+    },
+    {
+      "display": "迟钝",
+      "input": "chídùn",
+      "annotation": "chídùn / 鈍い",
+      "input_type": "word"
+    },
+    {
+      "display": "迟疑",
+      "input": "chíyí",
+      "annotation": "chíyí / ためらう",
+      "input_type": "word"
+    },
+    {
+      "display": "赤字",
+      "input": "chìzì",
+      "annotation": "chìzì / 赤字",
+      "input_type": "word"
+    },
+    {
+      "display": "冲击",
+      "input": "chōngjī",
+      "annotation": "chōngjī / 衝撃",
+      "input_type": "word"
+    },
+    {
+      "display": "充沛",
+      "input": "chōngpèi",
+      "annotation": "chōngpèi / みなぎる",
+      "input_type": "word"
+    },
+    {
+      "display": "充足",
+      "input": "chōngzú",
+      "annotation": "chōngzú / 十分な",
+      "input_type": "word"
+    },
+    {
+      "display": "崇敬",
+      "input": "chóngjìng",
+      "annotation": "chóngjìng / 崇敬する",
+      "input_type": "word"
+    },
+    {
+      "display": "抽空",
+      "input": "chōukòng",
+      "annotation": "chōukòng / 時間を作る",
+      "input_type": "word"
+    },
+    {
+      "display": "出路",
+      "input": "chūlù",
+      "annotation": "chūlù / 活路",
+      "input_type": "word"
+    },
+    {
+      "display": "出身",
+      "input": "chūshēn",
+      "annotation": "chūshēn / 出身",
+      "input_type": "word"
+    },
+    {
+      "display": "初步",
+      "input": "chūbù",
+      "annotation": "chūbù / 初歩的な",
+      "input_type": "word"
+    },
+    {
+      "display": "处境",
+      "input": "chǔjìng",
+      "annotation": "chǔjìng / 境遇",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

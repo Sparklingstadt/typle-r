@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-17-words-6",
+  "name": "中国語HSK6級 手書き17（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語17",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "旋律",
+      "input": "xuánlǜ",
+      "annotation": "xuánlǜ / 旋律",
+      "input_type": "word"
+    },
+    {
+      "display": "悬念",
+      "input": "xuánniàn",
+      "annotation": "xuánniàn / サスペンス、気がかり",
+      "input_type": "word"
+    },
+    {
+      "display": "选手",
+      "input": "xuǎnshǒu",
+      "annotation": "xuǎnshǒu / 選手",
+      "input_type": "word"
+    },
+    {
+      "display": "悬殊",
+      "input": "xuánshū",
+      "annotation": "xuánshū / かけ離れた",
+      "input_type": "word"
+    },
+    {
+      "display": "炫耀",
+      "input": "xuànyào",
+      "annotation": "xuànyào / 見せびらかす",
+      "input_type": "word"
+    },
+    {
+      "display": "悬崖峭壁",
+      "input": "xuányá qiàobì",
+      "annotation": "xuányá qiàobì / 切り立った断崖",
+      "input_type": "word"
+    },
+    {
+      "display": "削弱",
+      "input": "xuēruò",
+      "annotation": "xuēruò / 弱める",
+      "input_type": "word"
+    },
+    {
+      "display": "雪上加霜",
+      "input": "xuěshàng jiāshuāng",
+      "annotation": "xuěshàng jiāshuāng / 泣きっ面に蜂",
+      "input_type": "word"
+    },
+    {
+      "display": "学说",
+      "input": "xuéshuō",
+      "annotation": "xuéshuō / 学説",
+      "input_type": "word"
+    },
+    {
+      "display": "血压",
+      "input": "xuèyā",
+      "annotation": "xuèyā / 血圧",
+      "input_type": "word"
+    },
+    {
+      "display": "虚假",
+      "input": "xūjiǎ",
+      "annotation": "xūjiǎ / 偽りの",
+      "input_type": "word"
+    },
+    {
+      "display": "许可",
+      "input": "xǔkě",
+      "annotation": "xǔkě / 許可する",
+      "input_type": "word"
+    },
+    {
+      "display": "畜牧",
+      "input": "xùmù",
+      "annotation": "xùmù / 牧畜",
+      "input_type": "word"
+    },
+    {
+      "display": "巡逻",
+      "input": "xúnluó",
+      "annotation": "xúnluó / パトロールする",
+      "input_type": "word"
+    },
+    {
+      "display": "寻觅",
+      "input": "xúnmì",
+      "annotation": "xúnmì / 探し求める",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

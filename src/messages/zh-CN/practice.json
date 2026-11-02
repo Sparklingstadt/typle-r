@@ -6,7 +6,8 @@
     "speed": "速度",
     "speedUnit": "键/分",
     "accuracy": "正确率",
-    "mistakes": "错误"
+    "mistakes": "错误",
+    "wordSpeedUnit": "词/分"
   },
   "progress": {
     "label": "单词进度",
@@ -23,12 +24,21 @@
     "restart": "从头开始",
     "restartTitle": "从头开始（Esc）",
     "restartShort": "重来",
-    "liveStats": "显示本次练习数据"
+    "liveStats": "显示本次练习数据",
+    "aside": "显示侧边栏（单词列表和最佳记录）"
   },
   "word": {
     "typeThis": "需输入",
     "resume": "点击或按任意键继续",
-    "inputLabel": "输入显示的文字"
+    "inputLabel": "输入显示的文字",
+    "simpleKeys": "简易输入",
+    "simpleKeysAll": "完整对照表"
+  },
+  "recall": {
+    "toggle": "凭记忆输入",
+    "reveal": "查看答案",
+    "noHint": "没有提示",
+    "resultHeading": "凭记忆输入"
   },
   "upcoming": {
     "next": "接下来",
@@ -89,7 +99,10 @@
     "saving": "正在保存记录…",
     "again": "再来一次",
     "chooseList": "选择其他列表",
-    "viewRecords": "查看记录"
+    "viewRecords": "查看记录",
+    "wordSpeedUnit": "词/分",
+    "correctWords": "{count} 个词",
+    "mistakesWords": "错误 {count} 个词"
   },
   "best": {
     "label": "最佳记录前 5 名",
@@ -115,5 +128,12 @@
     "listsOf": "{name} 的列表",
     "chooseList": "请选择列表。",
     "match": "符合搜索"
-  }
+  },
+  "modeLabel": "练习方式",
+  "modeTyping": "打字",
+  "modeWriting": "Handwriting",
+  "writingJudge": "判定",
+  "writingSkip": "跳过",
+  "writingRead": "识别为“{text}”",
+  "writingInput": "在此手写输入"
 }

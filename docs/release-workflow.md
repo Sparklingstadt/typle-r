@@ -30,7 +30,11 @@ Releaseイベントで別のworkflowを起動する方式ではないため、GI
 5. 対象VercelプロジェクトのProduction環境にDB・Authの環境変数を設定します。
    READMEの「Neon / Vercelの構成」を参照してください。
    公開先は`https://typle-r-six.vercel.app`を想定しています。
-6. `vercel.json`の`git.deploymentEnabled: false`を維持します。
+6. API の文書（`api-docs/`）を Cloudflare Pages に公開するため、`production` Environment に次の2つを登録します。
+   - `CLOUDFLARE_API_TOKEN`: 対象アカウントの **Cloudflare Pages: Edit** の権限だけを持つ API トークン。期限を付けてください。
+   - `CLOUDFLARE_ACCOUNT_ID`: 対象アカウントのID。
+   Pages のプロジェクト `typle-api-docs` は、なければ最初の`docs-deploy`が作ります。Cloudflare の Git 連携は使いません。
+7. `vercel.json`の`git.deploymentEnabled: false`を維持します。
    別のデプロイworkflow・Deploy Hook・手動CLIによる公開は併用しません。
 
 管理者によるルール変更や手動Release・Vercel操作までYAMLだけで禁止することはできません。
@@ -43,7 +47,7 @@ squash限定とproduction Environmentのmain限定は利用できます。
 現プランではmainへの直接push自体は防げませんが、policyでRelease・deployを拒否します。
 GitHub Proへ変更した場合は、上記のmain保護ルールを追加してください。
 CI用Vercelトークンは90日期限で作成しています。期限前にSecretを更新してください。
-本番ビルドのNode.jsはVercelプロジェクトと同じ24系を使います。
+本番ビルドのNode.jsは24系です。`package.json` の `engines` を `"24.x"` に固定しています（v2.6.5 から）。`">=24.0.0"` のような上限のない指定では、Vercel が新しいメジャー版（26系）を自動で選び、CI の verify（24系）と食い違うためです。
 
 ## 毎回の開発
 
@@ -60,28 +64,45 @@ CI用Vercelトークンは90日期限で作成しています。期限前にSecr
 7. 同じSHAをチェックアウトし、ReleaseのタグのSHAを再確認します。
    Vercel CLI 60.1.3の`vercel deploy --prod`でソースを送り、Vercel内で本番ビルド・デプロイします。
    CLIはバージョンごとにmainのキャッシュに保存します。版を上げるときは`ci.yml`の`VERCEL_CLI_VERSION`だけを変えます。
-   CLIはインストールスクリプトを実行せずに入れ、`VERCEL_TOKEN`はSecretの確認とデプロイの手順だけに渡します。
+   CLIはインストールスクリプトを実行せずに入れ、`VERCEL_TOKEN`はSecretの確認、デプロイ、次の待機の手順だけに渡します。
    読み出し不可のSecretが`[SENSITIVE]`になるため、Actionsでは`vercel pull`・`vercel build`を行いません。
 8. 本番のドメインが新しいデプロイを返すまで待ちます（v0.56.1 から）。`vercel deploy --prod` は、ドメインがまだ前のデプロイを返しているうちに終わることがあり、
-   前のデプロイにもあるパスは同じ応答になるため、そのままでは確認が新しいデプロイを見ません。デプロイ前に本番の `/home` が示すデプロイ（`data-dpl-id`）を記録し、
-   それと違うデプロイを返すまで5秒ごとに最大5分待ちます。変わらなければ失敗します。
+   前のデプロイにもあるパスは同じ応答になるため、そのままでは確認が新しいデプロイを見ません。Vercel の API
+   （`GET /v13/deployments/typle-r-six.vercel.app`）で本番のドメインが指すデプロイを調べ、`vercel deploy` が返したデプロイの URL と
+   一致するまで5秒ごとに最大5分待ちます。一致しなければ失敗します。v2.5.10 より前は本番の `/home` の `data-dpl-id` で比べていましたが、
+   Next.js がこの属性を書くのは Skew Protection が有効なときだけで、このプロジェクトでは書かれなくなっていたため、
+   v2.5.8 の deploy がここで失敗しました（デプロイ自体は成功していました）。
    その後、本番ホームの成功応答、Goの関数が返す`/api/health`の200（本番DBへの接続を含む）、匿名APIアクセスの401を確認します。
    ログインの関数も確認します。`/api/auth/session`が200で、本文の`user`が`null`、`providers`が`"github"`を含む配列であること（FFPF IDを設定している場合は`"ffpf"`も入りますが、確認はしません）、
    `/api/auth/signin`がリダイレクトを辿らずに302を返し、`Location`が`https://github.com/login/oauth/authorize?`で始まり
    本番の`redirect_uri`（`https://typle-r-six.vercel.app/api/auth/callback/github`）を含むことです。
    これにより、本番の関数で`AUTH_SECRET`・`AUTH_URL`・`AUTH_GITHUB_ID`・`AUTH_GITHUB_SECRET`が揃って設定されていることまで確かめます。
    iPad のログインの`POST /api/auth/token`が、本文`{}`に`400`と`{"error":"loginFailed"}`を返すことも確かめます。
+9. Vercel のデプロイが成功した後、`docs-deploy`が同じSHAの API の文書（`api-docs/`）をビルドし、リンクを検査して、
+   固定版の Wrangler（`ci.yml`の`WRANGLER_VERSION`）で Cloudflare Pages の`typle-api-docs`に公開します。
+   公開後に主なページが返ることを確かめます。文書の公開が失敗してもアプリの公開は済んでいます。原因を直して`docs-deploy`だけを再実行します。
+   文書のビルドとリンクの検査は、PR を含むすべての verify でも行います。
 
 verifyのDBは一時DBですが、deployから起動するVercel上のビルドは本番環境変数を使います。
 `vercel.json`に従い、ここで本番DBへmigrationが適用されます。DB更新に成功した後で
 ビルドやデプロイが失敗することもあるため、migrationは旧アプリと互換性のある変更にします。
 DBの自動ロールバックは行いません。
 
+`npm run db:migrate` は、適用する前に DB の `_prisma_migrations` を読み、手元にない新しいマイグレーション
+（手元の最新より後の名前で、適用済みのもの）があれば何も適用せずに失敗します（v2.5.8 から）。
+古いコミットを本番へデプロイすると、古いマイグレーションを未適用とみなして本番DBへ流そうとするためです
+（2026-10-31 に v0.99.4 のソースを手元からデプロイし、`0002_practice_devices` が本番DBで失敗して、
+後のデプロイが `P3009` で止まりました）。0027_schema にまとめた 0001〜0026 のような、手元にない古い記録は問題にしません。
+この確認は v2.5.8 以降のコードにしかないため、それより前のコミットは今も本番へデプロイしないでください。
+前のデプロイへ戻すときは、ビルドをしない Vercel の Instant Rollback を使うか、新しいバージョンの修正PRを出します。
+
 ## 失敗時
 
 - policyまたはverify失敗: Releaseとデプロイは実行されません。
 - Release作成失敗: デプロイは実行されません。
 - deploy失敗: 先に作成したReleaseは残ります。Releaseの存在だけでは本番反映成功を意味しません。
+- docs-deploy失敗: アプリの本番は更新済みです。Secretやトークンの権限を直し、同じ実行の`docs-deploy`を再実行します。手元から`wrangler`で公開しません（次の課金制限の例外だけは手元から公開します）。
+- GitHub の課金制限でジョブが起動しない（注釈が「The job was not started because recent account payments have failed or your spending limit needs to be increased」）: 例外として手動で公開します。verify と同じ検査を手元で行い、squash merge、Releaseの作成、Vercel本番デプロイと確認、API の文書の公開を同じ順序で行います。手順は `CLAUDE.md` の「Exception: GitHub Actions blocked by billing」を見てください。ほかの失敗では手動で公開しません。
 - 認証・通信などの一時的な問題: 原因を直して同じActions実行の失敗ジョブを再実行します。
   既存Releaseは非draft・非prerelease・同じタグ・同じSHAの場合だけ再利用します。
   タグを移動したり、同じバージョンを別コミットに使ったりしません。

@@ -195,7 +195,7 @@ function DeleteDetails({ row, dayHeading }: { row: Row; dayHeading: (day: Date) 
   const format = useFormat()
   const { list, record, best } = row
   const date = new Date(record.date)
-  const next = best ? listBest({ ...list, records: list.records.filter(item => item !== record) }) : undefined
+  const next = best ? listBest({ ...list, records: list.records.filter(item => item !== record) }, row.mode) : undefined
   return <div className="space-y-3">
     <dl className="grid gap-1 rounded-lg border bg-muted/40 px-3.5 py-3 text-sm">
       <dt className="sr-only">{t('list')}</dt><dd className="font-medium [overflow-wrap:anywhere]"><PracticeName list={list} /></dd>

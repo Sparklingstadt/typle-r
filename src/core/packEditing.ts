@@ -138,7 +138,7 @@ export function deletePack(library: Library, packId: string): Library {
 
 /** Creates or edits a list in a pack; with no pack (`packId` null) the list gets a pack of its own, named after it. */
 export function saveListInPack(library: Library,
-  list: { id: string; name: string; words: SavedWordList['words']; levels?: string[]; createdAt: string },
+  list: { id: string; name: string; words: SavedWordList['words']; levels?: string[]; writing?: SavedWordList['writing']; createdAt: string },
   packId: string | null, editing: boolean): Library {
   if (packId !== null) requirePack(library, packId)
   const existing = library.lists.find(item => item.id === list.id)
@@ -150,7 +150,7 @@ export function saveListInPack(library: Library,
   const target = packId ?? newPackId(library, list.id)
   validateList({ ...list, records: [] }, packId === null ? [] : library.lists.filter(item => item.packId === packId && item.id !== list.id))
   const { levels, createdAt, ...fields } = list
-  const { levels: _levels, ...kept } = editing ? existing! : { levels: undefined }
+  const { levels: _levels, writing: _writing, ...kept } = editing ? existing! : { levels: undefined, writing: undefined }
   const saved: SavedWordList = { records: [], ...kept, ...fields, createdAt: existing?.createdAt ?? createdAt, name: list.name.trim(), ...tidyLevels(levels), packId: target }
   const packs = packId === null ? [...library.packs, { id: target, name: saved.name, createdAt: saved.createdAt }] : library.packs
   const others = library.lists.filter(item => item.id !== list.id)

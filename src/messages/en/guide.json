@@ -64,7 +64,8 @@
       "p2": "Time is measured from your first keystroke until you finish. While you practice, the elapsed time, speed (correct characters per minute), accuracy, and number of mistakes are shown.",
       "p3": "Text typed with an IME (such as Japanese) is checked once it is confirmed; characters still being converted are not checked. Pasting and drag-and-drop input are disabled.",
       "p4": "The next 3 words appear below the progress bar, and “Show all words” lets you see the whole list.",
-      "p5": "The eye button at the top shows or hides the live stats (elapsed time, speed, accuracy and mistakes). Your choice is saved in this browser. Hiding them does not change timing or saving, and the result screen still shows the numbers."
+      "p5": "The eye button at the top shows or hides the live stats (elapsed time, speed, accuracy and mistakes). Your choice is saved in this browser. Hiding them does not change timing or saving, and the result screen still shows the numbers.",
+      "p6": "Turn on “Type from memory” at the top to practice with the answer hidden. The note is shown with the answer blanked out, and the answer appears as one “＿” per character still to type. The next words, the full word list and the characters-to-type guide are not shown. “Show answer” reveals it, and the remaining characters count as mistakes. These runs are saved as “Recall” and compared separately from normal runs. Your choice is saved in this browser and cannot be changed during a run."
     },
     "choose": {
       "title": "Choosing a pack, list and device",
@@ -72,6 +73,13 @@
       "p2": "If you choose another list in the middle of a practice, you are asked to confirm before stopping. An unfinished practice is not recorded.",
       "p3": "“Start over” or <keys>Esc</keys> starts the same list over from the beginning.",
       "p4": "Use “Device” at the top to choose the device you are practicing on before typing the first character (<devicesSection>Register devices</devicesSection>)."
+    },
+    "writing": {
+      "title": "Typle Handwriting",
+      "p1": "In the list editor, turn on “Use for handwriting practice (Typle Handwriting)” and pick a language, and you can practise that list by hand. When you choose it on the practice screen, a Typing / Handwriting switch appears.",
+      "p2": "Look at the word shown and write it in the field with your OS’s handwriting input (the Windows handwriting panel, the handwriting keyboard of an Android tablet, an IME’s handwriting, and so on). The web version has no drawing canvas.",
+      "p3": "When the input matches the word, you move on. Pressing “Check” (<keys>Enter</keys>) without a match counts one miss, and “Skip” counts one miss and moves on. Text still being converted is not judged.",
+      "p4": "Handwriting records are compared apart from normal and recall records; on the best-records screen you switch between Normal, Recall and Handwriting. They count towards this week’s runs, practice time and streak on the home screen, but accuracy, trends and the next lists compare typing records only. Handwriting cannot be combined with “Type from memory”. Switching in the middle of a run asks first. Smartphones are a future target."
     }
   },
   "lists": {
@@ -102,7 +110,10 @@
       "p1": "When you are logged in, \"Share\" in a pack's \"…\" menu creates a share link. Choose \"Create link\", then \"Copy\" it and send it to others.",
       "p2": "Anyone with the link can see the pack's name, description, lists, and words without logging in, and add it to their own packs with \"Add to my packs\". Your practice records and your name are not visible.",
       "p3": "Editing the pack does not change the link automatically. \"Update share\" brings it up to date (the link stays the same). \"Stop sharing\" ends the link, and it then shows that the share has ended. A shared pack is marked \"Shared\".",
-      "p4": "Deleting a shared pack also ends its share."
+      "p4": "Deleting a shared pack also ends its share.",
+      "p5": "Turn on \"List in the gallery\" in the share dialog to put the pack in the gallery (under \"Word lists\" in the sidebar). Anyone can see the gallery without logging in, and your name is not shown. A listed pack is marked \"In the gallery\". Turn it off or stop sharing to remove it from the gallery.",
+      "p6": "When you open a pack from the gallery or a share link, use \"Report\" to tell the administrators about a problem. Choose a reason: inappropriate content, spam or advertising, personal information, or other.",
+      "p7": "After receiving reports, an administrator may hide a pack. A hidden pack is marked \"Hidden\" and no longer appears in the gallery or at its share link. The owner cannot list this share in the gallery again (you can still update the pack or stop sharing it)."
     },
     "input": {
       "title": "Entering words",

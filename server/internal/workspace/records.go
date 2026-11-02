@@ -1,6 +1,7 @@
 package workspace
 
 import (
+	"bytes"
 	"encoding/json"
 	"math"
 	"regexp"
@@ -15,6 +16,16 @@ const (
 	// Integers stay within JavaScript's safe integers, so the app reads them back exactly.
 	maxSafeInteger = 1<<53 - 1
 )
+
+// The modes a run can be saved with: RecallMode for a run practised by recalling the words, WritingMode for a Typle
+// Handwriting run. A normal typing run has no mode (""), and the records of each mode are ranked apart.
+const (
+	RecallMode  = "recall"
+	WritingMode = "writing"
+)
+
+// validMode is whether mode can be saved: a mode of the app, or "" for a normal run.
+func validMode(mode string) bool { return mode == "" || mode == RecallMode || mode == WritingMode }
 
 var recordID = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
@@ -31,6 +42,26 @@ type RecordInput struct {
 	WordCount *float64 `json:"wordCount"`
 	DeviceID  *string  `json:"deviceId"`
 	Device    *Device  `json:"device"`
+	// Mode is RecallMode, WritingMode or left out. /api/v1 does not accept it (see the api package's addRecord).
+	Mode *string `json:"mode"`
+	// ModeNull is set when the request has "mode": null, which is refused like any other mode that is not RecallMode or WritingMode.
+	ModeNull bool `json:"-"`
+}
+
+// UnmarshalJSON reads the fields above and notes an explicit null mode, which a *string cannot tell from a left out one.
+func (r *RecordInput) UnmarshalJSON(data []byte) error {
+	type plain RecordInput
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode((*plain)(r)); err != nil {
+		return err
+	}
+	var keys map[string]json.RawMessage
+	if json.Unmarshal(data, &keys) == nil {
+		mode, present := keys["mode"]
+		r.ModeNull = present && bytes.Equal(bytes.TrimSpace(mode), []byte("null"))
+	}
+	return nil
 }
 
 func finite(value *float64) bool {
@@ -65,6 +96,14 @@ func AddRecord(w *Workspace, listID string, input RecordInput, newID string) (re
 	if !ok {
 		return Record{}, false, invalid
 	}
+	// The mode is checked before a resend is looked up, as addRecord does in the app.
+	mode := ""
+	if input.Mode != nil {
+		mode = *input.Mode
+	}
+	if input.ModeNull || (input.Mode != nil && (mode == "" || !validMode(mode))) {
+		return Record{}, false, invalid
+	}
 	wordCount := len(list.Words)
 	if input.WordCount != nil {
 		if wordCount, ok = integer(input.WordCount, 1); !ok {
@@ -97,7 +136,7 @@ func AddRecord(w *Workspace, listID string, input RecordInput, newID string) (re
 	}
 	accuracy := *input.Accuracy
 	record = Record{ID: &id, Time: *input.Time, Date: FormatTime(date), Mistakes: &mistakes, Accuracy: &accuracy,
-		WordCount: &wordCount, Device: device, At: date}
+		WordCount: &wordCount, Device: device, Mode: mode, At: date}
 	list.Records = append(list.Records, record)
 	return record, true, nil
 }

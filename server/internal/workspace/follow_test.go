@@ -90,7 +90,7 @@ func TestOfficialPacks(t *testing.T) {
 		t.Fatal(err)
 	}
 	// The same catalog ids, in the same order, as officialPacks() in src/plugins/packs/catalog.ts.
-	if len(official) != 35 || official[0].CatalogID != "pack-8f3cf116-1f9f-4579-a071-e600094b104d" ||
+	if len(official) != 61 || official[0].CatalogID != "pack-8f3cf116-1f9f-4579-a071-e600094b104d" ||
 		official[1].CatalogID != "pack-ef974a4b-3c7a-4eeb-9979-6721a0a1c81a" {
 		t.Fatalf("official = %d packs, first %v", len(official), official[:min(2, len(official))])
 	}
@@ -107,8 +107,10 @@ func TestOfficialPacks(t *testing.T) {
 		}
 		count += len(entry.Lists)
 	}
-	// The 66 existing lists are followed by six beginner language lists.
-	if count != 72 || official[0].Lists[0].ID != "8f3cf116-1f9f-4579-a071-e600094b104d" {
+	// The 66 existing lists are followed by six beginner language lists, the four English and four Russian lists, two
+	// intermediate Czech lists, two lists each of HSK 5 and HSK 6 Chinese words, three lists of PostgreSQL error codes and
+	// the six lists each of the twenty HSK 6 handwriting packs.
+	if count != 209 || official[0].Lists[0].ID != "8f3cf116-1f9f-4579-a071-e600094b104d" {
 		t.Fatalf("%d lists, first %s", count, official[0].Lists[0].ID)
 	}
 	// The group Arch Linuxコマンド is named after the list arch-linux, which comes first and has no group.
@@ -179,6 +181,20 @@ func TestDecodeFollowsTheCatalog(t *testing.T) {
 	}
 	if w.Lists[len(w.Lists)-1].ID != "o" {
 		t.Fatalf("lists = %v", listIDs(w))
+	}
+}
+
+func TestFollowedListsTakeTheHandwritingMark(t *testing.T) {
+	official := []OfficialPack{{CatalogID: "c", Pack: Pack{ID: "c", Name: "C"}, Lists: []List{
+		{ID: "m", Name: "M", PackID: "c", Writing: &Writing{Language: "zh-Hans"}, Words: []Word{{Display: "a", Input: "a"}}},
+		{ID: "n", Name: "N", PackID: "c", Words: []Word{{Display: "b", Input: "b"}}},
+	}}}
+	packs := []Pack{{ID: "f", Name: "F", Origin: &Origin{CatalogID: "c", Version: 1, Followed: true}}}
+	lists := []List{{ID: "fn", Name: "N", PackID: "f", Origin: &ListOrigin{ListID: "n"}, Writing: &Writing{Language: "en"}}}
+	_, result := followOfficial(packs, lists, official)
+	if len(result) != 2 || result[0].ID != "f:m" || result[0].Writing == nil || *result[0].Writing != (Writing{Language: "zh-Hans"}) ||
+		result[0].Writing == official[0].Lists[0].Writing || result[1].ID != "fn" || result[1].Writing != nil {
+		t.Fatalf("lists = %+v", result)
 	}
 }
 

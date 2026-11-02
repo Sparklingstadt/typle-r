@@ -1,0 +1,83 @@
+import { test, expect } from '@playwright/test'
+import { guestWorkspace } from './guestData'
+const key = 'typle-r:guest-workspace:v1'
+
+test('simple special-character input lets plain letters stand for accented ones in practice', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  const lists = [{ id: 'spanish', name: 'Spanish', createdAt: '2026-09-01', words: [{ display: 'día', input: 'día', annotation: '' }], records: [] }]
+  await page.addInitScript(([key, value]) => { if (!localStorage.getItem(key)) localStorage.setItem(key, value) }, [key, guestWorkspace(lists)])
+
+  // Off by default: the accent must be typed.
+  await page.goto('/play')
+  const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
+  await input.pressSequentially('di')
+  await expect(input).toHaveValue('d')
+
+  await page.goto('/home')
+  await page.getByRole('navigation', { name: 'メインナビゲーション' }).getByRole('link', { name: '入力' }).click()
+  await expect(page).toHaveURL(/\/input$/)
+  await expect(page.getByRole('heading', { level: 1, name: '入力' })).toBeVisible()
+  const toggle = page.getByRole('switch', { name: '特殊文字の簡易入力を使う' })
+  await expect(toggle).not.toBeChecked()
+  await toggle.click()
+  await expect(toggle).toBeChecked()
+  await page.reload()
+  await expect(page.getByRole('switch', { name: '特殊文字の簡易入力を使う' })).toBeChecked()
+
+  await page.goto('/play')
+  await input.pressSequentially('di')
+  await expect(input).toHaveValue('dí')
+  await input.pressSequentially('a')
+  const result = page.getByLabel('練習結果', { exact: true })
+  await expect(result).toContainText('ミス 0 文字')
+  await expect(result).toContainText('100%')
+  expect(errors).toEqual([])
+})
+
+test('ignoring case lets lower-case letters stand for capitals in practice', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  const lists = [{ id: 'names', name: 'Names', createdAt: '2026-09-01', words: [{ display: 'Ana', input: 'Ana', annotation: '' }], records: [] }]
+  await page.addInitScript(([key, value]) => { if (!localStorage.getItem(key)) localStorage.setItem(key, value) }, [key, guestWorkspace(lists)])
+
+  await page.goto('/input')
+  const toggle = page.getByRole('switch', { name: '大文字・小文字を区別しない' })
+  await expect(toggle).not.toBeChecked()
+  await toggle.click()
+  await expect(toggle).toBeChecked()
+  // Each toggle is its own setting.
+  await expect(page.getByRole('switch', { name: '特殊文字の簡易入力を使う' })).not.toBeChecked()
+
+  await page.goto('/play')
+  const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
+  await input.pressSequentially('aNA')
+  const result = page.getByLabel('練習結果', { exact: true })
+  await expect(result).toContainText('ミス 0 文字')
+  expect(errors).toEqual([])
+})
+
+test('simple input accepts Latin keystrokes for Cyrillic letters in practice', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  const lists = [{ id: 'russian', name: 'Russian', createdAt: '2026-09-01', words: [{ display: 'школа', input: 'школа', annotation: '' }], records: [] }]
+  await page.addInitScript(([key, value]) => { if (!localStorage.getItem(key)) localStorage.setItem(key, value) }, [key, guestWorkspace(lists)])
+
+  await page.goto('/play')
+  const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
+  await input.pressSequentially('sh')
+  await expect(input).toHaveValue('')
+
+  await page.goto('/input')
+  await page.getByRole('switch', { name: '特殊文字の簡易入力を使う' }).click()
+  await page.goto('/play')
+  await input.pressSequentially('s')
+  await expect(input).toHaveValue('')
+  await input.pressSequentially('h')
+  await expect(input).toHaveValue('ш')
+  await input.pressSequentially('kola')
+  const result = page.getByLabel('練習結果', { exact: true })
+  await expect(result).toContainText('ミス 0 文字')
+  await expect(result).toContainText('100%')
+  expect(errors).toEqual([])
+})

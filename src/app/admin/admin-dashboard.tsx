@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import PageContainer from '@/components/PageContainer/PageContainer'
 import { GraphQLError, graphql } from '@/core/graphql'
 import { useFormat } from '@/i18n/useFormat'
+import GalleryList from './gallery-list'
 import UserList from './user-list'
 
 // The adminDashboard of /api/graphql (server/internal/web/graph/schema.graphqls, server/internal/store/admin.go).
@@ -151,6 +152,8 @@ export default function AdminDashboard() {
           </Table>}
         </CardContent>
       </Card>
+
+      <GalleryList time={time} errorText={errorText} />
 
       <Card>
         <CardHeader><CardTitle><h2>{t('admins.title')}</h2></CardTitle></CardHeader>

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-2-words-2",
+  "name": "中国語HSK6級 手書き2（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語2",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "储蓄",
+      "input": "chǔxù",
+      "annotation": "chǔxù / 貯蓄",
+      "input_type": "word"
+    },
+    {
+      "display": "穿越",
+      "input": "chuānyuè",
+      "annotation": "chuānyuè / 通り抜ける",
+      "input_type": "word"
+    },
+    {
+      "display": "传授",
+      "input": "chuánshòu",
+      "annotation": "chuánshòu / 伝授する",
+      "input_type": "word"
+    },
+    {
+      "display": "喘气",
+      "input": "chuǎnqì",
+      "annotation": "chuǎnqì / 息をつく",
+      "input_type": "word"
+    },
+    {
+      "display": "创业",
+      "input": "chuàngyè",
+      "annotation": "chuàngyè / 起業する",
+      "input_type": "word"
+    },
+    {
+      "display": "吹牛",
+      "input": "chuīniú",
+      "annotation": "chuīniú / ほらを吹く",
+      "input_type": "word"
+    },
+    {
+      "display": "纯粹",
+      "input": "chúncuì",
+      "annotation": "chúncuì / 純粋な",
+      "input_type": "word"
+    },
+    {
+      "display": "慈善",
+      "input": "císhàn",
+      "annotation": "císhàn / 慈善",
+      "input_type": "word"
+    },
+    {
+      "display": "雌雄",
+      "input": "cíxióng",
+      "annotation": "cíxióng / 雌雄",
+      "input_type": "word"
+    },
+    {
+      "display": "次序",
+      "input": "cìxù",
+      "annotation": "cìxù / 順序",
+      "input_type": "word"
+    },
+    {
+      "display": "凑合",
+      "input": "còuhe",
+      "annotation": "còuhe / 間に合わせる",
+      "input_type": "word"
+    },
+    {
+      "display": "摧残",
+      "input": "cuīcán",
+      "annotation": "cuīcán / 痛めつける",
+      "input_type": "word"
+    },
+    {
+      "display": "搭档",
+      "input": "dādàng",
+      "annotation": "dādàng / パートナー",
+      "input_type": "word"
+    },
+    {
+      "display": "答辩",
+      "input": "dábiàn",
+      "annotation": "dábiàn / 答弁する",
+      "input_type": "word"
+    },
+    {
+      "display": "打官司",
+      "input": "dǎguānsi",
+      "annotation": "dǎguānsi / 訴訟を起こす",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

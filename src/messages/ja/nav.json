@@ -20,11 +20,13 @@
     "words": "単語一覧",
     "create": "パックを作成",
     "general": "一般",
+    "input": "入力",
     "interests": "関心",
     "devices": "端末",
     "guide": "使い方",
     "about": "Typleについて",
-    "github": "GitHub"
+    "github": "GitHub",
+    "gallery": "ギャラリー"
   },
   "storage": {
     "label": "保存先：",

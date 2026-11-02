@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-5-words-1",
+  "name": "中国語HSK6級 手書き5（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語5",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "君子",
+      "input": "jūnzǐ",
+      "annotation": "jūnzǐ / 君子",
+      "input_type": "word"
+    },
+    {
+      "display": "开采",
+      "input": "kāicǎi",
+      "annotation": "kāicǎi / 採掘する",
+      "input_type": "word"
+    },
+    {
+      "display": "开阔",
+      "input": "kāikuò",
+      "annotation": "kāikuò / 広々とした",
+      "input_type": "word"
+    },
+    {
+      "display": "开辟",
+      "input": "kāipì",
+      "annotation": "kāipì / 切り開く",
+      "input_type": "word"
+    },
+    {
+      "display": "开支",
+      "input": "kāizhī",
+      "annotation": "kāizhī / 支出",
+      "input_type": "word"
+    },
+    {
+      "display": "勘探",
+      "input": "kāntàn",
+      "annotation": "kāntàn / 探査する",
+      "input_type": "word"
+    },
+    {
+      "display": "砍伐",
+      "input": "kǎnfá",
+      "annotation": "kǎnfá / 伐採する",
+      "input_type": "word"
+    },
+    {
+      "display": "考古",
+      "input": "kǎogǔ",
+      "annotation": "kǎogǔ / 考古学",
+      "input_type": "word"
+    },
+    {
+      "display": "靠拢",
+      "input": "kàolǒng",
+      "annotation": "kàolǒng / 近づく",
+      "input_type": "word"
+    },
+    {
+      "display": "可口",
+      "input": "kěkǒu",
+      "annotation": "kěkǒu / 口に合う",
+      "input_type": "word"
+    },
+    {
+      "display": "可行",
+      "input": "kěxíng",
+      "annotation": "kěxíng / 実行可能な",
+      "input_type": "word"
+    },
+    {
+      "display": "刻不容缓",
+      "input": "kèbù rónghuǎn",
+      "annotation": "kèbù rónghuǎn / 一刻の猶予もない",
+      "input_type": "word"
+    },
+    {
+      "display": "课题",
+      "input": "kètí",
+      "annotation": "kètí / 課題",
+      "input_type": "word"
+    },
+    {
+      "display": "空想",
+      "input": "kōngxiǎng",
+      "annotation": "kōngxiǎng / 空想",
+      "input_type": "word"
+    },
+    {
+      "display": "恐怖",
+      "input": "kǒngbù",
+      "annotation": "kǒngbù / 恐ろしい",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

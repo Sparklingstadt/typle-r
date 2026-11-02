@@ -21,10 +21,11 @@ const nextConfig = (phase) => withNextIntl({
   // Keep local development and verification separate; Vercel expects .next.
   distDir: phase === 'phase-development-server' || process.env.VERCEL === '1' ? '.next' : '.next-production',
   headers: () => [{ source: '/:path*', headers: securityHeaders }],
-  // Locally the Go backend (npm run dev starts it) answers these paths; on Vercel the root api/*.go functions do.
+  // Locally the Go backend (npm run dev starts it) answers these paths; on Vercel the one Go function api/index.go
+  // does, which vercel.json rewrites the same paths to (tests/backendPaths.test.cjs keeps the two lists alike).
   // beforeFiles wins over the app's own routes.
   rewrites: async () => process.env.VERCEL === '1' ? [] : {
-    beforeFiles: ['/api/workspace', '/api/workspace/records', '/api/shares', '/api/shared', '/api/health', '/api/auth/:path*', '/api/admin/:path*', '/api/graphql'].map(source => ({ source, destination: `${typleWebUrl}${source}` })),
+    beforeFiles: ['/api/workspace', '/api/workspace/records', '/api/shares', '/api/shared', '/api/gallery', '/api/gallery/:path*', '/api/health', '/api/auth/:path*', '/api/admin/:path*', '/api/graphql'].map(source => ({ source, destination: `${typleWebUrl}${source}` })),
     afterFiles: [],
     fallback: [],
   },

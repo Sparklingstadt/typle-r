@@ -6,7 +6,8 @@
     "speed": "Скорость",
     "speedUnit": "зн./мин",
     "accuracy": "Точность",
-    "mistakes": "Ошибки"
+    "mistakes": "Ошибки",
+    "wordSpeedUnit": "сл./мин"
   },
   "progress": {
     "label": "Прогресс по словам",
@@ -23,12 +24,21 @@
     "restart": "Начать заново",
     "restartTitle": "Начать заново (Esc)",
     "restartShort": "Заново",
-    "liveStats": "Показывать текущие показатели"
+    "liveStats": "Показывать текущие показатели",
+    "aside": "Показывать боковую панель (списки слов и лучшие результаты)"
   },
   "word": {
     "typeThis": "Введите",
     "resume": "Щёлкните или нажмите любую клавишу, чтобы продолжить",
-    "inputLabel": "Введите показанный текст"
+    "inputLabel": "Введите показанный текст",
+    "simpleKeys": "Упрощённый ввод",
+    "simpleKeysAll": "Вся таблица"
+  },
+  "recall": {
+    "toggle": "Набор по памяти",
+    "reveal": "Показать ответ",
+    "noHint": "Подсказки нет",
+    "resultHeading": "Набор по памяти"
   },
   "upcoming": {
     "next": "Далее",
@@ -89,7 +99,10 @@
     "saving": "Сохранение результата…",
     "again": "Ещё раз",
     "chooseList": "Выбрать другой список",
-    "viewRecords": "Открыть историю"
+    "viewRecords": "Открыть историю",
+    "wordSpeedUnit": "сл./мин",
+    "correctWords": "{count, plural, one {# слово} few {# слова} many {# слов} other {# слова}}",
+    "mistakesWords": "Ошибок: {count}"
   },
   "best": {
     "label": "Лучшие результаты, топ-5",
@@ -115,5 +128,12 @@
     "listsOf": "Списки: {name}",
     "chooseList": "Выберите список.",
     "match": "Совпадает с поиском"
-  }
+  },
+  "modeLabel": "Режим практики",
+  "modeTyping": "Набор",
+  "modeWriting": "Handwriting",
+  "writingJudge": "Проверить",
+  "writingSkip": "Пропустить",
+  "writingRead": "Распознано как «{text}»",
+  "writingInput": "Пишите здесь от руки"
 }

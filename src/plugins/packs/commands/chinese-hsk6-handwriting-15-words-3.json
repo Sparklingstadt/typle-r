@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-15-words-3",
+  "name": "中国語HSK6級 手書き15（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語15",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "收益",
+      "input": "shōuyì",
+      "annotation": "shōuyì / 収益",
+      "input_type": "word"
+    },
+    {
+      "display": "授予",
+      "input": "shòuyǔ",
+      "annotation": "shòuyǔ / 授与する",
+      "input_type": "word"
+    },
+    {
+      "display": "受罪",
+      "input": "shòuzuì",
+      "annotation": "shòuzuì / ひどい目にあう",
+      "input_type": "word"
+    },
+    {
+      "display": "衰老",
+      "input": "shuāilǎo",
+      "annotation": "shuāilǎo / 老いる",
+      "input_type": "word"
+    },
+    {
+      "display": "衰退",
+      "input": "shuāituì",
+      "annotation": "shuāituì / 衰退する",
+      "input_type": "word"
+    },
+    {
+      "display": "双胞胎",
+      "input": "shuāngbāotāi",
+      "annotation": "shuāngbāotāi / 双子",
+      "input_type": "word"
+    },
+    {
+      "display": "涮火锅",
+      "input": "shuànhuǒguō",
+      "annotation": "shuànhuǒguō / しゃぶしゃぶ鍋を食べる",
+      "input_type": "word"
+    },
+    {
+      "display": "舒畅",
+      "input": "shūchàng",
+      "annotation": "shūchàng / のびのびと心地よい",
+      "input_type": "word"
+    },
+    {
+      "display": "束缚",
+      "input": "shùfù",
+      "annotation": "shùfù / 束縛する",
+      "input_type": "word"
+    },
+    {
+      "display": "疏忽",
+      "input": "shūhu",
+      "annotation": "shūhu / うっかりする、怠る",
+      "input_type": "word"
+    },
+    {
+      "display": "水龙头",
+      "input": "shuǐlóngtóu",
+      "annotation": "shuǐlóngtóu / 蛇口",
+      "input_type": "word"
+    },
+    {
+      "display": "水泥",
+      "input": "shuǐní",
+      "annotation": "shuǐní / セメント",
+      "input_type": "word"
+    },
+    {
+      "display": "书籍",
+      "input": "shūjí",
+      "annotation": "shūjí / 書籍",
+      "input_type": "word"
+    },
+    {
+      "display": "树立",
+      "input": "shùlì",
+      "annotation": "shùlì / 打ち立てる",
+      "input_type": "word"
+    },
+    {
+      "display": "书面",
+      "input": "shūmiàn",
+      "annotation": "shūmiàn / 書面",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

@@ -101,13 +101,35 @@ func TestHealthAlone(t *testing.T) {
 }
 
 // Nor links.
-func (f fakeStore) PutShare(context.Context, string, string) (*store.Share, error) { return nil, f.err }
+func (f fakeStore) PutShare(context.Context, string, string, *bool) (*store.Share, error) {
+	return nil, f.err
+}
 
 func (f fakeStore) DeleteShare(context.Context, string, string) error { return f.err }
 
 func (f fakeStore) ListShares(context.Context, string) ([]store.Share, error) { return nil, f.err }
 
 func (f fakeStore) SharedPack(context.Context, string) (json.RawMessage, error) { return nil, f.err }
+
+func (f fakeStore) Gallery(context.Context, store.GalleryQuery) (*store.GalleryPage, error) {
+	return nil, f.err
+}
+
+func (f fakeStore) GalleryCategories(context.Context) ([]store.GalleryCategory, error) {
+	return nil, f.err
+}
+
+func (f fakeStore) CountAdded(context.Context, string) error { return f.err }
+
+func (f fakeStore) CountGalleryHit(context.Context, string, []byte) (int, time.Time, error) {
+	return 1, time.Now().Add(time.Minute), f.err
+}
+
+func (f fakeStore) Report(context.Context, string, string) (bool, error) { return false, f.err }
+
+func (f fakeStore) AdminGallery(context.Context) ([]store.AdminGalleryPack, error) { return nil, f.err }
+
+func (f fakeStore) SetHidden(context.Context, string, bool) (bool, error) { return false, f.err }
 
 func (f fakeStore) Admin(context.Context, string, string) (bool, error) { return false, f.err }
 

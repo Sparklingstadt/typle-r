@@ -1,0 +1,29 @@
+{
+  "title": "Saisie",
+  "metaTitle": "Saisie | Typle",
+  "description": "Réglages de la saisie pendant l'entraînement.",
+  "note": "Ce réglage est enregistré dans ce navigateur.",
+  "unsaved": "Le réglage ne peut pas être enregistré ; il ne s'applique que tant que cette page est ouverte.",
+  "simpleSpecial": {
+    "heading": "Saisie simplifiée des caractères spéciaux",
+    "description": "Permet de saisir les lettres portant un accent, un tilde ou un autre signe — comme í, ó, ñ et č en tchèque ou en espagnol — avec la lettre simple (i, o, n, c). La lettre accentuée elle-même reste acceptée. Les lettres cyrilliques russes acceptent aussi une saisie latine, par exemple привет → privet, школа → shkola et я → ya. La saisie directe en cyrillique reste acceptée.",
+    "label": "Utiliser la saisie simplifiée des caractères spéciaux",
+    "hint": "Activée, vous pouvez saisir á → a, č → c, ш → sh et я → ya."
+  },
+  "simpleTable": {
+    "heading": "Tableau de la saisie simplifiée",
+    "description": "Les touches que vous pouvez taper à la place de chaque lettre quand la saisie simplifiée des caractères spéciaux est activée.",
+    "latin": "Lettres latines avec signes",
+    "other": "Autres symboles",
+    "cyrillic": "Cyrillique (russe)",
+    "letter": "Lettre",
+    "key": "À taper",
+    "capitals": "Les majuscules fonctionnent de la même façon (Á → A, Ш → Sh ou SH)."
+  },
+  "ignoreCase": {
+    "heading": "Ignorer les majuscules et minuscules",
+    "description": "Considère les majuscules et les minuscules, comme A et a, comme la même lettre. Taper avec ou sans Maj est accepté.",
+    "label": "Ignorer les majuscules et minuscules",
+    "hint": "Activée, les majuscules comme A et É sont acceptées si vous tapez a et é (et inversement)."
+  }
+}

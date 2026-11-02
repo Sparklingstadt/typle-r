@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-19-words-6",
+  "name": "中国語HSK6級 手書き19（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語19",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "真理",
+      "input": "zhēnlǐ",
+      "annotation": "zhēnlǐ / 真理",
+      "input_type": "word"
+    },
+    {
+      "display": "侦探",
+      "input": "zhēntàn",
+      "annotation": "zhēntàn / 探偵",
+      "input_type": "word"
+    },
+    {
+      "display": "枕头",
+      "input": "zhěntou",
+      "annotation": "zhěntou / 枕",
+      "input_type": "word"
+    },
+    {
+      "display": "真相",
+      "input": "zhēnxiàng",
+      "annotation": "zhēnxiàng / 真相",
+      "input_type": "word"
+    },
+    {
+      "display": "振兴",
+      "input": "zhènxīng",
+      "annotation": "zhènxīng / 振興する",
+      "input_type": "word"
+    },
+    {
+      "display": "珍珠",
+      "input": "zhēnzhū",
+      "annotation": "zhēnzhū / 真珠",
+      "input_type": "word"
+    },
+    {
+      "display": "斟酌",
+      "input": "zhēnzhuó",
+      "annotation": "zhēnzhuó / 斟酌する、よく考える",
+      "input_type": "word"
+    },
+    {
+      "display": "折腾",
+      "input": "zhēteng",
+      "annotation": "zhēteng / 寝返りを打つ、苦しめる",
+      "input_type": "word"
+    },
+    {
+      "display": "指标",
+      "input": "zhǐbiāo",
+      "annotation": "zhǐbiāo / 指標",
+      "input_type": "word"
+    },
+    {
+      "display": "直播",
+      "input": "zhíbō",
+      "annotation": "zhíbō / 生中継する",
+      "input_type": "word"
+    },
+    {
+      "display": "支撑",
+      "input": "zhīchēng",
+      "annotation": "zhīchēng / 支える",
+      "input_type": "word"
+    },
+    {
+      "display": "支出",
+      "input": "zhīchū",
+      "annotation": "zhīchū / 支出",
+      "input_type": "word"
+    },
+    {
+      "display": "指定",
+      "input": "zhǐdìng",
+      "annotation": "zhǐdìng / 指定する",
+      "input_type": "word"
+    },
+    {
+      "display": "脂肪",
+      "input": "zhīfáng",
+      "annotation": "zhīfáng / 脂肪",
+      "input_type": "word"
+    },
+    {
+      "display": "制服",
+      "input": "zhìfú",
+      "annotation": "zhìfú / 制服",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

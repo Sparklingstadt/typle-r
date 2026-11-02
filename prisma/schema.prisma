@@ -37,15 +37,47 @@ model Record {
 
 // A pack shared by link: data is a snapshot of the pack as a file (typle-pack v1), without records or the owner.
 model SharedPack {
-  id        String   @id @db.Uuid
-  ownerId   String   @map("owner_id") @db.Text
-  packId    String   @map("pack_id") @db.Text
-  data      Json     @db.JsonB
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  id        String          @id @db.Uuid
+  ownerId   String          @map("owner_id") @db.Text
+  packId    String          @map("pack_id") @db.Text
+  data      Json            @db.JsonB
+  createdAt DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime        @default(now()) @map("updated_at") @db.Timestamptz(6)
+  // When the share was put in the gallery; NULL for a link-only share.
+  listedAt  DateTime?       @map("listed_at") @db.Timestamptz(6)
+  // When an admin hid the share; a hidden share is shown nowhere but to its owner.
+  hiddenAt  DateTime?       @map("hidden_at") @db.Timestamptz(6)
+  // How often the share was added to someone's packs while it was listed.
+  addCount  Int             @default(0) @map("add_count")
+  reports   GalleryReport[]
 
   @@unique([ownerId, packId], map: "typle_shared_packs_owner_pack")
   @@map("typle_shared_packs")
+}
+
+// A report of a listed share. The reporter's details are not kept.
+model GalleryReport {
+  id         String     @id @db.Uuid
+  shareId    String     @map("share_id") @db.Uuid
+  reason     String     @db.Text
+  createdAt  DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  sharedPack SharedPack @relation(fields: [shareId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([shareId], map: "typle_gallery_reports_share")
+  @@map("typle_gallery_reports")
+}
+
+// How often a client used an unauthenticated gallery write in one minute (the rate limit). client is a keyed hash of the
+// IP address, never the address; rows older than 10 minutes are deleted by the next count.
+model GalleryHit {
+  action      String   @db.Text
+  client      Bytes
+  windowStart DateTime @map("window_start") @db.Timestamptz(6)
+  hits        Int
+
+  @@id([action, client, windowStart])
+  @@index([windowStart], map: "typle_gallery_hits_window")
+  @@map("typle_gallery_hits")
 }
 
 // When an account last signed out of every device: its sessions of a login no later than revokedAt are refused.

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-9-words-4",
+  "name": "中国語HSK6級 手書き9（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語9",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "见闻",
+      "input": "jiànwén",
+      "annotation": "jiànwén / 見聞",
+      "input_type": "word"
+    },
+    {
+      "display": "间谍",
+      "input": "jiàndié",
+      "annotation": "jiàndié / スパイ",
+      "input_type": "word"
+    },
+    {
+      "display": "健全",
+      "input": "jiànquán",
+      "annotation": "jiànquán / 健全な",
+      "input_type": "word"
+    },
+    {
+      "display": "践踏",
+      "input": "jiàntà",
+      "annotation": "jiàntà / 踏みにじる",
+      "input_type": "word"
+    },
+    {
+      "display": "鉴于",
+      "input": "jiànyú",
+      "annotation": "jiànyú / 〜にかんがみて",
+      "input_type": "word"
+    },
+    {
+      "display": "将就",
+      "input": "jiāngjiu",
+      "annotation": "jiāngjiu / 間に合わせる",
+      "input_type": "word"
+    },
+    {
+      "display": "奖励",
+      "input": "jiǎnglì",
+      "annotation": "jiǎnglì / 奨励する",
+      "input_type": "word"
+    },
+    {
+      "display": "降临",
+      "input": "jiànglín",
+      "annotation": "jiànglín / 訪れる",
+      "input_type": "word"
+    },
+    {
+      "display": "交涉",
+      "input": "jiāoshè",
+      "annotation": "jiāoshè / 交渉する",
+      "input_type": "word"
+    },
+    {
+      "display": "娇气",
+      "input": "jiāoqì",
+      "annotation": "jiāoqì / ひ弱な",
+      "input_type": "word"
+    },
+    {
+      "display": "角落",
+      "input": "jiǎoluò",
+      "annotation": "jiǎoluò / 隅",
+      "input_type": "word"
+    },
+    {
+      "display": "搅拌",
+      "input": "jiǎobàn",
+      "annotation": "jiǎobàn / かき混ぜる",
+      "input_type": "word"
+    },
+    {
+      "display": "教养",
+      "input": "jiàoyǎng",
+      "annotation": "jiàoyǎng / 教養",
+      "input_type": "word"
+    },
+    {
+      "display": "接连",
+      "input": "jiēlián",
+      "annotation": "jiēlián / 続けて",
+      "input_type": "word"
+    },
+    {
+      "display": "节奏",
+      "input": "jiézòu",
+      "annotation": "jiézòu / リズム",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

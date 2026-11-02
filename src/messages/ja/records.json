@@ -30,6 +30,7 @@
     "heading": "{relative} · {date}",
     "summary": "{count}回 · {duration}"
   },
+  "recallBadge": "思い出す",
   "more": "さらに表示（残り {count}件）",
   "note": "単語数・端末名は練習した時点のものです。",
   "noteMissing": "「—」は記録されていない項目です（以前のバージョンで保存した記録など）。",
@@ -75,8 +76,9 @@
     "words": "{count}語",
     "runs": "練習 {count}回",
     "last": "最終 {day}",
-    "best": "ベスト",
+    "best": "ベスト（{mode}）",
     "rankings": "ベスト記録",
     "practice": "練習する"
-  }
+  },
+  "modeWriting": "Handwriting"
 }

@@ -2,7 +2,7 @@ require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { rankRecords, bestRecords, comparableRecords, listBest, recordRows, deviceOptions, matchesDevice, NO_DEVICE } = require('../src/core/records.ts')
-const { listRanking, sortRankings, rankingStats } = require('../src/core/rankings.ts')
+const { listRanking, sortRankings, rankingStats, rankingQuery } = require('../src/core/rankings.ts')
 
 const mac = { id: 'mac', name: 'MacBook Air', layout: 'JIS' }
 const pad = { id: 'pad', name: 'iPad', layout: '' }
@@ -40,6 +40,13 @@ test('only runs at the current word count are compared, unless there are none', 
   assert.equal(listBest({ ...list, records: [] }), undefined)
   const rows = recordRows([list])
   assert.deepEqual(rows.filter(row => row.best).map(row => row.record.id), ['new2'])
+})
+
+test('the best badge is per mode: a recall record competes with recall records only', () => {
+  const list = edited()
+  list.records.push({ ...record('r1', 30, 90, 12, 29), mode: 'recall' }, { ...record('r2', 25, 95, 12, 29), mode: 'recall' })
+  const rows = recordRows([list])
+  assert.deepEqual(rows.filter(row => row.best).map(row => row.record.id).sort(), ['new2', 'r2'])
 })
 
 test('a list ranking separates other word counts and can include them', () => {
@@ -114,4 +121,45 @@ test('device options count by id with the newest name, and put records without a
     { value: 'pad', device: pad, count: 1 },
     { value: NO_DEVICE, count: 3 },
   ])
+})
+
+test('rankings are per mode: normal by default, writing on request', () => {
+  const list = { id: 'm', name: 'm', createdAt: '2026-09-01', words: words(3), records: [
+    record('t1', 10, 96, 3, 20), record('t2', 12, 98, 3, 21), { ...record('w1', 5, 100, 3, 22), mode: 'writing' },
+  ] }
+  const typing = listRanking(list, { now })
+  assert.deepEqual(typing.ranked.map(item => item.id), ['t2', 't1'])
+  assert.equal(typing.best.id, 't2')
+  const writing = listRanking(list, { mode: 'writing', now })
+  assert.deepEqual(writing.ranked.map(item => item.id), ['w1'])
+  assert.equal(writing.records.length, 1)
+})
+
+test('comparableRecords and listBest compare records of one mode', () => {
+  const list = { id: 'm', name: 'M', createdAt: '2026-09-01', words: words(2), records: [
+    { ...record('n', 10, 100, 2, 1) }, { ...record('r', 5, 100, 2, 2), mode: 'recall' }] }
+  assert.equal(listBest(list).time, 10)
+  assert.equal(listBest(list, 'recall').time, 5)
+  assert.deepEqual(comparableRecords(list).map(r => r.id), ['n'])
+  assert.deepEqual(comparableRecords(list, list.records, 'recall').map(r => r.id), ['r'])
+  assert.deepEqual(listRanking(list).ranked.map(r => r.id), ['n'])
+})
+
+test('listRanking ranks the chosen mode', () => {
+  const list = { id: 'm', name: 'M', createdAt: '2026-09-01', words: words(2), records: [
+    { ...record('n', 10, 100, 2, 1) }, { ...record('r', 5, 100, 2, 2), mode: 'recall' }] }
+  const ranking = listRanking(list, { mode: 'recall', now })
+  assert.deepEqual(ranking.records.map(r => r.id), ['r'])
+  assert.deepEqual(ranking.ranked.map(r => r.id), ['r'])
+  assert.equal(ranking.best.id, 'r')
+})
+
+test('the rankings query keeps recall through every view change and writes nothing for defaults', () => {
+  const base = { list: 'a', device: 'mac', order: 'accuracy', mode: 'recall' }
+  for (const next of [{ order: 'speed' }, { device: null }, { device: 'pad' }, { list: 'b' }, { list: null }]) {
+    assert.equal(new URLSearchParams(rankingQuery({ ...base, ...next })).get('mode'), 'recall')
+  }
+  assert.equal(rankingQuery({ list: null, device: null, order: 'accuracy', mode: 'normal' }), '')
+  assert.equal(rankingQuery({ list: 'a', device: null, order: 'speed', mode: 'recall' }), 'list=a&order=speed&mode=recall')
+  assert.equal(rankingQuery({ list: 'a', device: null, order: 'accuracy', mode: 'writing' }), 'list=a&mode=writing')
 })

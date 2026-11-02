@@ -4,11 +4,11 @@ import { AppError, type ErrorKey } from '@/core/appError'
 import { GraphQLError, graphql } from '@/core/graphql'
 import { useWordLists } from '@/lib/useWordLists'
 
-/** `name` is the pack's name in the shared copy, "" when the copy has none. */
-export type Share = { id: string; name: string; updatedAt: string }
-type ShareResponse = { id: string; packId: string; name?: string; updatedAt: string }
+/** `name` is the pack's name in the shared copy, "" when the copy has none. `hidden`: an administrator took it out of the gallery. */
+export type Share = { id: string; name: string; listed: boolean; hidden: boolean; updatedAt: string }
+type ShareResponse = { id: string; packId: string; name?: string; listed?: boolean; hidden?: boolean; updatedAt: string }
 
-const SHARE = 'id packId name updatedAt'
+const SHARE = 'id packId name listed hidden updatedAt'
 
 async function request<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
   try {
@@ -23,9 +23,9 @@ async function request<T>(query: string, variables?: Record<string, unknown>): P
   }
 }
 
-const SHARE_ERRORS = new Set<unknown>(['packNotFound', 'databaseUnavailable', 'forbiddenRequest'] satisfies ErrorKey[])
+const SHARE_ERRORS = new Set<unknown>(['packNotFound', 'databaseUnavailable', 'forbiddenRequest', 'sharedPackHidden'] satisfies ErrorKey[])
 
-const toShare = (item: ShareResponse): Share => ({ id: item.id, name: item.name ?? '', updatedAt: item.updatedAt })
+const toShare = (item: ShareResponse): Share => ({ id: item.id, name: item.name ?? '', listed: !!item.listed, hidden: !!item.hidden, updatedAt: item.updatedAt })
 
 // The account's shared packs, through `/api/graphql`. A guest has no account to share from, so nothing is asked and
 // the list stays empty. A share is a copy made when it is created or updated, so saving a pack does not touch it.
@@ -62,11 +62,26 @@ export function useShares() {
     return [...shares].filter(([packId]) => !known.has(packId)).map(([packId, item]) => ({ ...item, packId }))
   }, [current, ready, loaded.packIds, packIds, packs, shares])
 
-  const share = useCallback(async (packId: string): Promise<Share> => {
-    const { sharePack } = await request<{ sharePack?: ShareResponse }>(
-      `mutation SharePack($packId: String!) { sharePack(packId: $packId) { ${SHARE} } }`, { packId })
-    if (!sharePack) throw new AppError('invalidServerData')
-    const result = toShare(sharePack)
+  const share = useCallback(async (packId: string, listed?: boolean): Promise<Share> => {
+    // Without `listed` the server keeps the listing as it is.
+    let response: ShareResponse | undefined
+    try {
+      response = (await request<{ sharePack?: ShareResponse }>(
+        `mutation SharePack($packId: String!, $listed: Boolean) { sharePack(packId: $packId, listed: $listed) { ${SHARE} } }`,
+        listed === undefined ? { packId } : { packId, listed })).sharePack
+    } catch (reason) {
+      // An administrator hid the share while the dialog was open: show it as hidden, not only the error.
+      if (reason instanceof AppError && reason.key === 'sharedPackHidden') {
+        changes.current++
+        setLoaded(state => {
+          const known = state.owner === accountId ? state.shares.get(packId) : undefined
+          return known ? { ...state, shares: new Map(state.shares).set(packId, { ...known, hidden: true }) } : state
+        })
+      }
+      throw reason
+    }
+    if (!response) throw new AppError('invalidServerData')
+    const result = toShare(response)
     changes.current++
     setLoaded(state => state.owner === accountId
       ? { ...state, shares: new Map(state.shares).set(packId, result) }

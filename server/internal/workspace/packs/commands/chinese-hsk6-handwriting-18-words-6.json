@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-18-words-6",
+  "name": "中国語HSK6級 手書き18（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語18",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "永恒",
+      "input": "yǒnghéng",
+      "annotation": "yǒnghéng / 永遠の",
+      "input_type": "word"
+    },
+    {
+      "display": "用户",
+      "input": "yònghù",
+      "annotation": "yònghù / ユーザー",
+      "input_type": "word"
+    },
+    {
+      "display": "庸俗",
+      "input": "yōngsú",
+      "annotation": "yōngsú / 俗っぽい",
+      "input_type": "word"
+    },
+    {
+      "display": "涌现",
+      "input": "yǒngxiàn",
+      "annotation": "yǒngxiàn / 次々と現れる",
+      "input_type": "word"
+    },
+    {
+      "display": "拥有",
+      "input": "yōngyǒu",
+      "annotation": "yōngyǒu / 保有する",
+      "input_type": "word"
+    },
+    {
+      "display": "踊跃",
+      "input": "yǒngyuè",
+      "annotation": "yǒngyuè / 積極的な、躍り上がる",
+      "input_type": "word"
+    },
+    {
+      "display": "诱惑",
+      "input": "yòuhuò",
+      "annotation": "yòuhuò / 誘惑する",
+      "input_type": "word"
+    },
+    {
+      "display": "油漆",
+      "input": "yóuqī",
+      "annotation": "yóuqī / ペンキ、塗料",
+      "input_type": "word"
+    },
+    {
+      "display": "犹如",
+      "input": "yóurú",
+      "annotation": "yóurú / まるで〜のようだ",
+      "input_type": "word"
+    },
+    {
+      "display": "有条不紊",
+      "input": "yǒutiáo bùwěn",
+      "annotation": "yǒutiáo bùwěn / 整然としている",
+      "input_type": "word"
+    },
+    {
+      "display": "优先",
+      "input": "yōuxiān",
+      "annotation": "yōuxiān / 優先する",
+      "input_type": "word"
+    },
+    {
+      "display": "优异",
+      "input": "yōuyì",
+      "annotation": "yōuyì / ずば抜けた",
+      "input_type": "word"
+    },
+    {
+      "display": "优越",
+      "input": "yōuyuè",
+      "annotation": "yōuyuè / 優れた",
+      "input_type": "word"
+    },
+    {
+      "display": "幼稚",
+      "input": "yòuzhì",
+      "annotation": "yòuzhì / 幼稚な",
+      "input_type": "word"
+    },
+    {
+      "display": "缘故",
+      "input": "yuángù",
+      "annotation": "yuángù / わけ、理由",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

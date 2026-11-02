@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
 
@@ -57,7 +58,7 @@ func TestPutShare(t *testing.T) {
 	w := saved(t, s, id)
 	pack := w.Packs[0].ID
 
-	share, err := s.PutShare(ctx, id, pack)
+	share, err := s.PutShare(ctx, id, pack, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -82,7 +83,7 @@ func TestPutShare(t *testing.T) {
 	}); err != nil {
 		t.Fatal(err)
 	}
-	again, err := s.PutShare(ctx, id, pack)
+	again, err := s.PutShare(ctx, id, pack, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -94,7 +95,7 @@ func TestPutShare(t *testing.T) {
 		t.Fatalf("SharedPack = %s, %v", data, err)
 	}
 
-	if _, err := s.PutShare(ctx, id, "no-such-pack"); !isKey(err, "packNotFound") {
+	if _, err := s.PutShare(ctx, id, "no-such-pack", nil); !isKey(err, "packNotFound") {
 		t.Fatalf("missing pack: %v", err)
 	}
 }
@@ -106,7 +107,7 @@ func TestPutShareWithoutRow(t *testing.T) {
 	connection, conn := database(t)
 	id := owner(t, conn)
 	s := open(t, connection, true)
-	if _, err := s.PutShare(ctx, id, "no-such-pack"); !isKey(err, "packNotFound") {
+	if _, err := s.PutShare(ctx, id, "no-such-pack", nil); !isKey(err, "packNotFound") {
 		t.Fatalf("missing pack: %v", err)
 	}
 	if saved, err := s.ReadRevision(ctx, id); saved != nil || err != nil {
@@ -138,7 +139,7 @@ func TestModifyWithoutRowDeletesShares(t *testing.T) {
 	}
 	first, second := w.Packs[0].ID, w.Packs[1].ID
 	for _, pack := range []string{first, second} {
-		if _, err := s.PutShare(ctx, id, pack); err != nil {
+		if _, err := s.PutShare(ctx, id, pack, nil); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -172,7 +173,7 @@ func TestDeleteAndListShares(t *testing.T) {
 	}
 	first, second := w.Packs[0].ID, w.Packs[1].ID
 	for _, share := range []struct{ owner, pack string }{{id, first}, {id, second}, {other, first}} {
-		if _, err := s.PutShare(ctx, share.owner, share.pack); err != nil {
+		if _, err := s.PutShare(ctx, share.owner, share.pack, nil); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -202,7 +203,7 @@ func TestSavesDeleteSharesOfRemovedPacks(t *testing.T) {
 	w := saved(t, s, id)
 	first, second, third := w.Packs[0].ID, w.Packs[1].ID, w.Packs[len(w.Packs)-1].ID
 	for _, pack := range []string{first, second, third} {
-		if _, err := s.PutShare(ctx, id, pack); err != nil {
+		if _, err := s.PutShare(ctx, id, pack, nil); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -262,7 +263,7 @@ func TestWriteRevisionListsOnlyDeletesSharesOfDerivedPacks(t *testing.T) {
 	if want := "pack-" + w.Lists[0].ID; pack != want {
 		t.Fatalf("first pack = %s; want %s", pack, want)
 	}
-	if _, err := s.PutShare(ctx, id, pack); err != nil {
+	if _, err := s.PutShare(ctx, id, pack, nil); err != nil {
 		t.Fatal(err)
 	}
 	current, err := s.ReadRevision(ctx, id)
@@ -288,7 +289,7 @@ func TestWriteRevisionDevicesOnlyKeepsShares(t *testing.T) {
 	id := owner(t, conn)
 	s := open(t, connection, true)
 	w := saved(t, s, id)
-	if _, err := s.PutShare(ctx, id, w.Packs[0].ID); err != nil {
+	if _, err := s.PutShare(ctx, id, w.Packs[0].ID, nil); err != nil {
 		t.Fatal(err)
 	}
 	current, err := s.ReadRevision(ctx, id)
@@ -310,7 +311,7 @@ func TestListSharesNames(t *testing.T) {
 	id := owner(t, conn)
 	s := open(t, connection, true)
 	w := saved(t, s, id)
-	put, err := s.PutShare(ctx, id, w.Packs[0].ID)
+	put, err := s.PutShare(ctx, id, w.Packs[0].ID, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -345,10 +346,170 @@ func TestPutShareTooLarge(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := s.PutShare(ctx, id, w.Packs[0].ID); !isKey(err, "invalidWorkspace") {
+	if _, err := s.PutShare(ctx, id, w.Packs[0].ID, nil); !isKey(err, "invalidWorkspace") {
 		t.Fatalf("PutShare = %v; want invalidWorkspace", err)
 	}
 	if packs := shareCount(t, s, id); len(packs) != 0 {
 		t.Fatalf("shares = %v", packs)
+	}
+}
+
+func listedAt(t *testing.T, conn *pgx.Conn, id string) *time.Time {
+	t.Helper()
+	var at *time.Time
+	if err := conn.QueryRow(context.Background(), `SELECT listed_at FROM typle_shared_packs WHERE id = $1`, id).Scan(&at); err != nil {
+		t.Fatal(err)
+	}
+	return at
+}
+
+func listedOf(t *testing.T, s *Store, owner string) Share {
+	t.Helper()
+	shares, err := s.ListShares(context.Background(), owner)
+	if err != nil || len(shares) != 1 {
+		t.Fatalf("ListShares = %+v, %v", shares, err)
+	}
+	return shares[0]
+}
+
+func TestPutShareListing(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	w := saved(t, s, id)
+	pack := w.Packs[0].ID
+	yes, no := true, false
+
+	share, err := s.PutShare(ctx, id, pack, nil)
+	if err != nil || share.Listed || share.Hidden || listedAt(t, conn, share.ID) != nil {
+		t.Fatalf("nil: %+v, %v", share, err)
+	}
+	share, err = s.PutShare(ctx, id, pack, &yes)
+	if err != nil || !share.Listed {
+		t.Fatalf("true: %+v, %v", share, err)
+	}
+	first := listedAt(t, conn, share.ID)
+	if first == nil || !listedOf(t, s, id).Listed {
+		t.Fatalf("listed_at = %v", first)
+	}
+	time.Sleep(10 * time.Millisecond)
+	if share, err = s.PutShare(ctx, id, pack, &yes); err != nil || !share.Listed {
+		t.Fatalf("true again: %+v, %v", share, err)
+	}
+	if again := listedAt(t, conn, share.ID); again == nil || !again.Equal(*first) {
+		t.Fatalf("listed_at = %v; want %v", again, first)
+	}
+	share, err = s.PutShare(ctx, id, pack, &no)
+	if err != nil || share.Listed || listedAt(t, conn, share.ID) != nil || listedOf(t, s, id).Listed {
+		t.Fatalf("false: %+v, %v", share, err)
+	}
+
+	// A first share can list at once.
+	other := w.Packs[1].ID
+	if share, err = s.PutShare(ctx, id, other, &yes); err != nil || !share.Listed {
+		t.Fatalf("new listed: %+v, %v", share, err)
+	}
+}
+
+func TestPutShareKeepsListing(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	pack := saved(t, s, id).Packs[0].ID
+	yes := true
+
+	share, err := s.PutShare(ctx, id, pack, &yes)
+	if err != nil {
+		t.Fatal(err)
+	}
+	first := listedAt(t, conn, share.ID)
+	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) {
+		name := "改名"
+		_, err := workspace.UpdatePack(w, pack, workspace.PackInput{Name: &name})
+		return true, err
+	}); err != nil {
+		t.Fatal(err)
+	}
+	share, err = s.PutShare(ctx, id, pack, nil)
+	if err != nil || !share.Listed || share.Name != "改名" {
+		t.Fatalf("share = %+v, %v", share, err)
+	}
+	if at := listedAt(t, conn, share.ID); at == nil || !at.Equal(*first) {
+		t.Fatalf("listed_at = %v; want %v", at, first)
+	}
+}
+
+func TestPutShareHidden(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	pack := saved(t, s, id).Packs[0].ID
+	yes, no := true, false
+
+	share, err := s.PutShare(ctx, id, pack, &yes)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := conn.Exec(ctx, `UPDATE typle_shared_packs SET hidden_at = now() WHERE id = $1`, share.ID); err != nil {
+		t.Fatal(err)
+	}
+	var updated time.Time
+	if err := conn.QueryRow(ctx, `SELECT updated_at FROM typle_shared_packs WHERE id = $1`, share.ID).Scan(&updated); err != nil {
+		t.Fatal(err)
+	}
+	first := listedAt(t, conn, share.ID)
+
+	name := "改名"
+	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) {
+		_, err := workspace.UpdatePack(w, pack, workspace.PackInput{Name: &name})
+		return true, err
+	}); err != nil {
+		t.Fatal(err)
+	}
+	for _, listed := range []*bool{&yes, &no} {
+		if _, err := s.PutShare(ctx, id, pack, listed); !isKey(err, "sharedPackHidden") {
+			t.Fatalf("PutShare(%v) = %v; want sharedPackHidden", *listed, err)
+		}
+	}
+	var after time.Time
+	if err := conn.QueryRow(ctx, `SELECT updated_at FROM typle_shared_packs WHERE id = $1`, share.ID).Scan(&after); err != nil {
+		t.Fatal(err)
+	}
+	if !after.Equal(updated) {
+		t.Fatalf("updated_at changed: %v -> %v", updated, after)
+	}
+	if at := listedAt(t, conn, share.ID); at == nil || !at.Equal(*first) {
+		t.Fatalf("listed_at = %v; want %v", at, first)
+	}
+
+	again, err := s.PutShare(ctx, id, pack, nil)
+	if err != nil || again.ID != share.ID || !again.Hidden || again.Name != name {
+		t.Fatalf("nil: %+v, %v", again, err)
+	}
+	if got := listedOf(t, s, id); !got.Hidden || !got.Listed {
+		t.Fatalf("ListShares = %+v", got)
+	}
+}
+
+func TestSharedPackHidden(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	id := owner(t, conn)
+	s := open(t, connection, true)
+	share, err := s.PutShare(ctx, id, saved(t, s, id).Packs[0].ID, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if data, err := s.SharedPack(ctx, share.ID); err != nil || data == nil {
+		t.Fatalf("before: %s, %v", data, err)
+	}
+	if _, err := conn.Exec(ctx, `UPDATE typle_shared_packs SET hidden_at = now() WHERE id = $1`, share.ID); err != nil {
+		t.Fatal(err)
+	}
+	if data, err := s.SharedPack(ctx, share.ID); data != nil || err != nil {
+		t.Fatalf("hidden: %s, %v; want nil, nil", data, err)
 	}
 }

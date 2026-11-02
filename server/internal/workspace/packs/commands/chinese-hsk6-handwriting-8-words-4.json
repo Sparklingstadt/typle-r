@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-8-words-4",
+  "name": "中国語HSK6級 手書き8（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語8",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "公告",
+      "input": "gōnggào",
+      "annotation": "gōnggào / 公告",
+      "input_type": "word"
+    },
+    {
+      "display": "公民",
+      "input": "gōngmín",
+      "annotation": "gōngmín / 公民",
+      "input_type": "word"
+    },
+    {
+      "display": "公正",
+      "input": "gōngzhèng",
+      "annotation": "gōngzhèng / 公正な",
+      "input_type": "word"
+    },
+    {
+      "display": "功劳",
+      "input": "gōngláo",
+      "annotation": "gōngláo / 手柄",
+      "input_type": "word"
+    },
+    {
+      "display": "攻克",
+      "input": "gōngkè",
+      "annotation": "gōngkè / 攻略する",
+      "input_type": "word"
+    },
+    {
+      "display": "供给",
+      "input": "gōngjǐ",
+      "annotation": "gōngjǐ / 供給する",
+      "input_type": "word"
+    },
+    {
+      "display": "共和国",
+      "input": "gònghéguó",
+      "annotation": "gònghéguó / 共和国",
+      "input_type": "word"
+    },
+    {
+      "display": "共鸣",
+      "input": "gòngmíng",
+      "annotation": "gòngmíng / 共鳴する",
+      "input_type": "word"
+    },
+    {
+      "display": "构思",
+      "input": "gòusī",
+      "annotation": "gòusī / 構想する",
+      "input_type": "word"
+    },
+    {
+      "display": "姑且",
+      "input": "gūqiě",
+      "annotation": "gūqiě / ひとまず",
+      "input_type": "word"
+    },
+    {
+      "display": "古怪",
+      "input": "gǔguài",
+      "annotation": "gǔguài / 風変わりな",
+      "input_type": "word"
+    },
+    {
+      "display": "股份",
+      "input": "gǔfèn",
+      "annotation": "gǔfèn / 株式",
+      "input_type": "word"
+    },
+    {
+      "display": "固然",
+      "input": "gùrán",
+      "annotation": "gùrán / もちろん〜だが",
+      "input_type": "word"
+    },
+    {
+      "display": "固有",
+      "input": "gùyǒu",
+      "annotation": "gùyǒu / 固有の",
+      "input_type": "word"
+    },
+    {
+      "display": "故障",
+      "input": "gùzhàng",
+      "annotation": "gùzhàng / 故障",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

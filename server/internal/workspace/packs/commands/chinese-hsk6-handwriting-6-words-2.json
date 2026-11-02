@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-6-words-2",
+  "name": "中国語HSK6級 手書き6（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語6",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "报仇",
+      "input": "bàochóu",
+      "annotation": "bàochóu / 仇を討つ",
+      "input_type": "word"
+    },
+    {
+      "display": "报复",
+      "input": "bàofù",
+      "annotation": "bàofù / 報復する",
+      "input_type": "word"
+    },
+    {
+      "display": "抱怨",
+      "input": "bàoyuàn",
+      "annotation": "bàoyuàn / 愚痴をこぼす",
+      "input_type": "word"
+    },
+    {
+      "display": "暴露",
+      "input": "bàolù",
+      "annotation": "bàolù / 暴露する",
+      "input_type": "word"
+    },
+    {
+      "display": "爆炸",
+      "input": "bàozhà",
+      "annotation": "bàozhà / 爆発する",
+      "input_type": "word"
+    },
+    {
+      "display": "悲惨",
+      "input": "bēicǎn",
+      "annotation": "bēicǎn / 悲惨な",
+      "input_type": "word"
+    },
+    {
+      "display": "背叛",
+      "input": "bèipàn",
+      "annotation": "bèipàn / 裏切る",
+      "input_type": "word"
+    },
+    {
+      "display": "被动",
+      "input": "bèidòng",
+      "annotation": "bèidòng / 受け身の",
+      "input_type": "word"
+    },
+    {
+      "display": "被告",
+      "input": "bèigào",
+      "annotation": "bèigào / 被告",
+      "input_type": "word"
+    },
+    {
+      "display": "本钱",
+      "input": "běnqián",
+      "annotation": "běnqián / 元手",
+      "input_type": "word"
+    },
+    {
+      "display": "本事",
+      "input": "běnshi",
+      "annotation": "běnshi / 腕前",
+      "input_type": "word"
+    },
+    {
+      "display": "逼迫",
+      "input": "bīpò",
+      "annotation": "bīpò / 無理強いする",
+      "input_type": "word"
+    },
+    {
+      "display": "鼻涕",
+      "input": "bítì",
+      "annotation": "bítì / 鼻水",
+      "input_type": "word"
+    },
+    {
+      "display": "鄙视",
+      "input": "bǐshì",
+      "annotation": "bǐshì / 軽蔑する",
+      "input_type": "word"
+    },
+    {
+      "display": "闭塞",
+      "input": "bìsè",
+      "annotation": "bìsè / 閉ざされた",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-18-words-3",
+  "name": "中国語HSK6級 手書き18（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語18",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "遥控",
+      "input": "yáokòng",
+      "annotation": "yáokòng / 遠隔操作する",
+      "input_type": "word"
+    },
+    {
+      "display": "要素",
+      "input": "yàosù",
+      "annotation": "yàosù / 要素",
+      "input_type": "word"
+    },
+    {
+      "display": "谣言",
+      "input": "yáoyán",
+      "annotation": "yáoyán / デマ",
+      "input_type": "word"
+    },
+    {
+      "display": "遥远",
+      "input": "yáoyuǎn",
+      "annotation": "yáoyuǎn / はるかに遠い",
+      "input_type": "word"
+    },
+    {
+      "display": "压迫",
+      "input": "yāpò",
+      "annotation": "yāpò / 圧迫する",
+      "input_type": "word"
+    },
+    {
+      "display": "鸦雀无声",
+      "input": "yāquè wúshēng",
+      "annotation": "yāquè wúshēng / しんと静まり返る",
+      "input_type": "word"
+    },
+    {
+      "display": "压缩",
+      "input": "yāsuō",
+      "annotation": "yāsuō / 圧縮する",
+      "input_type": "word"
+    },
+    {
+      "display": "压抑",
+      "input": "yāyì",
+      "annotation": "yāyì / 抑えつける",
+      "input_type": "word"
+    },
+    {
+      "display": "压制",
+      "input": "yāzhì",
+      "annotation": "yāzhì / 抑圧する",
+      "input_type": "word"
+    },
+    {
+      "display": "野蛮",
+      "input": "yěmán",
+      "annotation": "yěmán / 野蛮な",
+      "input_type": "word"
+    },
+    {
+      "display": "野心",
+      "input": "yěxīn",
+      "annotation": "yěxīn / 野心",
+      "input_type": "word"
+    },
+    {
+      "display": "以便",
+      "input": "yǐbiàn",
+      "annotation": "yǐbiàn / 〜しやすいように",
+      "input_type": "word"
+    },
+    {
+      "display": "遗产",
+      "input": "yíchǎn",
+      "annotation": "yíchǎn / 遺産",
+      "input_type": "word"
+    },
+    {
+      "display": "遗传",
+      "input": "yíchuán",
+      "annotation": "yíchuán / 遺伝する",
+      "input_type": "word"
+    },
+    {
+      "display": "一度",
+      "input": "yídù",
+      "annotation": "yídù / 一時、一度",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

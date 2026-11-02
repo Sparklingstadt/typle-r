@@ -114,7 +114,9 @@
     "copy": "复制",
     "export": "导出",
     "share": "共享",
-    "shared": "共享中"
+    "shared": "共享中",
+    "listed": "已在图库中展示",
+    "hidden": "已被隐藏"
   },
   "wordRow": {
     "label": "单词 {n}",
@@ -187,6 +189,21 @@
     "pack": "包",
     "newPack": "新建包（以列表名称命名）",
     "packHelp": "此列表所属的包。选择其他包会将列表移到该包。",
+    "writingToggle": "用于手写练习（Typle Handwriting）",
+    "writingToggleHelp": "让此列表可以用手写来练习。识别语言用于读取手写的文字。",
+    "writingLanguage": "识别语言",
+    "writingLanguages": {
+      "en": "English",
+      "ja": "日本語",
+      "zh-Hans": "中文（简体）",
+      "zh-Hant": "中文（繁體）",
+      "ko": "한국어",
+      "fr": "Français",
+      "de": "Deutsch",
+      "es": "Español",
+      "ru": "Русский",
+      "cs": "Čeština"
+    },
     "packWillBeDeleted": "包“{name}”将被删除。",
     "levels": "难度（可选）",
     "levelPlaceholder": "例如：初级",
@@ -286,7 +303,8 @@
     "matching": "符合兴趣的词包",
     "others": "其他词包",
     "noMatching": "暂时没有符合兴趣的词包",
-    "changeInterests": "更改兴趣"
+    "changeInterests": "更改兴趣",
+    "toGallery": "在图库中查找大家公开的包"
   },
   "share": {
     "title": "共享“{name}”",
@@ -302,6 +320,10 @@
     "update": "更新共享",
     "stop": "停止共享",
     "failed": "无法更改共享。",
+    "gallery": "在图库中展示",
+    "galleryNotice": "任何人都可以在图库中看到。不会显示作者名。管理员可能会隐藏不适当的内容。",
+    "galleryCategoryHint": "添加分类后更容易被找到。",
+    "hiddenNotice": "管理员已隐藏此词包，因此无法在图库中展示。",
     "orphans": {
       "title": "找不到包的共享",
       "description": "这些共享链接对应的包已不存在。知道链接的人仍然可以查看。不需要的话请停止共享。",
@@ -328,5 +350,38 @@
     "confirm": "取消关注",
     "confirming": "正在取消关注…",
     "done": "已取消关注“{name}”"
+  },
+  "gallery": {
+    "title": "图库",
+    "intro": "查找大家公开的单词包，先看看内容，再添加到自己的包中。",
+    "search": "搜索",
+    "category": "分类",
+    "allCategories": "所有分类",
+    "sort": "排序",
+    "sortNew": "最新",
+    "sortPopular": "添加最多",
+    "lists": "列表 {count}",
+    "words": "单词 {count}",
+    "added": "已添加 {count}",
+    "more": "显示更多",
+    "empty": "还没有公开的包",
+    "noResults": "没有找到",
+    "loadFailed": "无法加载图库。请稍后再试。",
+    "retry": "重试"
+  },
+  "report": {
+    "open": "举报",
+    "title": "举报此词包",
+    "description": "向管理员反馈此词包的问题。请选择理由后发送。",
+    "reason": "举报理由",
+    "reasons": {
+      "inappropriate": "内容不当",
+      "spam": "垃圾信息或广告",
+      "personalInfo": "包含个人信息",
+      "other": "其他"
+    },
+    "send": "发送",
+    "sent": "已收到你的举报",
+    "failed": "无法发送举报，请重试。"
   }
 }

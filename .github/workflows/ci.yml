@@ -60,12 +60,22 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        id: node
         with:
           node-version: '24'
           cache: npm
       - name: Test release safety checks
         run: node --test scripts/ci/release.test.cjs
-      - run: npm ci
+      # node_modules is restored whole when the lockfile, the Prisma schema (postinstall generates the client into
+      # node_modules) and the Node version are unchanged; otherwise npm ci installs it from the npm cache as before.
+      - name: Cache node_modules
+        id: node-modules-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-node${{ steps.node.outputs.node-version }}-${{ hashFiles('package-lock.json', 'prisma/schema.prisma') }}
+      - if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm ci
       - run: npm run db:migrate
       # The Go API (server/) is tested against the tables db:migrate just made. '1.25' is the newest
       # 1.25.x release, which satisfies go.mod.
@@ -84,7 +94,22 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run lint
+      # Next.js reuses its build cache across runs; a key that misses the sources still restores the newest cache for
+      # the same lockfile, and next build only reuses what is still valid.
+      - name: Cache Next.js build
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: .next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**', 'public/**', 'next.config.mjs', 'postcss.config.mjs', 'tsconfig.json') }}
+          restore-keys: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
       - run: npm run build
+      # The API documentation (api-docs/) is its own npm project, published to Cloudflare Pages by docs-deploy.
+      - name: Build API documentation
+        working-directory: api-docs
+        run: |
+          npm ci
+          npm run docs:build
+          npm run docs:check
       # The browser download is cached per Playwright version; the system packages it needs are installed every run.
       - name: Read Playwright version
         id: playwright
@@ -180,15 +205,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ needs.release.outputs.tag }}
         run: node scripts/ci/release.cjs check
-      # The checks below must see the new deployment. vercel deploy --prod can return while the production domain still
-      # serves the previous one, which answers the paths both have alike, so the deployment the page names
-      # (data-dpl-id) is kept here and the checks wait until it changes.
-      - name: Record the deployment production serves
-        id: before
-        run: |
-          id=$(curl --silent --show-error --location --retry 3 --max-time 60 https://typle-r-six.vercel.app/home | grep -o 'data-dpl-id="dpl_[A-Za-z0-9]*"' | head -n 1 || true)
-          echo "id=$id" >> "$GITHUB_OUTPUT"
-          echo "Production serves ${id:-no named deployment} before the deployment"
       - name: Deploy released commit
         id: deploy
         env:
@@ -198,19 +214,27 @@ jobs:
           url=$(vercel deploy --prod --yes --token="$VERCEL_TOKEN" --meta "githubCommitSha=$SOURCE_SHA")
           echo "url=$url" >> "$GITHUB_OUTPUT"
           printf 'Production deployment: %s\n' "$url" >> "$GITHUB_STEP_SUMMARY"
+      # The checks below must see the new deployment. vercel deploy --prod can return while the production domain still
+      # points at the previous one, which answers the paths both have alike, so wait until Vercel resolves the domain to
+      # the deployment just made. The page itself names no deployment: Next.js writes data-dpl-id only with Skew
+      # Protection, which this project does not have enabled.
       - name: Wait for production to serve the new deployment
         env:
-          BEFORE: ${{ steps.before.outputs.id }}
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.url }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
+          expected=${DEPLOYMENT_URL#https://}
+          test -n "$expected" || { echo 'No deployment URL from vercel deploy'; exit 1; }
           for attempt in $(seq 1 60); do
-            id=$(curl --silent --location --max-time 30 https://typle-r-six.vercel.app/home | grep -o 'data-dpl-id="dpl_[A-Za-z0-9]*"' | head -n 1 || true)
-            if [ -n "$id" ] && [ "$id" != "$BEFORE" ]; then
-              echo "Production serves $id (was ${BEFORE:-none}) after $attempt checks"
+            served=$(curl --silent --show-error --max-time 30 --header "Authorization: Bearer $VERCEL_TOKEN" \
+              "https://api.vercel.com/v13/deployments/typle-r-six.vercel.app?teamId=$VERCEL_ORG_ID" | jq -r '.url // empty' || true)
+            if [ "$served" = "$expected" ]; then
+              echo "Production serves $served after $attempt checks"
               exit 0
             fi
             sleep 5
           done
-          echo "Production still serves ${id:-no named deployment} five minutes after the deployment (was ${BEFORE:-none})"
+          echo "Production still serves ${served:-an unknown deployment} five minutes after deploying $expected"
           exit 1
       - name: Check production home and authentication boundary
         run: |
@@ -232,3 +256,84 @@ jobs:
           status=$(curl --silent --show-error --retry 3 --max-time 60 --request POST --header 'Content-Type: application/json' --data '{}' --output "$RUNNER_TEMP/token-response" --write-out '%{http_code}' https://typle-r-six.vercel.app/api/auth/token)
           body=$(cat "$RUNNER_TEMP/token-response")
           test "$status $body" = '400 {"error":"loginFailed"}' || { echo "Expected the token exchange to answer 400 loginFailed, got $status $body"; exit 1; }
+
+  # The API documentation goes to Cloudflare Pages after the app's production deployment, from the same released
+  # commit, so a failure here never holds back the app. It is retried at this job, never published by hand.
+  docs-deploy:
+    needs: [release, deploy]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: ${{ steps.docs.outputs.url }}
+    permissions:
+      contents: read
+    # CLOUDFLARE_API_TOKEN is given only to the steps that need it, never to the CLI's installation.
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_PAGES_PROJECT: typle-api-docs
+      WRANGLER_VERSION: 4.151.0
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.release.outputs.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: api-docs/package-lock.json
+      - name: Check Cloudflare credentials
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo 'Missing CLOUDFLARE_API_TOKEN'; exit 1; }
+          test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo 'Missing CLOUDFLARE_ACCOUNT_ID'; exit 1; }
+      - name: Build API documentation
+        working-directory: api-docs
+        run: |
+          npm ci
+          npm run docs:build
+          npm run docs:check
+      # As with the Vercel CLI: a pinned version in its own prefix, cached by version on main only, installed without
+      # running its dependencies' install scripts.
+      - name: Cache pinned Wrangler
+        id: wrangler-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.wrangler-cli
+          key: wrangler-${{ runner.os }}-node24-${{ env.WRANGLER_VERSION }}-ignore-scripts
+      - name: Install pinned Wrangler
+        if: steps.wrangler-cache.outputs.cache-hit != 'true'
+        run: npm install --global --ignore-scripts --prefix "$HOME/.wrangler-cli" "wrangler@$WRANGLER_VERSION"
+      - name: Use pinned Wrangler
+        run: |
+          echo "$HOME/.wrangler-cli/bin" >> "$GITHUB_PATH"
+          "$HOME/.wrangler-cli/bin/wrangler" --version
+      - name: Create the Pages project if it is missing
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if wrangler pages project list --json | jq -e --arg name "$CLOUDFLARE_PAGES_PROJECT" 'any(.[]; .["Project Name"] == $name)' > /dev/null; then
+            echo "Pages project $CLOUDFLARE_PAGES_PROJECT exists"
+          else
+            wrangler pages project create "$CLOUDFLARE_PAGES_PROJECT" --production-branch main
+          fi
+      - name: Deploy API documentation
+        id: docs
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          SOURCE_SHA: ${{ needs.release.outputs.sha }}
+        run: |
+          wrangler pages deploy api-docs/src/.vuepress/dist --project-name "$CLOUDFLARE_PAGES_PROJECT" --branch main --commit-hash "$SOURCE_SHA" --commit-dirty=false | tee "$RUNNER_TEMP/pages-deploy.log"
+          url=$(grep -o 'https://[A-Za-z0-9.-]*\.pages\.dev' "$RUNNER_TEMP/pages-deploy.log" | tail -n 1)
+          test -n "$url" || { echo 'No deployment URL in the Wrangler output'; exit 1; }
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          printf 'API documentation: %s\n' "$url" >> "$GITHUB_STEP_SUMMARY"
+      - name: Check the deployed documentation
+        env:
+          URL: ${{ steps.docs.outputs.url }}
+        run: |
+          for page in / /app/ /v1/ /openapi.html; do
+            curl --fail --silent --show-error --location --retry 5 --retry-all-errors --max-time 60 "$URL$page" | grep -q 'Typle API' || { echo "Expected $URL$page to be the API documentation"; exit 1; }
+          done

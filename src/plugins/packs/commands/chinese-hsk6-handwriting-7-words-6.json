@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-7-words-6",
+  "name": "中国語HSK6級 手書き7（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語7",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "发财",
+      "input": "fācái",
+      "annotation": "fācái / 金持ちになる",
+      "input_type": "word"
+    },
+    {
+      "display": "发觉",
+      "input": "fājué",
+      "annotation": "fājué / 気づく",
+      "input_type": "word"
+    },
+    {
+      "display": "发誓",
+      "input": "fāshì",
+      "annotation": "fāshì / 誓う",
+      "input_type": "word"
+    },
+    {
+      "display": "发育",
+      "input": "fāyù",
+      "annotation": "fāyù / 発育する",
+      "input_type": "word"
+    },
+    {
+      "display": "凡是",
+      "input": "fánshì",
+      "annotation": "fánshì / およそ〜はすべて",
+      "input_type": "word"
+    },
+    {
+      "display": "繁体字",
+      "input": "fántǐzì",
+      "annotation": "fántǐzì / 繁体字",
+      "input_type": "word"
+    },
+    {
+      "display": "反驳",
+      "input": "fǎnbó",
+      "annotation": "fǎnbó / 反論する",
+      "input_type": "word"
+    },
+    {
+      "display": "反抗",
+      "input": "fǎnkàng",
+      "annotation": "fǎnkàng / 反抗する",
+      "input_type": "word"
+    },
+    {
+      "display": "反面",
+      "input": "fǎnmiàn",
+      "annotation": "fǎnmiàn / 裏面、マイナス面",
+      "input_type": "word"
+    },
+    {
+      "display": "反问",
+      "input": "fǎnwèn",
+      "annotation": "fǎnwèn / 聞き返す",
+      "input_type": "word"
+    },
+    {
+      "display": "泛滥",
+      "input": "fànlàn",
+      "annotation": "fànlàn / 氾濫する",
+      "input_type": "word"
+    },
+    {
+      "display": "方位",
+      "input": "fāngwèi",
+      "annotation": "fāngwèi / 方位",
+      "input_type": "word"
+    },
+    {
+      "display": "方圆",
+      "input": "fāngyuán",
+      "annotation": "fāngyuán / 周囲",
+      "input_type": "word"
+    },
+    {
+      "display": "防疫",
+      "input": "fángyì",
+      "annotation": "fángyì / 防疫",
+      "input_type": "word"
+    },
+    {
+      "display": "防治",
+      "input": "fángzhì",
+      "annotation": "fángzhì / 予防と治療をする",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

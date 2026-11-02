@@ -2,7 +2,7 @@
 import { randomId } from "../core/randomId"
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react"
 import { flushSync } from "react-dom"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { ArrowDown, ArrowDownToLine, ArrowUp, ArrowUpToLine, ChevronLeft, CircleAlert, GripVertical, Info, MoreHorizontal, Plus, Trash2 } from "lucide-react"
 import { DropdownMenu } from "radix-ui"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
@@ -11,11 +11,12 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import WordListImport from "./WordListImport"
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import SortableWordRow, { WORD_ROW_COLUMNS } from "./SortableWordRow"
-import type { InputType, SavedWordList } from "@/core/wordLists"
+import { WRITING_LANGUAGES, type InputType, type SavedWordList, type WritingLanguage } from "@/core/wordLists"
 import type { WordPack } from "@/core/wordPacks"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
 import { AppError, type ErrorKey } from "@/core/appError"
@@ -29,8 +30,10 @@ const MAX_WORDS = 1000
 const emptyWord = (): Word => ({ display: "", input: "", annotation: "", input_type: "word" })
 // An input equal to the display is shown as empty; saving uses the display for empty inputs.
 const normalize = (word: Word): Word => ({ ...word, input: word.input === word.display ? "" : word.input, input_type: word.input_type ?? "word" })
-const snapshot = (name: string, packId: string | null, levels: string[], words: Word[]) =>
-  JSON.stringify([name, packId, levels, words.map(word => [word.display, word.input, word.annotation, word.input_type ?? "word"])])
+const snapshot = (name: string, packId: string | null, levels: string[], writing: WritingLanguage | null, words: Word[]) =>
+  JSON.stringify([name, packId, levels, writing, words.map(word => [word.display, word.input, word.annotation, word.input_type ?? "word"])])
+// The recognition language a list starts with when the switch is turned on: the display language, or English when it has no counterpart.
+const WRITING_DEFAULTS: Record<string, WritingLanguage> = { ja: "ja", en: "en", fr: "fr", ru: "ru", "zh-CN": "zh-Hans", "zh-TW": "zh-Hant" }
 const isFilled = (word: Word) => !!(word.display || word.input || word.annotation)
 const menuItem = "flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:size-4"
 
@@ -69,6 +72,8 @@ export default function WordListEditor({ title, description, storage, initial, p
   const baseId = useId()
   const nameId = `${baseId}-name`
   const packSelectId = `${baseId}-pack`
+  const writingId = `${baseId}-writing`
+  const writingLanguageId = `${baseId}-writing-language`
   const displayId = (key: string) => `${baseId}-display-${key}`
   const inputId = (key: string) => `${baseId}-input-${key}`
   const dragId = useId()
@@ -84,9 +89,12 @@ export default function WordListEditor({ title, description, storage, initial, p
   const [chosenPack, setChosenPack] = useState<string | null>(firstPackId)
   const [levels, setLevels] = useState(initial?.levels ?? [])
   const [words, setWords] = useState(() => (initial?.words ?? [emptyWord()]).map((word, index) => ({ ...normalize(word), key: `initial-${index}` })))
-  const [initialSnapshot] = useState(() => snapshot(initial?.name ?? "", firstPackId, initial?.levels ?? [], (initial?.words ?? [emptyWord()]).map(normalize)))
+  const locale = useLocale()
+  // `null` is off; the list then has no `writing` mark at all.
+  const [writing, setWriting] = useState<WritingLanguage | null>(initial?.writing?.language ?? null)
+  const [initialSnapshot] = useState(() => snapshot(initial?.name ?? "", firstPackId, initial?.levels ?? [], initial?.writing?.language ?? null, (initial?.words ?? [emptyWord()]).map(normalize)))
   const leavingLonePack = !!lonePackName && !!initial?.packId && chosenPack !== initial.packId
-  const dirty = snapshot(name, chosenPack, levels, words) !== initialSnapshot || packDirty
+  const dirty = snapshot(name, chosenPack, levels, writing, words) !== initialSnapshot || packDirty
 
   const draftId = useRef<string | undefined>(undefined)
   const [saving, setSaving] = useState(false)
@@ -217,7 +225,7 @@ export default function WordListEditor({ title, description, storage, initial, p
     setSaving(true)
     try {
       // The category, tags and group are the pack's, so the list does not carry them.
-      const saved = await onSave({ id: draftId.current, name, levels, packId: initial?.packId,
+      const saved = await onSave({ id: draftId.current, name, levels, packId: initial?.packId, ...(writing ? { writing: { language: writing } } : {}),
         words: words.map(({ key, ...word }) => ({ ...word, input: word.input || word.display })),
         records: initial?.records ?? [], createdAt: initial?.createdAt ?? new Date().toISOString() }, packFields ? null : chosenPack)
       if (!saved) setFailure(current => ({ count: current.count + 1, name, pack: chosenPack, levels: JSON.stringify(levels) }))
@@ -254,6 +262,19 @@ export default function WordListEditor({ title, description, storage, initial, p
           : null}
         <p id={`${nameId}-help`} className="text-xs text-muted-foreground">{t("nameHelp")}</p>
         <LevelFields value={levels} onChange={setLevels} error={levelError ? error ?? "" : undefined} refusals={failure.count} />
+        <div className="flex items-center gap-3 pt-2">
+          <Switch id={writingId} checked={writing !== null} aria-describedby={`${writingId}-help`}
+            onCheckedChange={on => setWriting(on ? WRITING_DEFAULTS[locale] ?? "en" : null)} />
+          <Label htmlFor={writingId}>{t("writingToggle")}</Label>
+        </div>
+        <p id={`${writingId}-help`} className="text-xs text-muted-foreground">{t("writingToggleHelp")}</p>
+        {writing && <>
+          <Label htmlFor={writingLanguageId}>{t("writingLanguage")}</Label>
+          <select id={writingLanguageId} value={writing} onChange={event => setWriting(event.target.value as WritingLanguage)}
+            className="h-11 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30 dark:[&>option]:bg-popover">
+            {WRITING_LANGUAGES.map(code => <option key={code} value={code}>{t(`writingLanguages.${code}`)}</option>)}
+          </select>
+        </>}
       </section>
 
       <section aria-labelledby={`${baseId}-words`} className="md:overflow-hidden md:rounded-xl md:border md:bg-card">
@@ -275,6 +296,7 @@ export default function WordListEditor({ title, description, storage, initial, p
           <span>#</span>
           <span>{t("display")}<span className="text-destructive">*</span></span>
           <span>{t("input")} <span className="font-normal">{t("inputHint")}</span></span>
+          <span>{t("inputType")}</span>
           <span>{t("annotationOptional")}</span>
           <span />
         </div>
@@ -307,22 +329,24 @@ export default function WordListEditor({ title, description, storage, initial, p
                 <Input id={inputId(word.key)} data-word-key={word.key} aria-label={t("inputLabel", { n })} placeholder={word.display} value={word.input}
                   aria-invalid={inputError ? true : undefined} aria-describedby={inputError ? `${displayId(word.key)}-error` : undefined}
                   className="h-10" onChange={event => update(word.key, { input: event.target.value })} />
-                <Label htmlFor={`${baseId}-input-type-${word.key}`} className="text-xs text-muted-foreground">{t("inputType")}</Label>
+              </div>
+              <div className="space-y-1 md:col-start-4 md:row-start-1 md:space-y-0">
+                <Label htmlFor={`${baseId}-input-type-${word.key}`} className="text-xs text-muted-foreground md:sr-only">{t("inputType")}</Label>
                 <select id={`${baseId}-input-type-${word.key}`} aria-label={t("inputTypeLabel", { n })} value={word.input_type ?? "word"}
-                  className="h-9 w-full min-w-0 rounded-md border border-input bg-background px-2 text-sm focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-50"
+                  className="h-10 w-full min-w-0 rounded-md border border-input bg-background px-2 text-sm focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-50"
                   disabled={saving} onChange={event => update(word.key, { input_type: event.target.value as InputType })}>
                   <option value="word">{t("inputTypeWord")}</option>
                   <option value="command">{t("inputTypeCommand")}</option>
                   <option value="code">{t("inputTypeCode")}</option>
                 </select>
               </div>
-              <div className="space-y-1 md:col-start-4 md:row-start-1 md:space-y-0">
+              <div className="col-span-2 space-y-1 md:col-span-1 md:col-start-5 md:row-start-1 md:space-y-0">
                 <Label htmlFor={`${baseId}-annotation-${word.key}`} className="text-xs text-muted-foreground md:sr-only">{t("annotation")}</Label>
                 <Input id={`${baseId}-annotation-${word.key}`} data-word-key={word.key} aria-label={t("annotationLabel", { n })} placeholder={t("annotationPlaceholder")} value={word.annotation}
                   className="h-10" onChange={event => update(word.key, { annotation: event.target.value })} />
               </div>
             </div>
-            <div className="col-start-3 row-start-1 flex items-center justify-end gap-0.5 md:col-start-5">
+            <div className="col-start-3 row-start-1 flex items-center justify-end gap-0.5 md:col-start-6">
               <DropdownMenu.Root>
                 <DropdownMenu.Trigger asChild>
                   <Button variant="ghost" size="icon" aria-label={t("wordActions", { n })} title={t("actions")}><MoreHorizontal aria-hidden="true" /></Button>
@@ -353,7 +377,7 @@ export default function WordListEditor({ title, description, storage, initial, p
                   onClick={() => remove(index)} aria-label={t("deleteWordN", { n })} title={t("delete")}><Trash2 aria-hidden="true" /></Button>
               </span>
             </div>
-            {rowError && <div className="col-span-3 row-start-4 md:col-span-3 md:col-start-2 md:row-start-2">
+            {rowError && <div className="col-span-3 row-start-4 md:col-span-4 md:col-start-2 md:row-start-2">
               <FieldError id={`${displayId(word.key)}-error`} message={rowError} />
             </div>}
           </SortableWordRow>

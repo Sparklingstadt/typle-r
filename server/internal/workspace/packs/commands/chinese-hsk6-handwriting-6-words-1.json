@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-6-words-1",
+  "name": "中国語HSK6級 手書き6（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語6",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "爱不释手",
+      "input": "àibú shìshǒu",
+      "annotation": "àibú shìshǒu / 手放せないほど気に入る",
+      "input_type": "word"
+    },
+    {
+      "display": "暧昧",
+      "input": "àimèi",
+      "annotation": "àimèi / 曖昧な",
+      "input_type": "word"
+    },
+    {
+      "display": "安详",
+      "input": "ānxiáng",
+      "annotation": "ānxiáng / 穏やかな",
+      "input_type": "word"
+    },
+    {
+      "display": "按摩",
+      "input": "ànmó",
+      "annotation": "ànmó / マッサージする",
+      "input_type": "word"
+    },
+    {
+      "display": "凹凸",
+      "input": "āotū",
+      "annotation": "āotū / でこぼこ",
+      "input_type": "word"
+    },
+    {
+      "display": "霸道",
+      "input": "bàdào",
+      "annotation": "bàdào / 横暴な",
+      "input_type": "word"
+    },
+    {
+      "display": "摆脱",
+      "input": "bǎituō",
+      "annotation": "bǎituō / 抜け出す",
+      "input_type": "word"
+    },
+    {
+      "display": "拜年",
+      "input": "bàinián",
+      "annotation": "bàinián / 新年のあいさつをする",
+      "input_type": "word"
+    },
+    {
+      "display": "斑纹",
+      "input": "bānwén",
+      "annotation": "bānwén / まだら模様",
+      "input_type": "word"
+    },
+    {
+      "display": "伴随",
+      "input": "bànsuí",
+      "annotation": "bànsuí / 伴う",
+      "input_type": "word"
+    },
+    {
+      "display": "绑架",
+      "input": "bǎngjià",
+      "annotation": "bǎngjià / 誘拐する",
+      "input_type": "word"
+    },
+    {
+      "display": "包容",
+      "input": "bāoróng",
+      "annotation": "bāoróng / 寛容に受け入れる",
+      "input_type": "word"
+    },
+    {
+      "display": "包装",
+      "input": "bāozhuāng",
+      "annotation": "bāozhuāng / 包装",
+      "input_type": "word"
+    },
+    {
+      "display": "保密",
+      "input": "bǎomì",
+      "annotation": "bǎomì / 秘密を守る",
+      "input_type": "word"
+    },
+    {
+      "display": "保养",
+      "input": "bǎoyǎng",
+      "annotation": "bǎoyǎng / 手入れする",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-14-words-5",
+  "name": "中国語HSK6級 手書き14（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語14",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "盛产",
+      "input": "shèngchǎn",
+      "annotation": "shèngchǎn / 多く産出する",
+      "input_type": "word"
+    },
+    {
+      "display": "生存",
+      "input": "shēngcún",
+      "annotation": "shēngcún / 生存する",
+      "input_type": "word"
+    },
+    {
+      "display": "胜负",
+      "input": "shèngfù",
+      "annotation": "shèngfù / 勝ち負け",
+      "input_type": "word"
+    },
+    {
+      "display": "生机",
+      "input": "shēngjī",
+      "annotation": "shēngjī / 生気、活力",
+      "input_type": "word"
+    },
+    {
+      "display": "盛开",
+      "input": "shèngkāi",
+      "annotation": "shèngkāi / 満開になる",
+      "input_type": "word"
+    },
+    {
+      "display": "声明",
+      "input": "shēngmíng",
+      "annotation": "shēngmíng / 声明する",
+      "input_type": "word"
+    },
+    {
+      "display": "盛情",
+      "input": "shèngqíng",
+      "annotation": "shèngqíng / 厚意",
+      "input_type": "word"
+    },
+    {
+      "display": "声势",
+      "input": "shēngshì",
+      "annotation": "shēngshì / 勢い",
+      "input_type": "word"
+    },
+    {
+      "display": "生物",
+      "input": "shēngwù",
+      "annotation": "shēngwù / 生物",
+      "input_type": "word"
+    },
+    {
+      "display": "生肖",
+      "input": "shēngxiào",
+      "annotation": "shēngxiào / えと",
+      "input_type": "word"
+    },
+    {
+      "display": "生锈",
+      "input": "shēngxiù",
+      "annotation": "shēngxiù / さびる",
+      "input_type": "word"
+    },
+    {
+      "display": "生育",
+      "input": "shēngyù",
+      "annotation": "shēngyù / 子を産む",
+      "input_type": "word"
+    },
+    {
+      "display": "审理",
+      "input": "shěnlǐ",
+      "annotation": "shěnlǐ / 審理する",
+      "input_type": "word"
+    },
+    {
+      "display": "审美",
+      "input": "shěnměi",
+      "annotation": "shěnměi / 美を見分ける、審美",
+      "input_type": "word"
+    },
+    {
+      "display": "审判",
+      "input": "shěnpàn",
+      "annotation": "shěnpàn / 裁判する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

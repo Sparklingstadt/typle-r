@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-16-words-1",
+  "name": "中国語HSK6級 手書き16（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語16",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "题材",
+      "input": "tícái",
+      "annotation": "tícái / 題材",
+      "input_type": "word"
+    },
+    {
+      "display": "体裁",
+      "input": "tǐcái",
+      "annotation": "tǐcái / ジャンル、文体",
+      "input_type": "word"
+    },
+    {
+      "display": "体面",
+      "input": "tǐmiàn",
+      "annotation": "tǐmiàn / 体面、見栄えがよい",
+      "input_type": "word"
+    },
+    {
+      "display": "挺拔",
+      "input": "tǐngbá",
+      "annotation": "tǐngbá / そびえ立つ",
+      "input_type": "word"
+    },
+    {
+      "display": "停顿",
+      "input": "tíngdùn",
+      "annotation": "tíngdùn / 途切れる、区切る",
+      "input_type": "word"
+    },
+    {
+      "display": "停滞",
+      "input": "tíngzhì",
+      "annotation": "tíngzhì / 停滞する",
+      "input_type": "word"
+    },
+    {
+      "display": "提示",
+      "input": "tíshì",
+      "annotation": "tíshì / ヒントを与える",
+      "input_type": "word"
+    },
+    {
+      "display": "体系",
+      "input": "tǐxì",
+      "annotation": "tǐxì / 体系",
+      "input_type": "word"
+    },
+    {
+      "display": "提议",
+      "input": "tíyì",
+      "annotation": "tíyì / 提案する",
+      "input_type": "word"
+    },
+    {
+      "display": "统筹兼顾",
+      "input": "tǒngchóu jiāngù",
+      "annotation": "tǒngchóu jiāngù / 全体を見て各方面に配慮する",
+      "input_type": "word"
+    },
+    {
+      "display": "童话",
+      "input": "tónghuà",
+      "annotation": "tónghuà / 童話",
+      "input_type": "word"
+    },
+    {
+      "display": "统计",
+      "input": "tǒngjì",
+      "annotation": "tǒngjì / 統計",
+      "input_type": "word"
+    },
+    {
+      "display": "通缉",
+      "input": "tōngjī",
+      "annotation": "tōngjī / 指名手配する",
+      "input_type": "word"
+    },
+    {
+      "display": "统统",
+      "input": "tǒngtǒng",
+      "annotation": "tǒngtǒng / すべて",
+      "input_type": "word"
+    },
+    {
+      "display": "通讯",
+      "input": "tōngxùn",
+      "annotation": "tōngxùn / 通信",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

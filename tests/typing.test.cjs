@@ -96,3 +96,248 @@ test('a wrong key is a mistake that keeps the position; only matching keys move 
   assert.equal(s.index, 1)
   assert.equal(s.input, 'Wo')
 })
+test('simple special-character input lets a Latin letter stand for its accented form', () => {
+  const words = [{ input: 'día' }, { input: 'ř' }]
+  const options = { ignoreAccents: true }
+  let s = typeInput(newSession(), words, 'di', 1000, options)
+  // The accented character is what goes into the input, so the word still completes.
+  assert.equal(s.input, 'dí')
+  assert.equal(s.mistakes, 0)
+  s = typeInput(s, words, 'día', 1100, options)
+  assert.equal(s.index, 1)
+  s = typeInput(s, words, 'r', 1200, options)
+  assert.notEqual(s.finishedAt, null)
+  assert.equal(s.mistakes, 0)
+  // Typing the accented character itself still counts, and a different letter is still a mistake.
+  assert.equal(typeInput(newSession(), words, 'dí', 0, options).input, 'dí')
+  assert.equal(typeInput(newSession(), words, 'do', 0, options).mistakes, 1)
+})
+test('accents still count when simple special-character input is off', () => {
+  const s = typeInput(newSession(), [{ input: 'ñ' }], 'n', 0)
+  assert.equal(s.mistakes, 1)
+  assert.equal(s.input, '')
+})
+test('only Latin letters are folded', () => {
+  const { matchesCharacter } = require('../src/core/typing.ts')
+  const options = { ignoreAccents: true }
+  for (const [typed, target] of [['i', 'í'], ['o', 'ó'], ['n', 'ñ'], ['c', 'č'], ['u', 'ů'], ['E', 'É']]) assert.ok(matchesCharacter(typed, target, options), `${typed} ${target}`)
+  // Kana also split into a base and a mark, but か is not が; case still counts, and only the plain letter stands in.
+  for (const [typed, target] of [['か', 'が'], ['e', 'É'], ['é', 'e'], ['é', 'ě'], ['i', 'o']]) assert.ok(!matchesCharacter(typed, target, options), `${typed} ${target}`)
+})
+test('ignoring case lets either case stand for the other, and adds the character of the word', () => {
+  const words = [{ input: 'Ab' }]
+  let s = typeInput(newSession(), words, 'aB', 0, { ignoreCase: true })
+  assert.equal(s.mistakes, 0)
+  assert.notEqual(s.finishedAt, null)
+  assert.equal(typeInput(newSession(), words, 'a', 0).mistakes, 1)
+  s = typeInput(newSession(), words, 'a', 0, { ignoreCase: true })
+  assert.equal(s.input, 'A')
+})
+test('ignoring case combines with simple special-character input', () => {
+  const { matchesCharacter } = require('../src/core/typing.ts')
+  assert.ok(matchesCharacter('é', 'É', { ignoreCase: true }))
+  assert.ok(!matchesCharacter('e', 'É', { ignoreCase: true }))
+  assert.ok(matchesCharacter('e', 'É', { ignoreCase: true, ignoreAccents: true }))
+  assert.ok(matchesCharacter('C', 'č', { ignoreCase: true, ignoreAccents: true }))
+  assert.ok(!matchesCharacter('b', 'A', { ignoreCase: true, ignoreAccents: true }))
+})
+
+test('simple special-character input accepts ss for sharp s across keystrokes', () => {
+  const words = [{ input: 'groß' }, { input: 'Straße' }]
+  const options = { ignoreAccents: true }
+  let s = typeInput(newSession(), words, 'gros', 1000, options)
+  assert.equal(s.input, 'gro')
+  assert.equal(s.index, 0)
+  assert.equal(s.mistakes, 0)
+  // The input field contains only committed target characters between events.
+  s = typeInput(s, words, s.input + 's', 1100, options)
+  assert.equal(s.index, 1)
+  s = typeInput(s, words, 'Strasse', 1200, options)
+  assert.notEqual(s.finishedAt, null)
+  assert.equal(s.mistakes, 0)
+  assert.equal(s.attempts, 12)
+})
+
+test('sharp s requires both letters and recovers from a wrong second letter', () => {
+  const words = [{ input: 'ßa' }]
+  const options = { ignoreAccents: true }
+  let s = typeInput(newSession(), words, 's', 0, options)
+  s = typeInput(s, words, 'a', 100, options)
+  assert.equal(s.input, '')
+  assert.equal(s.mistakes, 1)
+  assert.equal(s.missed, true)
+  s = typeInput(s, words, 'sa', 200, options)
+  assert.equal(s.input, 'ßa')
+  assert.equal(s.missed, false)
+  assert.notEqual(s.finishedAt, null)
+  assert.equal(s.mistakes, 1)
+})
+
+test('sharp s alternatives respect special-character and case settings', () => {
+  for (const options of [{}, { ignoreCase: true }]) {
+    const s = typeInput(newSession(), [{ input: 'ß' }], 'ss', 0, options)
+    assert.equal(s.finishedAt, null)
+    assert.equal(s.mistakes, 2)
+  }
+  assert.equal(typeInput(newSession(), [{ input: 'ß' }], 'SS', 0, { ignoreAccents: true }).mistakes, 2)
+  for (const [target, value, options] of [
+    ['ß', 'ß', {}],
+    ['ß', 'ß', { ignoreAccents: true }],
+    ['ẞ', 'SS', { ignoreAccents: true }],
+    ['ß', 'Ss', { ignoreAccents: true, ignoreCase: true }],
+    ['ẞ', 'ss', { ignoreAccents: true, ignoreCase: true }],
+  ]) {
+    const s = typeInput(newSession(), [{ input: target }], value, 0, options)
+    assert.notEqual(s.finishedAt, null, `${target}: ${value}`)
+    assert.equal(s.mistakes, 0)
+  }
+})
+
+test('simple special-character input accepts ? for the Spanish opening question mark', () => {
+  const words = [{ input: '¿Qué?' }]
+  const options = { ignoreAccents: true }
+  let s = typeInput(newSession(), words, '?', 0, options)
+  assert.equal(s.input, '¿')
+  assert.equal(s.mistakes, 0)
+  s = typeInput(s, words, s.input + 'Que?', 100, options)
+  assert.equal(s.input, '¿Qué?')
+  assert.notEqual(s.finishedAt, null)
+  assert.equal(s.mistakes, 0)
+  assert.equal(s.attempts, 5)
+})
+
+test('opening question mark substitution requires simple input and is one-way', () => {
+  const { matchesCharacter } = require('../src/core/typing.ts')
+  for (const options of [{}, { ignoreCase: true }]) {
+    const s = typeInput(newSession(), [{ input: '¿' }], '?', 0, options)
+    assert.equal(s.input, '')
+    assert.equal(s.mistakes, 1)
+    assert.equal(s.finishedAt, null)
+  }
+  assert.equal(matchesCharacter('¿', '?', { ignoreAccents: true }), false)
+  for (const options of [{}, { ignoreAccents: true }]) {
+    assert.equal(typeInput(newSession(), [{ input: '¿' }], '¿', 0, options).finishedAt, 0)
+  }
+})
+
+test('simple input accepts the Russian alphabet through Latin keystrokes', () => {
+  const words = [{ input: 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя' }]
+  const latin = 'abvgdeyozhziyklmnoprstufkhtschshshch"y\'eyuya'
+  let s = newSession()
+  for (const char of latin) s = typeInput(s, words, s.input + char, 100, { ignoreAccents: true })
+  assert.equal(s.input, words[0].input)
+  assert.equal(s.finishedAt, 100)
+  assert.equal(s.mistakes, 0)
+  assert.equal(s.attempts, latin.length)
+})
+
+test('Cyrillic transliteration accepts batched text and carries on across words', () => {
+  const s = typeInput(newSession(), [{ input: 'привет' }, { input: 'школа' }, { input: 'я' }], 'privetshkolaya', 100, { ignoreAccents: true })
+  assert.equal(s.index, 2)
+  assert.equal(s.input, 'я')
+  assert.equal(s.finishedAt, 100)
+  assert.equal(s.mistakes, 0)
+})
+
+test('Cyrillic multi-key input waits for completion and retains progress after a mistake', () => {
+  const words = [{ input: 'ща' }]
+  const options = { ignoreAccents: true }
+  let s = typeInput(newSession(), words, 'sh', 100, options)
+  assert.equal(s.input, '')
+  assert.equal(s.finishedAt, null)
+  assert.equal(s.mistakes, 0)
+  s = typeInput(s, words, 'x', 200, options)
+  assert.equal(s.input, '')
+  assert.equal(s.missed, true)
+  s = typeInput(s, words, 'cha', 300, options)
+  assert.equal(s.input, 'ща')
+  assert.equal(s.finishedAt, 300)
+  assert.equal(s.missed, false)
+  assert.equal(s.mistakes, 1)
+  assert.equal(s.attempts, 6)
+})
+
+test('direct Cyrillic input can complete a pending transliteration without leaking progress', () => {
+  const words = [{ input: 'шя' }]
+  const options = { ignoreAccents: true }
+  let s = typeInput(newSession(), words, 's', 100, options)
+  s = typeInput(s, words, 'шya', 200, options)
+  assert.equal(s.input, 'шя')
+  assert.equal(s.finishedAt, 200)
+  assert.equal(s.mistakes, 0)
+  assert.equal(typeInput(newSession(), words, 'шя', 100).finishedAt, 100)
+})
+
+test('Cyrillic alternatives respect simple-input and case settings', () => {
+  const { matchesCharacter } = require('../src/core/typing.ts')
+  for (const options of [{}, { ignoreCase: true }]) {
+    const s = typeInput(newSession(), [{ input: 'я' }], 'ya', 100, options)
+    assert.equal(s.finishedAt, null)
+    assert.equal(s.mistakes, 2)
+  }
+  for (const [target, value, options] of [
+    ['Яна', 'Yana', { ignoreAccents: true }],
+    ['Ш', 'Sh', { ignoreAccents: true }],
+    ['Ш', 'SH', { ignoreAccents: true }],
+    ['Ш', 'sh', { ignoreAccents: true, ignoreCase: true }],
+    ['я', 'YA', { ignoreAccents: true, ignoreCase: true }],
+  ]) {
+    const s = typeInput(newSession(), [{ input: target }], value, 100, options)
+    assert.equal(s.finishedAt, 100, `${target}: ${value}`)
+    assert.equal(s.mistakes, 0)
+  }
+  assert.equal(typeInput(newSession(), [{ input: 'Я' }], 'ya', 100, { ignoreAccents: true }).finishedAt, null)
+  assert.equal(typeInput(newSession(), [{ input: 'я' }], 'Ya', 100, { ignoreAccents: true }).finishedAt, null)
+  assert.equal(matchesCharacter('p', 'п', { ignoreAccents: true }), true)
+  assert.equal(matchesCharacter('ya', 'я', { ignoreAccents: true }), true)
+  assert.equal(matchesCharacter('п', 'p', { ignoreAccents: true }), false)
+})
+test('simpleInputKeys lists the characters simple input folds, once each, with their key', () => {
+  const { simpleInputKeys } = require('../src/core/typing.ts')
+  assert.deepEqual(simpleInputKeys('café crème'), [['é', 'e'], ['è', 'e']])
+  assert.deepEqual(simpleInputKeys('Шишка'), [['Ш', 'Sh'], ['и', 'i'], ['ш', 'sh'], ['к', 'k'], ['а', 'a']])
+  assert.deepEqual(simpleInputKeys('¿Straße?'), [['¿', '?'], ['ß', 'ss']])
+  // Plain letters, kana and letters without a plain base (ł) have nothing to show.
+  assert.deepEqual(simpleInputKeys('hello がか łódź'), [['ó', 'o'], ['ź', 'z']])
+})
+
+test('revealAnswer adds the untyped characters to attempts and mistakes once', () => {
+  const { revealAnswer } = require('../src/core/typing.ts')
+  const words = [{ input: 'pwd' }]
+  let s = typeInput(newSession(), words, 'p', 1000)
+  const revealed = revealAnswer(s, words, 1500)
+  assert.equal(revealed.attempts, s.attempts + 2)
+  assert.equal(revealed.mistakes, s.mistakes + 2)
+  assert.equal(revealed.revealed, true)
+  assert.equal(revealAnswer(revealed, words, 1600), revealed)
+})
+test('typing after revealing still counts wrong keys', () => {
+  const { revealAnswer } = require('../src/core/typing.ts')
+  const words = [{ input: 'pwd' }]
+  let s = revealAnswer(typeInput(newSession(), words, 'p', 1000), words, 1500)
+  const before = s.mistakes
+  s = typeInput(s, words, 'px', 2000)
+  assert.equal(s.mistakes, before + 1)
+})
+test('moving to the next word clears revealed', () => {
+  const { revealAnswer } = require('../src/core/typing.ts')
+  const words = [{ input: 'ab' }, { input: 'cd' }]
+  let s = revealAnswer(newSession(), words, 1000)
+  assert.equal(s.revealed, true)
+  s = typeInput(s, words, 'ab', 2000)
+  assert.equal(s.index, 1)
+  assert.equal(s.revealed, false)
+  const again = revealAnswer(s, words, 3000)
+  assert.equal(again.mistakes, s.mistakes + 2)
+})
+test('revealing starts the clock', () => {
+  const { revealAnswer } = require('../src/core/typing.ts')
+  assert.equal(revealAnswer(newSession(), [{ input: 'ab' }], 1234).startedAt, 1234)
+})
+test('concealCharacters hides untyped characters but keeps spaces', () => {
+  const { compareInput, concealCharacters } = require('../src/core/typing.ts')
+  const part = compareInput('cp -r', 'c')
+  assert.deepEqual(concealCharacters(part.characters, part.states), ['c', '＿', ' ', '＿', '＿'])
+  const full = compareInput('cp -r', 'cp -r')
+  assert.deepEqual(concealCharacters(full.characters, full.states), ['c', 'p', ' ', '-', 'r'])
+})

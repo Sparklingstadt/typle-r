@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-7-words-5",
+  "name": "中国語HSK6級 手書き7（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語7",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "动静",
+      "input": "dòngjing",
+      "annotation": "dòngjing / 物音、気配",
+      "input_type": "word"
+    },
+    {
+      "display": "动身",
+      "input": "dòngshēn",
+      "annotation": "dòngshēn / 出発する",
+      "input_type": "word"
+    },
+    {
+      "display": "动态",
+      "input": "dòngtài",
+      "annotation": "dòngtài / 動向",
+      "input_type": "word"
+    },
+    {
+      "display": "陡峭",
+      "input": "dǒuqiào",
+      "annotation": "dǒuqiào / 険しい",
+      "input_type": "word"
+    },
+    {
+      "display": "督促",
+      "input": "dūcù",
+      "annotation": "dūcù / 促す",
+      "input_type": "word"
+    },
+    {
+      "display": "堵塞",
+      "input": "dǔsè",
+      "annotation": "dǔsè / ふさがる",
+      "input_type": "word"
+    },
+    {
+      "display": "杜绝",
+      "input": "dùjué",
+      "annotation": "dùjué / 根絶する",
+      "input_type": "word"
+    },
+    {
+      "display": "断绝",
+      "input": "duànjué",
+      "annotation": "duànjué / 断ち切る",
+      "input_type": "word"
+    },
+    {
+      "display": "对抗",
+      "input": "duìkàng",
+      "annotation": "duìkàng / 対抗する",
+      "input_type": "word"
+    },
+    {
+      "display": "对联",
+      "input": "duìlián",
+      "annotation": "duìlián / 対聯",
+      "input_type": "word"
+    },
+    {
+      "display": "兑现",
+      "input": "duìxiàn",
+      "annotation": "duìxiàn / 現金に換える、約束を果たす",
+      "input_type": "word"
+    },
+    {
+      "display": "多元化",
+      "input": "duōyuánhuà",
+      "annotation": "duōyuánhuà / 多様化",
+      "input_type": "word"
+    },
+    {
+      "display": "额外",
+      "input": "éwài",
+      "annotation": "éwài / 余分の",
+      "input_type": "word"
+    },
+    {
+      "display": "遏制",
+      "input": "èzhì",
+      "annotation": "èzhì / 抑える",
+      "input_type": "word"
+    },
+    {
+      "display": "二氧化碳",
+      "input": "èryǎnghuàtàn",
+      "annotation": "èryǎnghuàtàn / 二酸化炭素",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

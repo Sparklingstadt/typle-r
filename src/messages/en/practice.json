@@ -6,7 +6,8 @@
     "speed": "Speed",
     "speedUnit": "keys/min",
     "accuracy": "Accuracy",
-    "mistakes": "Mistakes"
+    "mistakes": "Mistakes",
+    "wordSpeedUnit": "words/min"
   },
   "progress": {
     "label": "Word progress",
@@ -23,12 +24,21 @@
     "restart": "Start over",
     "restartTitle": "Start over (Esc)",
     "restartShort": "Start over",
-    "liveStats": "Show live stats"
+    "liveStats": "Show live stats",
+    "aside": "Show side panel (word lists and best records)"
   },
   "word": {
     "typeThis": "Type",
     "resume": "Click or press any key to resume",
-    "inputLabel": "Type the text shown"
+    "inputLabel": "Type the text shown",
+    "simpleKeys": "Simple input",
+    "simpleKeysAll": "Full table"
+  },
+  "recall": {
+    "toggle": "Type from memory",
+    "reveal": "Show answer",
+    "noHint": "No hint available",
+    "resultHeading": "Typed from memory"
   },
   "upcoming": {
     "next": "Next",
@@ -89,7 +99,10 @@
     "saving": "Saving the record…",
     "again": "Again",
     "chooseList": "Choose another list",
-    "viewRecords": "View history"
+    "viewRecords": "View history",
+    "wordSpeedUnit": "words/min",
+    "correctWords": "{count, plural, one {# word} other {# words}}",
+    "mistakesWords": "{count, plural, one {# mistake} other {# mistakes}}"
   },
   "best": {
     "label": "Top 5 best records",
@@ -115,5 +128,12 @@
     "listsOf": "Lists of {name}",
     "chooseList": "Choose a list.",
     "match": "Matches the search"
-  }
+  },
+  "modeLabel": "Practice mode",
+  "modeTyping": "Typing",
+  "modeWriting": "Handwriting",
+  "writingJudge": "Check",
+  "writingSkip": "Skip",
+  "writingRead": "Read as “{text}”",
+  "writingInput": "Write here by hand"
 }

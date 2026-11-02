@@ -3,11 +3,12 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { CircleAlert, Plus } from "lucide-react"
+import { CircleAlert, Flag, Plus } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import ReportDialog from "@/components/Gallery/ReportDialog"
 import { graphql } from "@/core/graphql"
 import { MAX_LISTS } from "@/core/listOverview"
 import { decodePackFile, importPackFile, type PackFile } from "@/core/packFile"
@@ -42,7 +43,7 @@ export default function SharedPack() {
     {shared.state === 'loading' ? <Loading />
       : shared.state === 'ended' ? <Ended />
       : shared.state === 'failed' ? <Failed reason={shared.reason} />
-      : <Pack file={shared.file} />}
+      : <Pack id={id} file={shared.file} />}
   </main>
 }
 
@@ -77,13 +78,15 @@ function Failed({ reason }: { reason: unknown }) {
   </div>
 }
 
-function Pack({ file }: { file: PackFile }) {
+function Pack({ id, file }: { id: string; file: PackFile }) {
   const t = useTranslations('wordLists')
   const errorText = useErrorText()
   const router = useRouter()
   const { packs, lists, ready, updateLibrary, error } = useWordLists()
   const [adding, setAdding] = useState(false)
   const [failure, setFailure] = useState('')
+  const [reporting, setReporting] = useState(false)
+  const [reported, setReported] = useState(false)
   const { name, description, category, tags } = file.pack
   const full = ready && lists.length + file.lists.length > MAX_LISTS
 
@@ -95,7 +98,11 @@ function Pack({ file }: { file: PackFile }) {
       // Try the import first so a file that breaks a save rule is refused here, with nothing saved. The screens' lists
       // carry their pack's labels, which a library in the saved shape does not.
       importPackFile({ packs, lists: lists.map(({ group: _group, category: _category, tags: _tags, ...rest }) => rest) }, file, ids)
-      if (await updateLibrary(library => importPackFile(library, file, ids))) router.push(`/edit?pack=${encodeURIComponent(ids.pack)}`)
+      if (await updateLibrary(library => importPackFile(library, file, ids))) {
+        // Counts the add for the gallery; the server decides whether the share is listed. Not awaited, and a failure is not shown.
+        graphql('mutation CountAdded($id: String!) { countAdded(id: $id) }', { id }, { keepalive: true }).catch(() => {})
+        router.push(`/edit?pack=${encodeURIComponent(ids.pack)}`)
+      }
     } catch (reason) {
       setFailure(errorText(reason, t('sharedPage.addFailed')))
     } finally { setAdding(false) }
@@ -114,7 +121,10 @@ function Pack({ file }: { file: PackFile }) {
       <div className="flex flex-wrap items-center gap-3">
         <Button disabled={!ready || adding || full} aria-describedby={full ? 'shared-full' : undefined} onClick={() => void add()}><Plus aria-hidden="true" />{t('sharedPage.add')}</Button>
         <OpenPacks />
+        <Button variant="ghost" onClick={() => { setReported(false); setReporting(true) }}><Flag aria-hidden="true" />{t('report.open')}</Button>
       </div>
+      <ReportDialog shareId={id} open={reporting} onOpenChange={open => { if (open) setReported(false); setReporting(open) }} onSent={() => setReported(true)} />
+      <p role="status" className="text-sm text-muted-foreground">{reported ? t('report.sent') : ''}</p>
       {full ? <p id="shared-full" className="text-sm text-muted-foreground">{t('catalog.full', { max: MAX_LISTS })}</p> : null}
       {message ? <Alert variant="destructive"><CircleAlert aria-hidden="true" /><AlertDescription>{message}</AlertDescription></Alert> : null}
     </header>

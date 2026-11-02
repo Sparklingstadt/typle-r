@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-17-words-3",
+  "name": "中国語HSK6級 手書き17（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語17",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "狭窄",
+      "input": "xiázhǎi",
+      "annotation": "xiázhǎi / 狭い",
+      "input_type": "word"
+    },
+    {
+      "display": "细胞",
+      "input": "xìbāo",
+      "annotation": "xìbāo / 細胞",
+      "input_type": "word"
+    },
+    {
+      "display": "携带",
+      "input": "xiédài",
+      "annotation": "xiédài / 携帯する",
+      "input_type": "word"
+    },
+    {
+      "display": "谢绝",
+      "input": "xièjué",
+      "annotation": "xièjué / 謝絶する",
+      "input_type": "word"
+    },
+    {
+      "display": "泄露",
+      "input": "xièlòu",
+      "annotation": "xièlòu / 漏らす、漏洩する",
+      "input_type": "word"
+    },
+    {
+      "display": "协商",
+      "input": "xiéshāng",
+      "annotation": "xiéshāng / 協議する",
+      "input_type": "word"
+    },
+    {
+      "display": "协议",
+      "input": "xiéyì",
+      "annotation": "xiéyì / 協定、合意",
+      "input_type": "word"
+    },
+    {
+      "display": "媳妇",
+      "input": "xífu",
+      "annotation": "xífu / 息子の嫁、妻",
+      "input_type": "word"
+    },
+    {
+      "display": "膝盖",
+      "input": "xīgài",
+      "annotation": "xīgài / ひざ",
+      "input_type": "word"
+    },
+    {
+      "display": "袭击",
+      "input": "xíjī",
+      "annotation": "xíjī / 襲撃する",
+      "input_type": "word"
+    },
+    {
+      "display": "系列",
+      "input": "xìliè",
+      "annotation": "xìliè / シリーズ、系列",
+      "input_type": "word"
+    },
+    {
+      "display": "熄灭",
+      "input": "xīmiè",
+      "annotation": "xīmiè / 消える、消す",
+      "input_type": "word"
+    },
+    {
+      "display": "心得",
+      "input": "xīndé",
+      "annotation": "xīndé / 心得、学んだこと",
+      "input_type": "word"
+    },
+    {
+      "display": "心甘情愿",
+      "input": "xīngān qíngyuàn",
+      "annotation": "xīngān qíngyuàn / 心から願って",
+      "input_type": "word"
+    },
+    {
+      "display": "兴高采烈",
+      "input": "xìnggāo cǎiliè",
+      "annotation": "xìnggāo cǎiliè / 大喜びする",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

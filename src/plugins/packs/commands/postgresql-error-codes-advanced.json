@@ -1,0 +1,257 @@
+{
+  "id": "postgresql-error-codes-advanced",
+  "name": "PostgreSQLエラーコード（上級）",
+  "category": "プログラミング",
+  "tags": [
+    "PostgreSQL",
+    "SQL"
+  ],
+  "group": "PostgreSQLエラーコード",
+  "levels": [
+    "上級"
+  ],
+  "words": [
+    {
+      "display": "array_subscript_error",
+      "input": "array_subscript_error",
+      "annotation": "2202E：配列の添字が不正",
+      "input_type": "word"
+    },
+    {
+      "display": "foreign_key_violation",
+      "input": "foreign_key_violation",
+      "annotation": "23503：外部キー制約違反",
+      "input_type": "word"
+    },
+    {
+      "display": "insufficient_privilege",
+      "input": "insufficient_privilege",
+      "annotation": "42501：権限が足りない",
+      "input_type": "word"
+    },
+    {
+      "display": "indeterminate_datatype",
+      "input": "indeterminate_datatype",
+      "annotation": "42P18：データ型を決められない",
+      "input_type": "word"
+    },
+    {
+      "display": "insufficient_resources",
+      "input": "insufficient_resources",
+      "annotation": "53000：リソースが足りない",
+      "input_type": "word"
+    },
+    {
+      "display": "statement_too_complex",
+      "input": "statement_too_complex",
+      "annotation": "54001：文が複雑すぎる",
+      "input_type": "word"
+    },
+    {
+      "display": "active_sql_transaction",
+      "input": "active_sql_transaction",
+      "annotation": "25001：トランザクション中には実行できない",
+      "input_type": "word"
+    },
+    {
+      "display": "program_limit_exceeded",
+      "input": "program_limit_exceeded",
+      "annotation": "54000：プログラムの上限を超えた",
+      "input_type": "word"
+    },
+    {
+      "display": "null_value_not_allowed",
+      "input": "null_value_not_allowed",
+      "annotation": "22004：NULLが許されない場所にNULLがある",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_datetime_format",
+      "input": "invalid_datetime_format",
+      "annotation": "22007：日時の書式が不正",
+      "input_type": "word"
+    },
+    {
+      "display": "datetime_field_overflow",
+      "input": "datetime_field_overflow",
+      "annotation": "22008：日時のフィールドが範囲外",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_parameter_value",
+      "input": "invalid_parameter_value",
+      "annotation": "22023：引数の値が不正",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_escape_sequence",
+      "input": "invalid_escape_sequence",
+      "annotation": "22025：エスケープシーケンスが不正",
+      "input_type": "word"
+    },
+    {
+      "display": "untranslatable_character",
+      "input": "untranslatable_character",
+      "annotation": "22P05：エンコーディングを変換できない文字",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_column_reference",
+      "input": "invalid_column_reference",
+      "annotation": "42P10：列の参照が不正",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_table_definition",
+      "input": "invalid_table_definition",
+      "annotation": "42P16：テーブルの定義が不正",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_transaction_state",
+      "input": "invalid_transaction_state",
+      "annotation": "25000：トランザクションの状態が不正",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_column_definition",
+      "input": "invalid_column_definition",
+      "annotation": "42611：列の定義が不正",
+      "input_type": "word"
+    },
+    {
+      "display": "connection_does_not_exist",
+      "input": "connection_does_not_exist",
+      "annotation": "08003：接続が存在しない",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_regular_expression",
+      "input": "invalid_regular_expression",
+      "annotation": "2201B：正規表現が不正",
+      "input_type": "word"
+    },
+    {
+      "display": "read_only_sql_transaction",
+      "input": "read_only_sql_transaction",
+      "annotation": "25006：読み取り専用トランザクションで書き込もうとした",
+      "input_type": "word"
+    },
+    {
+      "display": "no_active_sql_transaction",
+      "input": "no_active_sql_transaction",
+      "annotation": "25P01：トランザクションの外では実行できない",
+      "input_type": "word"
+    },
+    {
+      "display": "in_failed_sql_transaction",
+      "input": "in_failed_sql_transaction",
+      "annotation": "25P02：失敗したトランザクションの中で実行した（ROLLBACKが必要）",
+      "input_type": "word"
+    },
+    {
+      "display": "cant_change_runtime_param",
+      "input": "cant_change_runtime_param",
+      "annotation": "55P02：実行中に変えられないパラメータ",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_text_representation",
+      "input": "invalid_text_representation",
+      "annotation": "22P02：文字列を型に変換できない（例：'abc'::int）",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_sql_statement_name",
+      "input": "invalid_sql_statement_name",
+      "annotation": "26000：プリペアド文の名前が不正",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_function_definition",
+      "input": "invalid_function_definition",
+      "annotation": "42P13：関数の定義が不正",
+      "input_type": "word"
+    },
+    {
+      "display": "numeric_value_out_of_range",
+      "input": "numeric_value_out_of_range",
+      "annotation": "22003：数値が型の範囲を超えた",
+      "input_type": "word"
+    },
+    {
+      "display": "character_not_in_repertoire",
+      "input": "character_not_in_repertoire",
+      "annotation": "22021：文字コードに含まれない文字",
+      "input_type": "word"
+    },
+    {
+      "display": "with_check_option_violation",
+      "input": "with_check_option_violation",
+      "annotation": "44000：WITH CHECK OPTIONのビューの条件に反した",
+      "input_type": "word"
+    },
+    {
+      "display": "string_data_right_truncation",
+      "input": "string_data_right_truncation",
+      "annotation": "22001：文字列が列の長さを超えた",
+      "input_type": "word"
+    },
+    {
+      "display": "integrity_constraint_violation",
+      "input": "integrity_constraint_violation",
+      "annotation": "23000：整合性制約違反",
+      "input_type": "word"
+    },
+    {
+      "display": "dependent_objects_still_exist",
+      "input": "dependent_objects_still_exist",
+      "annotation": "2BP01：依存するオブジェクトが残っている（CASCADEが必要）",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_transaction_termination",
+      "input": "invalid_transaction_termination",
+      "annotation": "2D000：トランザクションの終了が不正",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_savepoint_specification",
+      "input": "invalid_savepoint_specification",
+      "annotation": "3B001：セーブポイントの指定が不正",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_character_value_for_cast",
+      "input": "invalid_character_value_for_cast",
+      "annotation": "22018：キャストできない文字の値",
+      "input_type": "word"
+    },
+    {
+      "display": "object_not_in_prerequisite_state",
+      "input": "object_not_in_prerequisite_state",
+      "annotation": "55000：オブジェクトが前提の状態にない",
+      "input_type": "word"
+    },
+    {
+      "display": "invalid_authorization_specification",
+      "input": "invalid_authorization_specification",
+      "annotation": "28000：認証の指定が不正（ロールがないなど）",
+      "input_type": "word"
+    },
+    {
+      "display": "idle_in_transaction_session_timeout",
+      "input": "idle_in_transaction_session_timeout",
+      "annotation": "25P03：トランザクション中のアイドル時間切れで切断",
+      "input_type": "word"
+    },
+    {
+      "display": "syntax_error_or_access_rule_violation",
+      "input": "syntax_error_or_access_rule_violation",
+      "annotation": "42000：構文エラーまたはアクセス規則違反",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-01T00:00:00.000Z"
+}

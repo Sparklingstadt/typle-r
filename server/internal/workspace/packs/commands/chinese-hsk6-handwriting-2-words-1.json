@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-2-words-1",
+  "name": "中国語HSK6級 手書き2（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語2",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "承包",
+      "input": "chéngbāo",
+      "annotation": "chéngbāo / 請け負う",
+      "input_type": "word"
+    },
+    {
+      "display": "城堡",
+      "input": "chéngbǎo",
+      "annotation": "chéngbǎo / 城",
+      "input_type": "word"
+    },
+    {
+      "display": "吃苦",
+      "input": "chīkǔ",
+      "annotation": "chīkǔ / 苦労する",
+      "input_type": "word"
+    },
+    {
+      "display": "迟缓",
+      "input": "chíhuǎn",
+      "annotation": "chíhuǎn / 遅い",
+      "input_type": "word"
+    },
+    {
+      "display": "持久",
+      "input": "chíjiǔ",
+      "annotation": "chíjiǔ / 長続きする",
+      "input_type": "word"
+    },
+    {
+      "display": "冲动",
+      "input": "chōngdòng",
+      "annotation": "chōngdòng / 衝動",
+      "input_type": "word"
+    },
+    {
+      "display": "冲突",
+      "input": "chōngtū",
+      "annotation": "chōngtū / 衝突",
+      "input_type": "word"
+    },
+    {
+      "display": "充实",
+      "input": "chōngshí",
+      "annotation": "chōngshí / 充実した",
+      "input_type": "word"
+    },
+    {
+      "display": "崇拜",
+      "input": "chóngbài",
+      "annotation": "chóngbài / 崇拝する",
+      "input_type": "word"
+    },
+    {
+      "display": "重叠",
+      "input": "chóngdié",
+      "annotation": "chóngdié / 重なる",
+      "input_type": "word"
+    },
+    {
+      "display": "踌躇",
+      "input": "chóuchú",
+      "annotation": "chóuchú / ためらう",
+      "input_type": "word"
+    },
+    {
+      "display": "出卖",
+      "input": "chūmài",
+      "annotation": "chūmài / 売り渡す",
+      "input_type": "word"
+    },
+    {
+      "display": "出神",
+      "input": "chūshén",
+      "annotation": "chūshén / うっとりする",
+      "input_type": "word"
+    },
+    {
+      "display": "处分",
+      "input": "chǔfèn",
+      "annotation": "chǔfèn / 処分する",
+      "input_type": "word"
+    },
+    {
+      "display": "处置",
+      "input": "chǔzhì",
+      "annotation": "chǔzhì / 処置する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

@@ -7,6 +7,12 @@
     "allDevices": "すべての端末",
     "deleted": "{name}（削除済み）"
   },
+  "mode": {
+    "label": "練習のモード",
+    "normal": "通常",
+    "recall": "思い出す",
+    "writing": "Handwriting"
+  },
   "order": {
     "label": "順位の基準",
     "accuracy": "正確率<wide>を</wide>優先",

@@ -38,3 +38,75 @@ test('native spelling, romanization and tone marks remain in the typing targets'
   assert.equal(word('spanish-basics', '¿Qué es esto?').input, '¿Qué es esto?')
   assert.equal(word('chinese-basics', '你好').input, 'nǐ hǎo')
 })
+
+test('English and Russian each have one pack of basic and intermediate words and syntax', () => {
+  const { officialLibrary } = require('../src/plugins/packs/index.ts')
+  for (const [slug, language] of [['english', '英語'], ['russian', 'ロシア語']]) {
+    const pack = officialLibrary.packs.find(item => item.name === `${language}：基礎・中級`)
+    assert.ok(pack, language)
+    assert.equal(pack.category, '語学')
+    assert.deepEqual(pack.tags, [language])
+    const lists = officialLibrary.lists.filter(list => list.packId === pack.id)
+    assert.deepEqual(lists.map(list => list.id), ['basic-words', 'basic-syntax', 'intermediate-words', 'intermediate-syntax'].map(level => `${slug}-${level}`))
+    assert.deepEqual(lists.map(list => list.levels), [['基礎単語'], ['基礎構文'], ['中級単語'], ['中級構文']])
+    for (const list of lists) {
+      assert.equal(list.words.length, 40, list.id)
+      assert.equal(new Set(list.words.map(word => word.input)).size, 40, list.id)
+      assert.ok(list.words.every(word => word.input_type === 'word' && word.display === word.input && word.annotation.startsWith(`${word.input} / `)), list.id)
+    }
+  }
+  // Russian is typed in Cyrillic, as written.
+  const russian = officialLibrary.lists.find(list => list.id === 'russian-basic-syntax')
+  assert.ok(russian.words.every(word => !/[a-z]/i.test(word.input)))
+  assert.ok(russian.words.some(word => word.input === 'Меня зовут Кен.'))
+})
+
+test('Czech intermediate and Chinese HSK 5 and 6 packs each hold two lists of 40 words', () => {
+  const { officialLibrary } = require('../src/plugins/packs/index.ts')
+  for (const [name, tag, ids, levels] of [
+    ['チェコ語：中級', 'チェコ語', ['czech-intermediate-words', 'czech-intermediate-syntax'], ['中級単語', '中級構文']],
+    ['中国語：HSK5級レベル単語', '中国語', ['chinese-hsk5-words-1', 'chinese-hsk5-words-2'], ['単語1', '単語2']],
+    ['中国語：HSK6級レベル単語', '中国語', ['chinese-hsk6-words-1', 'chinese-hsk6-words-2'], ['単語1', '単語2']],
+  ]) {
+    const pack = officialLibrary.packs.find(item => item.name === name)
+    assert.ok(pack, name)
+    assert.equal(pack.category, '語学')
+    assert.deepEqual(pack.tags, [tag])
+    const lists = officialLibrary.lists.filter(list => list.packId === pack.id)
+    assert.deepEqual(lists.map(list => list.id), ids)
+    assert.deepEqual(lists.map(list => list.levels), levels.map(level => [level]))
+    for (const list of lists) {
+      assert.equal(list.words.length, 40, list.id)
+      assert.equal(new Set(list.words.map(word => word.input)).size, 40, list.id)
+      assert.ok(list.words.every(word => word.input_type === 'word' && word.annotation.startsWith(`${word.input} / `)), list.id)
+    }
+  }
+  // Chinese words show the characters and are typed in pinyin with tone marks; no word is in both HSK packs.
+  const hsk = officialLibrary.lists.filter(list => list.id.startsWith('chinese-hsk'))
+  const words = hsk.flatMap(list => list.words)
+  assert.equal(new Set(words.map(word => word.display)).size, 1960)
+  assert.ok(words.every(word => /^\p{Script=Han}+$/u.test(word.display) && /^[\p{Script=Latin} ]+$/u.test(word.input)))
+  assert.equal(words.find(word => word.display === '规律').input, 'guīlǜ')
+  assert.equal(officialLibrary.lists.find(list => list.id === 'czech-intermediate-words').words[0].input, 'zkušenost')
+})
+
+test('the twenty HSK 6 handwriting packs each hold six lists of 15 words, marked for handwriting in simplified Chinese', () => {
+  const { officialLibrary } = require('../src/plugins/packs/index.ts')
+  for (let pack = 1; pack <= 20; pack++) {
+    const found = officialLibrary.packs.find(item => item.name === `中国語：HSK6級 手書き単語${pack}`)
+    assert.ok(found, String(pack))
+    assert.equal(found.category, '語学')
+    assert.deepEqual(found.tags, ['中国語'])
+    const lists = officialLibrary.lists.filter(list => list.packId === found.id)
+    assert.deepEqual(lists.map(list => list.id), [1, 2, 3, 4, 5, 6].map(n => `chinese-hsk6-handwriting-${pack}-words-${n}`))
+    assert.deepEqual(lists.map(list => list.name), [1, 2, 3, 4, 5, 6].map(n => `中国語HSK6級 手書き${pack}（単語${n}）`))
+    assert.deepEqual(lists.map(list => list.levels), [1, 2, 3, 4, 5, 6].map(n => [`単語${n}`]))
+    for (const list of lists) {
+      assert.deepEqual(list.writing, { language: 'zh-Hans' }, list.id)
+      assert.equal(list.words.length, 15, list.id)
+      assert.ok(list.words.every(word => word.input_type === 'word' && word.annotation.startsWith(`${word.input} / `)), list.id)
+    }
+  }
+  // No other official list is marked for handwriting.
+  assert.equal(officialLibrary.lists.filter(list => list.writing).length, 120)
+})

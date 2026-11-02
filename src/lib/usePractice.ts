@@ -1,23 +1,21 @@
 "use client"
-import { randomId } from "../core/randomId"
 import { useEffect, useRef, useState } from 'react'
 import type { PracticeDevice } from '../core/devices'
 import type { SavedWordList } from '../core/wordLists'
 import type { RecordSave } from './useWordLists'
-import { makeRecord, type PracticeRecord } from '../core/records'
-import { newSession, pauseSession, resumeSession, sessionResult, typeInput } from '../core/typing'
+import { sessionResult, revealAnswer, typeInput } from '../core/typing'
+import type { PracticeMode } from '../core/records'
+import { useRecordSaving } from './useRecordSaving'
+import { useTypingOptions } from './inputSettings'
 
-export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, device?: PracticeDevice, initialListId?: string | null) {
+export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, device?: PracticeDevice, initialListId?: string | null, mode: PracticeMode = 'normal') {
   const [list, setList] = useState<SavedWordList | undefined>(() => wordLists.find(item => item.id === initialListId) ?? wordLists[0])
   const selected = wordLists.findIndex(item => item.id === list?.id)
-  const [practiceDevice, setPracticeDevice] = useState<PracticeDevice | undefined>()
-  const [session, setSession] = useState(newSession)
+  const { session, practiceDevice, practiceMode, record, saveState, update, reset, completed, pause, resume, retrySave } = useRecordSaving(list, addRecord, device, mode)
+  const typingOptions = useTypingOptions()
   const [composition, setComposition] = useState<string | null>(null)
   const composing = useRef(false)
   const committedComposition = useRef<string | null>(null)
-  const completedRecord = useRef<PracticeRecord | null>(null)
-  const [record, setRecord] = useState<PracticeRecord | null>(null)
-  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'failed'>('idle')
   const input = useRef<HTMLInputElement>(null)
   const word = list?.words[session.index]
   const finished = session.finishedAt !== null
@@ -27,49 +25,25 @@ export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, d
 
   function restart(index = selected) {
     setList(wordLists[index])
-    setSession(newSession())
-    setPracticeDevice(undefined)
+    reset()
     setComposition(null)
     composing.current = false
     committedComposition.current = null
-    completedRecord.current = null
-    setRecord(null)
-    setSaveState('idle')
     input.current?.focus()
   }
 
   function enter(value: string) {
-    if (completedRecord.current) return
-    const next = typeInput(session, list?.words ?? [], value, Date.now())
-    const snapshot = session.startedAt === null ? (device ? { ...device } : undefined) : practiceDevice
-    if (session.startedAt === null && next.startedAt !== null) setPracticeDevice(snapshot)
-    setSession(next)
-    if (next.finishedAt !== null && list) {
-      const record = makeRecord(next, list.words.length, randomId(), snapshot)
-      completedRecord.current = record
-      setRecord(record)
-      saveRecord(record)
-    }
+    if (completed()) return
+    update(typeInput(session, list?.words ?? [], value, Date.now(), typingOptions))
   }
 
-  // The clock stops while the input has lost focus and runs again once it is back.
-  function pause() {
-    setSession(current => pauseSession(current, Date.now()))
-  }
-  function resume() {
-    setSession(current => resumeSession(current, Date.now()))
+  // Recall mode: shows the rest of the current word, counting it as mistakes once. Revealing also starts the clock.
+  function reveal() {
+    if (completed()) return
+    update(revealAnswer(session, list?.words ?? [], Date.now()))
+    input.current?.focus()
   }
 
-  function saveRecord(record: PracticeRecord) {
-    if (!list) return
-    setSaveState('saving')
-    void addRecord(list.id, record).then(value => {
-      if (completedRecord.current === record) setSaveState(value ? 'saved' : 'failed')
-    })
-  }
-  function retrySave() {
-    if (completedRecord.current) saveRecord(completedRecord.current)
-  }
   function startComposition() {
     composing.current = true
     setComposition(session.input)
@@ -88,5 +62,5 @@ export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, d
       if (!duplicate) enter(value)
     }
   }
-  return { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave, pause, resume }
+  return { list, selected, session, practiceDevice, practiceMode, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave, pause, resume, reveal }
 }

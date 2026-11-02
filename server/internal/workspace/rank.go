@@ -51,8 +51,15 @@ func RankRecords(records []Record, order string) []Record {
 }
 
 // comparable is comparableRecords (src/core/records.ts): editing a list changes the task, so only runs at its current
-// word count are compared. With none of those, every record is.
+// word count are compared, and never a run practised in a mode (recall or writing). With none of those, every normal
+// record is.
 func comparable(list *List, records []*Record) []*Record {
+	return comparableOf(list, records, "")
+}
+
+// comparableOf is comparable for the records of one mode: "" for normal runs, RecallMode or WritingMode.
+func comparableOf(list *List, records []*Record, mode string) []*Record {
+	records = slices.DeleteFunc(slices.Clone(records), func(r *Record) bool { return r.Mode != mode })
 	same := slices.DeleteFunc(slices.Clone(records), func(r *Record) bool { return r.WordCount == nil || *r.WordCount != len(list.Words) })
 	if len(same) > 0 {
 		return same
@@ -69,9 +76,14 @@ func ComparableRecords(list *List, records []Record) []Record {
 }
 
 // ListBest is the record every screen shows as the list's best (listBest), pointing into list.Records; nil when the
-// list has no record.
+// list has no normal record. Recall and writing runs have their own best (ListBestOf).
 func ListBest(list *List) *Record {
-	ranked := rank(comparable(list, pointers(list.Records)), "accuracy")
+	return ListBestOf(list, "")
+}
+
+// ListBestOf is listBest(list, mode): the best record among those of one mode, "" for normal runs, RecallMode or WritingMode.
+func ListBestOf(list *List, mode string) *Record {
+	ranked := rank(comparableOf(list, pointers(list.Records), mode), "accuracy")
 	if len(ranked) == 0 {
 		return nil
 	}

@@ -3,6 +3,11 @@
 package graph
 
 import (
+	"bytes"
+	"fmt"
+	"io"
+	"strconv"
+
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/sparklingstadt/typle-r/server/internal/store"
 )
@@ -37,6 +42,12 @@ type DeleteRecordInput struct {
 	RecordID  string `json:"recordId"`
 }
 
+type GalleryPage struct {
+	Packs []store.GalleryPack `json:"packs"`
+	// Whether a next page has packs.
+	More bool `json:"more"`
+}
+
 type Mutation struct {
 }
 
@@ -67,4 +78,61 @@ type Workspace struct {
 	Interests JSON   `json:"interests"`
 	Revision  int    `json:"revision"`
 	AccountID string `json:"accountId"`
+}
+
+type GallerySort string
+
+const (
+	// The most recently listed first.
+	GallerySortNew GallerySort = "NEW"
+	// The most often added first.
+	GallerySortPopular GallerySort = "POPULAR"
+)
+
+var AllGallerySort = []GallerySort{
+	GallerySortNew,
+	GallerySortPopular,
+}
+
+func (e GallerySort) IsValid() bool {
+	switch e {
+	case GallerySortNew, GallerySortPopular:
+		return true
+	}
+	return false
+}
+
+func (e GallerySort) String() string {
+	return string(e)
+}
+
+func (e *GallerySort) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GallerySort(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GallerySort", str)
+	}
+	return nil
+}
+
+func (e GallerySort) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *GallerySort) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GallerySort) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }

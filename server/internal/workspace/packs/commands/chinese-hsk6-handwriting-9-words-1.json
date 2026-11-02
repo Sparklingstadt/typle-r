@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-9-words-1",
+  "name": "中国語HSK6級 手書き9（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語9",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "华侨",
+      "input": "huáqiáo",
+      "annotation": "huáqiáo / 華僑",
+      "input_type": "word"
+    },
+    {
+      "display": "化石",
+      "input": "huàshí",
+      "annotation": "huàshí / 化石",
+      "input_type": "word"
+    },
+    {
+      "display": "化验",
+      "input": "huàyàn",
+      "annotation": "huàyàn / 化学検査をする",
+      "input_type": "word"
+    },
+    {
+      "display": "话筒",
+      "input": "huàtǒng",
+      "annotation": "huàtǒng / マイク",
+      "input_type": "word"
+    },
+    {
+      "display": "欢乐",
+      "input": "huānlè",
+      "annotation": "huānlè / 楽しい",
+      "input_type": "word"
+    },
+    {
+      "display": "患者",
+      "input": "huànzhě",
+      "annotation": "huànzhě / 患者",
+      "input_type": "word"
+    },
+    {
+      "display": "荒凉",
+      "input": "huāngliáng",
+      "annotation": "huāngliáng / 荒涼とした",
+      "input_type": "word"
+    },
+    {
+      "display": "皇后",
+      "input": "huánghòu",
+      "annotation": "huánghòu / 皇后",
+      "input_type": "word"
+    },
+    {
+      "display": "黄昏",
+      "input": "huánghūn",
+      "annotation": "huánghūn / たそがれ",
+      "input_type": "word"
+    },
+    {
+      "display": "回报",
+      "input": "huíbào",
+      "annotation": "huíbào / 報いる",
+      "input_type": "word"
+    },
+    {
+      "display": "回避",
+      "input": "huíbì",
+      "annotation": "huíbì / 回避する",
+      "input_type": "word"
+    },
+    {
+      "display": "汇报",
+      "input": "huìbào",
+      "annotation": "huìbào / 報告する",
+      "input_type": "word"
+    },
+    {
+      "display": "会晤",
+      "input": "huìwù",
+      "annotation": "huìwù / 会見する",
+      "input_type": "word"
+    },
+    {
+      "display": "混合",
+      "input": "hùnhé",
+      "annotation": "hùnhé / 混合する",
+      "input_type": "word"
+    },
+    {
+      "display": "混乱",
+      "input": "hùnluàn",
+      "annotation": "hùnluàn / 混乱した",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

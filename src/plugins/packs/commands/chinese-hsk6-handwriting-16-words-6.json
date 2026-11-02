@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-16-words-6",
+  "name": "中国語HSK6級 手書き16（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語16",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "无动于衷",
+      "input": "wúdòng yúzhōng",
+      "annotation": "wúdòng yúzhōng / まったく動じない",
+      "input_type": "word"
+    },
+    {
+      "display": "乌黑",
+      "input": "wūhēi",
+      "annotation": "wūhēi / 真っ黒な",
+      "input_type": "word"
+    },
+    {
+      "display": "误解",
+      "input": "wùjiě",
+      "annotation": "wùjiě / 誤解する",
+      "input_type": "word"
+    },
+    {
+      "display": "无可奉告",
+      "input": "wúkě fènggào",
+      "annotation": "wúkě fènggào / ノーコメント",
+      "input_type": "word"
+    },
+    {
+      "display": "无可奈何",
+      "input": "wúkě nàihé",
+      "annotation": "wúkě nàihé / どうしようもない",
+      "input_type": "word"
+    },
+    {
+      "display": "无赖",
+      "input": "wúlài",
+      "annotation": "wúlài / ごろつき、無頼な",
+      "input_type": "word"
+    },
+    {
+      "display": "物美价廉",
+      "input": "wùměi jiàlián",
+      "annotation": "wùměi jiàlián / 品が良くて安い",
+      "input_type": "word"
+    },
+    {
+      "display": "污蔑",
+      "input": "wūmiè",
+      "annotation": "wūmiè / 中傷する",
+      "input_type": "word"
+    },
+    {
+      "display": "武器",
+      "input": "wǔqì",
+      "annotation": "wǔqì / 武器",
+      "input_type": "word"
+    },
+    {
+      "display": "无穷无尽",
+      "input": "wúqióng wújìn",
+      "annotation": "wúqióng wújìn / 果てしない",
+      "input_type": "word"
+    },
+    {
+      "display": "无微不至",
+      "input": "wúwēi búzhì",
+      "annotation": "wúwēi búzhì / 至れり尽くせり",
+      "input_type": "word"
+    },
+    {
+      "display": "武侠",
+      "input": "wǔxiá",
+      "annotation": "wǔxiá / 武侠",
+      "input_type": "word"
+    },
+    {
+      "display": "诬陷",
+      "input": "wūxiàn",
+      "annotation": "wūxiàn / 罪を着せる",
+      "input_type": "word"
+    },
+    {
+      "display": "无忧无虑",
+      "input": "wúyōu wúlǜ",
+      "annotation": "wúyōu wúlǜ / 何の心配もない",
+      "input_type": "word"
+    },
+    {
+      "display": "无知",
+      "input": "wúzhī",
+      "annotation": "wúzhī / 無知な",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

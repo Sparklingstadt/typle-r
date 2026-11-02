@@ -8,3 +8,7 @@ test-results
 playwright-report
 server/cmd
 *_test.go
+# api-docs is the root of the typle-api-docs project, so only its build output is left out.
+api-docs/src/.vuepress/dist
+api-docs/src/.vuepress/.temp
+api-docs/src/.vuepress/.cache

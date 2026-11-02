@@ -30,6 +30,7 @@
     "heading": "{relative} · {date}",
     "summary": "{count, plural, other {# 次}} · {duration}"
   },
+  "recallBadge": "回憶",
   "more": "顯示更多（剩餘 {count, number} 筆）",
   "note": "單字數與裝置名稱為練習當時的資訊。",
   "noteMissing": "「—」表示未記錄的項目（例如舊版本儲存的紀錄）。",
@@ -75,8 +76,9 @@
     "words": "{count, plural, other {# 個單字}}",
     "runs": "練習 {count, plural, other {# 次}}",
     "last": "最近 {day}",
-    "best": "最佳",
+    "best": "最佳（{mode}）",
     "rankings": "最佳紀錄",
     "practice": "開始練習"
-  }
+  },
+  "modeWriting": "Handwriting"
 }

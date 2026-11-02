@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-11-words-6",
+  "name": "中国語HSK6級 手書き11（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語11",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "宫殿",
+      "input": "gōngdiàn",
+      "annotation": "gōngdiàn / 宮殿",
+      "input_type": "word"
+    },
+    {
+      "display": "公式",
+      "input": "gōngshì",
+      "annotation": "gōngshì / 公式",
+      "input_type": "word"
+    },
+    {
+      "display": "勾结",
+      "input": "gōujié",
+      "annotation": "gōujié / 結託する",
+      "input_type": "word"
+    },
+    {
+      "display": "官方",
+      "input": "guānfāng",
+      "annotation": "guānfāng / 公式の",
+      "input_type": "word"
+    },
+    {
+      "display": "光彩",
+      "input": "guāngcǎi",
+      "annotation": "guāngcǎi / 輝き、名誉",
+      "input_type": "word"
+    },
+    {
+      "display": "骨干",
+      "input": "gǔgàn",
+      "annotation": "gǔgàn / 中核",
+      "input_type": "word"
+    },
+    {
+      "display": "归根到底",
+      "input": "guīgēn dàodǐ",
+      "annotation": "guīgēn dàodǐ / 結局のところ",
+      "input_type": "word"
+    },
+    {
+      "display": "过渡",
+      "input": "guòdù",
+      "annotation": "guòdù / 移行する",
+      "input_type": "word"
+    },
+    {
+      "display": "过瘾",
+      "input": "guòyǐn",
+      "annotation": "guòyǐn / 堪能する",
+      "input_type": "word"
+    },
+    {
+      "display": "固执",
+      "input": "gùzhi",
+      "annotation": "gùzhi / 頑固な",
+      "input_type": "word"
+    },
+    {
+      "display": "寒暄",
+      "input": "hánxuān",
+      "annotation": "hánxuān / あいさつを交わす",
+      "input_type": "word"
+    },
+    {
+      "display": "毫无",
+      "input": "háowú",
+      "annotation": "háowú / 少しも〜ない",
+      "input_type": "word"
+    },
+    {
+      "display": "和气",
+      "input": "héqi",
+      "annotation": "héqi / 穏やかな",
+      "input_type": "word"
+    },
+    {
+      "display": "轰动",
+      "input": "hōngdòng",
+      "annotation": "hōngdòng / センセーションを起こす",
+      "input_type": "word"
+    },
+    {
+      "display": "划分",
+      "input": "huàfēn",
+      "annotation": "huàfēn / 区分する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

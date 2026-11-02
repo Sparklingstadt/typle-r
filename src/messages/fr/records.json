@@ -30,6 +30,7 @@
     "heading": "{relative} · {date}",
     "summary": "{count, plural, one {# entraînement} other {# entraînements}} · {duration}"
   },
+  "recallBadge": "De mémoire",
   "more": "Afficher plus ({count, number} restants)",
   "note": "Le nombre de mots et le nom de l’appareil sont ceux du moment de l’entraînement.",
   "noteMissing": "« — » indique une valeur non enregistrée (par exemple, pour les résultats enregistrés par une version précédente).",
@@ -75,8 +76,9 @@
     "words": "{count, plural, one {# mot} other {# mots}}",
     "runs": "{count, plural, one {# entraînement} other {# entraînements}}",
     "last": "Dernier : {day}",
-    "best": "Meilleur",
+    "best": "Meilleur ({mode})",
     "rankings": "Meilleurs résultats",
     "practice": "S’entraîner"
-  }
+  },
+  "modeWriting": "Handwriting"
 }

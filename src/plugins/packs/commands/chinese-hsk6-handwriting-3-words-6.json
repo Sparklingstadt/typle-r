@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-3-words-6",
+  "name": "中国語HSK6級 手書き3（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語3",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "过于",
+      "input": "guòyú",
+      "annotation": "guòyú / あまりにも",
+      "input_type": "word"
+    },
+    {
+      "display": "含义",
+      "input": "hányì",
+      "annotation": "hányì / 含意",
+      "input_type": "word"
+    },
+    {
+      "display": "罕见",
+      "input": "hǎnjiàn",
+      "annotation": "hǎnjiàn / まれな",
+      "input_type": "word"
+    },
+    {
+      "display": "航天",
+      "input": "hángtiān",
+      "annotation": "hángtiān / 宇宙飛行",
+      "input_type": "word"
+    },
+    {
+      "display": "豪迈",
+      "input": "háomài",
+      "annotation": "háomài / 豪放な",
+      "input_type": "word"
+    },
+    {
+      "display": "合并",
+      "input": "hébìng",
+      "annotation": "hébìng / 合併する",
+      "input_type": "word"
+    },
+    {
+      "display": "合伙",
+      "input": "héhuǒ",
+      "annotation": "héhuǒ / 共同で行う",
+      "input_type": "word"
+    },
+    {
+      "display": "和睦",
+      "input": "hémù",
+      "annotation": "hémù / 仲むつまじい",
+      "input_type": "word"
+    },
+    {
+      "display": "和谐",
+      "input": "héxié",
+      "annotation": "héxié / 調和のとれた",
+      "input_type": "word"
+    },
+    {
+      "display": "恨不得",
+      "input": "hènbude",
+      "annotation": "hènbude / 〜したくてたまらない",
+      "input_type": "word"
+    },
+    {
+      "display": "宏观",
+      "input": "hóngguān",
+      "annotation": "hóngguān / マクロの",
+      "input_type": "word"
+    },
+    {
+      "display": "喉咙",
+      "input": "hóulóng",
+      "annotation": "hóulóng / のど",
+      "input_type": "word"
+    },
+    {
+      "display": "后顾之忧",
+      "input": "hòugù zhīyōu",
+      "annotation": "hòugù zhīyōu / 後顧の憂い",
+      "input_type": "word"
+    },
+    {
+      "display": "呼唤",
+      "input": "hūhuàn",
+      "annotation": "hūhuàn / 呼ぶ",
+      "input_type": "word"
+    },
+    {
+      "display": "胡乱",
+      "input": "húluàn",
+      "annotation": "húluàn / でたらめに",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

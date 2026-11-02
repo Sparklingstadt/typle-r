@@ -1,5 +1,5 @@
 // Command typle-api serves Typle workspaces over HTTP, each to its own GitHub account: read-only, or with -writable
-// also creating, changing and deleting lists and adding records. See docs/api.md.
+// also creating, changing and deleting lists and adding records. See api-docs/src/v1.
 package main
 
 import (

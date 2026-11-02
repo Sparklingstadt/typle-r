@@ -107,11 +107,11 @@ func MatchesFilter(list *List, category *string, tags []string) bool {
 	})
 }
 
-// CurrentRecordCount counts the runs at the list's current word count, the ones its best is taken from.
+// CurrentRecordCount counts the normal runs at the list's current word count, the ones its best is taken from.
 func CurrentRecordCount(list *List) int {
 	count := 0
 	for _, record := range list.Records {
-		if record.WordCount != nil && *record.WordCount == len(list.Words) {
+		if record.Mode == "" && record.WordCount != nil && *record.WordCount == len(list.Words) {
 			count++
 		}
 	}

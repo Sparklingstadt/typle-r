@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-9-words-3",
+  "name": "中国語HSK6級 手書き9（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語9",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "记载",
+      "input": "jìzǎi",
+      "annotation": "jìzǎi / 記載する",
+      "input_type": "word"
+    },
+    {
+      "display": "技巧",
+      "input": "jìqiǎo",
+      "annotation": "jìqiǎo / 技巧",
+      "input_type": "word"
+    },
+    {
+      "display": "季军",
+      "input": "jìjūn",
+      "annotation": "jìjūn / 3位",
+      "input_type": "word"
+    },
+    {
+      "display": "继承",
+      "input": "jìchéng",
+      "annotation": "jìchéng / 受け継ぐ",
+      "input_type": "word"
+    },
+    {
+      "display": "加工",
+      "input": "jiāgōng",
+      "annotation": "jiāgōng / 加工する",
+      "input_type": "word"
+    },
+    {
+      "display": "夹杂",
+      "input": "jiāzá",
+      "annotation": "jiāzá / 混じる",
+      "input_type": "word"
+    },
+    {
+      "display": "家伙",
+      "input": "jiāhuo",
+      "annotation": "jiāhuo / やつ",
+      "input_type": "word"
+    },
+    {
+      "display": "家喻户晓",
+      "input": "jiāyù hùxiǎo",
+      "annotation": "jiāyù hùxiǎo / 誰もが知っている",
+      "input_type": "word"
+    },
+    {
+      "display": "坚定不移",
+      "input": "jiāndìng bùyí",
+      "annotation": "jiāndìng bùyí / 揺るぎない",
+      "input_type": "word"
+    },
+    {
+      "display": "坚韧",
+      "input": "jiānrèn",
+      "annotation": "jiānrèn / 粘り強い",
+      "input_type": "word"
+    },
+    {
+      "display": "艰难",
+      "input": "jiānnán",
+      "annotation": "jiānnán / 困難な",
+      "input_type": "word"
+    },
+    {
+      "display": "监视",
+      "input": "jiānshì",
+      "annotation": "jiānshì / 監視する",
+      "input_type": "word"
+    },
+    {
+      "display": "检验",
+      "input": "jiǎnyàn",
+      "annotation": "jiǎnyàn / 検査する",
+      "input_type": "word"
+    },
+    {
+      "display": "简化",
+      "input": "jiǎnhuà",
+      "annotation": "jiǎnhuà / 簡略化する",
+      "input_type": "word"
+    },
+    {
+      "display": "简要",
+      "input": "jiǎnyào",
+      "annotation": "jiǎnyào / 簡潔な",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

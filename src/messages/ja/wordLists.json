@@ -114,7 +114,9 @@
     "copy": "複製",
     "export": "書き出す",
     "share": "共有",
-    "shared": "共有中"
+    "shared": "共有中",
+    "listed": "ギャラリーに掲載中",
+    "hidden": "非公開にされました"
   },
   "wordRow": {
     "label": "単語 {n}",
@@ -187,6 +189,21 @@
     "pack": "パック",
     "newPack": "新しいパック（リスト名で作成）",
     "packHelp": "リストを入れるパックです。ほかのパックを選ぶと、リストはそのパックに移ります。",
+    "writingToggle": "手書き練習（Typle Handwriting）に使う",
+    "writingToggleHelp": "このリストを手書きで練習できるようにします。認識する言語は手書きの文字を読み取るときに使います。",
+    "writingLanguage": "認識する言語",
+    "writingLanguages": {
+      "en": "English",
+      "ja": "日本語",
+      "zh-Hans": "中文（简体）",
+      "zh-Hant": "中文（繁體）",
+      "ko": "한국어",
+      "fr": "Français",
+      "de": "Deutsch",
+      "es": "Español",
+      "ru": "Русский",
+      "cs": "Čeština"
+    },
     "packWillBeDeleted": "パック「{name}」は削除されます。",
     "levels": "難易度（任意）",
     "levelPlaceholder": "初級など",
@@ -286,7 +303,8 @@
     "matching": "関心に合うパック",
     "others": "そのほかのパック",
     "noMatching": "関心に合うパックはまだありません",
-    "changeInterests": "関心を変える"
+    "changeInterests": "関心を変える",
+    "toGallery": "みんなが公開したパックをギャラリーで探す"
   },
   "share": {
     "title": "「{name}」を共有",
@@ -302,6 +320,10 @@
     "update": "共有を更新",
     "stop": "共有をやめる",
     "failed": "共有の操作ができませんでした。",
+    "gallery": "ギャラリーに載せる",
+    "galleryNotice": "ギャラリーではだれでも見られます。作者名は出ません。不適切な内容は管理者が非公開にすることがあります。",
+    "galleryCategoryHint": "カテゴリを付けると見つけてもらいやすくなります。",
+    "hiddenNotice": "このパックは管理者により非公開にされたため、ギャラリーに載せられません。",
     "orphans": {
       "title": "パックが見つからない共有",
       "description": "元のパックがなくなった共有リンクです。リンクを知っている人は今も見られます。不要なら共有をやめてください。",
@@ -328,5 +350,38 @@
     "confirm": "フォロー解除する",
     "confirming": "解除中…",
     "done": "「{name}」のフォローを解除しました"
+  },
+  "gallery": {
+    "title": "ギャラリー",
+    "intro": "みんなが公開した単語パックを探して、中身を確かめてから自分のパックに追加できます。",
+    "search": "検索",
+    "category": "カテゴリ",
+    "allCategories": "すべてのカテゴリ",
+    "sort": "並べ替え",
+    "sortNew": "新しい順",
+    "sortPopular": "追加の多い順",
+    "lists": "リスト {count}",
+    "words": "単語 {count}",
+    "added": "追加 {count}",
+    "more": "もっと見る",
+    "empty": "まだ公開されたパックはありません",
+    "noResults": "見つかりませんでした",
+    "loadFailed": "ギャラリーを読み込めませんでした。時間をおいてもう一度お試しください。",
+    "retry": "やり直す"
+  },
+  "report": {
+    "open": "通報",
+    "title": "このパックを通報",
+    "description": "問題のあるパックを管理者に知らせます。理由を選んで送ってください。",
+    "reason": "通報の理由",
+    "reasons": {
+      "inappropriate": "不適切な内容",
+      "spam": "スパム・宣伝",
+      "personalInfo": "個人情報を含む",
+      "other": "その他"
+    },
+    "send": "送る",
+    "sent": "通報を受け付けました",
+    "failed": "通報を送れませんでした。もう一度お試しください。"
   }
 }

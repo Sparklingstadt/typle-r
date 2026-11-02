@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -300,6 +301,9 @@ func TestAdminSignout(t *testing.T) {
 	if response.Code != http.StatusNoContent || c == nil || c.MaxAge >= 0 || c.SameSite != http.SameSiteStrictMode {
 		t.Fatalf("signout = %d %+v", response.Code, c)
 	}
+	if relogin := findCookie(response, reloginCookie); relogin == nil || relogin.Value != "1" || relogin.MaxAge <= 0 {
+		t.Fatalf("relogin cookie = %+v", relogin)
+	}
 }
 
 // usersStore answers the user list and remembers the page it was asked for.
@@ -346,6 +350,118 @@ func TestAdminUsers(t *testing.T) {
 	u.allowed, u.err = true, errors.New("down")
 	expectError(t, h.do(http.MethodGet, "/api/admin/users", admin), http.StatusServiceUnavailable, "databaseUnavailable")
 	if strings.Join(h.reports, ",") != "admin.users" {
+		t.Fatalf("reports = %v", h.reports)
+	}
+}
+
+// moderationStore answers the administrator's gallery calls and remembers what it was asked.
+type moderationStore struct {
+	adminStore
+	packs  []store.AdminGalleryPack
+	found  bool
+	hidden []string
+	set    []bool
+}
+
+func (m *moderationStore) AdminGallery(context.Context) ([]store.AdminGalleryPack, error) {
+	return m.packs, m.err
+}
+
+func (m *moderationStore) SetHidden(_ context.Context, id string, hidden bool) (bool, error) {
+	m.hidden = append(m.hidden, id)
+	m.set = append(m.set, hidden)
+	return m.found, m.err
+}
+
+func newModerationHarness(t *testing.T, m *moderationStore) *loginHarness {
+	t.Helper()
+	h := newLoginHarness(t, testBase, false)
+	parsed, _ := url.Parse(testBase)
+	h.handler = New(Config{Store: m, Keys: h.keys, BaseURL: parsed, Now: func() time.Time { return h.now },
+		Report: func(_ *http.Request, err error, operation string) { h.reports = append(h.reports, operation) }})
+	return h
+}
+
+var galleryPaths = []struct{ method, path string }{
+	{http.MethodGet, "/api/admin/gallery"},
+	{http.MethodPost, "/api/admin/gallery/hide"},
+	{http.MethodPost, "/api/admin/gallery/unhide"},
+}
+
+func TestAdminGalleryRefused(t *testing.T) {
+	m := &moderationStore{adminStore: adminStore{allowed: true}, found: true}
+	h := newModerationHarness(t, m)
+	body := strings.NewReader(`{"id":"` + aSharedID + `"}`)
+	for _, p := range galleryPaths {
+		do := func(change ...func(*http.Request)) *httptest.ResponseRecorder {
+			change = append([]func(*http.Request){withOrigin(testBase), func(r *http.Request) {
+				r.Header.Set("Content-Type", "application/json")
+				body.Seek(0, 0)
+				r.Body = io.NopCloser(body)
+			}}, change...)
+			return h.do(p.method, p.path, change...)
+		}
+		expectError(t, do(), http.StatusUnauthorized, "adminRequired")
+		m.allowed = false
+		expectError(t, do(withCookie(h.adminCookie("admin@example.com", "cother"))), http.StatusForbidden, "adminForbidden")
+		m.allowed = true
+		if len(m.hidden) != 0 {
+			t.Fatalf("%s reached the database: %v", p.path, m.hidden)
+		}
+	}
+}
+
+func TestAdminGallery(t *testing.T) {
+	listed := time.Unix(1700000000, 0).UTC()
+	m := &moderationStore{adminStore: adminStore{allowed: true}, found: true, packs: []store.AdminGalleryPack{
+		{ID: aSharedID, Name: "N", Added: 2, ListedAt: &listed, Reports: 3, Reasons: map[string]int{"spam": 3}}}}
+	h := newModerationHarness(t, m)
+	admin := withCookie(h.adminCookie("admin@example.com", "cadmin"))
+
+	response := h.do(http.MethodGet, "/api/admin/gallery", admin)
+	want := `{"packs":[{"id":"` + aSharedID + `","name":"N","added":2,"listedAt":"2023-11-14T22:13:20Z","hiddenAt":null,` +
+		`"reports":3,"reasons":{"spam":3}}]}`
+	if response.Code != http.StatusOK || strings.TrimSpace(response.Body.String()) != want {
+		t.Fatalf("gallery = %d %s", response.Code, response.Body)
+	}
+	m.packs = nil
+	if empty := h.do(http.MethodGet, "/api/admin/gallery", admin); strings.TrimSpace(empty.Body.String()) != `{"packs":[]}` {
+		t.Fatalf("empty = %s", empty.Body)
+	}
+	expectError(t, h.do(http.MethodPost, "/api/admin/gallery", admin), http.StatusMethodNotAllowed, "methodNotAllowed")
+	expectError(t, h.do(http.MethodGet, "/api/admin/gallery/hide", admin), http.StatusMethodNotAllowed, "methodNotAllowed")
+
+	json := func(change ...func(*http.Request)) []func(*http.Request) {
+		return append([]func(*http.Request){admin, withOrigin(testBase), func(r *http.Request) { r.Header.Set("Content-Type", "application/json") }}, change...)
+	}
+	post := func(path, body string, change ...func(*http.Request)) *httptest.ResponseRecorder {
+		return h.do(http.MethodPost, path, append(json(change...), func(r *http.Request) { r.Body = io.NopCloser(strings.NewReader(body)) })...)
+	}
+	good := `{"id":"` + aSharedID + `"}`
+	for path, hide := range map[string]bool{"/api/admin/gallery/hide": true, "/api/admin/gallery/unhide": false} {
+		m.hidden, m.set = nil, nil
+		response := post(path, good)
+		if response.Code != http.StatusNoContent || response.Body.Len() != 0 || len(m.hidden) != 1 || m.hidden[0] != aSharedID || m.set[0] != hide {
+			t.Fatalf("%s = %d %s %v %v", path, response.Code, response.Body, m.hidden, m.set)
+		}
+		for _, body := range []string{``, `x`, `[]`, `{}`, `{"id":""}`, `{"id":null}`, `{"id":1}`, `{"id":"` + aSharedID + `","x":1}`} {
+			expectError(t, post(path, body), http.StatusBadRequest, "invalidRequest")
+		}
+		expectError(t, post(path, good, withOrigin("https://evil.example")), http.StatusForbidden, "forbiddenRequest")
+		expectError(t, post(path, good, func(r *http.Request) { r.Header.Del("Origin") }), http.StatusForbidden, "forbiddenRequest")
+		expectError(t, post(path, good, func(r *http.Request) { r.Header.Set("Content-Type", "text/plain") }), http.StatusForbidden, "forbiddenRequest")
+		if len(m.hidden) != 1 {
+			t.Fatalf("%s: a refused request reached the database: %v", path, m.hidden)
+		}
+		m.found = false
+		expectError(t, post(path, good), http.StatusNotFound, "sharedPackNotFound")
+		m.found = true
+	}
+
+	m.err = errors.New("down")
+	expectError(t, h.do(http.MethodGet, "/api/admin/gallery", admin), http.StatusServiceUnavailable, "databaseUnavailable")
+	expectError(t, post("/api/admin/gallery/hide", good), http.StatusServiceUnavailable, "databaseUnavailable")
+	if got := strings.Join(h.reports, ","); !strings.Contains(got, "admin.gallery,") || !strings.Contains(got, "admin.hide") {
 		t.Fatalf("reports = %v", h.reports)
 	}
 }

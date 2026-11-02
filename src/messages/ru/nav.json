@@ -20,11 +20,13 @@
     "words": "Просмотр слов",
     "create": "Создать набор",
     "general": "Общие",
+    "input": "Ввод",
     "interests": "Интересы",
     "devices": "Устройства",
     "guide": "Как пользоваться",
     "about": "О Typle",
-    "github": "GitHub"
+    "github": "GitHub",
+    "gallery": "Галерея"
   },
   "storage": {
     "label": "Место хранения: ",

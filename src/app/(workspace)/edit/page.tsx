@@ -183,7 +183,7 @@ function WordLists({ workspace }: { workspace: Workspace }) {
     onCancel={() => close()} onSave={async (list, packId) => {
       let target = packId
       const saved = await updateLibrary(library => {
-        const next = saveListInPack(library, { id: list.id, name: list.name, words: list.words, levels: list.levels, createdAt: list.createdAt }, packId, true)
+        const next = saveListInPack(library, { id: list.id, name: list.name, words: list.words, levels: list.levels, ...(list.writing ? { writing: list.writing } : {}), createdAt: list.createdAt }, packId, true)
         target = next.lists.find(item => item.id === list.id)?.packId ?? packId
         return next
       })
@@ -426,7 +426,7 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
           onEditPack={() => router.push(`/packs/edit?pack=${encodeURIComponent(pack.id)}`)}
           onAddList={full ? undefined : () => router.push(`/create?pack=${encodeURIComponent(pack.id)}`)}
           onCopy={lists.length + item.lists.length > MAX_LISTS ? undefined : () => copyPackOf(item)} onExport={() => exportPack(item)}
-          onShare={canShare ? () => setSharing({ id: pack.id, name: pack.name }) : undefined} shared={shares.has(pack.id)}
+          onShare={canShare ? () => setSharing({ id: pack.id, name: pack.name }) : undefined} shared={shares.has(pack.id)} listed={shares.get(pack.id)?.listed} hidden={shares.get(pack.id)?.hidden}
           onDeletePack={() => { packDeleted.current = false; setDeletingPack({ open: true, item, position: shown.indexOf(item) }) }}
           followed={followed} onUnfollow={() => setUnfollowing({ id: pack.id, name: pack.name })}>
           {rows.map(row => <ListRow key={row.list.id} item={row} now={now} highlight={highlight === row.list.id} disabled={saving} canCopy={!full} readOnly={followed}
@@ -481,7 +481,7 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
         window.requestAnimationFrame(() => (document.getElementById('list-heading') ?? document.getElementById('empty-heading'))?.focus())
       }} />
 
-    <ShareDialog pack={sharing} share={sharing ? shares.get(sharing.id) : undefined} onShare={share} onStop={stop}
+    <ShareDialog pack={sharing} hasCategory={!!packs.find(pack => pack.id === sharing?.id)?.category} share={sharing ? shares.get(sharing.id) : undefined} onShare={share} onStop={stop}
       onOpenChange={open => { if (!open) setSharing(null) }} />
   </section>
 }

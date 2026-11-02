@@ -7,6 +7,12 @@
     "allDevices": "All devices",
     "deleted": "{name} (deleted)"
   },
+  "mode": {
+    "label": "Practice mode",
+    "normal": "Normal",
+    "recall": "Recall",
+    "writing": "Handwriting"
+  },
   "order": {
     "label": "Ranking order",
     "accuracy": "Accuracy<wide> first</wide>",

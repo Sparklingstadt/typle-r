@@ -1,4 +1,5 @@
 import { AppError } from './appError'
+import { recordsOfMode } from './records'
 import type { SavedWordList } from './wordLists'
 
 export const MAX_LISTS = 150
@@ -115,9 +116,9 @@ export function wordPreview(list: SavedWordList, limit = 6) {
   return { words: list.words.slice(0, limit).map(word => word.display.trim()), rest: Math.max(0, list.words.length - limit) }
 }
 
-// The records a list's best is taken from: runs at its current word count (see comparableRecords).
+// The records a list's best is taken from: normal runs at its current word count (see comparableRecords).
 export function currentRecordCount(list: Pick<SavedWordList, 'words' | 'records'>) {
-  return list.records.filter(record => record.wordCount === list.words.length).length
+  return recordsOfMode(list.records, 'normal').filter(record => record.wordCount === list.words.length).length
 }
 
 // `suffix(n)` is the localized mark for the nth copy, such as （コピー） and （コピー2）. Packs are named the same way.
@@ -144,6 +145,7 @@ export function duplicateList(lists: SavedWordList[], id: string, copyId: string
   const copy: SavedWordList = { id: copyId, name: copyName(taken, source.name, suffix),
     createdAt: now.toISOString(), ...(source.packId === undefined ? {} : { packId: source.packId }),
     ...(source.category === undefined ? {} : { category: source.category }), ...(source.tags ? { tags: [...source.tags] } : {}),
+    ...(source.writing ? { writing: { ...source.writing } } : {}),
     words: source.words.map(word => ({ ...word })), records: [] }
   return { lists: [...lists, copy], copy }
 }

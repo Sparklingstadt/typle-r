@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-14-words-2",
+  "name": "中国語HSK6級 手書き14（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語14",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "扰乱",
+      "input": "rǎoluàn",
+      "annotation": "rǎoluàn / かき乱す",
+      "input_type": "word"
+    },
+    {
+      "display": "饶恕",
+      "input": "ráoshù",
+      "annotation": "ráoshù / 許す",
+      "input_type": "word"
+    },
+    {
+      "display": "热泪盈眶",
+      "input": "rèlèi yíngkuàng",
+      "annotation": "rèlèi yíngkuàng / 目に涙があふれる",
+      "input_type": "word"
+    },
+    {
+      "display": "热门",
+      "input": "rèmén",
+      "annotation": "rèmén / 人気のある",
+      "input_type": "word"
+    },
+    {
+      "display": "人道",
+      "input": "réndào",
+      "annotation": "réndào / 人道",
+      "input_type": "word"
+    },
+    {
+      "display": "认定",
+      "input": "rèndìng",
+      "annotation": "rèndìng / 認定する、思い込む",
+      "input_type": "word"
+    },
+    {
+      "display": "仍旧",
+      "input": "réngjiù",
+      "annotation": "réngjiù / 依然として",
+      "input_type": "word"
+    },
+    {
+      "display": "人工",
+      "input": "réngōng",
+      "annotation": "réngōng / 人工の、人手",
+      "input_type": "word"
+    },
+    {
+      "display": "人家",
+      "input": "rénjia",
+      "annotation": "rénjia / 他人、あの人",
+      "input_type": "word"
+    },
+    {
+      "display": "认可",
+      "input": "rènkě",
+      "annotation": "rènkě / 認可する",
+      "input_type": "word"
+    },
+    {
+      "display": "任命",
+      "input": "rènmìng",
+      "annotation": "rènmìng / 任命する",
+      "input_type": "word"
+    },
+    {
+      "display": "人士",
+      "input": "rénshì",
+      "annotation": "rénshì / 人士、関係者",
+      "input_type": "word"
+    },
+    {
+      "display": "忍受",
+      "input": "rěnshòu",
+      "annotation": "rěnshòu / 耐え忍ぶ",
+      "input_type": "word"
+    },
+    {
+      "display": "人性",
+      "input": "rénxìng",
+      "annotation": "rénxìng / 人間性",
+      "input_type": "word"
+    },
+    {
+      "display": "任性",
+      "input": "rènxìng",
+      "annotation": "rènxìng / わがままな",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

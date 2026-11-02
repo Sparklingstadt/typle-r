@@ -5,6 +5,7 @@
 package workspace
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -31,6 +32,17 @@ type Word struct {
 	Extra string `json:"-"`
 }
 
+// WritingLanguages are the languages a list can be practised in by handwriting (WRITING_LANGUAGES in
+// src/core/wordLists.ts).
+var WritingLanguages = []string{"en", "ja", "zh-Hans", "zh-Hant", "ko", "fr", "de", "es", "ru", "cs"}
+
+// Writing is the mark of a list that can be practised by handwriting (Typle Writing). Only the language is kept.
+type Writing struct {
+	Language string `json:"language"`
+}
+
+func validWritingLanguage(language string) bool { return slices.Contains(WritingLanguages, language) }
+
 type Device struct {
 	ID     string `json:"id"`
 	Name   string `json:"name"`
@@ -49,6 +61,8 @@ type Record struct {
 	Accuracy  *float64 `json:"accuracy,omitempty"`
 	WordCount *int     `json:"wordCount,omitempty"`
 	Device    *Device  `json:"device,omitempty"`
+	// Mode is RecallMode or WritingMode for a run practised that way; "" for a normal run, which has no mode key.
+	Mode string `json:"mode,omitempty"`
 	// At is Date as a time, for ordering and filtering.
 	At    time.Time `json:"-"`
 	Extra string    `json:"-"`
@@ -60,6 +74,8 @@ type List struct {
 	// Levels pick the list within its pack on the practice screen (nil when it has none; an empty array as stored stays
 	// empty). See levelPath.
 	Levels []string
+	// Writing is set when the list can be practised by handwriting; nil otherwise.
+	Writing *Writing
 	// PackID is the word pack the list belongs to. Every list Decode returns has one.
 	PackID string
 	// Group is the group of a list saved before packs existed, which Decode makes a pack of. Encode never writes it; only
@@ -109,28 +125,31 @@ type rawWord struct {
 }
 
 type rawRecord struct {
-	ID        *string  `json:"id"`
-	Time      *float64 `json:"time"`
-	Date      *string  `json:"date"`
-	Mistakes  *int     `json:"mistakes"`
-	Accuracy  *float64 `json:"accuracy"`
-	WordCount *int     `json:"wordCount"`
-	Device    *Device  `json:"device"`
+	ID        *string         `json:"id"`
+	Time      *float64        `json:"time"`
+	Date      *string         `json:"date"`
+	Mistakes  *int            `json:"mistakes"`
+	Accuracy  *float64        `json:"accuracy"`
+	WordCount *int            `json:"wordCount"`
+	Device    *Device         `json:"device"`
+	Mode      json.RawMessage `json:"mode"`
 	extra     string
 }
 
 // shared and shareId, which meant link sharing, are dropped. Other fields Typle does not know are kept.
 type rawList struct {
-	ID        *string      `json:"id"`
-	Name      *string      `json:"name"`
-	Category  *string      `json:"category"`
-	Tags      []*string    `json:"tags"`
-	Group     *string      `json:"group"`
-	PackID    *string      `json:"packId"`
-	Levels    []*string    `json:"levels"`
-	CreatedAt *string      `json:"createdAt"`
-	Words     []*rawWord   `json:"words"`
-	Records   []*rawRecord `json:"records"`
+	ID       *string   `json:"id"`
+	Name     *string   `json:"name"`
+	Category *string   `json:"category"`
+	Tags     []*string `json:"tags"`
+	Group    *string   `json:"group"`
+	PackID   *string   `json:"packId"`
+	Levels   []*string `json:"levels"`
+	// Writing is read by writingOf, which refuses any shape but {"language": <listed>}; null reads as left out.
+	Writing   json.RawMessage `json:"writing"`
+	CreatedAt *string         `json:"createdAt"`
+	Words     []*rawWord      `json:"words"`
+	Records   []*rawRecord    `json:"records"`
 	// Origin is read by originOf, which drops an origin of another shape.
 	Origin json.RawMessage `json:"origin"`
 	extra  string
@@ -261,6 +280,10 @@ func decodeList(raw *rawList) (List, error) {
 		}
 		levels = append(levels, *level)
 	}
+	writing, err := writingOf(raw.Writing)
+	if err != nil {
+		return List{}, err
+	}
 	records := make([]Record, 0, len(raw.Records))
 	for index, item := range raw.Records {
 		record, err := decodeRecord(item)
@@ -280,8 +303,23 @@ func decodeList(raw *rawList) (List, error) {
 	if err != nil {
 		return List{}, err
 	}
-	return List{ID: *raw.ID, Name: *raw.Name, Levels: levels, PackID: packID, Group: group, Category: category, Tags: tags, Words: words, Records: records,
+	return List{ID: *raw.ID, Name: *raw.Name, Levels: levels, Writing: writing, PackID: packID, Group: group, Category: category, Tags: tags, Words: words, Records: records,
 		CreatedAt: *raw.CreatedAt, Origin: origin, Extra: raw.extra}, nil
+}
+
+// writingOf follows isWritingMark (src/core/wordLists.ts): the mark is an object whose only field is a listed language.
+// Anything else makes the list unreadable, as a malformed list field does; null reads as left out.
+func writingOf(raw json.RawMessage) (*Writing, error) {
+	if len(raw) == 0 || string(raw) == "null" {
+		return nil, nil
+	}
+	var fields map[string]json.RawMessage
+	var language string
+	if json.Unmarshal(raw, &fields) != nil || len(fields) != 1 || json.Unmarshal(fields["language"], &language) != nil ||
+		!validWritingLanguage(language) {
+		return nil, errors.New("writing must be an object with a supported language only")
+	}
+	return &Writing{Language: language}, nil
 }
 
 // originOf follows decodeLists (src/core/wordLists.ts): a list's origin is kept when it is an object with a string
@@ -322,8 +360,17 @@ func decodeRecord(raw *rawRecord) (Record, error) {
 	if raw.Device != nil && !isDevice(*raw.Device) {
 		return Record{}, errors.New("device is invalid")
 	}
+	mode := ""
+	if raw.Mode != nil {
+		// An explicit null is refused as the app does: the value is "recall" or "writing", or the key is absent.
+		var value string
+		if json.Unmarshal(raw.Mode, &value) != nil || value == "" || !validMode(value) || string(bytes.TrimSpace(raw.Mode)) == "null" {
+			return Record{}, errors.New(`mode must be "recall" or "writing" when present`)
+		}
+		mode = value
+	}
 	return Record{ID: raw.ID, Time: *raw.Time, Date: *raw.Date, Mistakes: raw.Mistakes, Accuracy: raw.Accuracy,
-		WordCount: raw.WordCount, Device: raw.Device, At: at, Extra: raw.extra}, nil
+		WordCount: raw.WordCount, Device: raw.Device, Mode: mode, At: at, Extra: raw.extra}, nil
 }
 
 // JavaScript measures string length in UTF-16 code units.
@@ -414,7 +461,7 @@ func (w *Word) UnmarshalJSON(data []byte) (err error) {
 func (r *rawRecord) UnmarshalJSON(data []byte) (err error) {
 	type plain rawRecord
 	if err = json.Unmarshal(data, (*plain)(r)); err == nil {
-		r.extra, err = unknown(data, "id", "time", "date", "mistakes", "accuracy", "wordCount", "device")
+		r.extra, err = unknown(data, "id", "time", "date", "mistakes", "accuracy", "wordCount", "device", "mode")
 	}
 	return err
 }
@@ -422,7 +469,7 @@ func (r *rawRecord) UnmarshalJSON(data []byte) (err error) {
 func (r *rawList) UnmarshalJSON(data []byte) (err error) {
 	type plain rawList
 	if err = json.Unmarshal(data, (*plain)(r)); err == nil {
-		r.extra, err = unknown(data, "id", "name", "category", "tags", "group", "packId", "levels", "createdAt", "words", "records",
+		r.extra, err = unknown(data, "id", "name", "category", "tags", "group", "packId", "levels", "writing", "createdAt", "words", "records",
 			"origin", "shared", "shareId")
 	}
 	return err

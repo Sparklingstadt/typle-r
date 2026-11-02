@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-5-words-4",
+  "name": "中国語HSK6級 手書き5（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語5",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "列举",
+      "input": "lièjǔ",
+      "annotation": "lièjǔ / 列挙する",
+      "input_type": "word"
+    },
+    {
+      "display": "吝啬",
+      "input": "lìnsè",
+      "annotation": "lìnsè / けちな",
+      "input_type": "word"
+    },
+    {
+      "display": "灵感",
+      "input": "línggǎn",
+      "annotation": "línggǎn / ひらめき",
+      "input_type": "word"
+    },
+    {
+      "display": "凌晨",
+      "input": "língchén",
+      "annotation": "língchén / 明け方",
+      "input_type": "word"
+    },
+    {
+      "display": "领会",
+      "input": "lǐnghuì",
+      "annotation": "lǐnghuì / 理解する",
+      "input_type": "word"
+    },
+    {
+      "display": "领悟",
+      "input": "lǐngwù",
+      "annotation": "lǐngwù / 悟る",
+      "input_type": "word"
+    },
+    {
+      "display": "领袖",
+      "input": "lǐngxiù",
+      "annotation": "lǐngxiù / 指導者",
+      "input_type": "word"
+    },
+    {
+      "display": "留神",
+      "input": "liúshén",
+      "annotation": "liúshén / 気をつける",
+      "input_type": "word"
+    },
+    {
+      "display": "流露",
+      "input": "liúlù",
+      "annotation": "liúlù / 表に出る",
+      "input_type": "word"
+    },
+    {
+      "display": "聋哑",
+      "input": "lóngyǎ",
+      "annotation": "lóngyǎ / 聾唖",
+      "input_type": "word"
+    },
+    {
+      "display": "垄断",
+      "input": "lǒngduàn",
+      "annotation": "lǒngduàn / 独占する",
+      "input_type": "word"
+    },
+    {
+      "display": "屡次",
+      "input": "lǚcì",
+      "annotation": "lǚcì / しばしば",
+      "input_type": "word"
+    },
+    {
+      "display": "掠夺",
+      "input": "lüèduó",
+      "annotation": "lüèduó / 略奪する",
+      "input_type": "word"
+    },
+    {
+      "display": "轮胎",
+      "input": "lúntāi",
+      "annotation": "lúntāi / タイヤ",
+      "input_type": "word"
+    },
+    {
+      "display": "论证",
+      "input": "lùnzhèng",
+      "annotation": "lùnzhèng / 論証する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

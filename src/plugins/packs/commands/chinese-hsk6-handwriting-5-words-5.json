@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-5-words-5",
+  "name": "中国語HSK6級 手書き5（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語5",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "落成",
+      "input": "luòchéng",
+      "annotation": "luòchéng / 落成する",
+      "input_type": "word"
+    },
+    {
+      "display": "麻痹",
+      "input": "mábì",
+      "annotation": "mábì / まひする",
+      "input_type": "word"
+    },
+    {
+      "display": "码头",
+      "input": "mǎtóu",
+      "annotation": "mǎtóu / 埠頭",
+      "input_type": "word"
+    },
+    {
+      "display": "埋伏",
+      "input": "máifú",
+      "annotation": "máifú / 待ち伏せする",
+      "input_type": "word"
+    },
+    {
+      "display": "脉搏",
+      "input": "màibó",
+      "annotation": "màibó / 脈拍",
+      "input_type": "word"
+    },
+    {
+      "display": "蔓延",
+      "input": "mànyán",
+      "annotation": "mànyán / 蔓延する",
+      "input_type": "word"
+    },
+    {
+      "display": "慢性",
+      "input": "mànxìng",
+      "annotation": "mànxìng / 慢性の",
+      "input_type": "word"
+    },
+    {
+      "display": "盲目",
+      "input": "mángmù",
+      "annotation": "mángmù / 盲目的な",
+      "input_type": "word"
+    },
+    {
+      "display": "冒充",
+      "input": "màochōng",
+      "annotation": "màochōng / 成りすます",
+      "input_type": "word"
+    },
+    {
+      "display": "媒介",
+      "input": "méijiè",
+      "annotation": "méijiè / 媒介",
+      "input_type": "word"
+    },
+    {
+      "display": "美妙",
+      "input": "měimiào",
+      "annotation": "měimiào / すばらしい",
+      "input_type": "word"
+    },
+    {
+      "display": "猛烈",
+      "input": "měngliè",
+      "annotation": "měngliè / 激しい",
+      "input_type": "word"
+    },
+    {
+      "display": "迷人",
+      "input": "mírén",
+      "annotation": "mírén / 魅力的な",
+      "input_type": "word"
+    },
+    {
+      "display": "谜语",
+      "input": "míyǔ",
+      "annotation": "míyǔ / なぞなぞ",
+      "input_type": "word"
+    },
+    {
+      "display": "密封",
+      "input": "mìfēng",
+      "annotation": "mìfēng / 密封する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

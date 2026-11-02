@@ -22,12 +22,15 @@ type GraphQLBody = {
 }
 
 /**
- * Runs a query or mutation on the backend and resolves with its `data`. The first error, if any, rejects with a
+ * Runs a query or mutation on the backend and resolves with its `data`. `keepalive` sends it as `fetch` does, so that it
+ * finishes after the page moves on. The first error, if any, rejects with a
  * `GraphQLError`; a body that is not a GraphQL answer rejects with `invalidServerData`.
  */
-export async function graphql<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
+export async function graphql<T>(query: string, variables?: Record<string, unknown>, options: { keepalive?: boolean } = {}): Promise<T> {
   const response = await fetch(GRAPHQL_PATH, {
     method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query, variables }),
+    // keepalive lets a request finish after the page that sent it is left.
+    ...(options.keepalive ? { keepalive: true } : {}),
   })
   const body = await response.json().catch(() => null) as GraphQLBody | null
   const error = Array.isArray(body?.errors) ? body.errors[0] : undefined

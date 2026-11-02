@@ -19,7 +19,9 @@ import (
 type PackListInput struct {
 	Name   *string   `json:"name"`
 	Levels *[]string `json:"levels"`
-	Words  []Word    `json:"words"`
+	// Writing is the mark of a list read from a pack file (checked there); nil for none.
+	Writing *Writing `json:"-"`
+	Words   []Word   `json:"words"`
 }
 
 // PackInput is a pack as a request gives it. CreatePack takes the fields and Lists; UpdatePack takes the fields and
@@ -171,13 +173,20 @@ func newLists(packID string, inputs []PackListInput, ids []string, now time.Time
 				return nil, err
 			}
 		}
-		scratch.Lists = append(scratch.Lists, List{ID: ids[n], Name: name, Levels: levels, PackID: packID, Words: plainWords(input.Words),
+		scratch.Lists = append(scratch.Lists, List{ID: ids[n], Name: name, Levels: levels, Writing: cloneWriting(input.Writing), PackID: packID, Words: plainWords(input.Words),
 			Records: []Record{}, CreatedAt: FormatTime(now)})
 	}
 	if separate {
 		return separateLevels(scratch.Lists), nil
 	}
 	return scratch.Lists, nil
+}
+
+func cloneWriting(writing *Writing) *Writing {
+	if writing == nil {
+		return nil
+	}
+	return &Writing{Language: writing.Language}
 }
 
 // plainWords copies words without the fields Typle does not know, as wordsOf (src/core/packFile.ts) does.
@@ -370,7 +379,7 @@ func CopyPack(w *Workspace, sourceID string, name *string, packID string, listID
 	created := FormatTime(now)
 	lists := make([]List, 0, len(mine))
 	for n, list := range mine {
-		copied := List{ID: listIDs[n], Name: list.Name, PackID: packID, Words: plainWords(list.Words), Records: []Record{}, CreatedAt: created}
+		copied := List{ID: listIDs[n], Name: list.Name, Writing: cloneWriting(list.Writing), PackID: packID, Words: plainWords(list.Words), Records: []Record{}, CreatedAt: created}
 		if len(list.Levels) > 0 {
 			copied.Levels = slices.Clone(list.Levels)
 		}

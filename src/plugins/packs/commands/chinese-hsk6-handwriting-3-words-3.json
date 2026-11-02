@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-3-words-3",
+  "name": "中国語HSK6級 手書き3（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語3",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "干扰",
+      "input": "gānrǎo",
+      "annotation": "gānrǎo / 妨害する",
+      "input_type": "word"
+    },
+    {
+      "display": "感慨",
+      "input": "gǎnkǎi",
+      "annotation": "gǎnkǎi / 感慨",
+      "input_type": "word"
+    },
+    {
+      "display": "干劲",
+      "input": "gànjìn",
+      "annotation": "gànjìn / 意気込み",
+      "input_type": "word"
+    },
+    {
+      "display": "港口",
+      "input": "gǎngkǒu",
+      "annotation": "gǎngkǒu / 港",
+      "input_type": "word"
+    },
+    {
+      "display": "杠杆",
+      "input": "gànggǎn",
+      "annotation": "gànggǎn / てこ",
+      "input_type": "word"
+    },
+    {
+      "display": "高峰",
+      "input": "gāofēng",
+      "annotation": "gāofēng / ピーク",
+      "input_type": "word"
+    },
+    {
+      "display": "高涨",
+      "input": "gāozhǎng",
+      "annotation": "gāozhǎng / 高まる",
+      "input_type": "word"
+    },
+    {
+      "display": "告诫",
+      "input": "gàojiè",
+      "annotation": "gàojiè / 戒める",
+      "input_type": "word"
+    },
+    {
+      "display": "鸽子",
+      "input": "gēzi",
+      "annotation": "gēzi / ハト",
+      "input_type": "word"
+    },
+    {
+      "display": "格局",
+      "input": "géjú",
+      "annotation": "géjú / 構造、枠組み",
+      "input_type": "word"
+    },
+    {
+      "display": "隔阂",
+      "input": "géhé",
+      "annotation": "géhé / わだかまり",
+      "input_type": "word"
+    },
+    {
+      "display": "各抒己见",
+      "input": "gèshū jǐjiàn",
+      "annotation": "gèshū jǐjiàn / 各自が意見を述べる",
+      "input_type": "word"
+    },
+    {
+      "display": "根源",
+      "input": "gēnyuán",
+      "annotation": "gēnyuán / 根源",
+      "input_type": "word"
+    },
+    {
+      "display": "跟踪",
+      "input": "gēnzōng",
+      "annotation": "gēnzōng / 追跡する",
+      "input_type": "word"
+    },
+    {
+      "display": "更正",
+      "input": "gēngzhèng",
+      "annotation": "gēngzhèng / 訂正する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

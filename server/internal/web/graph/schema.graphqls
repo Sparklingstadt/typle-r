@@ -1,5 +1,5 @@
-# The app's data as GraphQL, served at POST /api/graphql beside the REST paths (/api/workspace, /api/shares, /api/shared
-# and /api/admin/*), which the iPad, Mac, Android and Windows apps keep using. Each field does what its REST path does,
+# The app's data as GraphQL, served at POST /api/graphql beside the REST paths (/api/workspace, /api/shares, /api/shared,
+# /api/gallery/* and /api/admin/*), which the iPad and Mac app keeps using. Each field does what its REST path does,
 # with the same checks and the same error keys: an error carries its key in extensions.code and the status the REST
 # path answers with in extensions.status. Login stays at /api/auth/*.
 
@@ -28,6 +28,16 @@ type Query {
   """
   sharedPack(id: String!): JSON
   """
+  One page of the gallery: the shares their owners list and the operator has not hidden, from page 1 (GET
+  /api/gallery). q is matched anywhere in the name, the description and the tags; category must be the whole category.
+  Anyone may read it, signed in or not.
+  """
+  gallery(q: String! = "", category: String! = "", sort: GallerySort! = NEW, page: Int! = 1): GalleryPage!
+  """
+  The categories of the listed packs, the most packs first (GET /api/gallery/categories).
+  """
+  galleryCategories: [GalleryCategory!]!
+  """
   The administrator's dashboard (GET /api/admin/dashboard).
   """
   adminDashboard: AdminDashboard!
@@ -35,6 +45,10 @@ type Query {
   One page of the user list, from 0 (GET /api/admin/users).
   """
   adminUsers(page: Int! = 0): AdminUsers!
+  """
+  The listed or hidden shares, the most reported first (GET /api/admin/gallery).
+  """
+  adminGallery: [AdminGalleryPack!]!
 }
 
 type Mutation {
@@ -51,13 +65,28 @@ type Mutation {
   """
   deleteRecord(input: DeleteRecordInput!): Workspace!
   """
-  Shares a pack by link, or copies it again into its link (PUT /api/shares).
+  Shares a pack by link, or copies it again into its link (PUT /api/shares). listed lists it in the gallery or takes it
+  out; left out or null, the listing stays as it is.
   """
-  sharePack(packId: String!): Share!
+  sharePack(packId: String!, listed: Boolean): Share!
   """
   Stops sharing a pack (DELETE /api/shares), also when it is not shared.
   """
   stopSharing(packId: String!): Boolean!
+  """
+  Counts one more add of a gallery pack to someone's packs (POST /api/gallery/added). A pack that is not in the gallery
+  is answered the same. No login is needed; each client may count a limited number a minute.
+  """
+  countAdded(id: String!): Boolean!
+  """
+  Reports a gallery pack for a reason: inappropriate, spam, personalInfo or other (POST /api/gallery/reports). No login
+  is needed; each client may report a limited number a minute.
+  """
+  reportPack(id: String!, reason: String!): Boolean!
+  """
+  Hides a share from the gallery, or shows it again (POST /api/admin/gallery/hide and /unhide). The administrator's own.
+  """
+  setPackHidden(id: String!, hidden: Boolean!): Boolean!
 }
 
 """
@@ -106,13 +135,70 @@ type RecordAdded {
 }
 
 """
-A pack shared by link. name is the pack's name in the shared copy, "" when it has none.
+A pack shared by link. name is the pack's name in the shared copy, "" when it has none. listed: the owner lists it in
+the gallery; hidden: an administrator took it out of the gallery.
 """
 type Share {
   id: String!
   packId: String!
   name: String!
   updatedAt: Time!
+  listed: Boolean!
+  hidden: Boolean!
+}
+
+enum GallerySort {
+  """
+  The most recently listed first.
+  """
+  NEW
+  """
+  The most often added first.
+  """
+  POPULAR
+}
+
+type GalleryPage {
+  packs: [GalleryPack!]!
+  """
+  Whether a next page has packs.
+  """
+  more: Boolean!
+}
+
+"""
+A listed pack, without its owner. id is the link's id. description and category are null when the pack has none, and
+tags is empty.
+"""
+type GalleryPack {
+  id: String!
+  name: String!
+  description: String
+  category: String
+  tags: [String!]!
+  lists: Int!
+  words: Int!
+  added: Int!
+  updatedAt: Time!
+}
+
+type GalleryCategory {
+  name: String!
+  count: Int!
+}
+
+"""
+A listed or hidden share as the dashboard lists it. reasons counts the reports by reason.
+"""
+type AdminGalleryPack {
+  id: String!
+  name: String!
+  category: String
+  added: Int!
+  listedAt: Time
+  hiddenAt: Time
+  reports: Int!
+  reasons: JSON!
 }
 
 type AdminDashboard {

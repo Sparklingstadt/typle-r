@@ -101,8 +101,10 @@ func (s *server) graphqlError(ctx context.Context, f *failure) error {
 
 type resolver struct{ s *server }
 
-func (r *resolver) Query() graph.QueryResolver       { return query{r.s} }
-func (r *resolver) Mutation() graph.MutationResolver { return mutation{r.s} }
+func (r *resolver) Query() graph.QueryResolver                       { return query{r.s} }
+func (r *resolver) Mutation() graph.MutationResolver                 { return mutation{r.s} }
+func (r *resolver) GalleryPack() graph.GalleryPackResolver           { return galleryPack{} }
+func (r *resolver) AdminGalleryPack() graph.AdminGalleryPackResolver { return adminGalleryPack{} }
 
 type query struct{ s *server }
 
@@ -127,10 +129,27 @@ func (s *server) graphqlOwner(ctx context.Context) (string, error) {
 
 // changer is graphqlOwner for a mutation: the request must come from the app's own Origin, or from an app.
 func (s *server) changer(ctx context.Context) (string, error) {
-	if !s.fromAppOrOrigin(callOf(ctx).r) {
-		return "", s.graphqlError(ctx, refused(http.StatusForbidden, "forbiddenRequest"))
+	if err := s.fromAppOrOriginError(ctx); err != nil {
+		return "", err
 	}
 	return s.graphqlOwner(ctx)
+}
+
+// fromAppOrOriginError refuses a mutation that does not come from the app's own Origin, or from an app.
+func (s *server) fromAppOrOriginError(ctx context.Context) error {
+	if !s.fromAppOrOrigin(callOf(ctx).r) {
+		return s.graphqlError(ctx, refused(http.StatusForbidden, "forbiddenRequest"))
+	}
+	return nil
+}
+
+// adminError refuses a request of someone other than the administrator, as REST refuses it (administrator).
+func (s *server) adminError(ctx context.Context) error {
+	c := callOf(ctx)
+	if _, f := s.administrator(c.w, c.r); f != nil {
+		return s.graphqlError(ctx, f)
+	}
+	return nil
 }
 
 func (q query) Workspace(ctx context.Context) (*graph.Workspace, error) {
@@ -164,6 +183,47 @@ func (q query) SharedPack(ctx context.Context, id string) (graph.JSON, error) {
 		return nil, q.s.graphqlError(ctx, f)
 	}
 	return graph.JSON(data), nil
+}
+
+// Gallery is read by anyone, signed in or not.
+func (q query) Gallery(ctx context.Context, text, category string, sort graph.GallerySort, page int) (*graph.GalleryPage, error) {
+	order := store.GalleryNew
+	if sort == graph.GallerySortPopular {
+		order = store.GalleryPopular
+	}
+	search, ok := checkGalleryQuery(text, category, order, page)
+	if !ok {
+		return nil, q.s.graphqlError(ctx, refused(http.StatusBadRequest, "invalidQuery"))
+	}
+	result, f := q.s.galleryPage(callOf(ctx).r, search)
+	if f != nil {
+		return nil, q.s.graphqlError(ctx, f)
+	}
+	packs := result.Packs
+	if packs == nil {
+		packs = []store.GalleryPack{}
+	}
+	return &graph.GalleryPage{Packs: packs, More: result.More}, nil
+}
+
+// GalleryCategories is read by anyone, signed in or not.
+func (q query) GalleryCategories(ctx context.Context) ([]store.GalleryCategory, error) {
+	categories, f := q.s.categories(callOf(ctx).r)
+	if f != nil {
+		return nil, q.s.graphqlError(ctx, f)
+	}
+	return categories, nil
+}
+
+func (q query) AdminGallery(ctx context.Context) ([]store.AdminGalleryPack, error) {
+	if err := q.s.adminError(ctx); err != nil {
+		return nil, err
+	}
+	packs, f := q.s.adminGalleryPacks(callOf(ctx).r)
+	if f != nil {
+		return nil, q.s.graphqlError(ctx, f)
+	}
+	return packs, nil
 }
 
 func (q query) AdminDashboard(ctx context.Context) (*graph.AdminDashboard, error) {
@@ -257,12 +317,12 @@ func (m mutation) DeleteRecord(ctx context.Context, input graph.DeleteRecordInpu
 	return workspaceOf(result, owner), nil
 }
 
-func (m mutation) SharePack(ctx context.Context, packID string) (*store.Share, error) {
+func (m mutation) SharePack(ctx context.Context, packID string, listed *bool) (*store.Share, error) {
 	owner, err := m.s.changer(ctx)
 	if err != nil {
 		return nil, err
 	}
-	share, f := m.s.sharePack(callOf(ctx).r, owner, packID)
+	share, f := m.s.sharePack(callOf(ctx).r, owner, packID, listed)
 	if f != nil {
 		return nil, m.s.graphqlError(ctx, f)
 	}
@@ -278,4 +338,83 @@ func (m mutation) StopSharing(ctx context.Context, packID string) (bool, error) 
 		return false, m.s.graphqlError(ctx, f)
 	}
 	return true, nil
+}
+
+// CountAdded needs no login, only the app's own Origin or an app, as POST /api/gallery/added.
+func (m mutation) CountAdded(ctx context.Context, id string) (bool, error) {
+	if err := m.s.fromAppOrOriginError(ctx); err != nil {
+		return false, err
+	}
+	c := callOf(ctx)
+	if f := m.s.countAdded(c.w, c.r, id); f != nil {
+		return false, m.s.graphqlError(ctx, f)
+	}
+	return true, nil
+}
+
+// ReportPack needs no login, only the app's own Origin or an app, as POST /api/gallery/reports.
+func (m mutation) ReportPack(ctx context.Context, id, reason string) (bool, error) {
+	if err := m.s.fromAppOrOriginError(ctx); err != nil {
+		return false, err
+	}
+	c := callOf(ctx)
+	if f := m.s.reportPack(c.w, c.r, id, reason); f != nil {
+		return false, m.s.graphqlError(ctx, f)
+	}
+	return true, nil
+}
+
+// SetPackHidden is the administrator's, from the app's own Origin only (the administrator has no app token), as POST
+// /api/admin/gallery/hide checks it: the administrator first, then the Origin.
+func (m mutation) SetPackHidden(ctx context.Context, id string, hidden bool) (bool, error) {
+	if err := m.s.adminError(ctx); err != nil {
+		return false, err
+	}
+	c := callOf(ctx)
+	if !m.s.sameOrigin(c.r) {
+		return false, m.s.graphqlError(ctx, refused(http.StatusForbidden, "forbiddenRequest"))
+	}
+	if f := m.s.setHidden(c.r, id, hidden); f != nil {
+		return false, m.s.graphqlError(ctx, f)
+	}
+	return true, nil
+}
+
+// optional is "" as null.
+func optional(value string) *string {
+	if value == "" {
+		return nil
+	}
+	return &value
+}
+
+type galleryPack struct{}
+
+func (galleryPack) Description(_ context.Context, pack *store.GalleryPack) (*string, error) {
+	return optional(pack.Description), nil
+}
+
+func (galleryPack) Category(_ context.Context, pack *store.GalleryPack) (*string, error) {
+	return optional(pack.Category), nil
+}
+
+func (galleryPack) Tags(_ context.Context, pack *store.GalleryPack) ([]string, error) {
+	if pack.Tags == nil {
+		return []string{}, nil
+	}
+	return pack.Tags, nil
+}
+
+type adminGalleryPack struct{}
+
+func (adminGalleryPack) Category(_ context.Context, pack *store.AdminGalleryPack) (*string, error) {
+	return optional(pack.Category), nil
+}
+
+func (adminGalleryPack) Reasons(_ context.Context, pack *store.AdminGalleryPack) (graph.JSON, error) {
+	reasons := pack.Reasons
+	if reasons == nil {
+		reasons = map[string]int{}
+	}
+	return graph.JSON(member(reasons)), nil
 }

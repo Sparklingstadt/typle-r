@@ -20,11 +20,13 @@
     "words": "Voir les mots",
     "create": "Créer un pack",
     "general": "Général",
+    "input": "Saisie",
     "interests": "Centres d’intérêt",
     "devices": "Appareils",
     "guide": "Mode d’emploi",
     "about": "À propos de Typle",
-    "github": "GitHub"
+    "github": "GitHub",
+    "gallery": "Galerie"
   },
   "storage": {
     "label": "Enregistrement : ",

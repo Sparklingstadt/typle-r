@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-4-words-1",
+  "name": "中国語HSK6級 手書き4（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語4",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "花瓣",
+      "input": "huābàn",
+      "annotation": "huābàn / 花びら",
+      "input_type": "word"
+    },
+    {
+      "display": "华丽",
+      "input": "huálì",
+      "annotation": "huálì / 華麗な",
+      "input_type": "word"
+    },
+    {
+      "display": "化肥",
+      "input": "huàféi",
+      "annotation": "huàféi / 化学肥料",
+      "input_type": "word"
+    },
+    {
+      "display": "化妆",
+      "input": "huàzhuāng",
+      "annotation": "huàzhuāng / 化粧する",
+      "input_type": "word"
+    },
+    {
+      "display": "画蛇添足",
+      "input": "huàshé tiānzú",
+      "annotation": "huàshé tiānzú / 蛇足",
+      "input_type": "word"
+    },
+    {
+      "display": "还原",
+      "input": "huányuán",
+      "annotation": "huányuán / 元に戻す",
+      "input_type": "word"
+    },
+    {
+      "display": "缓和",
+      "input": "huǎnhé",
+      "annotation": "huǎnhé / 緩和する",
+      "input_type": "word"
+    },
+    {
+      "display": "荒谬",
+      "input": "huāngmiù",
+      "annotation": "huāngmiù / でたらめな",
+      "input_type": "word"
+    },
+    {
+      "display": "皇帝",
+      "input": "huángdì",
+      "annotation": "huángdì / 皇帝",
+      "input_type": "word"
+    },
+    {
+      "display": "恍然大悟",
+      "input": "huǎngrán dàwù",
+      "annotation": "huǎngrán dàwù / はっと悟る",
+      "input_type": "word"
+    },
+    {
+      "display": "辉煌",
+      "input": "huīhuáng",
+      "annotation": "huīhuáng / 輝かしい",
+      "input_type": "word"
+    },
+    {
+      "display": "回收",
+      "input": "huíshōu",
+      "annotation": "huíshōu / 回収する",
+      "input_type": "word"
+    },
+    {
+      "display": "毁灭",
+      "input": "huǐmiè",
+      "annotation": "huǐmiè / 壊滅させる",
+      "input_type": "word"
+    },
+    {
+      "display": "贿赂",
+      "input": "huìlù",
+      "annotation": "huìlù / 賄賂",
+      "input_type": "word"
+    },
+    {
+      "display": "浑身",
+      "input": "húnshēn",
+      "annotation": "húnshēn / 全身",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

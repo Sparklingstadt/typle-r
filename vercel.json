@@ -3,5 +3,17 @@
   "git": {
     "deploymentEnabled": false
   },
-  "buildCommand": "npm run db:migrate && npm run build"
+  "buildCommand": "npm run db:migrate && npm run build",
+  "rewrites": [
+    { "source": "/api/workspace", "destination": "/api/index" },
+    { "source": "/api/workspace/records", "destination": "/api/index" },
+    { "source": "/api/shares", "destination": "/api/index" },
+    { "source": "/api/shared", "destination": "/api/index" },
+    { "source": "/api/gallery", "destination": "/api/index" },
+    { "source": "/api/gallery/:path*", "destination": "/api/index" },
+    { "source": "/api/health", "destination": "/api/index" },
+    { "source": "/api/auth/:path*", "destination": "/api/index" },
+    { "source": "/api/admin/:path*", "destination": "/api/index" },
+    { "source": "/api/graphql", "destination": "/api/index" }
+  ]
 }

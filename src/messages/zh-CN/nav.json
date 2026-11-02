@@ -20,11 +20,13 @@
     "words": "单词一览",
     "create": "创建包",
     "general": "通用",
+    "input": "输入",
     "interests": "兴趣",
     "devices": "设备",
     "guide": "使用方法",
     "about": "关于 Typle",
-    "github": "GitHub"
+    "github": "GitHub",
+    "gallery": "图库"
   },
   "storage": {
     "label": "保存位置：",

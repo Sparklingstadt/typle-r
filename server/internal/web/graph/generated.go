@@ -30,6 +30,8 @@ func NewExecutableSchema(cfg Config) graphql.ExecutableSchema {
 type Config = graphql.Config[ResolverRoot, DirectiveRoot, ComplexityRoot]
 
 type ResolverRoot interface {
+	AdminGalleryPack() AdminGalleryPackResolver
+	GalleryPack() GalleryPackResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
 }
@@ -53,6 +55,17 @@ type ComplexityRoot struct {
 	AdminDashboard struct {
 		Admin    func(childComplexity int) int
 		Overview func(childComplexity int) int
+	}
+
+	AdminGalleryPack struct {
+		Added    func(childComplexity int) int
+		Category func(childComplexity int) int
+		HiddenAt func(childComplexity int) int
+		ID       func(childComplexity int) int
+		ListedAt func(childComplexity int) int
+		Name     func(childComplexity int) int
+		Reasons  func(childComplexity int) int
+		Reports  func(childComplexity int) int
 	}
 
 	AdminOverview struct {
@@ -89,20 +102,48 @@ type ComplexityRoot struct {
 		Users    func(childComplexity int) int
 	}
 
+	GalleryCategory struct {
+		Count func(childComplexity int) int
+		Name  func(childComplexity int) int
+	}
+
+	GalleryPack struct {
+		Added       func(childComplexity int) int
+		Category    func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Lists       func(childComplexity int) int
+		Name        func(childComplexity int) int
+		Tags        func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
+		Words       func(childComplexity int) int
+	}
+
+	GalleryPage struct {
+		More  func(childComplexity int) int
+		Packs func(childComplexity int) int
+	}
+
 	Mutation struct {
 		AddRecord     func(childComplexity int, input AddRecordInput) int
+		CountAdded    func(childComplexity int, id string) int
 		DeleteRecord  func(childComplexity int, input DeleteRecordInput) int
+		ReportPack    func(childComplexity int, id string, reason string) int
 		SaveWorkspace func(childComplexity int, input SaveWorkspaceInput) int
-		SharePack     func(childComplexity int, packID string) int
+		SetPackHidden func(childComplexity int, id string, hidden bool) int
+		SharePack     func(childComplexity int, packID string, listed *bool) int
 		StopSharing   func(childComplexity int, packID string) int
 	}
 
 	Query struct {
-		AdminDashboard func(childComplexity int) int
-		AdminUsers     func(childComplexity int, page int) int
-		SharedPack     func(childComplexity int, id string) int
-		Shares         func(childComplexity int) int
-		Workspace      func(childComplexity int) int
+		AdminDashboard    func(childComplexity int) int
+		AdminGallery      func(childComplexity int) int
+		AdminUsers        func(childComplexity int, page int) int
+		Gallery           func(childComplexity int, q string, category string, sort GallerySort, page int) int
+		GalleryCategories func(childComplexity int) int
+		SharedPack        func(childComplexity int, id string) int
+		Shares            func(childComplexity int) int
+		Workspace         func(childComplexity int) int
 	}
 
 	RecordAdded struct {
@@ -112,7 +153,9 @@ type ComplexityRoot struct {
 	}
 
 	Share struct {
+		Hidden    func(childComplexity int) int
 		ID        func(childComplexity int) int
+		Listed    func(childComplexity int) int
 		Name      func(childComplexity int) int
 		PackID    func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
@@ -132,19 +175,35 @@ type ComplexityRoot struct {
 
 // region    ************************** generated!.gotpl **************************
 
+type AdminGalleryPackResolver interface {
+	Category(ctx context.Context, obj *store.AdminGalleryPack) (*string, error)
+
+	Reasons(ctx context.Context, obj *store.AdminGalleryPack) (JSON, error)
+}
+type GalleryPackResolver interface {
+	Description(ctx context.Context, obj *store.GalleryPack) (*string, error)
+	Category(ctx context.Context, obj *store.GalleryPack) (*string, error)
+	Tags(ctx context.Context, obj *store.GalleryPack) ([]string, error)
+}
 type MutationResolver interface {
 	SaveWorkspace(ctx context.Context, input SaveWorkspaceInput) (*Workspace, error)
 	AddRecord(ctx context.Context, input AddRecordInput) (*RecordAdded, error)
 	DeleteRecord(ctx context.Context, input DeleteRecordInput) (*Workspace, error)
-	SharePack(ctx context.Context, packID string) (*store.Share, error)
+	SharePack(ctx context.Context, packID string, listed *bool) (*store.Share, error)
 	StopSharing(ctx context.Context, packID string) (bool, error)
+	CountAdded(ctx context.Context, id string) (bool, error)
+	ReportPack(ctx context.Context, id string, reason string) (bool, error)
+	SetPackHidden(ctx context.Context, id string, hidden bool) (bool, error)
 }
 type QueryResolver interface {
 	Workspace(ctx context.Context) (*Workspace, error)
 	Shares(ctx context.Context) ([]store.Share, error)
 	SharedPack(ctx context.Context, id string) (JSON, error)
+	Gallery(ctx context.Context, q string, category string, sort GallerySort, page int) (*GalleryPage, error)
+	GalleryCategories(ctx context.Context) ([]store.GalleryCategory, error)
 	AdminDashboard(ctx context.Context) (*AdminDashboard, error)
 	AdminUsers(ctx context.Context, page int) (*AdminUsers, error)
+	AdminGallery(ctx context.Context) ([]store.AdminGalleryPack, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -215,6 +274,55 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.AdminDashboard.Overview(childComplexity), true
+
+	case "AdminGalleryPack.added":
+		if e.ComplexityRoot.AdminGalleryPack.Added == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AdminGalleryPack.Added(childComplexity), true
+	case "AdminGalleryPack.category":
+		if e.ComplexityRoot.AdminGalleryPack.Category == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AdminGalleryPack.Category(childComplexity), true
+	case "AdminGalleryPack.hiddenAt":
+		if e.ComplexityRoot.AdminGalleryPack.HiddenAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AdminGalleryPack.HiddenAt(childComplexity), true
+	case "AdminGalleryPack.id":
+		if e.ComplexityRoot.AdminGalleryPack.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AdminGalleryPack.ID(childComplexity), true
+	case "AdminGalleryPack.listedAt":
+		if e.ComplexityRoot.AdminGalleryPack.ListedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AdminGalleryPack.ListedAt(childComplexity), true
+	case "AdminGalleryPack.name":
+		if e.ComplexityRoot.AdminGalleryPack.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AdminGalleryPack.Name(childComplexity), true
+	case "AdminGalleryPack.reasons":
+		if e.ComplexityRoot.AdminGalleryPack.Reasons == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AdminGalleryPack.Reasons(childComplexity), true
+	case "AdminGalleryPack.reports":
+		if e.ComplexityRoot.AdminGalleryPack.Reports == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AdminGalleryPack.Reports(childComplexity), true
 
 	case "AdminOverview.activeDay":
 		if e.ComplexityRoot.AdminOverview.ActiveDay == nil {
@@ -352,6 +460,87 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.AdminUsers.Users(childComplexity), true
 
+	case "GalleryCategory.count":
+		if e.ComplexityRoot.GalleryCategory.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GalleryCategory.Count(childComplexity), true
+	case "GalleryCategory.name":
+		if e.ComplexityRoot.GalleryCategory.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GalleryCategory.Name(childComplexity), true
+
+	case "GalleryPack.added":
+		if e.ComplexityRoot.GalleryPack.Added == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GalleryPack.Added(childComplexity), true
+	case "GalleryPack.category":
+		if e.ComplexityRoot.GalleryPack.Category == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GalleryPack.Category(childComplexity), true
+	case "GalleryPack.description":
+		if e.ComplexityRoot.GalleryPack.Description == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GalleryPack.Description(childComplexity), true
+	case "GalleryPack.id":
+		if e.ComplexityRoot.GalleryPack.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GalleryPack.ID(childComplexity), true
+	case "GalleryPack.lists":
+		if e.ComplexityRoot.GalleryPack.Lists == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GalleryPack.Lists(childComplexity), true
+	case "GalleryPack.name":
+		if e.ComplexityRoot.GalleryPack.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GalleryPack.Name(childComplexity), true
+	case "GalleryPack.tags":
+		if e.ComplexityRoot.GalleryPack.Tags == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GalleryPack.Tags(childComplexity), true
+	case "GalleryPack.updatedAt":
+		if e.ComplexityRoot.GalleryPack.UpdatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GalleryPack.UpdatedAt(childComplexity), true
+	case "GalleryPack.words":
+		if e.ComplexityRoot.GalleryPack.Words == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GalleryPack.Words(childComplexity), true
+
+	case "GalleryPage.more":
+		if e.ComplexityRoot.GalleryPage.More == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GalleryPage.More(childComplexity), true
+	case "GalleryPage.packs":
+		if e.ComplexityRoot.GalleryPage.Packs == nil {
+			break
+		}
+
+		return e.ComplexityRoot.GalleryPage.Packs(childComplexity), true
+
 	case "Mutation.addRecord":
 		if e.ComplexityRoot.Mutation.AddRecord == nil {
 			break
@@ -363,6 +552,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.AddRecord(childComplexity, args["input"].(AddRecordInput)), true
+	case "Mutation.countAdded":
+		if e.ComplexityRoot.Mutation.CountAdded == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_countAdded_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.CountAdded(childComplexity, args["id"].(string)), true
 	case "Mutation.deleteRecord":
 		if e.ComplexityRoot.Mutation.DeleteRecord == nil {
 			break
@@ -374,6 +574,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.DeleteRecord(childComplexity, args["input"].(DeleteRecordInput)), true
+	case "Mutation.reportPack":
+		if e.ComplexityRoot.Mutation.ReportPack == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_reportPack_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.ReportPack(childComplexity, args["id"].(string), args["reason"].(string)), true
 	case "Mutation.saveWorkspace":
 		if e.ComplexityRoot.Mutation.SaveWorkspace == nil {
 			break
@@ -385,6 +596,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.SaveWorkspace(childComplexity, args["input"].(SaveWorkspaceInput)), true
+	case "Mutation.setPackHidden":
+		if e.ComplexityRoot.Mutation.SetPackHidden == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_setPackHidden_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.SetPackHidden(childComplexity, args["id"].(string), args["hidden"].(bool)), true
 	case "Mutation.sharePack":
 		if e.ComplexityRoot.Mutation.SharePack == nil {
 			break
@@ -395,7 +617,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.SharePack(childComplexity, args["packId"].(string)), true
+		return e.ComplexityRoot.Mutation.SharePack(childComplexity, args["packId"].(string), args["listed"].(*bool)), true
 	case "Mutation.stopSharing":
 		if e.ComplexityRoot.Mutation.StopSharing == nil {
 			break
@@ -414,6 +636,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.AdminDashboard(childComplexity), true
+	case "Query.adminGallery":
+		if e.ComplexityRoot.Query.AdminGallery == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Query.AdminGallery(childComplexity), true
 	case "Query.adminUsers":
 		if e.ComplexityRoot.Query.AdminUsers == nil {
 			break
@@ -425,6 +653,23 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.AdminUsers(childComplexity, args["page"].(int)), true
+	case "Query.gallery":
+		if e.ComplexityRoot.Query.Gallery == nil {
+			break
+		}
+
+		args, err := ec.field_Query_gallery_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.Gallery(childComplexity, args["q"].(string), args["category"].(string), args["sort"].(GallerySort), args["page"].(int)), true
+	case "Query.galleryCategories":
+		if e.ComplexityRoot.Query.GalleryCategories == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Query.GalleryCategories(childComplexity), true
 
 	case "Query.sharedPack":
 		if e.ComplexityRoot.Query.SharedPack == nil {
@@ -469,12 +714,24 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.RecordAdded.Workspace(childComplexity), true
 
+	case "Share.hidden":
+		if e.ComplexityRoot.Share.Hidden == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Share.Hidden(childComplexity), true
 	case "Share.id":
 		if e.ComplexityRoot.Share.ID == nil {
 			break
 		}
 
 		return e.ComplexityRoot.Share.ID(childComplexity), true
+	case "Share.listed":
+		if e.ComplexityRoot.Share.Listed == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Share.Listed(childComplexity), true
 	case "Share.name":
 		if e.ComplexityRoot.Share.Name == nil {
 			break
@@ -670,6 +927,28 @@ func (ec *executionContext) childFields_AdminDashboard(ctx context.Context, fiel
 	return nil, fmt.Errorf("no field named %q was found under type AdminDashboard", field.Name)
 }
 
+func (ec *executionContext) childFields_AdminGalleryPack(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_AdminGalleryPack_id(ctx, field)
+	case "name":
+		return ec.fieldContext_AdminGalleryPack_name(ctx, field)
+	case "category":
+		return ec.fieldContext_AdminGalleryPack_category(ctx, field)
+	case "added":
+		return ec.fieldContext_AdminGalleryPack_added(ctx, field)
+	case "listedAt":
+		return ec.fieldContext_AdminGalleryPack_listedAt(ctx, field)
+	case "hiddenAt":
+		return ec.fieldContext_AdminGalleryPack_hiddenAt(ctx, field)
+	case "reports":
+		return ec.fieldContext_AdminGalleryPack_reports(ctx, field)
+	case "reasons":
+		return ec.fieldContext_AdminGalleryPack_reasons(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AdminGalleryPack", field.Name)
+}
+
 func (ec *executionContext) childFields_AdminOverview(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "workspaces":
@@ -738,6 +1017,50 @@ func (ec *executionContext) childFields_AdminUsers(ctx context.Context, field gr
 	return nil, fmt.Errorf("no field named %q was found under type AdminUsers", field.Name)
 }
 
+func (ec *executionContext) childFields_GalleryCategory(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_GalleryCategory_name(ctx, field)
+	case "count":
+		return ec.fieldContext_GalleryCategory_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type GalleryCategory", field.Name)
+}
+
+func (ec *executionContext) childFields_GalleryPack(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_GalleryPack_id(ctx, field)
+	case "name":
+		return ec.fieldContext_GalleryPack_name(ctx, field)
+	case "description":
+		return ec.fieldContext_GalleryPack_description(ctx, field)
+	case "category":
+		return ec.fieldContext_GalleryPack_category(ctx, field)
+	case "tags":
+		return ec.fieldContext_GalleryPack_tags(ctx, field)
+	case "lists":
+		return ec.fieldContext_GalleryPack_lists(ctx, field)
+	case "words":
+		return ec.fieldContext_GalleryPack_words(ctx, field)
+	case "added":
+		return ec.fieldContext_GalleryPack_added(ctx, field)
+	case "updatedAt":
+		return ec.fieldContext_GalleryPack_updatedAt(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type GalleryPack", field.Name)
+}
+
+func (ec *executionContext) childFields_GalleryPage(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "packs":
+		return ec.fieldContext_GalleryPage_packs(ctx, field)
+	case "more":
+		return ec.fieldContext_GalleryPage_more(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type GalleryPage", field.Name)
+}
+
 func (ec *executionContext) childFields_RecordAdded(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "workspace":
@@ -760,6 +1083,10 @@ func (ec *executionContext) childFields_Share(ctx context.Context, field graphql
 		return ec.fieldContext_Share_name(ctx, field)
 	case "updatedAt":
 		return ec.fieldContext_Share_updatedAt(ctx, field)
+	case "listed":
+		return ec.fieldContext_Share_listed(ctx, field)
+	case "hidden":
+		return ec.fieldContext_Share_hidden(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type Share", field.Name)
 }
@@ -912,6 +1239,20 @@ func (ec *executionContext) field_Mutation_addRecord_args(ctx context.Context, r
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_countAdded_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNString2string(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_deleteRecord_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -923,6 +1264,28 @@ func (ec *executionContext) field_Mutation_deleteRecord_args(ctx context.Context
 		return nil, err
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_reportPack_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNString2string(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "reason",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNString2string(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["reason"] = arg1
 	return args, nil
 }
 
@@ -940,6 +1303,28 @@ func (ec *executionContext) field_Mutation_saveWorkspace_args(ctx context.Contex
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_setPackHidden_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNString2string(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "hidden",
+		func(ctx context.Context, v any) (bool, error) {
+			return ec.unmarshalNBoolean2bool(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["hidden"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_sharePack_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -951,6 +1336,14 @@ func (ec *executionContext) field_Mutation_sharePack_args(ctx context.Context, r
 		return nil, err
 	}
 	args["packId"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "listed",
+		func(ctx context.Context, v any) (*bool, error) {
+			return ec.unmarshalOBoolean2ᚖbool(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["listed"] = arg1
 	return args, nil
 }
 
@@ -993,6 +1386,44 @@ func (ec *executionContext) field_Query_adminUsers_args(ctx context.Context, raw
 		return nil, err
 	}
 	args["page"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_gallery_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "q",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNString2string(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["q"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "category",
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNString2string(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["category"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "sort",
+		func(ctx context.Context, v any) (GallerySort, error) {
+			return ec.unmarshalNGallerySort2githubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋwebᚋgraphᚐGallerySort(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["sort"] = arg2
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "page",
+		func(ctx context.Context, v any) (int, error) {
+			return ec.unmarshalNInt2int(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["page"] = arg3
 	return args, nil
 }
 
@@ -1270,6 +1701,190 @@ func (ec *executionContext) fieldContext_AdminDashboard_overview(_ context.Conte
 		},
 	}
 	return fc, nil
+}
+
+func (ec *executionContext) _AdminGalleryPack_id(ctx context.Context, field graphql.CollectedField, obj *store.AdminGalleryPack) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AdminGalleryPack_id(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_AdminGalleryPack_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("AdminGalleryPack", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _AdminGalleryPack_name(ctx context.Context, field graphql.CollectedField, obj *store.AdminGalleryPack) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AdminGalleryPack_name(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Name, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_AdminGalleryPack_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("AdminGalleryPack", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _AdminGalleryPack_category(ctx context.Context, field graphql.CollectedField, obj *store.AdminGalleryPack) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AdminGalleryPack_category(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.AdminGalleryPack().Category(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_AdminGalleryPack_category(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("AdminGalleryPack", field, true, true, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _AdminGalleryPack_added(ctx context.Context, field graphql.CollectedField, obj *store.AdminGalleryPack) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AdminGalleryPack_added(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Added, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_AdminGalleryPack_added(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("AdminGalleryPack", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _AdminGalleryPack_listedAt(ctx context.Context, field graphql.CollectedField, obj *store.AdminGalleryPack) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AdminGalleryPack_listedAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ListedAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *time.Time) graphql.Marshaler {
+			return ec.marshalOTime2ᚖtimeᚐTime(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_AdminGalleryPack_listedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("AdminGalleryPack", field, false, false, errors.New("field of type Time does not have child fields"))
+}
+
+func (ec *executionContext) _AdminGalleryPack_hiddenAt(ctx context.Context, field graphql.CollectedField, obj *store.AdminGalleryPack) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AdminGalleryPack_hiddenAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.HiddenAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *time.Time) graphql.Marshaler {
+			return ec.marshalOTime2ᚖtimeᚐTime(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_AdminGalleryPack_hiddenAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("AdminGalleryPack", field, false, false, errors.New("field of type Time does not have child fields"))
+}
+
+func (ec *executionContext) _AdminGalleryPack_reports(ctx context.Context, field graphql.CollectedField, obj *store.AdminGalleryPack) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AdminGalleryPack_reports(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Reports, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_AdminGalleryPack_reports(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("AdminGalleryPack", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _AdminGalleryPack_reasons(ctx context.Context, field graphql.CollectedField, obj *store.AdminGalleryPack) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AdminGalleryPack_reasons(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.AdminGalleryPack().Reasons(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v JSON) graphql.Marshaler {
+			return ec.marshalNJSON2githubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋwebᚋgraphᚐJSON(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_AdminGalleryPack_reasons(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("AdminGalleryPack", field, true, true, errors.New("field of type JSON does not have child fields"))
 }
 
 func (ec *executionContext) _AdminOverview_workspaces(ctx context.Context, field graphql.CollectedField, obj *store.AdminOverview) (ret graphql.Marshaler) {
@@ -1805,6 +2420,314 @@ func (ec *executionContext) fieldContext_AdminUsers_users(_ context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _GalleryCategory_name(ctx context.Context, field graphql.CollectedField, obj *store.GalleryCategory) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GalleryCategory_name(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Name, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GalleryCategory_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GalleryCategory", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _GalleryCategory_count(ctx context.Context, field graphql.CollectedField, obj *store.GalleryCategory) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GalleryCategory_count(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Count, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GalleryCategory_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GalleryCategory", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _GalleryPack_id(ctx context.Context, field graphql.CollectedField, obj *store.GalleryPack) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GalleryPack_id(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GalleryPack_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GalleryPack", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _GalleryPack_name(ctx context.Context, field graphql.CollectedField, obj *store.GalleryPack) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GalleryPack_name(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Name, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GalleryPack_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GalleryPack", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _GalleryPack_description(ctx context.Context, field graphql.CollectedField, obj *store.GalleryPack) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GalleryPack_description(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.GalleryPack().Description(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_GalleryPack_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GalleryPack", field, true, true, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _GalleryPack_category(ctx context.Context, field graphql.CollectedField, obj *store.GalleryPack) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GalleryPack_category(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.GalleryPack().Category(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_GalleryPack_category(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GalleryPack", field, true, true, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _GalleryPack_tags(ctx context.Context, field graphql.CollectedField, obj *store.GalleryPack) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GalleryPack_tags(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.GalleryPack().Tags(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []string) graphql.Marshaler {
+			return ec.marshalNString2ᚕstringᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GalleryPack_tags(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GalleryPack", field, true, true, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _GalleryPack_lists(ctx context.Context, field graphql.CollectedField, obj *store.GalleryPack) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GalleryPack_lists(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Lists, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GalleryPack_lists(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GalleryPack", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _GalleryPack_words(ctx context.Context, field graphql.CollectedField, obj *store.GalleryPack) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GalleryPack_words(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Words, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GalleryPack_words(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GalleryPack", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _GalleryPack_added(ctx context.Context, field graphql.CollectedField, obj *store.GalleryPack) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GalleryPack_added(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Added, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GalleryPack_added(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GalleryPack", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _GalleryPack_updatedAt(ctx context.Context, field graphql.CollectedField, obj *store.GalleryPack) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GalleryPack_updatedAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.UpdatedAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GalleryPack_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GalleryPack", field, false, false, errors.New("field of type Time does not have child fields"))
+}
+
+func (ec *executionContext) _GalleryPage_packs(ctx context.Context, field graphql.CollectedField, obj *GalleryPage) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GalleryPage_packs(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Packs, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []store.GalleryPack) graphql.Marshaler {
+			return ec.marshalNGalleryPack2ᚕgithubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋstoreᚐGalleryPackᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GalleryPage_packs(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GalleryPage",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GalleryPack(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GalleryPage_more(ctx context.Context, field graphql.CollectedField, obj *GalleryPage) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_GalleryPage_more(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.More, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_GalleryPage_more(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("GalleryPage", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
 func (ec *executionContext) _Mutation_saveWorkspace(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1947,7 +2870,7 @@ func (ec *executionContext) _Mutation_sharePack(ctx context.Context, field graph
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Mutation().SharePack(ctx, fc.Args["packId"].(string))
+			return ec.Resolvers.Mutation().SharePack(ctx, fc.Args["packId"].(string), fc.Args["listed"].(*bool))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *store.Share) graphql.Marshaler {
@@ -2019,6 +2942,138 @@ func (ec *executionContext) fieldContext_Mutation_stopSharing(ctx context.Contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_stopSharing_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_countAdded(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_countAdded(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().CountAdded(ctx, fc.Args["id"].(string))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_countAdded(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_countAdded_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_reportPack(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_reportPack(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().ReportPack(ctx, fc.Args["id"].(string), fc.Args["reason"].(string))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_reportPack(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_reportPack_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_setPackHidden(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_setPackHidden(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().SetPackHidden(ctx, fc.Args["id"].(string), fc.Args["hidden"].(bool))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_setPackHidden(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_setPackHidden_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -2133,6 +3188,82 @@ func (ec *executionContext) fieldContext_Query_sharedPack(ctx context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_gallery(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Query_gallery(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Query().Gallery(ctx, fc.Args["q"].(string), fc.Args["category"].(string), fc.Args["sort"].(GallerySort), fc.Args["page"].(int))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *GalleryPage) graphql.Marshaler {
+			return ec.marshalNGalleryPage2ᚖgithubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋwebᚋgraphᚐGalleryPage(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Query_gallery(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GalleryPage(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_gallery_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_galleryCategories(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Query_galleryCategories(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Query().GalleryCategories(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []store.GalleryCategory) graphql.Marshaler {
+			return ec.marshalNGalleryCategory2ᚕgithubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋstoreᚐGalleryCategoryᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Query_galleryCategories(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_GalleryCategory(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_adminDashboard(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2205,6 +3336,38 @@ func (ec *executionContext) fieldContext_Query_adminUsers(ctx context.Context, f
 	if fc.Args, err = ec.field_Query_adminUsers_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_adminGallery(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Query_adminGallery(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Query().AdminGallery(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []store.AdminGalleryPack) graphql.Marshaler {
+			return ec.marshalNAdminGalleryPack2ᚕgithubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋstoreᚐAdminGalleryPackᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Query_adminGallery(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_AdminGalleryPack(ctx, field)
+		},
 	}
 	return fc, nil
 }
@@ -2453,6 +3616,52 @@ func (ec *executionContext) _Share_updatedAt(ctx context.Context, field graphql.
 }
 func (ec *executionContext) fieldContext_Share_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Share", field, false, false, errors.New("field of type Time does not have child fields"))
+}
+
+func (ec *executionContext) _Share_listed(ctx context.Context, field graphql.CollectedField, obj *store.Share) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Share_listed(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Listed, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Share_listed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Share", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
+func (ec *executionContext) _Share_hidden(ctx context.Context, field graphql.CollectedField, obj *store.Share) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Share_hidden(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Hidden, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Share_hidden(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Share", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
 func (ec *executionContext) _Workspace_lists(ctx context.Context, field graphql.CollectedField, obj *Workspace) (ret graphql.Marshaler) {
@@ -3952,6 +5161,145 @@ func (ec *executionContext) _AdminDashboard(ctx context.Context, sel ast.Selecti
 	return out
 }
 
+var adminGalleryPackImplementors = []string{"AdminGalleryPack"}
+
+func (ec *executionContext) _AdminGalleryPack(ctx context.Context, sel ast.SelectionSet, obj *store.AdminGalleryPack) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminGalleryPackImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminGalleryPack")
+		case "id":
+			out.Values[i] = ec._AdminGalleryPack_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "name":
+			out.Values[i] = ec._AdminGalleryPack_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "category":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AdminGalleryPack_category(ctx, field, obj)
+				if res == graphql.RequiredNull {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "added":
+			out.Values[i] = ec._AdminGalleryPack_added(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "listedAt":
+			out.Values[i] = ec._AdminGalleryPack_listedAt(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "hiddenAt":
+			out.Values[i] = ec._AdminGalleryPack_hiddenAt(ctx, field, obj)
+			if out.Values[i] == graphql.RequiredNull {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "reports":
+			out.Values[i] = ec._AdminGalleryPack_reports(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "reasons":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AdminGalleryPack_reasons(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
 var adminOverviewImplementors = []string{"AdminOverview"}
 
 func (ec *executionContext) _AdminOverview(ctx context.Context, sel ast.SelectionSet, obj *store.AdminOverview) graphql.Marshaler {
@@ -4194,6 +5542,269 @@ func (ec *executionContext) _AdminUsers(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
+var galleryCategoryImplementors = []string{"GalleryCategory"}
+
+func (ec *executionContext) _GalleryCategory(ctx context.Context, sel ast.SelectionSet, obj *store.GalleryCategory) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, galleryCategoryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GalleryCategory")
+		case "name":
+			out.Values[i] = ec._GalleryCategory_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "count":
+			out.Values[i] = ec._GalleryCategory_count(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var galleryPackImplementors = []string{"GalleryPack"}
+
+func (ec *executionContext) _GalleryPack(ctx context.Context, sel ast.SelectionSet, obj *store.GalleryPack) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, galleryPackImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GalleryPack")
+		case "id":
+			out.Values[i] = ec._GalleryPack_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "name":
+			out.Values[i] = ec._GalleryPack_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "description":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._GalleryPack_description(ctx, field, obj)
+				if res == graphql.RequiredNull {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "category":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._GalleryPack_category(ctx, field, obj)
+				if res == graphql.RequiredNull {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "tags":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._GalleryPack_tags(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "lists":
+			out.Values[i] = ec._GalleryPack_lists(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "words":
+			out.Values[i] = ec._GalleryPack_words(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "added":
+			out.Values[i] = ec._GalleryPack_added(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "updatedAt":
+			out.Values[i] = ec._GalleryPack_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
+var galleryPageImplementors = []string{"GalleryPage"}
+
+func (ec *executionContext) _GalleryPage(ctx context.Context, sel ast.SelectionSet, obj *GalleryPage) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, galleryPageImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferredFieldSet := graphql.NewFieldSet(nil)
+	deferLabelToView := make(map[string]*graphql.FieldSetView)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GalleryPage")
+		case "packs":
+			out.Values[i] = ec._GalleryPage_packs(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "more":
+			out.Values[i] = ec._GalleryPage_more(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferLabelToView), math.MaxInt32)))
+
+	ec.ProcessDeferredGroup(graphql.DeferredGroup{
+		Defers:   deferLabelToView,
+		Path:     graphql.GetPath(ctx),
+		FieldSet: deferredFieldSet,
+		Context:  ctx,
+	})
+
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -4245,6 +5856,27 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "stopSharing":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_stopSharing(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "countAdded":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_countAdded(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "reportPack":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_reportPack(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "setPackHidden":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_setPackHidden(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -4356,6 +5988,50 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "gallery":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_gallery(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "galleryCategories":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_galleryCategories(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "adminDashboard":
 			field := field
 
@@ -4388,6 +6064,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_adminUsers(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "adminGallery":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_adminGallery(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -4512,6 +6210,16 @@ func (ec *executionContext) _Share(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "updatedAt":
 			out.Values[i] = ec._Share_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "listed":
+			out.Values[i] = ec._Share_listed(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "hidden":
+			out.Values[i] = ec._Share_hidden(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -5040,6 +6748,26 @@ func (ec *executionContext) marshalNAdminDashboard2ᚖgithubᚗcomᚋsparklingst
 	return ec._AdminDashboard(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNAdminGalleryPack2githubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋstoreᚐAdminGalleryPack(ctx context.Context, sel ast.SelectionSet, v store.AdminGalleryPack) graphql.Marshaler {
+	return ec._AdminGalleryPack(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminGalleryPack2ᚕgithubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋstoreᚐAdminGalleryPackᚄ(ctx context.Context, sel ast.SelectionSet, v []store.AdminGalleryPack) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNAdminGalleryPack2githubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋstoreᚐAdminGalleryPack(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNAdminOverview2ᚖgithubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋstoreᚐAdminOverview(ctx context.Context, sel ast.SelectionSet, v *store.AdminOverview) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -5123,6 +6851,70 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 func (ec *executionContext) unmarshalNDeleteRecordInput2githubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋwebᚋgraphᚐDeleteRecordInput(ctx context.Context, v any) (DeleteRecordInput, error) {
 	res, err := ec.unmarshalInputDeleteRecordInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGalleryCategory2githubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋstoreᚐGalleryCategory(ctx context.Context, sel ast.SelectionSet, v store.GalleryCategory) graphql.Marshaler {
+	return ec._GalleryCategory(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGalleryCategory2ᚕgithubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋstoreᚐGalleryCategoryᚄ(ctx context.Context, sel ast.SelectionSet, v []store.GalleryCategory) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNGalleryCategory2githubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋstoreᚐGalleryCategory(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNGalleryPack2githubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋstoreᚐGalleryPack(ctx context.Context, sel ast.SelectionSet, v store.GalleryPack) graphql.Marshaler {
+	return ec._GalleryPack(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGalleryPack2ᚕgithubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋstoreᚐGalleryPackᚄ(ctx context.Context, sel ast.SelectionSet, v []store.GalleryPack) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNGalleryPack2githubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋstoreᚐGalleryPack(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNGalleryPage2githubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋwebᚋgraphᚐGalleryPage(ctx context.Context, sel ast.SelectionSet, v GalleryPage) graphql.Marshaler {
+	return ec._GalleryPage(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGalleryPage2ᚖgithubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋwebᚋgraphᚐGalleryPage(ctx context.Context, sel ast.SelectionSet, v *GalleryPage) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GalleryPage(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNGallerySort2githubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋwebᚋgraphᚐGallerySort(ctx context.Context, v any) (GallerySort, error) {
+	var res GallerySort
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNGallerySort2githubᚗcomᚋsparklingstadtᚋtypleᚑrᚋserverᚋinternalᚋwebᚋgraphᚐGallerySort(ctx context.Context, sel ast.SelectionSet, v GallerySort) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v any) (int, error) {
@@ -5220,6 +7012,35 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v any) ([]string, error) {
+	vSlice := graphql.CoerceList(v)
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v any) (time.Time, error) {

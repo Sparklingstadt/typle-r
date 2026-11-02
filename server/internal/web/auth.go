@@ -32,6 +32,9 @@ const (
 	randomSize = 32
 	// maxReturnTo keeps the OAuth cookie, which holds returnTo, well under the 4096 bytes a browser accepts.
 	maxReturnTo = 1024
+	// reloginCookie marks a browser that signed out: its next login with FFPF ID asks for the password again
+	// (prompt=login), though the browser may still be signed in to the portal. Signing in with FFPF ID removes it.
+	reloginCookie = "typle-ffpf-relogin"
 	// appReturn is where a login an app (the iPad, the Mac, the Android or the Windows app) starts ends: the iPad and
 	// Mac apps' ASWebAuthenticationSession, the Android app's intent filter and the Windows app's protocol registration
 	// wait for this scheme and give the URL to the app.
@@ -140,6 +143,24 @@ func (s *server) oauthCookie(value string, maxAge int) *http.Cookie {
 	}
 }
 
+// relogin sets or, with maxAge -1, removes reloginCookie. It lasts as long as a session, as the portal's own does.
+func (s *server) relogin(maxAge int) *http.Cookie {
+	value := "1"
+	if maxAge < 0 {
+		value = ""
+	}
+	return &http.Cookie{
+		Name: reloginCookie, Value: value, Path: authPath, MaxAge: maxAge,
+		HttpOnly: true, SameSite: http.SameSiteLaxMode, Secure: s.secure(),
+	}
+}
+
+// signedOut tells whether the browser signed out since its last login with FFPF ID.
+func signedOut(r *http.Request) bool {
+	_, err := r.Cookie(reloginCookie)
+	return err == nil
+}
+
 // goTo redirects the browser; a redirect is not kept by a cache, as it may set a cookie.
 func goTo(w http.ResponseWriter, location string) {
 	w.Header().Set("Location", location)
@@ -205,7 +226,7 @@ func (s *server) signin(w http.ResponseWriter, r *http.Request) {
 	location := ""
 	if provider == providerFFPF {
 		pending.Provider, pending.Nonce = providerFFPF, nonce
-		location = s.config.FFPF.AuthorizeURL(state, challengeOf(verifier), nonce, s.redirectURI(ffpfCallback))
+		location = s.config.FFPF.AuthorizeURL(state, challengeOf(verifier), nonce, s.redirectURI(ffpfCallback), signedOut(r))
 	} else {
 		location = s.config.OAuth.AuthorizeURL(state, challengeOf(verifier), s.redirectURI(githubCallback))
 	}
@@ -298,6 +319,9 @@ func (s *server) callback(provider string) http.HandlerFunc {
 				Expires: s.now().Add(session.AppCodeMaxAge),
 			}))
 			return
+		}
+		if provider == providerFFPF {
+			http.SetCookie(w, s.relogin(-1))
 		}
 		s.issue(w, user.sub, user.name, user.image)
 		goTo(w, returnTo)
@@ -406,7 +430,8 @@ func (s *server) session(w http.ResponseWriter, r *http.Request) {
 // stolen one before it expires. An app may ask for that too, with its token and without an Origin. Signing out
 // everywhere needs a session that is itself not revoked, so a stolen cookie that was revoked cannot sign out the logins
 // made since; it answers loginRequired, and databaseUnavailable when the revocations cannot be read or written, and
-// then the cookie is kept so that the user can try again.
+// then the cookie is kept so that the user can try again. A browser that signs out is also marked (reloginCookie), so
+// that its next login with FFPF ID asks for the password instead of passing straight through the portal's session.
 func (s *server) signout(w http.ResponseWriter, r *http.Request) {
 	if !methods(w, r, http.MethodPost) {
 		return
@@ -441,6 +466,7 @@ func (s *server) signout(w http.ResponseWriter, r *http.Request) {
 	}
 	if !fromApp(r) {
 		http.SetCookie(w, s.sessionCookie("", -1))
+		http.SetCookie(w, s.relogin(int(session.MaxAge.Seconds())))
 	}
 	noContent(w)
 }

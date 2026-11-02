@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test'
-import { GRAPHQL, operationOf } from './graphql'
+import { GRAPHQL, graphqlError, operationOf } from './graphql'
 
-// The dashboard's own login and figures come from /api/admin/dashboard (server/internal/web/admin.go), whose cookie and
-// typle_admins check are covered by the Go tests; here the page is checked against its answers.
+// The dashboard's own login and figures come from adminDashboard of /api/graphql (REST: /api/admin/dashboard,
+// server/internal/web/admin.go), whose cookie and typle_admins check are covered by the Go tests; here the page is
+// checked against its answers.
 
 test('without the administrator cookie the dashboard offers the FFPF ID login', async ({ page, request }) => {
   const response = await request.get('/api/admin/dashboard')
@@ -50,6 +51,7 @@ test('the administrator sees the figures and can sign out', async ({ page }) => 
   await page.route(GRAPHQL, route => {
     const operation = operationOf(route.request())
     if (operation === 'AdminDashboard') return route.fulfill({ json: { data: { adminDashboard: dashboard } } })
+    if (operation === 'AdminGallery') return route.fulfill({ json: { data: { adminGallery: [] } } })
     if (operation !== 'AdminUsers') return route.continue()
     const number = Number(route.request().postDataJSON().variables.page)
     pages.push(String(number))
@@ -85,4 +87,83 @@ test('the administrator sees the figures and can sign out', async ({ page }) => 
   await page.getByRole('button', { name: 'ログアウト' }).click()
   await expect(page.getByRole('link', { name: 'FFPF IDでログイン' })).toBeVisible()
   expect(signedOut).toBe(true)
+})
+
+// The gallery section: reported packs come first, hiding and showing re-read the list.
+const dashboardAnswer = {
+  admin: { email: 'admin@example.com', sub: 'cadmin' },
+  overview: { workspaces: 1, activeDay: 0, activeWeek: 0, activeMonth: 0, sharedPacks: 0, recentShares: [], admins: [] },
+}
+const emptyUsers = { page: 0, pageSize: 50, total: 0, users: [] }
+const packA = '00000000-0000-4000-8000-0000000000a1'
+const packB = '00000000-0000-4000-8000-0000000000b2'
+
+// Answers the dashboard's GraphQL operations. A hide or unhide is recorded as { id } in hides or unhides and passed to
+// onChange; with refused, a hide is refused with that error.
+async function mockAdmin(page: import('@playwright/test').Page, gallery: () => { packs: unknown[] }, hides: unknown[], unhides: unknown[],
+  refused?: { key: string; status: number }, onChange: (hidden: boolean) => void = () => {}) {
+  await page.route(GRAPHQL, route => {
+    switch (operationOf(route.request())) {
+      case 'AdminDashboard': return route.fulfill({ json: { data: { adminDashboard: dashboardAnswer } } })
+      case 'AdminUsers': return route.fulfill({ json: { data: { adminUsers: emptyUsers } } })
+      case 'AdminGallery': return route.fulfill({ json: { data: { adminGallery: gallery().packs } } })
+      case 'SetPackHidden': {
+        const { id, hidden } = route.request().postDataJSON().variables as { id: string; hidden: boolean }
+        ;(hidden ? hides : unhides).push({ id })
+        if (hidden && refused) return route.fulfill(graphqlError(refused.key, refused.status))
+        onChange(hidden)
+        return route.fulfill({ json: { data: { setPackHidden: true } } })
+      }
+      default: return route.continue()
+    }
+  })
+}
+
+test('the administrator sees reported packs first and hides one', async ({ page }) => {
+  const hides: unknown[] = []
+  let hidden = false
+  await mockAdmin(page, () => ({ packs: [
+    { id: packA, name: 'Reported pack', category: '英語', added: 7, listedAt: '2026-10-20T03:04:05Z', hiddenAt: hidden ? '2026-10-21T00:00:00Z' : null, reports: 3, reasons: { spam: 2, inappropriate: 1 } },
+    { id: packB, name: '', added: 1, listedAt: '2026-10-19T03:04:05Z', hiddenAt: null, reports: 0, reasons: {} },
+  ] }), hides, [], undefined, value => { hidden = value })
+  await page.goto('/admin')
+  const section = page.getByRole('region', { name: 'ギャラリー' })
+  const rows = section.getByRole('row')
+  await expect(rows.nth(1)).toContainText('Reported pack')
+  await expect(rows.nth(1)).toContainText('英語')
+  await expect(rows.nth(1)).toContainText('スパム・宣伝 2')
+  await expect(rows.nth(1)).toContainText('不適切な内容 1')
+  await expect(rows.nth(2).getByRole('link', { name: '（名前なし）' })).toHaveAttribute('href', `/shared/${packB}`)
+  await expect(section.getByRole('link', { name: 'Reported pack' })).toHaveAttribute('href', `/shared/${packA}`)
+
+  await rows.nth(1).getByRole('button', { name: '非公開にする' }).click()
+  await expect(rows.nth(1).getByRole('button', { name: '戻す' })).toBeVisible()
+  expect(hides).toEqual([{ id: packA }])
+})
+
+test('a hidden pack can be shown again', async ({ page }) => {
+  const unhides: unknown[] = []
+  let hidden = true
+  await mockAdmin(page, () => ({ packs: [
+    { id: packA, name: 'Hidden pack', added: 2, listedAt: '2026-10-20T03:04:05Z', hiddenAt: hidden ? '2026-10-21T00:00:00Z' : null, reports: 1, reasons: { other: 1 } },
+  ] }), [], unhides, undefined, value => { hidden = value })
+  await page.goto('/admin')
+  const row = page.getByRole('region', { name: 'ギャラリー' }).getByRole('row').nth(1)
+  await expect(row).toContainText('非公開')
+  await row.getByRole('button', { name: '戻す' }).click()
+  await expect(row.getByRole('button', { name: '非公開にする' })).toBeVisible()
+  expect(unhides).toEqual([{ id: packA }])
+})
+
+test('a failed hide shows the server reason', async ({ page }) => {
+  const hides: unknown[] = []
+  await mockAdmin(page, () => ({ packs: [
+    { id: packA, name: 'Some pack', added: 2, listedAt: '2026-10-20T03:04:05Z', hiddenAt: null, reports: 0, reasons: {} },
+  ] }), hides, [], { key: 'sharedPackNotFound', status: 404 })
+  await page.goto('/admin')
+  const section = page.getByRole('region', { name: 'ギャラリー' })
+  await section.getByRole('button', { name: '非公開にする' }).click()
+  await expect(section.getByRole('alert')).toContainText('この共有は終了しました')
+  await expect(section.getByRole('button', { name: '非公開にする' })).toBeVisible()
+  expect(hides).toEqual([{ id: packA }])
 })

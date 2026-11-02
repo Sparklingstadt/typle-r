@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-19-words-2",
+  "name": "中国語HSK6級 手書き19（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語19",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "孕育",
+      "input": "yùnyù",
+      "annotation": "yùnyù / はぐくむ",
+      "input_type": "word"
+    },
+    {
+      "display": "预期",
+      "input": "yùqī",
+      "annotation": "yùqī / 予期する",
+      "input_type": "word"
+    },
+    {
+      "display": "与日俱增",
+      "input": "yǔrì jùzēng",
+      "annotation": "yǔrì jùzēng / 日増しに増える",
+      "input_type": "word"
+    },
+    {
+      "display": "预算",
+      "input": "yùsuàn",
+      "annotation": "yùsuàn / 予算",
+      "input_type": "word"
+    },
+    {
+      "display": "欲望",
+      "input": "yùwàng",
+      "annotation": "yùwàng / 欲望",
+      "input_type": "word"
+    },
+    {
+      "display": "预言",
+      "input": "yùyán",
+      "annotation": "yùyán / 予言する",
+      "input_type": "word"
+    },
+    {
+      "display": "预兆",
+      "input": "yùzhào",
+      "annotation": "yùzhào / 前兆",
+      "input_type": "word"
+    },
+    {
+      "display": "再接再厉",
+      "input": "zàijiē zàilì",
+      "annotation": "zàijiē zàilì / さらに努力を重ねる",
+      "input_type": "word"
+    },
+    {
+      "display": "灾难",
+      "input": "zāinàn",
+      "annotation": "zāinàn / 災難",
+      "input_type": "word"
+    },
+    {
+      "display": "栽培",
+      "input": "zāipéi",
+      "annotation": "zāipéi / 栽培する、育成する",
+      "input_type": "word"
+    },
+    {
+      "display": "杂技",
+      "input": "zájì",
+      "annotation": "zájì / 雑技、曲芸",
+      "input_type": "word"
+    },
+    {
+      "display": "暂且",
+      "input": "zànqiě",
+      "annotation": "zànqiě / しばらく、ひとまず",
+      "input_type": "word"
+    },
+    {
+      "display": "赞助",
+      "input": "zànzhù",
+      "annotation": "zànzhù / 賛助する、協賛する",
+      "input_type": "word"
+    },
+    {
+      "display": "遭受",
+      "input": "zāoshòu",
+      "annotation": "zāoshòu / 被る、受ける",
+      "input_type": "word"
+    },
+    {
+      "display": "造型",
+      "input": "zàoxíng",
+      "annotation": "zàoxíng / 造形、スタイル",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}
