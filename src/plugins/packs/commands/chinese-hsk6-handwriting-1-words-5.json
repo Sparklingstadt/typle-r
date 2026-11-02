@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-1-words-5",
+  "name": "中国語HSK6級 手書き1（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語1",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "裁判",
+      "input": "cáipàn",
+      "annotation": "cáipàn / 審判",
+      "input_type": "word"
+    },
+    {
+      "display": "采购",
+      "input": "cǎigòu",
+      "annotation": "cǎigòu / 買い付ける",
+      "input_type": "word"
+    },
+    {
+      "display": "参谋",
+      "input": "cānmóu",
+      "annotation": "cānmóu / 参謀、助言する",
+      "input_type": "word"
+    },
+    {
+      "display": "残酷",
+      "input": "cánkù",
+      "annotation": "cánkù / 残酷な",
+      "input_type": "word"
+    },
+    {
+      "display": "灿烂",
+      "input": "cànlàn",
+      "annotation": "cànlàn / きらびやかな",
+      "input_type": "word"
+    },
+    {
+      "display": "仓促",
+      "input": "cāngcù",
+      "annotation": "cāngcù / 慌ただしい",
+      "input_type": "word"
+    },
+    {
+      "display": "操练",
+      "input": "cāoliàn",
+      "annotation": "cāoliàn / 訓練する",
+      "input_type": "word"
+    },
+    {
+      "display": "操作",
+      "input": "cāozuò",
+      "annotation": "cāozuò / 操作する",
+      "input_type": "word"
+    },
+    {
+      "display": "侧面",
+      "input": "cèmiàn",
+      "annotation": "cèmiàn / 側面",
+      "input_type": "word"
+    },
+    {
+      "display": "策划",
+      "input": "cèhuà",
+      "annotation": "cèhuà / 企画する",
+      "input_type": "word"
+    },
+    {
+      "display": "层次",
+      "input": "céngcì",
+      "annotation": "céngcì / 段階、レベル",
+      "input_type": "word"
+    },
+    {
+      "display": "插座",
+      "input": "chāzuò",
+      "annotation": "chāzuò / コンセント",
+      "input_type": "word"
+    },
+    {
+      "display": "诧异",
+      "input": "chàyì",
+      "annotation": "chàyì / いぶかる",
+      "input_type": "word"
+    },
+    {
+      "display": "缠绕",
+      "input": "chánrào",
+      "annotation": "chánrào / 巻きつく",
+      "input_type": "word"
+    },
+    {
+      "display": "猖狂",
+      "input": "chāngkuáng",
+      "annotation": "chāngkuáng / 猛威を振るう",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

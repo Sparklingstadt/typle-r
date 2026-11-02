@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-4-words-6",
+  "name": "中国語HSK6級 手書き4（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語4",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "精心",
+      "input": "jīngxīn",
+      "annotation": "jīngxīn / 念入りに",
+      "input_type": "word"
+    },
+    {
+      "display": "颈椎",
+      "input": "jǐngzhuī",
+      "annotation": "jǐngzhuī / 頸椎",
+      "input_type": "word"
+    },
+    {
+      "display": "警惕",
+      "input": "jǐngtì",
+      "annotation": "jǐngtì / 警戒する",
+      "input_type": "word"
+    },
+    {
+      "display": "敬礼",
+      "input": "jìnglǐ",
+      "annotation": "jìnglǐ / 敬礼する",
+      "input_type": "word"
+    },
+    {
+      "display": "镜头",
+      "input": "jìngtóu",
+      "annotation": "jìngtóu / レンズ、シーン",
+      "input_type": "word"
+    },
+    {
+      "display": "酒精",
+      "input": "jiǔjīng",
+      "annotation": "jiǔjīng / アルコール",
+      "input_type": "word"
+    },
+    {
+      "display": "就近",
+      "input": "jiùjìn",
+      "annotation": "jiùjìn / 近くで",
+      "input_type": "word"
+    },
+    {
+      "display": "拘留",
+      "input": "jūliú",
+      "annotation": "jūliú / 拘留する",
+      "input_type": "word"
+    },
+    {
+      "display": "居民",
+      "input": "jūmín",
+      "annotation": "jūmín / 住民",
+      "input_type": "word"
+    },
+    {
+      "display": "局部",
+      "input": "júbù",
+      "annotation": "júbù / 局部",
+      "input_type": "word"
+    },
+    {
+      "display": "举动",
+      "input": "jǔdòng",
+      "annotation": "jǔdòng / 振る舞い",
+      "input_type": "word"
+    },
+    {
+      "display": "剧本",
+      "input": "jùběn",
+      "annotation": "jùběn / 脚本",
+      "input_type": "word"
+    },
+    {
+      "display": "据悉",
+      "input": "jùxī",
+      "annotation": "jùxī / 伝えられるところによると",
+      "input_type": "word"
+    },
+    {
+      "display": "觉悟",
+      "input": "juéwù",
+      "annotation": "juéwù / 自覚",
+      "input_type": "word"
+    },
+    {
+      "display": "绝望",
+      "input": "juéwàng",
+      "annotation": "juéwàng / 絶望する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

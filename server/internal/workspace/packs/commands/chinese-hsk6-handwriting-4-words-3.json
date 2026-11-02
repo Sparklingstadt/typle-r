@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-4-words-3",
+  "name": "中国語HSK6級 手書き4（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語4",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "计较",
+      "input": "jìjiào",
+      "annotation": "jìjiào / こだわる",
+      "input_type": "word"
+    },
+    {
+      "display": "纪要",
+      "input": "jìyào",
+      "annotation": "jìyào / 要録",
+      "input_type": "word"
+    },
+    {
+      "display": "忌讳",
+      "input": "jìhuì",
+      "annotation": "jìhuì / タブー",
+      "input_type": "word"
+    },
+    {
+      "display": "迹象",
+      "input": "jìxiàng",
+      "annotation": "jìxiàng / 兆し",
+      "input_type": "word"
+    },
+    {
+      "display": "寄托",
+      "input": "jìtuō",
+      "annotation": "jìtuō / 託す",
+      "input_type": "word"
+    },
+    {
+      "display": "加剧",
+      "input": "jiājù",
+      "annotation": "jiājù / 激化する",
+      "input_type": "word"
+    },
+    {
+      "display": "佳肴",
+      "input": "jiāyáo",
+      "annotation": "jiāyáo / ごちそう",
+      "input_type": "word"
+    },
+    {
+      "display": "家属",
+      "input": "jiāshǔ",
+      "annotation": "jiāshǔ / 家族",
+      "input_type": "word"
+    },
+    {
+      "display": "尖端",
+      "input": "jiānduān",
+      "annotation": "jiānduān / 先端",
+      "input_type": "word"
+    },
+    {
+      "display": "坚固",
+      "input": "jiāngù",
+      "annotation": "jiāngù / 頑丈な",
+      "input_type": "word"
+    },
+    {
+      "display": "坚实",
+      "input": "jiānshí",
+      "annotation": "jiānshí / しっかりした",
+      "input_type": "word"
+    },
+    {
+      "display": "监督",
+      "input": "jiāndū",
+      "annotation": "jiāndū / 監督する",
+      "input_type": "word"
+    },
+    {
+      "display": "监狱",
+      "input": "jiānyù",
+      "annotation": "jiānyù / 監獄",
+      "input_type": "word"
+    },
+    {
+      "display": "剪彩",
+      "input": "jiǎncǎi",
+      "annotation": "jiǎncǎi / テープカットする",
+      "input_type": "word"
+    },
+    {
+      "display": "简陋",
+      "input": "jiǎnlòu",
+      "annotation": "jiǎnlòu / 粗末な",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

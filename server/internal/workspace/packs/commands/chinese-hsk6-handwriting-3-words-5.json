@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-3-words-5",
+  "name": "中国語HSK6級 手書き3（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語3",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "故乡",
+      "input": "gùxiāng",
+      "annotation": "gùxiāng / 故郷",
+      "input_type": "word"
+    },
+    {
+      "display": "顾虑",
+      "input": "gùlǜ",
+      "annotation": "gùlǜ / 懸念",
+      "input_type": "word"
+    },
+    {
+      "display": "拐杖",
+      "input": "guǎizhàng",
+      "annotation": "guǎizhàng / つえ",
+      "input_type": "word"
+    },
+    {
+      "display": "关照",
+      "input": "guānzhào",
+      "annotation": "guānzhào / 面倒を見る",
+      "input_type": "word"
+    },
+    {
+      "display": "管辖",
+      "input": "guǎnxiá",
+      "annotation": "guǎnxiá / 管轄する",
+      "input_type": "word"
+    },
+    {
+      "display": "惯例",
+      "input": "guànlì",
+      "annotation": "guànlì / 慣例",
+      "input_type": "word"
+    },
+    {
+      "display": "光辉",
+      "input": "guānghuī",
+      "annotation": "guānghuī / 輝かしい",
+      "input_type": "word"
+    },
+    {
+      "display": "光荣",
+      "input": "guāngróng",
+      "annotation": "guāngróng / 光栄な",
+      "input_type": "word"
+    },
+    {
+      "display": "归还",
+      "input": "guīhuán",
+      "annotation": "guīhuán / 返還する",
+      "input_type": "word"
+    },
+    {
+      "display": "规划",
+      "input": "guīhuà",
+      "annotation": "guīhuà / 計画",
+      "input_type": "word"
+    },
+    {
+      "display": "贵族",
+      "input": "guìzú",
+      "annotation": "guìzú / 貴族",
+      "input_type": "word"
+    },
+    {
+      "display": "国防",
+      "input": "guófáng",
+      "annotation": "guófáng / 国防",
+      "input_type": "word"
+    },
+    {
+      "display": "过度",
+      "input": "guòdù",
+      "annotation": "guòdù / 過度の",
+      "input_type": "word"
+    },
+    {
+      "display": "过奖",
+      "input": "guòjiǎng",
+      "annotation": "guòjiǎng / ほめすぎです",
+      "input_type": "word"
+    },
+    {
+      "display": "过问",
+      "input": "guòwèn",
+      "annotation": "guòwèn / 口出しする",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

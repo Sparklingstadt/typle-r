@@ -70,7 +70,7 @@ func followOfficial(packs []Pack, lists []List, official []OfficialPack) ([]Pack
 				list = List{ID: pack.ID + ":" + item.ID, PackID: pack.ID, Records: []Record{}, CreatedAt: item.CreatedAt,
 					Origin: &ListOrigin{ListID: item.ID}}
 			}
-			list.Name, list.Levels, list.Words = item.Name, nil, slices.Clone(item.Words)
+			list.Name, list.Levels, list.Writing, list.Words = item.Name, nil, cloneWriting(item.Writing), slices.Clone(item.Words)
 			if len(item.Levels) > 0 {
 				list.Levels = slices.Clone(item.Levels)
 			}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-3-words-4",
+  "name": "中国語HSK6級 手書き3（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語3",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "公道",
+      "input": "gōngdao",
+      "annotation": "gōngdao / 公平な",
+      "input_type": "word"
+    },
+    {
+      "display": "公关",
+      "input": "gōngguān",
+      "annotation": "gōngguān / 広報",
+      "input_type": "word"
+    },
+    {
+      "display": "公然",
+      "input": "gōngrán",
+      "annotation": "gōngrán / 公然と",
+      "input_type": "word"
+    },
+    {
+      "display": "公务",
+      "input": "gōngwù",
+      "annotation": "gōngwù / 公務",
+      "input_type": "word"
+    },
+    {
+      "display": "公证",
+      "input": "gōngzhèng",
+      "annotation": "gōngzhèng / 公証",
+      "input_type": "word"
+    },
+    {
+      "display": "攻击",
+      "input": "gōngjī",
+      "annotation": "gōngjī / 攻撃する",
+      "input_type": "word"
+    },
+    {
+      "display": "供不应求",
+      "input": "gōngbú yìngqiú",
+      "annotation": "gōngbú yìngqiú / 供給が需要に追いつかない",
+      "input_type": "word"
+    },
+    {
+      "display": "恭敬",
+      "input": "gōngjìng",
+      "annotation": "gōngjìng / うやうやしい",
+      "input_type": "word"
+    },
+    {
+      "display": "共计",
+      "input": "gòngjì",
+      "annotation": "gòngjì / 合計する",
+      "input_type": "word"
+    },
+    {
+      "display": "钩子",
+      "input": "gōuzi",
+      "annotation": "gōuzi / かぎ",
+      "input_type": "word"
+    },
+    {
+      "display": "孤立",
+      "input": "gūlì",
+      "annotation": "gūlì / 孤立する",
+      "input_type": "word"
+    },
+    {
+      "display": "古董",
+      "input": "gǔdǒng",
+      "annotation": "gǔdǒng / 骨董品",
+      "input_type": "word"
+    },
+    {
+      "display": "股东",
+      "input": "gǔdōng",
+      "annotation": "gǔdōng / 株主",
+      "input_type": "word"
+    },
+    {
+      "display": "鼓动",
+      "input": "gǔdòng",
+      "annotation": "gǔdòng / あおる",
+      "input_type": "word"
+    },
+    {
+      "display": "固体",
+      "input": "gùtǐ",
+      "annotation": "gùtǐ / 固体",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}
