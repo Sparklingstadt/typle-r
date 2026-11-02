@@ -14,5 +14,11 @@
   { "description": "no candidates", "candidates": [], "target": "がか", "language": "ja", "options": {}, "expected": false },
   { "description": "NFD candidate against NFC target", "candidates": ["é"], "target": "é", "language": "fr", "options": {}, "expected": true },
   { "description": "candidate longer than target", "candidates": ["cafés"], "target": "café", "language": "fr", "options": {}, "expected": false },
-  { "description": "candidate shorter than target", "candidates": ["caf"], "target": "café", "language": "fr", "options": {}, "expected": false }
+  { "description": "candidate shorter than target", "candidates": ["caf"], "target": "café", "language": "fr", "options": {}, "expected": false },
+  { "description": "capital Cyrillic by Latin letters (Sh)", "candidates": ["Sh"], "target": "Ш", "language": "ru", "options": { "ignoreAccents": true }, "expected": true },
+  { "description": "capital Cyrillic by capital Latin letters (SH)", "candidates": ["SH"], "target": "Ш", "language": "ru", "options": { "ignoreAccents": true }, "expected": true },
+  { "description": "capital Cyrillic needs ignoreAccents", "candidates": ["Sh"], "target": "Ш", "language": "ru", "options": {}, "expected": false },
+  { "description": "Cyrillic case folded with ignoreCase", "candidates": ["ш"], "target": "Ш", "language": "ru", "options": { "ignoreCase": true }, "expected": true },
+  { "description": "Latin for capital Cyrillic with ignoreCase", "candidates": ["sh"], "target": "Ш", "language": "ru", "options": { "ignoreAccents": true, "ignoreCase": true }, "expected": true },
+  { "description": "SS for capital sharp s", "candidates": ["STRASSE"], "target": "STRAẞE", "language": "de", "options": { "ignoreAccents": true }, "expected": true }
 ]

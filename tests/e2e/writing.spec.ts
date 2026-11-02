@@ -108,7 +108,7 @@ test('writing records are separate', async ({ page }) => {
   await expect(page.locator('[data-record-key]')).toContainText('Handwriting')
 
   await page.goto('/rankings?list=hand')
-  await expect(page.getByRole('radio', { name: 'タイピング', exact: true })).toHaveAttribute('aria-checked', 'true')
+  await expect(page.getByRole('radio', { name: '通常', exact: true })).toHaveAttribute('aria-checked', 'true')
   await expect(page.getByRole('heading', { name: 'まだ練習していません', exact: true })).toBeVisible()
   await page.getByRole('radio', { name: 'Handwriting', exact: true }).click()
   await expect(page).toHaveURL(/mode=writing/)
@@ -144,4 +144,43 @@ test('Safari IME Enter after compositionend is not judged', async ({ page }) => 
   await field(page).fill('cat')
   await field(page).fill('dog')
   await expect(page.getByLabel('練習結果', { exact: true })).toContainText('100%')
+})
+
+test('switching the mode mid-run asks first, and cancelling keeps the run', async ({ page }) => {
+  await startWriting(page)
+  await field(page).fill('cat')
+  await expect(progress(page)).toHaveAttribute('aria-valuetext', '2 / 2 語')
+  await page.getByRole('radio', { name: 'タイピング', exact: true }).click()
+  const dialog = page.getByRole('alertdialog')
+  await expect(dialog).toContainText('「タイピング」に切り替えます。')
+  await dialog.getByRole('button', { name: '練習を続ける', exact: true }).click()
+  await expect(dialog).toHaveCount(0)
+  await expect(page.getByRole('radio', { name: 'Handwriting', exact: true })).toHaveAttribute('aria-checked', 'true')
+  await expect(model(page)).toHaveText('dog')
+  await expect(progress(page)).toHaveAttribute('aria-valuetext', '2 / 2 語')
+
+  await page.getByRole('radio', { name: 'タイピング', exact: true }).click()
+  await page.getByRole('alertdialog').getByRole('button', { name: '中断して切り替える', exact: true }).click()
+  await expect(field(page)).toHaveCount(0)
+  await expect(progress(page)).toHaveAttribute('aria-valuetext', '1 / 2 語')
+  // The typing input is focused once it is there again.
+  await expect(page.getByRole('textbox', { name: '表示された文字を入力', exact: true })).toBeFocused()
+})
+
+test('handwriting hides the recall switch and is never saved as recall', async ({ page }) => {
+  await seed(page)
+  await page.goto('/play?list=hand')
+  const recall = page.getByRole('button', { name: '思い出して打つ', exact: true })
+  await recall.click()
+  await expect(recall).toHaveAttribute('aria-pressed', 'true')
+  await page.getByRole('radio', { name: 'Handwriting', exact: true }).click()
+  await expect(recall).toHaveCount(0)
+  await field(page).fill('cat')
+  await field(page).fill('dog')
+  await expect(page.getByLabel('練習結果', { exact: true })).toContainText('練習記録を保存しました。')
+  const records = JSON.parse(await page.evaluate(key => localStorage.getItem(key) ?? 'null', key)).lists[0].records
+  expect(records.map((record: { mode?: string }) => record.mode)).toEqual(['writing'])
+  // Back to typing, the recall choice applies again.
+  await page.getByRole('radio', { name: 'タイピング', exact: true }).click()
+  await expect(page.getByRole('button', { name: '思い出して打つ', exact: true })).toHaveAttribute('aria-pressed', 'true')
 })

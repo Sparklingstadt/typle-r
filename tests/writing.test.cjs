@@ -96,3 +96,11 @@ test('two words with one mistake give 66.67 accuracy', () => {
   s = judge(s, ['cd'], 3000, false)
   assert.deepEqual(sessionResult(s), { time: 2, mistakes: 1, accuracy: 66.67 })
 })
+
+// A skipped word counts as a mistake and never as correct: accuracy is (words − skips) ÷ (words + mismatches).
+test('two words with one skipped give 50 accuracy', () => {
+  let s = judge(newSession(), ['ab'], 1000, false)
+  s = skipWord(s, words, 3000)
+  assert.equal(s.finishedAt, 3000)
+  assert.deepEqual(sessionResult(s), { time: 2, mistakes: 1, accuracy: 50 })
+})
