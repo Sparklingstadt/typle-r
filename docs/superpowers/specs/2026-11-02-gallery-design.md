@@ -93,17 +93,17 @@ CREATE INDEX IF NOT EXISTS "typle_gallery_reports_share" ON "typle_gallery_repor
   - `sort`・`page` が不正なら `400 invalidQuery`
 - `GET /api/gallery/categories` → `{ "categories": [{ "name", "count" }] }`（掲載中で非公開でない共有のカテゴリー。件数の多い順、同じなら名前の日本語の照合順）
 - `POST /api/gallery/added?id=` → 掲載中で非公開でない共有なら `add_count` を1増やして `204`。そうでなければ何もせず `204`（ギャラリーに載っていないことを知らせない）。同じ Origin の確認をする
-- `POST /api/gallery/reports` 本文 `{"id","reason"}` → 掲載中で非公開でない共有なら記録して `204`。共有がなければ `404 sharedPackNotFound`、`reason` が不正なら `400 invalidReport`。同じ Origin と `Content-Type` の確認をする
+- `POST /api/gallery/reports` 本文 `{"id","reason"}` → 掲載中で非公開でない共有なら記録して `204`。掲載中で非公開でない共有がなければ `404 notInGallery`（リンクだけの共有の `/shared/<id>` から通報したとき「共有は終了しました」と出さないため）、`reason` が不正なら `400 invalidReport`。同じ Origin と `Content-Type` の確認をする
 
 ### 管理者（`/api/admin/*` の今の確認をそのまま使う）
 
 - `GET /api/admin/gallery` → 掲載中か非公開の共有を、通報の多い順（同じなら新しい通報のある順）に。各行に id・名前・カテゴリー・追加数・掲載日・非公開日・通報の件数と理由ごとの件数
-- `POST /api/admin/gallery/hide` 本文 `{"id"}` → `hidden_at` を今にする。`POST /api/admin/gallery/unhide` → NULL にする。どちらも共有がなければ `404 sharedPackNotFound`
+- `POST /api/admin/gallery/hide` 本文 `{"id"}` → `hidden_at` を今にする。`POST /api/admin/gallery/unhide` → NULL にする。どちらも共有がなければ `404 sharedPackNotFound`、本文が不正なら `400 invalidRequest`
 
 ### エラー
 
 - DB に届かないときはどの API も `503 databaseUnavailable`
-- 新しいエラーコード（`sharedPackHidden`・`invalidQuery`・`invalidReport`）は `useErrorText` の文言に6ロケールで入れる
+- 新しいエラーコード（`sharedPackHidden`・`invalidQuery`・`invalidReport`・`notInGallery`・`invalidRequest`）は `useErrorText` の文言に6ロケールで入れる
 - 通報・追加数の連打は Vercel Firewall のレート制限で抑える。README の共有の節に設定を一文で書く
 
 ## 画面
@@ -159,5 +159,5 @@ CREATE INDEX IF NOT EXISTS "typle_gallery_reports_share" ON "typle_gallery_repor
 
 PR を2つに分け、続けてマージする。
 
-1. **ギャラリー**: マイグレーション `0033_gallery`（`typle_gallery_reports` を含む）、持ち主・ギャラリーの API、`/gallery`、追加数、共有ダイアログのスイッチ。ただしスイッチは PR 2 まで出さない（通報の手段がない期間に載せられないようにするため）
-2. **通報と非公開化**: 通報と管理者の API、`/shared/<id>` の通報、`/admin` のギャラリー欄、共有ダイアログのスイッチを出す、README・`docs/features.md`・`docs/app-api.md`・ガイドの説明
+1. **ギャラリー**（v2.7.0）: マイグレーション `0033_gallery`（`typle_gallery_reports` を含む）、持ち主・ギャラリーの API、`/gallery`、追加数。画面から載せる操作はまだ作らない（通報の手段がない期間に載せられないようにするため）
+2. **載せる・通報・非公開化**（v2.8.0）: 共有ダイアログのスイッチとパックの行のバッジ、通報と管理者の API、`/shared/<id>` の通報、`/admin` のギャラリー欄、README・`docs/features.md`・`docs/app-api.md`・ガイドの説明
