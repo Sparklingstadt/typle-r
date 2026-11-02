@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-7-words-2",
+  "name": "中国語HSK6級 手書き7（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語7",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "储存",
+      "input": "chǔcún",
+      "annotation": "chǔcún / 貯蔵する",
+      "input_type": "word"
+    },
+    {
+      "display": "川流不息",
+      "input": "chuānliú bùxī",
+      "annotation": "chuānliú bùxī / 絶え間なく続く",
+      "input_type": "word"
+    },
+    {
+      "display": "传单",
+      "input": "chuándān",
+      "annotation": "chuándān / ビラ",
+      "input_type": "word"
+    },
+    {
+      "display": "船舶",
+      "input": "chuánbó",
+      "annotation": "chuánbó / 船舶",
+      "input_type": "word"
+    },
+    {
+      "display": "创立",
+      "input": "chuànglì",
+      "annotation": "chuànglì / 創立する",
+      "input_type": "word"
+    },
+    {
+      "display": "创作",
+      "input": "chuàngzuò",
+      "annotation": "chuàngzuò / 創作する",
+      "input_type": "word"
+    },
+    {
+      "display": "垂直",
+      "input": "chuízhí",
+      "annotation": "chuízhí / 垂直の",
+      "input_type": "word"
+    },
+    {
+      "display": "纯洁",
+      "input": "chúnjié",
+      "annotation": "chúnjié / 清らかな",
+      "input_type": "word"
+    },
+    {
+      "display": "慈祥",
+      "input": "cíxiáng",
+      "annotation": "cíxiáng / 慈愛に満ちた",
+      "input_type": "word"
+    },
+    {
+      "display": "伺候",
+      "input": "cìhou",
+      "annotation": "cìhou / 世話をする",
+      "input_type": "word"
+    },
+    {
+      "display": "从容",
+      "input": "cóngróng",
+      "annotation": "cóngróng / ゆったりとした",
+      "input_type": "word"
+    },
+    {
+      "display": "脆弱",
+      "input": "cuìruò",
+      "annotation": "cuìruò / もろい",
+      "input_type": "word"
+    },
+    {
+      "display": "挫折",
+      "input": "cuòzhé",
+      "annotation": "cuòzhé / 挫折",
+      "input_type": "word"
+    },
+    {
+      "display": "答复",
+      "input": "dáfù",
+      "annotation": "dáfù / 回答する",
+      "input_type": "word"
+    },
+    {
+      "display": "达成",
+      "input": "dáchéng",
+      "annotation": "dáchéng / 達成する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

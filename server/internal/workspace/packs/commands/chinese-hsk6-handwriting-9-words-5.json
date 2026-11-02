@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-9-words-5",
+  "name": "中国語HSK6級 手書き9（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語9",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "结晶",
+      "input": "jiéjīng",
+      "annotation": "jiéjīng / 結晶",
+      "input_type": "word"
+    },
+    {
+      "display": "截止",
+      "input": "jiézhǐ",
+      "annotation": "jiézhǐ / 締め切る",
+      "input_type": "word"
+    },
+    {
+      "display": "解除",
+      "input": "jiěchú",
+      "annotation": "jiěchú / 解除する",
+      "input_type": "word"
+    },
+    {
+      "display": "解剖",
+      "input": "jiěpōu",
+      "annotation": "jiěpōu / 解剖する",
+      "input_type": "word"
+    },
+    {
+      "display": "解体",
+      "input": "jiětǐ",
+      "annotation": "jiětǐ / 解体する",
+      "input_type": "word"
+    },
+    {
+      "display": "借助",
+      "input": "jièzhù",
+      "annotation": "jièzhù / 〜の助けを借りる",
+      "input_type": "word"
+    },
+    {
+      "display": "津津有味",
+      "input": "jīnjīn yǒuwèi",
+      "annotation": "jīnjīn yǒuwèi / 興味津々",
+      "input_type": "word"
+    },
+    {
+      "display": "进攻",
+      "input": "jìngōng",
+      "annotation": "jìngōng / 攻撃する",
+      "input_type": "word"
+    },
+    {
+      "display": "进展",
+      "input": "jìnzhǎn",
+      "annotation": "jìnzhǎn / 進展する",
+      "input_type": "word"
+    },
+    {
+      "display": "晋升",
+      "input": "jìnshēng",
+      "annotation": "jìnshēng / 昇進する",
+      "input_type": "word"
+    },
+    {
+      "display": "经纬",
+      "input": "jīngwěi",
+      "annotation": "jīngwěi / 経緯",
+      "input_type": "word"
+    },
+    {
+      "display": "惊奇",
+      "input": "jīngqí",
+      "annotation": "jīngqí / 不思議がる",
+      "input_type": "word"
+    },
+    {
+      "display": "精打细算",
+      "input": "jīngdǎ xìsuàn",
+      "annotation": "jīngdǎ xìsuàn / 細かくそろばんをはじく",
+      "input_type": "word"
+    },
+    {
+      "display": "精简",
+      "input": "jīngjiǎn",
+      "annotation": "jīngjiǎn / 簡素化する",
+      "input_type": "word"
+    },
+    {
+      "display": "精通",
+      "input": "jīngtōng",
+      "annotation": "jīngtōng / 精通する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-10-words-1",
+  "name": "中国語HSK6級 手書き10（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語10",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "开除",
+      "input": "kāichú",
+      "annotation": "kāichú / 除名する",
+      "input_type": "word"
+    },
+    {
+      "display": "开朗",
+      "input": "kāilǎng",
+      "annotation": "kāilǎng / 朗らかな",
+      "input_type": "word"
+    },
+    {
+      "display": "开明",
+      "input": "kāimíng",
+      "annotation": "kāimíng / 開明的な",
+      "input_type": "word"
+    },
+    {
+      "display": "刊登",
+      "input": "kāndēng",
+      "annotation": "kāndēng / 掲載する",
+      "input_type": "word"
+    },
+    {
+      "display": "刊物",
+      "input": "kānwù",
+      "annotation": "kānwù / 刊行物",
+      "input_type": "word"
+    },
+    {
+      "display": "看待",
+      "input": "kàndài",
+      "annotation": "kàndài / 見なす",
+      "input_type": "word"
+    },
+    {
+      "display": "考察",
+      "input": "kǎochá",
+      "annotation": "kǎochá / 視察する",
+      "input_type": "word"
+    },
+    {
+      "display": "科目",
+      "input": "kēmù",
+      "annotation": "kēmù / 科目",
+      "input_type": "word"
+    },
+    {
+      "display": "可观",
+      "input": "kěguān",
+      "annotation": "kěguān / かなりの",
+      "input_type": "word"
+    },
+    {
+      "display": "渴望",
+      "input": "kěwàng",
+      "annotation": "kěwàng / 渇望する",
+      "input_type": "word"
+    },
+    {
+      "display": "克制",
+      "input": "kèzhì",
+      "annotation": "kèzhì / 抑える",
+      "input_type": "word"
+    },
+    {
+      "display": "恳切",
+      "input": "kěnqiè",
+      "annotation": "kěnqiè / ねんごろな",
+      "input_type": "word"
+    },
+    {
+      "display": "空洞",
+      "input": "kōngdòng",
+      "annotation": "kōngdòng / 中身のない",
+      "input_type": "word"
+    },
+    {
+      "display": "恐吓",
+      "input": "kǒnghè",
+      "annotation": "kǒnghè / 脅す",
+      "input_type": "word"
+    },
+    {
+      "display": "恐惧",
+      "input": "kǒngjù",
+      "annotation": "kǒngjù / 恐れる",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

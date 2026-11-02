@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-7-words-3",
+  "name": "中国語HSK6級 手書き7（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語7",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "打量",
+      "input": "dǎliang",
+      "annotation": "dǎliang / じろじろ見る",
+      "input_type": "word"
+    },
+    {
+      "display": "打猎",
+      "input": "dǎliè",
+      "annotation": "dǎliè / 狩りをする",
+      "input_type": "word"
+    },
+    {
+      "display": "大肆",
+      "input": "dàsì",
+      "annotation": "dàsì / ほしいままに",
+      "input_type": "word"
+    },
+    {
+      "display": "大意",
+      "input": "dàyi",
+      "annotation": "dàyi / うかつな",
+      "input_type": "word"
+    },
+    {
+      "display": "代价",
+      "input": "dàijià",
+      "annotation": "dàijià / 代価",
+      "input_type": "word"
+    },
+    {
+      "display": "带领",
+      "input": "dàilǐng",
+      "annotation": "dàilǐng / 率いる",
+      "input_type": "word"
+    },
+    {
+      "display": "担保",
+      "input": "dānbǎo",
+      "annotation": "dānbǎo / 保証する",
+      "input_type": "word"
+    },
+    {
+      "display": "诞辰",
+      "input": "dànchén",
+      "annotation": "dànchén / 誕生日（敬語）",
+      "input_type": "word"
+    },
+    {
+      "display": "淡水",
+      "input": "dànshuǐ",
+      "annotation": "dànshuǐ / 淡水",
+      "input_type": "word"
+    },
+    {
+      "display": "当场",
+      "input": "dāngchǎng",
+      "annotation": "dāngchǎng / その場で",
+      "input_type": "word"
+    },
+    {
+      "display": "当面",
+      "input": "dāngmiàn",
+      "annotation": "dāngmiàn / 面と向かって",
+      "input_type": "word"
+    },
+    {
+      "display": "当事人",
+      "input": "dāngshìrén",
+      "annotation": "dāngshìrén / 当事者",
+      "input_type": "word"
+    },
+    {
+      "display": "档次",
+      "input": "dàngcì",
+      "annotation": "dàngcì / 等級",
+      "input_type": "word"
+    },
+    {
+      "display": "导航",
+      "input": "dǎoháng",
+      "annotation": "dǎoháng / ナビゲーション",
+      "input_type": "word"
+    },
+    {
+      "display": "倒闭",
+      "input": "dǎobì",
+      "annotation": "dǎobì / 倒産する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

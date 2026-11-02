@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-6-words-5",
+  "name": "中国語HSK6級 手書き6（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語6",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "裁缝",
+      "input": "cáifeng",
+      "annotation": "cáifeng / 仕立屋",
+      "input_type": "word"
+    },
+    {
+      "display": "采集",
+      "input": "cǎijí",
+      "annotation": "cǎijí / 採集する",
+      "input_type": "word"
+    },
+    {
+      "display": "彩票",
+      "input": "cǎipiào",
+      "annotation": "cǎipiào / 宝くじ",
+      "input_type": "word"
+    },
+    {
+      "display": "残留",
+      "input": "cánliú",
+      "annotation": "cánliú / 残留する",
+      "input_type": "word"
+    },
+    {
+      "display": "残忍",
+      "input": "cánrěn",
+      "annotation": "cánrěn / 残忍な",
+      "input_type": "word"
+    },
+    {
+      "display": "仓库",
+      "input": "cāngkù",
+      "annotation": "cāngkù / 倉庫",
+      "input_type": "word"
+    },
+    {
+      "display": "操劳",
+      "input": "cāoláo",
+      "annotation": "cāoláo / 苦労して働く",
+      "input_type": "word"
+    },
+    {
+      "display": "嘈杂",
+      "input": "cáozá",
+      "annotation": "cáozá / 騒がしい",
+      "input_type": "word"
+    },
+    {
+      "display": "草率",
+      "input": "cǎoshuài",
+      "annotation": "cǎoshuài / いい加減な",
+      "input_type": "word"
+    },
+    {
+      "display": "测量",
+      "input": "cèliáng",
+      "annotation": "cèliáng / 測量する",
+      "input_type": "word"
+    },
+    {
+      "display": "层出不穷",
+      "input": "céngchū bùqióng",
+      "annotation": "céngchū bùqióng / 次々と現れる",
+      "input_type": "word"
+    },
+    {
+      "display": "差别",
+      "input": "chābié",
+      "annotation": "chābié / 違い",
+      "input_type": "word"
+    },
+    {
+      "display": "刹那",
+      "input": "chànà",
+      "annotation": "chànà / 一瞬",
+      "input_type": "word"
+    },
+    {
+      "display": "柴油",
+      "input": "cháiyóu",
+      "annotation": "cháiyóu / 軽油",
+      "input_type": "word"
+    },
+    {
+      "display": "颤抖",
+      "input": "chàndǒu",
+      "annotation": "chàndǒu / 震える",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

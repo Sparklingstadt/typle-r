@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-8-words-1",
+  "name": "中国語HSK6級 手書き8（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語8",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "放射",
+      "input": "fàngshè",
+      "annotation": "fàngshè / 放射する",
+      "input_type": "word"
+    },
+    {
+      "display": "飞翔",
+      "input": "fēixiáng",
+      "annotation": "fēixiáng / 飛び回る",
+      "input_type": "word"
+    },
+    {
+      "display": "非法",
+      "input": "fēifǎ",
+      "annotation": "fēifǎ / 違法な",
+      "input_type": "word"
+    },
+    {
+      "display": "废除",
+      "input": "fèichú",
+      "annotation": "fèichú / 廃止する",
+      "input_type": "word"
+    },
+    {
+      "display": "废墟",
+      "input": "fèixū",
+      "annotation": "fèixū / 廃墟",
+      "input_type": "word"
+    },
+    {
+      "display": "分寸",
+      "input": "fēncun",
+      "annotation": "fēncun / 節度",
+      "input_type": "word"
+    },
+    {
+      "display": "分解",
+      "input": "fēnjiě",
+      "annotation": "fēnjiě / 分解する",
+      "input_type": "word"
+    },
+    {
+      "display": "分明",
+      "input": "fēnmíng",
+      "annotation": "fēnmíng / はっきりした",
+      "input_type": "word"
+    },
+    {
+      "display": "吩咐",
+      "input": "fēnfù",
+      "annotation": "fēnfù / 言いつける",
+      "input_type": "word"
+    },
+    {
+      "display": "分量",
+      "input": "fènliàng",
+      "annotation": "fènliàng / 重さ",
+      "input_type": "word"
+    },
+    {
+      "display": "愤怒",
+      "input": "fènnù",
+      "annotation": "fènnù / 激怒する",
+      "input_type": "word"
+    },
+    {
+      "display": "风暴",
+      "input": "fēngbào",
+      "annotation": "fēngbào / 嵐",
+      "input_type": "word"
+    },
+    {
+      "display": "风度",
+      "input": "fēngdù",
+      "annotation": "fēngdù / 風格",
+      "input_type": "word"
+    },
+    {
+      "display": "风土人情",
+      "input": "fēngtǔ rénqíng",
+      "annotation": "fēngtǔ rénqíng / 風土と人情",
+      "input_type": "word"
+    },
+    {
+      "display": "风味",
+      "input": "fēngwèi",
+      "annotation": "fēngwèi / 風味",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

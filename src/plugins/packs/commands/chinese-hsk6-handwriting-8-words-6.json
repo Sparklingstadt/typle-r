@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-8-words-6",
+  "name": "中国語HSK6級 手書き8（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語8",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "海滨",
+      "input": "hǎibīn",
+      "annotation": "hǎibīn / 海辺",
+      "input_type": "word"
+    },
+    {
+      "display": "捍卫",
+      "input": "hànwèi",
+      "annotation": "hànwèi / 守る",
+      "input_type": "word"
+    },
+    {
+      "display": "航空",
+      "input": "hángkōng",
+      "annotation": "hángkōng / 航空",
+      "input_type": "word"
+    },
+    {
+      "display": "号召",
+      "input": "hàozhào",
+      "annotation": "hàozhào / 呼びかける",
+      "input_type": "word"
+    },
+    {
+      "display": "耗费",
+      "input": "hàofèi",
+      "annotation": "hàofèi / 費やす",
+      "input_type": "word"
+    },
+    {
+      "display": "合算",
+      "input": "hésuàn",
+      "annotation": "hésuàn / 割に合う",
+      "input_type": "word"
+    },
+    {
+      "display": "和解",
+      "input": "héjiě",
+      "annotation": "héjiě / 和解する",
+      "input_type": "word"
+    },
+    {
+      "display": "痕迹",
+      "input": "hénjì",
+      "annotation": "hénjì / 痕跡",
+      "input_type": "word"
+    },
+    {
+      "display": "狠心",
+      "input": "hěnxīn",
+      "annotation": "hěnxīn / 心を鬼にする",
+      "input_type": "word"
+    },
+    {
+      "display": "宏伟",
+      "input": "hóngwěi",
+      "annotation": "hóngwěi / 雄大な",
+      "input_type": "word"
+    },
+    {
+      "display": "洪水",
+      "input": "hóngshuǐ",
+      "annotation": "hóngshuǐ / 洪水",
+      "input_type": "word"
+    },
+    {
+      "display": "后勤",
+      "input": "hòuqín",
+      "annotation": "hòuqín / 後方支援",
+      "input_type": "word"
+    },
+    {
+      "display": "候选",
+      "input": "hòuxuǎn",
+      "annotation": "hòuxuǎn / 候補の",
+      "input_type": "word"
+    },
+    {
+      "display": "胡须",
+      "input": "húxū",
+      "annotation": "húxū / ひげ",
+      "input_type": "word"
+    },
+    {
+      "display": "湖泊",
+      "input": "húpō",
+      "annotation": "húpō / 湖",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

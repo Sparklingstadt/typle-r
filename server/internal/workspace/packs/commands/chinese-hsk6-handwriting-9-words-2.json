@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-9-words-2",
+  "name": "中国語HSK6級 手書き9（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語9",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "活力",
+      "input": "huólì",
+      "annotation": "huólì / 活力",
+      "input_type": "word"
+    },
+    {
+      "display": "火箭",
+      "input": "huǒjiàn",
+      "annotation": "huǒjiàn / ロケット",
+      "input_type": "word"
+    },
+    {
+      "display": "讥笑",
+      "input": "jīxiào",
+      "annotation": "jīxiào / あざ笑う",
+      "input_type": "word"
+    },
+    {
+      "display": "机动",
+      "input": "jīdòng",
+      "annotation": "jīdòng / 機動的な",
+      "input_type": "word"
+    },
+    {
+      "display": "机智",
+      "input": "jīzhì",
+      "annotation": "jīzhì / 機知に富む",
+      "input_type": "word"
+    },
+    {
+      "display": "基地",
+      "input": "jīdì",
+      "annotation": "jīdì / 基地",
+      "input_type": "word"
+    },
+    {
+      "display": "激励",
+      "input": "jīlì",
+      "annotation": "jīlì / 激励する",
+      "input_type": "word"
+    },
+    {
+      "display": "激情",
+      "input": "jīqíng",
+      "annotation": "jīqíng / 情熱",
+      "input_type": "word"
+    },
+    {
+      "display": "吉祥",
+      "input": "jíxiáng",
+      "annotation": "jíxiáng / めでたい",
+      "input_type": "word"
+    },
+    {
+      "display": "极限",
+      "input": "jíxiàn",
+      "annotation": "jíxiàn / 極限",
+      "input_type": "word"
+    },
+    {
+      "display": "即将",
+      "input": "jíjiāng",
+      "annotation": "jíjiāng / まもなく",
+      "input_type": "word"
+    },
+    {
+      "display": "急切",
+      "input": "jíqiè",
+      "annotation": "jíqiè / 切実な",
+      "input_type": "word"
+    },
+    {
+      "display": "急躁",
+      "input": "jízào",
+      "annotation": "jízào / せっかちな",
+      "input_type": "word"
+    },
+    {
+      "display": "嫉妒",
+      "input": "jídù",
+      "annotation": "jídù / 嫉妬する",
+      "input_type": "word"
+    },
+    {
+      "display": "给予",
+      "input": "jǐyǔ",
+      "annotation": "jǐyǔ / 与える",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

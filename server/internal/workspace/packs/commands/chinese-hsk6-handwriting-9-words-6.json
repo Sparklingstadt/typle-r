@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-9-words-6",
+  "name": "中国語HSK6級 手書き9（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語9",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "精益求精",
+      "input": "jīngyì qiújīng",
+      "annotation": "jīngyì qiújīng / さらに磨きをかける",
+      "input_type": "word"
+    },
+    {
+      "display": "警告",
+      "input": "jǐnggào",
+      "annotation": "jǐnggào / 警告する",
+      "input_type": "word"
+    },
+    {
+      "display": "竞赛",
+      "input": "jìngsài",
+      "annotation": "jìngsài / 競争",
+      "input_type": "word"
+    },
+    {
+      "display": "境界",
+      "input": "jìngjiè",
+      "annotation": "jìngjiè / 境地",
+      "input_type": "word"
+    },
+    {
+      "display": "纠纷",
+      "input": "jiūfēn",
+      "annotation": "jiūfēn / 紛争",
+      "input_type": "word"
+    },
+    {
+      "display": "救济",
+      "input": "jiùjì",
+      "annotation": "jiùjì / 救済する",
+      "input_type": "word"
+    },
+    {
+      "display": "就业",
+      "input": "jiùyè",
+      "annotation": "jiùyè / 就職する",
+      "input_type": "word"
+    },
+    {
+      "display": "拘束",
+      "input": "jūshù",
+      "annotation": "jūshù / 堅苦しい",
+      "input_type": "word"
+    },
+    {
+      "display": "居住",
+      "input": "jūzhù",
+      "annotation": "jūzhù / 居住する",
+      "input_type": "word"
+    },
+    {
+      "display": "局面",
+      "input": "júmiàn",
+      "annotation": "júmiàn / 局面",
+      "input_type": "word"
+    },
+    {
+      "display": "举世瞩目",
+      "input": "jǔshì zhǔmù",
+      "annotation": "jǔshì zhǔmù / 世界中が注目する",
+      "input_type": "word"
+    },
+    {
+      "display": "剧烈",
+      "input": "jùliè",
+      "annotation": "jùliè / 激しい",
+      "input_type": "word"
+    },
+    {
+      "display": "聚精会神",
+      "input": "jùjīng huìshén",
+      "annotation": "jùjīng huìshén / 精神を集中する",
+      "input_type": "word"
+    },
+    {
+      "display": "觉醒",
+      "input": "juéxǐng",
+      "annotation": "juéxǐng / 目覚める",
+      "input_type": "word"
+    },
+    {
+      "display": "倔强",
+      "input": "juéjiàng",
+      "annotation": "juéjiàng / 強情な",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

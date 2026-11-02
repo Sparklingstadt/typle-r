@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-8-words-3",
+  "name": "中国語HSK6級 手書き8（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語8",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "干预",
+      "input": "gānyù",
+      "annotation": "gānyù / 介入する",
+      "input_type": "word"
+    },
+    {
+      "display": "感染",
+      "input": "gǎnrǎn",
+      "annotation": "gǎnrǎn / 感染する",
+      "input_type": "word"
+    },
+    {
+      "display": "岗位",
+      "input": "gǎngwèi",
+      "annotation": "gǎngwèi / 持ち場",
+      "input_type": "word"
+    },
+    {
+      "display": "港湾",
+      "input": "gǎngwān",
+      "annotation": "gǎngwān / 港湾",
+      "input_type": "word"
+    },
+    {
+      "display": "高潮",
+      "input": "gāocháo",
+      "annotation": "gāocháo / 最高潮",
+      "input_type": "word"
+    },
+    {
+      "display": "高尚",
+      "input": "gāoshàng",
+      "annotation": "gāoshàng / 気高い",
+      "input_type": "word"
+    },
+    {
+      "display": "告辞",
+      "input": "gàocí",
+      "annotation": "gàocí / いとまごいをする",
+      "input_type": "word"
+    },
+    {
+      "display": "疙瘩",
+      "input": "gēda",
+      "annotation": "gēda / できもの、わだかまり",
+      "input_type": "word"
+    },
+    {
+      "display": "革命",
+      "input": "gémìng",
+      "annotation": "gémìng / 革命",
+      "input_type": "word"
+    },
+    {
+      "display": "格式",
+      "input": "géshì",
+      "annotation": "géshì / 書式",
+      "input_type": "word"
+    },
+    {
+      "display": "个体",
+      "input": "gètǐ",
+      "annotation": "gètǐ / 個体",
+      "input_type": "word"
+    },
+    {
+      "display": "根深蒂固",
+      "input": "gēnshēn dìgù",
+      "annotation": "gēnshēn dìgù / 根深い",
+      "input_type": "word"
+    },
+    {
+      "display": "跟随",
+      "input": "gēnsuí",
+      "annotation": "gēnsuí / ついて行く",
+      "input_type": "word"
+    },
+    {
+      "display": "更新",
+      "input": "gēngxīn",
+      "annotation": "gēngxīn / 更新する",
+      "input_type": "word"
+    },
+    {
+      "display": "工艺品",
+      "input": "gōngyìpǐn",
+      "annotation": "gōngyìpǐn / 工芸品",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}
