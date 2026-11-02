@@ -24,8 +24,9 @@ export default function GalleryPage() {
 }
 
 function Loading() {
-  const t = useTranslations('wordLists.gallery')
-  return <div role="status" aria-label={t('title')} className="space-y-3">
+  const common = useTranslations('common')
+  return <div role="status" className="space-y-3">
+    <span className="sr-only">{common('loading')}</span>
     <Skeleton className="h-8 w-40" /><Skeleton className="h-8 w-full" />
     <div className="grid gap-3 sm:grid-cols-2">{[0, 1, 2, 3].map(key => <Skeleton key={key} className="h-28 w-full" />)}</div>
   </div>
@@ -82,7 +83,12 @@ function Gallery() {
   useEffect(() => {
     let active = true
     fetchPage(galleryQueryOf(new URLSearchParams(key)), 1).then(
-      page => { if (active) setLoaded({ ...page, token: `${key}#${attempt}`, page: 1 }) },
+      page => {
+        if (!active) return
+        // A failure left by an earlier visit to this search (a failed "more") must not show above the fresh results.
+        setFailed(null)
+        setLoaded({ ...page, token: `${key}#${attempt}`, page: 1 })
+      },
       reason => { if (active) setFailed({ token: `${key}#${attempt}`, reason }) },
     )
     return () => { active = false }

@@ -67,7 +67,7 @@ test('the search, category and order are kept in the URL', async ({ page, browse
     await expect(view).toHaveURL(/sort=popular/)
     await view.getByRole('searchbox', { name: '検索' }).fill(accountId)
     await view.getByRole('button', { name: '検索' }).click()
-    await expect(view).toHaveURL(/q=github/)
+    await expect(view).toHaveURL(new RegExp(`q=${encodeURIComponent(accountId)}`))
     await expect(view.getByRole('main').getByRole('listitem')).toHaveCount(1)
 
     await view.reload()
@@ -83,11 +83,16 @@ test('a failed count does not spoil the add', async ({ page, browser }) => {
   const guest = await browser.newContext({ baseURL: origin })
   try {
     const view = await guest.newPage()
-    await view.route('**/api/gallery/added**', route => route.abort())
+    let attempts = 0
+    await view.route('**/api/gallery/added**', route => { attempts++; return route.abort() })
     await view.goto(`/shared/${id}`)
+    await expect(view.getByRole('button', { name: '自分のパックに追加' })).toBeEnabled()
+    await expect(view.locator('[data-slot="alert"]')).toHaveCount(0)
     await view.getByRole('button', { name: '自分のパックに追加' }).click()
     await expect(view).toHaveURL(/\/edit\?pack=/)
     await expect(view.locator('[data-slot="alert"]')).toHaveCount(0)
+    // The count was tried (and refused) without anything being shown.
+    await expect.poll(() => attempts).toBe(1)
   } finally { await guest.close() }
 })
 

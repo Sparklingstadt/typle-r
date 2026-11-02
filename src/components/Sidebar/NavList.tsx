@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 import { helpNavigation, isCurrentPath, mainNavigation, type NavLink } from "./navigation"
 import { version } from "../../../package.json"
 
-// 36px rows on desktop keep the whole sidebar within a 1280×768 screen; the drawer keeps 40px touch targets.
+// 32px rows on desktop keep the whole sidebar within a 1280×768 screen; the drawer keeps 40px touch targets.
 const itemClass = (current: boolean) => cn(
   "relative flex h-10 items-center gap-3 xl:h-8 rounded-md px-3 text-sm outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-4 [&_svg]:shrink-0",
   current
