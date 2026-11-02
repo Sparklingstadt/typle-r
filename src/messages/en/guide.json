@@ -64,7 +64,8 @@
       "p2": "Time is measured from your first keystroke until you finish. While you practice, the elapsed time, speed (correct characters per minute), accuracy, and number of mistakes are shown.",
       "p3": "Text typed with an IME (such as Japanese) is checked once it is confirmed; characters still being converted are not checked. Pasting and drag-and-drop input are disabled.",
       "p4": "The next 3 words appear below the progress bar, and “Show all words” lets you see the whole list.",
-      "p5": "The eye button at the top shows or hides the live stats (elapsed time, speed, accuracy and mistakes). Your choice is saved in this browser. Hiding them does not change timing or saving, and the result screen still shows the numbers."
+      "p5": "The eye button at the top shows or hides the live stats (elapsed time, speed, accuracy and mistakes). Your choice is saved in this browser. Hiding them does not change timing or saving, and the result screen still shows the numbers.",
+      "p6": "Turn on “Type from memory” at the top to practice with the answer hidden. The note is shown with the answer blanked out, and the answer appears as one “＿” per character still to type. The next words, the full word list and the characters-to-type guide are not shown. “Show answer” reveals it, and the remaining characters count as mistakes. These runs are saved as “Recall” and compared separately from normal runs. Your choice is saved in this browser and cannot be changed during a run."
     },
     "choose": {
       "title": "Choosing a pack, list and device",
