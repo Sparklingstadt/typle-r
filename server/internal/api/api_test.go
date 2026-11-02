@@ -396,3 +396,16 @@ func TestRecordsPagedBySource(t *testing.T) {
 	failing := &pagedSource{source: saved(t), err: errors.New("down")}
 	expect(t, servePaged(failing, "/api/v1/lists/l1/records"), http.StatusServiceUnavailable, `{"error":"databaseUnavailable"}`)
 }
+
+// A list with a handwriting mark shows it; the others leave it out.
+func TestListSummaryWriting(t *testing.T) {
+	marked := summary(&workspace.List{ID: "w", Name: "漢字", Writing: &workspace.Writing{Language: "ja"}, Words: []workspace.Word{{Display: "木", Input: "ki"}}})
+	body, err := json.Marshal(marked)
+	if err != nil || !strings.Contains(string(body), `"writing":{"language":"ja"}`) {
+		t.Fatalf("body = %s, err = %v", body, err)
+	}
+	body, err = json.Marshal(summary(&workspace.List{ID: "p", Name: "n", Words: []workspace.Word{{Display: "a", Input: "a"}}}))
+	if err != nil || strings.Contains(string(body), "writing") {
+		t.Fatalf("body = %s, err = %v", body, err)
+	}
+}

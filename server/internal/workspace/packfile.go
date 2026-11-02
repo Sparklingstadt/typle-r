@@ -31,9 +31,10 @@ type PackFileInfo struct {
 
 // PackFileList is a list of a pack file. Its words have no fields Typle does not know.
 type PackFileList struct {
-	Name   string   `json:"name"`
-	Levels []string `json:"levels,omitempty"`
-	Words  []Word   `json:"words"`
+	Name    string   `json:"name"`
+	Levels  []string `json:"levels,omitempty"`
+	Writing *Writing `json:"writing,omitempty"`
+	Words   []Word   `json:"words"`
 }
 
 // EncodePackFile follows encodePackFile (src/core/packFile.ts): the pack packID of w and its lists in saved order, as
@@ -47,7 +48,7 @@ func EncodePackFile(w *Workspace, packID string) ([]byte, error) {
 		Pack: PackFileInfo{Name: pack.Name, Description: pack.Description, Category: pack.Category, Tags: pack.Tags}}
 	for _, list := range w.Lists {
 		if list.PackID == packID {
-			file.Lists = append(file.Lists, PackFileList{Name: list.Name, Levels: list.Levels, Words: plainWords(list.Words)})
+			file.Lists = append(file.Lists, PackFileList{Name: list.Name, Levels: list.Levels, Writing: cloneWriting(list.Writing), Words: plainWords(list.Words)})
 		}
 	}
 	return file.Encode()
@@ -176,6 +177,7 @@ func DecodePackFile(data []byte) (*PackFile, error) {
 		}
 		var list PackFileList
 		var isName bool
+		var err error
 		list.Name, isName = readString(fields["name"])
 		words, isWords := readArray(fields["words"])
 		if !isName || !isWords {
@@ -183,6 +185,11 @@ func DecodePackFile(data []byte) (*PackFile, error) {
 		}
 		if !absent(fields["levels"]) {
 			if list.Levels, ok = readStrings(fields["levels"]); !ok {
+				return nil, unreadable
+			}
+		}
+		if !absent(fields["writing"]) {
+			if list.Writing, err = writingOf(fields["writing"]); err != nil {
 				return nil, unreadable
 			}
 		}
@@ -223,7 +230,7 @@ func ImportPack(w *Workspace, file *PackFile, packID string, listIDs []string, n
 	}
 	inputs := make([]PackListInput, 0, len(file.Lists))
 	for _, list := range file.Lists {
-		input := PackListInput{Name: &list.Name, Words: list.Words}
+		input := PackListInput{Name: &list.Name, Writing: list.Writing, Words: list.Words}
 		if list.Levels != nil {
 			input.Levels = &list.Levels
 		}

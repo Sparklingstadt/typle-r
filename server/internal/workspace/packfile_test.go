@@ -245,3 +245,34 @@ func TestDecodePackFileRefusesWhatIsNotAPackFile(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+// Only the mark of a list in a file is checked: absent or null reads as left out, any other shape is unreadable.
+func TestPackFileWriting(t *testing.T) {
+	list := func(writing string) string {
+		return `[{"name":"n","writing":` + writing + `,"words":[{"display":"a","input":"a","annotation":""}]}]`
+	}
+	file, err := DecodePackFile([]byte(packFileText(list(`{"language":"zh-Hant"}`), `{"name":"p"}`)))
+	if err != nil || file.Lists[0].Writing == nil || file.Lists[0].Writing.Language != "zh-Hant" {
+		t.Fatalf("file = %+v, err = %v", file, err)
+	}
+	if file, err = DecodePackFile([]byte(packFileText(list(`null`), `{"name":"p"}`))); err != nil || file.Lists[0].Writing != nil {
+		t.Fatalf("null: %+v, %v", file, err)
+	}
+	for _, bad := range []string{`{"language":"xx"}`, `{"language":"ja","x":1}`, `{}`, `"ja"`, `[]`, `{"language":null}`} {
+		_, err := DecodePackFile([]byte(packFileText(list(bad), `{"name":"p"}`)))
+		wantKey(t, err, "packFileUnreadable")
+	}
+}
+
+// A copy of a pack keeps the marks of its lists.
+func TestCopyPackKeepsWriting(t *testing.T) {
+	fixture := packFileFixtures(t)["writing.json"]
+	w := fixture.workspace(t)
+	if _, err := CopyPack(w, fixture.PackID, nil, "copy", []string{"c1", "c2", "c3"}, packNow); err != nil {
+		t.Fatal(err)
+	}
+	got := w.Lists[len(w.Lists)-3:]
+	if got[0].Writing == nil || got[0].Writing.Language != "ja" || got[1].Writing != nil || got[2].Writing == nil || got[2].Writing.Language != "ko" {
+		t.Fatalf("copied = %+v", got)
+	}
+}
