@@ -69,5 +69,6 @@
   "invalidQuery": "The search conditions are not valid.",
   "invalidReport": "The report is not valid.",
   "notInGallery": "A pack that is not in the gallery cannot be reported.",
-  "invalidRequest": "The request is not valid."
+  "invalidRequest": "The request is not valid.",
+  "sharedPackHidden": "An administrator has hidden this pack, so it cannot be listed in the gallery."
 }

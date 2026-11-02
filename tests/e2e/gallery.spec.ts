@@ -14,16 +14,28 @@ test.afterEach(() => withDatabase(async pool => {
   await pool.query('DELETE FROM typle_records WHERE owner_id = $1', [accountId])
 }))
 
-// Signs in as the owner and saves one pack, then shares it (listed in the gallery or not). Returns the share id.
-async function share(page: Page, listed: boolean) {
+// Signs in as the owner and saves one pack (with a category unless told otherwise).
+async function savePack(page: Page, category = 'E2E') {
   await signInAs(page.context(), accountId)
-  const packs = [{ id: 'pack-gallery-one', name: packName, category: 'E2E', tags: ['gallery-e2e'], createdAt: '2026-11-02' }]
+  const packs = [{ id: 'pack-gallery-one', name: packName, ...(category ? { category } : {}), tags: ['gallery-e2e'], createdAt: '2026-11-02' }]
   const lists = [{ id: 'gallery-one', name: packName, packId: 'pack-gallery-one', createdAt: '2026-11-02', words: words('ls', 'cd', 'pwd'), records: [] }]
   const put = await page.request.put('/api/workspace', { headers: { Origin: origin }, data: { accountId, revision: 0, packs, lists } })
   expect(put.status()).toBe(200)
+}
+
+// Saves the pack, then shares it (listed in the gallery or not). Returns the share id.
+async function share(page: Page, listed: boolean) {
+  await savePack(page)
   const shared = await page.request.put('/api/shares', { headers: { Origin: origin }, data: listed ? { packId: 'pack-gallery-one', listed: true } : { packId: 'pack-gallery-one' } })
   expect(shared.status()).toBe(200)
   return (await shared.json()).id as string
+}
+
+const row = (page: Page) => page.locator('li[data-pack-id="pack-gallery-one"]')
+async function openShare(page: Page) {
+  await row(page).getByRole('button', { name: `${packName} のパックの操作` }).click()
+  await page.getByRole('menuitem', { name: '共有', exact: true }).click()
+  return page.getByRole('dialog')
 }
 
 async function galleryEntry(page: Page) {
@@ -151,4 +163,87 @@ test('reporting a pack that is only shared by link says it failed', async ({ pag
     await expect(view.getByRole('status').filter({ hasText: '通報を受け付けました' })).toHaveCount(0)
   } finally { await guest.close() }
   expect((await reports(id)).rows).toHaveLength(0)
+})
+
+test('the owner puts a pack in the gallery from the share dialog and takes it out', async ({ page }) => {
+  await savePack(page)
+  await page.goto('/edit')
+  const dialog = await openShare(page)
+  const toggle = dialog.getByRole('switch', { name: 'ギャラリーに載せる' })
+  // Without a link yet the switch is there; turning it on makes the link and lists it in one request.
+  await expect(toggle).not.toBeChecked()
+  await toggle.click()
+  await expect(dialog.getByRole('textbox', { name: '共有リンク' })).toBeVisible()
+  await expect(toggle).toBeChecked()
+  await expect(dialog.getByText('ギャラリーではだれでも見られます。作者名は出ません。不適切な内容は管理者が非公開にすることがあります')).toBeVisible()
+  await expect(row(page).getByText('共有中', { exact: true })).toBeVisible()
+  await expect(row(page).getByText('ギャラリーに掲載中', { exact: true })).toBeVisible()
+  expect(await galleryEntry(page)).toHaveLength(1)
+
+  // A reload keeps it, and updating the share keeps the listing.
+  await page.reload()
+  await expect(row(page).getByText('ギャラリーに掲載中', { exact: true })).toBeVisible()
+  const again = await openShare(page)
+  await expect(again.getByRole('switch', { name: 'ギャラリーに載せる' })).toBeChecked()
+  await again.getByRole('button', { name: '共有を更新' }).click()
+  await expect(again.getByRole('button', { name: '共有を更新' })).toBeEnabled()
+  expect(await galleryEntry(page)).toHaveLength(1)
+
+  await again.getByRole('switch', { name: 'ギャラリーに載せる' }).click()
+  await expect(again.getByRole('switch', { name: 'ギャラリーに載せる' })).not.toBeChecked()
+  await expect(row(page).getByText('ギャラリーに掲載中', { exact: true })).toHaveCount(0)
+  await expect(row(page).getByText('共有中', { exact: true })).toBeVisible()
+  expect(await galleryEntry(page)).toHaveLength(0)
+  await expect(again.getByRole('textbox', { name: '共有リンク' })).toBeVisible()
+})
+
+test('a pack without a category is told it would be easier to find', async ({ page }) => {
+  await savePack(page, '')
+  await page.goto('/edit')
+  const dialog = await openShare(page)
+  await expect(dialog.getByText('カテゴリーを付けると見つけてもらいやすくなります')).toBeVisible()
+  await dialog.getByRole('switch', { name: 'ギャラリーに載せる' }).click()
+  await expect(row(page).getByText('ギャラリーに掲載中', { exact: true })).toBeVisible()
+  expect(await galleryEntry(page)).toHaveLength(1)
+})
+
+test('a pack with a category is not told to add one', async ({ page }) => {
+  await savePack(page)
+  await page.goto('/edit')
+  const dialog = await openShare(page)
+  await expect(dialog.getByRole('switch', { name: 'ギャラリーに載せる' })).toBeVisible()
+  await expect(dialog.getByText('カテゴリーを付けると見つけてもらいやすくなります')).toHaveCount(0)
+})
+
+test('a pack hidden by an administrator says so and cannot be put back by its owner', async ({ page }) => {
+  const id = await share(page, true)
+  await withDatabase(pool => pool.query('UPDATE typle_shared_packs SET hidden_at = now() WHERE id = $1', [id]))
+  await page.goto('/edit')
+  await expect(row(page).getByText('非公開にされました', { exact: true })).toBeVisible()
+  await expect(row(page).getByText('ギャラリーに掲載中', { exact: true })).toHaveCount(0)
+  const dialog = await openShare(page)
+  await expect(dialog.getByRole('switch', { name: 'ギャラリーに載せる' })).toBeDisabled()
+  await expect(dialog.getByText('管理者により非公開にされたため')).toBeVisible()
+  await dialog.getByRole('button', { name: '共有を更新' }).click()
+  await expect(dialog.getByRole('alert')).toHaveCount(0)
+  await expect(dialog.getByRole('button', { name: '共有を更新' })).toBeEnabled()
+  const guest = await page.context().browser()!.newContext({ baseURL: origin })
+  try { expect((await guest.request.get(`/api/shared?id=${id}`)).status()).toBe(404) } finally { await guest.close() }
+  await expect(dialog.getByRole('button', { name: '共有をやめる' })).toBeEnabled()
+})
+
+test('a failed change puts the switch back and says why', async ({ page }) => {
+  await share(page, false)
+  await page.goto('/edit')
+  await page.route('**/api/shares', route => route.request().method() === 'PUT'
+    ? route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: 'databaseUnavailable' }) })
+    : route.continue())
+  const dialog = await openShare(page)
+  const toggle = dialog.getByRole('switch', { name: 'ギャラリーに載せる' })
+  await toggle.click()
+  await expect(dialog.getByRole('alert')).toBeVisible()
+  await expect(toggle).not.toBeChecked()
+  await expect(toggle).toBeEnabled()
+  await expect(row(page).getByText('ギャラリーに掲載中', { exact: true })).toHaveCount(0)
+  expect(await galleryEntry(page)).toHaveLength(0)
 })

@@ -114,7 +114,9 @@
     "copy": "複製",
     "export": "匯出",
     "share": "分享",
-    "shared": "分享中"
+    "shared": "分享中",
+    "listed": "已在圖庫中展示",
+    "hidden": "已被隱藏"
   },
   "wordRow": {
     "label": "單字 {n}",
@@ -303,6 +305,10 @@
     "update": "更新分享",
     "stop": "停止分享",
     "failed": "無法變更分享。",
+    "gallery": "在圖庫中展示",
+    "galleryNotice": "任何人都可以在圖庫中看到。不會顯示作者名。管理員可能會隱藏不適當的內容。",
+    "galleryCategoryHint": "加上分類後更容易被找到。",
+    "hiddenNotice": "管理員已隱藏此單字包，因此無法在圖庫中展示。",
     "orphans": {
       "title": "找不到包的分享",
       "description": "這些分享連結對應的包已不存在。知道連結的人仍然可以查看。不需要的話請停止分享。",

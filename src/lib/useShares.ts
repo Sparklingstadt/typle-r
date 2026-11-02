@@ -3,9 +3,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AppError, type ErrorKey } from '@/core/appError'
 import { useWordLists } from '@/lib/useWordLists'
 
-/** `name` is the pack's name in the shared copy, "" when the copy has none. */
-export type Share = { id: string; name: string; updatedAt: string }
-type ShareResponse = { id: string; packId: string; name?: string; updatedAt: string }
+/** `name` is the pack's name in the shared copy, "" when the copy has none. `hidden`: an administrator took it out of the gallery. */
+export type Share = { id: string; name: string; listed: boolean; hidden: boolean; updatedAt: string }
+type ShareResponse = { id: string; packId: string; name?: string; listed?: boolean; hidden?: boolean; updatedAt: string }
 
 async function request(url: string, init?: RequestInit) {
   const response = await fetch(url, { cache: 'no-store', ...init })
@@ -23,9 +23,9 @@ async function request(url: string, init?: RequestInit) {
   return data
 }
 
-const SHARE_ERRORS = new Set<unknown>(['packNotFound', 'databaseUnavailable', 'forbiddenRequest'] satisfies ErrorKey[])
+const SHARE_ERRORS = new Set<unknown>(['packNotFound', 'databaseUnavailable', 'forbiddenRequest', 'sharedPackHidden'] satisfies ErrorKey[])
 
-const toShare = (item: ShareResponse): Share => ({ id: item.id, name: item.name ?? '', updatedAt: item.updatedAt })
+const toShare = (item: ShareResponse): Share => ({ id: item.id, name: item.name ?? '', listed: !!item.listed, hidden: !!item.hidden, updatedAt: item.updatedAt })
 
 // The account's shared packs, through `/api/shares`. A guest has no account to share from, so nothing is asked and
 // the list stays empty. A share is a copy made when it is created or updated, so saving a pack does not touch it.
@@ -62,8 +62,9 @@ export function useShares() {
     return [...shares].filter(([packId]) => !known.has(packId)).map(([packId, item]) => ({ ...item, packId }))
   }, [current, ready, loaded.packIds, packIds, packs, shares])
 
-  const share = useCallback(async (packId: string): Promise<Share> => {
-    const result = toShare(await request('/api/shares', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ packId }) }) as ShareResponse)
+  const share = useCallback(async (packId: string, listed?: boolean): Promise<Share> => {
+    // Without `listed` the server keeps the listing as it is.
+    const result = toShare(await request('/api/shares', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(listed === undefined ? { packId } : { packId, listed }) }) as ShareResponse)
     changes.current++
     setLoaded(state => state.owner === accountId
       ? { ...state, shares: new Map(state.shares).set(packId, result) }

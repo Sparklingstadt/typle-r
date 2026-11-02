@@ -114,7 +114,9 @@
     "copy": "Duplicate",
     "export": "Export",
     "share": "Share",
-    "shared": "Shared"
+    "shared": "Shared",
+    "listed": "In the gallery",
+    "hidden": "Hidden"
   },
   "wordRow": {
     "label": "Word {n}",
@@ -303,6 +305,10 @@
     "update": "Update share",
     "stop": "Stop sharing",
     "failed": "Could not change the share.",
+    "gallery": "List in the gallery",
+    "galleryNotice": "Anyone can see it in the gallery. Your name is not shown. An administrator may hide inappropriate content.",
+    "galleryCategoryHint": "Adding a category makes it easier to find.",
+    "hiddenNotice": "An administrator has hidden this pack, so it cannot be listed in the gallery.",
     "orphans": {
       "title": "Shares without a pack",
       "description": "The pack behind these share links is gone. Anyone with a link can still see it. Stop sharing the ones you no longer need.",
