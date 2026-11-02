@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Gauge, Target, Timer, X } from 'lucide-react'
+import type { PracticeMode } from '@/core/records'
 import { elapsedTime, typingSpeed, type TypingSession } from '@/core/typing'
 
 // Ticks only while a session is running, for the live elapsed time and speed.
@@ -21,7 +22,8 @@ function formatClock(milliseconds: number) {
 }
 
 // Owns the ticking clock, so only these four values re-render every 200ms instead of the whole page.
-export default function LiveStats({ session, accuracy }: { session: TypingSession; accuracy: number }) {
+// In Writing a judged word is the unit, so the speed is in words per minute.
+export default function LiveStats({ session, accuracy, mode = 'typing' }: { session: TypingSession; accuracy: number; mode?: PracticeMode }) {
   const running = session.startedAt !== null && session.finishedAt === null
   // While paused the values stand still, so the clock stops ticking too.
   const now = useNow(running && session.pausedAt == null)
@@ -30,7 +32,7 @@ export default function LiveStats({ session, accuracy }: { session: TypingSessio
   const t = useTranslations('practice.stats')
   const stats = [
     { icon: Timer, term: t('elapsed'), value: formatClock(elapsed) },
-    { icon: Gauge, term: t('speed'), value: speed === null ? '—' : String(speed), unit: t('speedUnit') },
+    { icon: Gauge, term: t('speed'), value: speed === null ? '—' : String(speed), unit: t(mode === 'writing' ? 'wordSpeedUnit' : 'speedUnit') },
     { icon: Target, term: t('accuracy'), value: session.attempts ? `${Math.round(accuracy * 10) / 10}%` : '—' },
     { icon: X, term: t('mistakes'), value: String(session.mistakes) },
   ]

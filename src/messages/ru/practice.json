@@ -6,7 +6,8 @@
     "speed": "Скорость",
     "speedUnit": "зн./мин",
     "accuracy": "Точность",
-    "mistakes": "Ошибки"
+    "mistakes": "Ошибки",
+    "wordSpeedUnit": "сл./мин"
   },
   "progress": {
     "label": "Прогресс по словам",
@@ -92,7 +93,10 @@
     "saving": "Сохранение результата…",
     "again": "Ещё раз",
     "chooseList": "Выбрать другой список",
-    "viewRecords": "Открыть историю"
+    "viewRecords": "Открыть историю",
+    "wordSpeedUnit": "сл./мин",
+    "correctWords": "{count, plural, one {# слово} few {# слова} many {# слов} other {# слова}}",
+    "mistakesWords": "Ошибок: {count}"
   },
   "best": {
     "label": "Лучшие результаты, топ-5",

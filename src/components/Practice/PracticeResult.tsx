@@ -46,6 +46,7 @@ export default function PracticeResult({ mode = 'typing', listName, wordCount, r
   useEffect(() => { again.current?.focus({ preventScroll: true }) }, [])
   const t = useTranslations('practice.result')
   const practice = useTranslations('practice')
+  const writing = mode === 'writing'
   const format = useFormat()
   const compared = comparison(record, records, wordCount, saveState)
   const { rank } = compared
@@ -58,14 +59,14 @@ export default function PracticeResult({ mode = 'typing', listName, wordCount, r
     : compared.kind === 'firstAtCount' ? t('firstAtCount', { count: wordCount }) : t('firstForList')
   const tiles = [
     { term: t('time'), value: result.time.toFixed(2), unit: t('seconds'), note, good: best, icon: faster },
-    { term: t('accuracy'), value: String(result.accuracy), unit: '%', note: t('mistakes', { count: result.mistakes }) },
-    { term: t('speed'), value: speed === null ? '—' : String(speed), unit: t('speedUnit'), note: t('correct', { count: correct }) },
+    { term: t('accuracy'), value: String(result.accuracy), unit: '%', note: t(writing ? 'mistakesWords' : 'mistakes', { count: result.mistakes }) },
+    { term: t('speed'), value: speed === null ? '—' : String(speed), unit: t(writing ? 'wordSpeedUnit' : 'speedUnit'), note: t(writing ? 'correctWords' : 'correct', { count: correct }) },
     { term: t('words'), value: String(wordCount), unit: t('wordUnit', { count: wordCount }), note: format.device(device), device: true },
   ]
   return <section aria-label={t('label')} className="flex flex-1 flex-col gap-4 px-4 pt-5 pb-5 sm:gap-5 sm:px-6 sm:pt-7 sm:pb-6">
     <div className="flex flex-wrap items-center gap-3">
       <h2 className="text-[22px] font-bold sm:text-[26px]">{t('title')}</h2>
-      {mode === 'writing' && <span className="inline-flex h-7 items-center gap-1.5 rounded-full border px-2.5 text-[13px] font-medium"><PenLine className="size-3.5" aria-hidden="true" />{practice('modeWriting')}</span>}
+      {writing && <span className="inline-flex h-7 items-center gap-1.5 rounded-full border px-2.5 text-[13px] font-medium"><PenLine className="size-3.5" aria-hidden="true" />{practice('modeWriting')}</span>}
       {best && <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-amber-100 px-2.5 text-[13px] font-bold text-amber-800 dark:bg-amber-950 dark:text-amber-300"><Trophy className="size-3.5" aria-hidden="true" />{t('newBest')}</span>}
     </div>
     <p className="sr-only">{t('completed', { name: listName })}</p>

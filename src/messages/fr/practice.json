@@ -6,7 +6,8 @@
     "speed": "Vitesse",
     "speedUnit": "frappes/min",
     "accuracy": "Précision",
-    "mistakes": "Erreurs"
+    "mistakes": "Erreurs",
+    "wordSpeedUnit": "mots/min"
   },
   "progress": {
     "label": "Progression des mots",
@@ -92,7 +93,10 @@
     "saving": "Enregistrement du résultat…",
     "again": "Encore",
     "chooseList": "Choisir une autre liste",
-    "viewRecords": "Voir l’historique"
+    "viewRecords": "Voir l’historique",
+    "wordSpeedUnit": "mots/min",
+    "correctWords": "{count, plural, one {# mot} other {# mots}}",
+    "mistakesWords": "{count, plural, one {# erreur} other {# erreurs}}"
   },
   "best": {
     "label": "Top 5 des meilleurs résultats",

@@ -6,7 +6,8 @@
     "speed": "Speed",
     "speedUnit": "keys/min",
     "accuracy": "Accuracy",
-    "mistakes": "Mistakes"
+    "mistakes": "Mistakes",
+    "wordSpeedUnit": "words/min"
   },
   "progress": {
     "label": "Word progress",
@@ -92,7 +93,10 @@
     "saving": "Saving the record…",
     "again": "Again",
     "chooseList": "Choose another list",
-    "viewRecords": "View history"
+    "viewRecords": "View history",
+    "wordSpeedUnit": "words/min",
+    "correctWords": "{count, plural, one {# word} other {# words}}",
+    "mistakesWords": "{count, plural, one {# mistake} other {# mistakes}}"
   },
   "best": {
     "label": "Top 5 best records",

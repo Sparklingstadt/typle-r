@@ -6,7 +6,8 @@
     "speed": "速度",
     "speedUnit": "打/分",
     "accuracy": "正確率",
-    "mistakes": "ミス"
+    "mistakes": "ミス",
+    "wordSpeedUnit": "語/分"
   },
   "progress": {
     "label": "単語の進捗",
@@ -92,7 +93,10 @@
     "saving": "記録を保存しています…",
     "again": "もう一度",
     "chooseList": "別のリストを選ぶ",
-    "viewRecords": "記録を見る"
+    "viewRecords": "記録を見る",
+    "wordSpeedUnit": "語/分",
+    "correctWords": "{count} 語",
+    "mistakesWords": "ミス {count} 語"
   },
   "best": {
     "label": "ベスト記録 上位5件",

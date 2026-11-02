@@ -11,7 +11,7 @@ import PracticeName, { usePracticeName } from '@/components/PracticeName'
 import { useFormat } from '@/i18n/useFormat'
 import type { PracticeDevice } from '@/core/devices'
 import { speedScale } from '@/core/dashboard'
-import { formatAccuracy, type PracticeMode, type RankOrder } from '@/core/records'
+import { formatAccuracy, recordMode, type PracticeMode, type RankOrder } from '@/core/records'
 import { listRanking, RANKING_TOP, rankingStats } from '@/core/rankings'
 import type { SavedWordList } from '@/core/wordLists'
 import { cn } from '@/lib/utils'
@@ -35,7 +35,7 @@ export default function RankingDetail({ list, devices, device, deviceName, order
   const ranking = listRanking(list, { device, order, includeOthers, mode, now })
   const { ranked, best } = ranking
   const practice = `/play?list=${encodeURIComponent(list.id)}`
-  const lastPracticed = list.records.reduce((latest, record) => Math.max(latest, Date.parse(record.date)), 0)
+  const lastPracticed = list.records.filter(record => recordMode(record) === mode).reduce((latest, record) => Math.max(latest, Date.parse(record.date)), 0)
 
   return <div className="flex flex-col gap-5 p-4 sm:p-6">
     <Button variant="ghost" size="sm" className="-ml-2 self-start xl:hidden" onClick={onBack}><ArrowLeft aria-hidden="true" />{t('detail.back')}</Button>

@@ -74,7 +74,10 @@ test('skip counts a mistake', async ({ page }) => {
   await field(page).fill('dog')
   const result = page.getByLabel('練習結果', { exact: true })
   await expect(result).toContainText('50%')
-  await expect(result).toContainText('ミス 1')
+  // Writing counts words, not characters or keys.
+  await expect(result).toContainText('ミス 1 語')
+  await expect(result).toContainText('語/分')
+  await expect(result).not.toContainText('打/分')
 })
 
 test('composition is not judged', async ({ page }) => {
@@ -123,4 +126,22 @@ test('unflagged list hides the switch', async ({ page }) => {
   await page.getByRole('button', { name: 'Hand を選択', exact: true }).click()
   await expect(page.getByRole('radio', { name: 'Writing', exact: true })).toHaveAttribute('aria-checked', 'true')
   await expect(field(page)).toBeVisible()
+})
+
+test('Safari IME Enter after compositionend is not judged', async ({ page }) => {
+  await startWriting(page)
+  await field(page).dispatchEvent('compositionstart')
+  await field(page).fill('ca')
+  await field(page).dispatchEvent('compositionend', { data: 'ca' })
+  // Safari sends the confirming Enter after compositionend, with isComposing false and keyCode 229.
+  await field(page).evaluate(element => {
+    const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })
+    Object.defineProperty(event, 'keyCode', { get: () => 229 })
+    element.dispatchEvent(event)
+  })
+  await expect(page.getByText(/と読めました/)).toHaveCount(0)
+  await expect(field(page)).toHaveValue('ca')
+  await field(page).fill('cat')
+  await field(page).fill('dog')
+  await expect(page.getByLabel('練習結果', { exact: true })).toContainText('100%')
 })

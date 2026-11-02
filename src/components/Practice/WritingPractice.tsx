@@ -48,7 +48,7 @@ export default function WritingPractice({ list, listName, records, addRecord, de
 
   return <>
     {progress}
-    <div key={session.index} className="flex min-h-44 flex-1 flex-col items-center justify-center gap-3 px-4 pt-6 pb-2 text-center sm:min-h-52 sm:gap-3.5 sm:px-6 sm:pt-11">
+    <div key={session.index} lang={language} className="flex min-h-44 flex-1 flex-col items-center justify-center gap-3 px-4 pt-6 pb-2 text-center sm:min-h-52 sm:gap-3.5 sm:px-6 sm:pt-11">
       {word?.annotation && <p className="max-w-full text-base break-words text-foreground">{word.annotation}</p>}
       {word && <PracticeText id="wordDisplay" text={word.display} />}
     </div>
@@ -60,7 +60,8 @@ export default function WritingPractice({ list, listName, records, addRecord, de
           className="h-12 min-w-0 flex-1 basis-60 rounded-lg border bg-background px-3 text-center text-xl outline-none placeholder:text-base placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
           onFocus={resume} onBlur={pause}
           onKeyDown={event => {
-            if (event.nativeEvent.isComposing) return
+            // Safari ends composition before the Enter that confirms it, which then reports keyCode 229.
+            if (event.nativeEvent.isComposing || event.keyCode === 229) return
             if (event.key === 'Enter') { event.preventDefault(); submit() }
             else if (event.key === 'Escape') { event.preventDefault(); onRestart() }
           }}
@@ -72,10 +73,10 @@ export default function WritingPractice({ list, listName, records, addRecord, de
       </div>
       <p id="writing-feedback" aria-live="polite" className="flex min-h-5 flex-wrap items-center justify-center text-xs text-muted-foreground">
         {read !== null
-          ? <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{t('writingRead', { text: read })}</span>
+          ? <span key={session.mistakes} className="inline-flex items-center gap-1.5 text-[13px] font-medium text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{t('writingRead', { text: read })}</span>
           : <span className="hidden items-center gap-1.5 sm:inline-flex"><Kbd>Esc</Kbd>{t('feedback.restart')}</span>}
       </p>
     </div>
-    {statsVisible && <LiveStats session={session} accuracy={result.accuracy} />}
+    {statsVisible && <LiveStats mode="writing" session={session} accuracy={result.accuracy} />}
   </>
 }

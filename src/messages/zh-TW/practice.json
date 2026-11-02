@@ -6,7 +6,8 @@
     "speed": "速度",
     "speedUnit": "鍵/分",
     "accuracy": "正確率",
-    "mistakes": "錯誤"
+    "mistakes": "錯誤",
+    "wordSpeedUnit": "詞/分"
   },
   "progress": {
     "label": "單字進度",
@@ -92,7 +93,10 @@
     "saving": "正在儲存紀錄…",
     "again": "再來一次",
     "chooseList": "選擇其他清單",
-    "viewRecords": "查看紀錄"
+    "viewRecords": "查看紀錄",
+    "wordSpeedUnit": "詞/分",
+    "correctWords": "{count} 個詞",
+    "mistakesWords": "錯誤 {count} 個詞"
   },
   "best": {
     "label": "最佳紀錄前 5 名",
