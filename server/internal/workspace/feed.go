@@ -22,7 +22,8 @@ func Feed(lists []List, listID, device string) []FeedRow {
 		if listID != "" && list.ID != listID {
 			continue
 		}
-		best := ListBest(list)
+		// Typing and writing runs are ranked apart, so each mode has its own best, as in recordRows.
+		bests := map[string]*Record{"typing": ListBestOf(list, "typing"), "writing": ListBestOf(list, "writing")}
 		for j := range list.Records {
 			record := &list.Records[j]
 			if device != "" && (device == NoDevice) != (record.Device == nil) {
@@ -31,7 +32,7 @@ func Feed(lists []List, listID, device string) []FeedRow {
 			if device != "" && device != NoDevice && record.Device.ID != device {
 				continue
 			}
-			rows = append(rows, FeedRow{List: list, Record: record, Best: record == best})
+			rows = append(rows, FeedRow{List: list, Record: record, Best: record == bests[RecordMode(record)]})
 		}
 	}
 	slices.SortStableFunc(rows, func(a, b FeedRow) int { return b.Record.At.Compare(a.Record.At) })

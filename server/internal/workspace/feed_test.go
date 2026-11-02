@@ -56,3 +56,17 @@ func TestFeed(t *testing.T) {
 		}
 	}
 }
+
+// The case of tests/records.test.cjs: each mode has its own best.
+func TestFeedBestPerMode(t *testing.T) {
+	list := List{ID: "l", Words: make([]Word, 1), Records: []Record{practice("a", 10, number(100), 1, 20, nil),
+		practice("bb", 12, number(100), 1, 21, nil), practice("ccc", 5, number(100), 1, 22, nil)}}
+	list.Records[2].Mode = "writing"
+	got := map[string]bool{}
+	for _, row := range Feed([]List{list}, "", "") {
+		got[*row.Record.ID] = row.Best
+	}
+	if !got["a"] || got["bb"] || !got["ccc"] {
+		t.Fatalf("best = %v", got)
+	}
+}
