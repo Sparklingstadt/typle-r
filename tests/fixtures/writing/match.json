@@ -1,0 +1,18 @@
+[
+  { "description": "exact Chinese", "candidates": ["爱护"], "target": "爱护", "language": "zh-Hans", "options": {}, "expected": true },
+  { "description": "Chinese drops spaces", "candidates": ["爱 护"], "target": "爱护", "language": "zh-Hans", "options": {}, "expected": true },
+  { "description": "English collapses repeated spaces", "candidates": ["I am  a student."], "target": "I am a student.", "language": "en", "options": {}, "expected": true },
+  { "description": "English keeps a missing space as a mismatch", "candidates": ["Iam a student."], "target": "I am a student.", "language": "en", "options": {}, "expected": false },
+  { "description": "accent needed without ignoreAccents", "candidates": ["cafe"], "target": "café", "language": "fr", "options": {}, "expected": false },
+  { "description": "accent folded with ignoreAccents", "candidates": ["cafe"], "target": "café", "language": "fr", "options": { "ignoreAccents": true }, "expected": true },
+  { "description": "Cyrillic by Latin letters", "candidates": ["privet"], "target": "привет", "language": "ru", "options": { "ignoreAccents": true }, "expected": true },
+  { "description": "ss for sharp s", "candidates": ["Strasse"], "target": "Straße", "language": "de", "options": { "ignoreAccents": true }, "expected": true },
+  { "description": "ss for sharp s needs ignoreAccents", "candidates": ["Strasse"], "target": "Straße", "language": "de", "options": {}, "expected": false },
+  { "description": "ignoreCase", "candidates": ["APPLE"], "target": "apple", "language": "en", "options": { "ignoreCase": true }, "expected": true },
+  { "description": "case matters by default", "candidates": ["APPLE"], "target": "apple", "language": "en", "options": {}, "expected": false },
+  { "description": "any candidate may match", "candidates": ["かか", "がか"], "target": "がか", "language": "ja", "options": {}, "expected": true },
+  { "description": "no candidates", "candidates": [], "target": "がか", "language": "ja", "options": {}, "expected": false },
+  { "description": "NFD candidate against NFC target", "candidates": ["é"], "target": "é", "language": "fr", "options": {}, "expected": true },
+  { "description": "candidate longer than target", "candidates": ["cafés"], "target": "café", "language": "fr", "options": {}, "expected": false },
+  { "description": "candidate shorter than target", "candidates": ["caf"], "target": "café", "language": "fr", "options": {}, "expected": false }
+]
