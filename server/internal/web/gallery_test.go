@@ -74,12 +74,16 @@ func TestGalleryQuery(t *testing.T) {
 func TestGalleryInvalid(t *testing.T) {
 	fake := &fakeGallery{}
 	h := newHarness(t, fake, testBase)
-	for _, query := range []string{"sort=old", "page=0", "page=abc", "page=10001", "page=-1"} {
+	for _, query := range []string{"sort=old", "page=0", "page=abc", "page=10001", "page=-1", "q=%FF", "q=a%00b", "category=%C3", "category=a%00b"} {
+		fake.query = store.GalleryQuery{Text: "untouched"}
 		response := getShared(t, h.handler, http.MethodGet, "/api/gallery?"+query)
 		if response.Code != http.StatusBadRequest || strings.TrimSpace(response.Body.String()) != `{"error":"invalidQuery"}` {
 			t.Fatalf("%s: response = %d %s", query, response.Code, response.Body)
 		}
 		expectGalleryHeaders(t, response)
+		if fake.query.Text != "untouched" {
+			t.Fatalf("%s: the store was called with %+v", query, fake.query)
+		}
 	}
 	if page := getShared(t, h.handler, http.MethodGet, "/api/gallery?page=10000"); page.Code != http.StatusOK {
 		t.Fatalf("page 10000 = %d", page.Code)

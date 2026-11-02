@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/sparklingstadt/typle-r/server/internal/store"
 )
@@ -48,9 +49,15 @@ func galleryHeaders(w http.ResponseWriter) http.ResponseWriter {
 }
 
 // galleryQuery reads ?q=&category=&sort=&page=. q is trimmed and cut to store.MaxGalleryQuery runes; sort is "new" (the
-// default) or "popular"; page is a number from 1 to maxGalleryPage (the default is 1).
+// default) or "popular"; page is a number from 1 to maxGalleryPage (the default is 1). q and category must be valid
+// UTF-8 without NUL, which the database would refuse.
 func galleryQuery(r *http.Request) (store.GalleryQuery, bool) {
 	values := r.URL.Query()
+	for _, text := range []string{values.Get("q"), values.Get("category")} {
+		if !utf8.ValidString(text) || strings.ContainsRune(text, 0) {
+			return store.GalleryQuery{}, false
+		}
+	}
 	q := store.GalleryQuery{Text: strings.TrimSpace(values.Get("q")), Category: values.Get("category"), Sort: store.GalleryNew, Page: 1}
 	if runes := []rune(q.Text); len(runes) > store.MaxGalleryQuery {
 		q.Text = string(runes[:store.MaxGalleryQuery])

@@ -140,7 +140,7 @@ function Gallery() {
         <Button variant="outline" size="sm" onClick={() => results ? void loadMore() : setAttempt(n => n + 1)}>{t('retry')}</Button>
       </AlertDescription>
     </Alert> : null}
-    {results ? <GalleryList packs={results.packs} more={results.more} loadingMore={loadingMore} filtered={Boolean(query.text || query.category)} onMore={() => void loadMore()} />
+    {results ? <GalleryList packs={results.packs} more={results.more} loadingMore={loadingMore} filtered={Boolean(query.text.trim() || query.category)} onMore={() => void loadMore()} />
       : failure ? null : <Loading />}
   </div>
 }
