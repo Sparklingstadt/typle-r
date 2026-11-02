@@ -65,5 +65,6 @@
   "adminForbidden": "此 FFPF ID 不是管理員。",
   "adminUnavailable": "無法確認您是否為管理員。請稍後再試。",
   "invalidPage": "頁碼無效。",
-  "importInputTypeInvalid": "第 {line} 行的 input_type 必須是 command、code 或 word。"
+  "importInputTypeInvalid": "第 {line} 行的 input_type 必須是 command、code 或 word。",
+  "invalidQuery": "搜尋條件無效。"
 }

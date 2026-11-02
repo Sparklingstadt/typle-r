@@ -25,7 +25,8 @@
     "devices": "端末",
     "guide": "使い方",
     "about": "Typleについて",
-    "github": "GitHub"
+    "github": "GitHub",
+    "gallery": "ギャラリー"
   },
   "storage": {
     "label": "保存先：",

@@ -65,5 +65,6 @@
   "adminForbidden": "This FFPF ID is not an administrator.",
   "adminUnavailable": "Could not check whether you are an administrator. Please try again later.",
   "invalidPage": "The page number is not valid.",
-  "importInputTypeInvalid": "Line {line}: input_type must be command, code or word."
+  "importInputTypeInvalid": "Line {line}: input_type must be command, code or word.",
+  "invalidQuery": "The search conditions are not valid."
 }
