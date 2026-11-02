@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-18-words-4",
+  "name": "中国語HSK6級 手書き18（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語18",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "一贯",
+      "input": "yíguàn",
+      "annotation": "yíguàn / 一貫した",
+      "input_type": "word"
+    },
+    {
+      "display": "疑惑",
+      "input": "yíhuò",
+      "annotation": "yíhuò / 疑問、腑に落ちない",
+      "input_type": "word"
+    },
+    {
+      "display": "依据",
+      "input": "yījù",
+      "annotation": "yījù / 根拠、基づく",
+      "input_type": "word"
+    },
+    {
+      "display": "一举两得",
+      "input": "yìjǔ liǎngdé",
+      "annotation": "yìjǔ liǎngdé / 一挙両得",
+      "input_type": "word"
+    },
+    {
+      "display": "依靠",
+      "input": "yīkào",
+      "annotation": "yīkào / 頼る",
+      "input_type": "word"
+    },
+    {
+      "display": "毅力",
+      "input": "yìlì",
+      "annotation": "yìlì / 根気、気力",
+      "input_type": "word"
+    },
+    {
+      "display": "意料",
+      "input": "yìliào",
+      "annotation": "yìliào / 予想する",
+      "input_type": "word"
+    },
+    {
+      "display": "遗留",
+      "input": "yíliú",
+      "annotation": "yíliú / 残す、残る",
+      "input_type": "word"
+    },
+    {
+      "display": "以免",
+      "input": "yǐmiǎn",
+      "annotation": "yǐmiǎn / 〜しないように",
+      "input_type": "word"
+    },
+    {
+      "display": "隐蔽",
+      "input": "yǐnbì",
+      "annotation": "yǐnbì / 隠す、隠れた",
+      "input_type": "word"
+    },
+    {
+      "display": "引导",
+      "input": "yǐndǎo",
+      "annotation": "yǐndǎo / 導く",
+      "input_type": "word"
+    },
+    {
+      "display": "应酬",
+      "input": "yìngchou",
+      "annotation": "yìngchou / 付き合い、接待",
+      "input_type": "word"
+    },
+    {
+      "display": "迎面",
+      "input": "yíngmiàn",
+      "annotation": "yíngmiàn / 正面から",
+      "input_type": "word"
+    },
+    {
+      "display": "英明",
+      "input": "yīngmíng",
+      "annotation": "yīngmíng / 英明な",
+      "input_type": "word"
+    },
+    {
+      "display": "英勇",
+      "input": "yīngyǒng",
+      "annotation": "yīngyǒng / 勇敢な",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-19-words-4",
+  "name": "中国語HSK6級 手書き19（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語19",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "瞻仰",
+      "input": "zhānyǎng",
+      "annotation": "zhānyǎng / 仰ぎ見る",
+      "input_type": "word"
+    },
+    {
+      "display": "招标",
+      "input": "zhāobiāo",
+      "annotation": "zhāobiāo / 入札を募る",
+      "input_type": "word"
+    },
+    {
+      "display": "着迷",
+      "input": "zháomí",
+      "annotation": "zháomí / 夢中になる",
+      "input_type": "word"
+    },
+    {
+      "display": "招收",
+      "input": "zhāoshōu",
+      "annotation": "zhāoshōu / 募集する",
+      "input_type": "word"
+    },
+    {
+      "display": "照样",
+      "input": "zhàoyàng",
+      "annotation": "zhàoyàng / 相変わらず、手本どおりに",
+      "input_type": "word"
+    },
+    {
+      "display": "沼泽",
+      "input": "zhǎozé",
+      "annotation": "zhǎozé / 沼地",
+      "input_type": "word"
+    },
+    {
+      "display": "诈骗",
+      "input": "zhàpiàn",
+      "annotation": "zhàpiàn / 詐欺をする",
+      "input_type": "word"
+    },
+    {
+      "display": "扎实",
+      "input": "zhāshi",
+      "annotation": "zhāshi / しっかりした",
+      "input_type": "word"
+    },
+    {
+      "display": "折磨",
+      "input": "zhémó",
+      "annotation": "zhémó / 苦しめる",
+      "input_type": "word"
+    },
+    {
+      "display": "阵地",
+      "input": "zhèndì",
+      "annotation": "zhèndì / 陣地",
+      "input_type": "word"
+    },
+    {
+      "display": "振奋",
+      "input": "zhènfèn",
+      "annotation": "zhènfèn / 奮い立つ",
+      "input_type": "word"
+    },
+    {
+      "display": "政策",
+      "input": "zhèngcè",
+      "annotation": "zhèngcè / 政策",
+      "input_type": "word"
+    },
+    {
+      "display": "争端",
+      "input": "zhēngduān",
+      "annotation": "zhēngduān / 紛争",
+      "input_type": "word"
+    },
+    {
+      "display": "整顿",
+      "input": "zhěngdùn",
+      "annotation": "zhěngdùn / 整頓する、立て直す",
+      "input_type": "word"
+    },
+    {
+      "display": "争夺",
+      "input": "zhēngduó",
+      "annotation": "zhēngduó / 争奪する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

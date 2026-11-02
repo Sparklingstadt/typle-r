@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-19-words-3",
+  "name": "中国語HSK6級 手書き19（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語19",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "遭殃",
+      "input": "zāoyāng",
+      "annotation": "zāoyāng / 災難に遭う",
+      "input_type": "word"
+    },
+    {
+      "display": "噪音",
+      "input": "zàoyīn",
+      "annotation": "zàoyīn / 騒音",
+      "input_type": "word"
+    },
+    {
+      "display": "责怪",
+      "input": "zéguài",
+      "annotation": "zéguài / とがめる",
+      "input_type": "word"
+    },
+    {
+      "display": "赠送",
+      "input": "zèngsòng",
+      "annotation": "zèngsòng / 贈呈する",
+      "input_type": "word"
+    },
+    {
+      "display": "债券",
+      "input": "zhàiquàn",
+      "annotation": "zhàiquàn / 債券",
+      "input_type": "word"
+    },
+    {
+      "display": "摘要",
+      "input": "zhāiyào",
+      "annotation": "zhāiyào / 要約",
+      "input_type": "word"
+    },
+    {
+      "display": "战斗",
+      "input": "zhàndòu",
+      "annotation": "zhàndòu / 戦闘する",
+      "input_type": "word"
+    },
+    {
+      "display": "章程",
+      "input": "zhāngchéng",
+      "annotation": "zhāngchéng / 規約、定款",
+      "input_type": "word"
+    },
+    {
+      "display": "帐篷",
+      "input": "zhàngpeng",
+      "annotation": "zhàngpeng / テント",
+      "input_type": "word"
+    },
+    {
+      "display": "占据",
+      "input": "zhànjù",
+      "annotation": "zhànjù / 占拠する",
+      "input_type": "word"
+    },
+    {
+      "display": "占领",
+      "input": "zhànlǐng",
+      "annotation": "zhànlǐng / 占領する",
+      "input_type": "word"
+    },
+    {
+      "display": "展示",
+      "input": "zhǎnshì",
+      "annotation": "zhǎnshì / 展示する",
+      "input_type": "word"
+    },
+    {
+      "display": "战术",
+      "input": "zhànshù",
+      "annotation": "zhànshù / 戦術",
+      "input_type": "word"
+    },
+    {
+      "display": "展现",
+      "input": "zhǎnxiàn",
+      "annotation": "zhǎnxiàn / 繰り広げる、示す",
+      "input_type": "word"
+    },
+    {
+      "display": "崭新",
+      "input": "zhǎnxīn",
+      "annotation": "zhǎnxīn / 真新しい",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

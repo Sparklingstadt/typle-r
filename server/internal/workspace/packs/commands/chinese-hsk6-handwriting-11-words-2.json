@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-11-words-2",
+  "name": "中国語HSK6級 手書き11（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語11",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "薄弱",
+      "input": "bóruò",
+      "annotation": "bóruò / 弱い",
+      "input_type": "word"
+    },
+    {
+      "display": "不禁",
+      "input": "bùjīn",
+      "annotation": "bùjīn / 思わず",
+      "input_type": "word"
+    },
+    {
+      "display": "不时",
+      "input": "bùshí",
+      "annotation": "bùshí / 時々",
+      "input_type": "word"
+    },
+    {
+      "display": "不由得",
+      "input": "bùyóude",
+      "annotation": "bùyóude / 思わず",
+      "input_type": "word"
+    },
+    {
+      "display": "财富",
+      "input": "cáifù",
+      "annotation": "cáifù / 富",
+      "input_type": "word"
+    },
+    {
+      "display": "裁员",
+      "input": "cáiyuán",
+      "annotation": "cáiyuán / 人員を削減する",
+      "input_type": "word"
+    },
+    {
+      "display": "残疾",
+      "input": "cánjí",
+      "annotation": "cánjí / 障害",
+      "input_type": "word"
+    },
+    {
+      "display": "操纵",
+      "input": "cāozòng",
+      "annotation": "cāozòng / 操縦する",
+      "input_type": "word"
+    },
+    {
+      "display": "策略",
+      "input": "cèlüè",
+      "annotation": "cèlüè / 戦略",
+      "input_type": "word"
+    },
+    {
+      "display": "偿还",
+      "input": "chánghuán",
+      "annotation": "chánghuán / 返済する",
+      "input_type": "word"
+    },
+    {
+      "display": "场所",
+      "input": "chǎngsuǒ",
+      "annotation": "chǎngsuǒ / 場所",
+      "input_type": "word"
+    },
+    {
+      "display": "潮流",
+      "input": "cháoliú",
+      "annotation": "cháoliú / 潮流",
+      "input_type": "word"
+    },
+    {
+      "display": "钞票",
+      "input": "chāopiào",
+      "annotation": "chāopiào / 紙幣",
+      "input_type": "word"
+    },
+    {
+      "display": "诚挚",
+      "input": "chéngzhì",
+      "annotation": "chéngzhì / 心からの",
+      "input_type": "word"
+    },
+    {
+      "display": "衬托",
+      "input": "chèntuō",
+      "annotation": "chèntuō / 引き立てる",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

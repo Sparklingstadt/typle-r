@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-16-words-5",
+  "name": "中国語HSK6級 手書き16（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語16",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "委托",
+      "input": "wěituō",
+      "annotation": "wěituō / 委託する",
+      "input_type": "word"
+    },
+    {
+      "display": "威望",
+      "input": "wēiwàng",
+      "annotation": "wēiwàng / 威信と名望",
+      "input_type": "word"
+    },
+    {
+      "display": "威信",
+      "input": "wēixìn",
+      "annotation": "wēixìn / 威信",
+      "input_type": "word"
+    },
+    {
+      "display": "卫星",
+      "input": "wèixīng",
+      "annotation": "wèixīng / 衛星",
+      "input_type": "word"
+    },
+    {
+      "display": "伪造",
+      "input": "wěizào",
+      "annotation": "wěizào / 偽造する",
+      "input_type": "word"
+    },
+    {
+      "display": "温带",
+      "input": "wēndài",
+      "annotation": "wēndài / 温帯",
+      "input_type": "word"
+    },
+    {
+      "display": "温和",
+      "input": "wēnhé",
+      "annotation": "wēnhé / 温和な",
+      "input_type": "word"
+    },
+    {
+      "display": "问世",
+      "input": "wènshì",
+      "annotation": "wènshì / 世に出る",
+      "input_type": "word"
+    },
+    {
+      "display": "文物",
+      "input": "wénwù",
+      "annotation": "wénwù / 文化財",
+      "input_type": "word"
+    },
+    {
+      "display": "文雅",
+      "input": "wényǎ",
+      "annotation": "wényǎ / 上品な",
+      "input_type": "word"
+    },
+    {
+      "display": "文艺",
+      "input": "wényì",
+      "annotation": "wényì / 文芸",
+      "input_type": "word"
+    },
+    {
+      "display": "务必",
+      "input": "wùbì",
+      "annotation": "wùbì / 必ず",
+      "input_type": "word"
+    },
+    {
+      "display": "误差",
+      "input": "wùchā",
+      "annotation": "wùchā / 誤差",
+      "input_type": "word"
+    },
+    {
+      "display": "无偿",
+      "input": "wúcháng",
+      "annotation": "wúcháng / 無償の",
+      "input_type": "word"
+    },
+    {
+      "display": "舞蹈",
+      "input": "wǔdǎo",
+      "annotation": "wǔdǎo / 舞踊",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

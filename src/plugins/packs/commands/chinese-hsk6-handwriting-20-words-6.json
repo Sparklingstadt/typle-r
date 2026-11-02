@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-20-words-6",
+  "name": "中国語HSK6級 手書き20（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語20",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "宗旨",
+      "input": "zōngzhǐ",
+      "annotation": "zōngzhǐ / 趣旨",
+      "input_type": "word"
+    },
+    {
+      "display": "走廊",
+      "input": "zǒuláng",
+      "annotation": "zǒuláng / 廊下",
+      "input_type": "word"
+    },
+    {
+      "display": "走私",
+      "input": "zǒusī",
+      "annotation": "zǒusī / 密輸する",
+      "input_type": "word"
+    },
+    {
+      "display": "钻石",
+      "input": "zuànshí",
+      "annotation": "zuànshí / ダイヤモンド",
+      "input_type": "word"
+    },
+    {
+      "display": "祖父",
+      "input": "zǔfù",
+      "annotation": "zǔfù / 祖父",
+      "input_type": "word"
+    },
+    {
+      "display": "嘴唇",
+      "input": "zuǐchún",
+      "annotation": "zuǐchún / 唇",
+      "input_type": "word"
+    },
+    {
+      "display": "租赁",
+      "input": "zūlìn",
+      "annotation": "zūlìn / 賃借する、リースする",
+      "input_type": "word"
+    },
+    {
+      "display": "阻挠",
+      "input": "zǔnáo",
+      "annotation": "zǔnáo / 妨害する",
+      "input_type": "word"
+    },
+    {
+      "display": "遵循",
+      "input": "zūnxún",
+      "annotation": "zūnxún / 従う",
+      "input_type": "word"
+    },
+    {
+      "display": "作弊",
+      "input": "zuòbì",
+      "annotation": "zuòbì / 不正をする、カンニングする",
+      "input_type": "word"
+    },
+    {
+      "display": "作废",
+      "input": "zuòfèi",
+      "annotation": "zuòfèi / 無効にする",
+      "input_type": "word"
+    },
+    {
+      "display": "琢磨",
+      "input": "zuómo",
+      "annotation": "zuómo / あれこれ考える",
+      "input_type": "word"
+    },
+    {
+      "display": "作息",
+      "input": "zuòxī",
+      "annotation": "zuòxī / 仕事と休息",
+      "input_type": "word"
+    },
+    {
+      "display": "做主",
+      "input": "zuòzhǔ",
+      "annotation": "zuòzhǔ / 決定権を持つ",
+      "input_type": "word"
+    },
+    {
+      "display": "祖先",
+      "input": "zǔxiān",
+      "annotation": "zǔxiān / 祖先",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-20-words-5",
+  "name": "中国語HSK6級 手書き20（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語20",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "铸造",
+      "input": "zhùzào",
+      "annotation": "zhùzào / 鋳造する",
+      "input_type": "word"
+    },
+    {
+      "display": "驻扎",
+      "input": "zhùzhā",
+      "annotation": "zhùzhā / 駐屯する",
+      "input_type": "word"
+    },
+    {
+      "display": "住宅",
+      "input": "zhùzhái",
+      "annotation": "zhùzhái / 住宅",
+      "input_type": "word"
+    },
+    {
+      "display": "著作",
+      "input": "zhùzuò",
+      "annotation": "zhùzuò / 著作",
+      "input_type": "word"
+    },
+    {
+      "display": "自卑",
+      "input": "zìbēi",
+      "annotation": "zìbēi / 劣等感を抱く",
+      "input_type": "word"
+    },
+    {
+      "display": "资产",
+      "input": "zīchǎn",
+      "annotation": "zīchǎn / 資産",
+      "input_type": "word"
+    },
+    {
+      "display": "子弹",
+      "input": "zǐdàn",
+      "annotation": "zǐdàn / 弾丸",
+      "input_type": "word"
+    },
+    {
+      "display": "自力更生",
+      "input": "zìlì gēngshēng",
+      "annotation": "zìlì gēngshēng / 自力で更生する",
+      "input_type": "word"
+    },
+    {
+      "display": "自满",
+      "input": "zìmǎn",
+      "annotation": "zìmǎn / うぬぼれる",
+      "input_type": "word"
+    },
+    {
+      "display": "滋润",
+      "input": "zīrùn",
+      "annotation": "zīrùn / 潤す、潤った",
+      "input_type": "word"
+    },
+    {
+      "display": "姿态",
+      "input": "zītài",
+      "annotation": "zītài / 姿態、態度",
+      "input_type": "word"
+    },
+    {
+      "display": "滋味",
+      "input": "zīwèi",
+      "annotation": "zīwèi / 味わい",
+      "input_type": "word"
+    },
+    {
+      "display": "总和",
+      "input": "zǒnghé",
+      "annotation": "zǒnghé / 総和",
+      "input_type": "word"
+    },
+    {
+      "display": "踪迹",
+      "input": "zōngjì",
+      "annotation": "zōngjì / 足跡、痕跡",
+      "input_type": "word"
+    },
+    {
+      "display": "棕色",
+      "input": "zōngsè",
+      "annotation": "zōngsè / 茶色",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

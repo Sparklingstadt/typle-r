@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-12-words-6",
+  "name": "中国語HSK6級 手書き12（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語12",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "农历",
+      "input": "nónglì",
+      "annotation": "nónglì / 旧暦",
+      "input_type": "word"
+    },
+    {
+      "display": "奴隶",
+      "input": "núlì",
+      "annotation": "núlì / 奴隷",
+      "input_type": "word"
+    },
+    {
+      "display": "殴打",
+      "input": "ōudǎ",
+      "annotation": "ōudǎ / 殴る",
+      "input_type": "word"
+    },
+    {
+      "display": "偶像",
+      "input": "ǒuxiàng",
+      "annotation": "ǒuxiàng / 偶像、アイドル",
+      "input_type": "word"
+    },
+    {
+      "display": "派别",
+      "input": "pàibié",
+      "annotation": "pàibié / 派閥、流派",
+      "input_type": "word"
+    },
+    {
+      "display": "排除",
+      "input": "páichú",
+      "annotation": "páichú / 排除する",
+      "input_type": "word"
+    },
+    {
+      "display": "排放",
+      "input": "páifàng",
+      "annotation": "páifàng / 排出する",
+      "input_type": "word"
+    },
+    {
+      "display": "徘徊",
+      "input": "páihuái",
+      "annotation": "páihuái / うろつく、ためらう",
+      "input_type": "word"
+    },
+    {
+      "display": "派遣",
+      "input": "pàiqiǎn",
+      "annotation": "pàiqiǎn / 派遣する",
+      "input_type": "word"
+    },
+    {
+      "display": "攀登",
+      "input": "pāndēng",
+      "annotation": "pāndēng / よじ登る",
+      "input_type": "word"
+    },
+    {
+      "display": "判决",
+      "input": "pànjué",
+      "annotation": "pànjué / 判決を下す",
+      "input_type": "word"
+    },
+    {
+      "display": "盘旋",
+      "input": "pánxuán",
+      "annotation": "pánxuán / 旋回する",
+      "input_type": "word"
+    },
+    {
+      "display": "抛弃",
+      "input": "pāoqì",
+      "annotation": "pāoqì / 捨てる",
+      "input_type": "word"
+    },
+    {
+      "display": "配备",
+      "input": "pèibèi",
+      "annotation": "pèibèi / 配備する",
+      "input_type": "word"
+    },
+    {
+      "display": "配套",
+      "input": "pèitào",
+      "annotation": "pèitào / セットにする",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

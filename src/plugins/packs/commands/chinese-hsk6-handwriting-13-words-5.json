@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-13-words-5",
+  "name": "中国語HSK6級 手書き13（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語13",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "请柬",
+      "input": "qǐngjiǎn",
+      "annotation": "qǐngjiǎn / 招待状",
+      "input_type": "word"
+    },
+    {
+      "display": "请教",
+      "input": "qǐngjiào",
+      "annotation": "qǐngjiào / 教えを請う",
+      "input_type": "word"
+    },
+    {
+      "display": "清洁",
+      "input": "qīngjié",
+      "annotation": "qīngjié / 清潔な",
+      "input_type": "word"
+    },
+    {
+      "display": "晴朗",
+      "input": "qínglǎng",
+      "annotation": "qínglǎng / 晴れわたった",
+      "input_type": "word"
+    },
+    {
+      "display": "情理",
+      "input": "qínglǐ",
+      "annotation": "qínglǐ / 道理",
+      "input_type": "word"
+    },
+    {
+      "display": "请示",
+      "input": "qǐngshì",
+      "annotation": "qǐngshì / 指示を仰ぐ",
+      "input_type": "word"
+    },
+    {
+      "display": "请帖",
+      "input": "qǐngtiě",
+      "annotation": "qǐngtiě / 招待状",
+      "input_type": "word"
+    },
+    {
+      "display": "清晰",
+      "input": "qīngxī",
+      "annotation": "qīngxī / はっきりした",
+      "input_type": "word"
+    },
+    {
+      "display": "倾斜",
+      "input": "qīngxié",
+      "annotation": "qīngxié / 傾く",
+      "input_type": "word"
+    },
+    {
+      "display": "清醒",
+      "input": "qīngxǐng",
+      "annotation": "qīngxǐng / 冷静な、意識が戻る",
+      "input_type": "word"
+    },
+    {
+      "display": "清真",
+      "input": "qīngzhēn",
+      "annotation": "qīngzhēn / イスラム教の、ハラールの",
+      "input_type": "word"
+    },
+    {
+      "display": "勤俭",
+      "input": "qínjiǎn",
+      "annotation": "qínjiǎn / 勤勉で倹約な",
+      "input_type": "word"
+    },
+    {
+      "display": "侵略",
+      "input": "qīnlüè",
+      "annotation": "qīnlüè / 侵略する",
+      "input_type": "word"
+    },
+    {
+      "display": "钦佩",
+      "input": "qīnpèi",
+      "annotation": "qīnpèi / 敬服する",
+      "input_type": "word"
+    },
+    {
+      "display": "旗袍",
+      "input": "qípáo",
+      "annotation": "qípáo / チャイナドレス",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

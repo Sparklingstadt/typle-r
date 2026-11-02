@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-14-words-6",
+  "name": "中国語HSK6級 手書き14（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語14",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "神气",
+      "input": "shénqì",
+      "annotation": "shénqì / 得意げな、表情",
+      "input_type": "word"
+    },
+    {
+      "display": "深情厚谊",
+      "input": "shēnqíng hòuyì",
+      "annotation": "shēnqíng hòuyì / 深い友情",
+      "input_type": "word"
+    },
+    {
+      "display": "绅士",
+      "input": "shēnshì",
+      "annotation": "shēnshì / 紳士",
+      "input_type": "word"
+    },
+    {
+      "display": "神态",
+      "input": "shéntài",
+      "annotation": "shéntài / 表情と態度",
+      "input_type": "word"
+    },
+    {
+      "display": "神仙",
+      "input": "shénxiān",
+      "annotation": "shénxiān / 仙人",
+      "input_type": "word"
+    },
+    {
+      "display": "呻吟",
+      "input": "shēnyín",
+      "annotation": "shēnyín / うめく",
+      "input_type": "word"
+    },
+    {
+      "display": "慎重",
+      "input": "shènzhòng",
+      "annotation": "shènzhòng / 慎重な",
+      "input_type": "word"
+    },
+    {
+      "display": "摄氏度",
+      "input": "shèshìdù",
+      "annotation": "shèshìdù / 摂氏〜度",
+      "input_type": "word"
+    },
+    {
+      "display": "舌头",
+      "input": "shétou",
+      "annotation": "shétou / 舌",
+      "input_type": "word"
+    },
+    {
+      "display": "设置",
+      "input": "shèzhì",
+      "annotation": "shèzhì / 設置する、設定する",
+      "input_type": "word"
+    },
+    {
+      "display": "势必",
+      "input": "shìbì",
+      "annotation": "shìbì / 必ず〜となる",
+      "input_type": "word"
+    },
+    {
+      "display": "时常",
+      "input": "shícháng",
+      "annotation": "shícháng / しばしば",
+      "input_type": "word"
+    },
+    {
+      "display": "世代",
+      "input": "shìdài",
+      "annotation": "shìdài / 代々",
+      "input_type": "word"
+    },
+    {
+      "display": "示范",
+      "input": "shìfàn",
+      "annotation": "shìfàn / 手本を示す",
+      "input_type": "word"
+    },
+    {
+      "display": "释放",
+      "input": "shìfàng",
+      "annotation": "shìfàng / 釈放する、放出する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

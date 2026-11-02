@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-15-words-2",
+  "name": "中国語HSK6級 手書き15（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語15",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "视线",
+      "input": "shìxiàn",
+      "annotation": "shìxiàn / 視線",
+      "input_type": "word"
+    },
+    {
+      "display": "事项",
+      "input": "shìxiàng",
+      "annotation": "shìxiàng / 事項",
+      "input_type": "word"
+    },
+    {
+      "display": "试验",
+      "input": "shìyàn",
+      "annotation": "shìyàn / 試験する",
+      "input_type": "word"
+    },
+    {
+      "display": "事业",
+      "input": "shìyè",
+      "annotation": "shìyè / 事業",
+      "input_type": "word"
+    },
+    {
+      "display": "适宜",
+      "input": "shìyí",
+      "annotation": "shìyí / 適している",
+      "input_type": "word"
+    },
+    {
+      "display": "石油",
+      "input": "shíyóu",
+      "annotation": "shíyóu / 石油",
+      "input_type": "word"
+    },
+    {
+      "display": "施展",
+      "input": "shīzhǎn",
+      "annotation": "shīzhǎn / 発揮する",
+      "input_type": "word"
+    },
+    {
+      "display": "失踪",
+      "input": "shīzōng",
+      "annotation": "shīzōng / 行方不明になる",
+      "input_type": "word"
+    },
+    {
+      "display": "十足",
+      "input": "shízú",
+      "annotation": "shízú / 十分な、まったくの",
+      "input_type": "word"
+    },
+    {
+      "display": "手法",
+      "input": "shǒufǎ",
+      "annotation": "shǒufǎ / 手法",
+      "input_type": "word"
+    },
+    {
+      "display": "守护",
+      "input": "shǒuhù",
+      "annotation": "shǒuhù / 守る",
+      "input_type": "word"
+    },
+    {
+      "display": "首屈一指",
+      "input": "shǒuqū yìzhǐ",
+      "annotation": "shǒuqū yìzhǐ / 第一位に数えられる",
+      "input_type": "word"
+    },
+    {
+      "display": "手势",
+      "input": "shǒushì",
+      "annotation": "shǒushì / 手振り、ジェスチャー",
+      "input_type": "word"
+    },
+    {
+      "display": "收缩",
+      "input": "shōusuō",
+      "annotation": "shōusuō / 収縮する",
+      "input_type": "word"
+    },
+    {
+      "display": "手艺",
+      "input": "shǒuyì",
+      "annotation": "shǒuyì / 腕前、手仕事",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

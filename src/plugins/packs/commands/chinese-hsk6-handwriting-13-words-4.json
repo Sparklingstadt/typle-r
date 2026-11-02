@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-13-words-4",
+  "name": "中国語HSK6級 手書き13（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語13",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "恰巧",
+      "input": "qiàqiǎo",
+      "annotation": "qiàqiǎo / ちょうど、折よく",
+      "input_type": "word"
+    },
+    {
+      "display": "器材",
+      "input": "qìcái",
+      "annotation": "qìcái / 器材",
+      "input_type": "word"
+    },
+    {
+      "display": "起草",
+      "input": "qǐcǎo",
+      "annotation": "qǐcǎo / 起草する",
+      "input_type": "word"
+    },
+    {
+      "display": "起初",
+      "input": "qǐchū",
+      "annotation": "qǐchū / 最初は",
+      "input_type": "word"
+    },
+    {
+      "display": "切实",
+      "input": "qièshí",
+      "annotation": "qièshí / 確実な、適切な",
+      "input_type": "word"
+    },
+    {
+      "display": "起伏",
+      "input": "qǐfú",
+      "annotation": "qǐfú / 起伏する",
+      "input_type": "word"
+    },
+    {
+      "display": "气概",
+      "input": "qìgài",
+      "annotation": "qìgài / 気概",
+      "input_type": "word"
+    },
+    {
+      "display": "乞丐",
+      "input": "qǐgài",
+      "annotation": "qǐgài / 物乞い",
+      "input_type": "word"
+    },
+    {
+      "display": "器官",
+      "input": "qìguān",
+      "annotation": "qìguān / 器官",
+      "input_type": "word"
+    },
+    {
+      "display": "起哄",
+      "input": "qǐhòng",
+      "annotation": "qǐhòng / 騒ぎ立てる、冷やかす",
+      "input_type": "word"
+    },
+    {
+      "display": "起码",
+      "input": "qǐmǎ",
+      "annotation": "qǐmǎ / 少なくとも",
+      "input_type": "word"
+    },
+    {
+      "display": "奇妙",
+      "input": "qímiào",
+      "annotation": "qímiào / 奇妙な、不思議な",
+      "input_type": "word"
+    },
+    {
+      "display": "侵犯",
+      "input": "qīnfàn",
+      "annotation": "qīnfàn / 侵す、侵害する",
+      "input_type": "word"
+    },
+    {
+      "display": "清澈",
+      "input": "qīngchè",
+      "annotation": "qīngchè / 澄みきった",
+      "input_type": "word"
+    },
+    {
+      "display": "清晨",
+      "input": "qīngchén",
+      "annotation": "qīngchén / 早朝",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

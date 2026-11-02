@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-11-words-5",
+  "name": "中国語HSK6級 手書き11（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語11",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "发行",
+      "input": "fāxíng",
+      "annotation": "fāxíng / 発行する",
+      "input_type": "word"
+    },
+    {
+      "display": "肥沃",
+      "input": "féiwò",
+      "annotation": "féiwò / 肥沃な",
+      "input_type": "word"
+    },
+    {
+      "display": "封建",
+      "input": "fēngjiàn",
+      "annotation": "fēngjiàn / 封建的な",
+      "input_type": "word"
+    },
+    {
+      "display": "丰盛",
+      "input": "fēngshèng",
+      "annotation": "fēngshèng / 豊富な",
+      "input_type": "word"
+    },
+    {
+      "display": "分裂",
+      "input": "fēnliè",
+      "annotation": "fēnliè / 分裂する",
+      "input_type": "word"
+    },
+    {
+      "display": "坟墓",
+      "input": "fénmù",
+      "annotation": "fénmù / 墓",
+      "input_type": "word"
+    },
+    {
+      "display": "俘虏",
+      "input": "fúlǔ",
+      "annotation": "fúlǔ / 捕虜",
+      "input_type": "word"
+    },
+    {
+      "display": "福气",
+      "input": "fúqi",
+      "annotation": "fúqi / 幸運",
+      "input_type": "word"
+    },
+    {
+      "display": "附属",
+      "input": "fùshǔ",
+      "annotation": "fùshǔ / 付属の",
+      "input_type": "word"
+    },
+    {
+      "display": "腹泻",
+      "input": "fùxiè",
+      "annotation": "fùxiè / 下痢",
+      "input_type": "word"
+    },
+    {
+      "display": "干涉",
+      "input": "gānshè",
+      "annotation": "gānshè / 干渉する",
+      "input_type": "word"
+    },
+    {
+      "display": "高超",
+      "input": "gāochāo",
+      "annotation": "gāochāo / 卓越した",
+      "input_type": "word"
+    },
+    {
+      "display": "稿件",
+      "input": "gǎojiàn",
+      "annotation": "gǎojiàn / 原稿",
+      "input_type": "word"
+    },
+    {
+      "display": "耕地",
+      "input": "gēngdì",
+      "annotation": "gēngdì / 耕地",
+      "input_type": "word"
+    },
+    {
+      "display": "跟前",
+      "input": "gēnqián",
+      "annotation": "gēnqián / そば",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-12-words-5",
+  "name": "中国語HSK6級 手書き12（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語12",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "沐浴",
+      "input": "mùyù",
+      "annotation": "mùyù / 入浴する",
+      "input_type": "word"
+    },
+    {
+      "display": "耐用",
+      "input": "nàiyòng",
+      "annotation": "nàiyòng / 長持ちする",
+      "input_type": "word"
+    },
+    {
+      "display": "难能可贵",
+      "input": "nánnéng kěguì",
+      "annotation": "nánnéng kěguì / 得がたく貴い",
+      "input_type": "word"
+    },
+    {
+      "display": "南辕北辙",
+      "input": "nányuán běizhé",
+      "annotation": "nányuán běizhé / 行動と目的が正反対",
+      "input_type": "word"
+    },
+    {
+      "display": "拿手",
+      "input": "náshǒu",
+      "annotation": "náshǒu / 得意な、お手の物",
+      "input_type": "word"
+    },
+    {
+      "display": "内涵",
+      "input": "nèihán",
+      "annotation": "nèihán / 内包、内面の深み",
+      "input_type": "word"
+    },
+    {
+      "display": "内在",
+      "input": "nèizài",
+      "annotation": "nèizài / 内在的な",
+      "input_type": "word"
+    },
+    {
+      "display": "能量",
+      "input": "néngliàng",
+      "annotation": "néngliàng / エネルギー",
+      "input_type": "word"
+    },
+    {
+      "display": "年度",
+      "input": "niándù",
+      "annotation": "niándù / 年度",
+      "input_type": "word"
+    },
+    {
+      "display": "凝固",
+      "input": "nínggù",
+      "annotation": "nínggù / 凝固する",
+      "input_type": "word"
+    },
+    {
+      "display": "凝聚",
+      "input": "níngjù",
+      "annotation": "níngjù / 凝集する、結集する",
+      "input_type": "word"
+    },
+    {
+      "display": "凝视",
+      "input": "níngshì",
+      "annotation": "níngshì / 凝視する",
+      "input_type": "word"
+    },
+    {
+      "display": "宁愿",
+      "input": "nìngyuàn",
+      "annotation": "nìngyuàn / むしろ〜したい",
+      "input_type": "word"
+    },
+    {
+      "display": "逆行",
+      "input": "nìxíng",
+      "annotation": "nìxíng / 逆行する",
+      "input_type": "word"
+    },
+    {
+      "display": "浓厚",
+      "input": "nónghòu",
+      "annotation": "nónghòu / 濃い、濃厚な",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

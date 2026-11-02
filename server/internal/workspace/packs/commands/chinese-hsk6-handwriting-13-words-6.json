@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-13-words-6",
+  "name": "中国語HSK6級 手書き13（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語13",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "欺骗",
+      "input": "qīpiàn",
+      "annotation": "qīpiàn / だます",
+      "input_type": "word"
+    },
+    {
+      "display": "齐全",
+      "input": "qíquán",
+      "annotation": "qíquán / そろっている",
+      "input_type": "word"
+    },
+    {
+      "display": "气色",
+      "input": "qìsè",
+      "annotation": "qìsè / 顔色、血色",
+      "input_type": "word"
+    },
+    {
+      "display": "歧视",
+      "input": "qíshì",
+      "annotation": "qíshì / 差別する",
+      "input_type": "word"
+    },
+    {
+      "display": "启示",
+      "input": "qǐshì",
+      "annotation": "qǐshì / 啓示、示唆",
+      "input_type": "word"
+    },
+    {
+      "display": "企图",
+      "input": "qǐtú",
+      "annotation": "qǐtú / 企てる",
+      "input_type": "word"
+    },
+    {
+      "display": "期望",
+      "input": "qīwàng",
+      "annotation": "qīwàng / 期待する",
+      "input_type": "word"
+    },
+    {
+      "display": "气味",
+      "input": "qìwèi",
+      "annotation": "qìwèi / におい",
+      "input_type": "word"
+    },
+    {
+      "display": "期限",
+      "input": "qīxiàn",
+      "annotation": "qīxiàn / 期限",
+      "input_type": "word"
+    },
+    {
+      "display": "气象",
+      "input": "qìxiàng",
+      "annotation": "qìxiàng / 気象、様子",
+      "input_type": "word"
+    },
+    {
+      "display": "齐心协力",
+      "input": "qíxīn xiélì",
+      "annotation": "qíxīn xiélì / 心を合わせて協力する",
+      "input_type": "word"
+    },
+    {
+      "display": "岂有此理",
+      "input": "qǐyǒu cǐlǐ",
+      "annotation": "qǐyǒu cǐlǐ / もってのほかだ",
+      "input_type": "word"
+    },
+    {
+      "display": "起源",
+      "input": "qǐyuán",
+      "annotation": "qǐyuán / 起源",
+      "input_type": "word"
+    },
+    {
+      "display": "全局",
+      "input": "quánjú",
+      "annotation": "quánjú / 全局、全体の情勢",
+      "input_type": "word"
+    },
+    {
+      "display": "全力以赴",
+      "input": "quánlì yǐfù",
+      "annotation": "quánlì yǐfù / 全力を尽くす",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

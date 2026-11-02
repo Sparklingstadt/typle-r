@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-17-words-5",
+  "name": "中国語HSK6級 手書き17（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語17",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "雄厚",
+      "input": "xiónghòu",
+      "annotation": "xiónghòu / 豊富な、潤沢な",
+      "input_type": "word"
+    },
+    {
+      "display": "胸怀",
+      "input": "xiōnghuái",
+      "annotation": "xiōnghuái / 度量、胸に抱く",
+      "input_type": "word"
+    },
+    {
+      "display": "凶手",
+      "input": "xiōngshǒu",
+      "annotation": "xiōngshǒu / 犯人、殺人者",
+      "input_type": "word"
+    },
+    {
+      "display": "雄伟",
+      "input": "xióngwěi",
+      "annotation": "xióngwěi / 雄大な",
+      "input_type": "word"
+    },
+    {
+      "display": "汹涌",
+      "input": "xiōngyǒng",
+      "annotation": "xiōngyǒng / 逆巻く",
+      "input_type": "word"
+    },
+    {
+      "display": "牺牲",
+      "input": "xīshēng",
+      "annotation": "xīshēng / 犠牲にする",
+      "input_type": "word"
+    },
+    {
+      "display": "羞耻",
+      "input": "xiūchǐ",
+      "annotation": "xiūchǐ / 恥ずかしい、恥",
+      "input_type": "word"
+    },
+    {
+      "display": "修建",
+      "input": "xiūjiàn",
+      "annotation": "xiūjiàn / 建設する",
+      "input_type": "word"
+    },
+    {
+      "display": "嗅觉",
+      "input": "xiùjué",
+      "annotation": "xiùjué / 嗅覚",
+      "input_type": "word"
+    },
+    {
+      "display": "修养",
+      "input": "xiūyǎng",
+      "annotation": "xiūyǎng / 教養、修養",
+      "input_type": "word"
+    },
+    {
+      "display": "嬉笑",
+      "input": "xīxiào",
+      "annotation": "xīxiào / 笑いふざける",
+      "input_type": "word"
+    },
+    {
+      "display": "喜悦",
+      "input": "xǐyuè",
+      "annotation": "xǐyuè / 喜び",
+      "input_type": "word"
+    },
+    {
+      "display": "选拔",
+      "input": "xuǎnbá",
+      "annotation": "xuǎnbá / 選抜する",
+      "input_type": "word"
+    },
+    {
+      "display": "悬挂",
+      "input": "xuánguà",
+      "annotation": "xuánguà / 掛ける、つるす",
+      "input_type": "word"
+    },
+    {
+      "display": "选举",
+      "input": "xuǎnjǔ",
+      "annotation": "xuǎnjǔ / 選挙する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-16-words-4",
+  "name": "中国語HSK6級 手書き16（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語16",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "妄想",
+      "input": "wàngxiǎng",
+      "annotation": "wàngxiǎng / 妄想する",
+      "input_type": "word"
+    },
+    {
+      "display": "挽救",
+      "input": "wǎnjiù",
+      "annotation": "wǎnjiù / 救う",
+      "input_type": "word"
+    },
+    {
+      "display": "玩弄",
+      "input": "wánnòng",
+      "annotation": "wánnòng / もてあそぶ",
+      "input_type": "word"
+    },
+    {
+      "display": "万无一失",
+      "input": "wànwú yìshī",
+      "annotation": "wànwú yìshī / 万に一つの失敗もない",
+      "input_type": "word"
+    },
+    {
+      "display": "惋惜",
+      "input": "wǎnxī",
+      "annotation": "wǎnxī / 惜しむ",
+      "input_type": "word"
+    },
+    {
+      "display": "违背",
+      "input": "wéibèi",
+      "annotation": "wéibèi / 背く",
+      "input_type": "word"
+    },
+    {
+      "display": "微不足道",
+      "input": "wēibù zúdào",
+      "annotation": "wēibù zúdào / 取るに足らない",
+      "input_type": "word"
+    },
+    {
+      "display": "维持",
+      "input": "wéichí",
+      "annotation": "wéichí / 維持する",
+      "input_type": "word"
+    },
+    {
+      "display": "威风",
+      "input": "wēifēng",
+      "annotation": "wēifēng / 威風、堂々とした",
+      "input_type": "word"
+    },
+    {
+      "display": "微观",
+      "input": "wēiguān",
+      "annotation": "wēiguān / ミクロ",
+      "input_type": "word"
+    },
+    {
+      "display": "畏惧",
+      "input": "wèijù",
+      "annotation": "wèijù / 恐れる",
+      "input_type": "word"
+    },
+    {
+      "display": "蔚蓝",
+      "input": "wèilán",
+      "annotation": "wèilán / 紺碧の",
+      "input_type": "word"
+    },
+    {
+      "display": "未免",
+      "input": "wèimiǎn",
+      "annotation": "wèimiǎn / いささか〜すぎる",
+      "input_type": "word"
+    },
+    {
+      "display": "为难",
+      "input": "wéinán",
+      "annotation": "wéinán / 困る、困らせる",
+      "input_type": "word"
+    },
+    {
+      "display": "为期",
+      "input": "wéiqī",
+      "annotation": "wéiqī / 期限とする",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

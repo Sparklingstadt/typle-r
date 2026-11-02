@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-13-words-1",
+  "name": "中国語HSK6級 手書き13（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語13",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "盆地",
+      "input": "péndì",
+      "annotation": "péndì / 盆地",
+      "input_type": "word"
+    },
+    {
+      "display": "烹饪",
+      "input": "pēngrèn",
+      "annotation": "pēngrèn / 料理する",
+      "input_type": "word"
+    },
+    {
+      "display": "片断",
+      "input": "piànduàn",
+      "annotation": "piànduàn / 断片",
+      "input_type": "word"
+    },
+    {
+      "display": "偏见",
+      "input": "piānjiàn",
+      "annotation": "piānjiàn / 偏見",
+      "input_type": "word"
+    },
+    {
+      "display": "偏僻",
+      "input": "piānpì",
+      "annotation": "piānpì / 辺鄙な",
+      "input_type": "word"
+    },
+    {
+      "display": "偏偏",
+      "input": "piānpiān",
+      "annotation": "piānpiān / あいにく、わざと",
+      "input_type": "word"
+    },
+    {
+      "display": "漂浮",
+      "input": "piāofú",
+      "annotation": "piāofú / 浮かぶ、漂う",
+      "input_type": "word"
+    },
+    {
+      "display": "疲惫",
+      "input": "píbèi",
+      "annotation": "píbèi / 疲れ果てた",
+      "input_type": "word"
+    },
+    {
+      "display": "批发",
+      "input": "pīfā",
+      "annotation": "pīfā / 卸売りする",
+      "input_type": "word"
+    },
+    {
+      "display": "屁股",
+      "input": "pìgu",
+      "annotation": "pìgu / 尻",
+      "input_type": "word"
+    },
+    {
+      "display": "疲倦",
+      "input": "píjuàn",
+      "annotation": "píjuàn / 疲れた、だるい",
+      "input_type": "word"
+    },
+    {
+      "display": "品尝",
+      "input": "pǐncháng",
+      "annotation": "pǐncháng / 味わう",
+      "input_type": "word"
+    },
+    {
+      "display": "品德",
+      "input": "pǐndé",
+      "annotation": "pǐndé / 品性、徳",
+      "input_type": "word"
+    },
+    {
+      "display": "贫乏",
+      "input": "pínfá",
+      "annotation": "pínfá / 乏しい",
+      "input_type": "word"
+    },
+    {
+      "display": "评估",
+      "input": "pínggū",
+      "annotation": "pínggū / 評価する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

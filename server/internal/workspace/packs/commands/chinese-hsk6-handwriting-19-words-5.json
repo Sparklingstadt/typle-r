@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-19-words-5",
+  "name": "中国語HSK6級 手書き19（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語19",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "正负",
+      "input": "zhèngfù",
+      "annotation": "zhèngfù / プラスマイナス",
+      "input_type": "word"
+    },
+    {
+      "display": "征服",
+      "input": "zhēngfú",
+      "annotation": "zhēngfú / 征服する",
+      "input_type": "word"
+    },
+    {
+      "display": "正经",
+      "input": "zhèngjing",
+      "annotation": "zhèngjing / まじめな、まともな",
+      "input_type": "word"
+    },
+    {
+      "display": "正气",
+      "input": "zhèngqì",
+      "annotation": "zhèngqì / 正しい気風",
+      "input_type": "word"
+    },
+    {
+      "display": "政权",
+      "input": "zhèngquán",
+      "annotation": "zhèngquán / 政権",
+      "input_type": "word"
+    },
+    {
+      "display": "证实",
+      "input": "zhèngshí",
+      "annotation": "zhèngshí / 実証する",
+      "input_type": "word"
+    },
+    {
+      "display": "征收",
+      "input": "zhēngshōu",
+      "annotation": "zhēngshōu / 徴収する",
+      "input_type": "word"
+    },
+    {
+      "display": "珍贵",
+      "input": "zhēnguì",
+      "annotation": "zhēnguì / 貴重な",
+      "input_type": "word"
+    },
+    {
+      "display": "争先恐后",
+      "input": "zhēngxiān kǒnghòu",
+      "annotation": "zhēngxiān kǒnghòu / 先を争う",
+      "input_type": "word"
+    },
+    {
+      "display": "争议",
+      "input": "zhēngyì",
+      "annotation": "zhēngyì / 論争する",
+      "input_type": "word"
+    },
+    {
+      "display": "正月",
+      "input": "zhēngyuè",
+      "annotation": "zhēngyuè / 旧暦の正月",
+      "input_type": "word"
+    },
+    {
+      "display": "郑重",
+      "input": "zhèngzhòng",
+      "annotation": "zhèngzhòng / 厳粛な、丁重な",
+      "input_type": "word"
+    },
+    {
+      "display": "症状",
+      "input": "zhèngzhuàng",
+      "annotation": "zhèngzhuàng / 症状",
+      "input_type": "word"
+    },
+    {
+      "display": "正宗",
+      "input": "zhèngzōng",
+      "annotation": "zhèngzōng / 本場の、正統の",
+      "input_type": "word"
+    },
+    {
+      "display": "震惊",
+      "input": "zhènjīng",
+      "annotation": "zhènjīng / 震撼させる",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

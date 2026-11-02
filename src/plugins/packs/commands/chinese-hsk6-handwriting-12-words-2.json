@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-12-words-2",
+  "name": "中国語HSK6級 手書き12（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語12",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "解雇",
+      "input": "jiěgù",
+      "annotation": "jiěgù / 解雇する",
+      "input_type": "word"
+    },
+    {
+      "display": "结算",
+      "input": "jiésuàn",
+      "annotation": "jiésuàn / 決算する",
+      "input_type": "word"
+    },
+    {
+      "display": "节制",
+      "input": "jiézhì",
+      "annotation": "jiézhì / 節制する",
+      "input_type": "word"
+    },
+    {
+      "display": "寂静",
+      "input": "jìjìng",
+      "annotation": "jìjìng / 静まりかえった",
+      "input_type": "word"
+    },
+    {
+      "display": "急剧",
+      "input": "jíjù",
+      "annotation": "jíjù / 急激な",
+      "input_type": "word"
+    },
+    {
+      "display": "精密",
+      "input": "jīngmì",
+      "annotation": "jīngmì / 精密な",
+      "input_type": "word"
+    },
+    {
+      "display": "竞选",
+      "input": "jìngxuǎn",
+      "annotation": "jìngxuǎn / 選挙運動をする",
+      "input_type": "word"
+    },
+    {
+      "display": "精致",
+      "input": "jīngzhì",
+      "annotation": "jīngzhì / 精巧な",
+      "input_type": "word"
+    },
+    {
+      "display": "浸泡",
+      "input": "jìnpào",
+      "annotation": "jìnpào / 浸す",
+      "input_type": "word"
+    },
+    {
+      "display": "集团",
+      "input": "jítuán",
+      "annotation": "jítuán / グループ",
+      "input_type": "word"
+    },
+    {
+      "display": "纠正",
+      "input": "jiūzhèng",
+      "annotation": "jiūzhèng / 正す",
+      "input_type": "word"
+    },
+    {
+      "display": "就职",
+      "input": "jiùzhí",
+      "annotation": "jiùzhí / 就任する",
+      "input_type": "word"
+    },
+    {
+      "display": "基因",
+      "input": "jīyīn",
+      "annotation": "jīyīn / 遺伝子",
+      "input_type": "word"
+    },
+    {
+      "display": "决策",
+      "input": "juécè",
+      "annotation": "juécè / 政策決定",
+      "input_type": "word"
+    },
+    {
+      "display": "军队",
+      "input": "jūnduì",
+      "annotation": "jūnduì / 軍隊",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-17-words-1",
+  "name": "中国語HSK6級 手書き17（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語17",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "物资",
+      "input": "wùzī",
+      "annotation": "wùzī / 物資",
+      "input_type": "word"
+    },
+    {
+      "display": "峡谷",
+      "input": "xiágǔ",
+      "annotation": "xiágǔ / 峡谷",
+      "input_type": "word"
+    },
+    {
+      "display": "现成",
+      "input": "xiànchéng",
+      "annotation": "xiànchéng / 出来合いの",
+      "input_type": "word"
+    },
+    {
+      "display": "宪法",
+      "input": "xiànfǎ",
+      "annotation": "xiànfǎ / 憲法",
+      "input_type": "word"
+    },
+    {
+      "display": "相差",
+      "input": "xiāngchà",
+      "annotation": "xiāngchà / 差がある",
+      "input_type": "word"
+    },
+    {
+      "display": "相等",
+      "input": "xiāngděng",
+      "annotation": "xiāngděng / 等しい",
+      "input_type": "word"
+    },
+    {
+      "display": "想方设法",
+      "input": "xiǎngfāng shèfǎ",
+      "annotation": "xiǎngfāng shèfǎ / あらゆる手を尽くす",
+      "input_type": "word"
+    },
+    {
+      "display": "向来",
+      "input": "xiànglái",
+      "annotation": "xiànglái / これまでずっと",
+      "input_type": "word"
+    },
+    {
+      "display": "响亮",
+      "input": "xiǎngliàng",
+      "annotation": "xiǎngliàng / よく響く",
+      "input_type": "word"
+    },
+    {
+      "display": "相声",
+      "input": "xiàngsheng",
+      "annotation": "xiàngsheng / 漫才",
+      "input_type": "word"
+    },
+    {
+      "display": "向往",
+      "input": "xiàngwǎng",
+      "annotation": "xiàngwǎng / あこがれる",
+      "input_type": "word"
+    },
+    {
+      "display": "响应",
+      "input": "xiǎngyìng",
+      "annotation": "xiǎngyìng / 呼応する、応じる",
+      "input_type": "word"
+    },
+    {
+      "display": "乡镇",
+      "input": "xiāngzhèn",
+      "annotation": "xiāngzhèn / 郷と鎮、小さな町",
+      "input_type": "word"
+    },
+    {
+      "display": "陷害",
+      "input": "xiànhài",
+      "annotation": "xiànhài / 陥れる",
+      "input_type": "word"
+    },
+    {
+      "display": "贤惠",
+      "input": "xiánhuì",
+      "annotation": "xiánhuì / 気立てがよい",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

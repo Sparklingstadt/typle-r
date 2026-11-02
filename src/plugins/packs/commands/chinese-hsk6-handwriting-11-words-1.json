@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-11-words-1",
+  "name": "中国語HSK6級 手書き11（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語11",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "案件",
+      "input": "ànjiàn",
+      "annotation": "ànjiàn / 事件、案件",
+      "input_type": "word"
+    },
+    {
+      "display": "奥秘",
+      "input": "àomì",
+      "annotation": "àomì / 神秘",
+      "input_type": "word"
+    },
+    {
+      "display": "败坏",
+      "input": "bàihuài",
+      "annotation": "bàihuài / 損なう",
+      "input_type": "word"
+    },
+    {
+      "display": "榜样",
+      "input": "bǎngyàng",
+      "annotation": "bǎngyàng / 手本",
+      "input_type": "word"
+    },
+    {
+      "display": "曝光",
+      "input": "bàoguāng",
+      "annotation": "bàoguāng / 明るみに出る",
+      "input_type": "word"
+    },
+    {
+      "display": "报警",
+      "input": "bàojǐng",
+      "annotation": "bàojǐng / 警察に通報する",
+      "input_type": "word"
+    },
+    {
+      "display": "保障",
+      "input": "bǎozhàng",
+      "annotation": "bǎozhàng / 保障する",
+      "input_type": "word"
+    },
+    {
+      "display": "奔驰",
+      "input": "bēnchí",
+      "annotation": "bēnchí / 疾走する",
+      "input_type": "word"
+    },
+    {
+      "display": "崩溃",
+      "input": "bēngkuì",
+      "annotation": "bēngkuì / 崩壊する",
+      "input_type": "word"
+    },
+    {
+      "display": "遍布",
+      "input": "biànbù",
+      "annotation": "biànbù / 至る所に広がる",
+      "input_type": "word"
+    },
+    {
+      "display": "编织",
+      "input": "biānzhī",
+      "annotation": "biānzhī / 編む",
+      "input_type": "word"
+    },
+    {
+      "display": "标本",
+      "input": "biāoběn",
+      "annotation": "biāoběn / 標本",
+      "input_type": "word"
+    },
+    {
+      "display": "必定",
+      "input": "bìdìng",
+      "annotation": "bìdìng / きっと",
+      "input_type": "word"
+    },
+    {
+      "display": "冰雹",
+      "input": "bīngbáo",
+      "annotation": "bīngbáo / ひょう",
+      "input_type": "word"
+    },
+    {
+      "display": "波浪",
+      "input": "bōlàng",
+      "annotation": "bōlàng / 波",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

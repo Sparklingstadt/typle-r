@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-17-words-2",
+  "name": "中国語HSK6級 手書き17（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語17",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "衔接",
+      "input": "xiánjiē",
+      "annotation": "xiánjiē / つながる、つなぐ",
+      "input_type": "word"
+    },
+    {
+      "display": "鲜明",
+      "input": "xiānmíng",
+      "annotation": "xiānmíng / 鮮明な",
+      "input_type": "word"
+    },
+    {
+      "display": "掀起",
+      "input": "xiānqǐ",
+      "annotation": "xiānqǐ / 巻き起こす、めくる",
+      "input_type": "word"
+    },
+    {
+      "display": "陷入",
+      "input": "xiànrù",
+      "annotation": "xiànrù / 陥る",
+      "input_type": "word"
+    },
+    {
+      "display": "纤维",
+      "input": "xiānwéi",
+      "annotation": "xiānwéi / 繊維",
+      "input_type": "word"
+    },
+    {
+      "display": "嫌疑",
+      "input": "xiányí",
+      "annotation": "xiányí / 嫌疑、疑い",
+      "input_type": "word"
+    },
+    {
+      "display": "现状",
+      "input": "xiànzhuàng",
+      "annotation": "xiànzhuàng / 現状",
+      "input_type": "word"
+    },
+    {
+      "display": "消除",
+      "input": "xiāochú",
+      "annotation": "xiāochú / 取り除く、解消する",
+      "input_type": "word"
+    },
+    {
+      "display": "消毒",
+      "input": "xiāodú",
+      "annotation": "xiāodú / 消毒する",
+      "input_type": "word"
+    },
+    {
+      "display": "消防",
+      "input": "xiāofáng",
+      "annotation": "xiāofáng / 消防",
+      "input_type": "word"
+    },
+    {
+      "display": "消耗",
+      "input": "xiāohào",
+      "annotation": "xiāohào / 消耗する",
+      "input_type": "word"
+    },
+    {
+      "display": "消灭",
+      "input": "xiāomiè",
+      "annotation": "xiāomiè / 消滅させる",
+      "input_type": "word"
+    },
+    {
+      "display": "潇洒",
+      "input": "xiāosǎ",
+      "annotation": "xiāosǎ / あか抜けた、粋な",
+      "input_type": "word"
+    },
+    {
+      "display": "小心翼翼",
+      "input": "xiǎoxīn yìyì",
+      "annotation": "xiǎoxīn yìyì / 慎重に、恐る恐る",
+      "input_type": "word"
+    },
+    {
+      "display": "效益",
+      "input": "xiàoyì",
+      "annotation": "xiàoyì / 効果と利益",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

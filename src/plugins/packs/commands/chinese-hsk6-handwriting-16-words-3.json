@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-16-words-3",
+  "name": "中国語HSK6級 手書き16（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語16",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "脱离",
+      "input": "tuōlí",
+      "annotation": "tuōlí / 離脱する",
+      "input_type": "word"
+    },
+    {
+      "display": "唾弃",
+      "input": "tuòqì",
+      "annotation": "tuòqì / 唾棄する",
+      "input_type": "word"
+    },
+    {
+      "display": "拖延",
+      "input": "tuōyán",
+      "annotation": "tuōyán / 引き延ばす",
+      "input_type": "word"
+    },
+    {
+      "display": "椭圆",
+      "input": "tuǒyuán",
+      "annotation": "tuǒyuán / 楕円",
+      "input_type": "word"
+    },
+    {
+      "display": "突破",
+      "input": "tūpò",
+      "annotation": "tūpò / 突破する",
+      "input_type": "word"
+    },
+    {
+      "display": "土壤",
+      "input": "tǔrǎng",
+      "annotation": "tǔrǎng / 土壌",
+      "input_type": "word"
+    },
+    {
+      "display": "外表",
+      "input": "wàibiǎo",
+      "annotation": "wàibiǎo / 外見",
+      "input_type": "word"
+    },
+    {
+      "display": "外界",
+      "input": "wàijiè",
+      "annotation": "wàijiè / 外部",
+      "input_type": "word"
+    },
+    {
+      "display": "歪曲",
+      "input": "wāiqū",
+      "annotation": "wāiqū / 歪曲する",
+      "input_type": "word"
+    },
+    {
+      "display": "瓦解",
+      "input": "wǎjiě",
+      "annotation": "wǎjiě / 瓦解する",
+      "input_type": "word"
+    },
+    {
+      "display": "挖掘",
+      "input": "wājué",
+      "annotation": "wājué / 掘り出す",
+      "input_type": "word"
+    },
+    {
+      "display": "完毕",
+      "input": "wánbì",
+      "annotation": "wánbì / 終わる",
+      "input_type": "word"
+    },
+    {
+      "display": "万分",
+      "input": "wànfēn",
+      "annotation": "wànfēn / 非常に",
+      "input_type": "word"
+    },
+    {
+      "display": "往常",
+      "input": "wǎngcháng",
+      "annotation": "wǎngcháng / ふだん",
+      "input_type": "word"
+    },
+    {
+      "display": "顽固",
+      "input": "wángù",
+      "annotation": "wángù / 頑固な",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}
