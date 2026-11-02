@@ -3,10 +3,11 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
-import { ArrowRight, ChevronDown, ChevronsUpDown, ChevronUp, CircleAlert, Eye, EyeOff, Gauge, List, MousePointerClick, PanelRightClose, PanelRightOpen, Plus, RotateCcw, Search, Target, Timer, X } from "lucide-react"
+import { ArrowRight, Brain, ChevronDown, ChevronsUpDown, ChevronUp, CircleAlert, Eye, EyeOff, Gauge, List, MousePointerClick, PanelRightClose, PanelRightOpen, Plus, RotateCcw, Search, Target, Timer, X } from "lucide-react"
 import type { PracticeDevice } from "@/core/devices"
 import { useChosenDevice } from "@/lib/deviceSelection"
 import { useLiveStatsVisible } from "@/lib/liveStats"
+import { usePracticeMode } from "@/lib/practiceMode"
 import { usePlayAsideOpen } from "@/lib/playAside"
 import { useTypingOptions } from "@/lib/inputSettings"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -18,7 +19,8 @@ import { useWordLists, type RecordSave } from "@/lib/useWordLists"
 import type { SavedWordList } from "@/core/wordLists"
 import { usePractice } from "@/lib/usePractice"
 import { compareInput, elapsedTime, simpleInputKeys, typingSpeed, type TypingSession } from "@/core/typing"
-import { comparableRecords } from "@/core/records"
+import { comparableRecords, recordsOfMode } from "@/core/records"
+import { recallPrompt } from "@/core/recallPrompt"
 import { listLabels, matchesFilter } from "@/core/listOverview"
 import { matchesPackQuery, packOverviews, type PackOverview } from "@/core/packEditing"
 import { packsByRecentPractice } from "@/core/packPractice"
@@ -111,7 +113,8 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   const [statsVisible, setStatsVisible] = useLiveStatsVisible()
   const [asideOpen, setAsideOpen] = usePlayAsideOpen()
   const typingOptions = useTypingOptions()
-  const { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart: restartPractice, retrySave, pause, resume } = usePractice(wordLists, addRecord, device, listId)
+  const [chosenMode, chooseMode] = usePracticeMode()
+  const { list, selected, session, practiceDevice, practiceMode, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart: restartPractice, retrySave, pause, resume, reveal } = usePractice(wordLists, addRecord, device, listId, chosenMode)
   const [displayRun, setDisplayRun] = useState(0)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -132,15 +135,24 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   const pickerOpener = useRef<HTMLElement | null>(null)
   const started = session.startedAt !== null
   const running = started && !finished
+  // A started run keeps the mode it began in, like its device; the choice applies from the next run.
+  const mode = started ? practiceMode ?? chosenMode : chosenMode
+  const recall = mode === 'recall'
   const words = list?.words ?? []
   const selectedList = wordLists.find(item => item.id === list?.id)
   const selectedRecords = selectedList?.records ?? []
-  const bestCandidates = selectedList ? comparableRecords(selectedList) : []
+  // Bests and comparisons only use runs of the mode being practised.
+  const modeRecords = recordsOfMode(selectedRecords, mode)
+  const bestCandidates = selectedList ? comparableRecords(selectedList, selectedRecords, mode) : []
   // Colour only committed text: IME composition (romaji, pinyin) is shown below the word but never judged.
   const comparison = compareInput(word?.input ?? '', session.input, session.missed)
   const hasError = comparison.errorIndex >= 0
   // With simple input on, the keys that stand for the word's accented and Cyrillic letters are shown under it.
-  const simpleKeys = typingOptions.ignoreAccents && word ? simpleInputKeys(word.input) : []
+  // Recall mode leaves them out, as they would give away the answer.
+  const simpleKeys = typingOptions.ignoreAccents && word && !recall ? simpleInputKeys(word.input) : []
+  // Recall mode shows the annotation with the answer hidden and the display text when it differs from what is typed.
+  const prompt = recall && word ? recallPrompt(word) : ''
+  const displayHint = !!word && word.display !== word.input && word.input_type !== 'code'
   const dialogOpen = pickerOpen || pendingSwitch !== null || menuOpen
   const showResume = focusedOnce && !inputFocused && !finished && !dialogOpen && words.length > 0
 
@@ -194,6 +206,12 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
     setDisplayRun(value => value + 1)
     restartPractice(index)
   }
+  // Switching the mode starts the list again; it cannot be switched during a run.
+  function switchMode() {
+    if (running) return
+    chooseMode(recall ? 'normal' : 'recall')
+    restart()
+  }
   function switchTo(index: number) {
     setShowAll(true)
     restart(index)
@@ -240,6 +258,9 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
           </button>
           <span className="flex-1" />
           <DeviceMenu devices={devices} device={running ? practiceDevice : device} locked={running} onChange={chooseDevice} onOpenChange={setMenuOpen} onCloseAutoFocus={focusPractice} />
+          <Button variant="ghost" size="lg" className="shrink-0 px-2 sm:px-2.5" aria-pressed={recall} disabled={running} title={t('recall.toggle')} aria-label={t('recall.toggle')} onClick={switchMode}>
+            <Brain aria-hidden="true" /><span className="hidden xl:inline">{t('recall.toggle')}</span>
+          </Button>
           {/* Hiding the live stats only changes the display: timing, saving and the result screen stay the same. */}
           <Button variant="ghost" size="icon-lg" className="shrink-0" aria-pressed={statsVisible} aria-label={t('header.liveStats')} title={t('header.liveStats')}
             onClick={() => { setStatsVisible(!statsVisible); if (!finished) input.current?.focus() }}>
@@ -261,9 +282,19 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
           <span aria-hidden="true">{progressText}</span>
         </div>
         {finished ? <PracticeResult listName={practiceName(list)} wordCount={words.length} result={result} correct={session.attempts - session.mistakes} speed={typingSpeed(session, 0)}
-          device={practiceDevice} record={record} records={selectedRecords} saveState={saveState} onRestart={() => restart()} onRetry={retrySave} onChooseList={openPicker} />
+          device={practiceDevice} record={record} records={selectedRecords} mode={mode} saveState={saveState} onRestart={() => restart()} onRetry={retrySave} onChooseList={openPicker} />
         : <>
           <div key={`${list.id}:${session.index}:${displayRun}`} className="relative flex min-h-44 flex-1 flex-col items-center justify-center gap-3 px-4 pt-6 pb-2 text-center sm:min-h-52 sm:gap-3.5 sm:px-6 sm:pt-11">
+            {recall ? word && <>
+              {/* The original annotation is never shown here: it may contain the answer. */}
+              {prompt && <p className="max-w-full text-base break-words text-foreground">{prompt}</p>}
+              {displayHint && <PracticeText id="wordHint" text={word.display} className="text-xl leading-[1.75] sm:text-[26px]" />}
+              {!prompt && !displayHint && <p className="text-sm text-muted-foreground">{t('recall.noHint')}</p>}
+              <TargetText id="wordDisplay" {...comparison} concealed={!session.revealed} />
+              {/* Keeps the focus in the input, so the resume cover does not come up under the pointer and take the click. */}
+              <Button variant="outline" size="sm" disabled={!!session.revealed} onMouseDown={event => event.preventDefault()} onClick={reveal}><Eye aria-hidden="true" />{t('recall.reveal')}</Button>
+            </>
+            : <>
             {word?.annotation && <p className="max-w-full text-base break-words text-foreground">{word.annotation}</p>}
             {/* Code is displayed with line breaks and indentation but typed on one line, so showing both would repeat the
                 same code. Only the characters to type are shown. */}
@@ -276,6 +307,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
                   <TargetText id="wordTarget" {...comparison} guide />
                 </div>
               </>}
+            </>}
             {showResume && <button type="button" onClick={() => input.current?.focus()} className="absolute inset-0 z-10 grid place-items-center bg-card/70 outline-none backdrop-blur-sm">
               <span className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"><MousePointerClick className="size-4" aria-hidden="true" />{t('word.resume')}</span>
             </button>}
@@ -306,7 +338,8 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
             </div>}
           </div>
           {statsVisible && <LiveStats session={session} accuracy={result.accuracy} />}
-          <div className="flex min-h-14 flex-wrap items-center gap-2 border-t px-4 py-2.5 sm:pr-3 sm:pl-6">
+          {/* The coming words would give away the answers in recall mode. */}
+          {!recall && <div className="flex min-h-14 flex-wrap items-center gap-2 border-t px-4 py-2.5 sm:pr-3 sm:pl-6">
             <span className="text-xs text-muted-foreground">{t('upcoming.next')}</span>
             {next.map((item, index) => <span key={index} className="inline-flex h-7 max-w-full items-center rounded-full border px-3 text-[13px] text-muted-foreground" title={item.display}><span className="truncate whitespace-pre">{item.input_type === 'code' ? item.display.replace(/\r\n|\r|\n/g, '  ') : item.display}</span></span>)}
             {!next.length && <span className="text-xs text-muted-foreground">{t('upcoming.last')}</span>}
@@ -331,7 +364,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
                 </li>
               })}
             </ul>}
-          </div>
+          </div>}
         </>}
       </Card>
       <aside id="practice-aside" aria-label={t('aside.label')} className={cn("grid min-w-0 gap-6", !asideOpen && "lg:hidden")}>
@@ -349,7 +382,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
           <div className="mx-1 mb-1"><CategorySelect labels={labels} value={category} onChange={setCategory} /></div>
           {/* Its own scroll area, so a long collection never pushes the page far below the practice card. */}
           <div ref={asideLists} className="max-h-96 overflow-y-auto overscroll-contain lg:max-h-[min(36rem,calc(100dvh-14rem))]">
-            {asidePacks.length ? <WordListOptions label={t('aside.lists')} packs={asidePacks} selectedId={list.id} query={asideQuery} resetKey={switchCancels}
+            {asidePacks.length ? <WordListOptions label={t('aside.lists')} packs={asidePacks} selectedId={list.id} query={asideQuery} resetKey={switchCancels} mode={mode}
               onSelect={id => { setAsideQuery(''); requestSwitch(id) }} />
               : <p className="px-2 py-2 text-sm text-muted-foreground">{t('picker.noMatch')}</p>}
           </div>
@@ -359,7 +392,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
             <h2 className="shrink-0 text-[15px] font-bold">{t('aside.best')}</h2>
             <span className="truncate text-xs text-muted-foreground"><PracticeName list={list} /></span>
           </div>
-          <p className="text-xs text-muted-foreground">{bestCandidates.length < selectedRecords.length ? t('aside.bestOrderAtCount', { count: selectedList?.words.length ?? 0 }) : t('aside.bestOrder')}</p>
+          <p className="text-xs text-muted-foreground">{bestCandidates.length < modeRecords.length ? t('aside.bestOrderAtCount', { count: selectedList?.words.length ?? 0 }) : t('aside.bestOrder')}</p>
           <PracticeBestRecords records={bestCandidates} highlightId={saveState === 'saved' ? record?.id : undefined} />
           <Link href={`/rankings?list=${encodeURIComponent(list.id)}`} className="inline-flex w-fit items-center gap-1 rounded-sm px-2 pt-1 text-[13px] font-medium outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">{t('aside.allBest')}<ArrowRight className="size-3.5" aria-hidden="true" /></Link>
         </Card>
@@ -377,7 +410,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
             className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" />
         </label>
         <CategorySelect labels={labels} value={category} onChange={setCategory} className="h-10 w-full min-w-0 rounded-lg border bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30" />
-        {filteredPacks.length ? <WordListOptions label={t('picker.candidates')} packs={filteredPacks} selectedId={list?.id} query={query} resetKey={switchCancels} onSelect={requestSwitch} />
+        {filteredPacks.length ? <WordListOptions label={t('picker.candidates')} packs={filteredPacks} selectedId={list?.id} query={query} resetKey={switchCancels} mode={mode} onSelect={requestSwitch} />
           : <p className="px-1 py-2 text-sm text-muted-foreground">{t('picker.noMatch')}</p>}
       </DialogContent>
     </Dialog>
