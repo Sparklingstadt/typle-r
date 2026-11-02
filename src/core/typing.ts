@@ -13,10 +13,12 @@ export type TypingSession = {
   pendingSharpS?: boolean
   // Accepted Latin keys for the current Cyrillic letter; only complete letters enter input.
   pendingCyrillic?: string
+  // The answer of the current word was revealed (recall mode); cleared when the next word starts.
+  revealed?: boolean
 }
 
 export function newSession(): TypingSession {
-  return { index: 0, input: "", startedAt: null, finishedAt: null, attempts: 0, mistakes: 0, pausedAt: null, missed: false }
+  return { index: 0, input: "", startedAt: null, finishedAt: null, attempts: 0, mistakes: 0, pausedAt: null, missed: false, revealed: false }
 }
 
 // Stops the clock of a running session. Before the first character or after the last there is nothing to stop.
@@ -132,9 +134,25 @@ export function typeInput(current: TypingSession, words: { input: string }[], va
     const input = session.input + expected
     session = { ...session, input, attempts: session.attempts + 1, missed: false, pendingSharpS: false, pendingCyrillic: '' }
     if (input !== target) continue
-    session = session.index === words.length - 1 ? { ...session, finishedAt: now } : { ...session, index: session.index + 1, input: "" }
+    session = session.index === words.length - 1 ? { ...session, finishedAt: now } : { ...session, index: session.index + 1, input: "", revealed: false }
   }
   return session
+}
+
+// Reveals the answer of the current word: the untyped characters count as attempts and mistakes, once per word.
+// Judging is unchanged; the whole word must still be typed.
+export function revealAnswer(session: TypingSession, words: { input: string }[], now: number): TypingSession {
+  const word = words[session.index]
+  if (session.finishedAt !== null || !word || session.revealed) return session
+  const remaining = Math.max(0, Array.from(word.input).length - Array.from(session.input).length)
+  const resumed = resumeSession(session, now)
+  return {
+    ...resumed,
+    startedAt: resumed.startedAt ?? now,
+    attempts: resumed.attempts + remaining,
+    mistakes: resumed.mistakes + remaining,
+    revealed: true,
+  }
 }
 
 export function sessionResult(session: TypingSession) {
@@ -161,6 +179,15 @@ export function compareInput(target: string, typed: string, missed = false) {
     return 'pending'
   })
   return { characters, states, extra: actual.slice(characters.length), errorIndex }
+}
+
+// Characters to draw for a hidden answer: typed characters are shown, untyped ones become a placeholder (spaces stay).
+export function concealCharacters(characters: string[], states: CharacterState[]): string[] {
+  return characters.map((char, index) => {
+    const state = states[index]
+    if (state === 'done' || state === 'error' || /^\s$/u.test(char)) return char
+    return '＿'
+  })
 }
 
 // Correctly typed characters per minute (committed characters for IME input); null until a second has passed.

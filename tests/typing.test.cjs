@@ -300,3 +300,44 @@ test('simpleInputKeys lists the characters simple input folds, once each, with t
   // Plain letters, kana and letters without a plain base (ł) have nothing to show.
   assert.deepEqual(simpleInputKeys('hello がか łódź'), [['ó', 'o'], ['ź', 'z']])
 })
+
+test('revealAnswer adds the untyped characters to attempts and mistakes once', () => {
+  const { revealAnswer } = require('../src/core/typing.ts')
+  const words = [{ input: 'pwd' }]
+  let s = typeInput(newSession(), words, 'p', 1000)
+  const revealed = revealAnswer(s, words, 1500)
+  assert.equal(revealed.attempts, s.attempts + 2)
+  assert.equal(revealed.mistakes, s.mistakes + 2)
+  assert.equal(revealed.revealed, true)
+  assert.equal(revealAnswer(revealed, words, 1600), revealed)
+})
+test('typing after revealing still counts wrong keys', () => {
+  const { revealAnswer } = require('../src/core/typing.ts')
+  const words = [{ input: 'pwd' }]
+  let s = revealAnswer(typeInput(newSession(), words, 'p', 1000), words, 1500)
+  const before = s.mistakes
+  s = typeInput(s, words, 'px', 2000)
+  assert.equal(s.mistakes, before + 1)
+})
+test('moving to the next word clears revealed', () => {
+  const { revealAnswer } = require('../src/core/typing.ts')
+  const words = [{ input: 'ab' }, { input: 'cd' }]
+  let s = revealAnswer(newSession(), words, 1000)
+  assert.equal(s.revealed, true)
+  s = typeInput(s, words, 'ab', 2000)
+  assert.equal(s.index, 1)
+  assert.equal(s.revealed, false)
+  const again = revealAnswer(s, words, 3000)
+  assert.equal(again.mistakes, s.mistakes + 2)
+})
+test('revealing starts the clock', () => {
+  const { revealAnswer } = require('../src/core/typing.ts')
+  assert.equal(revealAnswer(newSession(), [{ input: 'ab' }], 1234).startedAt, 1234)
+})
+test('concealCharacters hides untyped characters but keeps spaces', () => {
+  const { compareInput, concealCharacters } = require('../src/core/typing.ts')
+  const part = compareInput('cp -r', 'c')
+  assert.deepEqual(concealCharacters(part.characters, part.states), ['c', '＿', ' ', '＿', '＿'])
+  const full = compareInput('cp -r', 'cp -r')
+  assert.deepEqual(concealCharacters(full.characters, full.states), ['c', 'p', ' ', '-', 'r'])
+})
