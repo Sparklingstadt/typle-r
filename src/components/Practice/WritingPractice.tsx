@@ -21,7 +21,7 @@ export type WritingRun = { index: number; device?: PracticeDevice }
 export default function WritingPractice({ list, listName, records, addRecord, device, statsVisible, onRun, onRestart, onChooseList }: {
   list: SavedWordList
   listName: string
-  // The list's writing records, which the result compares the run with.
+  // The list's records; the result compares the run with its writing records only.
   records: SavedWordList['records']
   addRecord: RecordSave
   device?: PracticeDevice

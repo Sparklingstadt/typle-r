@@ -1,4 +1,4 @@
-import { listBest, typingRecords, type TimeUnit } from './records'
+import { listBest, recordsOfMode, type TimeUnit } from './records'
 import type { SavedWordList } from './wordLists'
 
 type StoredRecord = SavedWordList['records'][number]
@@ -44,7 +44,7 @@ export type DashboardSummary = {
 }
 
 export function summarize(lists: SavedWordList[], now = new Date()): DashboardSummary {
-  const records = typingRecords(lists.flatMap(list => list.records))
+  const records = lists.flatMap(list => list.records)
   const weekStart = startOfWeek(now)
   const between = (from: number, to: number) => records.filter(record => timeOf(record) >= from && timeOf(record) <= to)
   const week = between(weekStart.getTime(), addDays(weekStart, 7).getTime() - 1)
@@ -55,7 +55,8 @@ export function summarize(lists: SavedWordList[], now = new Date()): DashboardSu
   const practicedToday = days.has(dayKey(today))
   let streak = 0
   for (let day = practicedToday ? today : addDays(today, -1); days.has(dayKey(day)); day = addDays(day, -1)) streak++
-  const newest = accuracies(newestFirst(records))
+  // Recall and handwriting runs count towards the week and the streak, but their accuracy is not compared with normal runs.
+  const newest = accuracies(newestFirst(recordsOfMode(records, 'normal')))
   const recentCount = Math.min(10, newest.length)
   return {
     weekStart,
@@ -75,7 +76,7 @@ export type NextList = { list: SavedWordList; lastPracticed: Date | null; reason
 export function nextLists(lists: SavedWordList[], now = new Date(), limit = 3): NextList[] {
   const groups: NextList[][] = [[], [], []]
   for (const list of lists) {
-    const records = newestFirst(typingRecords(list.records))
+    const records = newestFirst(recordsOfMode(list.records, 'normal'))
     if (!records.length) { groups[0].push({ list, lastPracticed: null, reason: { kind: 'new' } }); continue }
     const lastPracticed = new Date(timeOf(records[0]))
     const days = daysBetween(lastPracticed, now)
@@ -104,11 +105,7 @@ function trend(points: TrendPoint[]): Trend {
 }
 
 export function listTrends(lists: SavedWordList[]): ListTrend[] {
-  return lists.flatMap(list => {
-    const typing = typingRecords(list.records)
-    return typing.length ? [{ list, typing }] : []
-  }).map(({ list, typing }) => {
-    const records = newestFirst(typing).reverse()
+  return lists.map(list => ({ list, records: newestFirst(recordsOfMode(list.records, 'normal')).reverse() })).filter(({ records }) => records.length).map(({ list, records }) => {
     return {
       list,
       count: records.length,

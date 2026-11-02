@@ -5,6 +5,7 @@
 package workspace
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -60,7 +61,7 @@ type Record struct {
 	Accuracy  *float64 `json:"accuracy,omitempty"`
 	WordCount *int     `json:"wordCount,omitempty"`
 	Device    *Device  `json:"device,omitempty"`
-	// Mode is "writing" for a handwriting run; empty for a typing run (see RecordMode).
+	// Mode is RecallMode or WritingMode for a run practised that way; "" for a normal run, which has no mode key.
 	Mode string `json:"mode,omitempty"`
 	// At is Date as a time, for ordering and filtering.
 	At    time.Time `json:"-"`
@@ -124,14 +125,14 @@ type rawWord struct {
 }
 
 type rawRecord struct {
-	ID        *string  `json:"id"`
-	Time      *float64 `json:"time"`
-	Date      *string  `json:"date"`
-	Mistakes  *int     `json:"mistakes"`
-	Accuracy  *float64 `json:"accuracy"`
-	WordCount *int     `json:"wordCount"`
-	Device    *Device  `json:"device"`
-	Mode      *string  `json:"mode"`
+	ID        *string         `json:"id"`
+	Time      *float64        `json:"time"`
+	Date      *string         `json:"date"`
+	Mistakes  *int            `json:"mistakes"`
+	Accuracy  *float64        `json:"accuracy"`
+	WordCount *int            `json:"wordCount"`
+	Device    *Device         `json:"device"`
+	Mode      json.RawMessage `json:"mode"`
 	extra     string
 }
 
@@ -359,12 +360,14 @@ func decodeRecord(raw *rawRecord) (Record, error) {
 	if raw.Device != nil && !isDevice(*raw.Device) {
 		return Record{}, errors.New("device is invalid")
 	}
-	var mode string
+	mode := ""
 	if raw.Mode != nil {
-		if *raw.Mode != "writing" {
-			return Record{}, errors.New(`mode must be "writing" when present`)
+		// An explicit null is refused as the app does: the value is "recall" or "writing", or the key is absent.
+		var value string
+		if json.Unmarshal(raw.Mode, &value) != nil || value == "" || !validMode(value) || string(bytes.TrimSpace(raw.Mode)) == "null" {
+			return Record{}, errors.New(`mode must be "recall" or "writing" when present`)
 		}
-		mode = *raw.Mode
+		mode = value
 	}
 	return Record{ID: raw.ID, Time: *raw.Time, Date: *raw.Date, Mistakes: raw.Mistakes, Accuracy: raw.Accuracy,
 		WordCount: raw.WordCount, Device: raw.Device, Mode: mode, At: at, Extra: raw.extra}, nil

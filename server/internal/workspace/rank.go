@@ -51,18 +51,20 @@ func RankRecords(records []Record, order string) []Record {
 }
 
 // comparable is comparableRecords (src/core/records.ts): editing a list changes the task, so only runs at its current
-// word count are compared. With none of those, every record is.
+// word count are compared, and never a run practised in a mode (recall or writing). With none of those, every normal
+// record is.
 func comparable(list *List, records []*Record) []*Record {
+	return comparableOf(list, records, "")
+}
+
+// comparableOf is comparable for the records of one mode: "" for normal runs, RecallMode or WritingMode.
+func comparableOf(list *List, records []*Record, mode string) []*Record {
+	records = slices.DeleteFunc(slices.Clone(records), func(r *Record) bool { return r.Mode != mode })
 	same := slices.DeleteFunc(slices.Clone(records), func(r *Record) bool { return r.WordCount == nil || *r.WordCount != len(list.Words) })
 	if len(same) > 0 {
 		return same
 	}
 	return records
-}
-
-// typingRecords are the records of typing runs; Writing runs are counted and ranked apart from them.
-func typingRecords(records []Record) []Record {
-	return slices.DeleteFunc(slices.Clone(records), func(r Record) bool { return RecordMode(&r) != "typing" })
 }
 
 func ComparableRecords(list *List, records []Record) []Record {
@@ -74,18 +76,14 @@ func ComparableRecords(list *List, records []Record) []Record {
 }
 
 // ListBest is the record every screen shows as the list's best (listBest), pointing into list.Records; nil when the
-// list has no typing record. Writing runs have their own best (ListBestOf).
-func ListBest(list *List) *Record { return ListBestOf(list, "typing") }
+// list has no normal record. Recall and writing runs have their own best (ListBestOf).
+func ListBest(list *List) *Record {
+	return ListBestOf(list, "")
+}
 
-// ListBestOf is the best among the records of one mode ("typing" or "writing").
+// ListBestOf is listBest(list, mode): the best record among those of one mode, "" for normal runs, RecallMode or WritingMode.
 func ListBestOf(list *List, mode string) *Record {
-	same := []*Record{}
-	for i := range list.Records {
-		if RecordMode(&list.Records[i]) == mode {
-			same = append(same, &list.Records[i])
-		}
-	}
-	ranked := rank(comparable(list, same), "accuracy")
+	ranked := rank(comparableOf(list, pointers(list.Records), mode), "accuracy")
 	if len(ranked) == 0 {
 		return nil
 	}

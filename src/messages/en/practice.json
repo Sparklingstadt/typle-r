@@ -34,6 +34,12 @@
     "simpleKeys": "Simple input",
     "simpleKeysAll": "Full table"
   },
+  "recall": {
+    "toggle": "Type from memory",
+    "reveal": "Show answer",
+    "noHint": "No hint available",
+    "resultHeading": "Typed from memory"
+  },
   "upcoming": {
     "next": "Next",
     "last": "This is the last word",

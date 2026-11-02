@@ -61,12 +61,22 @@ func TestFeed(t *testing.T) {
 func TestFeedBestPerMode(t *testing.T) {
 	list := List{ID: "l", Words: make([]Word, 1), Records: []Record{practice("a", 10, number(100), 1, 20, nil),
 		practice("bb", 12, number(100), 1, 21, nil), practice("ccc", 5, number(100), 1, 22, nil)}}
-	list.Records[2].Mode = "writing"
+	list.Records[2].Mode = WritingMode
 	got := map[string]bool{}
 	for _, row := range Feed([]List{list}, "", "") {
 		got[*row.Record.ID] = row.Best
 	}
 	if !got["a"] || got["bb"] || !got["ccc"] {
 		t.Fatalf("best = %v", got)
+	}
+}
+
+func TestFeedMarksBestOfEachMode(t *testing.T) {
+	normal, slow, fast := practice("n", 5, number(100), 5, 28, nil), practice("r1", 9, number(90), 5, 29, nil), practice("r2", 8, number(95), 5, 30, nil)
+	slow.Mode, fast.Mode = RecallMode, RecallMode
+	lists := []List{{ID: "a", Name: "A", Words: make([]Word, 5), Records: []Record{normal, slow, fast}}}
+	_, best := feedIDs(Feed(lists, "", ""))
+	if !slices.Equal(best, []string{"a-r2", "a-n"}) {
+		t.Fatalf("best = %v", best)
 	}
 }

@@ -437,11 +437,41 @@ func TestRecordInputContract(t *testing.T) {
 	input := reflect.TypeFor[workspace.RecordInput]()
 	for i := range input.NumField() {
 		name, _, _ := strings.Cut(input.Field(i).Tag.Get("json"), ",")
-		fields = append(fields, name)
+		if name != "-" {
+			fields = append(fields, name)
+		}
 	}
 	slices.Sort(declared)
 	slices.Sort(fields)
 	if !slices.Equal(declared, fields) {
 		t.Fatalf("RecordInput fields = %v; the contract declares %v", fields, declared)
+	}
+}
+
+func TestRecordModeIsKept(t *testing.T) {
+	memory := newMemoryWorkspace(t, `[`+oneList+`]`)
+	h := newHarness(t, memory, testBase)
+	recall := strings.Replace(aRun, `"deviceId":"mac"`, `"mode":"recall"`, 1)
+	added := h.postRecord(testOwner, recordBody(testOwner, "one", recall))
+	if added.Code != http.StatusCreated {
+		t.Fatalf("response = %d %s", added.Code, added.Body)
+	}
+	if records := savedRecords(t, h.get(testOwner), "one"); len(records) != 1 || records[0].Mode != "recall" {
+		t.Fatalf("records = %+v", records)
+	}
+	bad := strings.Replace(strings.Replace(recall, `"recall"`, `"x"`, 1), `"run-1"`, `"run-2"`, 1)
+	expectError(t, h.postRecord(testOwner, recordBody(testOwner, "one", bad)), http.StatusBadRequest, "invalidRecord")
+}
+
+func TestPutKeepsRecordMode(t *testing.T) {
+	saved := &fakeWorkspaces{saved: &store.Saved{Lists: json.RawMessage("[]"), Devices: json.RawMessage("[]"), Revision: 1}}
+	h := newHarness(t, saved, testBase)
+	list := strings.Replace(oneList, `"records":[]`, `"records":[{"id":"r1","time":1,"date":"2026-10-02T10:00:00.000Z","mode":"recall"}]`, 1)
+	put := h.put(testOwner, payload(testOwner, `"revision":1,"lists":[`+list+`]`))
+	if put.Code != http.StatusOK {
+		t.Fatalf("PUT = %d %s", put.Code, put.Body)
+	}
+	if records := savedRecords(t, put, "one"); len(records) != 1 || records[0].Mode != "recall" || records[0].Extra != "" {
+		t.Fatalf("records = %+v", records)
 	}
 }

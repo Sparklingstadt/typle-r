@@ -4,27 +4,34 @@ import { useRef, useState } from 'react'
 import type { PracticeDevice } from '../core/devices'
 import type { SavedWordList } from '../core/wordLists'
 import type { RecordSave } from './useWordLists'
-import { makeRecord, type PracticeRecord } from '../core/records'
+import { makeRecord, type PracticeMode, type PracticeRecord } from '../core/records'
 import { newSession, pauseSession, resumeSession, type TypingSession } from '../core/typing'
 
 export type SaveState = 'idle' | 'saving' | 'saved' | 'failed'
 
-// The session and its record, shared by typing (usePractice) and writing (useWritingPractice): the device is taken as it
-// is when the clock starts, and the finished run is saved once, with a retry that ignores answers for an older run.
-export function useRecordSaving(list: SavedWordList | undefined, addRecord: RecordSave, device?: PracticeDevice, mode?: 'writing') {
+// The session and its record, shared by typing (usePractice) and writing (useWritingPractice): the device and the mode
+// are taken as they are when the clock starts, and the finished run is saved once, with a retry that ignores answers for
+// an older run.
+export function useRecordSaving(list: SavedWordList | undefined, addRecord: RecordSave, device?: PracticeDevice, mode: PracticeMode = 'normal') {
   const [session, setSession] = useState(newSession)
   const [practiceDevice, setPracticeDevice] = useState<PracticeDevice | undefined>()
+  // The mode a started run is practised in; a change from another tab only applies to the next run.
+  const [practiceMode, setPracticeMode] = useState<PracticeMode | undefined>()
   const completedRecord = useRef<PracticeRecord | null>(null)
   const [record, setRecord] = useState<PracticeRecord | null>(null)
   const [saveState, setSaveState] = useState<SaveState>('idle')
 
-  // Moves the session on; a finished one is recorded with the device it started with.
+  // Moves the session on; a finished one is recorded with the device and mode it started with.
   function update(next: TypingSession) {
     const snapshot = session.startedAt === null ? (device ? { ...device } : undefined) : practiceDevice
-    if (session.startedAt === null && next.startedAt !== null) setPracticeDevice(snapshot)
+    const runMode = session.startedAt === null ? mode : practiceMode ?? mode
+    if (session.startedAt === null && next.startedAt !== null) {
+      setPracticeDevice(snapshot)
+      setPracticeMode(runMode)
+    }
     setSession(next)
     if (next.finishedAt !== null && list) {
-      const record = makeRecord(next, list.words.length, randomId(), snapshot, mode)
+      const record = makeRecord(next, list.words.length, randomId(), snapshot, runMode)
       completedRecord.current = record
       setRecord(record)
       saveRecord(record)
@@ -34,6 +41,7 @@ export function useRecordSaving(list: SavedWordList | undefined, addRecord: Reco
   function reset() {
     setSession(newSession())
     setPracticeDevice(undefined)
+    setPracticeMode(undefined)
     completedRecord.current = null
     setRecord(null)
     setSaveState('idle')
@@ -63,5 +71,5 @@ export function useRecordSaving(list: SavedWordList | undefined, addRecord: Reco
     if (completedRecord.current) saveRecord(completedRecord.current)
   }
 
-  return { session, practiceDevice, record, saveState, update, reset, completed, pause, resume, retrySave }
+  return { session, practiceDevice, practiceMode, record, saveState, update, reset, completed, pause, resume, retrySave }
 }

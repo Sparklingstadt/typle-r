@@ -363,17 +363,13 @@ func TestRecordOperationFixtures(t *testing.T) {
 func TestUpdateRecordKeepsMode(t *testing.T) {
 	w := two()
 	input := run()
-	input.ID, input.Mode = text("w1"), text("writing")
+	input.ID, input.Mode = text("w1"), text(WritingMode)
 	if _, _, err := AddRecord(w, "l1", input, "unused"); err != nil {
 		t.Fatal(err)
 	}
 	record, err := UpdateRecord(w, "l1", "w1", RecordChange{Time: number(9.5)})
-	if err != nil || record.Mode != "writing" || RecordMode(&record) != "writing" {
+	if err != nil || record.Mode != WritingMode {
 		t.Fatalf("record = %+v, %v", record, err)
-	}
-	typing := Record{}
-	if RecordMode(&typing) != "typing" {
-		t.Fatal("a record without mode is a typing run")
 	}
 }
 
@@ -389,12 +385,45 @@ func TestRecordModeStored(t *testing.T) {
 	if err != nil || strings.Count(string(out), `"mode"`) != 1 {
 		t.Fatalf("out = %s, %v", out, err)
 	}
-	if w, err = Decode(lists(`,"mode":null`), []byte(`[]`), nil); err != nil || w.Lists[0].Records[0].Mode != "" {
-		t.Fatalf("null mode: %+v, %v", w, err)
-	}
-	for _, bad := range []string{`,"mode":"typing"`, `,"mode":""`, `,"mode":1`} {
+	// An explicit null is refused as the app does (TestDecodeRecordMode covers recall).
+	for _, bad := range []string{`,"mode":"typing"`, `,"mode":""`, `,"mode":1`, `,"mode":null`} {
 		if _, err := Decode(lists(bad), []byte(`[]`), nil); err == nil {
 			t.Fatalf("%s was accepted", bad)
 		}
+	}
+}
+
+func TestAddRecordKeepsMode(t *testing.T) {
+	input := run()
+	input.Mode = text(RecallMode)
+	record, added, err := AddRecord(two(), "l1", input, "new")
+	if err != nil || !added || record.Mode != RecallMode {
+		t.Fatalf("record = %+v, added = %v, err = %v", record, added, err)
+	}
+	input.Mode = text(WritingMode)
+	if record, added, err = AddRecord(two(), "l1", input, "new"); err != nil || !added || record.Mode != WritingMode {
+		t.Fatalf("writing record = %+v, added = %v, err = %v", record, added, err)
+	}
+	input.Mode = text("other")
+	if _, _, err := AddRecord(two(), "l1", input, "new"); err == nil || err.(*Error).Key != "invalidRecord" {
+		t.Fatalf("err = %v", err)
+	}
+}
+
+func TestRecordInputRefusesNullMode(t *testing.T) {
+	var input RecordInput
+	body := `{"id":"r9","time":3,"date":"2026-10-12T00:00:00Z","accuracy":100,"mistakes":0,"mode":null}`
+	if err := json.Unmarshal([]byte(body), &input); err != nil || !input.ModeNull || input.Mode != nil {
+		t.Fatalf("input = %+v, err = %v", input, err)
+	}
+	if _, _, err := AddRecord(two(), "l1", input, "new"); err == nil || err.(*Error).Key != "invalidRecord" {
+		t.Fatalf("err = %v", err)
+	}
+	var plain RecordInput
+	if err := json.Unmarshal([]byte(`{"id":"r9","time":3}`), &plain); err != nil || plain.ModeNull {
+		t.Fatalf("plain = %+v, err = %v", plain, err)
+	}
+	if err := json.Unmarshal([]byte(`{"id":"r9","extra":1}`), &plain); err == nil {
+		t.Fatal("unknown field accepted")
 	}
 }

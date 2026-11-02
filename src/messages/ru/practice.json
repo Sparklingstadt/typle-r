@@ -34,6 +34,12 @@
     "simpleKeys": "Упрощённый ввод",
     "simpleKeysAll": "Вся таблица"
   },
+  "recall": {
+    "toggle": "Набор по памяти",
+    "reveal": "Показать ответ",
+    "noHint": "Подсказки нет",
+    "resultHeading": "Набор по памяти"
+  },
   "upcoming": {
     "next": "Далее",
     "last": "Это последнее слово",

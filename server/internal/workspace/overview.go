@@ -29,8 +29,7 @@ func lastPracticed(records []Record) *time.Time {
 func Overviews(lists []List) []Overview {
 	items := make([]Overview, 0, len(lists))
 	for i := range lists {
-		records := typingRecords(lists[i].Records)
-		items = append(items, Overview{List: &lists[i], Position: i, PracticeCount: len(records), LastPracticed: lastPracticed(records)})
+		items = append(items, Overview{List: &lists[i], Position: i, PracticeCount: len(lists[i].Records), LastPracticed: lastPracticed(lists[i].Records)})
 	}
 	return items
 }
@@ -108,11 +107,11 @@ func MatchesFilter(list *List, category *string, tags []string) bool {
 	})
 }
 
-// CurrentRecordCount counts the runs at the list's current word count, the ones its best is taken from.
+// CurrentRecordCount counts the normal runs at the list's current word count, the ones its best is taken from.
 func CurrentRecordCount(list *List) int {
 	count := 0
-	for _, record := range typingRecords(list.Records) {
-		if record.WordCount != nil && *record.WordCount == len(list.Words) {
+	for _, record := range list.Records {
+		if record.Mode == "" && record.WordCount != nil && *record.WordCount == len(list.Words) {
 			count++
 		}
 	}

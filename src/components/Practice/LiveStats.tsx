@@ -23,7 +23,7 @@ function formatClock(milliseconds: number) {
 
 // Owns the ticking clock, so only these four values re-render every 200ms instead of the whole page.
 // In Writing a judged word is the unit, so the speed is in words per minute.
-export default function LiveStats({ session, accuracy, mode = 'typing' }: { session: TypingSession; accuracy: number; mode?: PracticeMode }) {
+export default function LiveStats({ session, accuracy, mode = 'normal' }: { session: TypingSession; accuracy: number; mode?: PracticeMode }) {
   const running = session.startedAt !== null && session.finishedAt === null
   // While paused the values stand still, so the clock stops ticking too.
   const now = useNow(running && session.pausedAt == null)

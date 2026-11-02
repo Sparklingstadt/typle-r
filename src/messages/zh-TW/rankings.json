@@ -7,6 +7,12 @@
     "allDevices": "所有裝置",
     "deleted": "{name}（已刪除）"
   },
+  "mode": {
+    "label": "練習模式",
+    "normal": "一般",
+    "recall": "回憶",
+    "writing": "Handwriting"
+  },
   "order": {
     "label": "排名依據",
     "accuracy": "正確率<wide>優先</wide>",
@@ -117,8 +123,5 @@
     "words": "{count, plural, other {# 個單字}}",
     "unknownWords": "? 個單字",
     "oldAccuracy": "開始記錄正確率之前的舊紀錄"
-  },
-  "modeLabel": "練習方式",
-  "modeTyping": "打字",
-  "modeWriting": "Handwriting"
+  }
 }

@@ -3,14 +3,15 @@ import { useEffect, useRef, useState } from 'react'
 import type { PracticeDevice } from '../core/devices'
 import type { SavedWordList } from '../core/wordLists'
 import type { RecordSave } from './useWordLists'
-import { sessionResult, typeInput } from '../core/typing'
+import { sessionResult, revealAnswer, typeInput } from '../core/typing'
+import type { PracticeMode } from '../core/records'
 import { useRecordSaving } from './useRecordSaving'
 import { useTypingOptions } from './inputSettings'
 
-export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, device?: PracticeDevice, initialListId?: string | null) {
+export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, device?: PracticeDevice, initialListId?: string | null, mode: PracticeMode = 'normal') {
   const [list, setList] = useState<SavedWordList | undefined>(() => wordLists.find(item => item.id === initialListId) ?? wordLists[0])
   const selected = wordLists.findIndex(item => item.id === list?.id)
-  const { session, practiceDevice, record, saveState, update, reset, completed, pause, resume, retrySave } = useRecordSaving(list, addRecord, device)
+  const { session, practiceDevice, practiceMode, record, saveState, update, reset, completed, pause, resume, retrySave } = useRecordSaving(list, addRecord, device, mode)
   const typingOptions = useTypingOptions()
   const [composition, setComposition] = useState<string | null>(null)
   const composing = useRef(false)
@@ -36,6 +37,13 @@ export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, d
     update(typeInput(session, list?.words ?? [], value, Date.now(), typingOptions))
   }
 
+  // Recall mode: shows the rest of the current word, counting it as mistakes once. Revealing also starts the clock.
+  function reveal() {
+    if (completed()) return
+    update(revealAnswer(session, list?.words ?? [], Date.now()))
+    input.current?.focus()
+  }
+
   function startComposition() {
     composing.current = true
     setComposition(session.input)
@@ -54,5 +62,5 @@ export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, d
       if (!duplicate) enter(value)
     }
   }
-  return { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave, pause, resume }
+  return { list, selected, session, practiceDevice, practiceMode, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave, pause, resume, reveal }
 }

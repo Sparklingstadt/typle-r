@@ -19,6 +19,11 @@ export function BestBadge() {
   </span>
 }
 
+export function RecallBadge() {
+  const t = useTranslations('records')
+  return <span className="inline-flex h-5 shrink-0 items-center rounded-full bg-sky-100 px-2 text-xs font-bold text-sky-800 dark:bg-sky-950 dark:text-sky-300">{t('recallBadge')}</span>
+}
+
 export function RecordTime({ seconds, className }: { seconds: number; className?: string }) {
   const t = useTranslations('records.row')
   const format = useFormat()
@@ -50,6 +55,7 @@ export default function RecordRow({ row, showList, inPack = false, disabled, onD
       <div className="flex min-w-0 items-center gap-2">
         <h3 className={cn('truncate font-medium', !showList && !record.device && 'text-muted-foreground')} title={title}>{title}</h3>
         {row.mode === 'writing' && <span className="inline-flex h-5 shrink-0 items-center gap-1 rounded-full border px-2 text-xs font-medium"><PenLine className="size-3" aria-hidden="true" />{records('modeWriting')}</span>}
+        {row.mode === 'recall' && <RecallBadge />}
         {best && <BestBadge />}
       </div>
       <p className="truncate text-[13px] text-muted-foreground">

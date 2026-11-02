@@ -46,19 +46,19 @@ func onDevice(record *Record, device string) bool {
 	return record.Device != nil && record.Device.ID == device
 }
 
-// ListRanking ranks a list's records of one mode ("typing" or "writing") on device ("" for all, NoDevice for none)
-// by order, as listRanking does.
+// ListRanking ranks a list's records of one mode ("" for normal runs, RecallMode or WritingMode) on device ("" for
+// all, NoDevice for none) by order, as listRanking does.
 func ListRanking(list *List, device, order, mode string, includeOthers bool, now time.Time) Ranking {
 	records := []*Record{}
 	for i := range list.Records {
-		if RecordMode(&list.Records[i]) == mode && onDevice(&list.Records[i], device) {
+		if list.Records[i].Mode == mode && onDevice(&list.Records[i], device) {
 			records = append(records, &list.Records[i])
 		}
 	}
 	others := slices.DeleteFunc(slices.Clone(records), func(r *Record) bool { return r.WordCount != nil && *r.WordCount == len(list.Words) })
 	candidates := records
 	if !includeOthers {
-		candidates = comparable(list, records)
+		candidates = comparableOf(list, records, mode)
 	}
 	ranked := rank(candidates, order)
 	ranking := Ranking{List: list, Records: values(records), Ranked: values(ranked), Others: values(others),

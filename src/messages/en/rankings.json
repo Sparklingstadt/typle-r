@@ -7,6 +7,12 @@
     "allDevices": "All devices",
     "deleted": "{name} (deleted)"
   },
+  "mode": {
+    "label": "Practice mode",
+    "normal": "Normal",
+    "recall": "Recall",
+    "writing": "Handwriting"
+  },
   "order": {
     "label": "Ranking order",
     "accuracy": "Accuracy<wide> first</wide>",
@@ -117,8 +123,5 @@
     "words": "{count, plural, one {# word} other {# words}}",
     "unknownWords": "? words",
     "oldAccuracy": "An old record saved before accuracy was recorded"
-  },
-  "modeLabel": "Practice mode",
-  "modeTyping": "Typing",
-  "modeWriting": "Handwriting"
+  }
 }

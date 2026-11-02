@@ -8,15 +8,19 @@ import (
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
 
-// rankingOptions reads device, order (accuracy or speed), mode (typing or writing) and includeOthers (true or false),
-// as the ベスト記録 screen's.
+// rankingModes maps the mode query value to the saved record mode: normal runs have none.
+var rankingModes = map[string]string{"normal": "", "recall": workspace.RecallMode, "writing": workspace.WritingMode}
+
+// rankingOptions reads device, order (accuracy or speed), mode (normal, recall or writing) and includeOthers (true or
+// false), as the ベスト記録 screen's. The mode returned is the saved record mode ("" for normal runs).
 func rankingOptions(query url.Values) (device, order, mode string, includeOthers, ok bool) {
-	order, mode = "accuracy", "typing"
+	order = "accuracy"
 	if query.Has("order") {
 		order = query.Get("order")
 	}
+	modeOK := true
 	if query.Has("mode") {
-		mode = query.Get("mode")
+		mode, modeOK = rankingModes[query.Get("mode")]
 	}
 	switch query.Get("includeOthers") {
 	case "", "false":
@@ -25,7 +29,7 @@ func rankingOptions(query url.Values) (device, order, mode string, includeOthers
 	default:
 		return "", "", "", false, false
 	}
-	return query.Get("device"), order, mode, includeOthers, (order == "accuracy" || order == "speed") && (mode == "typing" || mode == "writing")
+	return query.Get("device"), order, mode, includeOthers, (order == "accuracy" || order == "speed") && modeOK
 }
 
 func formatTime(at *time.Time) *string {

@@ -7,6 +7,12 @@
     "allDevices": "所有设备",
     "deleted": "{name}（已删除）"
   },
+  "mode": {
+    "label": "练习模式",
+    "normal": "普通",
+    "recall": "回忆",
+    "writing": "Handwriting"
+  },
   "order": {
     "label": "排名依据",
     "accuracy": "正确率<wide>优先</wide>",
@@ -117,8 +123,5 @@
     "words": "{count, plural, other {# 个单词}}",
     "unknownWords": "? 个单词",
     "oldAccuracy": "开始记录正确率之前的旧记录"
-  },
-  "modeLabel": "练习方式",
-  "modeTyping": "打字",
-  "modeWriting": "Handwriting"
+  }
 }

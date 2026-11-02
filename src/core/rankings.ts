@@ -1,4 +1,4 @@
-import { comparableRecords, matchesDevice, rankRecords, recordMode, type PracticeMode, type RankOrder } from './records'
+import { comparableRecords, matchesDevice, rankRecords, recordsOfMode, type PracticeMode, type RankOrder } from './records'
 import type { SavedWordList } from './wordLists'
 
 type StoredRecord = SavedWordList['records'][number]
@@ -10,11 +10,11 @@ export const IMPROVED_DAYS = 7
 const TREND_POINTS = 20
 const RECENT_RUNS = 5
 
-export type RankingOptions = { device?: string | null; order?: RankOrder; includeOthers?: boolean; mode?: PracticeMode; now?: Date }
+export type RankingOptions = { device?: string | null; order?: RankOrder; includeOthers?: boolean; now?: Date; mode?: PracticeMode }
 
 export type ListRanking = {
   list: SavedWordList
-  // The list's records on the chosen device, at any word count.
+  // The list's records of the chosen mode on the chosen device, at any word count.
   records: StoredRecord[]
   ranked: StoredRecord[]
   // Records at another word count than the list has now; they are ranked only when asked for, or when nothing else exists.
@@ -26,12 +26,12 @@ export type ListRanking = {
   improved: boolean
 }
 
-// Uses the same comparison as `listBest`, so a list's rank 1 here is the best of its mode shown on every other screen.
-export function listRanking(list: SavedWordList, { device = null, order = 'accuracy', includeOthers = false, mode = 'typing', now = new Date() }: RankingOptions = {}): ListRanking {
-  const records = list.records.filter(record => recordMode(record) === mode && matchesDevice(record, device))
+// Uses the same comparison as `listBest`, so a list's rank 1 here is the best shown on every other screen.
+export function listRanking(list: SavedWordList, { device = null, order = 'accuracy', includeOthers = false, now = new Date(), mode = 'normal' }: RankingOptions = {}): ListRanking {
+  const records = recordsOfMode(list.records, mode).filter(record => matchesDevice(record, device))
   const others = records.filter(record => record.wordCount !== list.words.length)
   const fallback = others.length > 0 && others.length === records.length
-  const ranked = rankRecords(includeOthers ? records : comparableRecords(list, records), order)
+  const ranked = rankRecords(includeOthers ? records : comparableRecords(list, records, mode), order)
   const counts = new Map<number | null, number>()
   for (const record of others) counts.set(record.wordCount ?? null, (counts.get(record.wordCount ?? null) ?? 0) + 1)
   const last = records.reduce((latest, record) => Math.max(latest, Date.parse(record.date)), 0)
@@ -67,4 +67,16 @@ export function rankingStats(ranked: StoredRecord[]) {
     recentAccuracy: accuracies.length ? accuracies.reduce((total, accuracy) => total + accuracy, 0) / accuracies.length : null,
     points: byDate.slice(-TREND_POINTS).map(record => ({ date: record.date, value: record.time })),
   }
+}
+
+export type RankingView = { list: string | null; device: string | null; order: RankOrder; mode: PracticeMode }
+
+// The query string of a rankings view: only non-default values are written (`mode=recall` or `mode=writing`, `order=speed`).
+export function rankingQuery(view: RankingView) {
+  const query = new URLSearchParams()
+  if (view.list) query.set('list', view.list)
+  if (view.device) query.set('device', view.device)
+  if (view.order === 'speed') query.set('order', 'speed')
+  if (view.mode !== 'normal') query.set('mode', view.mode)
+  return query.toString()
 }

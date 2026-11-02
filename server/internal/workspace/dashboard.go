@@ -75,6 +75,11 @@ func daysBetween(from, to time.Time) int {
 	return int(math.Floor(hours/24 + 0.5))
 }
 
+// normal leaves out the runs practised in a mode (recall), which the accuracy, next lists and trends do not compare.
+func normal(records []Record) []Record {
+	return slices.DeleteFunc(slices.Clone(records), func(r Record) bool { return r.Mode != "" })
+}
+
 // newestFirst orders records by date, newest first, keeping the stored order of equal dates.
 func newestFirst(records []Record) []Record {
 	sorted := slices.Clone(records)
@@ -138,7 +143,7 @@ type Summary struct {
 func Summarize(lists []List, now time.Time) Summary {
 	var records []Record
 	for _, list := range lists {
-		records = append(records, typingRecords(list.Records)...)
+		records = append(records, list.Records...)
 	}
 	weekStart := startOfWeek(now)
 	between := func(from, to time.Time) (count int, seconds float64) {
@@ -167,7 +172,8 @@ func Summarize(lists []List, now time.Time) Summary {
 	for ; days[keyOf(day)]; day = addDays(day, -1) {
 		summary.Streak++
 	}
-	newest := accuracies(newestFirst(records))
+	// Only normal runs count for the accuracy; the week's counts above and the streak include every run.
+	newest := accuracies(newestFirst(normal(records)))
 	if recentCount := min(10, len(newest)); recentCount > 0 {
 		summary.Accuracy = &AccuracySummary{Recent: average(newest[:recentCount]), RecentCount: recentCount,
 			Change: change(newest, recentCount, min(10, len(newest)-recentCount))}
@@ -195,7 +201,7 @@ func NextLists(lists []List, now time.Time, limit int) []NextList {
 	var groups [3][]NextList
 	for i := range lists {
 		list := &lists[i]
-		records := newestFirst(typingRecords(list.Records))
+		records := newestFirst(normal(list.Records))
 		if len(records) == 0 {
 			groups[0] = append(groups[0], NextList{List: list, Reason: Reason{Kind: "new"}})
 			continue
@@ -264,11 +270,10 @@ func ListTrends(lists []List) []ListTrend {
 	trends := []ListTrend{}
 	for i := range lists {
 		list := &lists[i]
-		typing := typingRecords(list.Records)
-		if len(typing) == 0 {
+		records := newestFirst(normal(list.Records))
+		if len(records) == 0 {
 			continue
 		}
-		records := newestFirst(typing)
 		slices.Reverse(records)
 		speed, accuracy := []Point{}, []Point{}
 		for _, record := range records {

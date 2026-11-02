@@ -7,6 +7,12 @@
     "allDevices": "Tous les appareils",
     "deleted": "{name} (supprimé)"
   },
+  "mode": {
+    "label": "Mode d’entraînement",
+    "normal": "Normal",
+    "recall": "De mémoire",
+    "writing": "Handwriting"
+  },
   "order": {
     "label": "Critère de classement",
     "accuracy": "Précision<wide> d’abord</wide>",
@@ -117,8 +123,5 @@
     "words": "{count, plural, one {# mot} other {# mots}}",
     "unknownWords": "? mots",
     "oldAccuracy": "Ancien résultat, enregistré avant que la précision ne soit mesurée"
-  },
-  "modeLabel": "Mode d’entraînement",
-  "modeTyping": "Frappe",
-  "modeWriting": "Handwriting"
+  }
 }

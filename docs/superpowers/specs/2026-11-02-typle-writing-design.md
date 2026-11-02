@@ -78,7 +78,7 @@ mode?: 'writing'   // left out for typing, as before
 
 - `time`：最初の線（または最初の入力）から、最後の語が正解になる（または飛ばす）までのミリ秒。止まっている間は含めない
 - `mistakes`：「判定」で一致しなかった回数と、「飛ばす」の回数の合計
-- `accuracy`：単語数 ÷（単語数 ＋ `mistakes`）× 100
+- `accuracy`：正しく書けた語の数 ÷ 判定した回数 × 100。飛ばした語はミスに数え、正しく書けた語には数えないため、（単語数 − 飛ばした数）÷（単語数 ＋ 一致しなかった回数）× 100 になる（コードは `sessionResult` の（`attempts` − `mistakes`）÷ `attempts`）。例：2語のうち1語を飛ばし、もう1語を1回で書けたときは 50
 - `wordCount`・`device`：タイピングと同じ
 - 検証：`addRecord`（TS）と `workspace.AddRecord`（Go）、記録の変更（`records.go` の change）は、`mode` がないか `'writing'` であることを確かめ、それ以外は `invalidRecord`。記録を変える API では `mode` を変えられない
 - Go の `rawRecord` の `UnmarshalJSON` は、知っている項目に `mode` を足す
@@ -184,3 +184,15 @@ mode?: 'writing'   // left out for typing, as before
 - `docs/features.md` に「Typle Handwriting」の節を足す
 - `api-docs/` の記録とリストの項目に `writing`・`mode` を足す
 - 使い方（`/guide`）に Handwriting の説明を足す
+
+## 思い出して打つモードとの統合（2026-11-02）
+
+この設計の後に main に入った「思い出して打つ」モード（`docs/superpowers/specs/2026-11-02-recall-mode-design.md`、v2.7.0）も記録の `mode` を使うため、次のとおり1つの設計にそろえた。この節は上の「記録」「集計」「始め方」の書き方より優先する。
+
+- **記録の `mode`**：省く（通常のタイピング）、`'recall'`、`'writing'` の3つだけ。`null` を含むほかの値は、TS（`addRecord`・保存データの読み込み）と Go（`AddRecord`・`decodeRecord`）の両方で拒否する（main の null の拒否に合わせる）。
+- **名前**：TS は `PracticeMode = 'normal' | 'recall' | 'writing'`、`recordMode`、`recordsOfMode` を1つずつだけ持ち、タイピングは main と同じく `'normal'` と呼ぶ。Go は main と同じく保存される値（通常は `""`、`RecallMode`、`WritingMode`）でモードを表し、`ListBestOf`・`ListRanking`・`comparableOf` にその値を渡す。
+- **練習画面**：Handwriting は「思い出して打つ」と一緒に使えない。Handwriting を選んでいる間は「思い出して打つ」のボタンを隠す。「思い出して打つ」が入っていても Handwriting は選べ、その練習は Handwriting になる（「思い出して打つ」の選択は残る）。練習の途中で「タイピング／Handwriting」を切り替えるときは、リストの切り替えと同じ確認を出す（「思い出して打つ」のボタンは main のとおり練習中は押せない）。
+- **ベストと順位**：通常・思い出す・Handwriting の3つで別に比べる（結果画面、練習画面のベスト、選択肢のベスト、練習記録の印、`/rankings`、`/api/v1` の `?mode=normal|recall|writing`）。ベスト記録ページの切り替えは「通常／思い出す／Handwriting」で、いつも出す。
+- **ダッシュボード**：Handwriting の記録は main の思い出す記録と同じに扱う。今週の回数・練習時間・連続日数には数え、正確率の比較・次に練習するリスト（正確率の理由を含む）・リストの推移には数えない。リストの概要の練習回数・最終練習日はすべての記録、`currentRecordCount` は通常の記録だけ（main と同じ）。
+- **`/api/v1`**：記録の追加は main と同じく `mode` を受け付けない（`400 invalidJson`。`mode` 付きの記録はアプリだけが保存する）。上の「`/api/v1` の記録の追加にも `mode` を足す」は取りやめる。記録の一覧は `mode` をそのまま返し、ベスト記録は `?mode=` で3つのモードを選べる。アプリの `/api/workspace/records` は `recall` と `writing` を受け付ける。
+- **fixture**：`tests/fixtures/records` の main の `mode-invalid.json`・`mode-recall.json` とこの設計の `writing-mode*.json` を両方残し、`mode-null.json` を足す。TS と Go が同じものを読む。

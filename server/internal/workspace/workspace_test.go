@@ -269,3 +269,38 @@ func TestDecodeKeepsWriting(t *testing.T) {
 		t.Fatalf("plain = %s, err = %v", plain, err)
 	}
 }
+
+func TestDecodeRecordMode(t *testing.T) {
+	list := func(mode string) []byte {
+		return []byte(`[{"id":"l1","name":"a","createdAt":"2026-10-10","words":[{"display":"a","input":"a","annotation":""}],` +
+			`"records":[{"id":"r1","time":1,"date":"2026-10-10T02:00:00.000Z"` + mode + `}]}]`)
+	}
+	w, err := Decode(list(`,"mode":"recall"`), []byte(`[]`), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	record := w.Lists[0].Records[0]
+	if record.Mode != RecallMode || record.Extra != "" {
+		t.Fatalf("record = %+v", record)
+	}
+	written, err := Encode(w.Lists)
+	if err != nil || !strings.Contains(string(written), `"mode":"recall"`) || strings.Count(string(written), `"mode"`) != 1 {
+		t.Fatalf("written = %s, %v", written, err)
+	}
+	w, err = Decode(list(`,"mode":"writing"`), []byte(`[]`), nil)
+	if err != nil || w.Lists[0].Records[0].Mode != WritingMode {
+		t.Fatalf("writing record = %+v, %v", w, err)
+	}
+	for _, bad := range []string{`,"mode":"x"`, `,"mode":""`, `,"mode":"normal"`, `,"mode":1`, `,"mode":null`} {
+		if _, err := Decode(list(bad), []byte(`[]`), nil); err == nil {
+			t.Errorf("Decode accepted %s", bad)
+		}
+	}
+	w, err = Decode(list(``), []byte(`[]`), nil)
+	if err != nil || w.Lists[0].Records[0].Mode != "" {
+		t.Fatalf("plain record = %+v, %v", w, err)
+	}
+	if written, _ := Encode(w.Lists); strings.Contains(string(written), `"mode"`) {
+		t.Fatalf("written = %s", written)
+	}
+}

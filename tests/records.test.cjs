@@ -164,29 +164,56 @@ test('makeRecord marks a writing run; typing runs have no mode key', () => {
   assert.equal(makeRecord(s, 2, 'w1', undefined, 'writing').mode, 'writing')
   assert.equal('mode' in makeRecord(s, 2, 'w2'), false)
   assert.equal(recordMode({ mode: 'writing' }), 'writing')
-  assert.equal(recordMode({}), 'typing')
+  assert.equal(recordMode({ mode: 'recall' }), 'recall')
+  assert.equal(recordMode({}), 'normal')
 })
 
-test('decodeLists refuses a stored record whose mode is not writing', () => {
+test('decodeLists refuses a stored record whose mode is not recall or writing', () => {
   const list = { id: 'a', name: 'A', createdAt: '2026-10-01', words: [{ display: 'ab', input: 'ab', annotation: '' }], records: [] }
   const decode = mode => decodeLists(JSON.stringify({ version: 1, lists: [{ ...list, records: [{ id: 'r', time: 1, date: '2026-10-01T00:00:00.000Z', mode }] }] }))
   assert.equal(decode('writing')[0].records[0].mode, 'writing')
-  for (const mode of ['typing', '', 1, null]) assert.throws(() => decode(mode), { key: 'savedDataCorrupted' })
+  assert.equal(decode('recall')[0].records[0].mode, 'recall')
+  for (const mode of ['typing', 'normal', '', 1, null]) assert.throws(() => decode(mode), { key: 'savedDataCorrupted' })
 })
 
 test('record rows carry the mode, and each mode has its own best', () => {
   const words = [{ display: 'a', input: 'a', annotation: '' }]
   const rec = (id, time, extra = {}) => ({ id, time, date: `2026-09-2${id.length}T10:00:00Z`, mistakes: 0, accuracy: 100, wordCount: 1, ...extra })
-  const rows = recordRows([{ id: 'l', name: 'l', createdAt: '2026-09-01', words, records: [rec('a', 10), rec('bb', 12), rec('ccc', 5, { mode: 'writing' })] }])
-  assert.equal(rows.length, 3)
-  assert.deepEqual(rows.map(row => [row.record.id, row.mode, row.best]), [['ccc', 'writing', true], ['bb', 'typing', false], ['a', 'typing', true]])
+  const rows = recordRows([{ id: 'l', name: 'l', createdAt: '2026-09-01', words, records: [rec('a', 10), rec('bb', 12), rec('ccc', 5, { mode: 'writing' }), rec('dddd', 6, { mode: 'recall' })] }])
+  assert.equal(rows.length, 4)
+  assert.deepEqual(rows.map(row => [row.record.id, row.mode, row.best]), [['dddd', 'recall', true], ['ccc', 'writing', true], ['bb', 'normal', false], ['a', 'normal', true]])
 })
 
-test('listBest is of the typing runs unless a mode is given', () => {
+test('listBest is of the normal runs unless a mode is given', () => {
   const words = [{ display: 'a', input: 'a', annotation: '' }]
   const rec = (id, time, extra = {}) => ({ id, time, date: '2026-09-21T10:00:00Z', mistakes: 0, accuracy: 100, wordCount: 1, ...extra })
   const list = { words, records: [rec('t', 10), rec('w', 1, { mode: 'writing' })] }
   const { listBest } = require('../src/core/records.ts')
   assert.equal(listBest(list).id, 't')
   assert.equal(listBest(list, 'writing').id, 'w')
+})
+
+test('addRecord keeps mode recall or writing and rejects other modes', () => {
+  const list = { id: 'a', name: 'T', words: [{ display: 'ab', input: 'ab', annotation: '' }], records: [], createdAt: '2026-09-06' }
+  const input = { id: 'r1', time: 2, date: '2026-09-06T00:00:00.000Z', mistakes: 0, accuracy: 100, wordCount: 1 }
+  const doc = { lists: [list], devices: [] }
+  assert.equal(addRecord(doc, 'a', { ...input, mode: 'recall' }).record.mode, 'recall')
+  assert.equal(addRecord(doc, 'a', { ...input, mode: 'writing' }).record.mode, 'writing')
+  for (const mode of ['x', 'normal', null]) assert.throws(() => addRecord(doc, 'a', { ...input, mode }), { key: 'invalidRecord' })
+  assert.equal('mode' in addRecord(doc, 'a', input).record, false)
+})
+
+test('makeRecord marks only recall and writing runs with a mode', () => {
+  const words = [{ display: 'ab', input: 'ab', annotation: '' }]
+  const s = typeInput(typeInput(newSession(), words, 'a', 1000), words, 'ab', 3000)
+  assert.equal('mode' in makeRecord(s, 1, 'n1'), false)
+  assert.equal('mode' in makeRecord(s, 1, 'n2', undefined, 'normal'), false)
+  assert.equal(makeRecord(s, 1, 'r1', undefined, 'recall').mode, 'recall')
+})
+
+test('saved records with an unknown mode are corrupted', () => {
+  const list = mode => ({ id: 'a', name: 'T', words: [{ display: 'ab', input: 'ab', annotation: '' }], createdAt: '2026-09-06',
+    records: [{ id: 'r', time: 1, date: '2026-09-06T00:00:00.000Z', mode }] })
+  assert.throws(() => decodeLists(encodeLists([list('x')])), { key: 'savedDataCorrupted' })
+  assert.equal(decodeLists(encodeLists([list('recall')]))[0].records[0].mode, 'recall')
 })

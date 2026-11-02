@@ -2,12 +2,12 @@
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
-import { ArrowRight, CircleAlert, CircleCheck, Keyboard, PenLine, RotateCcw, TrendingDown, Trophy } from 'lucide-react'
+import { ArrowRight, Brain, CircleAlert, CircleCheck, Keyboard, PenLine, RotateCcw, TrendingDown, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import Kbd from '@/components/Practice/Kbd'
 import type { PracticeDevice } from '@/core/devices'
-import { bestRecords, type PracticeMode, type PracticeRecord } from '@/core/records'
+import { bestRecords, recordsOfMode, type PracticeMode, type PracticeRecord } from '@/core/records'
 import type { SavedWordList } from '@/core/wordLists'
 import { cn } from '@/lib/utils'
 import { useFormat } from '@/i18n/useFormat'
@@ -17,7 +17,9 @@ type Comparison = { rank: number } & ({ kind: 'firstAtCount' | 'firstForList' } 
 
 // Ranks use the same order as the best records (accuracy first, then time), so only rank 1 is shown as an improvement.
 // Like ベスト記録, only runs at this word count are compared: a run from before the list was edited is a different task.
-function comparison(record: PracticeRecord | null, records: SavedWordList['records'], wordCount: number, saveState: SaveState): Comparison {
+// Only runs of the practised mode are compared, so a recall or handwriting run is never measured against normal runs.
+function comparison(record: PracticeRecord | null, allRecords: SavedWordList['records'], wordCount: number, saveState: SaveState, mode: PracticeMode): Comparison {
+  const records = recordsOfMode(allRecords, mode)
   const ranked = bestRecords(records.filter(item => item.wordCount === wordCount), Infinity)
   const rank = record && saveState === 'saved' ? ranked.findIndex(item => item.id === record.id) + 1 : 0
   const previous = ranked.find(item => item.id !== record?.id)
@@ -26,9 +28,7 @@ function comparison(record: PracticeRecord | null, records: SavedWordList['recor
   return { rank, kind: 'behind', previous }
 }
 
-export default function PracticeResult({ mode = 'typing', listName, wordCount, result, correct, speed, device, record, records, saveState, onRestart, onRetry, onChooseList }: {
-  // A writing run is marked; `records` are those of the run's mode, as the modes are never compared.
-  mode?: PracticeMode
+export default function PracticeResult({ listName, wordCount, result, correct, speed, device, record, records, mode = 'normal', saveState, onRestart, onRetry, onChooseList }: {
   listName: string
   wordCount: number
   result: { time: number; mistakes: number; accuracy: number }
@@ -37,6 +37,7 @@ export default function PracticeResult({ mode = 'typing', listName, wordCount, r
   device?: PracticeDevice
   record: PracticeRecord | null
   records: SavedWordList['records']
+  mode?: PracticeMode
   saveState: SaveState
   onRestart: () => void
   onRetry: () => void
@@ -46,9 +47,10 @@ export default function PracticeResult({ mode = 'typing', listName, wordCount, r
   useEffect(() => { again.current?.focus({ preventScroll: true }) }, [])
   const t = useTranslations('practice.result')
   const practice = useTranslations('practice')
+  const recall = useTranslations('practice.recall')
   const writing = mode === 'writing'
   const format = useFormat()
-  const compared = comparison(record, records, wordCount, saveState)
+  const compared = comparison(record, records, wordCount, saveState, mode)
   const { rank } = compared
   const best = compared.kind === 'best'
   const faster = compared.kind === 'best' && compared.difference < 0
@@ -66,7 +68,8 @@ export default function PracticeResult({ mode = 'typing', listName, wordCount, r
   return <section aria-label={t('label')} className="flex flex-1 flex-col gap-4 px-4 pt-5 pb-5 sm:gap-5 sm:px-6 sm:pt-7 sm:pb-6">
     <div className="flex flex-wrap items-center gap-3">
       <h2 className="text-[22px] font-bold sm:text-[26px]">{t('title')}</h2>
-      {writing && <span className="inline-flex h-7 items-center gap-1.5 rounded-full border px-2.5 text-[13px] font-medium"><PenLine className="size-3.5" aria-hidden="true" />{practice('modeWriting')}</span>}
+      {mode === 'writing' && <span className="inline-flex h-7 items-center gap-1.5 rounded-full border px-2.5 text-[13px] font-medium"><PenLine className="size-3.5" aria-hidden="true" />{practice('modeWriting')}</span>}
+      {mode === 'recall' && <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-primary/10 px-2.5 text-[13px] font-bold text-primary"><Brain className="size-3.5" aria-hidden="true" />{recall('resultHeading')}</span>}
       {best && <span className="inline-flex h-7 items-center gap-1.5 rounded-full bg-amber-100 px-2.5 text-[13px] font-bold text-amber-800 dark:bg-amber-950 dark:text-amber-300"><Trophy className="size-3.5" aria-hidden="true" />{t('newBest')}</span>}
     </div>
     <p className="sr-only">{t('completed', { name: listName })}</p>
