@@ -63,10 +63,9 @@ func (s *server) listShares(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	shares, err := s.config.Store.ListShares(r.Context(), user.Sub)
-	if err != nil {
-		s.report(r, err, "shares.read")
-		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
+	shares, f := s.accountShares(r, user.Sub)
+	if f != nil {
+		s.fail(w, r, f)
 		return
 	}
 	answer := make([]shareJSON, 0, len(shares))
@@ -76,10 +75,19 @@ func (s *server) listShares(w http.ResponseWriter, r *http.Request) {
 	reply(w, http.StatusOK, map[string][]shareJSON{"shares": answer})
 }
 
+// accountShares reads the owner's shared packs.
+func (s *server) accountShares(r *http.Request, owner string) ([]store.Share, *failure) {
+	shares, err := s.config.Store.ListShares(r.Context(), owner)
+	if err != nil {
+		return nil, broken(err, "shares.read", "databaseUnavailable")
+	}
+	return shares, nil
+}
+
 // putShare shares a pack, or copies it again into its link. It is checked as PUT /api/workspace is: the Origin of a
 // cookie's request, a JSON body, then the login. The body is {"packId"} with, optionally, "listed" (a boolean).
 func (s *server) putShare(w http.ResponseWriter, r *http.Request) {
-	if !(fromApp(r) || s.sameOrigin(r)) || !jsonContent(r) {
+	if !s.fromAppOrOrigin(r) || !jsonContent(r) {
 		refuse(w, http.StatusForbidden, "forbiddenRequest")
 		return
 	}
@@ -92,27 +100,39 @@ func (s *server) putShare(w http.ResponseWriter, r *http.Request) {
 		refuse(w, http.StatusBadRequest, "invalidWorkspace")
 		return
 	}
-	share, err := s.config.Store.PutShare(r.Context(), user.Sub, packID, listed)
-	var refused *workspace.Error
-	switch {
-	case errors.As(err, &refused) && refused.Key == "packNotFound":
-		refuse(w, http.StatusNotFound, refused.Key)
-	case errors.As(err, &refused) && refused.Key == "invalidWorkspace":
-		refuse(w, http.StatusBadRequest, refused.Key)
-	case errors.As(err, &refused) && refused.Key == "sharedPackHidden":
-		refuse(w, http.StatusConflict, refused.Key)
-	case err != nil:
-		s.report(r, err, "shares.write")
-		refuse(w, http.StatusServiceUnavailable, "workspaceSaveFailed")
-	default:
-		reply(w, http.StatusOK, shareOf(*share))
+	share, f := s.sharePack(r, user.Sub, packID, listed)
+	if f != nil {
+		s.fail(w, r, f)
+		return
 	}
+	reply(w, http.StatusOK, shareOf(*share))
+}
+
+// sharePack shares the owner's pack packID, or copies it again into its link. listed lists it in the gallery or takes
+// it out; nil leaves the listing as it is.
+func (s *server) sharePack(r *http.Request, owner, packID string, listed *bool) (*store.Share, *failure) {
+	if packID == "" {
+		return nil, refused(http.StatusBadRequest, "invalidWorkspace")
+	}
+	share, err := s.config.Store.PutShare(r.Context(), owner, packID, listed)
+	var refusal *workspace.Error
+	switch {
+	case errors.As(err, &refusal) && refusal.Key == "packNotFound":
+		return nil, refused(http.StatusNotFound, refusal.Key)
+	case errors.As(err, &refusal) && refusal.Key == "invalidWorkspace":
+		return nil, refused(http.StatusBadRequest, refusal.Key)
+	case errors.As(err, &refusal) && refusal.Key == "sharedPackHidden":
+		return nil, refused(http.StatusConflict, refusal.Key)
+	case err != nil:
+		return nil, broken(err, "shares.write", "workspaceSaveFailed")
+	}
+	return share, nil
 }
 
 // deleteShare stops sharing the pack ?pack=. A request without a body has no Content-Type to check; the Origin is
 // checked as for PUT. A pack that is not shared is answered the same.
 func (s *server) deleteShare(w http.ResponseWriter, r *http.Request) {
-	if !(fromApp(r) || s.sameOrigin(r)) {
+	if !s.fromAppOrOrigin(r) {
 		refuse(w, http.StatusForbidden, "forbiddenRequest")
 		return
 	}
@@ -120,18 +140,23 @@ func (s *server) deleteShare(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	packID := r.URL.Query().Get("pack")
-	if packID == "" {
-		refuse(w, http.StatusBadRequest, "invalidWorkspace")
-		return
-	}
-	if err := s.config.Store.DeleteShare(r.Context(), user.Sub, packID); err != nil {
-		s.report(r, err, "shares.write")
-		refuse(w, http.StatusServiceUnavailable, "workspaceSaveFailed")
+	if f := s.stopSharing(r, user.Sub, r.URL.Query().Get("pack")); f != nil {
+		s.fail(w, r, f)
 		return
 	}
 	w.Header().Set("Cache-Control", "private, no-store")
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// stopSharing stops sharing the owner's pack packID; a pack that is not shared is answered the same.
+func (s *server) stopSharing(r *http.Request, owner, packID string) *failure {
+	if packID == "" {
+		return refused(http.StatusBadRequest, "invalidWorkspace")
+	}
+	if err := s.config.Store.DeleteShare(r.Context(), owner, packID); err != nil {
+		return broken(err, "shares.write", "workspaceSaveFailed")
+	}
+	return nil
 }
 
 // readShareBody reads a body that is {"packId": "<a pack id>"} with, optionally, "listed": true or false, and no other
@@ -178,14 +203,12 @@ func (s *server) shared(w http.ResponseWriter, r *http.Request) {
 	if !methods(w, r, http.MethodGet, http.MethodHead) {
 		return
 	}
-	data, err := s.config.Store.SharedPack(r.Context(), r.URL.Query().Get("id"))
-	if err != nil {
-		s.report(r, err, "shared.read")
-		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
-		return
+	data, f := s.sharedFile(r, r.URL.Query().Get("id"))
+	if f == nil && data == nil {
+		f = refused(http.StatusNotFound, "sharedPackNotFound")
 	}
-	if data == nil {
-		refuse(w, http.StatusNotFound, "sharedPackNotFound")
+	if f != nil {
+		s.fail(w, r, f)
 		return
 	}
 	header := w.Header()
@@ -193,4 +216,13 @@ func (s *server) shared(w http.ResponseWriter, r *http.Request) {
 	header.Set("Cache-Control", "no-store")
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(data)
+}
+
+// sharedFile reads the file of the pack the link id shares, or nil when there is no such link.
+func (s *server) sharedFile(r *http.Request, id string) (json.RawMessage, *failure) {
+	data, err := s.config.Store.SharedPack(r.Context(), id)
+	if err != nil {
+		return nil, broken(err, "shared.read", "databaseUnavailable")
+	}
+	return data, nil
 }

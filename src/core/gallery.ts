@@ -1,4 +1,5 @@
 import { AppError } from './appError'
+import { GraphQLError, graphql } from './graphql'
 
 export const GALLERY_SORTS = ['new', 'popular'] as const
 export type GallerySort = typeof GALLERY_SORTS[number]
@@ -27,11 +28,32 @@ export function gallerySearchParams(query: GalleryQuery): URLSearchParams {
   return params
 }
 
-export function galleryApiPath(query: GalleryQuery, page: number): string {
-  const params = gallerySearchParams(query)
-  params.set('sort', query.sort)
-  params.set('page', String(page))
-  return `/api/gallery?${params}`
+/** The variables of the `gallery` query for one page of the search. */
+export function galleryVariables(query: GalleryQuery, page: number) {
+  return { q: query.text, category: query.category, sort: query.sort.toUpperCase(), page }
+}
+
+const GALLERY = `query Gallery($q: String!, $category: String!, $sort: GallerySort!, $page: Int!) {
+  gallery(q: $q, category: $category, sort: $sort, page: $page) {
+    more packs { id name description category tags lists words added updatedAt }
+  }
+}`
+
+/** One page of the gallery, through `/api/graphql`. A search the server refuses is `invalidQuery`. */
+export async function fetchGalleryPage(query: GalleryQuery, page: number): Promise<GalleryPage> {
+  try {
+    const { gallery } = await graphql<{ gallery: unknown }>(GALLERY, galleryVariables(query, page))
+    return decodeGalleryPage(gallery)
+  } catch (reason) {
+    if (reason instanceof GraphQLError && reason.key === 'invalidQuery') throw new AppError('invalidQuery')
+    throw reason
+  }
+}
+
+/** The categories of the listed packs, the most packs first. */
+export async function fetchGalleryCategories(): Promise<GalleryCategory[]> {
+  const { galleryCategories } = await graphql<{ galleryCategories: unknown }>('query GalleryCategories { galleryCategories { name count } }')
+  return decodeGalleryCategories({ categories: galleryCategories })
 }
 
 const invalid = () => new AppError('invalidServerData')
@@ -66,9 +88,10 @@ function decodePack(value: unknown): GalleryPack {
     added: count(data.added),
     updatedAt: text(data.updatedAt),
   }
-  if (data.description !== undefined) pack.description = text(data.description)
-  if (data.category !== undefined) pack.category = text(data.category)
-  if (data.tags !== undefined) pack.tags = array(data.tags).map(text)
+  // A pack without them has them null (or left out).
+  if (data.description != null) pack.description = text(data.description)
+  if (data.category != null) pack.category = text(data.category)
+  if (data.tags != null) pack.tags = array(data.tags).map(text)
   return pack
 }
 

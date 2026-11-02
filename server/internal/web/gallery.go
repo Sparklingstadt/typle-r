@@ -55,28 +55,37 @@ func galleryHeaders(w http.ResponseWriter) http.ResponseWriter {
 // UTF-8 without NUL, which the database would refuse.
 func galleryQuery(r *http.Request) (store.GalleryQuery, bool) {
 	values := r.URL.Query()
-	for _, text := range []string{values.Get("q"), values.Get("category")} {
-		if !utf8.ValidString(text) || strings.ContainsRune(text, 0) {
+	page := 1
+	if value := values.Get("page"); value != "" {
+		var err error
+		if page, err = strconv.Atoi(value); err != nil {
 			return store.GalleryQuery{}, false
 		}
 	}
-	q := store.GalleryQuery{Text: strings.TrimSpace(values.Get("q")), Category: values.Get("category"), Sort: store.GalleryNew, Page: 1}
+	return checkGalleryQuery(values.Get("q"), values.Get("category"), store.GallerySort(values.Get("sort")), page)
+}
+
+// checkGalleryQuery is a search of the gallery as galleryQuery reads it: sort "" is the default, and page must be from 1
+// to maxGalleryPage.
+func checkGalleryQuery(text, category string, sort store.GallerySort, page int) (store.GalleryQuery, bool) {
+	for _, value := range []string{text, category} {
+		if !utf8.ValidString(value) || strings.ContainsRune(value, 0) {
+			return store.GalleryQuery{}, false
+		}
+	}
+	q := store.GalleryQuery{Text: strings.TrimSpace(text), Category: category, Sort: store.GalleryNew, Page: page}
 	if runes := []rune(q.Text); len(runes) > store.MaxGalleryQuery {
 		q.Text = string(runes[:store.MaxGalleryQuery])
 	}
-	switch sort := store.GallerySort(values.Get("sort")); sort {
+	switch sort {
 	case "":
 	case store.GalleryNew, store.GalleryPopular:
 		q.Sort = sort
 	default:
 		return q, false
 	}
-	if value := values.Get("page"); value != "" {
-		page, err := strconv.Atoi(value)
-		if err != nil || page < 1 || page > maxGalleryPage {
-			return q, false
-		}
-		q.Page = page
+	if page < 1 || page > maxGalleryPage {
+		return q, false
 	}
 	return q, true
 }
@@ -92,10 +101,9 @@ func (s *server) gallery(w http.ResponseWriter, r *http.Request) {
 		refuse(w, http.StatusBadRequest, "invalidQuery")
 		return
 	}
-	page, err := s.config.Store.Gallery(r.Context(), query)
-	if err != nil {
-		s.report(r, err, "gallery.read")
-		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
+	page, f := s.galleryPage(r, query)
+	if f != nil {
+		s.fail(w, r, f)
 		return
 	}
 	answer := galleryAnswer{Packs: make([]galleryPackJSON, 0, len(page.Packs)), More: page.More}
@@ -109,22 +117,39 @@ func (s *server) gallery(w http.ResponseWriter, r *http.Request) {
 	reply(w, http.StatusOK, answer)
 }
 
+// galleryPage reads one page of the listed packs.
+func (s *server) galleryPage(r *http.Request, query store.GalleryQuery) (*store.GalleryPage, *failure) {
+	page, err := s.config.Store.Gallery(r.Context(), query)
+	if err != nil {
+		return nil, broken(err, "gallery.read", "databaseUnavailable")
+	}
+	return page, nil
+}
+
 // galleryCategories answers the categories of the listed packs, the most packs first.
 func (s *server) galleryCategories(w http.ResponseWriter, r *http.Request) {
 	w = galleryHeaders(w)
 	if !methods(w, r, http.MethodGet, http.MethodHead) {
 		return
 	}
+	categories, f := s.categories(r)
+	if f != nil {
+		s.fail(w, r, f)
+		return
+	}
+	reply(w, http.StatusOK, map[string][]store.GalleryCategory{"categories": categories})
+}
+
+// categories reads the categories of the listed packs, never nil.
+func (s *server) categories(r *http.Request) ([]store.GalleryCategory, *failure) {
 	categories, err := s.config.Store.GalleryCategories(r.Context())
 	if err != nil {
-		s.report(r, err, "gallery.categories")
-		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
-		return
+		return nil, broken(err, "gallery.categories", "databaseUnavailable")
 	}
 	if categories == nil {
 		categories = []store.GalleryCategory{}
 	}
-	reply(w, http.StatusOK, map[string][]store.GalleryCategory{"categories": categories})
+	return categories, nil
 }
 
 // galleryAdded counts one more "added to my packs" for the pack ?id=. Its Origin is checked as DELETE /api/shares's is.
@@ -134,19 +159,26 @@ func (s *server) galleryAdded(w http.ResponseWriter, r *http.Request) {
 	if !methods(w, r, http.MethodPost) {
 		return
 	}
-	if !(fromApp(r) || s.sameOrigin(r)) {
+	if !s.fromAppOrOrigin(r) {
 		refuse(w, http.StatusForbidden, "forbiddenRequest")
 		return
 	}
-	if s.limited(w, r, "added", addedPerMinute) {
-		return
-	}
-	if err := s.config.Store.CountAdded(r.Context(), r.URL.Query().Get("id")); err != nil {
-		s.report(r, err, "gallery.added")
-		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
+	if f := s.countAdded(w, r, r.URL.Query().Get("id")); f != nil {
+		s.fail(w, r, f)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// countAdded counts one more add of the pack id, within addedPerMinute a minute for the request's client (overLimit).
+func (s *server) countAdded(w http.ResponseWriter, r *http.Request, id string) *failure {
+	if f := s.overLimit(w, r, "added", addedPerMinute); f != nil {
+		return f
+	}
+	if err := s.config.Store.CountAdded(r.Context(), id); err != nil {
+		return broken(err, "gallery.added", "databaseUnavailable")
+	}
+	return nil
 }
 
 // maxIDBodyBytes is the most a report or a hide needs: a pack id and a reason, and room to spare.
@@ -187,27 +219,38 @@ func (s *server) galleryReport(w http.ResponseWriter, r *http.Request) {
 	if !methods(w, r, http.MethodPost) {
 		return
 	}
-	if !(fromApp(r) || s.sameOrigin(r)) || !jsonContent(r) {
+	if !s.fromAppOrOrigin(r) || !jsonContent(r) {
 		refuse(w, http.StatusForbidden, "forbiddenRequest")
 		return
 	}
 	fields, ok := readStringFields(r, maxIDBodyBytes, "id", "reason")
-	if !ok || !slices.Contains(store.ReportReasons, fields["reason"]) {
+	if !ok {
 		refuse(w, http.StatusBadRequest, "invalidReport")
 		return
 	}
-	if s.limited(w, r, "reports", reportsPerMinute) {
-		return
-	}
-	found, err := s.config.Store.Report(r.Context(), fields["id"], fields["reason"])
-	if err != nil {
-		s.report(r, err, "gallery.report")
-		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
-		return
-	}
-	if !found {
-		refuse(w, http.StatusNotFound, "notInGallery")
+	if f := s.reportPack(w, r, fields["id"], fields["reason"]); f != nil {
+		s.fail(w, r, f)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// reportPack records a report of the pack id for reason: invalidReport without an id or with a reason that is not one
+// of store.ReportReasons, then within reportsPerMinute a minute for the request's client (overLimit), and notInGallery
+// for a share that is not in the gallery.
+func (s *server) reportPack(w http.ResponseWriter, r *http.Request, id, reason string) *failure {
+	if id == "" || !slices.Contains(store.ReportReasons, reason) {
+		return refused(http.StatusBadRequest, "invalidReport")
+	}
+	if f := s.overLimit(w, r, "reports", reportsPerMinute); f != nil {
+		return f
+	}
+	found, err := s.config.Store.Report(r.Context(), id, reason)
+	if err != nil {
+		return broken(err, "gallery.report", "databaseUnavailable")
+	}
+	if !found {
+		return refused(http.StatusNotFound, "notInGallery")
+	}
+	return nil
 }

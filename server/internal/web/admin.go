@@ -94,23 +94,30 @@ type adminUser struct {
 // allowAdmin lets the administrator through: adminRequired without their cookie, and adminForbidden, with the cookie
 // removed, when typle_admins no longer lets the account in. The caller answers only when it returns true.
 func (s *server) allowAdmin(w http.ResponseWriter, r *http.Request) (session.Admin, bool) {
-	admin, ok := s.signedInAdmin(r)
-	if !ok {
-		refuse(w, http.StatusUnauthorized, "adminRequired")
-		return session.Admin{}, false
-	}
-	allowed, err := s.config.Store.Admin(r.Context(), admin.Email, admin.Sub)
-	if err != nil {
-		s.report(r, err, "admin.check")
-		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
-		return session.Admin{}, false
-	}
-	if !allowed {
-		http.SetCookie(w, s.adminCookie("", -1))
-		refuse(w, http.StatusForbidden, "adminForbidden")
+	admin, f := s.administrator(w, r)
+	if f != nil {
+		s.fail(w, r, f)
 		return session.Admin{}, false
 	}
 	return admin, true
+}
+
+// administrator is allowAdmin without the answer: it only removes the cookie of an account let in no longer, and
+// returns the failure.
+func (s *server) administrator(w http.ResponseWriter, r *http.Request) (session.Admin, *failure) {
+	admin, ok := s.signedInAdmin(r)
+	if !ok {
+		return session.Admin{}, refused(http.StatusUnauthorized, "adminRequired")
+	}
+	allowed, err := s.config.Store.Admin(r.Context(), admin.Email, admin.Sub)
+	if err != nil {
+		return session.Admin{}, broken(err, "admin.check", "databaseUnavailable")
+	}
+	if !allowed {
+		http.SetCookie(w, s.adminCookie("", -1))
+		return session.Admin{}, refused(http.StatusForbidden, "adminForbidden")
+	}
+	return admin, nil
 }
 
 // adminDashboard answers the dashboard's figures to the administrator.
@@ -122,13 +129,21 @@ func (s *server) adminDashboard(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	overview, err := s.config.Store.Overview(r.Context())
-	if err != nil {
-		s.report(r, err, "admin.overview")
-		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
+	overview, f := s.overview(r)
+	if f != nil {
+		s.fail(w, r, f)
 		return
 	}
 	reply(w, http.StatusOK, adminAnswer{Admin: adminUser{Email: admin.Email, Sub: admin.Sub}, Overview: overview})
+}
+
+// overview reads the dashboard's figures.
+func (s *server) overview(r *http.Request) (*store.AdminOverview, *failure) {
+	overview, err := s.config.Store.Overview(r.Context())
+	if err != nil {
+		return nil, broken(err, "admin.overview", "databaseUnavailable")
+	}
+	return overview, nil
 }
 
 // maxUsersPage keeps the OFFSET of a made-up page number from making the database walk far.
@@ -146,18 +161,29 @@ func (s *server) adminUsers(w http.ResponseWriter, r *http.Request) {
 	page := 0
 	if value := r.URL.Query().Get("page"); value != "" {
 		var err error
-		if page, err = strconv.Atoi(value); err != nil || page < 0 || page > maxUsersPage {
+		if page, err = strconv.Atoi(value); err != nil {
 			refuse(w, http.StatusBadRequest, "invalidPage")
 			return
 		}
 	}
-	users, err := s.config.Store.Users(r.Context(), page)
-	if err != nil {
-		s.report(r, err, "admin.users")
-		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
+	users, f := s.usersPage(r, page)
+	if f != nil {
+		s.fail(w, r, f)
 		return
 	}
 	reply(w, http.StatusOK, adminUsersAnswer{Page: page, PageSize: store.AdminUsersPage, Total: users.Total, Users: users.Users})
+}
+
+// usersPage reads one page of the user list: invalidPage when page is not from 0 to maxUsersPage.
+func (s *server) usersPage(r *http.Request, page int) (*store.AdminUsers, *failure) {
+	if page < 0 || page > maxUsersPage {
+		return nil, refused(http.StatusBadRequest, "invalidPage")
+	}
+	users, err := s.config.Store.Users(r.Context(), page)
+	if err != nil {
+		return nil, broken(err, "admin.users", "databaseUnavailable")
+	}
+	return users, nil
 }
 
 // adminUsersAnswer is one page of the user list.
@@ -191,16 +217,24 @@ func (s *server) adminGallery(w http.ResponseWriter, r *http.Request) {
 	if _, ok := s.allowAdmin(w, r); !ok {
 		return
 	}
+	packs, f := s.adminGalleryPacks(r)
+	if f != nil {
+		s.fail(w, r, f)
+		return
+	}
+	reply(w, http.StatusOK, map[string][]store.AdminGalleryPack{"packs": packs})
+}
+
+// adminGalleryPacks reads the listed or hidden shares as the dashboard lists them, never nil.
+func (s *server) adminGalleryPacks(r *http.Request) ([]store.AdminGalleryPack, *failure) {
 	packs, err := s.config.Store.AdminGallery(r.Context())
 	if err != nil {
-		s.report(r, err, "admin.gallery")
-		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
-		return
+		return nil, broken(err, "admin.gallery", "databaseUnavailable")
 	}
 	if packs == nil {
 		packs = []store.AdminGalleryPack{}
 	}
-	reply(w, http.StatusOK, map[string][]store.AdminGalleryPack{"packs": packs})
+	return packs, nil
 }
 
 func (s *server) adminHide(w http.ResponseWriter, r *http.Request)   { s.adminSetHidden(w, r, true) }
@@ -224,15 +258,25 @@ func (s *server) adminSetHidden(w http.ResponseWriter, r *http.Request, hidden b
 		refuse(w, http.StatusBadRequest, "invalidRequest")
 		return
 	}
-	found, err := s.config.Store.SetHidden(r.Context(), fields["id"], hidden)
-	if err != nil {
-		s.report(r, err, "admin.hide")
-		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
-		return
-	}
-	if !found {
-		refuse(w, http.StatusNotFound, "sharedPackNotFound")
+	if f := s.setHidden(r, fields["id"], hidden); f != nil {
+		s.fail(w, r, f)
 		return
 	}
 	noContent(w)
+}
+
+// setHidden hides the share id from the gallery, or shows it again: invalidRequest without an id, and
+// sharedPackNotFound when there is no such share.
+func (s *server) setHidden(r *http.Request, id string, hidden bool) *failure {
+	if id == "" {
+		return refused(http.StatusBadRequest, "invalidRequest")
+	}
+	found, err := s.config.Store.SetHidden(r.Context(), id, hidden)
+	if err != nil {
+		return broken(err, "admin.hide", "databaseUnavailable")
+	}
+	if !found {
+		return refused(http.StatusNotFound, "sharedPackNotFound")
+	}
+	return nil
 }

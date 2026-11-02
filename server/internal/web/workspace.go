@@ -98,25 +98,38 @@ func (s *server) revoked(r *http.Request, user session.Session) (bool, error) {
 // session or with a revoked one, whose cookie is then removed, and databaseUnavailable when the revocations cannot be
 // read, as the data cannot be either.
 func (s *server) signedIn(w http.ResponseWriter, r *http.Request) (session.Session, bool) {
+	user, f := s.account(w, r)
+	if f != nil {
+		s.fail(w, r, f)
+		return session.Session{}, false
+	}
+	return user, true
+}
+
+// account is signedIn without the answer: it only removes the cookie of a revoked session, and returns the failure.
+func (s *server) account(w http.ResponseWriter, r *http.Request) (session.Session, *failure) {
 	user, ok := s.owner(r)
 	if !ok {
-		refuse(w, http.StatusUnauthorized, "loginRequired")
-		return session.Session{}, false
+		return session.Session{}, refused(http.StatusUnauthorized, "loginRequired")
 	}
 	revoked, err := s.revoked(r, user)
 	if err != nil {
-		s.report(r, err, "session.check")
-		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
-		return session.Session{}, false
+		return session.Session{}, broken(err, "session.check", "databaseUnavailable")
 	}
 	if revoked {
 		if !fromApp(r) {
 			http.SetCookie(w, s.sessionCookie("", -1))
 		}
-		refuse(w, http.StatusUnauthorized, "loginRequired")
-		return session.Session{}, false
+		return session.Session{}, refused(http.StatusUnauthorized, "loginRequired")
 	}
-	return user, true
+	return user, nil
+}
+
+// fromAppOrOrigin reports whether a request may change the account's data: the Origin keeps other sites from changing it
+// with the browser's cookie. An app's (iPad, Mac, Android or Windows) token is not sent by a browser on its own, so its
+// requests, which have no Origin, need none.
+func (s *server) fromAppOrOrigin(r *http.Request) bool {
+	return fromApp(r) || s.sameOrigin(r)
 }
 
 // sameOrigin reports whether the request comes from the app's own pages: its Origin is that of BaseURL, written as a
@@ -169,23 +182,29 @@ func (s *server) readWorkspace(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	result, err := s.config.Store.ReadRevision(r.Context(), user.Sub)
-	if err != nil {
-		s.report(r, err, "workspace.read")
-		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
+	result, f := s.loadWorkspace(r, user.Sub)
+	if f != nil {
+		s.fail(w, r, f)
 		return
+	}
+	reply(w, http.StatusOK, answer(result, user.Sub))
+}
+
+// loadWorkspace reads the owner's workspace as GET answers it.
+func (s *server) loadWorkspace(r *http.Request, owner string) (*store.Saved, *failure) {
+	result, err := s.config.Store.ReadRevision(r.Context(), owner)
+	if err != nil {
+		return nil, broken(err, "workspace.read", "databaseUnavailable")
 	}
 	if result == nil {
 		// An account that has saved nothing has no lists, not the first list that /api/v1 starts with.
 		result = &store.Saved{Lists: json.RawMessage("[]"), Devices: json.RawMessage("[]")}
 	}
-	reply(w, http.StatusOK, answer(result, user.Sub))
+	return result, nil
 }
 
 func (s *server) writeWorkspace(w http.ResponseWriter, r *http.Request) {
-	// The Origin keeps other sites from saving with the browser's cookie. An app's (iPad, Mac, Android or Windows) token is not sent by
-	// a browser on its own, so its requests, which have no Origin, need none.
-	if !(fromApp(r) || s.sameOrigin(r)) || !jsonContent(r) {
+	if !s.fromAppOrOrigin(r) || !jsonContent(r) {
 		refuse(w, http.StatusForbidden, "forbiddenRequest")
 		return
 	}
@@ -212,33 +231,38 @@ func (s *server) writeWorkspace(w http.ResponseWriter, r *http.Request) {
 		refuse(w, http.StatusBadRequest, "invalidWorkspace")
 		return
 	}
-	// The account is checked before the rest, so a screen that signed in as someone else is told so first.
-	if id, ok := accountID(fields); !ok || id != user.Sub {
-		refuse(w, http.StatusUnauthorized, "loginAccountChanged")
+	result, f := s.saveWorkspace(r, user.Sub, fields)
+	if f != nil {
+		s.fail(w, r, f)
 		return
+	}
+	reply(w, http.StatusOK, answer(result, user.Sub))
+}
+
+// saveWorkspace saves the members of a PUT body for owner, and reads back the workspace as saved.
+func (s *server) saveWorkspace(r *http.Request, owner string, fields map[string]json.RawMessage) (*store.Saved, *failure) {
+	// The account is checked before the rest, so a screen that signed in as someone else is told so first.
+	if id, ok := accountID(fields); !ok || id != owner {
+		return nil, refused(http.StatusUnauthorized, "loginAccountChanged")
 	}
 	revision, change, err := decodeFields(fields)
-	var refused *workspace.Error
+	var refusal *workspace.Error
 	// Lists sent with their packs whose levels overlap (workspace.CheckPacks) are told so; anything else is invalid.
 	// Several levels of a list are not refused: the change stores the lists as Decode repairs them, joined into one.
-	if errors.As(err, &refused) && refused.Key == "levelsConflict" {
-		refuse(w, http.StatusBadRequest, refused.Key)
-		return
+	if errors.As(err, &refusal) && refusal.Key == "levelsConflict" {
+		return nil, refused(http.StatusBadRequest, refusal.Key)
 	}
 	if err != nil {
-		refuse(w, http.StatusBadRequest, "invalidWorkspace")
-		return
+		return nil, refused(http.StatusBadRequest, "invalidWorkspace")
 	}
-	result, err := s.config.Store.WriteRevision(r.Context(), user.Sub, revision, change)
+	result, err := s.config.Store.WriteRevision(r.Context(), owner, revision, change)
 	switch {
 	case errors.Is(err, store.ErrConflict):
-		refuse(w, http.StatusConflict, "conflict")
-	case errors.As(err, &refused) && (refused.Key == "listLimit" || refused.Key == "invalidWorkspace"):
-		refuse(w, http.StatusBadRequest, refused.Key)
+		return nil, refused(http.StatusConflict, "conflict")
+	case errors.As(err, &refusal) && (refusal.Key == "listLimit" || refusal.Key == "invalidWorkspace"):
+		return nil, refused(http.StatusBadRequest, refusal.Key)
 	case err != nil:
-		s.report(r, err, "workspace.write")
-		refuse(w, http.StatusServiceUnavailable, "workspaceSaveFailed")
-	default:
-		reply(w, http.StatusOK, answer(result, user.Sub))
+		return nil, broken(err, "workspace.write", "workspaceSaveFailed")
 	}
+	return result, nil
 }

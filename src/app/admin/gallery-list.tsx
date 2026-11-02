@@ -5,12 +5,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { GraphQLError, graphql } from '@/core/graphql'
 
-// The answer of GET /api/admin/gallery (server/internal/web/admin.go, server/internal/store/gallery.go), the most reported packs first.
+// The adminGallery of /api/graphql (server/internal/web/graph/schema.graphqls, server/internal/store/gallery.go), the most reported packs first.
 type Pack = {
   id: string
   name: string
-  category?: string
+  category: string | null
   added: number
   listedAt: string | null
   hiddenAt: string | null
@@ -33,12 +34,11 @@ export default function GalleryList({ time, errorText }: { time: (value: string 
 
   const fetchPacks = useCallback(async (): Promise<State> => {
     try {
-      const response = await fetch('/api/admin/gallery', { cache: 'no-store' })
-      const body = await response.json().catch(() => null)
-      if (response.ok) return { kind: 'ready', packs: (body as { packs: Pack[] }).packs }
-      return { kind: 'failed', error: errorText(body?.error) }
-    } catch {
-      return { kind: 'failed', error: errorText(null) }
+      const { adminGallery } = await graphql<{ adminGallery: Pack[] }>(
+        'query AdminGallery { adminGallery { id name category added listedAt hiddenAt reports reasons } }')
+      return { kind: 'ready', packs: adminGallery }
+    } catch (reason) {
+      return { kind: 'failed', error: errorText(reason instanceof GraphQLError ? reason.key : null) }
     }
   }, [errorText])
 
@@ -52,17 +52,13 @@ export default function GalleryList({ time, errorText }: { time: (value: string 
     setBusy(true)
     setActionFailed(null)
     try {
-      const response = await fetch(`/api/admin/gallery/${action}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: pack.id }),
-      })
-      if (!response.ok) {
+      try {
+        await graphql('mutation SetPackHidden($id: String!, $hidden: Boolean!) { setPackHidden(id: $id, hidden: $hidden) }',
+          { id: pack.id, hidden: action === 'hide' })
+      } catch (reason) {
+        if (!(reason instanceof GraphQLError)) throw reason
         // The owner may have stopped sharing meanwhile (404): show the server's reason and re-read the list.
-        const body = await response.json().catch(() => null)
-        setActionFailed(errorText(body?.error))
-        setState(await fetchPacks())
-        return
+        setActionFailed(errorText(reason.key))
       }
       setState(await fetchPacks())
     } catch { setActionFailed(t('failed')) }

@@ -59,6 +59,16 @@ func retryAfter(windowEnd, now time.Time) int {
 // limited counts one use of action by the request's client, and answers it (429, or 503 when counting fails) when it is
 // over limit. It reports whether the request was answered; the caller must then do nothing more.
 func (s *server) limited(w http.ResponseWriter, r *http.Request, action string, limit int) bool {
+	if f := s.overLimit(w, r, action, limit); f != nil {
+		s.fail(w, r, f)
+		return true
+	}
+	return false
+}
+
+// overLimit is limited without the answer: it counts the use, sets Retry-After when it is over limit, and returns the
+// failure.
+func (s *server) overLimit(w http.ResponseWriter, r *http.Request, action string, limit int) *failure {
 	ip, known := s.clientIP(r)
 	if !known {
 		// Vercel always sets these headers, so this is a change on its side to look into. The request is counted anyway.
@@ -66,16 +76,13 @@ func (s *server) limited(w http.ResponseWriter, r *http.Request, action string, 
 	}
 	hits, windowEnd, err := s.config.Store.CountGalleryHit(r.Context(), action, s.config.Keys.ClientMAC(ip))
 	if err != nil {
-		s.report(r, err, "gallery.limit")
-		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
-		return true
+		return broken(err, "gallery.limit", "databaseUnavailable")
 	}
 	if hits > limit {
 		// The window comes from the database clock and now from this one: skew only shortens or lengthens the wait within
 		// the window, and the floor of 1 second holds.
 		w.Header().Set("Retry-After", strconv.Itoa(retryAfter(windowEnd, s.now())))
-		refuse(w, http.StatusTooManyRequests, "tooManyRequests")
-		return true
+		return refused(http.StatusTooManyRequests, "tooManyRequests")
 	}
-	return false
+	return nil
 }

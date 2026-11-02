@@ -1,0 +1,58 @@
+schema:
+  - schema.graphqls
+
+exec:
+  filename: generated.go
+  package: graph
+
+model:
+  filename: models_gen.go
+  package: graph
+
+# The resolvers are written by hand in package web (server/internal/web/graphql.go), so gqlgen does not make them.
+
+omit_slice_element_pointers: true
+
+models:
+  JSON:
+    model: github.com/sparklingstadt/typle-r/server/internal/web/graph.JSON
+  Time:
+    model: github.com/99designs/gqlgen/graphql.Time
+  Int:
+    model: github.com/99designs/gqlgen/graphql.Int
+  Share:
+    model: github.com/sparklingstadt/typle-r/server/internal/store.Share
+    fields:
+      id:
+        fieldName: ID
+      packId:
+        fieldName: PackID
+  AdminOverview:
+    model: github.com/sparklingstadt/typle-r/server/internal/store.AdminOverview
+  AdminShare:
+    model: github.com/sparklingstadt/typle-r/server/internal/store.AdminShare
+  AdminAccount:
+    model: github.com/sparklingstadt/typle-r/server/internal/store.AdminAccount
+    fields:
+      ffpfSub:
+        fieldName: FFPFSub
+  AdminUser:
+    model: github.com/sparklingstadt/typle-r/server/internal/store.AdminUser
+  GalleryPack:
+    model: github.com/sparklingstadt/typle-r/server/internal/store.GalleryPack
+    fields:
+      description:
+        resolver: true
+      category:
+        resolver: true
+      tags:
+        resolver: true
+  GalleryCategory:
+    model: github.com/sparklingstadt/typle-r/server/internal/store.GalleryCategory
+  AdminGalleryPack:
+    model: github.com/sparklingstadt/typle-r/server/internal/store.AdminGalleryPack
+    fields:
+      category:
+        resolver: true
+      reasons:
+        resolver: true

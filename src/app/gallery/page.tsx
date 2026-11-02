@@ -8,9 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import GalleryList from "@/components/Gallery/GalleryList"
-import { AppError } from "@/core/appError"
 import {
-  GALLERY_SORTS, decodeGalleryCategories, decodeGalleryPage, galleryApiPath, galleryQueryOf, gallerySearchParams,
+  GALLERY_SORTS, fetchGalleryCategories, fetchGalleryPage, galleryQueryOf, gallerySearchParams,
   type GalleryCategory, type GalleryPack, type GalleryQuery, type GallerySort,
 } from "@/core/gallery"
 import { useErrorText } from "@/i18n/useErrorText"
@@ -35,13 +34,6 @@ function Loading() {
 // What a search found, tagged with the search it answers so an answer that arrives late is never shown for another one.
 type Results = { token: string; packs: GalleryPack[]; more: boolean; page: number }
 const selectClass = "h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
-
-async function fetchPage(query: GalleryQuery, page: number) {
-  const response = await fetch(galleryApiPath(query, page), { cache: 'no-store' })
-  if (response.status === 400) throw new AppError('invalidQuery')
-  if (!response.ok) throw new Error(`Unexpected status ${response.status}`)
-  return decodeGalleryPage(await response.json())
-}
 
 // The typed text is applied on submit only; the box starts again (by its key) when the address brings other text.
 function SearchBox({ text, onSearch }: { text: string; onSearch: (text: string) => void }) {
@@ -72,9 +64,8 @@ function Gallery() {
 
   useEffect(() => {
     let active = true
-    fetch('/api/gallery/categories', { cache: 'no-store' }).then(async response => {
-      if (!response.ok) throw new Error(`Unexpected status ${response.status}`)
-      if (active) setCategories(decodeGalleryCategories(await response.json()))
+    fetchGalleryCategories().then(categories => {
+      if (active) setCategories(categories)
     }).catch(() => { /* The filter just offers fewer choices. */ })
     return () => { active = false }
   }, [])
@@ -82,7 +73,7 @@ function Gallery() {
   // A new condition starts again from the first page.
   useEffect(() => {
     let active = true
-    fetchPage(galleryQueryOf(new URLSearchParams(key)), 1).then(
+    fetchGalleryPage(galleryQueryOf(new URLSearchParams(key)), 1).then(
       page => {
         if (!active) return
         // A failure left by an earlier visit to this search (a failed "more") must not show above the fresh results.
@@ -104,7 +95,7 @@ function Gallery() {
     setLoadingMore(true)
     setFailed(null)
     try {
-      const page = await fetchPage(query, results.page + 1)
+      const page = await fetchGalleryPage(query, results.page + 1)
       setLoaded(current => current && current.token === results.token && current.page === results.page
         ? { token: current.token, packs: [...current.packs, ...page.packs], more: page.more, page: results.page + 1 } : current)
     } catch (reason) { setFailed({ token: results.token, reason }) } finally { setLoadingMore(false) }

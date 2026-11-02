@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { AppError, type ErrorKey } from '@/core/appError'
+import { GraphQLError, graphql } from '@/core/graphql'
 import { useErrorText } from '@/i18n/useErrorText'
 
 const REASONS = ['inappropriate', 'spam', 'personalInfo', 'other'] as const
@@ -13,15 +14,12 @@ type Reason = (typeof REASONS)[number]
 const REPORT_ERRORS = new Set<unknown>(['notInGallery', 'invalidReport', 'databaseUnavailable', 'forbiddenRequest', 'tooManyRequests'] satisfies ErrorKey[])
 
 async function report(id: string, reason: Reason) {
-  const response = await fetch('/api/gallery/reports', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id, reason }),
-  })
-  if (response.ok) return
-  const body = await response.json().catch(() => null)
-  if (REPORT_ERRORS.has(body?.error)) throw new AppError(body.error as ErrorKey)
-  throw new Error(`Report request failed: ${response.status}`)
+  try {
+    await graphql('mutation ReportPack($id: String!, $reason: String!) { reportPack(id: $id, reason: $reason) }', { id, reason })
+  } catch (reason) {
+    if (reason instanceof GraphQLError && REPORT_ERRORS.has(reason.key)) throw new AppError(reason.key as ErrorKey)
+    throw reason instanceof GraphQLError ? new Error(`Report request failed: ${reason.status}`) : reason
+  }
 }
 
 // Sends a report of one shared pack in the gallery. The reporter chooses one of four reasons; nothing about them is sent.
