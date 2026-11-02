@@ -22,16 +22,25 @@ type shareJSON struct {
 	PackID    string `json:"packId"`
 	Name      string `json:"name"`
 	UpdatedAt string `json:"updatedAt"`
+	Listed    bool   `json:"listed"`
+	Hidden    bool   `json:"hidden"`
 }
 
 func shareOf(share store.Share) shareJSON {
-	return shareJSON{share.ID, share.PackID, share.Name, share.UpdatedAt.UTC().Format("2006-01-02T15:04:05.000Z07:00")}
+	return shareJSON{share.ID, share.PackID, share.Name, share.UpdatedAt.UTC().Format("2006-01-02T15:04:05.000Z07:00"), share.Listed, share.Hidden}
 }
 
-// Shared serves /api/shared from the database alone, for a backend that has no login settings to build New with: a
-// link is read by anyone, signed in or not. Its answers are the same as New's.
-func Shared(s Store, report func(r *http.Request, err error, operation string)) http.Handler {
-	return withSecurityHeaders(http.HandlerFunc((&server{config: Config{Store: s, Report: report}}).shared))
+// Public serves /api/shared and the gallery's reads (/api/gallery, /api/gallery/categories) from the database alone, for
+// a backend that has no login settings to build New with: they are read by anyone, signed in or not. Their answers are
+// the same as New's. POST /api/gallery/added checks the Origin against the app's address, so it is New's alone.
+func Public(s Store, report func(r *http.Request, err error, operation string)) http.Handler {
+	srv := &server{config: Config{Store: s, Report: report}}
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api/shared", srv.shared)
+	mux.HandleFunc("/api/gallery", srv.gallery)
+	mux.HandleFunc("/api/gallery/categories", srv.galleryCategories)
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { refuse(w, http.StatusNotFound, "notFound") })
+	return withSecurityHeaders(mux)
 }
 
 // HEAD is served as GET; net/http leaves the body out.
@@ -68,7 +77,7 @@ func (s *server) listShares(w http.ResponseWriter, r *http.Request) {
 }
 
 // putShare shares a pack, or copies it again into its link. It is checked as PUT /api/workspace is: the Origin of a
-// cookie's request, a JSON body, then the login. The body is {"packId"} and nothing else.
+// cookie's request, a JSON body, then the login. The body is {"packId"} with, optionally, "listed" (a boolean).
 func (s *server) putShare(w http.ResponseWriter, r *http.Request) {
 	if !(fromApp(r) || s.sameOrigin(r)) || !jsonContent(r) {
 		refuse(w, http.StatusForbidden, "forbiddenRequest")
@@ -78,18 +87,20 @@ func (s *server) putShare(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	packID, ok := readPackID(r)
+	packID, listed, ok := readShareBody(r)
 	if !ok {
 		refuse(w, http.StatusBadRequest, "invalidWorkspace")
 		return
 	}
-	share, err := s.config.Store.PutShare(r.Context(), user.Sub, packID)
+	share, err := s.config.Store.PutShare(r.Context(), user.Sub, packID, listed)
 	var refused *workspace.Error
 	switch {
 	case errors.As(err, &refused) && refused.Key == "packNotFound":
 		refuse(w, http.StatusNotFound, refused.Key)
 	case errors.As(err, &refused) && refused.Key == "invalidWorkspace":
 		refuse(w, http.StatusBadRequest, refused.Key)
+	case errors.As(err, &refused) && refused.Key == "sharedPackHidden":
+		refuse(w, http.StatusConflict, refused.Key)
 	case err != nil:
 		s.report(r, err, "shares.write")
 		refuse(w, http.StatusServiceUnavailable, "workspaceSaveFailed")
@@ -123,26 +134,39 @@ func (s *server) deleteShare(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// readPackID reads a body that is {"packId": "<a pack id>"}, with no other member.
-func readPackID(r *http.Request) (string, bool) {
+// readShareBody reads a body that is {"packId": "<a pack id>"} with, optionally, "listed": true or false, and no other
+// member. Without "listed" it is nil: the listing in the gallery is left as it is. "listed": null is refused.
+func readShareBody(r *http.Request) (packID string, listed *bool, ok bool) {
 	if r.Body == nil || r.Body == http.NoBody {
-		return "", false
+		return "", nil, false
 	}
 	body, err := readLimited(r.Body, maxShareBodyBytes)
 	if err != nil {
-		return "", false
+		return "", nil, false
 	}
 	fields, err := parseObject(body)
-	if err != nil || len(fields) != 1 {
-		return "", false
+	if err != nil {
+		return "", nil, false
+	}
+	for name := range fields {
+		if name != "packId" && name != "listed" {
+			return "", nil, false
+		}
 	}
 	raw, ok := fields["packId"]
-	var packID string
 	// null leaves packID empty, and is refused with it.
 	if !ok || json.Unmarshal(raw, &packID) != nil || packID == "" {
-		return "", false
+		return "", nil, false
 	}
-	return packID, true
+	if raw, present := fields["listed"]; present {
+		var value bool
+		// null would unmarshal into value without an error, so it is refused by its text.
+		if string(raw) == "null" || json.Unmarshal(raw, &value) != nil {
+			return "", nil, false
+		}
+		listed = &value
+	}
+	return packID, listed, true
 }
 
 // shared answers the pack a link shares, as the file it was copied into: anyone with the link may read it, so it is

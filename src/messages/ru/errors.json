@@ -66,5 +66,6 @@
   "adminForbidden": "Этот FFPF ID не является администратором.",
   "adminUnavailable": "Не удалось проверить, являетесь ли вы администратором. Повторите попытку позже.",
   "invalidPage": "Неверный номер страницы.",
-  "importInputTypeInvalid": "Строка {line}: input_type должен быть command, code или word."
+  "importInputTypeInvalid": "Строка {line}: input_type должен быть command, code или word.",
+  "invalidQuery": "Условия поиска указаны неверно."
 }

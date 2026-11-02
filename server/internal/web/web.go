@@ -21,10 +21,13 @@ type Store interface {
 	ReadRevision(ctx context.Context, owner string) (*store.Saved, error)
 	WriteRevision(ctx context.Context, owner string, revision int, change store.Change) (*store.Saved, error)
 	operation.Writer
-	PutShare(ctx context.Context, owner, packID string) (*store.Share, error)
+	PutShare(ctx context.Context, owner, packID string, listed *bool) (*store.Share, error)
 	DeleteShare(ctx context.Context, owner, packID string) error
 	ListShares(ctx context.Context, owner string) ([]store.Share, error)
 	SharedPack(ctx context.Context, id string) (json.RawMessage, error)
+	Gallery(ctx context.Context, q store.GalleryQuery) (*store.GalleryPage, error)
+	GalleryCategories(ctx context.Context) ([]store.GalleryCategory, error)
+	CountAdded(ctx context.Context, id string) error
 	Admin(ctx context.Context, email, sub string) (bool, error)
 	Overview(ctx context.Context) (*store.AdminOverview, error)
 	Users(ctx context.Context, page int) (*store.AdminUsers, error)
@@ -103,6 +106,9 @@ func New(c Config) http.Handler {
 	mux.HandleFunc("/api/workspace/records", s.records)
 	mux.HandleFunc("/api/shares", s.shares)
 	mux.HandleFunc("/api/shared", s.shared)
+	mux.HandleFunc("/api/gallery", s.gallery)
+	mux.HandleFunc("/api/gallery/categories", s.galleryCategories)
+	mux.HandleFunc("/api/gallery/added", s.galleryAdded)
 	mux.HandleFunc("/api/auth/signin", s.signin)
 	mux.HandleFunc(githubCallback, s.callback(providerGitHub))
 	mux.HandleFunc(ffpfCallback, s.callback(providerFFPF))

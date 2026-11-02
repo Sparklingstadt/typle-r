@@ -66,5 +66,6 @@
   "adminForbidden": "このFFPF IDは管理者ではありません。",
   "adminUnavailable": "管理者かどうかを確認できませんでした。しばらくしてからもう一度お試しください。",
   "invalidPage": "ページの指定が正しくありません。",
-  "importInputTypeInvalid": "{line}行目の input_type は command、code、word のいずれかにしてください。"
+  "importInputTypeInvalid": "{line}行目の input_type は command、code、word のいずれかにしてください。",
+  "invalidQuery": "検索の条件が正しくありません。"
 }

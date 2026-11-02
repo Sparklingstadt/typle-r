@@ -25,7 +25,8 @@
     "devices": "设备",
     "guide": "使用方法",
     "about": "关于 Typle",
-    "github": "GitHub"
+    "github": "GitHub",
+    "gallery": "图库"
   },
   "storage": {
     "label": "保存位置：",

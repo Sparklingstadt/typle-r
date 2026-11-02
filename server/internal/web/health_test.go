@@ -101,13 +101,25 @@ func TestHealthAlone(t *testing.T) {
 }
 
 // Nor links.
-func (f fakeStore) PutShare(context.Context, string, string) (*store.Share, error) { return nil, f.err }
+func (f fakeStore) PutShare(context.Context, string, string, *bool) (*store.Share, error) {
+	return nil, f.err
+}
 
 func (f fakeStore) DeleteShare(context.Context, string, string) error { return f.err }
 
 func (f fakeStore) ListShares(context.Context, string) ([]store.Share, error) { return nil, f.err }
 
 func (f fakeStore) SharedPack(context.Context, string) (json.RawMessage, error) { return nil, f.err }
+
+func (f fakeStore) Gallery(context.Context, store.GalleryQuery) (*store.GalleryPage, error) {
+	return nil, f.err
+}
+
+func (f fakeStore) GalleryCategories(context.Context) ([]store.GalleryCategory, error) {
+	return nil, f.err
+}
+
+func (f fakeStore) CountAdded(context.Context, string) error { return f.err }
 
 func (f fakeStore) Admin(context.Context, string, string) (bool, error) { return false, f.err }
 

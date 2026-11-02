@@ -301,7 +301,8 @@
     "matching": "関心に合うパック",
     "others": "そのほかのパック",
     "noMatching": "関心に合うパックはまだありません",
-    "changeInterests": "関心を変える"
+    "changeInterests": "関心を変える",
+    "toGallery": "みんなが公開したパックをギャラリーで探す"
   },
   "share": {
     "title": "「{name}」を共有",
@@ -343,5 +344,23 @@
     "confirm": "フォロー解除する",
     "confirming": "解除中…",
     "done": "「{name}」のフォローを解除しました"
+  },
+  "gallery": {
+    "title": "ギャラリー",
+    "intro": "みんなが公開した単語パックを探して、中身を確かめてから自分のパックに追加できます。",
+    "search": "検索",
+    "category": "カテゴリー",
+    "allCategories": "すべてのカテゴリー",
+    "sort": "並べ替え",
+    "sortNew": "新しい順",
+    "sortPopular": "追加の多い順",
+    "lists": "リスト {count}",
+    "words": "単語 {count}",
+    "added": "追加 {count}",
+    "more": "もっと見る",
+    "empty": "まだ公開されたパックはありません",
+    "noResults": "見つかりませんでした",
+    "loadFailed": "ギャラリーを読み込めませんでした。時間をおいてもう一度お試しください。",
+    "retry": "やり直す"
   }
 }

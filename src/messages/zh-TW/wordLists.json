@@ -301,7 +301,8 @@
     "matching": "符合興趣的詞包",
     "others": "其他詞包",
     "noMatching": "目前沒有符合興趣的詞包",
-    "changeInterests": "變更興趣"
+    "changeInterests": "變更興趣",
+    "toGallery": "在圖庫中尋找大家公開的包"
   },
   "share": {
     "title": "分享「{name}」",
@@ -343,5 +344,23 @@
     "confirm": "取消追蹤",
     "confirming": "正在取消追蹤…",
     "done": "已取消追蹤「{name}」"
+  },
+  "gallery": {
+    "title": "圖庫",
+    "intro": "尋找大家公開的單字包，先看看內容，再加入自己的包。",
+    "search": "搜尋",
+    "category": "分類",
+    "allCategories": "所有分類",
+    "sort": "排序",
+    "sortNew": "最新",
+    "sortPopular": "加入最多",
+    "lists": "清單 {count}",
+    "words": "單字 {count}",
+    "added": "已加入 {count}",
+    "more": "顯示更多",
+    "empty": "還沒有公開的包",
+    "noResults": "找不到",
+    "loadFailed": "無法載入圖庫。請稍後再試。",
+    "retry": "重試"
   }
 }

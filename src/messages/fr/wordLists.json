@@ -301,7 +301,8 @@
     "matching": "Packs correspondant à vos centres d’intérêt",
     "others": "Autres packs",
     "noMatching": "Aucun pack ne correspond encore à vos centres d’intérêt",
-    "changeInterests": "Modifier les centres d’intérêt"
+    "changeInterests": "Modifier les centres d’intérêt",
+    "toGallery": "Parcourir dans la galerie les packs publiés par d’autres"
   },
   "share": {
     "title": "Partager « {name} »",
@@ -343,5 +344,23 @@
     "confirm": "Ne plus suivre",
     "confirming": "Arrêt du suivi…",
     "done": "« {name} » n’est plus suivi."
+  },
+  "gallery": {
+    "title": "Galerie",
+    "intro": "Parcourez les packs de mots publiés par d’autres, regardez leur contenu et ajoutez-les à vos packs.",
+    "search": "Rechercher",
+    "category": "Catégorie",
+    "allCategories": "Toutes les catégories",
+    "sort": "Trier par",
+    "sortNew": "Plus récents",
+    "sortPopular": "Plus ajoutés",
+    "lists": "Listes : {count}",
+    "words": "Mots : {count}",
+    "added": "Ajouts : {count}",
+    "more": "Afficher plus",
+    "empty": "Aucun pack n’a encore été publié",
+    "noResults": "Aucun résultat",
+    "loadFailed": "Impossible de charger la galerie. Réessayez dans un instant.",
+    "retry": "Réessayer"
   }
 }

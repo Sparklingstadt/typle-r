@@ -40,7 +40,7 @@ func (fakeStore) WriteRevision(context.Context, string, int, store.Change) (*sto
 func (fakeStore) Modify(context.Context, string, func(*workspace.Workspace) (bool, error)) (*workspace.Workspace, error) {
 	return nil, errors.New("not used")
 }
-func (fakeStore) PutShare(context.Context, string, string) (*store.Share, error) {
+func (fakeStore) PutShare(context.Context, string, string, *bool) (*store.Share, error) {
 	return nil, errors.New("not used")
 }
 func (fakeStore) DeleteShare(context.Context, string, string) error { return errors.New("not used") }
@@ -50,7 +50,12 @@ func (fakeStore) ListShares(context.Context, string) ([]store.Share, error) {
 
 // SharedPack has no links: every id is not found.
 func (fakeStore) SharedPack(context.Context, string) (json.RawMessage, error) { return nil, nil }
-func (fakeStore) Admin(context.Context, string, string) (bool, error)         { return false, nil }
+func (fakeStore) Gallery(context.Context, store.GalleryQuery) (*store.GalleryPage, error) {
+	return &store.GalleryPage{}, nil
+}
+func (fakeStore) GalleryCategories(context.Context) ([]store.GalleryCategory, error) { return nil, nil }
+func (fakeStore) CountAdded(context.Context, string) error                           { return nil }
+func (fakeStore) Admin(context.Context, string, string) (bool, error)                { return false, nil }
 func (fakeStore) Overview(context.Context) (*store.AdminOverview, error) {
 	return nil, errors.New("not used")
 }
@@ -465,5 +470,42 @@ func TestSharedDatabaseDown(t *testing.T) {
 	backend.open = func(context.Context, string) (web.Store, error) { return nil, errors.New("connection refused") }
 	for _, path := range []string{"/api/shared?id=x", "/api/shares"} {
 		expect(t, get(path), http.StatusServiceUnavailable, `{"error":"databaseUnavailable"}`)
+	}
+}
+
+// The gallery is read by anyone, so like /api/shared it needs the database only; whatever the answer, it is not indexed
+// or kept. /api/gallery/added checks the Origin against AUTH_URL, so it needs the login settings.
+func TestGalleryWithoutSecret(t *testing.T) {
+	reset(t)
+	settings(t)
+	t.Setenv("AUTH_SECRET", "")
+	t.Setenv("AUTH_URL", "")
+	backend.open = func(context.Context, string) (web.Store, error) { return fakeStore{}, nil }
+	for path, body := range map[string]string{"/api/gallery": `{"packs":[],"more":false}`, "/api/gallery/categories": `{"categories":[]}`} {
+		response := get(path)
+		expect(t, response, http.StatusOK, body)
+		checkGalleryHeaders(t, response)
+	}
+	post := httptest.NewRecorder()
+	backend.ServeHTTP(post, httptest.NewRequest(http.MethodPost, "/api/gallery/added?id=x", nil))
+	expect(t, post, http.StatusServiceUnavailable, `{"error":"authUnavailable"}`)
+}
+
+func TestGalleryDatabaseDown(t *testing.T) {
+	reset(t)
+	settings(t)
+	backend.retryAfter = 0
+	backend.open = func(context.Context, string) (web.Store, error) { return nil, errors.New("connection refused") }
+	for _, path := range []string{"/api/gallery", "/api/gallery/categories"} {
+		response := get(path)
+		expect(t, response, http.StatusServiceUnavailable, `{"error":"databaseUnavailable"}`)
+		checkGalleryHeaders(t, response)
+	}
+}
+
+func checkGalleryHeaders(t *testing.T, response *httptest.ResponseRecorder) {
+	t.Helper()
+	if response.Header().Get("X-Robots-Tag") != "noindex" || response.Header().Get("Cache-Control") != "no-store" {
+		t.Fatalf("headers = %v", response.Header())
 	}
 }

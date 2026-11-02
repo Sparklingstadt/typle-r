@@ -25,7 +25,8 @@
     "devices": "Devices",
     "guide": "How to use",
     "about": "About Typle",
-    "github": "GitHub"
+    "github": "GitHub",
+    "gallery": "Gallery"
   },
   "storage": {
     "label": "Saved to: ",
