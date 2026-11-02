@@ -25,5 +25,5 @@
 | `POST /api/gallery/reports` | `{ "id", "reason" }`（`Content-Type: application/json` と、アプリの `Origin` が必要。4KiB まで）。`reason` は `inappropriate`・`spam`・`personalInfo`・`other` | `204`。掲載中で非公開にされていない共有に通報を記録する。`reason` や本文が不正なら `400 invalidReport`、`Origin` か `Content-Type` が違えば `403 forbiddenRequest`、掲載中で非公開でない共有がなければ `404 notInGallery`（リンクだけの共有も同じ） |
 
 - DB に届かないときは `503 databaseUnavailable` です。Vercel では、`GET /api/gallery` と `GET /api/gallery/categories` は `/api/shared` と同じく、ログインの設定がなくても DB だけで答えます。`POST /api/gallery/added` と `POST /api/gallery/reports` は `Origin` を確かめるため、`/api/shares` と同じ経路を通り、ログインの設定（`AUTH_SECRET`・`AUTH_URL`）がなければ `503 authUnavailable` です。
-- 非公開にされた共有（管理者が `/api/admin/gallery/hide` で非公開にしたもの）は、ギャラリーに出ず、`GET /api/shared` も `404 sharedPackNotFound` になります。持ち主の `GET /api/shares` には `hidden: true` で返り、持ち主は `listed` を変えられません（`409 sharedPackHidden`）が、`PUT` での更新と `DELETE` での共有の終了はできます。
-- 通報と追加数の連打は、コードでは防がず、Vercel Firewall のレート制限（`/api/gallery/reports`・`/api/gallery/added` へのリクエスト数の上限）で抑えます。
+- 非公開にされた共有（管理者が `/api/admin/gallery/hide` で非公開にしたもの）は、ギャラリーに出ず、`GET /api/shared` も `404 sharedPackNotFound` になります。持ち主の `GET /api/shares` には `hidden: true` で返り、持ち主はその共有の `listed` を変えられません（`409 sharedPackHidden`）が、`PUT` での更新と `DELETE` での共有の終了はできます。
+- 通報と追加数の連打は、コードでは防ぎません。本番では運用する人が Vercel Firewall のレート制限を設定します（ルールは README の「ギャラリーのレート制限（Vercel Firewall）」にあります）。

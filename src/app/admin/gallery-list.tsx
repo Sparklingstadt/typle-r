@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
-// The answer of GET /api/admin/gallery (server/internal/web/admin_gallery.go), the most reported packs first.
+// The answer of GET /api/admin/gallery (server/internal/web/admin.go, server/internal/store/gallery.go), the most reported packs first.
 type Pack = {
   id: string
   name: string
@@ -28,7 +28,7 @@ export default function GalleryList({ time, errorText }: { time: (value: string 
   const shares = useTranslations('admin.shares')
   const reasons = useTranslations('wordLists.report.reasons')
   const [state, setState] = useState<State>({ kind: 'loading' })
-  const [actionFailed, setActionFailed] = useState(false)
+  const [actionFailed, setActionFailed] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
   const fetchPacks = useCallback(async (): Promise<State> => {
@@ -50,16 +50,22 @@ export default function GalleryList({ time, errorText }: { time: (value: string 
 
   async function change(pack: Pack, action: 'hide' | 'unhide') {
     setBusy(true)
-    setActionFailed(false)
+    setActionFailed(null)
     try {
       const response = await fetch(`/api/admin/gallery/${action}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: pack.id }),
       })
-      if (!response.ok) throw new Error('gallery change failed')
+      if (!response.ok) {
+        // The owner may have stopped sharing meanwhile (404): show the server's reason and re-read the list.
+        const body = await response.json().catch(() => null)
+        setActionFailed(errorText(body?.error))
+        setState(await fetchPacks())
+        return
+      }
       setState(await fetchPacks())
-    } catch { setActionFailed(true) }
+    } catch { setActionFailed(t('failed')) }
     finally { setBusy(false) }
   }
 
@@ -69,7 +75,7 @@ export default function GalleryList({ time, errorText }: { time: (value: string 
       <CardDescription>{t('description')}</CardDescription>
     </CardHeader>
     <CardContent className="space-y-4">
-      {actionFailed && <Alert variant="destructive"><AlertDescription>{t('failed')}</AlertDescription></Alert>}
+      {actionFailed && <Alert variant="destructive"><AlertDescription>{actionFailed}</AlertDescription></Alert>}
       {state.kind === 'loading' && <p role="status">{t('loading')}</p>}
       {state.kind === 'failed' && <Alert variant="destructive"><AlertDescription className="flex flex-wrap items-center gap-3">
         {state.error}<Button variant="outline" size="sm" onClick={() => { setState({ kind: 'loading' }); void fetchPacks().then(setState) }}>{t('retry')}</Button>
@@ -85,7 +91,7 @@ export default function GalleryList({ time, errorText }: { time: (value: string 
           <TableHead><span className="sr-only">{t('actions')}</span></TableHead>
         </TableRow></TableHeader>
         <TableBody>{state.packs.map(pack => <TableRow key={pack.id}>
-          <TableCell><a className="underline" href={`/shared/${pack.id}`}>{pack.name || shares('unnamed')}</a></TableCell>
+          <TableCell><a id={`admin-gallery-pack-${pack.id}`} className="underline" href={`/shared/${pack.id}`}>{pack.name || shares('unnamed')}</a></TableCell>
           <TableCell>{pack.category ?? ''}</TableCell>
           <TableCell className="text-right tabular-nums">{pack.added.toLocaleString()}</TableCell>
           <TableCell>{time(pack.listedAt)}</TableCell>
@@ -97,7 +103,7 @@ export default function GalleryList({ time, errorText }: { time: (value: string 
           </TableCell>
           <TableCell>{pack.hiddenAt ? t('hidden', { time: time(pack.hiddenAt) }) : ''}</TableCell>
           <TableCell>
-            <Button variant="outline" size="sm" disabled={busy} onClick={() => void change(pack, pack.hiddenAt ? 'unhide' : 'hide')}>
+            <Button variant="outline" size="sm" disabled={busy} aria-describedby={`admin-gallery-pack-${pack.id}`} onClick={() => void change(pack, pack.hiddenAt ? 'unhide' : 'hide')}>
               {pack.hiddenAt ? t('unhide') : t('hide')}
             </Button>
           </TableCell>

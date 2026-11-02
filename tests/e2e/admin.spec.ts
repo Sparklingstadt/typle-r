@@ -145,7 +145,7 @@ test('a hidden pack can be shown again', async ({ page }) => {
   expect(unhides).toEqual([{ id: packA }])
 })
 
-test('a failed hide says so', async ({ page }) => {
+test('a failed hide shows the server reason', async ({ page }) => {
   const hides: unknown[] = []
   await mockAdmin(page, () => ({ packs: [
     { id: packA, name: 'Some pack', added: 2, listedAt: '2026-10-20T03:04:05Z', hiddenAt: null, reports: 0, reasons: {} },
@@ -153,7 +153,7 @@ test('a failed hide says so', async ({ page }) => {
   await page.goto('/admin')
   const section = page.getByRole('region', { name: 'ギャラリー' })
   await section.getByRole('button', { name: '非公開にする' }).click()
-  await expect(section.getByRole('alert')).toContainText('操作できませんでした')
+  await expect(section.getByRole('alert')).toContainText('この共有は終了しました')
   await expect(section.getByRole('button', { name: '非公開にする' })).toBeVisible()
   expect(hides).toEqual([{ id: packA }])
 })

@@ -69,10 +69,10 @@ export default function ShareDialog({ pack, hasCategory, share, onShare, onStop,
       <div className="space-y-1.5">
         <div className="flex items-center justify-between gap-3">
           <label htmlFor="share-gallery" className="text-sm font-medium">{t('gallery')}</label>
-          <Switch id="share-gallery" checked={listed} disabled={busy || !!share?.hidden} onCheckedChange={toggleListed} />
+          <Switch id="share-gallery" checked={listed} disabled={busy || !!share?.hidden} aria-describedby={share?.hidden ? 'share-gallery-notice' : !hasCategory ? 'share-gallery-notice share-gallery-hint' : 'share-gallery-notice'} onCheckedChange={toggleListed} />
         </div>
-        <p className="text-[13px] text-muted-foreground">{share?.hidden ? t('hiddenNotice') : t('galleryNotice')}</p>
-        {!share?.hidden && !hasCategory && <p className="text-[13px] text-muted-foreground">{t('galleryCategoryHint')}</p>}
+        <p id="share-gallery-notice" className="text-[13px] text-muted-foreground">{share?.hidden ? t('hiddenNotice') : t('galleryNotice')}</p>
+        {!share?.hidden && !hasCategory && <p id="share-gallery-hint" className="text-[13px] text-muted-foreground">{t('galleryCategoryHint')}</p>}
       </div>
       {share && <div className="space-y-3">
         <div className="flex items-center gap-2">
