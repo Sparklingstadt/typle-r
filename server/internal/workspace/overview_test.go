@@ -82,6 +82,15 @@ func TestCurrentRecordCount(t *testing.T) {
 	}
 }
 
+func TestCurrentRecordCountSkipsRecall(t *testing.T) {
+	recall := dated("2026-09-04", 3)
+	recall.Mode = "recall"
+	list := List{Words: []Word{{}, {}, {}}, Records: []Record{dated("2026-09-01", 3), recall}}
+	if got := CurrentRecordCount(&list); got != 1 {
+		t.Fatalf("CurrentRecordCount = %d", got)
+	}
+}
+
 func TestCompareNames(t *testing.T) {
 	if CompareNames("List 2", "List 10", true) >= 0 || CompareNames("List 10", "List 2", false) >= 0 {
 		t.Fatal("numeric order")

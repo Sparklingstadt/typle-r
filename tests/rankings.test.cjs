@@ -115,3 +115,22 @@ test('device options count by id with the newest name, and put records without a
     { value: NO_DEVICE, count: 3 },
   ])
 })
+
+test('comparableRecords and listBest compare records of one mode', () => {
+  const list = { id: 'm', name: 'M', createdAt: '2026-09-01', words: words(2), records: [
+    { ...record('n', 10, 100, 2, 1) }, { ...record('r', 5, 100, 2, 2), mode: 'recall' }] }
+  assert.equal(listBest(list).time, 10)
+  assert.equal(listBest(list, 'recall').time, 5)
+  assert.deepEqual(comparableRecords(list).map(r => r.id), ['n'])
+  assert.deepEqual(comparableRecords(list, list.records, 'recall').map(r => r.id), ['r'])
+  assert.deepEqual(listRanking(list).ranked.map(r => r.id), ['n'])
+})
+
+test('listRanking ranks the chosen mode', () => {
+  const list = { id: 'm', name: 'M', createdAt: '2026-09-01', words: words(2), records: [
+    { ...record('n', 10, 100, 2, 1) }, { ...record('r', 5, 100, 2, 2), mode: 'recall' }] }
+  const ranking = listRanking(list, { mode: 'recall', now })
+  assert.deepEqual(ranking.records.map(r => r.id), ['r'])
+  assert.deepEqual(ranking.ranked.map(r => r.id), ['r'])
+  assert.equal(ranking.best.id, 'r')
+})
