@@ -39,6 +39,11 @@ const (
 	// v2 since the administrator signs in with FFPF ID instead of GitHub: the new key keeps an administrator's cookie
 	// of a GitHub sign-in from ever opening, whatever its JSON says.
 	adminInfo = "typle admin v2"
+	// rateLimitInfo keys the hash of a client's IP address that the gallery's rate limit counts by (ClientMAC).
+	rateLimitInfo = "typle gallery-rate-limit v1"
+	// ClientMACSize is the number of bytes of ClientMAC: half of the SHA-256 output, which is plenty to tell clients
+	// apart and keeps the stored value short.
+	ClientMACSize = 16
 )
 
 // accountSub is the only subject accepted: a GitHub account (the numeric user id, as the Next.js login used to give) or
@@ -121,7 +126,7 @@ type codeWire struct {
 // cookie, and its Seal and SealOAuth panic, because HMAC with an empty key is a signature anyone can make, and using
 // Keys that NewKeys never returned is a programming error that must not pass quietly.
 type Keys struct {
-	session, oauth, app, code, admin []byte
+	session, oauth, app, code, admin, rateLimit []byte
 }
 
 // NewKeys derives the keys from AUTH_SECRET. An empty secret would make every cookie forgeable, so it is refused.
@@ -149,7 +154,20 @@ func NewKeys(secret string) (Keys, error) {
 	if err != nil {
 		return Keys{}, err
 	}
-	return Keys{session: sessionKey, oauth: oauthKey, app: appKey, code: codeKey, admin: adminKey}, nil
+	rateLimitKey, err := hkdf.Key(sha256.New, []byte(secret), nil, rateLimitInfo, sha256.Size)
+	if err != nil {
+		return Keys{}, err
+	}
+	return Keys{session: sessionKey, oauth: oauthKey, app: appKey, code: codeKey, admin: adminKey, rateLimit: rateLimitKey}, nil
+}
+
+// ClientMAC is the first ClientMACSize bytes of the HMAC-SHA256 of an IP address under the rate limit key. The address
+// itself is never kept: this is what the rate limit stores to tell clients apart. It panics on the zero Keys.
+func (k Keys) ClientMAC(ip string) []byte {
+	if len(k.rateLimit) == 0 {
+		panic("session: ClientMAC with the zero Keys")
+	}
+	return sign(k.rateLimit, ip)[:ClientMACSize]
 }
 
 // New starts a session at now.

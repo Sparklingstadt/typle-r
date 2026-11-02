@@ -28,6 +28,7 @@ type Store interface {
 	Gallery(ctx context.Context, q store.GalleryQuery) (*store.GalleryPage, error)
 	GalleryCategories(ctx context.Context) ([]store.GalleryCategory, error)
 	CountAdded(ctx context.Context, id string) error
+	CountGalleryHit(ctx context.Context, action string, client []byte) (hits int, windowEnd time.Time, err error)
 	Report(ctx context.Context, id, reason string) (bool, error)
 	AdminGallery(ctx context.Context) ([]store.AdminGalleryPack, error)
 	SetHidden(ctx context.Context, id string, hidden bool) (bool, error)
@@ -93,6 +94,9 @@ type Config struct {
 	// LocalLogin turns on POST /api/auth/local, which signs in as a made-up local account for development. Off, the
 	// path does not exist.
 	LocalLogin bool
+	// OnVercel is whether the app runs on Vercel (VERCEL is set), where X-Forwarded-For and X-Real-Ip are written by
+	// Vercel and tell the client's IP. Elsewhere they are the client's own words and are ignored.
+	OnVercel bool
 	// Report is told of a failure that is answered with a 503, with the operation that failed (such as
 	// "workspace.read"), so that it can be sent to an error tracker. When nil the failure is only logged.
 	Report func(r *http.Request, err error, operation string)

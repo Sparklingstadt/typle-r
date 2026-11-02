@@ -1,6 +1,7 @@
 package session
 
 import (
+	"bytes"
 	"crypto/hkdf"
 	"crypto/hmac"
 	"crypto/sha256"
@@ -492,4 +493,33 @@ func TestOAuthProviderAndNonce(t *testing.T) {
 			t.Fatalf("oauth = %+v, %v; want %+v", got, ok, want)
 		}
 	}
+}
+
+func TestClientMAC(t *testing.T) {
+	keys := testKeys(t)
+	mac := keys.ClientMAC("203.0.113.7")
+	if len(mac) != ClientMACSize || !bytes.Equal(mac, keys.ClientMAC("203.0.113.7")) {
+		t.Fatalf("mac = %x", mac)
+	}
+	if bytes.Equal(mac, keys.ClientMAC("203.0.113.8")) {
+		t.Error("two addresses share a MAC")
+	}
+	other, err := NewKeys("another secret")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Equal(mac, other.ClientMAC("203.0.113.7")) {
+		t.Error("two secrets share a MAC")
+	}
+	// It is keyed by its own purpose: not the HMAC of the address under the session key, nor a bare hash.
+	plain := sha256.Sum256([]byte("203.0.113.7"))
+	if bytes.Equal(mac, plain[:ClientMACSize]) || bytes.Equal(mac, sign(keys.session, "203.0.113.7")[:ClientMACSize]) {
+		t.Error("the MAC is not under a key of its own")
+	}
+	defer func() {
+		if recover() == nil {
+			t.Error("zero Keys did not panic")
+		}
+	}()
+	Keys{}.ClientMAC("203.0.113.7")
 }

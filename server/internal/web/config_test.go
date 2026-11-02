@@ -297,3 +297,16 @@ func TestUnavailable(t *testing.T) {
 		t.Fatalf("headers = %v", header)
 	}
 }
+
+func TestFromEnvOnVercel(t *testing.T) {
+	local, err := FromEnv(env(validEnv()), true)
+	if err != nil || local.OnVercel {
+		t.Fatalf("without VERCEL: OnVercel = %v, %v", local.OnVercel, err)
+	}
+	values := validEnv()
+	values["VERCEL"] = "1"
+	config, err := FromEnv(env(values), false)
+	if err != nil || !config.OnVercel {
+		t.Fatalf("with VERCEL: OnVercel = %v, %v", config.OnVercel, err)
+	}
+}
