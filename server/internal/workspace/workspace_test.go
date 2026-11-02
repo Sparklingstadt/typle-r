@@ -256,7 +256,7 @@ func TestDecodeRecordMode(t *testing.T) {
 	if err != nil || !strings.Contains(string(written), `"mode":"recall"`) || strings.Count(string(written), `"mode"`) != 1 {
 		t.Fatalf("written = %s, %v", written, err)
 	}
-	for _, bad := range []string{`,"mode":"x"`, `,"mode":""`, `,"mode":1`} {
+	for _, bad := range []string{`,"mode":"x"`, `,"mode":""`, `,"mode":1`, `,"mode":null`} {
 		if _, err := Decode(list(bad), []byte(`[]`), nil); err == nil {
 			t.Errorf("Decode accepted %s", bad)
 		}

@@ -59,6 +59,14 @@ function replaceCandidate(source: string, candidate: string): string {
   return result
 }
 
+// The display text of a word as a recall hint: only when it differs from the typed text by more than whitespace
+// (java - version vs java -version would give the answer away), and never for code.
+export function recallDisplayHint(word: { display: string; input: string; input_type?: string }): string {
+  if (word.input_type === 'code') return ''
+  const bare = (value: string) => value.replace(/\s+/g, '')
+  return bare(word.display) === bare(word.input) ? '' : word.display
+}
+
 export function recallPrompt(word: { display: string; input: string; annotation: string }): string {
   const candidates = candidatesOf(word)
   if (candidates.length === 0) return isEmpty(word.annotation) ? '' : word.annotation

@@ -216,7 +216,7 @@ func (s *server) addRecord(w http.ResponseWriter, r *http.Request, owner string)
 	if !ok {
 		return
 	}
-	if input.Mode != nil {
+	if input.Mode != nil || input.ModeNull {
 		// A recall run is saved by the app only; the API does not take a mode.
 		failure(w, http.StatusBadRequest, "invalidJson")
 		return

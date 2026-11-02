@@ -1,7 +1,7 @@
 require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
-const { recallPrompt } = require('../src/core/recallPrompt.ts')
+const { recallPrompt, recallDisplayHint } = require('../src/core/recallPrompt.ts')
 
 const cases = [
   ['apple', 'apple', 'apple / りんご', 'りんご'],
@@ -24,4 +24,11 @@ test('longer candidate wins and accents are kept where not replaced', () => {
     '＿＿ と ＿＿ を使う',
   )
   assert.equal(recallPrompt({ display: 'x', input: 'x', annotation: 'Éx は x' }), 'Éx は x')
+})
+
+test('recallDisplayHint shows the display only when it is not the answer', () => {
+  assert.equal(recallDisplayHint({ display: '苹果', input: 'pingguo' }), '苹果')
+  assert.equal(recallDisplayHint({ display: 'java - version', input: 'java -version' }), '')
+  assert.equal(recallDisplayHint({ display: 'apple', input: 'apple' }), '')
+  assert.equal(recallDisplayHint({ display: '苹果', input: 'pingguo', input_type: 'code' }), '')
 })

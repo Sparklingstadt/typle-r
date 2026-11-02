@@ -11,7 +11,7 @@ import PracticeName, { usePracticeName } from '@/components/PracticeName'
 import { useFormat } from '@/i18n/useFormat'
 import type { PracticeDevice } from '@/core/devices'
 import { speedScale } from '@/core/dashboard'
-import { formatAccuracy, type PracticeMode, type RankOrder } from '@/core/records'
+import { formatAccuracy, recordsOfMode, type PracticeMode, type RankOrder } from '@/core/records'
 import { listRanking, RANKING_TOP, rankingStats } from '@/core/rankings'
 import type { SavedWordList } from '@/core/wordLists'
 import { cn } from '@/lib/utils'
@@ -34,8 +34,10 @@ export default function RankingDetail({ list, devices, device, deviceName, order
   const [showAll, setShowAll] = useState(false)
   const ranking = listRanking(list, { device, order, includeOthers, now, mode })
   const { ranked, best } = ranking
+  // Counts and the empty state follow the chosen mode, like the ranked list beside them.
+  const modeRecords = recordsOfMode(list.records, mode)
   const practice = `/play?list=${encodeURIComponent(list.id)}`
-  const lastPracticed = list.records.reduce((latest, record) => Math.max(latest, Date.parse(record.date)), 0)
+  const lastPracticed = modeRecords.reduce((latest, record) => Math.max(latest, Date.parse(record.date)), 0)
 
   return <div className="flex flex-col gap-5 p-4 sm:p-6">
     <Button variant="ghost" size="sm" className="-ml-2 self-start xl:hidden" onClick={onBack}><ArrowLeft aria-hidden="true" />{t('detail.back')}</Button>
@@ -43,12 +45,12 @@ export default function RankingDetail({ list, devices, device, deviceName, order
       <div className="min-w-0 space-y-1">
         <h2 id="ranking-title" tabIndex={-1} className="text-xl font-bold outline-none [overflow-wrap:anywhere]"><PracticeName list={list} /></h2>
         <p className="flex flex-wrap items-center gap-x-2 text-[13px] text-muted-foreground tabular-nums">
-          <span>{t('detail.words', { count: list.words.length })}</span><span aria-hidden="true">·</span><span>{t('detail.records', { count: list.records.length })}</span>
+          <span>{t('detail.words', { count: list.words.length })}</span><span aria-hidden="true">·</span><span>{t('detail.records', { count: modeRecords.length })}</span>
           {lastPracticed > 0 && <><span aria-hidden="true">·</span><span>{t('detail.lastPracticed', { day: format.day(new Date(lastPracticed), now) })}</span></>}
         </p>
       </div>
       <div className="flex w-full gap-2 sm:w-auto">
-        {list.records.length > 0 && <Button variant="ghost" size="lg" className="hidden sm:inline-flex" asChild>
+        {modeRecords.length > 0 && <Button variant="ghost" size="lg" className="hidden sm:inline-flex" asChild>
           <Link href={`/records?list=${encodeURIComponent(list.id)}`}>{t('detail.viewRecords')}<ArrowRight aria-hidden="true" /></Link>
         </Button>}
         <Button size="lg" className="grow sm:grow-0" asChild><Link href={practice}><Keyboard aria-hidden="true" />{t('detail.practice')}</Link></Button>
@@ -57,7 +59,7 @@ export default function RankingDetail({ list, devices, device, deviceName, order
 
     {!ranked.length ? <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-10 text-center">
       <span className="grid size-11 place-items-center rounded-full bg-muted text-muted-foreground"><Trophy className="size-5" aria-hidden="true" /></span>
-      {!device || !list.records.length ? <>
+      {!device || !modeRecords.length ? <>
         <div className="space-y-1">
           <h3 className="font-bold">{t('detail.notPractised.title')}</h3>
           <p className="max-w-sm text-sm text-balance text-muted-foreground">{t('detail.notPractised.description')}</p>
@@ -66,7 +68,7 @@ export default function RankingDetail({ list, devices, device, deviceName, order
       </> : <>
         <div className="space-y-1">
           <h3 className="font-bold [overflow-wrap:anywhere]">{t('detail.noDeviceRecords.title', { device: deviceName })}</h3>
-          <p className="max-w-sm text-sm text-balance text-muted-foreground">{t('detail.noDeviceRecords.description', { count: list.records.length })}</p>
+          <p className="max-w-sm text-sm text-balance text-muted-foreground">{t('detail.noDeviceRecords.description', { count: modeRecords.length })}</p>
         </div>
         <Button variant="outline" onClick={onShowAllDevices}>{t('detail.noDeviceRecords.showAll')}</Button>
       </>}

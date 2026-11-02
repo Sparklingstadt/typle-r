@@ -20,7 +20,8 @@ import type { SavedWordList } from "@/core/wordLists"
 import { usePractice } from "@/lib/usePractice"
 import { compareInput, elapsedTime, simpleInputKeys, typingSpeed, type TypingSession } from "@/core/typing"
 import { comparableRecords, recordsOfMode } from "@/core/records"
-import { recallPrompt } from "@/core/recallPrompt"
+import { rankingQuery } from "@/core/rankings"
+import { recallDisplayHint, recallPrompt } from "@/core/recallPrompt"
 import { listLabels, matchesFilter } from "@/core/listOverview"
 import { matchesPackQuery, packOverviews, type PackOverview } from "@/core/packEditing"
 import { packsByRecentPractice } from "@/core/packPractice"
@@ -152,7 +153,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   const simpleKeys = typingOptions.ignoreAccents && word && !recall ? simpleInputKeys(word.input) : []
   // Recall mode shows the annotation with the answer hidden and the display text when it differs from what is typed.
   const prompt = recall && word ? recallPrompt(word) : ''
-  const displayHint = !!word && word.display !== word.input && word.input_type !== 'code'
+  const displayHint = word && recall ? recallDisplayHint(word) : ''
   const dialogOpen = pickerOpen || pendingSwitch !== null || menuOpen
   const showResume = focusedOnce && !inputFocused && !finished && !dialogOpen && words.length > 0
 
@@ -288,7 +289,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
             {recall ? word && <>
               {/* The original annotation is never shown here: it may contain the answer. */}
               {prompt && <p className="max-w-full text-base break-words text-foreground">{prompt}</p>}
-              {displayHint && <PracticeText id="wordHint" text={word.display} className="text-xl leading-[1.75] sm:text-[26px]" />}
+              {displayHint && <PracticeText id="wordHint" text={displayHint} className="text-xl leading-[1.75] sm:text-[26px]" />}
               {!prompt && !displayHint && <p className="text-sm text-muted-foreground">{t('recall.noHint')}</p>}
               <TargetText id="wordDisplay" {...comparison} concealed={!session.revealed} />
               {/* Keeps the focus in the input, so the resume cover does not come up under the pointer and take the click. */}
@@ -394,7 +395,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
           </div>
           <p className="text-xs text-muted-foreground">{bestCandidates.length < modeRecords.length ? t('aside.bestOrderAtCount', { count: selectedList?.words.length ?? 0 }) : t('aside.bestOrder')}</p>
           <PracticeBestRecords records={bestCandidates} highlightId={saveState === 'saved' ? record?.id : undefined} />
-          <Link href={`/rankings?list=${encodeURIComponent(list.id)}`} className="inline-flex w-fit items-center gap-1 rounded-sm px-2 pt-1 text-[13px] font-medium outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">{t('aside.allBest')}<ArrowRight className="size-3.5" aria-hidden="true" /></Link>
+          <Link href={`/rankings?${rankingQuery({ list: list.id, device: null, order: 'accuracy', mode })}`} className="inline-flex w-fit items-center gap-1 rounded-sm px-2 pt-1 text-[13px] font-medium outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">{t('aside.allBest')}<ArrowRight className="size-3.5" aria-hidden="true" /></Link>
         </Card>
       </aside>
     </div>}

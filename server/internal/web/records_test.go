@@ -437,7 +437,9 @@ func TestRecordInputContract(t *testing.T) {
 	input := reflect.TypeFor[workspace.RecordInput]()
 	for i := range input.NumField() {
 		name, _, _ := strings.Cut(input.Field(i).Tag.Get("json"), ",")
-		fields = append(fields, name)
+		if name != "-" {
+			fields = append(fields, name)
+		}
 	}
 	slices.Sort(declared)
 	slices.Sort(fields)

@@ -1,6 +1,7 @@
 package workspace
 
 import (
+	"bytes"
 	"encoding/json"
 	"math"
 	"regexp"
@@ -36,6 +37,24 @@ type RecordInput struct {
 	Device    *Device  `json:"device"`
 	// Mode is RecallMode or left out. /api/v1 does not accept it (see the api package's addRecord).
 	Mode *string `json:"mode"`
+	// ModeNull is set when the request has "mode": null, which is refused like any other mode that is not RecallMode.
+	ModeNull bool `json:"-"`
+}
+
+// UnmarshalJSON reads the fields above and notes an explicit null mode, which a *string cannot tell from a left out one.
+func (r *RecordInput) UnmarshalJSON(data []byte) error {
+	type plain RecordInput
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode((*plain)(r)); err != nil {
+		return err
+	}
+	var keys map[string]json.RawMessage
+	if json.Unmarshal(data, &keys) == nil {
+		mode, present := keys["mode"]
+		r.ModeNull = present && bytes.Equal(bytes.TrimSpace(mode), []byte("null"))
+	}
+	return nil
 }
 
 func finite(value *float64) bool {
@@ -101,6 +120,9 @@ func AddRecord(w *Workspace, listID string, input RecordInput, newID string) (re
 		}
 	}
 	mode := ""
+	if input.ModeNull {
+		return Record{}, false, invalid
+	}
 	if input.Mode != nil {
 		if *input.Mode != RecallMode {
 			return Record{}, false, invalid

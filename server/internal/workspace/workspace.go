@@ -5,6 +5,7 @@
 package workspace
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -111,14 +112,14 @@ type rawWord struct {
 }
 
 type rawRecord struct {
-	ID        *string  `json:"id"`
-	Time      *float64 `json:"time"`
-	Date      *string  `json:"date"`
-	Mistakes  *int     `json:"mistakes"`
-	Accuracy  *float64 `json:"accuracy"`
-	WordCount *int     `json:"wordCount"`
-	Device    *Device  `json:"device"`
-	Mode      *string  `json:"mode"`
+	ID        *string         `json:"id"`
+	Time      *float64        `json:"time"`
+	Date      *string         `json:"date"`
+	Mistakes  *int            `json:"mistakes"`
+	Accuracy  *float64        `json:"accuracy"`
+	WordCount *int            `json:"wordCount"`
+	Device    *Device         `json:"device"`
+	Mode      json.RawMessage `json:"mode"`
 	extra     string
 }
 
@@ -327,10 +328,12 @@ func decodeRecord(raw *rawRecord) (Record, error) {
 	}
 	mode := ""
 	if raw.Mode != nil {
-		if *raw.Mode != RecallMode {
+		// An explicit null is refused as the app does: the value is "recall" or the key is absent.
+		var value string
+		if json.Unmarshal(raw.Mode, &value) != nil || value != RecallMode || string(bytes.TrimSpace(raw.Mode)) == "null" {
 			return Record{}, errors.New(`mode must be "recall" when present`)
 		}
-		mode = *raw.Mode
+		mode = value
 	}
 	return Record{ID: raw.ID, Time: *raw.Time, Date: *raw.Date, Mistakes: raw.Mistakes, Accuracy: raw.Accuracy,
 		WordCount: raw.WordCount, Device: raw.Device, Mode: mode, At: at, Extra: raw.extra}, nil
