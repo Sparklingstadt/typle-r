@@ -118,6 +118,16 @@ test('the initial lists decode in Typle with their own ids and names', () => {
     ['chinese-hsk6-handwriting-4-words-4', [15]], ['chinese-hsk6-handwriting-4-words-5', [15]], ['chinese-hsk6-handwriting-4-words-6', [15]],
     ['chinese-hsk6-handwriting-5-words-1', [15]], ['chinese-hsk6-handwriting-5-words-2', [15]], ['chinese-hsk6-handwriting-5-words-3', [15]],
     ['chinese-hsk6-handwriting-5-words-4', [15]], ['chinese-hsk6-handwriting-5-words-5', [15]], ['chinese-hsk6-handwriting-5-words-6', [15]],
+    ['chinese-hsk6-handwriting-6-words-1', [15]], ['chinese-hsk6-handwriting-6-words-2', [15]], ['chinese-hsk6-handwriting-6-words-3', [15]],
+    ['chinese-hsk6-handwriting-6-words-4', [15]], ['chinese-hsk6-handwriting-6-words-5', [15]], ['chinese-hsk6-handwriting-6-words-6', [15]],
+    ['chinese-hsk6-handwriting-7-words-1', [15]], ['chinese-hsk6-handwriting-7-words-2', [15]], ['chinese-hsk6-handwriting-7-words-3', [15]],
+    ['chinese-hsk6-handwriting-7-words-4', [15]], ['chinese-hsk6-handwriting-7-words-5', [15]], ['chinese-hsk6-handwriting-7-words-6', [15]],
+    ['chinese-hsk6-handwriting-8-words-1', [15]], ['chinese-hsk6-handwriting-8-words-2', [15]], ['chinese-hsk6-handwriting-8-words-3', [15]],
+    ['chinese-hsk6-handwriting-8-words-4', [15]], ['chinese-hsk6-handwriting-8-words-5', [15]], ['chinese-hsk6-handwriting-8-words-6', [15]],
+    ['chinese-hsk6-handwriting-9-words-1', [15]], ['chinese-hsk6-handwriting-9-words-2', [15]], ['chinese-hsk6-handwriting-9-words-3', [15]],
+    ['chinese-hsk6-handwriting-9-words-4', [15]], ['chinese-hsk6-handwriting-9-words-5', [15]], ['chinese-hsk6-handwriting-9-words-6', [15]],
+    ['chinese-hsk6-handwriting-10-words-1', [15]], ['chinese-hsk6-handwriting-10-words-2', [15]], ['chinese-hsk6-handwriting-10-words-3', [15]],
+    ['chinese-hsk6-handwriting-10-words-4', [15]], ['chinese-hsk6-handwriting-10-words-5', [15]], ['chinese-hsk6-handwriting-10-words-6', [15]],
   ])
   assert.equal(lists.length, commands.length)
   const { initialLists } = require('../src/plugins/packs/index.ts')

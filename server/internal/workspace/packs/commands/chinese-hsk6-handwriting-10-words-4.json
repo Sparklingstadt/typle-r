@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-10-words-4",
+  "name": "中国語HSK6級 手書き10（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語10",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "临床",
+      "input": "línchuáng",
+      "annotation": "línchuáng / 臨床",
+      "input_type": "word"
+    },
+    {
+      "display": "伶俐",
+      "input": "línglì",
+      "annotation": "línglì / 利発な",
+      "input_type": "word"
+    },
+    {
+      "display": "灵敏",
+      "input": "língmǐn",
+      "annotation": "língmǐn / 敏感な",
+      "input_type": "word"
+    },
+    {
+      "display": "零星",
+      "input": "língxīng",
+      "annotation": "língxīng / わずかな",
+      "input_type": "word"
+    },
+    {
+      "display": "领土",
+      "input": "lǐngtǔ",
+      "annotation": "lǐngtǔ / 領土",
+      "input_type": "word"
+    },
+    {
+      "display": "领先",
+      "input": "lǐngxiān",
+      "annotation": "lǐngxiān / リードする",
+      "input_type": "word"
+    },
+    {
+      "display": "留念",
+      "input": "liúniàn",
+      "annotation": "liúniàn / 記念に残す",
+      "input_type": "word"
+    },
+    {
+      "display": "流浪",
+      "input": "liúlàng",
+      "annotation": "liúlàng / 放浪する",
+      "input_type": "word"
+    },
+    {
+      "display": "流通",
+      "input": "liútōng",
+      "annotation": "liútōng / 流通する",
+      "input_type": "word"
+    },
+    {
+      "display": "隆重",
+      "input": "lóngzhòng",
+      "annotation": "lóngzhòng / 盛大な",
+      "input_type": "word"
+    },
+    {
+      "display": "炉灶",
+      "input": "lúzào",
+      "annotation": "lúzào / かまど",
+      "input_type": "word"
+    },
+    {
+      "display": "履行",
+      "input": "lǚxíng",
+      "annotation": "lǚxíng / 履行する",
+      "input_type": "word"
+    },
+    {
+      "display": "轮廓",
+      "input": "lúnkuò",
+      "annotation": "lúnkuò / 輪郭",
+      "input_type": "word"
+    },
+    {
+      "display": "论坛",
+      "input": "lùntán",
+      "annotation": "lùntán / フォーラム",
+      "input_type": "word"
+    },
+    {
+      "display": "络绎不绝",
+      "input": "luòyì bùjué",
+      "annotation": "luòyì bùjué / ひっきりなしに続く",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

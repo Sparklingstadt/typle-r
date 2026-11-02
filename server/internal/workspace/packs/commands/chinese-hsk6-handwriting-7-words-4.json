@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-7-words-4",
+  "name": "中国語HSK6級 手書き7（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語7",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "稻谷",
+      "input": "dàogǔ",
+      "annotation": "dàogǔ / もみ",
+      "input_type": "word"
+    },
+    {
+      "display": "得力",
+      "input": "délì",
+      "annotation": "délì / 有能な",
+      "input_type": "word"
+    },
+    {
+      "display": "灯笼",
+      "input": "dēnglong",
+      "annotation": "dēnglong / ちょうちん",
+      "input_type": "word"
+    },
+    {
+      "display": "登录",
+      "input": "dēnglù",
+      "annotation": "dēnglù / ログインする",
+      "input_type": "word"
+    },
+    {
+      "display": "敌视",
+      "input": "díshì",
+      "annotation": "díshì / 敵視する",
+      "input_type": "word"
+    },
+    {
+      "display": "抵抗",
+      "input": "dǐkàng",
+      "annotation": "dǐkàng / 抵抗する",
+      "input_type": "word"
+    },
+    {
+      "display": "地质",
+      "input": "dìzhì",
+      "annotation": "dìzhì / 地質",
+      "input_type": "word"
+    },
+    {
+      "display": "颠簸",
+      "input": "diānbǒ",
+      "annotation": "diānbǒ / 揺れる",
+      "input_type": "word"
+    },
+    {
+      "display": "典型",
+      "input": "diǎnxíng",
+      "annotation": "diǎnxíng / 典型的な",
+      "input_type": "word"
+    },
+    {
+      "display": "电源",
+      "input": "diànyuán",
+      "annotation": "diànyuán / 電源",
+      "input_type": "word"
+    },
+    {
+      "display": "雕刻",
+      "input": "diāokè",
+      "annotation": "diāokè / 彫刻する",
+      "input_type": "word"
+    },
+    {
+      "display": "调动",
+      "input": "diàodòng",
+      "annotation": "diàodòng / 異動させる",
+      "input_type": "word"
+    },
+    {
+      "display": "定义",
+      "input": "dìngyì",
+      "annotation": "dìngyì / 定義",
+      "input_type": "word"
+    },
+    {
+      "display": "丢三落四",
+      "input": "diūsān làsì",
+      "annotation": "diūsān làsì / 物忘れがひどい",
+      "input_type": "word"
+    },
+    {
+      "display": "董事长",
+      "input": "dǒngshìzhǎng",
+      "annotation": "dǒngshìzhǎng / 会長",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

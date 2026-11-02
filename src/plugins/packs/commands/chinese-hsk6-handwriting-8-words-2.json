@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-8-words-2",
+  "name": "中国語HSK6級 手書き8（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語8",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "锋利",
+      "input": "fēnglì",
+      "annotation": "fēnglì / 鋭い",
+      "input_type": "word"
+    },
+    {
+      "display": "奉献",
+      "input": "fèngxiàn",
+      "annotation": "fèngxiàn / 捧げる",
+      "input_type": "word"
+    },
+    {
+      "display": "敷衍",
+      "input": "fūyǎn",
+      "annotation": "fūyǎn / いい加減にあしらう",
+      "input_type": "word"
+    },
+    {
+      "display": "服从",
+      "input": "fúcóng",
+      "annotation": "fúcóng / 従う",
+      "input_type": "word"
+    },
+    {
+      "display": "幅度",
+      "input": "fúdù",
+      "annotation": "fúdù / 幅",
+      "input_type": "word"
+    },
+    {
+      "display": "辐射",
+      "input": "fúshè",
+      "annotation": "fúshè / 放射",
+      "input_type": "word"
+    },
+    {
+      "display": "抚养",
+      "input": "fǔyǎng",
+      "annotation": "fǔyǎng / 育てる",
+      "input_type": "word"
+    },
+    {
+      "display": "俯视",
+      "input": "fǔshì",
+      "annotation": "fǔshì / 見下ろす",
+      "input_type": "word"
+    },
+    {
+      "display": "腐败",
+      "input": "fǔbài",
+      "annotation": "fǔbài / 腐敗した",
+      "input_type": "word"
+    },
+    {
+      "display": "腐朽",
+      "input": "fǔxiǔ",
+      "annotation": "fǔxiǔ / 朽ちる",
+      "input_type": "word"
+    },
+    {
+      "display": "附和",
+      "input": "fùhè",
+      "annotation": "fùhè / 同調する",
+      "input_type": "word"
+    },
+    {
+      "display": "复活",
+      "input": "fùhuó",
+      "annotation": "fùhuó / 復活する",
+      "input_type": "word"
+    },
+    {
+      "display": "赋予",
+      "input": "fùyǔ",
+      "annotation": "fùyǔ / 与える",
+      "input_type": "word"
+    },
+    {
+      "display": "改良",
+      "input": "gǎiliáng",
+      "annotation": "gǎiliáng / 改良する",
+      "input_type": "word"
+    },
+    {
+      "display": "干旱",
+      "input": "gānhàn",
+      "annotation": "gānhàn / 干ばつ",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-6-words-6",
+  "name": "中国語HSK6級 手書き6（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語6",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "昌盛",
+      "input": "chāngshèng",
+      "annotation": "chāngshèng / 盛んな",
+      "input_type": "word"
+    },
+    {
+      "display": "常年",
+      "input": "chángnián",
+      "annotation": "chángnián / 一年中",
+      "input_type": "word"
+    },
+    {
+      "display": "场合",
+      "input": "chǎnghé",
+      "annotation": "chǎnghé / 場面",
+      "input_type": "word"
+    },
+    {
+      "display": "敞开",
+      "input": "chǎngkāi",
+      "annotation": "chǎngkāi / 開け放つ",
+      "input_type": "word"
+    },
+    {
+      "display": "畅销",
+      "input": "chàngxiāo",
+      "annotation": "chàngxiāo / よく売れる",
+      "input_type": "word"
+    },
+    {
+      "display": "超越",
+      "input": "chāoyuè",
+      "annotation": "chāoyuè / 超越する",
+      "input_type": "word"
+    },
+    {
+      "display": "朝代",
+      "input": "cháodài",
+      "annotation": "cháodài / 王朝",
+      "input_type": "word"
+    },
+    {
+      "display": "撤退",
+      "input": "chètuì",
+      "annotation": "chètuì / 撤退する",
+      "input_type": "word"
+    },
+    {
+      "display": "沉闷",
+      "input": "chénmèn",
+      "annotation": "chénmèn / 重苦しい",
+      "input_type": "word"
+    },
+    {
+      "display": "沉着",
+      "input": "chénzhuó",
+      "annotation": "chénzhuó / 落ち着いた",
+      "input_type": "word"
+    },
+    {
+      "display": "陈列",
+      "input": "chénliè",
+      "annotation": "chénliè / 陳列する",
+      "input_type": "word"
+    },
+    {
+      "display": "称心如意",
+      "input": "chènxīn rúyì",
+      "annotation": "chènxīn rúyì / 思いどおりになる",
+      "input_type": "word"
+    },
+    {
+      "display": "成本",
+      "input": "chéngběn",
+      "annotation": "chéngběn / コスト",
+      "input_type": "word"
+    },
+    {
+      "display": "成效",
+      "input": "chéngxiào",
+      "annotation": "chéngxiào / 効果",
+      "input_type": "word"
+    },
+    {
+      "display": "成员",
+      "input": "chéngyuán",
+      "annotation": "chéngyuán / メンバー",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-8-words-5",
+  "name": "中国語HSK6級 手書き8（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語8",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "顾问",
+      "input": "gùwèn",
+      "annotation": "gùwèn / 顧問",
+      "input_type": "word"
+    },
+    {
+      "display": "关怀",
+      "input": "guānhuái",
+      "annotation": "guānhuái / 気にかける",
+      "input_type": "word"
+    },
+    {
+      "display": "观光",
+      "input": "guānguāng",
+      "annotation": "guānguāng / 観光する",
+      "input_type": "word"
+    },
+    {
+      "display": "贯彻",
+      "input": "guànchè",
+      "annotation": "guànchè / 貫徹する",
+      "input_type": "word"
+    },
+    {
+      "display": "灌溉",
+      "input": "guàngài",
+      "annotation": "guàngài / 灌漑する",
+      "input_type": "word"
+    },
+    {
+      "display": "光芒",
+      "input": "guāngmáng",
+      "annotation": "guāngmáng / 光芒",
+      "input_type": "word"
+    },
+    {
+      "display": "广阔",
+      "input": "guǎngkuò",
+      "annotation": "guǎngkuò / 広々とした",
+      "input_type": "word"
+    },
+    {
+      "display": "规格",
+      "input": "guīgé",
+      "annotation": "guīgé / 規格",
+      "input_type": "word"
+    },
+    {
+      "display": "规章",
+      "input": "guīzhāng",
+      "annotation": "guīzhāng / 規則",
+      "input_type": "word"
+    },
+    {
+      "display": "轨道",
+      "input": "guǐdào",
+      "annotation": "guǐdào / 軌道",
+      "input_type": "word"
+    },
+    {
+      "display": "国务院",
+      "input": "guówùyuàn",
+      "annotation": "guówùyuàn / 国務院",
+      "input_type": "word"
+    },
+    {
+      "display": "果断",
+      "input": "guǒduàn",
+      "annotation": "guǒduàn / きっぱりとした",
+      "input_type": "word"
+    },
+    {
+      "display": "过滤",
+      "input": "guòlǜ",
+      "annotation": "guòlǜ / ろ過する",
+      "input_type": "word"
+    },
+    {
+      "display": "过失",
+      "input": "guòshī",
+      "annotation": "guòshī / 過失",
+      "input_type": "word"
+    },
+    {
+      "display": "海拔",
+      "input": "hǎibá",
+      "annotation": "hǎibá / 海抜",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

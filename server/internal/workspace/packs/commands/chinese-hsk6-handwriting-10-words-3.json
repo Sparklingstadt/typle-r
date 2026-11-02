@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-10-words-3",
+  "name": "中国語HSK6級 手書き10（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語10",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "雷达",
+      "input": "léidá",
+      "annotation": "léidá / レーダー",
+      "input_type": "word"
+    },
+    {
+      "display": "冷酷",
+      "input": "lěngkù",
+      "annotation": "lěngkù / 冷酷な",
+      "input_type": "word"
+    },
+    {
+      "display": "黎明",
+      "input": "límíng",
+      "annotation": "límíng / 夜明け",
+      "input_type": "word"
+    },
+    {
+      "display": "礼尚往来",
+      "input": "lǐshàng wǎnglái",
+      "annotation": "lǐshàng wǎnglái / 礼には礼で返す",
+      "input_type": "word"
+    },
+    {
+      "display": "理所当然",
+      "input": "lǐsuǒ dāngrán",
+      "annotation": "lǐsuǒ dāngrán / 当然である",
+      "input_type": "word"
+    },
+    {
+      "display": "理智",
+      "input": "lǐzhì",
+      "annotation": "lǐzhì / 理性",
+      "input_type": "word"
+    },
+    {
+      "display": "力争",
+      "input": "lìzhēng",
+      "annotation": "lìzhēng / 努力して勝ち取る",
+      "input_type": "word"
+    },
+    {
+      "display": "历来",
+      "input": "lìlái",
+      "annotation": "lìlái / これまでずっと",
+      "input_type": "word"
+    },
+    {
+      "display": "立交桥",
+      "input": "lìjiāoqiáo",
+      "annotation": "lìjiāoqiáo / 立体交差橋",
+      "input_type": "word"
+    },
+    {
+      "display": "立足",
+      "input": "lìzú",
+      "annotation": "lìzú / 足場を置く",
+      "input_type": "word"
+    },
+    {
+      "display": "连年",
+      "input": "liánnián",
+      "annotation": "liánnián / 連年",
+      "input_type": "word"
+    },
+    {
+      "display": "连同",
+      "input": "liántóng",
+      "annotation": "liántóng / 〜と一緒に",
+      "input_type": "word"
+    },
+    {
+      "display": "联盟",
+      "input": "liánméng",
+      "annotation": "liánméng / 同盟",
+      "input_type": "word"
+    },
+    {
+      "display": "廉洁",
+      "input": "liánjié",
+      "annotation": "liánjié / 清廉な",
+      "input_type": "word"
+    },
+    {
+      "display": "辽阔",
+      "input": "liáokuò",
+      "annotation": "liáokuò / 果てしなく広い",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

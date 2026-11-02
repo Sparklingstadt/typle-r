@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-6-words-4",
+  "name": "中国語HSK6級 手書き6（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語6",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "播种",
+      "input": "bōzhǒng",
+      "annotation": "bōzhǒng / 種をまく",
+      "input_type": "word"
+    },
+    {
+      "display": "博览会",
+      "input": "bólǎnhuì",
+      "annotation": "bólǎnhuì / 博覧会",
+      "input_type": "word"
+    },
+    {
+      "display": "补救",
+      "input": "bǔjiù",
+      "annotation": "bǔjiù / 挽回する",
+      "input_type": "word"
+    },
+    {
+      "display": "补贴",
+      "input": "bǔtiē",
+      "annotation": "bǔtiē / 補助金",
+      "input_type": "word"
+    },
+    {
+      "display": "不妨",
+      "input": "bùfáng",
+      "annotation": "bùfáng / 〜してもよい",
+      "input_type": "word"
+    },
+    {
+      "display": "不敢当",
+      "input": "bùgǎndāng",
+      "annotation": "bùgǎndāng / 恐縮です",
+      "input_type": "word"
+    },
+    {
+      "display": "不愧",
+      "input": "búkuì",
+      "annotation": "búkuì / さすが〜だけある",
+      "input_type": "word"
+    },
+    {
+      "display": "不料",
+      "input": "búliào",
+      "annotation": "búliào / 意外にも",
+      "input_type": "word"
+    },
+    {
+      "display": "不相上下",
+      "input": "bùxiāng shàngxià",
+      "annotation": "bùxiāng shàngxià / 優劣がない",
+      "input_type": "word"
+    },
+    {
+      "display": "不像话",
+      "input": "búxiànghuà",
+      "annotation": "búxiànghuà / 話にならない",
+      "input_type": "word"
+    },
+    {
+      "display": "不止",
+      "input": "bùzhǐ",
+      "annotation": "bùzhǐ / 〜にとどまらない",
+      "input_type": "word"
+    },
+    {
+      "display": "布告",
+      "input": "bùgào",
+      "annotation": "bùgào / 布告",
+      "input_type": "word"
+    },
+    {
+      "display": "部署",
+      "input": "bùshǔ",
+      "annotation": "bùshǔ / 配置する",
+      "input_type": "word"
+    },
+    {
+      "display": "部位",
+      "input": "bùwèi",
+      "annotation": "bùwèi / 部位",
+      "input_type": "word"
+    },
+    {
+      "display": "财政",
+      "input": "cáizhèng",
+      "annotation": "cáizhèng / 財政",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-10-words-2",
+  "name": "中国語HSK6級 手書き10（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語10",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "口腔",
+      "input": "kǒuqiāng",
+      "annotation": "kǒuqiāng / 口腔",
+      "input_type": "word"
+    },
+    {
+      "display": "口头",
+      "input": "kǒutóu",
+      "annotation": "kǒutóu / 口頭の",
+      "input_type": "word"
+    },
+    {
+      "display": "哭泣",
+      "input": "kūqì",
+      "annotation": "kūqì / 泣く",
+      "input_type": "word"
+    },
+    {
+      "display": "苦尽甘来",
+      "input": "kǔjìn gānlái",
+      "annotation": "kǔjìn gānlái / 苦あれば楽あり",
+      "input_type": "word"
+    },
+    {
+      "display": "宽容",
+      "input": "kuānróng",
+      "annotation": "kuānróng / 寛容な",
+      "input_type": "word"
+    },
+    {
+      "display": "款待",
+      "input": "kuǎndài",
+      "annotation": "kuǎndài / もてなす",
+      "input_type": "word"
+    },
+    {
+      "display": "矿产",
+      "input": "kuàngchǎn",
+      "annotation": "kuàngchǎn / 鉱産物",
+      "input_type": "word"
+    },
+    {
+      "display": "框架",
+      "input": "kuàngjià",
+      "annotation": "kuàngjià / 枠組み",
+      "input_type": "word"
+    },
+    {
+      "display": "亏损",
+      "input": "kuīsǔn",
+      "annotation": "kuīsǔn / 欠損",
+      "input_type": "word"
+    },
+    {
+      "display": "扩散",
+      "input": "kuòsàn",
+      "annotation": "kuòsàn / 拡散する",
+      "input_type": "word"
+    },
+    {
+      "display": "喇叭",
+      "input": "lǎba",
+      "annotation": "lǎba / ラッパ、スピーカー",
+      "input_type": "word"
+    },
+    {
+      "display": "来源",
+      "input": "láiyuán",
+      "annotation": "láiyuán / 源",
+      "input_type": "word"
+    },
+    {
+      "display": "懒惰",
+      "input": "lǎnduò",
+      "annotation": "lǎnduò / 怠惰な",
+      "input_type": "word"
+    },
+    {
+      "display": "牢固",
+      "input": "láogù",
+      "annotation": "láogù / 堅固な",
+      "input_type": "word"
+    },
+    {
+      "display": "唠叨",
+      "input": "láodao",
+      "annotation": "láodao / くどくど言う",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

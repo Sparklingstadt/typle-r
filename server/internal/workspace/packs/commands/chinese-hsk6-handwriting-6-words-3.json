@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-6-words-3",
+  "name": "中国語HSK6級 手書き6（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語6",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "边界",
+      "input": "biānjiè",
+      "annotation": "biānjiè / 境界",
+      "input_type": "word"
+    },
+    {
+      "display": "边境",
+      "input": "biānjìng",
+      "annotation": "biānjìng / 国境地帯",
+      "input_type": "word"
+    },
+    {
+      "display": "贬低",
+      "input": "biǎndī",
+      "annotation": "biǎndī / けなす",
+      "input_type": "word"
+    },
+    {
+      "display": "贬义",
+      "input": "biǎnyì",
+      "annotation": "biǎnyì / 悪い意味",
+      "input_type": "word"
+    },
+    {
+      "display": "便利",
+      "input": "biànlì",
+      "annotation": "biànlì / 便利な",
+      "input_type": "word"
+    },
+    {
+      "display": "便条",
+      "input": "biàntiáo",
+      "annotation": "biàntiáo / メモ",
+      "input_type": "word"
+    },
+    {
+      "display": "辩解",
+      "input": "biànjiě",
+      "annotation": "biànjiě / 弁解する",
+      "input_type": "word"
+    },
+    {
+      "display": "辩证",
+      "input": "biànzhèng",
+      "annotation": "biànzhèng / 弁証法的な",
+      "input_type": "word"
+    },
+    {
+      "display": "标题",
+      "input": "biāotí",
+      "annotation": "biāotí / 見出し",
+      "input_type": "word"
+    },
+    {
+      "display": "表决",
+      "input": "biǎojué",
+      "annotation": "biǎojué / 採決する",
+      "input_type": "word"
+    },
+    {
+      "display": "别致",
+      "input": "biézhì",
+      "annotation": "biézhì / ユニークな",
+      "input_type": "word"
+    },
+    {
+      "display": "别扭",
+      "input": "bièniu",
+      "annotation": "bièniu / ぎこちない",
+      "input_type": "word"
+    },
+    {
+      "display": "并非",
+      "input": "bìngfēi",
+      "annotation": "bìngfēi / 決して〜ではない",
+      "input_type": "word"
+    },
+    {
+      "display": "并列",
+      "input": "bìngliè",
+      "annotation": "bìngliè / 並列する",
+      "input_type": "word"
+    },
+    {
+      "display": "剥削",
+      "input": "bōxuē",
+      "annotation": "bōxuē / 搾取する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

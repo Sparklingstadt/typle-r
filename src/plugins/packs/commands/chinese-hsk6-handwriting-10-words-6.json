@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-10-words-6",
+  "name": "中国語HSK6級 手書き10（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語10",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "免疫",
+      "input": "miǎnyì",
+      "annotation": "miǎnyì / 免疫",
+      "input_type": "word"
+    },
+    {
+      "display": "面貌",
+      "input": "miànmào",
+      "annotation": "miànmào / 様相",
+      "input_type": "word"
+    },
+    {
+      "display": "描绘",
+      "input": "miáohuì",
+      "annotation": "miáohuì / 描く",
+      "input_type": "word"
+    },
+    {
+      "display": "藐视",
+      "input": "miǎoshì",
+      "annotation": "miǎoshì / 見くびる",
+      "input_type": "word"
+    },
+    {
+      "display": "蔑视",
+      "input": "mièshì",
+      "annotation": "mièshì / 蔑視する",
+      "input_type": "word"
+    },
+    {
+      "display": "敏捷",
+      "input": "mǐnjié",
+      "annotation": "mǐnjié / 敏捷な",
+      "input_type": "word"
+    },
+    {
+      "display": "名次",
+      "input": "míngcì",
+      "annotation": "míngcì / 順位",
+      "input_type": "word"
+    },
+    {
+      "display": "明明",
+      "input": "míngmíng",
+      "annotation": "míngmíng / 明らかに",
+      "input_type": "word"
+    },
+    {
+      "display": "命名",
+      "input": "mìngmíng",
+      "annotation": "mìngmíng / 命名する",
+      "input_type": "word"
+    },
+    {
+      "display": "摩擦",
+      "input": "mócā",
+      "annotation": "mócā / 摩擦",
+      "input_type": "word"
+    },
+    {
+      "display": "魔鬼",
+      "input": "móguǐ",
+      "annotation": "móguǐ / 悪魔",
+      "input_type": "word"
+    },
+    {
+      "display": "莫名其妙",
+      "input": "mòmíng qímiào",
+      "annotation": "mòmíng qímiào / わけがわからない",
+      "input_type": "word"
+    },
+    {
+      "display": "默默",
+      "input": "mòmò",
+      "annotation": "mòmò / 黙々と",
+      "input_type": "word"
+    },
+    {
+      "display": "母语",
+      "input": "mǔyǔ",
+      "annotation": "mǔyǔ / 母語",
+      "input_type": "word"
+    },
+    {
+      "display": "目光",
+      "input": "mùguāng",
+      "annotation": "mùguāng / 視線",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

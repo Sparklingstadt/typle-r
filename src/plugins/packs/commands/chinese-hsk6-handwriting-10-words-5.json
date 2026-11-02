@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-10-words-5",
+  "name": "中国語HSK6級 手書き10（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語10",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "落后",
+      "input": "luòhòu",
+      "annotation": "luòhòu / 遅れる",
+      "input_type": "word"
+    },
+    {
+      "display": "麻醉",
+      "input": "mázuì",
+      "annotation": "mázuì / 麻酔",
+      "input_type": "word"
+    },
+    {
+      "display": "蚂蚁",
+      "input": "mǎyǐ",
+      "annotation": "mǎyǐ / アリ",
+      "input_type": "word"
+    },
+    {
+      "display": "埋葬",
+      "input": "máizàng",
+      "annotation": "máizàng / 埋葬する",
+      "input_type": "word"
+    },
+    {
+      "display": "埋怨",
+      "input": "mányuàn",
+      "annotation": "mányuàn / 恨み言を言う",
+      "input_type": "word"
+    },
+    {
+      "display": "漫画",
+      "input": "mànhuà",
+      "annotation": "mànhuà / 漫画",
+      "input_type": "word"
+    },
+    {
+      "display": "忙碌",
+      "input": "mánglù",
+      "annotation": "mánglù / 忙しい",
+      "input_type": "word"
+    },
+    {
+      "display": "茂盛",
+      "input": "màoshèng",
+      "annotation": "màoshèng / 生い茂った",
+      "input_type": "word"
+    },
+    {
+      "display": "冒犯",
+      "input": "màofàn",
+      "annotation": "màofàn / 気分を害する",
+      "input_type": "word"
+    },
+    {
+      "display": "美观",
+      "input": "měiguān",
+      "annotation": "měiguān / 美しい",
+      "input_type": "word"
+    },
+    {
+      "display": "萌芽",
+      "input": "méngyá",
+      "annotation": "méngyá / 芽生え",
+      "input_type": "word"
+    },
+    {
+      "display": "弥漫",
+      "input": "mímàn",
+      "annotation": "mímàn / 立ちこめる",
+      "input_type": "word"
+    },
+    {
+      "display": "迷信",
+      "input": "míxìn",
+      "annotation": "míxìn / 迷信",
+      "input_type": "word"
+    },
+    {
+      "display": "蜜蜂",
+      "input": "mìfēng",
+      "annotation": "mìfēng / ミツバチ",
+      "input_type": "word"
+    },
+    {
+      "display": "棉花",
+      "input": "miánhuā",
+      "annotation": "miánhuā / 綿",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}
