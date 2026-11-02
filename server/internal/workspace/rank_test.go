@@ -85,3 +85,14 @@ func TestListBest(t *testing.T) {
 		t.Fatal("best of nothing")
 	}
 }
+
+func TestListBestByMode(t *testing.T) {
+	list := List{Words: make([]Word, 1), Records: []Record{practice("t", 10, number(100), 1, 20, nil), practice("w", 1, number(100), 1, 21, nil)}}
+	list.Records[1].Mode = "writing"
+	if best := ListBest(&list); best != &list.Records[0] {
+		t.Fatalf("typing best = %+v", best)
+	}
+	if best := ListBestOf(&list, "writing"); best != &list.Records[1] {
+		t.Fatalf("writing best = %+v", best)
+	}
+}

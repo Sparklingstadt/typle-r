@@ -116,7 +116,7 @@ export function listTrends(lists: SavedWordList[]): ListTrend[] {
       // Seconds per word stays comparable after words are added to or removed from a list.
       speed: trend(records.flatMap(record => record.wordCount ? [{ date: record.date, value: record.time / record.wordCount }] : [])),
       accuracy: trend(records.flatMap(record => record.accuracy === undefined ? [] : [{ date: record.date, value: record.accuracy }])),
-      best: listBest({ words: list.words, records: typing })!,
+      best: listBest(list)!,
     }
   }).sort((a, b) => b.lastPracticed.getTime() - a.lastPracticed.getTime())
 }

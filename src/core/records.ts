@@ -124,8 +124,9 @@ export function comparableRecords(list: Pick<SavedWordList, 'words' | 'records'>
 }
 
 // The record every screen shows as a list's best: ベスト記録, the practice result, 練習記録 and the home dashboard.
-export function listBest(list: Pick<SavedWordList, 'words' | 'records'>) {
-  return bestRecords(comparableRecords(list), 1)[0]
+// Typing and writing runs are never compared, so the best is of one mode (typing unless asked).
+export function listBest(list: Pick<SavedWordList, 'words' | 'records'>, mode: PracticeMode = 'typing') {
+  return bestRecords(comparableRecords({ words: list.words, records: list.records.filter(record => recordMode(record) === mode) }), 1)[0]
 }
 
 export function removeRecord(lists: SavedWordList[], listId: string, record: StoredRecord) {
@@ -143,7 +144,7 @@ export const NO_DEVICE = 'none'
 export function recordRows(lists: SavedWordList[]): RecordRow[] {
   // Each mode has its own best, as typing and writing are ranked apart.
   const best = new Set(lists.flatMap(list => (['typing', 'writing'] as const).flatMap(mode =>
-    listBest({ words: list.words, records: list.records.filter(record => recordMode(record) === mode) }) ?? [])))
+    listBest(list, mode) ?? [])))
   return recentRecords(lists).map(({ list, record, index }) =>
     ({ list, record, index, key: `${list.id}-${record.id ?? `${index}-${record.date}`}`, best: best.has(record), mode: recordMode(record) }))
 }

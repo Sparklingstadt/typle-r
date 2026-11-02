@@ -281,7 +281,7 @@ func ListTrends(lists []List) []ListTrend {
 			}
 		}
 		trends = append(trends, ListTrend{List: list, Count: len(records), LastPracticed: records[len(records)-1].At,
-			Speed: trend(speed), Accuracy: trend(accuracy), Best: ListBest(&List{Words: list.Words, Records: typing})})
+			Speed: trend(speed), Accuracy: trend(accuracy), Best: ListBest(list)})
 	}
 	slices.SortStableFunc(trends, func(a, b ListTrend) int { return cmp.Compare(b.LastPracticed.UnixMilli(), a.LastPracticed.UnixMilli()) })
 	return trends

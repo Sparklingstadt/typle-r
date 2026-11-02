@@ -181,3 +181,12 @@ test('record rows carry the mode, and each mode has its own best', () => {
   assert.equal(rows.length, 3)
   assert.deepEqual(rows.map(row => [row.record.id, row.mode, row.best]), [['ccc', 'writing', true], ['bb', 'typing', false], ['a', 'typing', true]])
 })
+
+test('listBest is of the typing runs unless a mode is given', () => {
+  const words = [{ display: 'a', input: 'a', annotation: '' }]
+  const rec = (id, time, extra = {}) => ({ id, time, date: '2026-09-21T10:00:00Z', mistakes: 0, accuracy: 100, wordCount: 1, ...extra })
+  const list = { words, records: [rec('t', 10), rec('w', 1, { mode: 'writing' })] }
+  const { listBest } = require('../src/core/records.ts')
+  assert.equal(listBest(list).id, 't')
+  assert.equal(listBest(list, 'writing').id, 'w')
+})

@@ -74,9 +74,18 @@ func ComparableRecords(list *List, records []Record) []Record {
 }
 
 // ListBest is the record every screen shows as the list's best (listBest), pointing into list.Records; nil when the
-// list has no record.
-func ListBest(list *List) *Record {
-	ranked := rank(comparable(list, pointers(list.Records)), "accuracy")
+// list has no typing record. Writing runs have their own best (ListBestOf).
+func ListBest(list *List) *Record { return ListBestOf(list, "typing") }
+
+// ListBestOf is the best among the records of one mode ("typing" or "writing").
+func ListBestOf(list *List, mode string) *Record {
+	same := []*Record{}
+	for i := range list.Records {
+		if RecordMode(&list.Records[i]) == mode {
+			same = append(same, &list.Records[i])
+		}
+	}
+	ranked := rank(comparable(list, same), "accuracy")
 	if len(ranked) == 0 {
 		return nil
 	}

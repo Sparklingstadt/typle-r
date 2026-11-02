@@ -26,7 +26,7 @@ export type ListRanking = {
   improved: boolean
 }
 
-// Uses the same comparison as `listBest`, so a list's rank 1 here is the best shown on every other screen.
+// Uses the same comparison as `listBest`, so a list's rank 1 here is the best of its mode shown on every other screen.
 export function listRanking(list: SavedWordList, { device = null, order = 'accuracy', includeOthers = false, mode = 'typing', now = new Date() }: RankingOptions = {}): ListRanking {
   const records = list.records.filter(record => recordMode(record) === mode && matchesDevice(record, device))
   const others = records.filter(record => record.wordCount !== list.words.length)

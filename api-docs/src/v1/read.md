@@ -214,7 +214,7 @@ v1.3.0 から、記録は `typle_records` テーブルに保存されます。�
 { "rankings": [{ "listId": "l1", "listName": "英単語", "wordCount": 20, "recordCount": 8, "best": { …記録… }, "lastPracticed": "2026-10-20T02:00:00.000Z", "improved": true }] }
 ```
 
-- 順位は、今の単語数と同じ単語数の記録で付けます（その記録がなければ全部で）。`best` はその1位で、記録がなければ `null`。`recordCount` は選んだ端末での記録の数です。
+- 順位は、今の単語数と同じ単語数の記録で付けます（その記録がなければ全部で）。`best` はその1位で、記録がなければ `null`。`recordCount` は選んだ端末・選んだ `mode` の記録の数です。
 - `improved` は、ベストが7日以内に出て、それより前の記録がある（記録を更新した）ことを表します。
 
 ### `GET /api/v1/rankings/{l}`
