@@ -60,12 +60,22 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        id: node
         with:
           node-version: '24'
           cache: npm
       - name: Test release safety checks
         run: node --test scripts/ci/release.test.cjs
-      - run: npm ci
+      # node_modules is restored whole when the lockfile, the Prisma schema (postinstall generates the client into
+      # node_modules) and the Node version are unchanged; otherwise npm ci installs it from the npm cache as before.
+      - name: Cache node_modules
+        id: node-modules-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-node${{ steps.node.outputs.node-version }}-${{ hashFiles('package-lock.json', 'prisma/schema.prisma') }}
+      - if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm ci
       - run: npm run db:migrate
       # The Go API (server/) is tested against the tables db:migrate just made. '1.25' is the newest
       # 1.25.x release, which satisfies go.mod.
@@ -84,6 +94,14 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run lint
+      # Next.js reuses its build cache across runs; a key that misses the sources still restores the newest cache for
+      # the same lockfile, and next build only reuses what is still valid.
+      - name: Cache Next.js build
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: .next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**', 'public/**', 'next.config.mjs', 'postcss.config.mjs', 'tsconfig.json') }}
+          restore-keys: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
       - run: npm run build
       # The API documentation (api-docs/) is its own npm project, published to Cloudflare Pages by docs-deploy.
       - name: Build API documentation
