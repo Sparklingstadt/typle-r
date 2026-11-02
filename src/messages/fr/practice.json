@@ -33,6 +33,12 @@
     "simpleKeys": "Saisie simplifiée",
     "simpleKeysAll": "Tableau complet"
   },
+  "recall": {
+    "toggle": "Taper de mémoire",
+    "reveal": "Voir la réponse",
+    "noHint": "Aucun indice",
+    "resultHeading": "Tapé de mémoire"
+  },
   "upcoming": {
     "next": "À suivre",
     "last": "C’est le dernier mot",

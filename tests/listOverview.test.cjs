@@ -70,3 +70,9 @@ test('a copy of a shared list is not shared', () => {
   assert.equal('shared' in copy, false)
   assert.equal('shareId' in copy, false)
 })
+
+test('currentRecordCount counts normal records only', () => {
+  const r = (id, extra = {}) => ({ id, time: 1, date: '2026-09-01T00:00:00.000Z', wordCount: 1, ...extra })
+  const list = { words: [{ display: 'a', input: 'a', annotation: '' }], records: [r('a'), r('b', { mode: 'recall' })] }
+  assert.equal(currentRecordCount(list), 1)
+})

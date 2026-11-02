@@ -425,6 +425,13 @@
           "device": {
             "$ref": "#/components/schemas/Device",
             "description": "練習した時点の端末をそのまま保存する"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "recall"
+            ],
+            "description": "思い出して打った記録だけが持つ。/api/workspace/records だけが受け付け、/api/v1 は 400 invalidJson にする"
           }
         },
         "not": {

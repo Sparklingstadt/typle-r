@@ -5,6 +5,7 @@
 package workspace
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -49,6 +50,8 @@ type Record struct {
 	Accuracy  *float64 `json:"accuracy,omitempty"`
 	WordCount *int     `json:"wordCount,omitempty"`
 	Device    *Device  `json:"device,omitempty"`
+	// Mode is RecallMode for a run practised by recalling the words; "" for a normal run, which has no mode key.
+	Mode string `json:"mode,omitempty"`
 	// At is Date as a time, for ordering and filtering.
 	At    time.Time `json:"-"`
 	Extra string    `json:"-"`
@@ -109,13 +112,14 @@ type rawWord struct {
 }
 
 type rawRecord struct {
-	ID        *string  `json:"id"`
-	Time      *float64 `json:"time"`
-	Date      *string  `json:"date"`
-	Mistakes  *int     `json:"mistakes"`
-	Accuracy  *float64 `json:"accuracy"`
-	WordCount *int     `json:"wordCount"`
-	Device    *Device  `json:"device"`
+	ID        *string         `json:"id"`
+	Time      *float64        `json:"time"`
+	Date      *string         `json:"date"`
+	Mistakes  *int            `json:"mistakes"`
+	Accuracy  *float64        `json:"accuracy"`
+	WordCount *int            `json:"wordCount"`
+	Device    *Device         `json:"device"`
+	Mode      json.RawMessage `json:"mode"`
 	extra     string
 }
 
@@ -322,8 +326,17 @@ func decodeRecord(raw *rawRecord) (Record, error) {
 	if raw.Device != nil && !isDevice(*raw.Device) {
 		return Record{}, errors.New("device is invalid")
 	}
+	mode := ""
+	if raw.Mode != nil {
+		// An explicit null is refused as the app does: the value is "recall" or the key is absent.
+		var value string
+		if json.Unmarshal(raw.Mode, &value) != nil || value != RecallMode || string(bytes.TrimSpace(raw.Mode)) == "null" {
+			return Record{}, errors.New(`mode must be "recall" when present`)
+		}
+		mode = value
+	}
 	return Record{ID: raw.ID, Time: *raw.Time, Date: *raw.Date, Mistakes: raw.Mistakes, Accuracy: raw.Accuracy,
-		WordCount: raw.WordCount, Device: raw.Device, At: at, Extra: raw.extra}, nil
+		WordCount: raw.WordCount, Device: raw.Device, Mode: mode, At: at, Extra: raw.extra}, nil
 }
 
 // JavaScript measures string length in UTF-16 code units.
@@ -414,7 +427,7 @@ func (w *Word) UnmarshalJSON(data []byte) (err error) {
 func (r *rawRecord) UnmarshalJSON(data []byte) (err error) {
 	type plain rawRecord
 	if err = json.Unmarshal(data, (*plain)(r)); err == nil {
-		r.extra, err = unknown(data, "id", "time", "date", "mistakes", "accuracy", "wordCount", "device")
+		r.extra, err = unknown(data, "id", "time", "date", "mistakes", "accuracy", "wordCount", "device", "mode")
 	}
 	return err
 }

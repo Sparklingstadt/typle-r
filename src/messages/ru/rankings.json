@@ -7,6 +7,11 @@
     "allDevices": "Все устройства",
     "deleted": "{name} (удалено)"
   },
+  "mode": {
+    "label": "Режим практики",
+    "normal": "Обычный",
+    "recall": "По памяти"
+  },
   "order": {
     "label": "Порядок рейтинга",
     "accuracy": "Точность<wide> важнее</wide>",

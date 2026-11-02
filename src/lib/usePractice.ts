@@ -4,14 +4,16 @@ import { useEffect, useRef, useState } from 'react'
 import type { PracticeDevice } from '../core/devices'
 import type { SavedWordList } from '../core/wordLists'
 import type { RecordSave } from './useWordLists'
-import { makeRecord, type PracticeRecord } from '../core/records'
-import { newSession, pauseSession, resumeSession, sessionResult, typeInput } from '../core/typing'
+import { makeRecord, type PracticeMode, type PracticeRecord } from '../core/records'
+import { newSession, pauseSession, resumeSession, revealAnswer, sessionResult, typeInput, type TypingSession } from '../core/typing'
 import { useTypingOptions } from './inputSettings'
 
-export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, device?: PracticeDevice, initialListId?: string | null) {
+export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, device?: PracticeDevice, initialListId?: string | null, mode: PracticeMode = 'normal') {
   const [list, setList] = useState<SavedWordList | undefined>(() => wordLists.find(item => item.id === initialListId) ?? wordLists[0])
   const selected = wordLists.findIndex(item => item.id === list?.id)
   const [practiceDevice, setPracticeDevice] = useState<PracticeDevice | undefined>()
+  // The mode a started run is practised in; a change from another tab only applies to the next run.
+  const [practiceMode, setPracticeMode] = useState<PracticeMode | undefined>()
   const [session, setSession] = useState(newSession)
   const typingOptions = useTypingOptions()
   const [composition, setComposition] = useState<string | null>(null)
@@ -31,6 +33,7 @@ export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, d
     setList(wordLists[index])
     setSession(newSession())
     setPracticeDevice(undefined)
+    setPracticeMode(undefined)
     setComposition(null)
     composing.current = false
     committedComposition.current = null
@@ -40,18 +43,33 @@ export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, d
     input.current?.focus()
   }
 
-  function enter(value: string) {
-    if (completedRecord.current) return
-    const next = typeInput(session, list?.words ?? [], value, Date.now(), typingOptions)
+  // Moves the session on; the device is fixed when the run starts and the record is saved when it finishes.
+  function advance(next: TypingSession) {
     const snapshot = session.startedAt === null ? (device ? { ...device } : undefined) : practiceDevice
-    if (session.startedAt === null && next.startedAt !== null) setPracticeDevice(snapshot)
+    const runMode = session.startedAt === null ? mode : practiceMode ?? mode
+    if (session.startedAt === null && next.startedAt !== null) {
+      setPracticeDevice(snapshot)
+      setPracticeMode(runMode)
+    }
     setSession(next)
     if (next.finishedAt !== null && list) {
-      const record = makeRecord(next, list.words.length, randomId(), snapshot)
+      const record = makeRecord(next, list.words.length, randomId(), snapshot, runMode)
       completedRecord.current = record
       setRecord(record)
       saveRecord(record)
     }
+  }
+
+  function enter(value: string) {
+    if (completedRecord.current) return
+    advance(typeInput(session, list?.words ?? [], value, Date.now(), typingOptions))
+  }
+
+  // Recall mode: shows the rest of the current word, counting it as mistakes once. Revealing also starts the clock.
+  function reveal() {
+    if (completedRecord.current) return
+    advance(revealAnswer(session, list?.words ?? [], Date.now()))
+    input.current?.focus()
   }
 
   // The clock stops while the input has lost focus and runs again once it is back.
@@ -90,5 +108,5 @@ export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, d
       if (!duplicate) enter(value)
     }
   }
-  return { list, selected, session, practiceDevice, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave, pause, resume }
+  return { list, selected, session, practiceDevice, practiceMode, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave, pause, resume, reveal }
 }

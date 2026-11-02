@@ -157,3 +157,27 @@ for (const file of fs.readdirSync(operationFixtures).filter(name => name.endsWit
     }
   })
 }
+
+test('addRecord keeps mode recall and rejects other modes', () => {
+  const list = { id: 'a', name: 'T', words: [{ display: 'ab', input: 'ab', annotation: '' }], records: [], createdAt: '2026-09-06' }
+  const input = { id: 'r1', time: 2, date: '2026-09-06T00:00:00.000Z', mistakes: 0, accuracy: 100, wordCount: 1 }
+  const doc = { lists: [list], devices: [] }
+  assert.equal(addRecord(doc, 'a', { ...input, mode: 'recall' }).record.mode, 'recall')
+  assert.throws(() => addRecord(doc, 'a', { ...input, mode: 'x' }), { key: 'invalidRecord' })
+  assert.equal('mode' in addRecord(doc, 'a', input).record, false)
+})
+
+test('makeRecord marks only recall runs with a mode', () => {
+  const words = [{ display: 'ab', input: 'ab', annotation: '' }]
+  const s = typeInput(typeInput(newSession(), words, 'a', 1000), words, 'ab', 3000)
+  assert.equal('mode' in makeRecord(s, 1, 'n1'), false)
+  assert.equal('mode' in makeRecord(s, 1, 'n2', undefined, 'normal'), false)
+  assert.equal(makeRecord(s, 1, 'r1', undefined, 'recall').mode, 'recall')
+})
+
+test('saved records with an unknown mode are corrupted', () => {
+  const list = mode => ({ id: 'a', name: 'T', words: [{ display: 'ab', input: 'ab', annotation: '' }], createdAt: '2026-09-06',
+    records: [{ id: 'r', time: 1, date: '2026-09-06T00:00:00.000Z', mode }] })
+  assert.throws(() => decodeLists(encodeLists([list('x')])), { key: 'savedDataCorrupted' })
+  assert.equal(decodeLists(encodeLists([list('recall')]))[0].records[0].mode, 'recall')
+})

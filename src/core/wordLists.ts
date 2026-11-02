@@ -36,7 +36,8 @@ export type WordList = {
     mistakes?: number,
     accuracy?: number,
     device?: PracticeDevice,
-    wordCount?: number
+    wordCount?: number,
+    mode?: 'recall'
   }[],
   createdAt: string
 }
@@ -111,6 +112,7 @@ export function decodeLists(raw: string): SavedWordList[] {
           (record.id !== undefined && typeof record.id !== "string") ||
           (record.accuracy !== undefined && (!Number.isFinite(record.accuracy) || record.accuracy < 0 || record.accuracy > 100)) ||
           (record.mistakes !== undefined && (!Number.isInteger(record.mistakes) || record.mistakes < 0)) ||
+          (record.mode !== undefined && record.mode !== 'recall') ||
           (record.wordCount !== undefined && (!Number.isInteger(record.wordCount) || record.wordCount < 1)))) {
       throw new AppError('savedDataCorrupted')
     }

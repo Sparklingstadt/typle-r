@@ -85,3 +85,28 @@ func TestListBest(t *testing.T) {
 		t.Fatal("best of nothing")
 	}
 }
+
+func TestComparableLeavesOutRecall(t *testing.T) {
+	list := edited()
+	recall := practice("recall", 1, number(100), 12, 30, mac)
+	recall.Mode = RecallMode
+	list.Records = append(list.Records, recall)
+	if got := ids(ComparableRecords(&list, list.Records)); !slices.Equal(got, []string{"new1", "new2", "new3"}) {
+		t.Fatalf("comparable = %v", got)
+	}
+	if best := ListBest(&list); *best.ID != "new2" {
+		t.Fatalf("best = %+v", best)
+	}
+	ranking := ListRanking(&list, "", "accuracy", false, rankingNow)
+	if got := ids(ranking.Ranked); !slices.Equal(got, []string{"new2", "new3", "new1"}) || len(ranking.Records) != 6 {
+		t.Fatalf("ranked = %v, records %d", got, len(ranking.Records))
+	}
+	all := ListRanking(&list, "", "accuracy", true, rankingNow)
+	if slices.Contains(ids(all.Ranked), "recall") {
+		t.Fatalf("all = %v", ids(all.Ranked))
+	}
+	onlyRecall := List{ID: "r", Words: make([]Word, 12), Records: []Record{recall}}
+	if ListBest(&onlyRecall) != nil || len(ListRanking(&onlyRecall, "", "accuracy", false, rankingNow).Ranked) != 0 {
+		t.Fatal("recall-only list has a best")
+	}
+}

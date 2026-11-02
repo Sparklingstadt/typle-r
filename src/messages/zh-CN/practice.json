@@ -33,6 +33,12 @@
     "simpleKeys": "简易输入",
     "simpleKeysAll": "完整对照表"
   },
+  "recall": {
+    "toggle": "凭记忆输入",
+    "reveal": "查看答案",
+    "noHint": "没有提示",
+    "resultHeading": "凭记忆输入"
+  },
   "upcoming": {
     "next": "接下来",
     "last": "这是最后一个单词",

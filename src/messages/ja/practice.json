@@ -33,6 +33,12 @@
     "simpleKeys": "簡易入力",
     "simpleKeysAll": "すべての対応表"
   },
+  "recall": {
+    "toggle": "思い出して打つ",
+    "reveal": "答えを見る",
+    "noHint": "ヒントがありません",
+    "resultHeading": "思い出して打つ"
+  },
   "upcoming": {
     "next": "次の単語",
     "last": "これが最後の単語です",

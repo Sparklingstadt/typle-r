@@ -30,6 +30,7 @@
     "heading": "{relative} · {date}",
     "summary": "{count, plural, other {# 次}} · {duration}"
   },
+  "recallBadge": "回憶",
   "more": "顯示更多（剩餘 {count, number} 筆）",
   "note": "單字數與裝置名稱為練習當時的資訊。",
   "noteMissing": "「—」表示未記錄的項目（例如舊版本儲存的紀錄）。",
