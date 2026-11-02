@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import PageContainer from '@/components/PageContainer/PageContainer'
 import { useFormat } from '@/i18n/useFormat'
+import GalleryList from './gallery-list'
 import UserList from './user-list'
 
 // The answer of GET /api/admin/dashboard (server/internal/web/admin.go, server/internal/store/admin.go).
@@ -146,6 +147,8 @@ export default function AdminDashboard() {
           </Table>}
         </CardContent>
       </Card>
+
+      <GalleryList time={time} errorText={errorText} />
 
       <Card>
         <CardHeader><CardTitle><h2>{t('admins.title')}</h2></CardTitle></CardHeader>

@@ -57,5 +57,24 @@
     "page": "{page} / {pages}ページ",
     "previous": "前へ",
     "next": "次へ"
+  },
+  "gallery": {
+    "title": "ギャラリー",
+    "description": "ギャラリーに載っているパックを、通報が多い順に表示します。",
+    "loading": "読み込み中",
+    "retry": "再試行",
+    "empty": "ギャラリーに載っているパックはありません。",
+    "name": "パック名",
+    "category": "カテゴリー",
+    "added": "追加数",
+    "listedAt": "掲載日時",
+    "reports": "通報",
+    "reportCount": "{count}件",
+    "state": "状態",
+    "actions": "操作",
+    "hidden": "非公開（{time}）",
+    "hide": "非公開にする",
+    "unhide": "戻す",
+    "failed": "操作できませんでした。もう一度お試しください。"
   }
 }

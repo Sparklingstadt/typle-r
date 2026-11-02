@@ -57,5 +57,24 @@
     "page": "Page {page} of {pages}",
     "previous": "Previous",
     "next": "Next"
+  },
+  "gallery": {
+    "title": "Gallery",
+    "description": "Packs in the gallery, most reported first.",
+    "loading": "Loading",
+    "retry": "Retry",
+    "empty": "No packs are in the gallery.",
+    "name": "Pack name",
+    "category": "Category",
+    "added": "Added",
+    "listedAt": "Listed at",
+    "reports": "Reports",
+    "reportCount": "{count, plural, one {# report} other {# reports}}",
+    "state": "Status",
+    "actions": "Actions",
+    "hidden": "Hidden ({time})",
+    "hide": "Hide",
+    "unhide": "Show again",
+    "failed": "Could not complete the action. Please try again."
   }
 }
