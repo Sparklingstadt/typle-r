@@ -25,6 +25,7 @@
   "wordFieldsRequired": "請填寫所有單字的顯示內容與輸入內容。",
   "savedDataUnreadable": "無法讀取儲存資料的格式。",
   "savedDataCorrupted": "儲存的資料已損毀。原始資料未被變更。",
+  "invalidWritingLanguage": "手寫練習的語言無效。",
   "listDeleted": "此單字清單已被刪除。請重新開啟頁面。",
   "listLimit": "最多可以儲存 {max} 個單字清單。",
   "importFileType": "請選擇 CSV 或 TSV 檔案。",
@@ -66,5 +67,10 @@
   "adminUnavailable": "無法確認您是否為管理員。請稍後再試。",
   "invalidPage": "頁碼無效。",
   "importInputTypeInvalid": "第 {line} 行的 input_type 必須是 command、code 或 word。",
-  "invalidQuery": "搜尋條件無效。"
+  "invalidQuery": "搜尋條件無效。",
+  "invalidReport": "檢舉內容無效。",
+  "notInGallery": "未在圖庫中展示的包無法檢舉。",
+  "tooManyRequests": "請求過於頻繁。請稍後再試。",
+  "invalidRequest": "請求內容無效。",
+  "sharedPackHidden": "管理員已隱藏此包，無法在圖庫中展示。"
 }

@@ -73,6 +73,13 @@
       "p2": "Si vous choisissez une autre liste en cours d’entraînement, une confirmation vous est demandée avant l’interruption. Un entraînement inachevé n’est pas enregistré.",
       "p3": "« Recommencer » ou <keys>Esc</keys> relance la même liste depuis le début.",
       "p4": "Avant de taper le premier caractère, choisissez l’appareil utilisé avec « Appareil » en haut (<devicesSection>Enregistrer des appareils</devicesSection>)."
+    },
+    "writing": {
+      "title": "Typle Handwriting (écriture manuscrite)",
+      "p1": "Dans l’éditeur de liste, activez « Utiliser pour l’écriture manuscrite (Typle Handwriting) » et choisissez une langue pour vous entraîner à écrire cette liste à la main. En la choisissant sur l’écran d’entraînement, un sélecteur Frappe / Handwriting apparaît.",
+      "p2": "Regardez le mot affiché et écrivez-le dans le champ avec la saisie manuscrite de votre système (panneau d’écriture de Windows, clavier manuscrit d’une tablette Android, écriture manuscrite d’un IME, etc.). La version web n’a pas de zone de dessin.",
+      "p3": "Quand la saisie correspond au mot, vous passez au suivant. « Vérifier » (<keys>Enter</keys>) sans correspondance compte une erreur, et « Passer » compte une erreur et passe au mot suivant. Le texte en cours de conversion n’est pas évalué.",
+      "p4": "Les records Handwriting sont comparés à part des records normaux et de mémoire ; sur l’écran des meilleurs records, on bascule entre Normal, De mémoire et Handwriting. Ils comptent dans les séances, le temps d’entraînement et la série de la semaine sur l’accueil, mais la précision, les tendances et les listes suivantes ne comparent que la frappe. Handwriting ne se combine pas avec « Taper de mémoire ». Changer en cours d’entraînement demande une confirmation. Les smartphones seront pris en charge plus tard."
     }
   },
   "lists": {
@@ -103,7 +110,10 @@
       "p1": "Une fois connecté, « Partager » dans le menu « … » d’un pack crée un lien de partage. Choisissez « Créer le lien », puis « Copier » et envoyez-le.",
       "p2": "Toute personne disposant du lien peut voir, sans se connecter, le nom, la description, les listes et les mots du pack, et l’ajouter à ses packs avec « Ajouter à mes packs ». Vos enregistrements d’entraînement et votre nom ne sont pas visibles.",
       "p3": "Modifier le pack ne change pas le lien automatiquement. « Mettre à jour » l’actualise (le lien reste le même). « Arrêter le partage » désactive le lien, qui indique alors que le partage est terminé. Un pack partagé porte la mention « Partagé ».",
-      "p4": "Supprimer un pack partagé met aussi fin à son partage."
+      "p4": "Supprimer un pack partagé met aussi fin à son partage.",
+      "p5": "Activez « Afficher dans la galerie » dans la fenêtre de partage pour placer le pack dans la galerie (dans « Listes de mots » de la barre latérale). Tout le monde peut voir la galerie sans se connecter, et votre nom n’est pas affiché. Un pack affiché porte la mention « Dans la galerie ». Désactivez l’option ou arrêtez le partage pour le retirer de la galerie.",
+      "p6": "Quand vous ouvrez un pack depuis la galerie ou un lien de partage, « Signaler » permet d’informer les administrateurs d’un problème. Choisissez un motif : contenu inapproprié, spam ou publicité, informations personnelles ou autre.",
+      "p7": "Après des signalements, un administrateur peut masquer un pack. Un pack masqué porte la mention « Masqué » et n’apparaît plus ni dans la galerie ni par son lien de partage. Le propriétaire ne peut pas réafficher ce partage dans la galerie (il peut encore mettre le pack à jour ou arrêter son partage)."
     },
     "input": {
       "title": "Saisir les mots",

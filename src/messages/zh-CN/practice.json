@@ -6,7 +6,8 @@
     "speed": "速度",
     "speedUnit": "键/分",
     "accuracy": "正确率",
-    "mistakes": "错误"
+    "mistakes": "错误",
+    "wordSpeedUnit": "词/分"
   },
   "progress": {
     "label": "单词进度",
@@ -98,7 +99,10 @@
     "saving": "正在保存记录…",
     "again": "再来一次",
     "chooseList": "选择其他列表",
-    "viewRecords": "查看记录"
+    "viewRecords": "查看记录",
+    "wordSpeedUnit": "词/分",
+    "correctWords": "{count} 个词",
+    "mistakesWords": "错误 {count} 个词"
   },
   "best": {
     "label": "最佳记录前 5 名",
@@ -124,5 +128,12 @@
     "listsOf": "{name} 的列表",
     "chooseList": "请选择列表。",
     "match": "符合搜索"
-  }
+  },
+  "modeLabel": "练习方式",
+  "modeTyping": "打字",
+  "modeWriting": "Handwriting",
+  "writingJudge": "判定",
+  "writingSkip": "跳过",
+  "writingRead": "识别为“{text}”",
+  "writingInput": "在此手写输入"
 }

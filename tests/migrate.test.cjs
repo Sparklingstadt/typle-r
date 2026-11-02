@@ -29,5 +29,5 @@ test('an older checkout than the database is refused with the migrations it lack
   const old = ['0001_workspaces', '0002_practice_devices', '0026_interests']
   const applied = ['0001_workspaces', '0027_schema', '0032_drop_legacy', '0028_admins']
   assert.deepEqual(newerThanLocal(applied, old), ['0027_schema', '0028_admins', '0032_drop_legacy'])
-  assert.deepEqual(newerThanLocal(['0033_next'], localMigrations()), ['0033_next'])
+  assert.deepEqual(newerThanLocal(['0999_next'], localMigrations()), ['0999_next'])
 })

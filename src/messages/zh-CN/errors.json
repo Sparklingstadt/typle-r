@@ -25,6 +25,7 @@
   "wordFieldsRequired": "请填写所有单词的显示内容和输入内容。",
   "savedDataUnreadable": "无法读取保存数据的格式。",
   "savedDataCorrupted": "保存的数据已损坏。原始数据未被更改。",
+  "invalidWritingLanguage": "手写练习的语言无效。",
   "listDeleted": "此单词列表已被删除。请重新打开页面。",
   "listLimit": "最多可以保存 {max} 个单词列表。",
   "importFileType": "请选择 CSV 或 TSV 文件。",
@@ -66,5 +67,10 @@
   "adminUnavailable": "无法确认您是否为管理员。请稍后再试。",
   "invalidPage": "页码无效。",
   "importInputTypeInvalid": "第 {line} 行的 input_type 必须是 command、code 或 word。",
-  "invalidQuery": "搜索条件无效。"
+  "invalidQuery": "搜索条件无效。",
+  "invalidReport": "举报内容无效。",
+  "notInGallery": "未在图库中展示的词包无法举报。",
+  "tooManyRequests": "请求过于频繁。请稍后再试。",
+  "invalidRequest": "请求内容无效。",
+  "sharedPackHidden": "管理员已隐藏此词包，无法在图库中展示。"
 }

@@ -4,7 +4,7 @@ const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const path = require('node:path')
 const { validateLibrary } = require('../src/core/wordPacks.ts')
-const { encodePackFile, decodePackFile, importPackFile, copyPack } = require('../src/core/packFile.ts')
+const { packFileOf, encodePackFile, decodePackFile, importPackFile, copyPack } = require('../src/core/packFile.ts')
 const { MAX_LISTS } = require('../src/core/listOverview.ts')
 
 const dir = path.join(__dirname, 'fixtures/pack-file')
@@ -219,5 +219,23 @@ test('pack files reject unknown or non-string word input types', () => {
     const invalid = file([{ name: 'L', words: [{ ...words('A')[0], input_type }] }])
     assert.throws(() => decodePackFile(JSON.stringify(invalid)), { key: 'packFileUnreadable' })
     assert.throws(() => importPackFile(library(), invalid, { pack: 'new', lists: ['new-a'] }, now), { key: 'savedDataCorrupted' })
+  }
+})
+
+test('pack file carries writing', () => {
+  const lib = library()
+  lib.lists[0].writing = { language: 'ko' }
+  const written = packFileOf(lib, 'p')
+  assert.deepEqual(written.lists.map(item => item.writing), [{ language: 'ko' }, undefined])
+  assert.equal('writing' in written.lists[1], false)
+  const decoded = decodePackFile(JSON.stringify(written))
+  assert.deepEqual(decoded.lists[0].writing, { language: 'ko' })
+  assert.equal('writing' in decoded.lists[1], false)
+  const next = importPackFile(lib, decoded, { pack: 'i', lists: ['i1', 'i2'] }, now)
+  assert.deepEqual(next.lists.find(item => item.id === 'i1').writing, { language: 'ko' })
+  assert.equal('writing' in next.lists.find(item => item.id === 'i2'), false)
+  assert.deepEqual(copyPack(lib, 'p', { pack: 'c', lists: ['c1', 'c2'] }, suffix, now).lists.find(item => item.id === 'c1').writing, { language: 'ko' })
+  for (const writing of [{ language: 'xx' }, { language: 'ja', extra: 1 }, 'ja']) {
+    assert.throws(() => decodePackFile(JSON.stringify(file([{ name: 'A', writing, words: words('a') }]))), { key: 'packFileUnreadable' })
   }
 })

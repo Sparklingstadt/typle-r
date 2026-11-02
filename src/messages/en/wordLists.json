@@ -114,7 +114,9 @@
     "copy": "Duplicate",
     "export": "Export",
     "share": "Share",
-    "shared": "Shared"
+    "shared": "Shared",
+    "listed": "In the gallery",
+    "hidden": "Hidden"
   },
   "wordRow": {
     "label": "Word {n}",
@@ -187,6 +189,21 @@
     "pack": "Pack",
     "newPack": "New pack (named after the list)",
     "packHelp": "The pack this list belongs to. Choosing another pack moves the list there.",
+    "writingToggle": "Use for handwriting practice (Typle Handwriting)",
+    "writingToggleHelp": "Lets this list be practised by handwriting. The language is used to read the handwritten characters.",
+    "writingLanguage": "Recognition language",
+    "writingLanguages": {
+      "en": "English",
+      "ja": "日本語",
+      "zh-Hans": "中文（简体）",
+      "zh-Hant": "中文（繁體）",
+      "ko": "한국어",
+      "fr": "Français",
+      "de": "Deutsch",
+      "es": "Español",
+      "ru": "Русский",
+      "cs": "Čeština"
+    },
     "packWillBeDeleted": "The pack “{name}” will be deleted.",
     "levels": "Difficulty (optional)",
     "levelPlaceholder": "e.g. Beginner",
@@ -303,6 +320,10 @@
     "update": "Update share",
     "stop": "Stop sharing",
     "failed": "Could not change the share.",
+    "gallery": "List in the gallery",
+    "galleryNotice": "Anyone can see it in the gallery. Your name is not shown. An administrator may hide inappropriate content.",
+    "galleryCategoryHint": "Adding a category makes it easier to find.",
+    "hiddenNotice": "An administrator has hidden this pack, so it cannot be listed in the gallery.",
     "orphans": {
       "title": "Shares without a pack",
       "description": "The pack behind these share links is gone. Anyone with a link can still see it. Stop sharing the ones you no longer need.",
@@ -347,5 +368,20 @@
     "noResults": "No packs found",
     "loadFailed": "Couldn’t load the gallery. Try again in a moment.",
     "retry": "Try again"
+  },
+  "report": {
+    "open": "Report",
+    "title": "Report this pack",
+    "description": "Let the administrators know about a problem with this pack. Choose a reason and send it.",
+    "reason": "Reason for the report",
+    "reasons": {
+      "inappropriate": "Inappropriate content",
+      "spam": "Spam or advertising",
+      "personalInfo": "Contains personal information",
+      "other": "Other"
+    },
+    "send": "Send",
+    "sent": "Your report was received",
+    "failed": "The report could not be sent. Please try again."
   }
 }

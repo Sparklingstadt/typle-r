@@ -10,7 +10,8 @@
   "mode": {
     "label": "Mode d’entraînement",
     "normal": "Normal",
-    "recall": "De mémoire"
+    "recall": "De mémoire",
+    "writing": "Handwriting"
   },
   "order": {
     "label": "Critère de classement",

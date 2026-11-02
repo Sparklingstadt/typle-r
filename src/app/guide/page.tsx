@@ -88,6 +88,14 @@ export default async function Guide() {
               <li>{rich("practice.choose.p4")}</li>
             </Points>
           </Topic>
+          <Topic title={t("practice.writing.title")}>
+            <Points>
+              <li>{t("practice.writing.p1")}</li>
+              <li>{t("practice.writing.p2")}</li>
+              <li>{rich("practice.writing.p3")}</li>
+              <li>{t("practice.writing.p4")}</li>
+            </Points>
+          </Topic>
         </GuideSection>
 
         <GuideSection id="lists" icon={List} title={t("contents.lists")} lead={rich("lists.lead")}>
@@ -121,6 +129,9 @@ export default async function Guide() {
               <li>{t("lists.share.p2")}</li>
               <li>{t("lists.share.p3")}</li>
               <li>{t("lists.share.p4")}</li>
+              <li>{t("lists.share.p5")}</li>
+              <li>{t("lists.share.p6")}</li>
+              <li>{t("lists.share.p7")}</li>
             </Points>
           </Topic>
           <Topic title={t("lists.input.title")}>

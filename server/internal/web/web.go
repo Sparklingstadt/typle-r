@@ -28,6 +28,10 @@ type Store interface {
 	Gallery(ctx context.Context, q store.GalleryQuery) (*store.GalleryPage, error)
 	GalleryCategories(ctx context.Context) ([]store.GalleryCategory, error)
 	CountAdded(ctx context.Context, id string) error
+	CountGalleryHit(ctx context.Context, action string, client []byte) (hits int, windowEnd time.Time, err error)
+	Report(ctx context.Context, id, reason string) (bool, error)
+	AdminGallery(ctx context.Context) ([]store.AdminGalleryPack, error)
+	SetHidden(ctx context.Context, id string, hidden bool) (bool, error)
 	Admin(ctx context.Context, email, sub string) (bool, error)
 	Overview(ctx context.Context) (*store.AdminOverview, error)
 	Users(ctx context.Context, page int) (*store.AdminUsers, error)
@@ -90,6 +94,9 @@ type Config struct {
 	// LocalLogin turns on POST /api/auth/local, which signs in as a made-up local account for development. Off, the
 	// path does not exist.
 	LocalLogin bool
+	// OnVercel is whether the app runs behind Vercel (server/vercel sets it, not FromEnv), where the forwarding headers are
+	// written by Vercel and tell the client's IP. Elsewhere they are the client's own words and are ignored.
+	OnVercel bool
 	// Report is told of a failure that is answered with a 503, with the operation that failed (such as
 	// "workspace.read"), so that it can be sent to an error tracker. When nil the failure is only logged.
 	Report func(r *http.Request, err error, operation string)
@@ -109,6 +116,7 @@ func New(c Config) http.Handler {
 	mux.HandleFunc("/api/gallery", s.gallery)
 	mux.HandleFunc("/api/gallery/categories", s.galleryCategories)
 	mux.HandleFunc("/api/gallery/added", s.galleryAdded)
+	mux.HandleFunc("/api/gallery/reports", s.galleryReport)
 	mux.HandleFunc("/api/auth/signin", s.signin)
 	mux.HandleFunc(githubCallback, s.callback(providerGitHub))
 	mux.HandleFunc(ffpfCallback, s.callback(providerFFPF))
@@ -119,6 +127,9 @@ func New(c Config) http.Handler {
 	mux.HandleFunc("/api/auth/admin/signout", s.adminSignout)
 	mux.HandleFunc("/api/admin/dashboard", s.adminDashboard)
 	mux.HandleFunc("/api/admin/users", s.adminUsers)
+	mux.HandleFunc("/api/admin/gallery", s.adminGallery)
+	mux.HandleFunc("/api/admin/gallery/hide", s.adminHide)
+	mux.HandleFunc("/api/admin/gallery/unhide", s.adminUnhide)
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { refuse(w, http.StatusNotFound, "notFound") })
 	return withSecurityHeaders(mux)
 }

@@ -25,6 +25,7 @@
   "wordFieldsRequired": "Renseignez le mot affiché et le texte à saisir pour chaque mot.",
   "savedDataUnreadable": "Le format des données enregistrées est illisible.",
   "savedDataCorrupted": "Les données enregistrées sont corrompues. Les données d’origine n’ont pas été modifiées.",
+  "invalidWritingLanguage": "La langue de l’entraînement à l’écriture manuscrite n’est pas valide.",
   "listDeleted": "Cette liste de mots a été supprimée. Veuillez rouvrir la page.",
   "listLimit": "Vous pouvez enregistrer jusqu’à {max} listes de mots.",
   "importFileType": "Choisissez un fichier CSV ou TSV.",
@@ -66,5 +67,10 @@
   "adminUnavailable": "Impossible de vérifier si vous êtes administrateur. Veuillez réessayer plus tard.",
   "invalidPage": "Le numéro de page n’est pas valide.",
   "importInputTypeInvalid": "Ligne {line} : input_type doit être command, code ou word.",
-  "invalidQuery": "Les critères de recherche ne sont pas valides."
+  "invalidQuery": "Les critères de recherche ne sont pas valides.",
+  "invalidReport": "Le signalement n’est pas valide.",
+  "notInGallery": "Un pack absent de la galerie ne peut pas être signalé.",
+  "tooManyRequests": "Trop de requêtes. Réessayez dans un moment.",
+  "invalidRequest": "La requête n’est pas valide.",
+  "sharedPackHidden": "Un administrateur a masqué ce pack : il ne peut pas être affiché dans la galerie."
 }

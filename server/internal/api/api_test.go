@@ -396,3 +396,43 @@ func TestRecordsPagedBySource(t *testing.T) {
 	failing := &pagedSource{source: saved(t), err: errors.New("down")}
 	expect(t, servePaged(failing, "/api/v1/lists/l1/records"), http.StatusServiceUnavailable, `{"error":"databaseUnavailable"}`)
 }
+
+// A list with a handwriting mark shows it; the others leave it out.
+func TestListSummaryWriting(t *testing.T) {
+	marked := summary(&workspace.List{ID: "w", Name: "漢字", Writing: &workspace.Writing{Language: "ja"}, Words: []workspace.Word{{Display: "木", Input: "ki"}}})
+	body, err := json.Marshal(marked)
+	if err != nil || !strings.Contains(string(body), `"writing":{"language":"ja"}`) {
+		t.Fatalf("body = %s, err = %v", body, err)
+	}
+	body, err = json.Marshal(summary(&workspace.List{ID: "p", Name: "n", Words: []workspace.Word{{Display: "a", Input: "a"}}}))
+	if err != nil || strings.Contains(string(body), "writing") {
+		t.Fatalf("body = %s, err = %v", body, err)
+	}
+}
+
+func TestRankingMode(t *testing.T) {
+	w, err := workspace.Decode([]byte(`[{"id":"l","name":"a","createdAt":"x","words":[{"display":"a","input":"a","annotation":""}],
+	  "records":[{"id":"t1","time":2,"date":"2026-10-10T20:00:00.000Z","accuracy":90,"wordCount":1},
+	  {"id":"t2","time":3,"date":"2026-10-11T20:00:00.000Z","accuracy":95,"wordCount":1},
+	  {"id":"w1","time":1,"date":"2026-10-12T20:00:00.000Z","accuracy":100,"wordCount":1,"mode":"writing"},
+	  {"id":"r1","time":4,"date":"2026-10-13T20:00:00.000Z","accuracy":100,"wordCount":1,"mode":"recall"}]}]`), []byte(`[]`), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := &source{workspace: w}
+	for target, want := range map[string]string{
+		"/api/v1/rankings/l":              `"ranked":[{"id":"t2"`,
+		"/api/v1/rankings/l?mode=normal":  `"ranked":[{"id":"t2"`,
+		"/api/v1/rankings/l?mode=writing": `"ranked":[{"id":"w1"`,
+		"/api/v1/rankings/l?mode=recall":  `"ranked":[{"id":"r1"`,
+		"/api/v1/rankings?mode=writing":   `"recordCount":1`,
+		"/api/v1/rankings?mode=normal":    `"recordCount":2`,
+	} {
+		if got := body(t, serveFrom(s, "GET", target)); !strings.Contains(got, want) {
+			t.Errorf("%s: %s", target, got)
+		}
+	}
+	for _, target := range []string{"/api/v1/rankings/l?mode=x", "/api/v1/rankings?mode=x", "/api/v1/rankings?mode=", "/api/v1/rankings?mode=typing"} {
+		expect(t, serveFrom(s, "GET", target), 400, `{"error":"invalidQuery"}`)
+	}
+}

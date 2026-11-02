@@ -1,7 +1,9 @@
 package web
 
 import (
+	"encoding/json"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -126,7 +128,7 @@ func (s *server) galleryCategories(w http.ResponseWriter, r *http.Request) {
 }
 
 // galleryAdded counts one more "added to my packs" for the pack ?id=. Its Origin is checked as DELETE /api/shares's is.
-// A pack that is not in the gallery is answered the same 204, so that the answer does not tell which shares are listed.
+// It is limited to addedPerMinute a minute per client (limited), after the checks. A pack that is not in the gallery is answered the same 204, so that the answer does not tell which shares are listed.
 func (s *server) galleryAdded(w http.ResponseWriter, r *http.Request) {
 	w = galleryHeaders(w)
 	if !methods(w, r, http.MethodPost) {
@@ -136,9 +138,75 @@ func (s *server) galleryAdded(w http.ResponseWriter, r *http.Request) {
 		refuse(w, http.StatusForbidden, "forbiddenRequest")
 		return
 	}
+	if s.limited(w, r, "added", addedPerMinute) {
+		return
+	}
 	if err := s.config.Store.CountAdded(r.Context(), r.URL.Query().Get("id")); err != nil {
 		s.report(r, err, "gallery.added")
 		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// maxIDBodyBytes is the most a report or a hide needs: a pack id and a reason, and room to spare.
+const maxIDBodyBytes = 4 << 10
+
+// readStringFields reads a body that is a JSON object with exactly the string members names, none of them empty or
+// null, and no other member.
+func readStringFields(r *http.Request, limit int64, names ...string) (map[string]string, bool) {
+	if r.Body == nil || r.Body == http.NoBody {
+		return nil, false
+	}
+	body, err := readLimited(r.Body, limit)
+	if err != nil {
+		return nil, false
+	}
+	fields, err := parseObject(body)
+	if err != nil || len(fields) != len(names) {
+		return nil, false
+	}
+	values := make(map[string]string, len(names))
+	for _, name := range names {
+		raw, ok := fields[name]
+		var value string
+		// null would unmarshal into value without an error and leave it empty, which is refused with it.
+		if !ok || json.Unmarshal(raw, &value) != nil || value == "" {
+			return nil, false
+		}
+		values[name] = value
+	}
+	return values, true
+}
+
+// galleryReport records a report of the pack "id" for "reason". It is checked as POST /api/gallery/added is, and as
+// PUT /api/shares is for its JSON body. A share that is not in the gallery is notInGallery, so that /shared/<id> does
+// not say a link-only share has ended. It is limited to reportsPerMinute a minute per client (limited), after the checks.
+func (s *server) galleryReport(w http.ResponseWriter, r *http.Request) {
+	w = galleryHeaders(w)
+	if !methods(w, r, http.MethodPost) {
+		return
+	}
+	if !(fromApp(r) || s.sameOrigin(r)) || !jsonContent(r) {
+		refuse(w, http.StatusForbidden, "forbiddenRequest")
+		return
+	}
+	fields, ok := readStringFields(r, maxIDBodyBytes, "id", "reason")
+	if !ok || !slices.Contains(store.ReportReasons, fields["reason"]) {
+		refuse(w, http.StatusBadRequest, "invalidReport")
+		return
+	}
+	if s.limited(w, r, "reports", reportsPerMinute) {
+		return
+	}
+	found, err := s.config.Store.Report(r.Context(), fields["id"], fields["reason"])
+	if err != nil {
+		s.report(r, err, "gallery.report")
+		refuse(w, http.StatusServiceUnavailable, "databaseUnavailable")
+		return
+	}
+	if !found {
+		refuse(w, http.StatusNotFound, "notInGallery")
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)

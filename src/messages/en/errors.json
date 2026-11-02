@@ -25,6 +25,7 @@
   "wordFieldsRequired": "Fill in both the word to display and the text to type for every word.",
   "savedDataUnreadable": "The format of the saved data cannot be read.",
   "savedDataCorrupted": "The saved data is corrupted. The original data has not been changed.",
+  "invalidWritingLanguage": "The handwriting practice language is not valid.",
   "listDeleted": "This word list has been deleted. Please reopen this page.",
   "listLimit": "You can save up to {max} word lists.",
   "importFileType": "Choose a CSV or TSV file.",
@@ -66,5 +67,10 @@
   "adminUnavailable": "Could not check whether you are an administrator. Please try again later.",
   "invalidPage": "The page number is not valid.",
   "importInputTypeInvalid": "Line {line}: input_type must be command, code or word.",
-  "invalidQuery": "The search conditions are not valid."
+  "invalidQuery": "The search conditions are not valid.",
+  "invalidReport": "The report is not valid.",
+  "notInGallery": "A pack that is not in the gallery cannot be reported.",
+  "tooManyRequests": "Too many requests. Please try again in a little while.",
+  "invalidRequest": "The request is not valid.",
+  "sharedPackHidden": "An administrator has hidden this pack, so it cannot be listed in the gallery."
 }

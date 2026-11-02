@@ -76,8 +76,9 @@
     "words": "{count, plural, one {# слово} few {# слова} many {# слов} other {# слова}}",
     "runs": "{count, plural, one {# тренировка} few {# тренировки} many {# тренировок} other {# тренировки}}",
     "last": "Последняя: {day}",
-    "best": "Лучший",
+    "best": "Лучший ({mode})",
     "rankings": "Лучшие результаты",
     "practice": "Тренироваться"
-  }
+  },
+  "modeWriting": "Handwriting"
 }

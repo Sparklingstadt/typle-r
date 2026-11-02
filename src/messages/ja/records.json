@@ -76,8 +76,9 @@
     "words": "{count}語",
     "runs": "練習 {count}回",
     "last": "最終 {day}",
-    "best": "ベスト",
+    "best": "ベスト（{mode}）",
     "rankings": "ベスト記録",
     "practice": "練習する"
-  }
+  },
+  "modeWriting": "Handwriting"
 }

@@ -50,6 +50,7 @@ type storedList struct {
 	Name      string      `json:"name"`
 	PackID    string      `json:"packId,omitempty"`
 	Levels    *[]string   `json:"levels,omitempty"`
+	Writing   *Writing    `json:"writing,omitempty"`
 	CreatedAt string      `json:"createdAt"`
 	Words     []Word      `json:"words"`
 	Records   []Record    `json:"records"`
@@ -74,7 +75,7 @@ func Encode(lists []List) ([]byte, error) {
 		if records == nil {
 			records = []Record{}
 		}
-		item := storedList{ID: list.ID, Name: list.Name, PackID: list.PackID, CreatedAt: list.CreatedAt, Words: words, Records: records,
+		item := storedList{ID: list.ID, Name: list.Name, PackID: list.PackID, CreatedAt: list.CreatedAt, Writing: list.Writing, Words: words, Records: records,
 			Origin: list.Origin, extra: list.Extra}
 		if list.Levels != nil {
 			item.Levels = &list.Levels

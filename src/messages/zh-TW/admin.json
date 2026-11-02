@@ -57,5 +57,24 @@
     "page": "第 {page} / {pages} 頁",
     "previous": "上一頁",
     "next": "下一頁"
+  },
+  "gallery": {
+    "title": "圖庫",
+    "description": "圖庫中的單字包，依被檢舉次數由多到少排列。",
+    "loading": "正在載入",
+    "retry": "重試",
+    "empty": "圖庫中沒有單字包。",
+    "name": "單字包名稱",
+    "category": "分類",
+    "added": "新增次數",
+    "listedAt": "上架時間",
+    "reports": "檢舉",
+    "reportCount": "{count}次",
+    "state": "狀態",
+    "actions": "操作",
+    "hidden": "已隱藏（{time}）",
+    "hide": "隱藏",
+    "unhide": "恢復",
+    "failed": "操作失敗，請重試。"
   }
 }

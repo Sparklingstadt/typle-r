@@ -10,7 +10,8 @@
   "mode": {
     "label": "練習のモード",
     "normal": "通常",
-    "recall": "思い出す"
+    "recall": "思い出す",
+    "writing": "Handwriting"
   },
   "order": {
     "label": "順位の基準",

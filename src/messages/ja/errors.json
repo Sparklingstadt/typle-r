@@ -25,6 +25,7 @@
   "wordFieldsRequired": "表示する単語と入力する文字をすべて入力してください。",
   "savedDataUnreadable": "保存データの形式を読み取れません。",
   "savedDataCorrupted": "保存データが壊れています。元のデータは変更していません。",
+  "invalidWritingLanguage": "手書き練習の言語が正しくありません。",
   "listDeleted": "この単語リストは削除されています。画面を開き直してください。",
   "listLimit": "単語リストは{max}件まで保存できます。",
   "importFileType": "CSVまたはTSVファイルを選択してください。",
@@ -66,5 +67,10 @@
   "adminUnavailable": "管理者かどうかを確認できませんでした。しばらくしてからもう一度お試しください。",
   "invalidPage": "ページの指定が正しくありません。",
   "importInputTypeInvalid": "{line}行目の input_type は command、code、word のいずれかにしてください。",
-  "invalidQuery": "検索の条件が正しくありません。"
+  "invalidQuery": "検索の条件が正しくありません。",
+  "invalidReport": "通報の内容が正しくありません。",
+  "notInGallery": "ギャラリーに載っていないパックは通報できません。",
+  "tooManyRequests": "しばらくしてからもう一度お試しください。",
+  "invalidRequest": "リクエストの内容が正しくありません。",
+  "sharedPackHidden": "このパックは管理者により非公開にされているため、ギャラリーに載せられません。"
 }

@@ -10,7 +10,8 @@
   "mode": {
     "label": "练习模式",
     "normal": "普通",
-    "recall": "回忆"
+    "recall": "回忆",
+    "writing": "Handwriting"
   },
   "order": {
     "label": "排名依据",

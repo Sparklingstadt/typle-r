@@ -6,13 +6,14 @@ TS と Go は同じ `library` から **同じバイト列** を書き、`file` �
 
 - `basic.json`: ラベルのないパック、難易度のないリスト1つ。
 - `full.json`: 説明・カテゴリ・タグのあるパック、難易度が1つずつあるリスト2つ。保存データには知らない項目・記録・`origin` があり、ファイルには出ません。リストの間に別のパックのリストがあります。
+- `writing.json`: 手書き練習の印 `writing` のあるリスト（`ja`・`ko`）とないリスト。ファイルのリストの項目の順は `name`・`levels`・`writing`・`words`。
 
 ## ファイルの形
 
 ```json
 { "format": "typle-pack", "version": 1,
   "pack": { "name": "…", "description": "…", "category": "…", "tags": ["…"] },
-  "lists": [{ "name": "…", "levels": ["…"], "words": [{ "display": "…", "input": "…", "annotation": "…" }] }] }
+  "lists": [{ "name": "…", "levels": ["…"], "writing": { "language": "ja" }, "words": [{ "display": "…", "input": "…", "annotation": "…" }] }] }
 ```
 
 ## Go で守る約束（書き出し）

@@ -191,7 +191,7 @@ func (s *server) updateList(w http.ResponseWriter, r *http.Request, owner string
 	if !ok {
 		return
 	}
-	if input.Name == nil && input.PackID == nil && input.Category == nil && input.Tags == nil && input.Levels == nil && input.Words == nil {
+	if input.Name == nil && input.PackID == nil && input.Category == nil && input.Tags == nil && input.Levels == nil && input.Writing == nil && input.Words == nil {
 		failure(w, http.StatusBadRequest, "invalidJson")
 		return
 	}
@@ -217,7 +217,7 @@ func (s *server) addRecord(w http.ResponseWriter, r *http.Request, owner string)
 		return
 	}
 	if input.Mode != nil || input.ModeNull {
-		// A recall run is saved by the app only; the API does not take a mode.
+		// Recall and writing runs are saved by the app only; the API does not take a mode.
 		failure(w, http.StatusBadRequest, "invalidJson")
 		return
 	}
