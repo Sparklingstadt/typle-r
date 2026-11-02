@@ -17,6 +17,9 @@ Typle 本体（Web版と iPad・Mac・Android・Windows 版）が使う、アプ
 | [`PUT /api/shares`](./shares.md) | 要 | パックを共有する（共有中なら中身を取り直す） |
 | [`DELETE /api/shares?pack=<パックのID>`](./shares.md) | 要 | 共有をやめる |
 | [`GET /api/shared?id=<共有のID>`](./shares.md) | 不要 | 共有されたパックのファイル |
+| [`GET /api/gallery`](./shares.md#ギャラリー) | 不要 | ギャラリーのパックの検索 |
+| [`GET /api/gallery/categories`](./shares.md#ギャラリー) | 不要 | ギャラリーのカテゴリーと件数 |
+| [`POST /api/gallery/added?id=<共有のID>`](./shares.md#ギャラリー) | 不要 | ギャラリーのパックが追加されたことを数える |
 | [`GET /api/auth/session`](./auth.md#get-api-auth-session) | 任意 | ログイン中のユーザーと、使えるログイン方法 |
 | [`GET /api/auth/signin`](./auth.md#get-api-auth-signin) | — | ログインを始める |
 | [`GET /api/auth/callback/github`・`/api/auth/callback/ffpf`](./auth.md#ログインから戻る先) | — | ログインから戻る先 |
@@ -29,7 +32,7 @@ Typle 本体（Web版と iPad・Mac・Android・Windows 版）が使う、アプ
 
 ## 共通事項
 
-- 本文はJSON（`Content-Type: application/json; charset=utf-8`）で、`Cache-Control: private, no-store`・`Vary: Cookie` を付けます。`/api/shared` だけは `Cache-Control: no-store` です。
+- 本文はJSON（`Content-Type: application/json; charset=utf-8`）で、`Cache-Control: private, no-store`・`Vary: Cookie` を付けます。`/api/shared`・`/api/gallery`・`/api/gallery/categories` は `Cache-Control: no-store` です。
 - エラーは `{ "error": "<キー>" }` です。キーはアプリの `errors` のメッセージのキーで、画面が利用者の言語で表示します。
 - すべての応答に `Content-Security-Policy: frame-ancestors 'none'; base-uri 'self'; object-src 'none'`・`X-Frame-Options: DENY`・`X-Content-Type-Options: nosniff`・`Referrer-Policy: strict-origin-when-cross-origin` を付けます（Vercel では `next.config.mjs` のヘッダーが Go の関数に届かないため）。
 - `HEAD` は `GET` と同じに答えます（本文なし）。
