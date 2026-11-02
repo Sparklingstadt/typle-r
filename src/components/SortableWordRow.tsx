@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
 /** Mobile: a card (number and actions on top, fields below). md+: one table-like row. */
-export const WORD_ROW_COLUMNS = "grid-cols-[auto_minmax(0,1fr)_auto] gap-2 md:grid-cols-[4.5rem_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.8fr)_5.25rem] md:items-center md:gap-3"
+export const WORD_ROW_COLUMNS = "grid-cols-[auto_minmax(0,1fr)_auto] gap-2 md:grid-cols-[4.5rem_minmax(0,1fr)_minmax(0,1fr)_8rem_minmax(0,0.8fr)_5.25rem] md:items-center md:gap-3"
 
 export default function SortableWordRow({ id, index, disabled, invalid, children }: {
   id: string
