@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-5-words-6",
+  "name": "中国語HSK6級 手書き5（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語5",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "免得",
+      "input": "miǎnde",
+      "annotation": "miǎnde / 〜しないように",
+      "input_type": "word"
+    },
+    {
+      "display": "勉强",
+      "input": "miǎnqiǎng",
+      "annotation": "miǎnqiǎng / 無理に、しぶしぶ",
+      "input_type": "word"
+    },
+    {
+      "display": "面子",
+      "input": "miànzi",
+      "annotation": "miànzi / 面子",
+      "input_type": "word"
+    },
+    {
+      "display": "渺小",
+      "input": "miǎoxiǎo",
+      "annotation": "miǎoxiǎo / ちっぽけな",
+      "input_type": "word"
+    },
+    {
+      "display": "灭亡",
+      "input": "mièwáng",
+      "annotation": "mièwáng / 滅亡する",
+      "input_type": "word"
+    },
+    {
+      "display": "民主",
+      "input": "mínzhǔ",
+      "annotation": "mínzhǔ / 民主",
+      "input_type": "word"
+    },
+    {
+      "display": "敏锐",
+      "input": "mǐnruì",
+      "annotation": "mǐnruì / 鋭敏な",
+      "input_type": "word"
+    },
+    {
+      "display": "名誉",
+      "input": "míngyù",
+      "annotation": "míngyù / 名誉",
+      "input_type": "word"
+    },
+    {
+      "display": "明智",
+      "input": "míngzhì",
+      "annotation": "míngzhì / 賢明な",
+      "input_type": "word"
+    },
+    {
+      "display": "模型",
+      "input": "móxíng",
+      "annotation": "móxíng / 模型",
+      "input_type": "word"
+    },
+    {
+      "display": "磨合",
+      "input": "móhé",
+      "annotation": "móhé / すり合わせる",
+      "input_type": "word"
+    },
+    {
+      "display": "抹杀",
+      "input": "mǒshā",
+      "annotation": "mǒshā / 抹殺する",
+      "input_type": "word"
+    },
+    {
+      "display": "墨水儿",
+      "input": "mòshuǐr",
+      "annotation": "mòshuǐr / インク",
+      "input_type": "word"
+    },
+    {
+      "display": "模样",
+      "input": "múyàng",
+      "annotation": "múyàng / 様子",
+      "input_type": "word"
+    },
+    {
+      "display": "目睹",
+      "input": "mùdǔ",
+      "annotation": "mùdǔ / 目撃する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

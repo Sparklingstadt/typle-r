@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-1-words-4",
+  "name": "中国語HSK6級 手書き1（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語1",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "伯母",
+      "input": "bómǔ",
+      "annotation": "bómǔ / 伯母",
+      "input_type": "word"
+    },
+    {
+      "display": "搏斗",
+      "input": "bódòu",
+      "annotation": "bódòu / 格闘する",
+      "input_type": "word"
+    },
+    {
+      "display": "补偿",
+      "input": "bǔcháng",
+      "annotation": "bǔcháng / 補償する",
+      "input_type": "word"
+    },
+    {
+      "display": "捕捉",
+      "input": "bǔzhuō",
+      "annotation": "bǔzhuō / 捕らえる",
+      "input_type": "word"
+    },
+    {
+      "display": "不得已",
+      "input": "bùdéyǐ",
+      "annotation": "bùdéyǐ / やむを得ない",
+      "input_type": "word"
+    },
+    {
+      "display": "不顾",
+      "input": "búgù",
+      "annotation": "búgù / 顧みない",
+      "input_type": "word"
+    },
+    {
+      "display": "不堪",
+      "input": "bùkān",
+      "annotation": "bùkān / 耐えられない",
+      "input_type": "word"
+    },
+    {
+      "display": "不免",
+      "input": "bùmiǎn",
+      "annotation": "bùmiǎn / どうしても〜になる",
+      "input_type": "word"
+    },
+    {
+      "display": "不惜",
+      "input": "bùxī",
+      "annotation": "bùxī / 惜しまない",
+      "input_type": "word"
+    },
+    {
+      "display": "不屑一顾",
+      "input": "búxiè yígù",
+      "annotation": "búxiè yígù / 一顧だにしない",
+      "input_type": "word"
+    },
+    {
+      "display": "不择手段",
+      "input": "bùzé shǒuduàn",
+      "annotation": "bùzé shǒuduàn / 手段を選ばない",
+      "input_type": "word"
+    },
+    {
+      "display": "布局",
+      "input": "bùjú",
+      "annotation": "bùjú / 配置",
+      "input_type": "word"
+    },
+    {
+      "display": "步伐",
+      "input": "bùfá",
+      "annotation": "bùfá / 歩調",
+      "input_type": "word"
+    },
+    {
+      "display": "才干",
+      "input": "cáigàn",
+      "annotation": "cáigàn / 才能",
+      "input_type": "word"
+    },
+    {
+      "display": "财务",
+      "input": "cáiwù",
+      "annotation": "cáiwù / 財務",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

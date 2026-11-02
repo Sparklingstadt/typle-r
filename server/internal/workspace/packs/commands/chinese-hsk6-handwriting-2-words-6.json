@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-2-words-6",
+  "name": "中国語HSK6級 手書き2（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語2",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "发布",
+      "input": "fābù",
+      "annotation": "fābù / 発表する",
+      "input_type": "word"
+    },
+    {
+      "display": "发动",
+      "input": "fādòng",
+      "annotation": "fādòng / 起こす、始動する",
+      "input_type": "word"
+    },
+    {
+      "display": "发射",
+      "input": "fāshè",
+      "annotation": "fāshè / 発射する",
+      "input_type": "word"
+    },
+    {
+      "display": "发炎",
+      "input": "fāyán",
+      "annotation": "fāyán / 炎症を起こす",
+      "input_type": "word"
+    },
+    {
+      "display": "法人",
+      "input": "fǎrén",
+      "annotation": "fǎrén / 法人",
+      "input_type": "word"
+    },
+    {
+      "display": "繁忙",
+      "input": "fánmáng",
+      "annotation": "fánmáng / 多忙な",
+      "input_type": "word"
+    },
+    {
+      "display": "繁殖",
+      "input": "fánzhí",
+      "annotation": "fánzhí / 繁殖する",
+      "input_type": "word"
+    },
+    {
+      "display": "反感",
+      "input": "fǎngǎn",
+      "annotation": "fǎngǎn / 反感を持つ",
+      "input_type": "word"
+    },
+    {
+      "display": "反馈",
+      "input": "fǎnkuì",
+      "annotation": "fǎnkuì / フィードバック",
+      "input_type": "word"
+    },
+    {
+      "display": "反思",
+      "input": "fǎnsī",
+      "annotation": "fǎnsī / 振り返って考える",
+      "input_type": "word"
+    },
+    {
+      "display": "反之",
+      "input": "fǎnzhī",
+      "annotation": "fǎnzhī / 逆に",
+      "input_type": "word"
+    },
+    {
+      "display": "贩卖",
+      "input": "fànmài",
+      "annotation": "fànmài / 販売する",
+      "input_type": "word"
+    },
+    {
+      "display": "方言",
+      "input": "fāngyán",
+      "annotation": "fāngyán / 方言",
+      "input_type": "word"
+    },
+    {
+      "display": "防守",
+      "input": "fángshǒu",
+      "annotation": "fángshǒu / 守る",
+      "input_type": "word"
+    },
+    {
+      "display": "防止",
+      "input": "fángzhǐ",
+      "annotation": "fángzhǐ / 防止する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

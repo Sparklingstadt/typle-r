@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-1-words-1",
+  "name": "中国語HSK6級 手書き1（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語1",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "癌症",
+      "input": "áizhèng",
+      "annotation": "áizhèng / がん",
+      "input_type": "word"
+    },
+    {
+      "display": "爱戴",
+      "input": "àidài",
+      "annotation": "àidài / 敬愛する",
+      "input_type": "word"
+    },
+    {
+      "display": "安宁",
+      "input": "ānníng",
+      "annotation": "ānníng / 安らかな",
+      "input_type": "word"
+    },
+    {
+      "display": "案例",
+      "input": "ànlì",
+      "annotation": "ànlì / 事例",
+      "input_type": "word"
+    },
+    {
+      "display": "昂贵",
+      "input": "ángguì",
+      "annotation": "ángguì / 高価な",
+      "input_type": "word"
+    },
+    {
+      "display": "巴不得",
+      "input": "bābudé",
+      "annotation": "bābudé / 〜したくてたまらない",
+      "input_type": "word"
+    },
+    {
+      "display": "罢工",
+      "input": "bàgōng",
+      "annotation": "bàgōng / ストライキをする",
+      "input_type": "word"
+    },
+    {
+      "display": "拜访",
+      "input": "bàifǎng",
+      "annotation": "bàifǎng / 訪問する",
+      "input_type": "word"
+    },
+    {
+      "display": "拜托",
+      "input": "bàituō",
+      "annotation": "bàituō / 頼む",
+      "input_type": "word"
+    },
+    {
+      "display": "伴侣",
+      "input": "bànlǚ",
+      "annotation": "bànlǚ / 伴侶",
+      "input_type": "word"
+    },
+    {
+      "display": "扮演",
+      "input": "bànyǎn",
+      "annotation": "bànyǎn / 演じる",
+      "input_type": "word"
+    },
+    {
+      "display": "包庇",
+      "input": "bāobì",
+      "annotation": "bāobì / かばう",
+      "input_type": "word"
+    },
+    {
+      "display": "包围",
+      "input": "bāowéi",
+      "annotation": "bāowéi / 包囲する",
+      "input_type": "word"
+    },
+    {
+      "display": "保管",
+      "input": "bǎoguǎn",
+      "annotation": "bǎoguǎn / 保管する",
+      "input_type": "word"
+    },
+    {
+      "display": "保姆",
+      "input": "bǎomǔ",
+      "annotation": "bǎomǔ / 家政婦",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

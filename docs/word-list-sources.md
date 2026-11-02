@@ -66,3 +66,13 @@ Prisma構文・Jest構文・Playwright構文もコード例を入力し、補足
 初期リストなので、まだ一度も保存していないアカウントとブラウザーには最初から表示されます。v0.63.0 から、すでに保存しているアカウントにも、マイグレーション `0009_seed_command_lists`（`npm run db:migrate`。本番ではデプロイ時に実行）が9リストを、v0.64.0 から `0010_seed_arch_linux_list` がArch Linuxのリストを、v0.65.0 から `0011_seed_vim_list` がVimのリストを、v0.66.0 から `0012_seed_go_syntax_list` がGo構文のリストを、v0.67.0 から `0013_seed_java_syntax_list` がJava構文のリストを、v0.68.0 から `0014_seed_kotlin_syntax_list` がKotlin構文のリストを、v0.71.0 から `0016_seed_postgresql_syntax_list` がPostgreSQL構文のリストを、v0.72.0 から `0017_seed_test_framework_lists` がPrisma・Jest・Playwright構文の3リストを、v0.75.0 から `0019_seed_framework_and_sql_lists` がTypeScript・Hono・PHP・Rails・Express・Oracle PL/SQL・SQL Server T-SQLの21リストを追加します。小文字の国名リストも、同じ規則で `0015_seed_lowercase_country_list` が追加します。`scripts/seed.cjs` と同じく、同じIDまたは同じ名前のリストがある場合はそのリストを追加せず、ほかのリストと練習記録はそのまま残します。追加すると100リストか保存できる大きさ（`MaxListsBytes`）を超えるアカウントには追加しません。マイグレーションは1回だけ実行されるため、その後に削除したリストは戻りません。v0.87.1 から、これらのマイグレーション（0009〜0022）は `0023_seed_initial_lists` の1ファイルに元の名前の手順としてまとめてあり、適用済みの DB では実行しません。v0.99.4 で `0023_seed_initial_lists` と `npm run db:seed` は削除しました。このブラウザーに保存している場合（ログインしていない場合）はマイグレーションの対象外です。
 
 上の表の語数は元のリストのものです。v0.74.0 から、40語を超えるリストは初級・中級・上級などに分けて `commands.json`・`countries.json` に入れています（分け方は v0.74.0 の説明、確かめ方は `tests/commands.test.cjs`）。保存済みのアカウントでは `0018_split_long_initial_lists` が分けたリストに置き換えます。
+
+## 中国語：HSK6級 手書き単語1〜5
+
+v2.11.0 から、Typle Handwriting で練習するための公式パックが5つあります（`chinese-hsk6-handwriting-<パック>-words-<リスト>`）。1パックは15語のリストを6つ持ち、5パックで450語です。どのリストにも Handwriting の印（中国語・簡体、`writing: { "language": "zh-Hans" }`）が付いています。
+
+- 語は旧HSK6級の語彙から選び、既存の公式リスト（HSK5級・HSK6級レベル単語ほか）にある語と、1文字の語、ピンインに隔音記号（'）が要る語は除きました。ピンインの順に並べ、パック1〜5に分けています。
+- 表示は簡体字、入力は声調記号付きのピンイン、補足は「ピンイン / 日本語訳」です。四字熟語のピンインは既存のリストと同じく2音節ずつ空白で区切り、「一」「不」は変調後の声調で書きます。
+- 単語・ピンイン・訳は手で作ったもので、HSKの公式語彙表との機械的な照合はしていません。
+- `tests/languagePacks.test.cjs` で、パックとリストの構成、Handwriting の印、ほかのHSKのリストと語が重ならないことを確かめます。
+

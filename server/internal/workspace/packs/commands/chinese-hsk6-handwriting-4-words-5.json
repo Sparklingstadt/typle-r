@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-4-words-5",
+  "name": "中国語HSK6級 手書き4（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語4",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "杰出",
+      "input": "jiéchū",
+      "annotation": "jiéchū / 傑出した",
+      "input_type": "word"
+    },
+    {
+      "display": "结局",
+      "input": "jiéjú",
+      "annotation": "jiéjú / 結末",
+      "input_type": "word"
+    },
+    {
+      "display": "截至",
+      "input": "jiézhì",
+      "annotation": "jiézhì / 〜までに",
+      "input_type": "word"
+    },
+    {
+      "display": "解放",
+      "input": "jiěfàng",
+      "annotation": "jiěfàng / 解放する",
+      "input_type": "word"
+    },
+    {
+      "display": "解散",
+      "input": "jiěsàn",
+      "annotation": "jiěsàn / 解散する",
+      "input_type": "word"
+    },
+    {
+      "display": "戒备",
+      "input": "jièbèi",
+      "annotation": "jièbèi / 警戒する",
+      "input_type": "word"
+    },
+    {
+      "display": "金融",
+      "input": "jīnróng",
+      "annotation": "jīnróng / 金融",
+      "input_type": "word"
+    },
+    {
+      "display": "紧迫",
+      "input": "jǐnpò",
+      "annotation": "jǐnpò / 差し迫った",
+      "input_type": "word"
+    },
+    {
+      "display": "进化",
+      "input": "jìnhuà",
+      "annotation": "jìnhuà / 進化する",
+      "input_type": "word"
+    },
+    {
+      "display": "近来",
+      "input": "jìnlái",
+      "annotation": "jìnlái / 近頃",
+      "input_type": "word"
+    },
+    {
+      "display": "经费",
+      "input": "jīngfèi",
+      "annotation": "jīngfèi / 経費",
+      "input_type": "word"
+    },
+    {
+      "display": "惊动",
+      "input": "jīngdòng",
+      "annotation": "jīngdòng / 驚かす",
+      "input_type": "word"
+    },
+    {
+      "display": "兢兢业业",
+      "input": "jīngjīng yèyè",
+      "annotation": "jīngjīng yèyè / まじめにこつこつと",
+      "input_type": "word"
+    },
+    {
+      "display": "精华",
+      "input": "jīnghuá",
+      "annotation": "jīnghuá / 精華",
+      "input_type": "word"
+    },
+    {
+      "display": "精确",
+      "input": "jīngquè",
+      "annotation": "jīngquè / 正確な",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

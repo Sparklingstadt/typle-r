@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-1-words-3",
+  "name": "中国語HSK6級 手書き1（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語1",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "边疆",
+      "input": "biānjiāng",
+      "annotation": "biānjiāng / 辺境",
+      "input_type": "word"
+    },
+    {
+      "display": "边缘",
+      "input": "biānyuán",
+      "annotation": "biānyuán / 縁、周辺",
+      "input_type": "word"
+    },
+    {
+      "display": "鞭策",
+      "input": "biāncè",
+      "annotation": "biāncè / 励ます",
+      "input_type": "word"
+    },
+    {
+      "display": "变故",
+      "input": "biàngù",
+      "annotation": "biàngù / 思わぬ災難",
+      "input_type": "word"
+    },
+    {
+      "display": "变质",
+      "input": "biànzhì",
+      "annotation": "biànzhì / 変質する",
+      "input_type": "word"
+    },
+    {
+      "display": "便于",
+      "input": "biànyú",
+      "annotation": "biànyú / 〜しやすい",
+      "input_type": "word"
+    },
+    {
+      "display": "辨认",
+      "input": "biànrèn",
+      "annotation": "biànrèn / 見分ける",
+      "input_type": "word"
+    },
+    {
+      "display": "辫子",
+      "input": "biànzi",
+      "annotation": "biànzi / お下げ髪",
+      "input_type": "word"
+    },
+    {
+      "display": "标记",
+      "input": "biāojì",
+      "annotation": "biāojì / しるし",
+      "input_type": "word"
+    },
+    {
+      "display": "表态",
+      "input": "biǎotài",
+      "annotation": "biǎotài / 態度を表明する",
+      "input_type": "word"
+    },
+    {
+      "display": "别墅",
+      "input": "biéshù",
+      "annotation": "biéshù / 別荘",
+      "input_type": "word"
+    },
+    {
+      "display": "濒临",
+      "input": "bīnlín",
+      "annotation": "bīnlín / 瀕する",
+      "input_type": "word"
+    },
+    {
+      "display": "并存",
+      "input": "bìngcún",
+      "annotation": "bìngcún / 共存する",
+      "input_type": "word"
+    },
+    {
+      "display": "拨打",
+      "input": "bōdǎ",
+      "annotation": "bōdǎ / 電話をかける",
+      "input_type": "word"
+    },
+    {
+      "display": "波涛汹涌",
+      "input": "bōtāo xiōngyǒng",
+      "annotation": "bōtāo xiōngyǒng / 大波が逆巻く",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

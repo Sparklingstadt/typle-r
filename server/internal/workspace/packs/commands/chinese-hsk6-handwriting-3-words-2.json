@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-3-words-2",
+  "name": "中国語HSK6級 手書き3（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語3",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "封闭",
+      "input": "fēngbì",
+      "annotation": "fēngbì / 封鎖する",
+      "input_type": "word"
+    },
+    {
+      "display": "封锁",
+      "input": "fēngsuǒ",
+      "annotation": "fēngsuǒ / 封鎖する",
+      "input_type": "word"
+    },
+    {
+      "display": "否决",
+      "input": "fǒujué",
+      "annotation": "fǒujué / 否決する",
+      "input_type": "word"
+    },
+    {
+      "display": "夫人",
+      "input": "fūren",
+      "annotation": "fūren / 夫人",
+      "input_type": "word"
+    },
+    {
+      "display": "服气",
+      "input": "fúqì",
+      "annotation": "fúqì / 心服する",
+      "input_type": "word"
+    },
+    {
+      "display": "符号",
+      "input": "fúhào",
+      "annotation": "fúhào / 記号",
+      "input_type": "word"
+    },
+    {
+      "display": "福利",
+      "input": "fúlì",
+      "annotation": "fúlì / 福利",
+      "input_type": "word"
+    },
+    {
+      "display": "抚摸",
+      "input": "fǔmō",
+      "annotation": "fǔmō / なでる",
+      "input_type": "word"
+    },
+    {
+      "display": "辅助",
+      "input": "fǔzhù",
+      "annotation": "fǔzhù / 補助する",
+      "input_type": "word"
+    },
+    {
+      "display": "腐烂",
+      "input": "fǔlàn",
+      "annotation": "fǔlàn / 腐る",
+      "input_type": "word"
+    },
+    {
+      "display": "负担",
+      "input": "fùdān",
+      "annotation": "fùdān / 負担",
+      "input_type": "word"
+    },
+    {
+      "display": "附件",
+      "input": "fùjiàn",
+      "annotation": "fùjiàn / 添付ファイル",
+      "input_type": "word"
+    },
+    {
+      "display": "复兴",
+      "input": "fùxīng",
+      "annotation": "fùxīng / 復興する",
+      "input_type": "word"
+    },
+    {
+      "display": "富裕",
+      "input": "fùyù",
+      "annotation": "fùyù / 裕福な",
+      "input_type": "word"
+    },
+    {
+      "display": "盖章",
+      "input": "gàizhāng",
+      "annotation": "gàizhāng / はんこを押す",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

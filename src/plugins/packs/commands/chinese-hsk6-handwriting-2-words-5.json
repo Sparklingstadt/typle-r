@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-2-words-5",
+  "name": "中国語HSK6級 手書き2（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語2",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "动机",
+      "input": "dòngjī",
+      "annotation": "dòngjī / 動機",
+      "input_type": "word"
+    },
+    {
+      "display": "动力",
+      "input": "dònglì",
+      "annotation": "dònglì / 原動力",
+      "input_type": "word"
+    },
+    {
+      "display": "动手",
+      "input": "dòngshǒu",
+      "annotation": "dòngshǒu / 取りかかる",
+      "input_type": "word"
+    },
+    {
+      "display": "动员",
+      "input": "dòngyuán",
+      "annotation": "dòngyuán / 動員する",
+      "input_type": "word"
+    },
+    {
+      "display": "斗争",
+      "input": "dòuzhēng",
+      "annotation": "dòuzhēng / 闘争する",
+      "input_type": "word"
+    },
+    {
+      "display": "毒品",
+      "input": "dúpǐn",
+      "annotation": "dúpǐn / 麻薬",
+      "input_type": "word"
+    },
+    {
+      "display": "赌博",
+      "input": "dǔbó",
+      "annotation": "dǔbó / 賭博",
+      "input_type": "word"
+    },
+    {
+      "display": "端午节",
+      "input": "Duānwǔjié",
+      "annotation": "Duānwǔjié / 端午の節句",
+      "input_type": "word"
+    },
+    {
+      "display": "堆积",
+      "input": "duījī",
+      "annotation": "duījī / 積み重なる",
+      "input_type": "word"
+    },
+    {
+      "display": "对立",
+      "input": "duìlì",
+      "annotation": "duìlì / 対立する",
+      "input_type": "word"
+    },
+    {
+      "display": "对照",
+      "input": "duìzhào",
+      "annotation": "duìzhào / 照らし合わせる",
+      "input_type": "word"
+    },
+    {
+      "display": "顿时",
+      "input": "dùnshí",
+      "annotation": "dùnshí / たちまち",
+      "input_type": "word"
+    },
+    {
+      "display": "堕落",
+      "input": "duòluò",
+      "annotation": "duòluò / 堕落する",
+      "input_type": "word"
+    },
+    {
+      "display": "恶心",
+      "input": "ěxin",
+      "annotation": "ěxin / 吐き気がする",
+      "input_type": "word"
+    },
+    {
+      "display": "而已",
+      "input": "éryǐ",
+      "annotation": "éryǐ / 〜にすぎない",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

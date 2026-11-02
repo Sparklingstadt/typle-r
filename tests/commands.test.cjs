@@ -108,6 +108,16 @@ test('the initial lists decode in Typle with their own ids and names', () => {
     ['czech-intermediate-words', [40]], ['czech-intermediate-syntax', [40]],
     ['chinese-hsk5-words-1', [40]], ['chinese-hsk5-words-2', [40]], ['chinese-hsk6-words-1', [40]], ['chinese-hsk6-words-2', [40]],
     ['postgresql-error-codes', [40, 40, 40]],
+    ['chinese-hsk6-handwriting-1-words-1', [15]], ['chinese-hsk6-handwriting-1-words-2', [15]], ['chinese-hsk6-handwriting-1-words-3', [15]],
+    ['chinese-hsk6-handwriting-1-words-4', [15]], ['chinese-hsk6-handwriting-1-words-5', [15]], ['chinese-hsk6-handwriting-1-words-6', [15]],
+    ['chinese-hsk6-handwriting-2-words-1', [15]], ['chinese-hsk6-handwriting-2-words-2', [15]], ['chinese-hsk6-handwriting-2-words-3', [15]],
+    ['chinese-hsk6-handwriting-2-words-4', [15]], ['chinese-hsk6-handwriting-2-words-5', [15]], ['chinese-hsk6-handwriting-2-words-6', [15]],
+    ['chinese-hsk6-handwriting-3-words-1', [15]], ['chinese-hsk6-handwriting-3-words-2', [15]], ['chinese-hsk6-handwriting-3-words-3', [15]],
+    ['chinese-hsk6-handwriting-3-words-4', [15]], ['chinese-hsk6-handwriting-3-words-5', [15]], ['chinese-hsk6-handwriting-3-words-6', [15]],
+    ['chinese-hsk6-handwriting-4-words-1', [15]], ['chinese-hsk6-handwriting-4-words-2', [15]], ['chinese-hsk6-handwriting-4-words-3', [15]],
+    ['chinese-hsk6-handwriting-4-words-4', [15]], ['chinese-hsk6-handwriting-4-words-5', [15]], ['chinese-hsk6-handwriting-4-words-6', [15]],
+    ['chinese-hsk6-handwriting-5-words-1', [15]], ['chinese-hsk6-handwriting-5-words-2', [15]], ['chinese-hsk6-handwriting-5-words-3', [15]],
+    ['chinese-hsk6-handwriting-5-words-4', [15]], ['chinese-hsk6-handwriting-5-words-5', [15]], ['chinese-hsk6-handwriting-5-words-6', [15]],
   ])
   assert.equal(lists.length, commands.length)
   const { initialLists } = require('../src/plugins/packs/index.ts')

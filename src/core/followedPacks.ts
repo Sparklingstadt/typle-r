@@ -44,9 +44,10 @@ export function followOfficial(library: Library, official: OfficialPack[]): Libr
     const mine = library.lists.filter(list => list.packId === pack.id)
     synced.set(pack.id, official.lists.map(item => {
       const found = mine.find(list => list.origin?.listId === item.id)
-      const { levels: _levels, ...rest } = found ?? { id: `${pack.id}:${item.id}`, packId: pack.id, records: [], createdAt: item.createdAt, origin: { listId: item.id } }
+      const { levels: _levels, writing: _writing, ...rest } = found ?? { id: `${pack.id}:${item.id}`, packId: pack.id, records: [], createdAt: item.createdAt, origin: { listId: item.id } }
       return {
         ...(rest as SavedWordList), name: item.name, ...(item.levels?.length ? { levels: [...item.levels] } : {}),
+        ...(item.writing ? { writing: { ...item.writing } } : {}),
         words: item.words.map(word => ({ ...word })),
       }
     }))
