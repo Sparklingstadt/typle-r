@@ -138,7 +138,7 @@ type Summary struct {
 func Summarize(lists []List, now time.Time) Summary {
 	var records []Record
 	for _, list := range lists {
-		records = append(records, list.Records...)
+		records = append(records, typingRecords(list.Records)...)
 	}
 	weekStart := startOfWeek(now)
 	between := func(from, to time.Time) (count int, seconds float64) {
@@ -195,7 +195,7 @@ func NextLists(lists []List, now time.Time, limit int) []NextList {
 	var groups [3][]NextList
 	for i := range lists {
 		list := &lists[i]
-		records := newestFirst(list.Records)
+		records := newestFirst(typingRecords(list.Records))
 		if len(records) == 0 {
 			groups[0] = append(groups[0], NextList{List: list, Reason: Reason{Kind: "new"}})
 			continue
@@ -264,10 +264,11 @@ func ListTrends(lists []List) []ListTrend {
 	trends := []ListTrend{}
 	for i := range lists {
 		list := &lists[i]
-		if len(list.Records) == 0 {
+		typing := typingRecords(list.Records)
+		if len(typing) == 0 {
 			continue
 		}
-		records := newestFirst(list.Records)
+		records := newestFirst(typing)
 		slices.Reverse(records)
 		speed, accuracy := []Point{}, []Point{}
 		for _, record := range records {
@@ -280,7 +281,7 @@ func ListTrends(lists []List) []ListTrend {
 			}
 		}
 		trends = append(trends, ListTrend{List: list, Count: len(records), LastPracticed: records[len(records)-1].At,
-			Speed: trend(speed), Accuracy: trend(accuracy), Best: ListBest(list)})
+			Speed: trend(speed), Accuracy: trend(accuracy), Best: ListBest(&List{Words: list.Words, Records: typing})})
 	}
 	slices.SortStableFunc(trends, func(a, b ListTrend) int { return cmp.Compare(b.LastPracticed.UnixMilli(), a.LastPracticed.UnixMilli()) })
 	return trends

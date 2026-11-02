@@ -173,3 +173,11 @@ test('decodeLists refuses a stored record whose mode is not writing', () => {
   assert.equal(decode('writing')[0].records[0].mode, 'writing')
   for (const mode of ['typing', '', 1, null]) assert.throws(() => decode(mode), { key: 'savedDataCorrupted' })
 })
+
+test('record rows carry the mode, and each mode has its own best', () => {
+  const words = [{ display: 'a', input: 'a', annotation: '' }]
+  const rec = (id, time, extra = {}) => ({ id, time, date: `2026-09-2${id.length}T10:00:00Z`, mistakes: 0, accuracy: 100, wordCount: 1, ...extra })
+  const rows = recordRows([{ id: 'l', name: 'l', createdAt: '2026-09-01', words, records: [rec('a', 10), rec('bb', 12), rec('ccc', 5, { mode: 'writing' })] }])
+  assert.equal(rows.length, 3)
+  assert.deepEqual(rows.map(row => [row.record.id, row.mode, row.best]), [['ccc', 'writing', true], ['bb', 'typing', false], ['a', 'typing', true]])
+})

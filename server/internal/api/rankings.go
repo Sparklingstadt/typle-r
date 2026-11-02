@@ -8,20 +8,24 @@ import (
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
 
-// rankingOptions reads device, order (accuracy or speed) and includeOthers (true or false), as the ベスト記録 screen's.
-func rankingOptions(query url.Values) (device, order string, includeOthers, ok bool) {
-	order = "accuracy"
+// rankingOptions reads device, order (accuracy or speed), mode (typing or writing) and includeOthers (true or false),
+// as the ベスト記録 screen's.
+func rankingOptions(query url.Values) (device, order, mode string, includeOthers, ok bool) {
+	order, mode = "accuracy", "typing"
 	if query.Has("order") {
 		order = query.Get("order")
+	}
+	if query.Has("mode") {
+		mode = query.Get("mode")
 	}
 	switch query.Get("includeOthers") {
 	case "", "false":
 	case "true":
 		includeOthers = true
 	default:
-		return "", "", false, false
+		return "", "", "", false, false
 	}
-	return query.Get("device"), order, includeOthers, order == "accuracy" || order == "speed"
+	return query.Get("device"), order, mode, includeOthers, (order == "accuracy" || order == "speed") && (mode == "typing" || mode == "writing")
 }
 
 func formatTime(at *time.Time) *string {
@@ -45,14 +49,14 @@ type rankingSummary struct {
 // rankings answers every list's best on the chosen device, ordered by sort (recent, name or count).
 func rankings(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
 	query := r.URL.Query()
-	device, order, _, ok := rankingOptions(query)
+	device, order, mode, _, ok := rankingOptions(query)
 	sort := "recent"
 	if query.Has("sort") {
 		sort = query.Get("sort")
 	}
 	all := make([]workspace.Ranking, 0, len(ws.Lists))
 	for i := range ws.Lists {
-		all = append(all, workspace.ListRanking(&ws.Lists[i], device, order, false, time.Now()))
+		all = append(all, workspace.ListRanking(&ws.Lists[i], device, order, mode, false, time.Now()))
 	}
 	sorted, okSort := workspace.SortRankings(all, sort)
 	if !ok || !okSort {
@@ -74,12 +78,12 @@ func ranking(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
 		failure(w, http.StatusNotFound, "listNotFound")
 		return
 	}
-	device, order, includeOthers, ok := rankingOptions(r.URL.Query())
+	device, order, mode, includeOthers, ok := rankingOptions(r.URL.Query())
 	if !ok {
 		failure(w, http.StatusBadRequest, "invalidQuery")
 		return
 	}
-	ranking := workspace.ListRanking(list, device, order, includeOthers, time.Now())
+	ranking := workspace.ListRanking(list, device, order, mode, includeOthers, time.Now())
 	respond(w, http.StatusOK, map[string]any{"ranking": map[string]any{
 		"listId": list.ID, "listName": list.Name, "wordCount": len(list.Words), "ranked": ranking.Ranked, "best": ranking.Best,
 		"fallback": ranking.Fallback, "otherCounts": ranking.OtherCounts, "lastPracticed": formatTime(ranking.LastPracticed),

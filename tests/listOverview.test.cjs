@@ -70,3 +70,11 @@ test('a copy of a shared list is not shared', () => {
   assert.equal('shared' in copy, false)
   assert.equal('shareId' in copy, false)
 })
+
+test('writing records are not counted as practice', () => {
+  const list = { id: 'w', name: 'w', createdAt: '2026-09-01', words: words('a', 'b'), records: [
+    record('2026-09-20T10:00:00Z', 2), record('2026-09-21T10:00:00Z', 2), { ...record('2026-09-28T10:00:00Z', 2), mode: 'writing' }] }
+  const [overview] = listOverviews([list])
+  assert.deepEqual([overview.practiceCount, overview.lastPracticed], [2, Date.parse('2026-09-21T10:00:00Z')])
+  assert.equal(currentRecordCount(list), 2)
+})

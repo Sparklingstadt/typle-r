@@ -12,9 +12,9 @@
 
 | ステータス | キー | 状況 |
 |---|---|---|
-| 400 | `invalidQuery` | クエリの値が不正（`since`・`limit`・`tz`・`sort`・`order` など） |
+| 400 | `invalidQuery` | クエリの値が不正（`since`・`limit`・`tz`・`sort`・`order`・`mode` など） |
 | 400 | `invalidJson` | 本文がJSONの1つのオブジェクトでない、型が違う、未知の項目がある（項目名は大文字小文字まで一致が必要）、`PATCH` で変える項目が1つもない |
-| 400 | `listNameRequired`・`listNameDuplicate`・`wordsRequired`・`wordFieldsRequired`・`invalidList`・`listLimit`・`levelsConflict`・`tooManyLevels` | リストの内容が不正（[リストの検証](./validation.md#リストの検証)） |
+| 400 | `listNameRequired`・`listNameDuplicate`・`wordsRequired`・`wordFieldsRequired`・`invalidList`・`invalidWritingLanguage`・`listLimit`・`levelsConflict`・`tooManyLevels` | リストの内容が不正（[リストの検証](./validation.md#リストの検証)） |
 | 400 | `packNameRequired`・`packNameDuplicate`・`invalidPack` | パックの内容が不正（[パックの検証](./validation.md#パックの検証)。v0.95.0 から） |
 | 400 | `packNotFound` | 本文やクエリの `packId` のパックがない（v0.95.0 から） |
 | 400 | `packFileUnreadable` | 取り込むパックのファイルが読めない（[パックのファイルの取り込み](./validation.md#パックのファイルの取り込み)。v0.95.0 から） |

@@ -10,8 +10,8 @@
 
 | メソッドとパス | 本文 | 応答 |
 |---|---|---|
-| `POST /api/v1/lists` | `{ "name", "packId"?, "category"?, "tags"?, "levels"?, "words": [{ "display", "input", "annotation"? }] }` | `201 { "list" }`。IDはサーバーが UUID で決め、`createdAt` は今の時刻。最後に追加する。`packId` を省略するとリスト名で1リストのパックを作り、`category`・`tags` をそのパックに付ける。`packId` を指定するとそのパックの最後のリストになる（v0.95.0 から） |
-| `PATCH /api/v1/lists/{l}` | `{ "name"?, "packId"?, "category"?, "tags"?, "levels"?, "words"? }`（少なくとも1つ） | `200 { "list" }`。`words`・`tags`・`levels` は全体を置き換える。`""` のカテゴリ・空の `tags`・空の `levels` で外す。`category`・`tags` はリストの入っているパック（`packId` を指定したら移した先）の値を変える。`packId` で別のパックに移すと、そのパックの最後のリストの後ろに入り、空になった元のパックは消える（v0.95.0 から）。記録・`createdAt`・並び順（移さないとき）は残る |
+| `POST /api/v1/lists` | `{ "name", "packId"?, "category"?, "tags"?, "levels"?, "writing"?, "words": [{ "display", "input", "annotation"? }] }` | `201 { "list" }`。IDはサーバーが UUID で決め、`createdAt` は今の時刻。最後に追加する。`packId` を省略するとリスト名で1リストのパックを作り、`category`・`tags` をそのパックに付ける。`packId` を指定するとそのパックの最後のリストになる（v0.95.0 から） |
+| `PATCH /api/v1/lists/{l}` | `{ "name"?, "packId"?, "category"?, "tags"?, "levels"?, "writing"?, "words"? }`（少なくとも1つ） | `200 { "list" }`。`words`・`tags`・`levels` は全体を置き換える。`writing` は `{ "language": "ja" }` で手書き練習の言語を付け、`{ "language": "" }` で外し、省くと今のまま。`""` のカテゴリ・空の `tags`・空の `levels` で外す。`category`・`tags` はリストの入っているパック（`packId` を指定したら移した先）の値を変える。`packId` で別のパックに移すと、そのパックの最後のリストの後ろに入り、空になった元のパックは消える（v0.95.0 から）。記録・`createdAt`・並び順（移さないとき）は残る |
 | `DELETE /api/v1/lists/{l}` | なし | `204`（本文なし）。記録も一緒に消える |
 | `POST /api/v1/lists/{l}/copy` | なし、または `{ "name"? }` | `201 { "list" }`。元のリストと同じパックの最後に入る（v0.95.0 から。それまでは1リストの新しいパック）。単語をコピーし、難易度・記録はコピーしない。名前を省略すると「元の名前（コピー）」、同じパックで使われていれば「（コピー2）」…（200文字に収まるよう元の名前を切る）。名前は同じパックのリストと違えばよい（v0.47.0 から） |
 | `POST /api/v1/lists/import?name=…&format=csv\|tsv&packId=…` | CSV・TSV のファイルそのもの（`Content-Type` は `text/csv`・`text/tab-separated-values`・`text/plain`。1MiB まで） | `201 { "list" }`。アプリの「CSV・TSVファイルから追加」と同じ読み方で単語を読み、`name` の名前のリストを作る（v0.48.0 から。[CSV・TSV の取り込み](./validation.md#csv・tsv-の取り込み)）。`packId` を指定するとそのパックの最後のリストになり、省略すると新しいパックを作る（v0.95.0 から） |

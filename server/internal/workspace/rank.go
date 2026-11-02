@@ -60,6 +60,11 @@ func comparable(list *List, records []*Record) []*Record {
 	return records
 }
 
+// typingRecords are the records of typing runs; Writing runs are counted and ranked apart from them.
+func typingRecords(records []Record) []Record {
+	return slices.DeleteFunc(slices.Clone(records), func(r Record) bool { return RecordMode(&r) != "typing" })
+}
+
 func ComparableRecords(list *List, records []Record) []Record {
 	out := []Record{}
 	for _, r := range comparable(list, pointers(records)) {

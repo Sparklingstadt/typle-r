@@ -1,4 +1,4 @@
-import { comparableRecords, matchesDevice, rankRecords, type RankOrder } from './records'
+import { comparableRecords, matchesDevice, rankRecords, recordMode, type PracticeMode, type RankOrder } from './records'
 import type { SavedWordList } from './wordLists'
 
 type StoredRecord = SavedWordList['records'][number]
@@ -10,7 +10,7 @@ export const IMPROVED_DAYS = 7
 const TREND_POINTS = 20
 const RECENT_RUNS = 5
 
-export type RankingOptions = { device?: string | null; order?: RankOrder; includeOthers?: boolean; now?: Date }
+export type RankingOptions = { device?: string | null; order?: RankOrder; includeOthers?: boolean; mode?: PracticeMode; now?: Date }
 
 export type ListRanking = {
   list: SavedWordList
@@ -27,8 +27,8 @@ export type ListRanking = {
 }
 
 // Uses the same comparison as `listBest`, so a list's rank 1 here is the best shown on every other screen.
-export function listRanking(list: SavedWordList, { device = null, order = 'accuracy', includeOthers = false, now = new Date() }: RankingOptions = {}): ListRanking {
-  const records = list.records.filter(record => matchesDevice(record, device))
+export function listRanking(list: SavedWordList, { device = null, order = 'accuracy', includeOthers = false, mode = 'typing', now = new Date() }: RankingOptions = {}): ListRanking {
+  const records = list.records.filter(record => recordMode(record) === mode && matchesDevice(record, device))
   const others = records.filter(record => record.wordCount !== list.words.length)
   const fallback = others.length > 0 && others.length === records.length
   const ranked = rankRecords(includeOthers ? records : comparableRecords(list, records), order)

@@ -255,3 +255,25 @@ func TestRepeatedWallClockIsTheEarlier(t *testing.T) {
 		t.Errorf("week before %s", got)
 	}
 }
+
+// Writing runs are not counted (the case of tests/dashboard.test.cjs).
+func TestDashboardIgnoresWriting(t *testing.T) {
+	writing := dash("2026-09-26T10:00:00Z", 1)
+	writing.Mode = "writing"
+	mixed := dashList("mixed", dash("2026-09-21T10:00:00Z", 10), dash("2026-09-22T10:00:00Z", 12), writing)
+	only := dashList("w", writing)
+	if got := Summarize([]List{mixed}, dashNow).WeekCount; got != 2 {
+		t.Fatalf("weekCount = %d", got)
+	}
+	picked := NextLists([]List{only}, dashNow, 3)
+	if len(picked) != 1 || picked[0].Reason.Kind != "new" {
+		t.Fatalf("next = %+v", picked)
+	}
+	if got := NextLists([]List{mixed}, dashNow, 3); len(got) == 0 || !got[0].LastPracticed.Equal(mixed.Records[1].At) {
+		t.Fatalf("next = %+v", got)
+	}
+	trends := ListTrends([]List{mixed, only})
+	if len(trends) != 1 || trends[0].Count != 2 || trends[0].Best.Time != 10 {
+		t.Fatalf("trends = %+v", trends)
+	}
+}

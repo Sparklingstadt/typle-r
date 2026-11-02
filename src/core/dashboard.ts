@@ -1,4 +1,4 @@
-import { listBest, type TimeUnit } from './records'
+import { listBest, typingRecords, type TimeUnit } from './records'
 import type { SavedWordList } from './wordLists'
 
 type StoredRecord = SavedWordList['records'][number]
@@ -44,7 +44,7 @@ export type DashboardSummary = {
 }
 
 export function summarize(lists: SavedWordList[], now = new Date()): DashboardSummary {
-  const records = lists.flatMap(list => list.records)
+  const records = typingRecords(lists.flatMap(list => list.records))
   const weekStart = startOfWeek(now)
   const between = (from: number, to: number) => records.filter(record => timeOf(record) >= from && timeOf(record) <= to)
   const week = between(weekStart.getTime(), addDays(weekStart, 7).getTime() - 1)
@@ -75,7 +75,7 @@ export type NextList = { list: SavedWordList; lastPracticed: Date | null; reason
 export function nextLists(lists: SavedWordList[], now = new Date(), limit = 3): NextList[] {
   const groups: NextList[][] = [[], [], []]
   for (const list of lists) {
-    const records = newestFirst(list.records)
+    const records = newestFirst(typingRecords(list.records))
     if (!records.length) { groups[0].push({ list, lastPracticed: null, reason: { kind: 'new' } }); continue }
     const lastPracticed = new Date(timeOf(records[0]))
     const days = daysBetween(lastPracticed, now)
@@ -104,8 +104,11 @@ function trend(points: TrendPoint[]): Trend {
 }
 
 export function listTrends(lists: SavedWordList[]): ListTrend[] {
-  return lists.filter(list => list.records.length).map(list => {
-    const records = newestFirst(list.records).reverse()
+  return lists.flatMap(list => {
+    const typing = typingRecords(list.records)
+    return typing.length ? [{ list, typing }] : []
+  }).map(({ list, typing }) => {
+    const records = newestFirst(typing).reverse()
     return {
       list,
       count: records.length,
@@ -113,7 +116,7 @@ export function listTrends(lists: SavedWordList[]): ListTrend[] {
       // Seconds per word stays comparable after words are added to or removed from a list.
       speed: trend(records.flatMap(record => record.wordCount ? [{ date: record.date, value: record.time / record.wordCount }] : [])),
       accuracy: trend(records.flatMap(record => record.accuracy === undefined ? [] : [{ date: record.date, value: record.accuracy }])),
-      best: listBest(list)!,
+      best: listBest({ words: list.words, records: typing })!,
     }
   }).sort((a, b) => b.lastPracticed.getTime() - a.lastPracticed.getTime())
 }

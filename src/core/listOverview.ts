@@ -1,4 +1,5 @@
 import { AppError } from './appError'
+import { typingRecords } from './records'
 import type { SavedWordList } from './wordLists'
 
 export const MAX_LISTS = 150
@@ -17,8 +18,9 @@ export const LIST_ORDERS: ListOrder[] = ['added', 'practiced', 'name', 'words']
 
 export function listOverviews(lists: SavedWordList[]): ListOverview[] {
   return lists.map((list, position) => {
-    const dates = list.records.map(record => Date.parse(record.date)).filter(Number.isFinite)
-    return { list, position, practiceCount: list.records.length, lastPracticed: dates.length ? Math.max(...dates) : null }
+    const records = typingRecords(list.records)
+    const dates = records.map(record => Date.parse(record.date)).filter(Number.isFinite)
+    return { list, position, practiceCount: records.length, lastPracticed: dates.length ? Math.max(...dates) : null }
   })
 }
 
@@ -117,7 +119,7 @@ export function wordPreview(list: SavedWordList, limit = 6) {
 
 // The records a list's best is taken from: runs at its current word count (see comparableRecords).
 export function currentRecordCount(list: Pick<SavedWordList, 'words' | 'records'>) {
-  return list.records.filter(record => record.wordCount === list.words.length).length
+  return typingRecords(list.records).filter(record => record.wordCount === list.words.length).length
 }
 
 // `suffix(n)` is the localized mark for the nth copy, such as （コピー） and （コピー2）. Packs are named the same way.

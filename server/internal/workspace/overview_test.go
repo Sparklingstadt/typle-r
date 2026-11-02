@@ -90,3 +90,16 @@ func TestCompareNames(t *testing.T) {
 		t.Fatal("order")
 	}
 }
+
+func TestWritingRecordsAreNotPractice(t *testing.T) {
+	writing := dated("2026-09-28T10:00:00Z", 2)
+	writing.Mode = "writing"
+	list := List{ID: "w", Words: []Word{{}, {}}, Records: []Record{dated("2026-09-20T10:00:00Z", 2), dated("2026-09-21T10:00:00Z", 2), writing}}
+	item := Overviews([]List{list})[0]
+	if item.PracticeCount != 2 || !item.LastPracticed.Equal(time.Date(2026, 9, 21, 10, 0, 0, 0, time.UTC)) {
+		t.Fatalf("overview = %+v", item)
+	}
+	if got := CurrentRecordCount(&list); got != 2 {
+		t.Fatalf("CurrentRecordCount = %d", got)
+	}
+}

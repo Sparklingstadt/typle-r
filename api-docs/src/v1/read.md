@@ -57,11 +57,12 @@
 | `category`・`tags` | リストではなくパックの値（同じパックのリストは同じ値になる） |
 | `levels` | 練習画面でパックの中のリストを選ぶ難易度。ないときは `[]`（v0.95.0 から。v0.97.0 から多くても 1 つ） |
 | `origin` | フォロー中の公式パックのリストだけが持つ元の公式リストの ID（`{ "listId": "…" }`）。ほかのリストは `null`（v0.98.0 から。[フォロー中の公式パック](./write.md#フォロー中の公式パック)） |
-| `practiceCount` | 練習回数。`recordCount` と同じ値（v0.50.0 から） |
-| `lastPracticed` | 最も新しい記録の日時。なければ `null`（v0.50.0 から） |
-| `currentRecordCount` | 今の単語数と同じ単語数の記録の数。ベスト記録の比較に使う記録（v0.50.0 から） |
+| `writing` | 手書き練習（Typle Writing）のできるリストだけが持つ `{ "language": "ja" }`。ほかのリストでは項目ごと省く。言語は `en`・`ja`・`zh-Hans`・`zh-Hant`・`ko`・`fr`・`de`・`es`・`ru`・`cs` |
+| `practiceCount` | タイピングの練習回数。`recordCount` は手書き練習（`mode` が `"writing"`）の記録も数えるため、手書き練習があると少なくなる（v0.50.0 から） |
+| `lastPracticed` | タイピングの最も新しい記録の日時。なければ `null`（v0.50.0 から） |
+| `currentRecordCount` | 今の単語数と同じ単語数のタイピングの記録の数。ベスト記録の比較に使う記録（v0.50.0 から） |
 
-`packId`・`levels`・`origin`・`practiceCount`・`lastPracticed`・`currentRecordCount` は [`GET /api/v1/lists/{l}`](#get-api-v1-lists-l) と作成・更新の応答の `list` にもあります。作成・変更での `packId`・`levels` は [書き込み](./write.md) を見てください。
+`packId`・`levels`・`writing`・`origin`・`practiceCount`・`lastPracticed`・`currentRecordCount` は [`GET /api/v1/lists/{l}`](#get-api-v1-lists-l) と作成・更新の応答の `list` にもあります。作成・変更での `packId`・`levels` は [書き込み](./write.md) を見てください。
 
 並べ方と検索はアプリの「単語リスト」画面と同じです。名前順は Go の照合表（CLDR 23）を使うため、半角カナ・ギリシャ文字・記号で始まる名前は、ブラウザーと順序が違うことがあります。
 
@@ -78,6 +79,7 @@
     "category": "語学",
     "tags": ["英語"],
     "levels": [],
+    "writing": { "language": "en" },
     "wordCount": 1,
     "recordCount": 8,
     "createdAt": "2026-10-10T01:23:45.000Z",
@@ -205,6 +207,7 @@ v1.3.0 から、記録は `typle_records` テーブルに保存されます。�
 |---|---|
 | `device` | その端末の記録だけで順位を付ける。`none` は端末のない記録。省略すると全部 |
 | `order` | `accuracy`（既定。正確率の高い順、同じなら速い順）か `speed`（速い順、同じなら正確率の高い順）。正確率のない古い記録は最後 |
+| `mode` | `typing`（既定）か `writing`（手書き練習）。その種類の記録だけで順位を付ける。それ以外は `400 invalidQuery` |
 | `sort` | `recent`（既定。最後に練習した順）、`name`（名前順。日本語の照合で、数字は文字として比べる）、`count`（記録の多い順） |
 
 ```json
@@ -216,7 +219,7 @@ v1.3.0 から、記録は `typle_records` テーブルに保存されます。�
 
 ### `GET /api/v1/rankings/{l}`
 
-1つのリストの順位の詳細です（v0.52.0 から）。`device`・`order` は上と同じで、`includeOthers=true` にすると今と違う単語数の記録も順位に入れます。
+1つのリストの順位の詳細です（v0.52.0 から）。`device`・`order`・`mode` は上と同じで、`includeOthers=true` にすると今と違う単語数の記録も順位に入れます。
 
 ```json
 {

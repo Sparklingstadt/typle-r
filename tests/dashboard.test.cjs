@@ -119,3 +119,17 @@ test('durations split into units, and days are named relative to today', () => {
   assert.equal(dayKind(new Date('2026-09-19T01:00:00Z'), now), 'thisYear')
   assert.equal(dayKind(new Date('2025-12-31T01:00:00Z'), now), 'otherYear')
 })
+
+test('writing records are not counted by the summary, next lists or trends', () => {
+  const week = ['2026-09-21T10:00:00Z', '2026-09-22T10:00:00Z']
+  const mixed = list('mixed', [record(week[0], 10), record(week[1], 12), record('2026-09-26T10:00:00Z', 1, { mode: 'writing' })])
+  assert.equal(summarize([mixed], now).weekCount, 2)
+  assert.equal(summarize([mixed], now).practicedToday, false)
+  const onlyWriting = list('w', [record('2026-09-26T10:00:00Z', 1, { mode: 'writing' })])
+  assert.deepEqual(nextLists([onlyWriting], now).map(item => item.reason.kind), ['new'])
+  assert.equal(nextLists([mixed], now)[0].lastPracticed.getTime(), Date.parse(week[1]))
+  const trends = listTrends([mixed, onlyWriting])
+  assert.equal(trends.length, 1)
+  assert.equal(trends[0].count, 2)
+  assert.equal(trends[0].best.time, 10)
+})

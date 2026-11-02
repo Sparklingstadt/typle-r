@@ -115,3 +115,15 @@ test('device options count by id with the newest name, and put records without a
     { value: NO_DEVICE, count: 3 },
   ])
 })
+
+test('rankings are per mode: typing by default, writing on request', () => {
+  const list = { id: 'm', name: 'm', createdAt: '2026-09-01', words: words(3), records: [
+    record('t1', 10, 96, 3, 20), record('t2', 12, 98, 3, 21), { ...record('w1', 5, 100, 3, 22), mode: 'writing' },
+  ] }
+  const typing = listRanking(list, { now })
+  assert.deepEqual(typing.ranked.map(item => item.id), ['t2', 't1'])
+  assert.equal(typing.best.id, 't2')
+  const writing = listRanking(list, { mode: 'writing', now })
+  assert.deepEqual(writing.ranked.map(item => item.id), ['w1'])
+  assert.equal(writing.records.length, 1)
+})

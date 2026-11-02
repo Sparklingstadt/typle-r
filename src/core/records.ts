@@ -11,6 +11,8 @@ export type PracticeMode = 'typing' | 'writing'
 
 export const recordMode = (record: { mode?: string }): PracticeMode => record.mode === 'writing' ? 'writing' : 'typing'
 
+export const typingRecords = <T extends { mode?: string }>(records: T[]): T[] => records.filter(record => recordMode(record) === 'typing')
+
 export type PracticeRecord = {
   id: string
   time: number
@@ -133,15 +135,17 @@ export function removeRecord(lists: SavedWordList[], listId: string, record: Sto
   })
 }
 
-export type RecordRow = { list: SavedWordList; record: StoredRecord; index: number; key: string; best: boolean }
+export type RecordRow = { list: SavedWordList; record: StoredRecord; index: number; key: string; best: boolean; mode: PracticeMode }
 export type RecordFilter = { pack: string | null; list: string | null; device: string | null }
 export const NO_DEVICE = 'none'
 
 // Every record with its list, newest first. `best` marks the record that currently ranks first in its list.
 export function recordRows(lists: SavedWordList[]): RecordRow[] {
-  const best = new Set(lists.flatMap(list => listBest(list) ?? []))
+  // Each mode has its own best, as typing and writing are ranked apart.
+  const best = new Set(lists.flatMap(list => (['typing', 'writing'] as const).flatMap(mode =>
+    listBest({ words: list.words, records: list.records.filter(record => recordMode(record) === mode) }) ?? [])))
   return recentRecords(lists).map(({ list, record, index }) =>
-    ({ list, record, index, key: `${list.id}-${record.id ?? `${index}-${record.date}`}`, best: best.has(record) }))
+    ({ list, record, index, key: `${list.id}-${record.id ?? `${index}-${record.date}`}`, best: best.has(record), mode: recordMode(record) }))
 }
 
 export function matchesDevice(record: StoredRecord, device: string | null) {

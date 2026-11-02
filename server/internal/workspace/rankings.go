@@ -46,11 +46,12 @@ func onDevice(record *Record, device string) bool {
 	return record.Device != nil && record.Device.ID == device
 }
 
-// ListRanking ranks a list's records on device ("" for all, NoDevice for none) by order, as listRanking does.
-func ListRanking(list *List, device, order string, includeOthers bool, now time.Time) Ranking {
+// ListRanking ranks a list's records of one mode ("typing" or "writing") on device ("" for all, NoDevice for none)
+// by order, as listRanking does.
+func ListRanking(list *List, device, order, mode string, includeOthers bool, now time.Time) Ranking {
 	records := []*Record{}
 	for i := range list.Records {
-		if onDevice(&list.Records[i], device) {
+		if RecordMode(&list.Records[i]) == mode && onDevice(&list.Records[i], device) {
 			records = append(records, &list.Records[i])
 		}
 	}

@@ -7,6 +7,7 @@
 - `name`: 前後の空白を除いて1文字以上（`listNameRequired`）、ほかのリストと同じ名前は不可（前後の空白を除き、大文字小文字を区別しない。比べ方はアプリと同じJavaScriptの `toLowerCase` で、語末の `Σ` は `ς`、`İ` は `i̇` になる。`listNameDuplicate`）。前後の空白を除いて保存する。
 - `words`: 1件以上（`wordsRequired`）。`display`・`input` は空白だけでない文字列（`wordFieldsRequired`）。`annotation` は省略すると `""`。単語の前後の空白はそのまま保存する。
 - `category`・`tags`（v0.78.0 から。省略できる）: 前後の空白を除いて保存し、空のタグと、大文字小文字だけ違う同じタグは除く。空になれば保存しない。
+- `writing`（省略できる）: `{ "language": "<言語>" }` だけ。言語は `en`・`ja`・`zh-Hans`・`zh-Hant`・`ko`・`fr`・`de`・`es`・`ru`・`cs` のどれか（それ以外は `invalidWritingLanguage`）。作成で省くと付けず、更新で省くと今のまま、`""` の言語で外す。
 - リストが150件あるときの作成・複製は `listLimit`。
 - `packId`（v0.95.0 から）: 名前はそのパックのほかのリストと違えばよい（`packId` を省略した作成ではすべてのリストと比べる）。ないパックは `400 packNotFound`。作成で `packId` と `category`・`tags` を一緒に送ると `invalidList`（パックの値を使うため）。リストと同じ名前の1リストだけのパックは、リストの名前を変えるとパックの名前も変わるため、そのリストをほかのパックと同じ名前にはできない（`listNameDuplicate`）。
 - `levels`（v0.95.0 から）: 前後の空白を除いて保存し、空の難易度は除く。空になれば保存しない。
