@@ -2,7 +2,7 @@ import { useId, useState } from 'react'
 import { Check, ChevronDown } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
-import { listBest } from '@/core/records'
+import { listBest, type PracticeMode } from '@/core/records'
 import { levelName, levelSteps, listAtLevels } from '@/core/listOverview'
 import { packChoices } from '@/core/packPractice'
 import { matchingListIds, type PackOverview } from '@/core/packEditing'
@@ -18,10 +18,11 @@ function Radio({ selected }: { selected: boolean }) {
   </span>
 }
 
-function useSummary() {
+// The best shown is the one of `mode`, the way the list is being practised.
+function useSummary(mode: PracticeMode) {
   const t = useTranslations('practice.options')
   return (list: SavedWordList) => {
-    const best = listBest(list)
+    const best = listBest(list, mode)
     return best ? t('withBest', { count: list.words.length, time: best.time.toFixed(2) }) : t('noRecord', { count: list.words.length })
   }
 }
@@ -30,16 +31,18 @@ function useSummary() {
 // option, which opens to have its lists chosen one level after another (the lists with levels first, then those without).
 // `query` is the search the packs were found by: a pack found by one of its lists opens to show which. `resetKey` changes
 // when a chosen list was not switched to after all (the switch was cancelled), so the levels chosen for it are let go.
-export default function WordListOptions({ packs, selectedId, onSelect, label, query = '', resetKey = 0 }: {
+// `mode` picks which best each option shows.
+export default function WordListOptions({ packs, selectedId, onSelect, label, query = '', resetKey = 0, mode = 'normal' }: {
   packs: PackOverview[]
   selectedId?: string
   onSelect: (id: string) => void
   label: string
   query?: string
   resetKey?: number
+  mode?: PracticeMode
 }) {
   const t = useTranslations('practice.options')
-  const summary = useSummary()
+  const summary = useSummary(mode)
   const practiceName = usePracticeName()
   const id = useId()
   return <ul aria-label={label} className="grid gap-1">
@@ -48,7 +51,7 @@ export default function WordListOptions({ packs, selectedId, onSelect, label, qu
       // Picking a list elsewhere starts the pack again from that list's levels.
       if (lists.length >= 2) return <PackOption key={`${item.pack.id}:${lists.some(list => list.id === selectedId) ? selectedId : ''}`}
         packId={item.pack.id} name={item.pack.name} lists={lists} selectedId={selectedId} onSelect={onSelect}
-        matches={matchingListIds(item, query)} resetKey={resetKey} />
+        matches={matchingListIds(item, query)} resetKey={resetKey} mode={mode} />
       const [list] = lists
       if (!list) return null
       const selected = list.id === selectedId
@@ -69,7 +72,7 @@ export default function WordListOptions({ packs, selectedId, onSelect, label, qu
 
 const levelPath = (list: SavedWordList) => list.levels?.length ? list.levels : [list.name]
 
-function PackOption({ packId, name, lists, selectedId, onSelect, matches, resetKey }: {
+function PackOption({ packId, name, lists, selectedId, onSelect, matches, resetKey, mode }: {
   packId: string
   name: string
   lists: SavedWordList[]
@@ -78,9 +81,10 @@ function PackOption({ packId, name, lists, selectedId, onSelect, matches, resetK
   /** The lists the search found by their name or a word. */
   matches: string[]
   resetKey: number
+  mode: PracticeMode
 }) {
   const t = useTranslations('practice.options')
-  const summary = useSummary()
+  const summary = useSummary(mode)
   const id = useId()
   const current = lists.find(list => list.id === selectedId)
   const startLevels = () => current ? levelPath(current) : []

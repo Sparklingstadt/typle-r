@@ -359,3 +359,34 @@ func TestRecordOperationFixtures(t *testing.T) {
 		})
 	}
 }
+
+func TestAddRecordKeepsMode(t *testing.T) {
+	input := run()
+	input.Mode = text(RecallMode)
+	record, added, err := AddRecord(two(), "l1", input, "new")
+	if err != nil || !added || record.Mode != RecallMode {
+		t.Fatalf("record = %+v, added = %v, err = %v", record, added, err)
+	}
+	input.Mode = text("other")
+	if _, _, err := AddRecord(two(), "l1", input, "new"); err == nil || err.(*Error).Key != "invalidRecord" {
+		t.Fatalf("err = %v", err)
+	}
+}
+
+func TestRecordInputRefusesNullMode(t *testing.T) {
+	var input RecordInput
+	body := `{"id":"r9","time":3,"date":"2026-10-12T00:00:00Z","accuracy":100,"mistakes":0,"mode":null}`
+	if err := json.Unmarshal([]byte(body), &input); err != nil || !input.ModeNull || input.Mode != nil {
+		t.Fatalf("input = %+v, err = %v", input, err)
+	}
+	if _, _, err := AddRecord(two(), "l1", input, "new"); err == nil || err.(*Error).Key != "invalidRecord" {
+		t.Fatalf("err = %v", err)
+	}
+	var plain RecordInput
+	if err := json.Unmarshal([]byte(`{"id":"r9","time":3}`), &plain); err != nil || plain.ModeNull {
+		t.Fatalf("plain = %+v, err = %v", plain, err)
+	}
+	if err := json.Unmarshal([]byte(`{"id":"r9","extra":1}`), &plain); err == nil {
+		t.Fatal("unknown field accepted")
+	}
+}

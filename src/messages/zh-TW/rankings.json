@@ -7,6 +7,11 @@
     "allDevices": "所有裝置",
     "deleted": "{name}（已刪除）"
   },
+  "mode": {
+    "label": "練習模式",
+    "normal": "一般",
+    "recall": "回憶"
+  },
   "order": {
     "label": "排名依據",
     "accuracy": "正確率<wide>優先</wide>",

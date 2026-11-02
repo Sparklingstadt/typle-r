@@ -33,6 +33,12 @@
     "simpleKeys": "簡易輸入",
     "simpleKeysAll": "完整對照表"
   },
+  "recall": {
+    "toggle": "憑記憶輸入",
+    "reveal": "查看答案",
+    "noHint": "沒有提示",
+    "resultHeading": "憑記憶輸入"
+  },
   "upcoming": {
     "next": "接下來",
     "last": "這是最後一個單字",

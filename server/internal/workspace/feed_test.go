@@ -56,3 +56,13 @@ func TestFeed(t *testing.T) {
 		}
 	}
 }
+
+func TestFeedMarksBestOfEachMode(t *testing.T) {
+	normal, slow, fast := practice("n", 5, number(100), 5, 28, nil), practice("r1", 9, number(90), 5, 29, nil), practice("r2", 8, number(95), 5, 30, nil)
+	slow.Mode, fast.Mode = RecallMode, RecallMode
+	lists := []List{{ID: "a", Name: "A", Words: make([]Word, 5), Records: []Record{normal, slow, fast}}}
+	_, best := feedIDs(Feed(lists, "", ""))
+	if !slices.Equal(best, []string{"a-r2", "a-n"}) {
+		t.Fatalf("best = %v", best)
+	}
+}
