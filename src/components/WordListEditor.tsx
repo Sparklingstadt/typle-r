@@ -296,6 +296,7 @@ export default function WordListEditor({ title, description, storage, initial, p
           <span>#</span>
           <span>{t("display")}<span className="text-destructive">*</span></span>
           <span>{t("input")} <span className="font-normal">{t("inputHint")}</span></span>
+          <span>{t("inputType")}</span>
           <span>{t("annotationOptional")}</span>
           <span />
         </div>
@@ -328,22 +329,24 @@ export default function WordListEditor({ title, description, storage, initial, p
                 <Input id={inputId(word.key)} data-word-key={word.key} aria-label={t("inputLabel", { n })} placeholder={word.display} value={word.input}
                   aria-invalid={inputError ? true : undefined} aria-describedby={inputError ? `${displayId(word.key)}-error` : undefined}
                   className="h-10" onChange={event => update(word.key, { input: event.target.value })} />
-                <Label htmlFor={`${baseId}-input-type-${word.key}`} className="text-xs text-muted-foreground">{t("inputType")}</Label>
+              </div>
+              <div className="space-y-1 md:col-start-4 md:row-start-1 md:space-y-0">
+                <Label htmlFor={`${baseId}-input-type-${word.key}`} className="text-xs text-muted-foreground md:sr-only">{t("inputType")}</Label>
                 <select id={`${baseId}-input-type-${word.key}`} aria-label={t("inputTypeLabel", { n })} value={word.input_type ?? "word"}
-                  className="h-9 w-full min-w-0 rounded-md border border-input bg-background px-2 text-sm focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-50"
+                  className="h-10 w-full min-w-0 rounded-md border border-input bg-background px-2 text-sm focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-50"
                   disabled={saving} onChange={event => update(word.key, { input_type: event.target.value as InputType })}>
                   <option value="word">{t("inputTypeWord")}</option>
                   <option value="command">{t("inputTypeCommand")}</option>
                   <option value="code">{t("inputTypeCode")}</option>
                 </select>
               </div>
-              <div className="space-y-1 md:col-start-4 md:row-start-1 md:space-y-0">
+              <div className="col-span-2 space-y-1 md:col-span-1 md:col-start-5 md:row-start-1 md:space-y-0">
                 <Label htmlFor={`${baseId}-annotation-${word.key}`} className="text-xs text-muted-foreground md:sr-only">{t("annotation")}</Label>
                 <Input id={`${baseId}-annotation-${word.key}`} data-word-key={word.key} aria-label={t("annotationLabel", { n })} placeholder={t("annotationPlaceholder")} value={word.annotation}
                   className="h-10" onChange={event => update(word.key, { annotation: event.target.value })} />
               </div>
             </div>
-            <div className="col-start-3 row-start-1 flex items-center justify-end gap-0.5 md:col-start-5">
+            <div className="col-start-3 row-start-1 flex items-center justify-end gap-0.5 md:col-start-6">
               <DropdownMenu.Root>
                 <DropdownMenu.Trigger asChild>
                   <Button variant="ghost" size="icon" aria-label={t("wordActions", { n })} title={t("actions")}><MoreHorizontal aria-hidden="true" /></Button>
@@ -374,7 +377,7 @@ export default function WordListEditor({ title, description, storage, initial, p
                   onClick={() => remove(index)} aria-label={t("deleteWordN", { n })} title={t("delete")}><Trash2 aria-hidden="true" /></Button>
               </span>
             </div>
-            {rowError && <div className="col-span-3 row-start-4 md:col-span-3 md:col-start-2 md:row-start-2">
+            {rowError && <div className="col-span-3 row-start-4 md:col-span-4 md:col-start-2 md:row-start-2">
               <FieldError id={`${displayId(word.key)}-error`} message={rowError} />
             </div>}
           </SortableWordRow>
