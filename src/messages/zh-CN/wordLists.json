@@ -114,7 +114,9 @@
     "copy": "复制",
     "export": "导出",
     "share": "共享",
-    "shared": "共享中"
+    "shared": "共享中",
+    "listed": "已在图库中展示",
+    "hidden": "已被隐藏"
   },
   "wordRow": {
     "label": "单词 {n}",
@@ -318,6 +320,10 @@
     "update": "更新共享",
     "stop": "停止共享",
     "failed": "无法更改共享。",
+    "gallery": "在图库中展示",
+    "galleryNotice": "任何人都可以在图库中看到。不会显示作者名。管理员可能会隐藏不适当的内容。",
+    "galleryCategoryHint": "添加分类后更容易被找到。",
+    "hiddenNotice": "管理员已隐藏此词包，因此无法在图库中展示。",
     "orphans": {
       "title": "找不到包的共享",
       "description": "这些共享链接对应的包已不存在。知道链接的人仍然可以查看。不需要的话请停止共享。",
@@ -362,5 +368,20 @@
     "noResults": "没有找到",
     "loadFailed": "无法加载图库。请稍后再试。",
     "retry": "重试"
+  },
+  "report": {
+    "open": "举报",
+    "title": "举报此词包",
+    "description": "向管理员反馈此词包的问题。请选择理由后发送。",
+    "reason": "举报理由",
+    "reasons": {
+      "inappropriate": "内容不当",
+      "spam": "垃圾信息或广告",
+      "personalInfo": "包含个人信息",
+      "other": "其他"
+    },
+    "send": "发送",
+    "sent": "已收到你的举报",
+    "failed": "无法发送举报，请重试。"
   }
 }

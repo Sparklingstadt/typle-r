@@ -18,8 +18,9 @@ Typle 本体（Web版と iPad・Mac・Android・Windows 版）が使う、アプ
 | [`DELETE /api/shares?pack=<パックのID>`](./shares.md) | 要 | 共有をやめる |
 | [`GET /api/shared?id=<共有のID>`](./shares.md) | 不要 | 共有されたパックのファイル |
 | [`GET /api/gallery`](./shares.md#ギャラリー) | 不要 | ギャラリーのパックの検索 |
-| [`GET /api/gallery/categories`](./shares.md#ギャラリー) | 不要 | ギャラリーのカテゴリーと件数 |
+| [`GET /api/gallery/categories`](./shares.md#ギャラリー) | 不要 | ギャラリーのカテゴリと件数 |
 | [`POST /api/gallery/added?id=<共有のID>`](./shares.md#ギャラリー) | 不要 | ギャラリーのパックが追加されたことを数える |
+| [`POST /api/gallery/reports`](./shares.md#ギャラリー) | 不要 | ギャラリーのパックを通報する |
 | [`GET /api/auth/session`](./auth.md#get-api-auth-session) | 任意 | ログイン中のユーザーと、使えるログイン方法 |
 | [`GET /api/auth/signin`](./auth.md#get-api-auth-signin) | — | ログインを始める |
 | [`GET /api/auth/callback/github`・`/api/auth/callback/ffpf`](./auth.md#ログインから戻る先) | — | ログインから戻る先 |
@@ -29,10 +30,12 @@ Typle 本体（Web版と iPad・Mac・Android・Windows 版）が使う、アプ
 | [`POST /api/auth/admin/signout`](./admin.md#post-api-auth-admin-signout) | — | 管理画面からログアウト |
 | [`GET /api/admin/dashboard`](./admin.md#get-api-admin-dashboard) | 管理者 | 管理画面の集計 |
 | [`GET /api/admin/users`](./admin.md#get-api-admin-users) | 管理者 | ユーザーの一覧 |
+| [`GET /api/admin/gallery`](./admin.md#get-api-admin-gallery) | 管理者 | ギャラリーのパックと通報 |
+| [`POST /api/admin/gallery/hide`・`unhide`](./admin.md#post-api-admin-gallery-hide・post-api-admin-gallery-unhide) | 管理者 | パックを非公開にする・戻す |
 
 ## 共通事項
 
-- 本文はJSON（`Content-Type: application/json; charset=utf-8`）で、`Cache-Control: private, no-store`・`Vary: Cookie` を付けます。`/api/shared`・`/api/gallery`・`/api/gallery/categories`・`/api/gallery/added` は `Cache-Control: no-store` で、`X-Robots-Tag: noindex` も付けます。
+- 本文はJSON（`Content-Type: application/json; charset=utf-8`）で、`Cache-Control: private, no-store`・`Vary: Cookie` を付けます。`/api/shared`・`/api/gallery`・`/api/gallery/categories`・`/api/gallery/added`・`/api/gallery/reports` は `Cache-Control: no-store` で、`X-Robots-Tag: noindex` も付けます。
 - エラーは `{ "error": "<キー>" }` です。キーはアプリの `errors` のメッセージのキーで、画面が利用者の言語で表示します。
 - すべての応答に `Content-Security-Policy: frame-ancestors 'none'; base-uri 'self'; object-src 'none'`・`X-Frame-Options: DENY`・`X-Content-Type-Options: nosniff`・`Referrer-Policy: strict-origin-when-cross-origin` を付けます（Vercel では `next.config.mjs` のヘッダーが Go の関数に届かないため）。
 - `HEAD` は `GET` と同じに答えます（本文なし）。

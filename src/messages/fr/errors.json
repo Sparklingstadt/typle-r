@@ -67,5 +67,9 @@
   "adminUnavailable": "Impossible de vérifier si vous êtes administrateur. Veuillez réessayer plus tard.",
   "invalidPage": "Le numéro de page n’est pas valide.",
   "importInputTypeInvalid": "Ligne {line} : input_type doit être command, code ou word.",
-  "invalidQuery": "Les critères de recherche ne sont pas valides."
+  "invalidQuery": "Les critères de recherche ne sont pas valides.",
+  "invalidReport": "Le signalement n’est pas valide.",
+  "notInGallery": "Un pack absent de la galerie ne peut pas être signalé.",
+  "invalidRequest": "La requête n’est pas valide.",
+  "sharedPackHidden": "Un administrateur a masqué ce pack : il ne peut pas être affiché dans la galerie."
 }

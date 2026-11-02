@@ -30,6 +30,18 @@
 
 新しく保存した順に50件ずつです。データの中身ではなく、件数だけを返します。`page` が0〜10000の整数でなければ `400 invalidPage` です。
 
+## `GET /api/admin/gallery`
+
+```json
+{ "packs": [{ "id": "…", "name": "Linux", "category": "技術", "added": 3, "listedAt": "…", "hiddenAt": null, "reports": 2, "reasons": { "spam": 1, "other": 1 } }] }
+```
+
+ギャラリーに載っている共有と、非公開にされた共有を、通報の多い順（同じなら新しい通報のある順）に最大100件返します。`category` はなければ含みません。`listedAt`・`hiddenAt` は、なければ `null` です。`reasons` は理由ごとの件数で、通報がなければ `{}` です。持ち主の情報は含みません。
+
+## `POST /api/admin/gallery/hide`・`POST /api/admin/gallery/unhide`
+
+本文は `{ "id": "<共有のID>" }` です。**`Content-Type: application/json` と、アプリの `Origin` が必要**で、どちらかが違えば `403 forbiddenRequest` です。`hide` は共有をギャラリーから外し、`/api/shared` でも `404` にします。`unhide` で元に戻します。成功は `204`、共有がなければ `404 sharedPackNotFound`、本文が不正なら `400 invalidRequest` です。
+
 ## `POST /api/auth/admin/signout`
 
 管理者の Cookie を消して `204` を返します。アプリの `Origin` が必要です。

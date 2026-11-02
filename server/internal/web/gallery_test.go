@@ -19,6 +19,8 @@ type fakeGallery struct {
 	categories []store.GalleryCategory
 	query      store.GalleryQuery
 	added      []string
+	reported   [][2]string
+	found      bool
 }
 
 func (f *fakeGallery) Gallery(_ context.Context, q store.GalleryQuery) (*store.GalleryPage, error) {
@@ -39,6 +41,11 @@ func (f *fakeGallery) GalleryCategories(context.Context) ([]store.GalleryCategor
 func (f *fakeGallery) CountAdded(_ context.Context, id string) error {
 	f.added = append(f.added, id)
 	return f.err
+}
+
+func (f *fakeGallery) Report(_ context.Context, id, reason string) (bool, error) {
+	f.reported = append(f.reported, [2]string{id, reason})
+	return f.found, f.err
 }
 
 func expectGalleryHeaders(t *testing.T, response *httptest.ResponseRecorder) {
@@ -205,4 +212,82 @@ func TestGalleryMethod(t *testing.T) {
 			expectGalleryHeaders(t, response)
 		}
 	}
+}
+
+func TestGalleryReport(t *testing.T) {
+	fake := &fakeGallery{found: true}
+	h := newHarness(t, fake, testBase)
+	post := func(body string, change ...func(*http.Request)) *httptest.ResponseRecorder {
+		return h.shareRequest(http.MethodPost, "/api/gallery/reports", body, "", change...)
+	}
+	good := `{"id":"` + aSharedID + `","reason":"spam"}`
+	response := post(good)
+	if response.Code != http.StatusNoContent || response.Body.Len() != 0 {
+		t.Fatalf("response = %d %s", response.Code, response.Body)
+	}
+	expectGalleryHeaders(t, response)
+	if len(fake.reported) != 1 || fake.reported[0] != [2]string{aSharedID, "spam"} {
+		t.Fatalf("reported = %v", fake.reported)
+	}
+
+	for name, body := range map[string]string{
+		"bad reason": `{"id":"` + aSharedID + `","reason":"bad"}`, "no reason": `{"id":"` + aSharedID + `"}`,
+		"no id": `{"reason":"spam"}`, "empty id": `{"id":"","reason":"spam"}`, "null reason": `{"id":"` + aSharedID + `","reason":null}`,
+		"extra member": `{"id":"` + aSharedID + `","reason":"spam","x":1}`, "not an object": `[]`, "not json": `x`,
+		"number id": `{"id":1,"reason":"spam"}`,
+	} {
+		response := post(body)
+		if response.Code != http.StatusBadRequest || strings.TrimSpace(response.Body.String()) != `{"error":"invalidReport"}` {
+			t.Fatalf("%s = %d %s", name, response.Code, response.Body)
+		}
+		expectGalleryHeaders(t, response)
+	}
+	if empty := h.shareRequest(http.MethodPost, "/api/gallery/reports", "", ""); empty.Code != http.StatusForbidden {
+		t.Fatalf("no body, no content type = %d", empty.Code)
+	}
+	if len(fake.reported) != 1 {
+		t.Fatalf("reported = %v", fake.reported)
+	}
+
+	for name, change := range map[string]func(*http.Request){
+		"other origin": withOrigin("https://evil.example"),
+		"no origin":    func(r *http.Request) { r.Header.Del("Origin") },
+		"text/plain":   func(r *http.Request) { r.Header.Set("Content-Type", "text/plain") },
+	} {
+		response := post(good, change)
+		if response.Code != http.StatusForbidden || strings.TrimSpace(response.Body.String()) != `{"error":"forbiddenRequest"}` {
+			t.Fatalf("%s = %d %s", name, response.Code, response.Body)
+		}
+		expectGalleryHeaders(t, response)
+	}
+	app := post(good, func(r *http.Request) {
+		r.Header.Del("Origin")
+		r.Header.Set("Authorization", "Bearer x")
+	})
+	if app.Code != http.StatusNoContent {
+		t.Fatalf("app = %d", app.Code)
+	}
+	if len(fake.reported) != 2 {
+		t.Fatalf("reported = %v", fake.reported)
+	}
+
+	fake.found = false
+	missing := post(good)
+	if missing.Code != http.StatusNotFound || strings.TrimSpace(missing.Body.String()) != `{"error":"notInGallery"}` {
+		t.Fatalf("not listed = %d %s", missing.Code, missing.Body)
+	}
+	expectGalleryHeaders(t, missing)
+
+	fake.err = errors.New("down")
+	down := post(good)
+	if down.Code != http.StatusServiceUnavailable || strings.TrimSpace(down.Body.String()) != `{"error":"databaseUnavailable"}` {
+		t.Fatalf("down = %d %s", down.Code, down.Body)
+	}
+	expectGalleryHeaders(t, down)
+
+	get := h.shareRequest(http.MethodGet, "/api/gallery/reports", "", "")
+	if get.Code != http.StatusMethodNotAllowed || get.Header().Get("Allow") != "POST" {
+		t.Fatalf("GET = %d %v", get.Code, get.Header())
+	}
+	expectGalleryHeaders(t, get)
 }

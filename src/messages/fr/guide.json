@@ -110,7 +110,10 @@
       "p1": "Une fois connecté, « Partager » dans le menu « … » d’un pack crée un lien de partage. Choisissez « Créer le lien », puis « Copier » et envoyez-le.",
       "p2": "Toute personne disposant du lien peut voir, sans se connecter, le nom, la description, les listes et les mots du pack, et l’ajouter à ses packs avec « Ajouter à mes packs ». Vos enregistrements d’entraînement et votre nom ne sont pas visibles.",
       "p3": "Modifier le pack ne change pas le lien automatiquement. « Mettre à jour » l’actualise (le lien reste le même). « Arrêter le partage » désactive le lien, qui indique alors que le partage est terminé. Un pack partagé porte la mention « Partagé ».",
-      "p4": "Supprimer un pack partagé met aussi fin à son partage."
+      "p4": "Supprimer un pack partagé met aussi fin à son partage.",
+      "p5": "Activez « Afficher dans la galerie » dans la fenêtre de partage pour placer le pack dans la galerie (dans « Listes de mots » de la barre latérale). Tout le monde peut voir la galerie sans se connecter, et votre nom n’est pas affiché. Un pack affiché porte la mention « Dans la galerie ». Désactivez l’option ou arrêtez le partage pour le retirer de la galerie.",
+      "p6": "Quand vous ouvrez un pack depuis la galerie ou un lien de partage, « Signaler » permet d’informer les administrateurs d’un problème. Choisissez un motif : contenu inapproprié, spam ou publicité, informations personnelles ou autre.",
+      "p7": "Après des signalements, un administrateur peut masquer un pack. Un pack masqué porte la mention « Masqué » et n’apparaît plus ni dans la galerie ni par son lien de partage. Le propriétaire ne peut pas réafficher ce partage dans la galerie (il peut encore mettre le pack à jour ou arrêter son partage)."
     },
     "input": {
       "title": "Saisir les mots",
