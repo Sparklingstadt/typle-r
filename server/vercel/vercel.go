@@ -136,6 +136,9 @@ func (b *Backend) config() (web.Config, error) {
 		return web.Config{}, err
 	}
 	config.Report = web.NewReporter(os.Getenv)
+	// This bridge serves the Vercel function, and typle-web (local) too: only the former sits behind Vercel's proxy,
+	// whose forwarding headers tell the client's IP.
+	config.OnVercel = !b.local
 	b.settings.CompareAndSwap(nil, &config)
 	return *b.settings.Load(), nil
 }

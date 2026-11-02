@@ -128,7 +128,7 @@ func (s *server) galleryCategories(w http.ResponseWriter, r *http.Request) {
 }
 
 // galleryAdded counts one more "added to my packs" for the pack ?id=. Its Origin is checked as DELETE /api/shares's is.
-// A pack that is not in the gallery is answered the same 204, so that the answer does not tell which shares are listed.
+// It is limited to addedPerMinute a minute per client (limited), after the checks. A pack that is not in the gallery is answered the same 204, so that the answer does not tell which shares are listed.
 func (s *server) galleryAdded(w http.ResponseWriter, r *http.Request) {
 	w = galleryHeaders(w)
 	if !methods(w, r, http.MethodPost) {
@@ -136,6 +136,9 @@ func (s *server) galleryAdded(w http.ResponseWriter, r *http.Request) {
 	}
 	if !(fromApp(r) || s.sameOrigin(r)) {
 		refuse(w, http.StatusForbidden, "forbiddenRequest")
+		return
+	}
+	if s.limited(w, r, "added", addedPerMinute) {
 		return
 	}
 	if err := s.config.Store.CountAdded(r.Context(), r.URL.Query().Get("id")); err != nil {
@@ -178,7 +181,7 @@ func readStringFields(r *http.Request, limit int64, names ...string) (map[string
 
 // galleryReport records a report of the pack "id" for "reason". It is checked as POST /api/gallery/added is, and as
 // PUT /api/shares is for its JSON body. A share that is not in the gallery is notInGallery, so that /shared/<id> does
-// not say a link-only share has ended.
+// not say a link-only share has ended. It is limited to reportsPerMinute a minute per client (limited), after the checks.
 func (s *server) galleryReport(w http.ResponseWriter, r *http.Request) {
 	w = galleryHeaders(w)
 	if !methods(w, r, http.MethodPost) {
@@ -191,6 +194,9 @@ func (s *server) galleryReport(w http.ResponseWriter, r *http.Request) {
 	fields, ok := readStringFields(r, maxIDBodyBytes, "id", "reason")
 	if !ok || !slices.Contains(store.ReportReasons, fields["reason"]) {
 		refuse(w, http.StatusBadRequest, "invalidReport")
+		return
+	}
+	if s.limited(w, r, "reports", reportsPerMinute) {
 		return
 	}
 	found, err := s.config.Store.Report(r.Context(), fields["id"], fields["reason"])

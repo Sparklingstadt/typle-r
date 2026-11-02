@@ -10,7 +10,7 @@ const REASONS = ['inappropriate', 'spam', 'personalInfo', 'other'] as const
 type Reason = (typeof REASONS)[number]
 
 // Server errors that have a message of their own; others show the dialog's general text.
-const REPORT_ERRORS = new Set<unknown>(['notInGallery', 'invalidReport', 'databaseUnavailable', 'forbiddenRequest'] satisfies ErrorKey[])
+const REPORT_ERRORS = new Set<unknown>(['notInGallery', 'invalidReport', 'databaseUnavailable', 'forbiddenRequest', 'tooManyRequests'] satisfies ErrorKey[])
 
 async function report(id: string, reason: Reason) {
   const response = await fetch('/api/gallery/reports', {

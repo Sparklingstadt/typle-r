@@ -121,6 +121,10 @@ func (f fakeStore) GalleryCategories(context.Context) ([]store.GalleryCategory, 
 
 func (f fakeStore) CountAdded(context.Context, string) error { return f.err }
 
+func (f fakeStore) CountGalleryHit(context.Context, string, []byte) (int, time.Time, error) {
+	return 1, time.Now().Add(time.Minute), f.err
+}
+
 func (f fakeStore) Report(context.Context, string, string) (bool, error) { return false, f.err }
 
 func (f fakeStore) AdminGallery(context.Context) ([]store.AdminGalleryPack, error) { return nil, f.err }

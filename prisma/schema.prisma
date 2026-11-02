@@ -67,6 +67,19 @@ model GalleryReport {
   @@map("typle_gallery_reports")
 }
 
+// How often a client used an unauthenticated gallery write in one minute (the rate limit). client is a keyed hash of the
+// IP address, never the address; rows older than 10 minutes are deleted by the next count.
+model GalleryHit {
+  action      String   @db.Text
+  client      Bytes
+  windowStart DateTime @map("window_start") @db.Timestamptz(6)
+  hits        Int
+
+  @@id([action, client, windowStart])
+  @@index([windowStart], map: "typle_gallery_hits_window")
+  @@map("typle_gallery_hits")
+}
+
 // When an account last signed out of every device: its sessions of a login no later than revokedAt are refused.
 model SessionRevocation {
   ownerId   String   @id @map("owner_id") @db.Text

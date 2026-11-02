@@ -122,7 +122,7 @@ API（`server/`）はNext.jsとは独立したGoのコードで、モジュー�
 
 | 場所 | 内容 |
 |---|---|
-| `server/internal/web` | GitHub ログイン（`/api/auth/session`・`signin`・`signout`（`?everywhere=1` ですべての端末から）・`callback/github`、アプリ用の `token`）、`/api/workspace`（読み込みと、`revision` による保存）、`/api/shares`・`/api/shared`、単語パックのギャラリー（`/api/gallery`・`/api/gallery/categories`・`/api/gallery/added`・`/api/gallery/reports`。ログイン不要で、すべての応答に `X-Robots-Tag: noindex`）、`/api/health` を1つの `http.Handler` にまとめます。通報と追加数の連打は、コードでは防ぎません。本番では「ギャラリーのレート制限（Vercel Firewall）」の設定が必要です。すべての応答に、`next.config.mjs` と同じ4つのセキュリティヘッダー（`Content-Security-Policy`・`X-Frame-Options`・`X-Content-Type-Options`・`Referrer-Policy`）を付けます。ローカル開発のログイン（`POST /api/auth/local`）もここにあり、`typle-web` でだけ有効です |
+| `server/internal/web` | GitHub ログイン（`/api/auth/session`・`signin`・`signout`（`?everywhere=1` ですべての端末から）・`callback/github`、アプリ用の `token`）、`/api/workspace`（読み込みと、`revision` による保存）、`/api/shares`・`/api/shared`、単語パックのギャラリー（`/api/gallery`・`/api/gallery/categories`・`/api/gallery/added`・`/api/gallery/reports`。ログイン不要で、すべての応答に `X-Robots-Tag: noindex`）、`/api/health` を1つの `http.Handler` にまとめます。通報と追加数の連打は、IP ごとの回数制限で抑えます（「ギャラリーのレート制限」を参照）。すべての応答に、`next.config.mjs` と同じ4つのセキュリティヘッダー（`Content-Security-Policy`・`X-Frame-Options`・`X-Content-Type-Options`・`Referrer-Policy`）を付けます。ローカル開発のログイン（`POST /api/auth/local`）もここにあり、`typle-web` でだけ有効です |
 | `server/internal/session` | ログインの Cookie（`HttpOnly`・`SameSite=Lax`・ログインから30日で失効・延長なし）と、iPad・Android・Windows のログインのコード・トークンの署名と検証です。値は `AUTH_SECRET` から導いた鍵（種類ごとに別）で HMAC-SHA256 署名します。名前は `AUTH_URL` が HTTPS なら `__Host-typle-session`、HTTP なら `typle-session` です |
 | `server/internal/auth` | `/api/v1` のトークン確認のほか、アプリのログイン用の GitHub OAuth クライアント（認可コードと PKCE）を持ちます |
 | `server/vercel` | `web` のハンドラーを Vercel の Go の関数として呼ぶ橋渡しです。リポジトリ直下の `api/index.go`（Vercel の Go の関数は1つだけで、`vercel.json` の `rewrites` がバックエンドのパスをすべてここへ送ります）がこれを呼びます。`/api/health` と、ログイン不要の `/api/shared`・`GET /api/gallery`・`GET /api/gallery/categories` は、ログインの設定（`AUTH_SECRET`・`AUTH_URL`）がなくても DB だけで答えます。`POST /api/gallery/added` と `POST /api/gallery/reports` は `Origin` を確かめるため、`/api/shares` と同じく設定がなければ 503（`authUnavailable`）を返します。`/api/workspace` は、ログインの設定がなければ DB を開かずに 503（`authUnavailable`）を返します |
@@ -170,14 +170,20 @@ Go の関数（`api/index.go`）も同じ環境変数を読むため、Vercel �
 
 公式資料: [GitHub OAuth App](https://docs.github.com/ja/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps)、[Prisma](https://www.prisma.io/docs/orm/v7)、[PostgreSQL Docker image](https://hub.docker.com/_/postgres)。
 
-### ギャラリーのレート制限（Vercel Firewall）
+### ギャラリーのレート制限
 
-通報（`POST /api/gallery/reports`）と追加数（`POST /api/gallery/added`）の連打は、コードでは防ぎません。本番では、運用する人が Vercel のダッシュボード（Firewall の Rate Limiting）で次のルールを設定する必要があります。
+ログインなしで書き込める2つのAPIは、Go のコードで IP ごとに回数を制限します。
 
-| 対象のパス（`POST`） | 上限 | 単位 | 超えたときの動作 |
+| 対象のパス（`POST`） | 上限 | 単位 | 超えたとき |
 |---|---|---|---|
-| `/api/gallery/reports` | 1分あたり10リクエスト | クライアントのIPごと | Deny（`429`） |
-| `/api/gallery/added` | 1分あたり60リクエスト | クライアントのIPごと | Deny（`429`） |
+| `/api/gallery/reports` | 1分あたり10リクエスト | クライアントのIPごと | `429 tooManyRequests` と `Retry-After`（窓が終わるまでの秒数。1以上）。通報は記録しません |
+| `/api/gallery/added` | 1分あたり60リクエスト | クライアントのIPごと | 同上。追加数は変えません |
+
+- 数える窓は1分ごとの固定窓で、回数は DB の `typle_gallery_hits` に持ちます（関数のインスタンスをまたいで数えるため）。`Origin` や `Content-Type`、本文が不正で先に断る要求は数えません。アプリのトークン付きの要求も同じく IP で数えます。
+- DB に保存するのは IP そのものではなく、`AUTH_SECRET` から専用に導いた鍵での IP の HMAC-SHA256（先頭16バイト）です。10分より古い行は、次の回数の更新のときに消します。通報とは結び付けず、数えるためにだけ使います。
+- 数えられなかったとき（DB の失敗）は、制限なしで通さず `503 databaseUnavailable` にします。
+- IP の決め方：Vercel の関数（`server/vercel` が組み立てるとき）では、`X-Vercel-Forwarded-For`、`X-Forwarded-For`、`X-Real-Ip` の順に、最初の値（カンマ区切りの先頭）が IP アドレスとして読めるものを使います。読めるものがなければ、共通の「不明」のクライアントとして数え（制限は外れません）、Sentry に `gallery.limit.ip` を報告します。Vercel 以外（ローカルの `typle-web` やテスト）では、クライアントが自由に書ける転送ヘッダーを無視し、接続元のアドレスのホスト部分だけを使います。
+- Vercel Firewall の Rate Limiting は、現在のプランでは使えません（設定しようとすると 402 になります）。そのため、この制限はコードで行います。
 
 ### FFPF ID でのログインの設定
 
