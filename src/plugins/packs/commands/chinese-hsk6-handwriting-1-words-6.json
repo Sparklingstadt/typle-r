@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-1-words-6",
+  "name": "中国語HSK6級 手書き1（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語1",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "尝试",
+      "input": "chángshì",
+      "annotation": "chángshì / 試みる",
+      "input_type": "word"
+    },
+    {
+      "display": "常务",
+      "input": "chángwù",
+      "annotation": "chángwù / 常務",
+      "input_type": "word"
+    },
+    {
+      "display": "场面",
+      "input": "chǎngmiàn",
+      "annotation": "chǎngmiàn / 光景",
+      "input_type": "word"
+    },
+    {
+      "display": "畅通",
+      "input": "chàngtōng",
+      "annotation": "chàngtōng / 滞りなく通じる",
+      "input_type": "word"
+    },
+    {
+      "display": "倡议",
+      "input": "chàngyì",
+      "annotation": "chàngyì / 提唱する",
+      "input_type": "word"
+    },
+    {
+      "display": "巢穴",
+      "input": "cháoxué",
+      "annotation": "cháoxué / 巣",
+      "input_type": "word"
+    },
+    {
+      "display": "嘲笑",
+      "input": "cháoxiào",
+      "annotation": "cháoxiào / あざ笑う",
+      "input_type": "word"
+    },
+    {
+      "display": "撤销",
+      "input": "chèxiāo",
+      "annotation": "chèxiāo / 取り消す",
+      "input_type": "word"
+    },
+    {
+      "display": "沉思",
+      "input": "chénsī",
+      "annotation": "chénsī / 深く考える",
+      "input_type": "word"
+    },
+    {
+      "display": "陈旧",
+      "input": "chénjiù",
+      "annotation": "chénjiù / 古くさい",
+      "input_type": "word"
+    },
+    {
+      "display": "陈述",
+      "input": "chénshù",
+      "annotation": "chénshù / 述べる",
+      "input_type": "word"
+    },
+    {
+      "display": "称号",
+      "input": "chēnghào",
+      "annotation": "chēnghào / 称号",
+      "input_type": "word"
+    },
+    {
+      "display": "成交",
+      "input": "chéngjiāo",
+      "annotation": "chéngjiāo / 取引が成立する",
+      "input_type": "word"
+    },
+    {
+      "display": "成心",
+      "input": "chéngxīn",
+      "annotation": "chéngxīn / わざと",
+      "input_type": "word"
+    },
+    {
+      "display": "呈现",
+      "input": "chéngxiàn",
+      "annotation": "chéngxiàn / 現れる",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

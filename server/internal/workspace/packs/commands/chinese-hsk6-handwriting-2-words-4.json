@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-2-words-4",
+  "name": "中国語HSK6級 手書き2（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語2",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "盗窃",
+      "input": "dàoqiè",
+      "annotation": "dàoqiè / 窃盗する",
+      "input_type": "word"
+    },
+    {
+      "display": "得不偿失",
+      "input": "débù chángshī",
+      "annotation": "débù chángshī / 割に合わない",
+      "input_type": "word"
+    },
+    {
+      "display": "得天独厚",
+      "input": "détiān dúhòu",
+      "annotation": "détiān dúhòu / 恵まれた条件にある",
+      "input_type": "word"
+    },
+    {
+      "display": "登陆",
+      "input": "dēnglù",
+      "annotation": "dēnglù / 上陸する",
+      "input_type": "word"
+    },
+    {
+      "display": "等级",
+      "input": "děngjí",
+      "annotation": "děngjí / 等級",
+      "input_type": "word"
+    },
+    {
+      "display": "抵达",
+      "input": "dǐdá",
+      "annotation": "dǐdá / 到着する",
+      "input_type": "word"
+    },
+    {
+      "display": "地步",
+      "input": "dìbù",
+      "annotation": "dìbù / 程度、羽目",
+      "input_type": "word"
+    },
+    {
+      "display": "递增",
+      "input": "dìzēng",
+      "annotation": "dìzēng / 次第に増える",
+      "input_type": "word"
+    },
+    {
+      "display": "巅峰",
+      "input": "diānfēng",
+      "annotation": "diānfēng / 頂点",
+      "input_type": "word"
+    },
+    {
+      "display": "点缀",
+      "input": "diǎnzhuì",
+      "annotation": "diǎnzhuì / 彩りを添える",
+      "input_type": "word"
+    },
+    {
+      "display": "惦记",
+      "input": "diànjì",
+      "annotation": "diànjì / 気にかける",
+      "input_type": "word"
+    },
+    {
+      "display": "雕塑",
+      "input": "diāosù",
+      "annotation": "diāosù / 彫塑",
+      "input_type": "word"
+    },
+    {
+      "display": "叮嘱",
+      "input": "dīngzhǔ",
+      "annotation": "dīngzhǔ / 言い聞かせる",
+      "input_type": "word"
+    },
+    {
+      "display": "丢人",
+      "input": "diūrén",
+      "annotation": "diūrén / 恥をかく",
+      "input_type": "word"
+    },
+    {
+      "display": "东道主",
+      "input": "dōngdàozhǔ",
+      "annotation": "dōngdàozhǔ / 主催者",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

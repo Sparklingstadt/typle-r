@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-4-words-4",
+  "name": "中国語HSK6級 手書き4（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語4",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "见多识广",
+      "input": "jiànduō shíguǎng",
+      "annotation": "jiànduō shíguǎng / 見聞が広い",
+      "input_type": "word"
+    },
+    {
+      "display": "见义勇为",
+      "input": "jiànyì yǒngwéi",
+      "annotation": "jiànyì yǒngwéi / 正義のために勇敢に行動する",
+      "input_type": "word"
+    },
+    {
+      "display": "间隔",
+      "input": "jiàngé",
+      "annotation": "jiàngé / 間隔",
+      "input_type": "word"
+    },
+    {
+      "display": "舰艇",
+      "input": "jiàntǐng",
+      "annotation": "jiàntǐng / 艦艇",
+      "input_type": "word"
+    },
+    {
+      "display": "鉴别",
+      "input": "jiànbié",
+      "annotation": "jiànbié / 鑑別する",
+      "input_type": "word"
+    },
+    {
+      "display": "将近",
+      "input": "jiāngjìn",
+      "annotation": "jiāngjìn / 〜近く",
+      "input_type": "word"
+    },
+    {
+      "display": "将军",
+      "input": "jiāngjūn",
+      "annotation": "jiāngjūn / 将軍",
+      "input_type": "word"
+    },
+    {
+      "display": "奖赏",
+      "input": "jiǎngshǎng",
+      "annotation": "jiǎngshǎng / 褒賞",
+      "input_type": "word"
+    },
+    {
+      "display": "交叉",
+      "input": "jiāochā",
+      "annotation": "jiāochā / 交差する",
+      "input_type": "word"
+    },
+    {
+      "display": "交易",
+      "input": "jiāoyì",
+      "annotation": "jiāoyì / 取引",
+      "input_type": "word"
+    },
+    {
+      "display": "焦点",
+      "input": "jiāodiǎn",
+      "annotation": "jiāodiǎn / 焦点",
+      "input_type": "word"
+    },
+    {
+      "display": "侥幸",
+      "input": "jiǎoxìng",
+      "annotation": "jiǎoxìng / 運よく",
+      "input_type": "word"
+    },
+    {
+      "display": "缴纳",
+      "input": "jiǎonà",
+      "annotation": "jiǎonà / 納める",
+      "input_type": "word"
+    },
+    {
+      "display": "阶层",
+      "input": "jiēcéng",
+      "annotation": "jiēcéng / 階層",
+      "input_type": "word"
+    },
+    {
+      "display": "揭露",
+      "input": "jiēlù",
+      "annotation": "jiēlù / 暴く",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

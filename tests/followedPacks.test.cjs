@@ -49,6 +49,17 @@ test('followPack adds the official pack at the end, following it', () => {
   assert.deepEqual(followOfficial(result, official), result)
 })
 
+test('a followed list takes the handwriting mark of its official list, and loses one the official list does not have', () => {
+  const marked = [{ ...official[0], lists: [{ ...official[0].lists[0], writing: { language: 'zh-Hans' } }, official[0].lists[1]] }]
+  const result = followPack({ packs: [], lists: [] }, marked, 'go', ids, now)
+  assert.deepEqual(result.lists.map(list => list.writing), [{ language: 'zh-Hans' }, undefined])
+  assert.notEqual(result.lists[0].writing, marked[0].lists[0].writing)
+  validateLibrary(result)
+  assert.deepEqual(followOfficial(result, marked), result)
+  const stale = { ...result, lists: result.lists.map(list => ({ ...list, writing: { language: 'en' } })) }
+  assert.deepEqual(followOfficial(stale, marked), result)
+})
+
 test('followPack names the pack （2） when the name is taken', () => {
   const own = { id: 'mine', name: 'go', createdAt: OD }
   const mineList = { id: 'l', name: 'L', packId: 'mine', words: [word('x')], records: [], createdAt: OD }

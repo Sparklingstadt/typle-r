@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-4-words-2",
+  "name": "中国語HSK6級 手書き4（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語4",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "混淆",
+      "input": "hùnxiáo",
+      "annotation": "hùnxiáo / 混同する",
+      "input_type": "word"
+    },
+    {
+      "display": "活该",
+      "input": "huógāi",
+      "annotation": "huógāi / 自業自得だ",
+      "input_type": "word"
+    },
+    {
+      "display": "火焰",
+      "input": "huǒyàn",
+      "annotation": "huǒyàn / 炎",
+      "input_type": "word"
+    },
+    {
+      "display": "货币",
+      "input": "huòbì",
+      "annotation": "huòbì / 貨幣",
+      "input_type": "word"
+    },
+    {
+      "display": "机构",
+      "input": "jīgòu",
+      "annotation": "jīgòu / 機構",
+      "input_type": "word"
+    },
+    {
+      "display": "机遇",
+      "input": "jīyù",
+      "annotation": "jīyù / チャンス",
+      "input_type": "word"
+    },
+    {
+      "display": "基金",
+      "input": "jījīn",
+      "annotation": "jījīn / 基金",
+      "input_type": "word"
+    },
+    {
+      "display": "激发",
+      "input": "jīfā",
+      "annotation": "jīfā / かき立てる",
+      "input_type": "word"
+    },
+    {
+      "display": "及早",
+      "input": "jízǎo",
+      "annotation": "jízǎo / 早めに",
+      "input_type": "word"
+    },
+    {
+      "display": "级别",
+      "input": "jíbié",
+      "annotation": "jíbié / 等級",
+      "input_type": "word"
+    },
+    {
+      "display": "即便",
+      "input": "jíbiàn",
+      "annotation": "jíbiàn / たとえ〜でも",
+      "input_type": "word"
+    },
+    {
+      "display": "急功近利",
+      "input": "jígōng jìnlì",
+      "annotation": "jígōng jìnlì / 目先の利益を急ぐ",
+      "input_type": "word"
+    },
+    {
+      "display": "急于求成",
+      "input": "jíyú qiúchéng",
+      "annotation": "jíyú qiúchéng / 成功を焦る",
+      "input_type": "word"
+    },
+    {
+      "display": "疾病",
+      "input": "jíbìng",
+      "annotation": "jíbìng / 病気",
+      "input_type": "word"
+    },
+    {
+      "display": "籍贯",
+      "input": "jíguàn",
+      "annotation": "jíguàn / 本籍",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

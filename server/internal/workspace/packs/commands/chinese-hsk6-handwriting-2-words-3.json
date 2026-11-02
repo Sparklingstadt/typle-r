@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-2-words-3",
+  "name": "中国語HSK6級 手書き2（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語2",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "打架",
+      "input": "dǎjià",
+      "annotation": "dǎjià / けんかする",
+      "input_type": "word"
+    },
+    {
+      "display": "打仗",
+      "input": "dǎzhàng",
+      "annotation": "dǎzhàng / 戦争する",
+      "input_type": "word"
+    },
+    {
+      "display": "大臣",
+      "input": "dàchén",
+      "annotation": "dàchén / 大臣",
+      "input_type": "word"
+    },
+    {
+      "display": "大体",
+      "input": "dàtǐ",
+      "annotation": "dàtǐ / だいたい",
+      "input_type": "word"
+    },
+    {
+      "display": "大致",
+      "input": "dàzhì",
+      "annotation": "dàzhì / おおよそ",
+      "input_type": "word"
+    },
+    {
+      "display": "代理",
+      "input": "dàilǐ",
+      "annotation": "dàilǐ / 代理する",
+      "input_type": "word"
+    },
+    {
+      "display": "怠慢",
+      "input": "dàimàn",
+      "annotation": "dàimàn / おろそかにする",
+      "input_type": "word"
+    },
+    {
+      "display": "胆怯",
+      "input": "dǎnqiè",
+      "annotation": "dǎnqiè / おじける",
+      "input_type": "word"
+    },
+    {
+      "display": "诞生",
+      "input": "dànshēng",
+      "annotation": "dànshēng / 誕生する",
+      "input_type": "word"
+    },
+    {
+      "display": "蛋白质",
+      "input": "dànbáizhì",
+      "annotation": "dànbáizhì / たんぱく質",
+      "input_type": "word"
+    },
+    {
+      "display": "当初",
+      "input": "dāngchū",
+      "annotation": "dāngchū / 最初",
+      "input_type": "word"
+    },
+    {
+      "display": "当前",
+      "input": "dāngqián",
+      "annotation": "dāngqián / 目下",
+      "input_type": "word"
+    },
+    {
+      "display": "当心",
+      "input": "dāngxīn",
+      "annotation": "dāngxīn / 気をつける",
+      "input_type": "word"
+    },
+    {
+      "display": "导弹",
+      "input": "dǎodàn",
+      "annotation": "dǎodàn / ミサイル",
+      "input_type": "word"
+    },
+    {
+      "display": "导向",
+      "input": "dǎoxiàng",
+      "annotation": "dǎoxiàng / 導く方向",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

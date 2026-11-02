@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-1-words-2",
+  "name": "中国語HSK6級 手書き1（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語1",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "保重",
+      "input": "bǎozhòng",
+      "annotation": "bǎozhòng / 体を大事にする",
+      "input_type": "word"
+    },
+    {
+      "display": "报答",
+      "input": "bàodá",
+      "annotation": "bàodá / 報いる",
+      "input_type": "word"
+    },
+    {
+      "display": "报销",
+      "input": "bàoxiāo",
+      "annotation": "bàoxiāo / 精算する",
+      "input_type": "word"
+    },
+    {
+      "display": "暴力",
+      "input": "bàolì",
+      "annotation": "bàolì / 暴力",
+      "input_type": "word"
+    },
+    {
+      "display": "爆发",
+      "input": "bàofā",
+      "annotation": "bàofā / 勃発する",
+      "input_type": "word"
+    },
+    {
+      "display": "卑鄙",
+      "input": "bēibǐ",
+      "annotation": "bēibǐ / 卑劣な",
+      "input_type": "word"
+    },
+    {
+      "display": "贝壳",
+      "input": "bèiké",
+      "annotation": "bèiké / 貝殻",
+      "input_type": "word"
+    },
+    {
+      "display": "背诵",
+      "input": "bèisòng",
+      "annotation": "bèisòng / 暗唱する",
+      "input_type": "word"
+    },
+    {
+      "display": "奔波",
+      "input": "bēnbō",
+      "annotation": "bēnbō / 奔走する",
+      "input_type": "word"
+    },
+    {
+      "display": "本身",
+      "input": "běnshēn",
+      "annotation": "běnshēn / それ自体",
+      "input_type": "word"
+    },
+    {
+      "display": "笨拙",
+      "input": "bènzhuō",
+      "annotation": "bènzhuō / 不器用な",
+      "input_type": "word"
+    },
+    {
+      "display": "迸发",
+      "input": "bèngfā",
+      "annotation": "bèngfā / 噴き出す",
+      "input_type": "word"
+    },
+    {
+      "display": "比方",
+      "input": "bǐfang",
+      "annotation": "bǐfang / たとえ",
+      "input_type": "word"
+    },
+    {
+      "display": "比重",
+      "input": "bǐzhòng",
+      "annotation": "bǐzhòng / 比重",
+      "input_type": "word"
+    },
+    {
+      "display": "弊病",
+      "input": "bìbìng",
+      "annotation": "bìbìng / 弊害",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

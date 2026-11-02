@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-5-words-3",
+  "name": "中国語HSK6級 手書き5（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語5",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "乐趣",
+      "input": "lèqù",
+      "annotation": "lèqù / 楽しみ",
+      "input_type": "word"
+    },
+    {
+      "display": "类似",
+      "input": "lèisì",
+      "annotation": "lèisì / 類似した",
+      "input_type": "word"
+    },
+    {
+      "display": "冷落",
+      "input": "lěngluò",
+      "annotation": "lěngluò / 寂れた、冷遇する",
+      "input_type": "word"
+    },
+    {
+      "display": "礼节",
+      "input": "lǐjié",
+      "annotation": "lǐjié / 礼儀",
+      "input_type": "word"
+    },
+    {
+      "display": "里程碑",
+      "input": "lǐchéngbēi",
+      "annotation": "lǐchéngbēi / 画期的な出来事",
+      "input_type": "word"
+    },
+    {
+      "display": "理直气壮",
+      "input": "lǐzhí qìzhuàng",
+      "annotation": "lǐzhí qìzhuàng / 理があって堂々とする",
+      "input_type": "word"
+    },
+    {
+      "display": "力求",
+      "input": "lìqiú",
+      "annotation": "lìqiú / 極力〜するよう努める",
+      "input_type": "word"
+    },
+    {
+      "display": "历代",
+      "input": "lìdài",
+      "annotation": "lìdài / 歴代",
+      "input_type": "word"
+    },
+    {
+      "display": "立场",
+      "input": "lìchǎng",
+      "annotation": "lìchǎng / 立場",
+      "input_type": "word"
+    },
+    {
+      "display": "立体",
+      "input": "lìtǐ",
+      "annotation": "lìtǐ / 立体",
+      "input_type": "word"
+    },
+    {
+      "display": "利害",
+      "input": "lìhài",
+      "annotation": "lìhài / 利害",
+      "input_type": "word"
+    },
+    {
+      "display": "连锁",
+      "input": "liánsuǒ",
+      "annotation": "liánsuǒ / チェーン",
+      "input_type": "word"
+    },
+    {
+      "display": "联欢",
+      "input": "liánhuān",
+      "annotation": "liánhuān / 交歓する",
+      "input_type": "word"
+    },
+    {
+      "display": "联想",
+      "input": "liánxiǎng",
+      "annotation": "liánxiǎng / 連想する",
+      "input_type": "word"
+    },
+    {
+      "display": "良心",
+      "input": "liángxīn",
+      "annotation": "liángxīn / 良心",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-5-words-2",
+  "name": "中国語HSK6級 手書き5（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語5",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "空白",
+      "input": "kòngbái",
+      "annotation": "kòngbái / 空白",
+      "input_type": "word"
+    },
+    {
+      "display": "口气",
+      "input": "kǒuqì",
+      "annotation": "kǒuqì / 口ぶり",
+      "input_type": "word"
+    },
+    {
+      "display": "口音",
+      "input": "kǒuyīn",
+      "annotation": "kǒuyīn / なまり",
+      "input_type": "word"
+    },
+    {
+      "display": "枯燥",
+      "input": "kūzào",
+      "annotation": "kūzào / 無味乾燥な",
+      "input_type": "word"
+    },
+    {
+      "display": "苦涩",
+      "input": "kǔsè",
+      "annotation": "kǔsè / 苦い",
+      "input_type": "word"
+    },
+    {
+      "display": "宽敞",
+      "input": "kuānchang",
+      "annotation": "kuānchang / 広々とした",
+      "input_type": "word"
+    },
+    {
+      "display": "款式",
+      "input": "kuǎnshì",
+      "annotation": "kuǎnshì / デザイン",
+      "input_type": "word"
+    },
+    {
+      "display": "况且",
+      "input": "kuàngqiě",
+      "annotation": "kuàngqiě / まして",
+      "input_type": "word"
+    },
+    {
+      "display": "亏待",
+      "input": "kuīdài",
+      "annotation": "kuīdài / 不当に扱う",
+      "input_type": "word"
+    },
+    {
+      "display": "捆绑",
+      "input": "kǔnbǎng",
+      "annotation": "kǔnbǎng / 縛る",
+      "input_type": "word"
+    },
+    {
+      "display": "扩张",
+      "input": "kuòzhāng",
+      "annotation": "kuòzhāng / 拡張する",
+      "input_type": "word"
+    },
+    {
+      "display": "蜡烛",
+      "input": "làzhú",
+      "annotation": "làzhú / ろうそく",
+      "input_type": "word"
+    },
+    {
+      "display": "栏目",
+      "input": "lánmù",
+      "annotation": "lánmù / コラム",
+      "input_type": "word"
+    },
+    {
+      "display": "狼狈",
+      "input": "lángbèi",
+      "annotation": "lángbèi / ぶざまな",
+      "input_type": "word"
+    },
+    {
+      "display": "牢骚",
+      "input": "láosāo",
+      "annotation": "láosāo / 不平",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-03T00:00:00.000Z"
+}
