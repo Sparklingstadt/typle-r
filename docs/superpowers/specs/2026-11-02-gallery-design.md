@@ -31,7 +31,7 @@
 - iPad・Mac アプリでのギャラリー
 - 通報者への結果の連絡、非公開の理由の連絡と異議申し立て
 - 検索エンジンへの掲載、`/api/v1` への追加
-- 追加数・通報の水増しをコードで防ぐこと（Vercel Firewall のレート制限で抑える）
+- 追加数・通報の水増しを完全に防ぐこと（IP ごとの回数制限で抑えるだけで、IP を変えられる相手は止められない）
 
 ## データ
 
@@ -55,7 +55,7 @@ CREATE INDEX IF NOT EXISTS "typle_gallery_reports_share" ON "typle_gallery_repor
 - `listed_at`: ギャラリーに載せた日時。NULL はリンクだけの共有。載せ直すと新しい日時になる
 - `hidden_at`: 管理者が非公開にした日時。NULL でない共有は、ギャラリーにも `/api/shared` にも出ない（持ち主以外には共有が終わったのと同じに見える）
 - `add_count`: ギャラリーに載っている間に「自分のパックに追加」された回数。「共有を更新」でも、掲載を外して載せ直しても消さない
-- 通報の `reason` は `inappropriate`・`spam`・`personalInfo`・`other` のどれか。通報者の情報（アカウント・IP など）は保存しない
+- 通報の `reason` は `inappropriate`・`spam`・`personalInfo`・`other` のどれか。通報者の情報（アカウント・IP など）は保存しない。例外は回数制限のための、IP の HMAC（`AUTH_SECRET` から導いた専用の鍵。10分だけ置き、通報とは結び付けない）
 - 名前・説明・カテゴリー・タグは `data`（パックのファイルの JSON）から読む。列には写さない
 - 共有をやめる・パックを消すと今と同じく行が消え、掲載・追加数・通報も一緒に消える
 
@@ -92,8 +92,8 @@ CREATE INDEX IF NOT EXISTS "typle_gallery_reports_share" ON "typle_gallery_repor
   - 応答: `{ "packs": [{ "id", "name", "description"?, "category"?, "tags"?, "lists", "words", "added", "updatedAt" }], "more": bool }`
   - `sort`・`page` が不正なら `400 invalidQuery`
 - `GET /api/gallery/categories` → `{ "categories": [{ "name", "count" }] }`（掲載中で非公開でない共有のカテゴリー。件数の多い順、同じなら名前の日本語の照合順）
-- `POST /api/gallery/added?id=` → 掲載中で非公開でない共有なら `add_count` を1増やして `204`。そうでなければ何もせず `204`（ギャラリーに載っていないことを知らせない）。同じ Origin の確認をする
-- `POST /api/gallery/reports` 本文 `{"id","reason"}` → 掲載中で非公開でない共有なら記録して `204`。掲載中で非公開でない共有がなければ `404 notInGallery`（リンクだけの共有の `/shared/<id>` から通報したとき「共有は終了しました」と出さないため）、`reason` が不正なら `400 invalidReport`。同じ Origin と `Content-Type` の確認をする
+- `POST /api/gallery/added?id=` → 掲載中で非公開でない共有なら `add_count` を1増やして `204`。そうでなければ何もせず `204`（ギャラリーに載っていないことを知らせない）。同じ Origin の確認をする。1分あたり60回/IP を超えると `429 tooManyRequests`（`Retry-After` 付き）で、何も数えない
+- `POST /api/gallery/reports` 本文 `{"id","reason"}` → 掲載中で非公開でない共有なら記録して `204`。掲載中で非公開でない共有がなければ `404 notInGallery`（リンクだけの共有の `/shared/<id>` から通報したとき「共有は終了しました」と出さないため）、`reason` が不正なら `400 invalidReport`。同じ Origin と `Content-Type` の確認をする。本文の検証のあと、1分あたり10回/IP を超えると `429 tooManyRequests`（`Retry-After` 付き）で、何も記録しない
 
 ### 管理者（`/api/admin/*` の今の確認をそのまま使う）
 
@@ -103,8 +103,11 @@ CREATE INDEX IF NOT EXISTS "typle_gallery_reports_share" ON "typle_gallery_repor
 ### エラー
 
 - DB に届かないときはどの API も `503 databaseUnavailable`
-- 新しいエラーコード（`sharedPackHidden`・`invalidQuery`・`invalidReport`・`notInGallery`・`invalidRequest`）は `useErrorText` の文言に6ロケールで入れる
-- 通報・追加数の連打は Vercel Firewall のレート制限で抑える。README の共有の節に設定を一文で書く
+- 通報と追加数は、IP ごとに1分の固定窓で数える（通報10回、追加数60回）。窓の中の回数を超えた要求は `429 tooManyRequests` と `Retry-After`（窓が終わるまでの秒数、1以上）で断り、何も書かない。確かめる順は、メソッド → `Origin`・`Content-Type` → 本文の検証 → 回数 → 書き込みで、断られた要求は数えない。数えられなければ `503 databaseUnavailable`（制限なしで通さない）。アプリのトークン付きも同じ
+- 回数は DB の `typle_gallery_hits(action, client, window_start, hits)`（マイグレーション `0034_gallery_rate_limit`）に置く。`client` は IP の HMAC-SHA256（`AUTH_SECRET` から HKDF で導いた専用の鍵、先頭16バイト）で、IP は保存しない。10分より古い行は、次の更新のときに消す
+- IP は、Vercel 上（環境変数 `VERCEL` がある）では `X-Forwarded-For` の最初の値、なければ `X-Real-Ip`、なければ接続元。それ以外では、クライアントが書ける転送ヘッダーを無視して接続元のホストだけ
+- 新しいエラーコード（`sharedPackHidden`・`invalidQuery`・`invalidReport`・`notInGallery`・`invalidRequest`・`tooManyRequests`）は `useErrorText` の文言に6ロケールで入れる
+- Vercel Firewall の Rate Limiting は現在のプランで使えない（402）ため、連打の制限はコードで行う。README の「ギャラリーのレート制限」に書く
 
 ## 画面
 

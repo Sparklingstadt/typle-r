@@ -21,9 +21,10 @@
 |---|---|---|
 | `GET /api/gallery?q=&category=&sort=&page=` | なし | `200 { "packs": [{ "id", "name", "description"?, "category"?, "tags"?, "lists", "words", "added", "updatedAt" }], "more" }`。1ページ20件で、`more` は次のページがあるか。`q` は名前・説明・タグへの部分一致（大文字小文字を区別せず、前後の空白を除いて200文字まで。空なら絞らない）、`category` はカテゴリへの完全一致（空なら絞らない）、`sort` は `new`（既定。載せた新しい順）か `popular`（追加の多い順、同じなら載せた新しい順）、`page` は1から。`sort`・`page` が不正なら `400 invalidQuery` |
 | `GET /api/gallery/categories` | なし | `200 { "categories": [{ "name", "count" }] }`（件数の多い順、同じなら名前の順） |
-| `POST /api/gallery/added?id=<共有のID>` | なし（`Content-Type` は見ない。`Origin` は見る） | `204`。掲載中の共有なら追加数（`added`）を1増やす。そうでない共有・ない共有でも `204` で、何も変えない（載っているかどうかを知らせない） |
-| `POST /api/gallery/reports` | `{ "id", "reason" }`（`Content-Type: application/json` と、アプリの `Origin` が必要。4KiB まで）。`reason` は `inappropriate`・`spam`・`personalInfo`・`other` | `204`。掲載中で非公開にされていない共有に通報を記録する。`reason` や本文が不正なら `400 invalidReport`、`Origin` か `Content-Type` が違えば `403 forbiddenRequest`、掲載中で非公開でない共有がなければ `404 notInGallery`（リンクだけの共有も同じ） |
+| `POST /api/gallery/added?id=<共有のID>` | なし（`Content-Type` は見ない。`Origin` は見る） | `204`。掲載中の共有なら追加数（`added`）を1増やす。そうでない共有・ない共有でも `204` で、何も変えない（載っているかどうかを知らせない）。1分あたり60回を超えると `429 tooManyRequests` |
+| `POST /api/gallery/reports` | `{ "id", "reason" }`（`Content-Type: application/json` と、アプリの `Origin` が必要。4KiB まで）。`reason` は `inappropriate`・`spam`・`personalInfo`・`other` | `204`。掲載中で非公開にされていない共有に通報を記録する。`reason` や本文が不正なら `400 invalidReport`、`Origin` か `Content-Type` が違えば `403 forbiddenRequest`、掲載中で非公開でない共有がなければ `404 notInGallery`（リンクだけの共有も同じ）。1分あたり10回を超えると `429 tooManyRequests` |
 
 - DB に届かないときは `503 databaseUnavailable` です。Vercel では、`GET /api/gallery` と `GET /api/gallery/categories` は `/api/shared` と同じく、ログインの設定がなくても DB だけで答えます。`POST /api/gallery/added` と `POST /api/gallery/reports` は `Origin` を確かめるため、`/api/shares` と同じ経路を通り、ログインの設定（`AUTH_SECRET`・`AUTH_URL`）がなければ `503 authUnavailable` です。
 - 非公開にされた共有（管理者が `/api/admin/gallery/hide` で非公開にしたもの）は、ギャラリーに出ず、`GET /api/shared` も `404 sharedPackNotFound` になります。持ち主の `GET /api/shares` には `hidden: true` で返り、持ち主はその共有の `listed` を変えられません（`409 sharedPackHidden`）が、`PUT` での更新と `DELETE` での共有の終了はできます。
-- 通報と追加数の連打は、コードでは防ぎません。本番では運用する人が Vercel Firewall のレート制限を設定します（ルールは README の「ギャラリーのレート制限（Vercel Firewall）」にあります）。
+- `POST /api/gallery/added` は1分あたり60回、`POST /api/gallery/reports` は1分あたり10回まで、クライアントの IP ごとに数えます（アプリのトークン付きの要求も同じです）。1分ごとの固定窓で、`Origin`・`Content-Type`・本文が不正で先に断る要求は数えません。超えた要求は `429 tooManyRequests` で、`Retry-After`（窓が終わるまでの秒数。1以上）を付け、何も書き込みません。回数を数えられないとき（DB の失敗）は、制限なしで通さず `503 databaseUnavailable` です。
+- IP は、Vercel 上では `X-Forwarded-For` の最初の値（なければ `X-Real-Ip`、接続元のアドレス）、Vercel 以外では接続元のアドレスだけです。DB には IP そのものでなく、専用の鍵での HMAC を10分だけ置きます（詳しくは README の「ギャラリーのレート制限」）。
