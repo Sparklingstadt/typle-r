@@ -24,8 +24,8 @@
 | リポジトリ | 内容 |
 |---|---|
 | typle-r（このリポジトリ） | Web 版（Next.js）、Go のバックエンドと API（`server/`） |
-| [typle-ipad](https://github.com/Sparklingstadt/typle-ipad) | iPad 版（SwiftUI） |
-| [typle-m](https://github.com/Sparklingstadt/typle-m) | Mac 版（SwiftUI） |
+| [typle-ipad](https://github.com/Sparklingstadt/typle-ipad) | iPad 版と Mac 版（SwiftUI）。同じコードを1つのプロジェクトでビルドします |
+| [typle-macos](https://github.com/Sparklingstadt/typle-macos)（旧 typle-m） | Mac 版。v2.6.11 で typle-ipad にまとめてアーカイブしました |
 | [typle-w](https://github.com/Sparklingstadt/typle-w) | Windows 11 版（C#・WinUI 3）。v2.6.9 でアーカイブし、開発を止めました |
 | [typle-a](https://github.com/Sparklingstadt/typle-a) | Android タブレット版（Kotlin・Jetpack Compose）。v2.6.9 でアーカイブし、開発を止めました |
 | [typle-kotlin-backend](https://github.com/Sparklingstadt/typle-kotlin-backend) | Go のバックエンドと同じ API の Kotlin（Ktor）版。v2.6.10 でアーカイブし、`TYPLE_BACKEND=kotlin` の切り替えも外しました |
@@ -33,9 +33,9 @@
 どのアプリも、このリポジトリの Go のバックエンド（本番は `https://typle-r-six.vercel.app`）に同じ GitHub ログインでつなぎます。ほかのリポジトリは、このリポジトリのコードやデータの写しや対応する実装を持っています。ここを変えたら、合わせて直してください。
 
 - 公式の単語リスト（`src/plugins/packs`）：`commands/` の各 JSON が1リストです。並び順の原本は `commands/manifest.json` です。追加・削除時は JSON と manifest を更新して `npm run packs:generate` を実行すると、Web が読み込む `commands/index.ts` と Go の埋め込み用コピー（`server/internal/workspace/packs`）を生成します（v1.5.0 から。`go generate ./server/internal/workspace` も同じスクリプトを実行します）。生成し忘れは単体テストで分かります。以前の `commands.json` 形式を使う他アプリには、`commands/manifest.json` の順に各 JSON を配列へまとめて渡してください。
-- iPad 版と Mac 版：typle-m の `Shared/`・`TypleCore/` は typle-ipad の `Typle/`・`TypleCore/` の v0.86.1 時点の写しで、自動では入りません。両方に必要な変更は、それぞれのリポジトリで同じように直します。
+- iPad 版と Mac 版：typle-ipad の `TypleCore/` は `src/core` の規則の Swift 版で、`catalog.json` は公式の単語リストから作った写しです。公式の単語リストを変えたら、typle-ipad で `node scripts/catalog.cjs ../typle-r` を実行して作り直します。
 - ログイン（`client=ipad|macos|android|windows`）とトークンの形：各アプリが使うので、互換を保ちます。アーカイブした Android 版・Windows 版も、入っているアプリがそのままログインできるよう `android`・`windows` を受け付け続けます。
-- アーカイブした typle-w・typle-a・typle-kotlin-backend は、このリポジトリを変えても直しません。
+- アーカイブした typle-macos・typle-w・typle-a・typle-kotlin-backend は、このリポジトリを変えても直しません。
 
 ## 開発環境のセットアップ
 
@@ -131,7 +131,7 @@ API（`server/`）はNext.jsとは独立したGoのコードで、モジュー�
 
 Android 版（typle-a）と Windows 版（typle-w）は v2.6.9 でアーカイブしました。サーバーは今も `client=android`・`windows` を受け付けます。この節の Android・Windows の動作は、アーカイブした時点のものです。
 
-iPad アプリ（[typle-ipad](https://github.com/Sparklingstadt/typle-ipad) リポジトリ）・Mac アプリ（[typle-m](https://github.com/Sparklingstadt/typle-m) リポジトリ）・Android アプリ（[typle-a](https://github.com/Sparklingstadt/typle-a) リポジトリ）・Windows アプリ（[typle-w](https://github.com/Sparklingstadt/typle-w) リポジトリ）は、Web版と同じ GitHub OAuth App でログインし、Cookie の代わりにトークンを使います（RFC 8252 のネイティブアプリの形）。サーバーの側は `client` が `ipad`・`macos`・`android`・`windows` のどれかだけが違い、流れは同じです。
+iPad アプリと Mac アプリ（どちらも [typle-ipad](https://github.com/Sparklingstadt/typle-ipad) リポジトリ）・Android アプリ（[typle-a](https://github.com/Sparklingstadt/typle-a) リポジトリ）・Windows アプリ（[typle-w](https://github.com/Sparklingstadt/typle-w) リポジトリ）は、Web版と同じ GitHub OAuth App でログインし、Cookie の代わりにトークンを使います（RFC 8252 のネイティブアプリの形）。サーバーの側は `client` が `ipad`・`macos`・`android`・`windows` のどれかだけが違い、流れは同じです。
 
 1. アプリが32バイトの乱数から検証値（verifier）を作り、システムのログイン画面（iPad と Mac は `ASWebAuthenticationSession`、Android は Custom Tabs、Windows は既定のブラウザー）で `/api/auth/signin?client=<ipad|macos|android|windows>&code_challenge=<S256>` を開きます。チャレンジは OAuth の Cookie に入り、GitHub にはサーバー自身の PKCE を使います。
 2. `callback/github` は Cookie を発行せず、`typle-r://login?code=<コード>` へリダイレクトします。コードはユーザーとチャレンジに署名したもので、2分で切れます。失敗・キャンセルは `typle-r://login?error=loginFailed` です。Android は `MainActivity` の intent-filter（scheme `typle-r`・host `login`）で、Windows は起動のたびに登録するプロトコル（`typle-r`、この Windows ユーザーの `HKEY_CURRENT_USER`）でこの URL を受け取ります。Windows では、ブラウザーが開いた2つ目の Typle が、動いている Typle にこの URL を渡して終わります。アプリを離れてコールバックが来なかったときは、何も起きなかったものとして戻ります（Windows は「ログインをやめる」で待つのをやめます）。
