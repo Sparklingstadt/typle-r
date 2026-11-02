@@ -49,7 +49,8 @@ export type WordList = {
     mistakes?: number,
     accuracy?: number,
     device?: PracticeDevice,
-    wordCount?: number
+    wordCount?: number,
+    mode?: 'writing'
   }[],
   createdAt: string
 }
@@ -123,6 +124,7 @@ export function decodeLists(raw: string): SavedWordList[] {
         list.records.some((record: WordList['records'][number]) => !record || !Number.isFinite(record.time) || record.time < 0 || typeof record.date !== "string" ||
           !Number.isFinite(Date.parse(record.date)) ||
           (record.device !== undefined && !isDevice(record.device)) ||
+          (record.mode !== undefined && record.mode !== 'writing') ||
           (record.id !== undefined && typeof record.id !== "string") ||
           (record.accuracy !== undefined && (!Number.isFinite(record.accuracy) || record.accuracy < 0 || record.accuracy > 100)) ||
           (record.mistakes !== undefined && (!Number.isInteger(record.mistakes) || record.mistakes < 0)) ||

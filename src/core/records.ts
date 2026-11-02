@@ -6,6 +6,11 @@ import { sessionResult, TypingSession } from "./typing"
 
 export type TimeUnit = "hours" | "minutes" | "seconds"
 
+/** How a run was practised. A record without `mode` is a typing run. */
+export type PracticeMode = 'typing' | 'writing'
+
+export const recordMode = (record: { mode?: string }): PracticeMode => record.mode === 'writing' ? 'writing' : 'typing'
+
 export type PracticeRecord = {
   id: string
   time: number
@@ -14,11 +19,13 @@ export type PracticeRecord = {
   accuracy: number
   device?: PracticeDevice
   wordCount: number
+  /** Only ever 'writing'; typing runs leave it out. */
+  mode?: 'writing'
 }
 
-export function makeRecord(session: TypingSession, wordCount: number, id: string, device?: PracticeDevice): PracticeRecord {
+export function makeRecord(session: TypingSession, wordCount: number, id: string, device?: PracticeDevice, mode?: 'writing'): PracticeRecord {
   if (session.finishedAt === null || session.startedAt === null) throw new AppError('practiceIncomplete')
-  return { ...(device ? { device: { ...device } } : {}), ...sessionResult(session), id, wordCount, date: new Date(session.finishedAt).toISOString() }
+  return { ...(device ? { device: { ...device } } : {}), ...(mode ? { mode } : {}), ...sessionResult(session), id, wordCount, date: new Date(session.finishedAt).toISOString() }
 }
 
 export const MAX_RECORDS = 10000
@@ -49,7 +56,7 @@ export function addRecord<T extends { lists: SavedWordList[]; devices: PracticeD
   const year = date?.getUTCFullYear() ?? NaN
   if (!finite(input.time) || input.time < 0 || !finite(input.accuracy) || input.accuracy < 0 || input.accuracy > 100 ||
     !(year >= 0 && year <= 9999) || !integer(input.mistakes, 0) || (input.wordCount !== undefined && !integer(input.wordCount, 1)) ||
-    typeof input.id !== 'string' || input.id.length > MAX_RECORD_ID || !/^[A-Za-z0-9_-]+$/.test(input.id)) throw new AppError('invalidRecord')
+    (input.mode !== undefined && input.mode !== 'writing') || typeof input.id !== 'string' || input.id.length > MAX_RECORD_ID || !/^[A-Za-z0-9_-]+$/.test(input.id)) throw new AppError('invalidRecord')
   const saved = list.records.find(item => item.id === input.id)
   if (saved) return { document, record: saved, added: false }
   if (list.records.length >= MAX_RECORDS) throw new AppError('recordLimit')
@@ -62,7 +69,8 @@ export function addRecord<T extends { lists: SavedWordList[]; devices: PracticeD
     if (!device) throw new AppError('deviceNotFound')
   }
   const record: PracticeRecord = { id: input.id, time: input.time, date: date!.toISOString(), mistakes: input.mistakes,
-    accuracy: input.accuracy, wordCount: input.wordCount ?? list.words.length, ...(device ? { device: { ...device } } : {}) }
+    accuracy: input.accuracy, wordCount: input.wordCount ?? list.words.length, ...(device ? { device: { ...device } } : {}),
+    ...(input.mode ? { mode: input.mode } : {}) }
   const lists = document.lists.map(item => item === list ? { ...item, records: [...item.records, record] } : item)
   return { document: { ...document, lists }, record, added: true }
 }

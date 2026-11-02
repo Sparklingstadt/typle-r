@@ -425,6 +425,11 @@
           "device": {
             "$ref": "#/components/schemas/Device",
             "description": "練習した時点の端末をそのまま保存する"
+          },
+          "mode": {
+            "type": "string",
+            "enum": ["writing"],
+            "description": "手書き練習（Typle Writing）の記録の印。タイピングの記録では省く"
           }
         },
         "not": {

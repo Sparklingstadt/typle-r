@@ -60,6 +60,8 @@ type Record struct {
 	Accuracy  *float64 `json:"accuracy,omitempty"`
 	WordCount *int     `json:"wordCount,omitempty"`
 	Device    *Device  `json:"device,omitempty"`
+	// Mode is "writing" for a handwriting run; empty for a typing run (see RecordMode).
+	Mode string `json:"mode,omitempty"`
 	// At is Date as a time, for ordering and filtering.
 	At    time.Time `json:"-"`
 	Extra string    `json:"-"`
@@ -129,6 +131,7 @@ type rawRecord struct {
 	Accuracy  *float64 `json:"accuracy"`
 	WordCount *int     `json:"wordCount"`
 	Device    *Device  `json:"device"`
+	Mode      *string  `json:"mode"`
 	extra     string
 }
 
@@ -356,8 +359,15 @@ func decodeRecord(raw *rawRecord) (Record, error) {
 	if raw.Device != nil && !isDevice(*raw.Device) {
 		return Record{}, errors.New("device is invalid")
 	}
+	var mode string
+	if raw.Mode != nil {
+		if *raw.Mode != "writing" {
+			return Record{}, errors.New(`mode must be "writing" when present`)
+		}
+		mode = *raw.Mode
+	}
 	return Record{ID: raw.ID, Time: *raw.Time, Date: *raw.Date, Mistakes: raw.Mistakes, Accuracy: raw.Accuracy,
-		WordCount: raw.WordCount, Device: raw.Device, At: at, Extra: raw.extra}, nil
+		WordCount: raw.WordCount, Device: raw.Device, Mode: mode, At: at, Extra: raw.extra}, nil
 }
 
 // JavaScript measures string length in UTF-16 code units.
@@ -448,7 +458,7 @@ func (w *Word) UnmarshalJSON(data []byte) (err error) {
 func (r *rawRecord) UnmarshalJSON(data []byte) (err error) {
 	type plain rawRecord
 	if err = json.Unmarshal(data, (*plain)(r)); err == nil {
-		r.extra, err = unknown(data, "id", "time", "date", "mistakes", "accuracy", "wordCount", "device")
+		r.extra, err = unknown(data, "id", "time", "date", "mistakes", "accuracy", "wordCount", "device", "mode")
 	}
 	return err
 }

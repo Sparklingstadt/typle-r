@@ -14,3 +14,4 @@ TS は `tests/records.test.cjs`（`addRecord`）、Go は `server/internal/works
 - `deviceId` は保存時に登録されている端末（`default` は組み込みの端末）に置き換える。見つからなければ拒否する。`device` と両方は送れない。
 - `wordCount` がなければリストの単語数を使う。日時は `toISOString` の形で保存する。
 - 1つのリストの記録は10000件まで（`recordLimit`）。
+- `mode` は省くか `"writing"` だけ（省くと従来のタイピングの記録）。ほかの値は `invalidRecord`。

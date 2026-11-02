@@ -2,7 +2,7 @@ require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { newSession, typeInput } = require('../src/core/typing.ts')
-const { makeRecord, addRecord, deleteRecord } = require('../src/core/records.ts')
+const { makeRecord, addRecord, deleteRecord, recordMode } = require('../src/core/records.ts')
 const { encodeLists, decodeLists, saveList } = require('../src/core/wordLists.ts')
 
 test('completed records survive reload and editing; retry never duplicates', () => {
@@ -157,3 +157,19 @@ for (const file of fs.readdirSync(operationFixtures).filter(name => name.endsWit
     }
   })
 }
+
+test('makeRecord marks a writing run; typing runs have no mode key', () => {
+  const words = [{ display: 'ab', input: 'ab', annotation: '' }]
+  const s = typeInput(typeInput(newSession(), words, 'a', 1000), words, 'ab', 3000)
+  assert.equal(makeRecord(s, 2, 'w1', undefined, 'writing').mode, 'writing')
+  assert.equal('mode' in makeRecord(s, 2, 'w2'), false)
+  assert.equal(recordMode({ mode: 'writing' }), 'writing')
+  assert.equal(recordMode({}), 'typing')
+})
+
+test('decodeLists refuses a stored record whose mode is not writing', () => {
+  const list = { id: 'a', name: 'A', createdAt: '2026-10-01', words: [{ display: 'ab', input: 'ab', annotation: '' }], records: [] }
+  const decode = mode => decodeLists(JSON.stringify({ version: 1, lists: [{ ...list, records: [{ id: 'r', time: 1, date: '2026-10-01T00:00:00.000Z', mode }] }] }))
+  assert.equal(decode('writing')[0].records[0].mode, 'writing')
+  for (const mode of ['typing', '', 1, null]) assert.throws(() => decode(mode), { key: 'savedDataCorrupted' })
+})

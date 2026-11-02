@@ -359,3 +359,42 @@ func TestRecordOperationFixtures(t *testing.T) {
 		})
 	}
 }
+
+func TestUpdateRecordKeepsMode(t *testing.T) {
+	w := two()
+	input := run()
+	input.ID, input.Mode = text("w1"), text("writing")
+	if _, _, err := AddRecord(w, "l1", input, "unused"); err != nil {
+		t.Fatal(err)
+	}
+	record, err := UpdateRecord(w, "l1", "w1", RecordChange{Time: number(9.5)})
+	if err != nil || record.Mode != "writing" || RecordMode(&record) != "writing" {
+		t.Fatalf("record = %+v, %v", record, err)
+	}
+	typing := Record{}
+	if RecordMode(&typing) != "typing" {
+		t.Fatal("a record without mode is a typing run")
+	}
+}
+
+func TestRecordModeStored(t *testing.T) {
+	lists := func(mode string) []byte {
+		return []byte(`[{"id":"l","name":"L","createdAt":"2026-10-01","words":[{"display":"a","input":"a","annotation":""}],"records":[{"id":"r","time":1,"date":"2026-10-01T00:00:00.000Z"` + mode + `}]}]`)
+	}
+	w, err := Decode(lists(`,"mode":"writing"`), []byte(`[]`), nil)
+	if err != nil || w.Lists[0].Records[0].Mode != "writing" || w.Lists[0].Records[0].Extra != "" {
+		t.Fatalf("workspace = %+v, %v", w, err)
+	}
+	out, err := json.Marshal(w.Lists[0].Records[0])
+	if err != nil || strings.Count(string(out), `"mode"`) != 1 {
+		t.Fatalf("out = %s, %v", out, err)
+	}
+	if w, err = Decode(lists(`,"mode":null`), []byte(`[]`), nil); err != nil || w.Lists[0].Records[0].Mode != "" {
+		t.Fatalf("null mode: %+v, %v", w, err)
+	}
+	for _, bad := range []string{`,"mode":"typing"`, `,"mode":""`, `,"mode":1`} {
+		if _, err := Decode(lists(bad), []byte(`[]`), nil); err == nil {
+			t.Fatalf("%s was accepted", bad)
+		}
+	}
+}

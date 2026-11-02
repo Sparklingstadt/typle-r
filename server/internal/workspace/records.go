@@ -31,6 +31,7 @@ type RecordInput struct {
 	WordCount *float64 `json:"wordCount"`
 	DeviceID  *string  `json:"deviceId"`
 	Device    *Device  `json:"device"`
+	Mode      *string  `json:"mode"`
 }
 
 func finite(value *float64) bool {
@@ -95,9 +96,15 @@ func AddRecord(w *Workspace, listID string, input RecordInput, newID string) (re
 			return Record{}, false, &Error{Key: "deviceNotFound"}
 		}
 	}
+	if input.Mode != nil && *input.Mode != "writing" {
+		return Record{}, false, invalid
+	}
 	accuracy := *input.Accuracy
 	record = Record{ID: &id, Time: *input.Time, Date: FormatTime(date), Mistakes: &mistakes, Accuracy: &accuracy,
 		WordCount: &wordCount, Device: device, At: date}
+	if input.Mode != nil {
+		record.Mode = *input.Mode
+	}
 	list.Records = append(list.Records, record)
 	return record, true, nil
 }
@@ -114,6 +121,14 @@ func recordDate(value string) (time.Time, bool) {
 		return time.Time{}, false
 	}
 	return date, true
+}
+
+// RecordMode is "writing" for a handwriting run and "typing" for any other, as recordMode (src/core/records.ts) is.
+func RecordMode(r *Record) string {
+	if r.Mode == "writing" {
+		return "writing"
+	}
+	return "typing"
 }
 
 // FindRecord returns the list's record with this id, or nil. Records saved without an id cannot be found.
