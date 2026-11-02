@@ -123,6 +123,7 @@ export default function Catalog() {
           {renderEntries(others, "h3")}
         </section>}
       </div>}
+      <p className="mt-8 text-sm"><Link href="/gallery" className="underline underline-offset-3 hover:text-foreground">{t("toGallery")}</Link></p>
       <UnfollowDialog pack={unfollowing} onOpenChange={open => { if (!open) setUnfollowing(null) }} updateLibrary={updateLibrary} onUnfollowed={() => setUnfollowing(null)} />
     </>}
   </main>

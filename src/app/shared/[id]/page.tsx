@@ -41,7 +41,7 @@ export default function SharedPack() {
     {shared.state === 'loading' ? <Loading />
       : shared.state === 'ended' ? <Ended />
       : shared.state === 'failed' ? <Failed reason={shared.reason} />
-      : <Pack file={shared.file} />}
+      : <Pack id={id} file={shared.file} />}
   </main>
 }
 
@@ -76,7 +76,7 @@ function Failed({ reason }: { reason: unknown }) {
   </div>
 }
 
-function Pack({ file }: { file: PackFile }) {
+function Pack({ id, file }: { id: string; file: PackFile }) {
   const t = useTranslations('wordLists')
   const errorText = useErrorText()
   const router = useRouter()
@@ -94,7 +94,11 @@ function Pack({ file }: { file: PackFile }) {
       // Try the import first so a file that breaks a save rule is refused here, with nothing saved. The screens' lists
       // carry their pack's labels, which a library in the saved shape does not.
       importPackFile({ packs, lists: lists.map(({ group: _group, category: _category, tags: _tags, ...rest }) => rest) }, file, ids)
-      if (await updateLibrary(library => importPackFile(library, file, ids))) router.push(`/edit?pack=${encodeURIComponent(ids.pack)}`)
+      if (await updateLibrary(library => importPackFile(library, file, ids))) {
+        // Counts the add for the gallery; the server decides whether the share is listed. Not awaited, and a failure is not shown.
+        fetch(`/api/gallery/added?id=${encodeURIComponent(id)}`, { method: 'POST', keepalive: true }).catch(() => {})
+        router.push(`/edit?pack=${encodeURIComponent(ids.pack)}`)
+      }
     } catch (reason) {
       setFailure(errorText(reason, t('sharedPage.addFailed')))
     } finally { setAdding(false) }

@@ -286,7 +286,8 @@
     "matching": "Packs matching your interests",
     "others": "Other packs",
     "noMatching": "No packs match your interests yet",
-    "changeInterests": "Change interests"
+    "changeInterests": "Change interests",
+    "toGallery": "Browse packs other people have published in the gallery"
   },
   "share": {
     "title": "Share “{name}”",
@@ -328,5 +329,23 @@
     "confirm": "Unfollow",
     "confirming": "Unfollowing…",
     "done": "Unfollowed “{name}”."
+  },
+  "gallery": {
+    "title": "Gallery",
+    "intro": "Browse word packs other people have published, look inside, and add them to your own packs.",
+    "search": "Search",
+    "category": "Category",
+    "allCategories": "All categories",
+    "sort": "Sort by",
+    "sortNew": "Newest",
+    "sortPopular": "Most added",
+    "lists": "{count, plural, one {# list} other {# lists}}",
+    "words": "{count, plural, one {# word} other {# words}}",
+    "added": "{count, plural, one {Added # time} other {Added # times}}",
+    "more": "Show more",
+    "empty": "No packs have been published yet",
+    "noResults": "No packs found",
+    "loadFailed": "Couldn’t load the gallery. Try again in a moment.",
+    "retry": "Try again"
   }
 }

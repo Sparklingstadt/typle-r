@@ -25,7 +25,8 @@
     "devices": "Устройства",
     "guide": "Как пользоваться",
     "about": "О Typle",
-    "github": "GitHub"
+    "github": "GitHub",
+    "gallery": "Галерея"
   },
   "storage": {
     "label": "Место хранения: ",

@@ -286,7 +286,8 @@
     "matching": "符合兴趣的词包",
     "others": "其他词包",
     "noMatching": "暂时没有符合兴趣的词包",
-    "changeInterests": "更改兴趣"
+    "changeInterests": "更改兴趣",
+    "toGallery": "在图库中查找大家公开的包"
   },
   "share": {
     "title": "共享“{name}”",
@@ -328,5 +329,23 @@
     "confirm": "取消关注",
     "confirming": "正在取消关注…",
     "done": "已取消关注“{name}”"
+  },
+  "gallery": {
+    "title": "图库",
+    "intro": "查找大家公开的单词包，先看看内容，再添加到自己的包中。",
+    "search": "搜索",
+    "category": "分类",
+    "allCategories": "所有分类",
+    "sort": "排序",
+    "sortNew": "最新",
+    "sortPopular": "添加最多",
+    "lists": "列表 {count}",
+    "words": "单词 {count}",
+    "added": "已添加 {count}",
+    "more": "显示更多",
+    "empty": "还没有公开的包",
+    "noResults": "没有找到",
+    "loadFailed": "无法加载图库。请稍后再试。",
+    "retry": "重试"
   }
 }
