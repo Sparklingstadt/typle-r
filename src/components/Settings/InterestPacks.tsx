@@ -102,7 +102,7 @@ export default function InterestPacks({ packs, lists, interests, saving, updateL
           </li>
         })}
       </ul>}
-    <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 border-t bg-background/95 px-4 py-3 backdrop-blur sm:mx-0 sm:rounded-b-xl sm:px-0">
+    <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 border-t bg-background/95 px-4 py-3 backdrop-blur sm:mx-0 sm:rounded-b-xl">
       {entries.length > 0 && <label className="mr-auto flex cursor-pointer items-center gap-2.5 text-sm">
         <input ref={all} type="checkbox" disabled={saving} checked={selected.length === entries.length}
           onChange={event => setChecked(event.target.checked ? new Set(entries.map(entry => entry.catalogId)) : new Set())}
