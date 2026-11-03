@@ -25,7 +25,7 @@
     "restartTitle": "Recommencer (Esc)",
     "restartShort": "Recommencer",
     "liveStats": "Afficher les statistiques en direct",
-    "aside": "Afficher le panneau latéral (listes de mots et meilleurs scores)"
+    "aside": "Afficher le panneau latéral (listes de mots)"
   },
   "word": {
     "typeThis": "À saisir",
@@ -51,7 +51,7 @@
     "pending": "(à saisir)"
   },
   "aside": {
-    "label": "Listes de mots et meilleurs résultats",
+    "label": "Listes de mots",
     "lists": "Listes de mots",
     "create": "Nouveau pack",
     "best": "Meilleurs résultats",

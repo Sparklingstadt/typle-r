@@ -25,7 +25,7 @@
     "restartTitle": "Start over (Esc)",
     "restartShort": "Start over",
     "liveStats": "Show live stats",
-    "aside": "Show side panel (word lists and best records)"
+    "aside": "Show side panel (word lists)"
   },
   "word": {
     "typeThis": "Type",
@@ -51,7 +51,7 @@
     "pending": "(not typed yet)"
   },
   "aside": {
-    "label": "Word lists and best records",
+    "label": "Word lists",
     "lists": "Word lists",
     "create": "New pack",
     "best": "Best records",

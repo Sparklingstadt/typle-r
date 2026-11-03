@@ -25,7 +25,7 @@
     "restartTitle": "從頭開始（Esc）",
     "restartShort": "重來",
     "liveStats": "顯示本次練習數據",
-    "aside": "顯示側邊欄（單字列表和最佳紀錄）"
+    "aside": "顯示側邊欄（單字列表）"
   },
   "word": {
     "typeThis": "需輸入",
@@ -51,7 +51,7 @@
     "pending": "（未輸入）"
   },
   "aside": {
-    "label": "單字清單與最佳紀錄",
+    "label": "單字清單",
     "lists": "單字清單",
     "create": "建立新包",
     "best": "最佳紀錄",
