@@ -74,7 +74,7 @@ test('a group is one choice on the practice screen, and its lists are chosen by 
   await seed(page)
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/play?list=plain')
-  const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
+  const aside = page.getByRole('complementary', { name: '単語リスト', exact: true })
   const shell = aside.getByRole('button', { name: /^Shell/ })
   await expect(shell).toHaveAttribute('aria-expanded', 'false')
   await expect(shell).toContainText('4リスト · 難易度を選ぶ')
@@ -100,7 +100,7 @@ test('the official Kotlin syntax lists are one list with 初級1 to 上級2', as
   await page.setViewportSize({ width: 1440, height: 900 })
   await followPacks(page, ['Kotlin構文'])
   await page.goto('/play')
-  const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
+  const aside = page.getByRole('complementary', { name: '単語リスト', exact: true })
   await aside.getByRole('searchbox').fill('Kotlin構文')
   // Its lists' names hold the search, so the pack is already open at them.
   await expect(aside.getByRole('button', { name: /^Kotlin構文/ })).toHaveAttribute('aria-expanded', 'true')

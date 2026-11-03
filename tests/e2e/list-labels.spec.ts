@@ -147,7 +147,7 @@ test('the practice screen shows the labels and narrows the lists to choose by ca
   await seed(page)
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/play?list=go')
-  const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
+  const aside = page.getByRole('complementary', { name: '単語リスト', exact: true })
   const options = aside.getByRole('list', { name: '単語リスト' }).getByRole('button')
   await expect(options).toHaveCount(4)
   await expect(aside.getByRole('button', { name: 'Go basics を選択中' })).toContainText('#Go')
