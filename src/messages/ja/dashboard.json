@@ -4,7 +4,7 @@
   "sourceAccount": "アカウントに保存された記録から集計しています。",
   "start": "はじめる",
   "practice": "練習する",
-  "create": "パックを作成",
+  "create": "単語リストを作成",
   "week": {
     "title": "今週のまとめ",
     "description": "{start}〜{end}の記録です。増減は、先週の同じ曜日・時刻までの記録と比べています。",

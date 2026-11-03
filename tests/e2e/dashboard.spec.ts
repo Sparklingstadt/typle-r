@@ -20,6 +20,7 @@ test('home keeps the introduction until the first practice record exists', async
   await page.goto('/home')
   await expect(page.getByRole('heading', { name: '自分の単語で、タイピング練習。', exact: true })).toBeVisible()
   await expect(page.getByRole('heading', { name: '練習の状況', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('navigation', { name: 'はじめる' }).getByRole('link', { name: '単語リストを作成', exact: true })).toHaveAttribute('href', '/create')
 })
 
 test('dashboard summarizes practice, suggests lists and opens the chosen list', async ({ page }) => {
@@ -29,6 +30,7 @@ test('dashboard summarizes practice, suggests lists and opens the chosen list', 
   await page.goto('/home')
   await expect(page.getByRole('heading', { name: '練習の状況', exact: true })).toBeVisible()
   await expect(page.getByText('このブラウザーに保存された記録から集計しています。')).toBeVisible()
+  await expect(page.getByRole('navigation', { name: 'はじめる' }).getByRole('link', { name: '単語リストを作成', exact: true })).toHaveAttribute('href', '/create')
 
   const summary = page.getByRole('region', { name: '今週のまとめ', exact: true })
   await expect(summary.getByRole('definition').filter({ hasText: '今日も練習済み' })).toBeVisible()

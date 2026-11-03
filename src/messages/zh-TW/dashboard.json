@@ -4,7 +4,7 @@
   "sourceAccount": "根據儲存在帳號中的紀錄統計。",
   "start": "開始",
   "practice": "開始練習",
-  "create": "建立包",
+  "create": "建立單字清單",
   "week": {
     "title": "本週摘要",
     "description": "{start}至{end}的紀錄。增減是與上週同一星期幾、同一時刻之前的紀錄相比。",
