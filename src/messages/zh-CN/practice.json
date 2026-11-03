@@ -25,7 +25,7 @@
     "restartTitle": "从头开始（Esc）",
     "restartShort": "重来",
     "liveStats": "显示本次练习数据",
-    "aside": "显示侧边栏（单词列表和最佳记录）"
+    "aside": "显示侧边栏（单词列表）"
   },
   "word": {
     "typeThis": "需输入",
@@ -51,7 +51,7 @@
     "pending": "（未输入）"
   },
   "aside": {
-    "label": "单词列表和最佳记录",
+    "label": "单词列表",
     "lists": "单词列表",
     "create": "新建包",
     "best": "最佳记录",
