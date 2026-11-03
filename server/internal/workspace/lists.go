@@ -119,7 +119,7 @@ func CreateList(w *Workspace, input ListInput, id string, now time.Time) (*List,
 			return nil, err
 		}
 	}
-	if len(w.Lists) >= MaxLists {
+	if OwnListCount(w.Packs, w.Lists) >= MaxLists {
 		return nil, &Error{Key: "listLimit"}
 	}
 	packID := ""

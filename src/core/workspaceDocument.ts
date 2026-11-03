@@ -1,7 +1,7 @@
 import { AppError } from './appError'
 import { decodeDevices, type PracticeDevice } from './devices'
 import { decodeInterests } from './interests'
-import { MAX_LISTS } from './listOverview'
+import { followedPackCount, MAX_FOLLOWED_PACKS, MAX_LISTS, ownListCount } from './listOverview'
 import { decodeLists, type SavedWordList } from './wordLists'
 import { decodePacks, normalizeLibrary, repairLibrary, type Library, type WordPack } from './wordPacks'
 
@@ -34,13 +34,21 @@ export function decodeDocument(value: { lists: unknown; packs?: unknown; devices
   return { ...normalizeLibrary(lists, packs), devices, interests }
 }
 
-/** Lists saved before the limit may be more than MAX_LISTS; a change may keep or lower that number, never raise it. */
+/**
+ * Lists saved before the limit may be more than MAX_LISTS, and followed packs more than MAX_FOLLOWED_PACKS; a change may
+ * keep or lower each number, never raise it past its limit.
+ */
 export function applyChange(document: WorkspaceDocument, change: WorkspaceChange): WorkspaceDocument {
-  if (change.lists && change.lists.length > MAX_LISTS && change.lists.length > document.lists.length) {
-    throw new AppError('listLimit', { max: MAX_LISTS })
-  }
   // Lists sent without packs are each put in a pack of their own, as the account's save does (store.WriteRevision).
   const packs = change.packs ?? (change.lists ? [] : document.packs)
+  if (change.lists) {
+    const own = ownListCount({ packs, lists: change.lists })
+    if (own > MAX_LISTS && own > ownListCount(document)) throw new AppError('listLimit', { max: MAX_LISTS })
+    const followed = followedPackCount(packs)
+    if (followed > MAX_FOLLOWED_PACKS && followed > followedPackCount(document.packs)) {
+      throw new AppError('followLimit', { max: MAX_FOLLOWED_PACKS })
+    }
+  }
   const library = repairLibrary({ lists: change.lists ?? document.lists, packs })
   return { ...library, devices: change.devices ?? document.devices, interests: change.interests ?? document.interests }
 }

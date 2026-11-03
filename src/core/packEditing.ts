@@ -1,6 +1,6 @@
 import { AppError } from './appError'
 import { isFollowed } from './followedPacks'
-import { listOverviews, matchesQuery, MAX_LISTS, type ListOverview } from './listOverview'
+import { listOverviews, matchesQuery, MAX_LISTS, ownListCount, type ListOverview } from './listOverview'
 import { MAX_LEVEL, MAX_LEVELS, MAX_SAVED_LEVELS, normalizeLabels, validateList, type SavedWordList } from './wordLists'
 import { levelPath, nameKey, pathsOverlap, repairLibrary, validateLibrary, viewLists, type Library, type WordPack } from './wordPacks'
 
@@ -96,7 +96,7 @@ export function settle(library: Library) {
 
 export function createPack(library: Library, fields: PackInput, firstList: SavedWordList, packId: string, now = new Date()): Library {
   const saved = packFields(library, fields)
-  if (library.lists.length >= MAX_LISTS) throw new AppError('listLimit', { max: MAX_LISTS })
+  if (ownListCount(library) >= MAX_LISTS) throw new AppError('listLimit', { max: MAX_LISTS })
   validateList(firstList)
   const { group: _group, category: _category, tags: _tags, levels, ...rest } = firstList
   const pack: WordPack = { id: packId, ...saved, createdAt: now.toISOString() }
@@ -146,7 +146,7 @@ export function saveListInPack(library: Library,
   // Neither the pack the list is saved to nor, when it is moved, the pack it leaves may be followed.
   refuseFollowed(library, packId ?? undefined)
   if (editing) refuseFollowed(library, existing!.packId)
-  if (!editing && library.lists.length >= MAX_LISTS) throw new AppError('listLimit', { max: MAX_LISTS })
+  if (!editing && ownListCount(library) >= MAX_LISTS) throw new AppError('listLimit', { max: MAX_LISTS })
   const target = packId ?? newPackId(library, list.id)
   validateList({ ...list, records: [] }, packId === null ? [] : library.lists.filter(item => item.packId === packId && item.id !== list.id))
   const { levels, createdAt, ...fields } = list

@@ -56,6 +56,10 @@ test('createPack adds a pack and its first list at the end', () => {
     full.lists.push(list(`l${i}`, `l${i}`, `p${i}`))
   }
   assert.throws(() => createPack(full, { name: 'N' }, input('n', 'N'), 'pn'), { key: 'listLimit', values: { max: MAX_LISTS } })
+  // Lists of followed packs are not counted.
+  const followed = { packs: full.packs.map((pack, i) => i < 10 ? { ...pack, origin: { catalogId: pack.id, version: 1, followed: true } } : pack),
+    lists: full.lists }
+  assert.equal(createPack(followed, { name: 'N' }, input('n', 'N'), 'pn').packs.at(-1).id, 'pn')
 })
 
 test('createPack keeps the first list\'s levels, tidied', () => {

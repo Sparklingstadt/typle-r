@@ -12,7 +12,7 @@ import UnfollowDialog from "@/components/WordLists/UnfollowDialog"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import { useWordLists } from "@/lib/useWordLists"
 import { randomId } from "@/core/randomId"
-import { MAX_LISTS } from "@/core/listOverview"
+import { followedPackCount, MAX_FOLLOWED_PACKS } from "@/core/listOverview"
 import { matchesInterests } from "@/core/interests"
 import { followOfficialPack, catalogEntries, type CatalogEntry } from "@/plugins/packs/catalog"
 
@@ -25,6 +25,8 @@ export default function Catalog() {
   const notify = useSaveNotification()
   const [unfollowing, setUnfollowing] = useState<{ id: string; name: string } | null>(null)
   const entries = useMemo(() => catalogEntries({ packs, lists }), [packs, lists])
+  // Following takes one of the followed packs, not lists: their lists are not counted in MAX_LISTS.
+  const full = followedPackCount(packs) >= MAX_FOLLOWED_PACKS
   // Following stays on the catalog, so that more packs can be followed one after another. The follow button gives way
   // to 「フォロー中」, so the focus moves to the new pack's 「開く」 link instead of being lost.
   const [followedNow, setFollowedNow] = useState<string | null>(null)
@@ -63,13 +65,12 @@ export default function Catalog() {
       {items.map(entry => {
         const owned = entry.followed ? ownedPack(entry) : undefined
         const words = entry.lists.reduce((sum, list) => sum + list.words.length, 0)
-        const full = lists.length + entry.lists.length > MAX_LISTS
         return <li key={entry.catalogId} data-catalog-id={entry.catalogId} className="flex flex-wrap items-center gap-x-4 gap-y-3 px-5 py-4">
           <div className="min-w-0 flex-1 basis-64 space-y-1.5">
             <Name className="font-bold [overflow-wrap:anywhere]">{entry.pack.name}</Name>
             <ListLabels list={entry.pack} />
             <p className="text-[13px] text-muted-foreground tabular-nums">{row("lists", { count: entry.lists.length })} · {row("wordCount", { count: words })}</p>
-            {!entry.followed && full && <p className="text-[13px] text-muted-foreground">{t("full", { max: MAX_LISTS })}</p>}
+            {!entry.followed && full && <p className="text-[13px] text-muted-foreground">{t("full", { max: MAX_FOLLOWED_PACKS })}</p>}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {owned && <Button asChild variant="outline"><Link href={`/edit?pack=${encodeURIComponent(owned.id)}`}

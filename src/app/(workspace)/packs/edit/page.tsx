@@ -15,7 +15,7 @@ import { isFollowed } from "@/core/followedPacks"
 import Notice from "@/components/WordLists/Notice"
 import { copyPack } from "@/core/packFile"
 import { randomId } from "@/core/randomId"
-import { MAX_LISTS } from "@/core/listOverview"
+import { MAX_LISTS, ownListCount } from "@/core/listOverview"
 import { reorderPackLists, updatePack } from "@/core/packEditing"
 
 export default function EditPack() {
@@ -59,7 +59,7 @@ function Editor() {
       <Notice>{errors("packFollowed")}</Notice>
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" onClick={() => router.push(back)}><ArrowLeft aria-hidden="true" />{t("catalog.back")}</Button>
-        <Button disabled={saving || lists.length + mine > MAX_LISTS} onClick={() => void copy()}><Copy aria-hidden="true" />{t("pack.copy")}</Button>
+        <Button disabled={saving || ownListCount({ packs, lists }) + mine > MAX_LISTS} onClick={() => void copy()}><Copy aria-hidden="true" />{t("pack.copy")}</Button>
         <Button variant="destructive" disabled={saving} onClick={() => setUnfollowing(true)}><UserMinus aria-hidden="true" />{t("follow.unfollow")}</Button>
       </div>
       <UnfollowDialog pack={unfollowing ? pack : null} onOpenChange={open => { if (!open) setUnfollowing(false) }} updateLibrary={updateLibrary}

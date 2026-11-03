@@ -32,6 +32,20 @@ test('a change may keep lists above the limit or lower them, but not add more', 
   assert.equal(applyChange({ packs: [], lists: [], devices: [] }, { lists: many(150) }).lists.length, 150)
 })
 
+test('the limit counts the lists outside followed packs, and followed packs have a limit of their own', () => {
+  const pack = (id, followed) => ({ id, name: id, createdAt: '2026-10-01', ...(followed ? { origin: { catalogId: id, version: 1, followed: true } } : {}) })
+  const lists = (count, packId, prefix = packId) => Array.from({ length: count }, (_, index) => named(`${prefix}${index}`, `${prefix}${index}`, { packId }))
+  const empty = { packs: [], lists: [], devices: [] }
+  // 150 own lists and 120 lists of followed packs are saved.
+  const packs = [pack('own'), ...Array.from({ length: 20 }, (_, n) => pack(`f${n}`, true))]
+  const all = [...lists(150, 'own'), ...packs.slice(1).flatMap(item => lists(6, item.id))]
+  assert.equal(applyChange(empty, { packs, lists: all }).lists.length, 270)
+  assert.throws(() => applyChange(empty, { packs, lists: [...all, ...lists(1, 'own', 'x')] }), { key: 'listLimit', values: { max: 150 } })
+  const followed = Array.from({ length: 201 }, (_, n) => pack(`g${n}`, true))
+  assert.throws(() => applyChange(empty, { packs: followed, lists: followed.flatMap(item => lists(1, item.id)) }),
+    { key: 'followLimit', values: { max: 200 } })
+})
+
 test('guest data saved before v1.0.0 reads as an empty workspace, which the next save replaces', () => {
   for (const old of [{ lists: [list], devices: [], profiles: [main, { id: 'zh', name: '中国語', lists: [] }] }, { lists: [list], devices: [] }]) {
     const store = storage()

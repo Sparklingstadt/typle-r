@@ -207,7 +207,7 @@ func addPack(w *Workspace, pack Pack, lists []List) *Pack {
 }
 
 func checkRoom(w *Workspace, count int) error {
-	if len(w.Lists)+count > MaxLists {
+	if OwnListCount(w.Packs, w.Lists)+count > MaxLists {
 		return &Error{Key: "listLimit"}
 	}
 	return nil

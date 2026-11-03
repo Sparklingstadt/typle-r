@@ -4,7 +4,7 @@ const assert = require('node:assert/strict')
 const { validateLibrary, convertLibrary } = require('../src/core/wordPacks.ts')
 const { deletePack } = require('../src/core/packEditing.ts')
 const { officialPacks, catalogEntries, followOfficialPack, applyCatalogChoices } = require('../src/plugins/packs/catalog.ts')
-const { MAX_LISTS } = require('../src/core/listOverview.ts')
+const { MAX_FOLLOWED_PACKS, MAX_LISTS } = require('../src/core/listOverview.ts')
 const { initialLibrary, officialLibrary, initialLists } = require('../src/plugins/packs/index.ts')
 
 const OFFICIAL_FIRST_TWO = ['pack-8f3cf116-1f9f-4579-a071-e600094b104d', 'pack-ef974a4b-3c7a-4eeb-9979-6721a0a1c81a']
@@ -72,11 +72,15 @@ test('followOfficialPack numbers the name when a pack of that name is there, and
   const next = followOfficialPack(once, entry.catalogId, idsFor(entry, 'again'), now)
   assert.equal(next.packs.at(-1).name, `${entry.pack.name}（2）`)
   assert.throws(() => followOfficialPack(initialLibrary, 'missing', { pack: 'x', lists: [] }, now), { key: 'packDeleted' })
-  const room = MAX_LISTS - once.lists.length
+  // MAX_LISTS own lists leave room to follow: a followed pack's lists are not counted.
   const filler = { packs: [...once.packs, { id: 'f', name: 'Filler', createdAt: now.toISOString() }],
-    lists: [...once.lists, ...Array.from({ length: room - entry.lists.length + 1 }, (_, n) =>
+    lists: [...once.lists, ...Array.from({ length: MAX_LISTS }, (_, n) =>
       ({ id: `f${n}`, name: `F${n}`, packId: 'f', words: [{ display: 'a', input: 'a', annotation: '' }], records: [], createdAt: now.toISOString() }))] }
-  assert.throws(() => followOfficialPack(filler, entry.catalogId, idsFor(entry, 'over'), now), { key: 'listLimit', values: { max: MAX_LISTS } })
+  assert.equal(followOfficialPack(filler, entry.catalogId, idsFor(entry, 'room'), now).packs.at(-1).id, 'room')
+  // MAX_FOLLOWED_PACKS followed packs leave none.
+  const followed = { ...once, packs: [...once.packs, ...Array.from({ length: MAX_FOLLOWED_PACKS - 1 }, (_, n) =>
+    ({ id: `p${n}`, name: `P${n}`, createdAt: now.toISOString(), origin: { catalogId: `c${n}`, version: 1, followed: true } }))] }
+  assert.throws(() => followOfficialPack(followed, entry.catalogId, idsFor(entry, 'over'), now), { key: 'followLimit', values: { max: MAX_FOLLOWED_PACKS } })
 })
 
 test('applyCatalogChoices follows the packs switched on and unfollows the followed packs switched off', () => {
