@@ -160,8 +160,9 @@ function SearchField({ value, onChange, className }: { value: string; onChange: 
   </label>
 }
 
-// Two columns at every width: the number, and the text to type with its note under it. Long words, such as an SQL
-// statement, wrap inside their cell instead of widening the table.
+// Two columns at every width: the number, and the text to type with the shown word and the note under it. The shown
+// word is left out when it is the same as the text to type. Long words, such as an SQL statement, wrap inside their
+// cell instead of widening the table.
 function WordTable({ list }: { list: SavedWordList }) {
   const t = useTranslations('wordLists.words')
   const editor = useTranslations('wordLists.editor')
@@ -178,6 +179,7 @@ function WordTable({ list }: { list: SavedWordList }) {
         <TableCell className="py-2.5 pl-4 text-right align-top text-muted-foreground tabular-nums sm:pl-6">{index + 1}</TableCell>
         <TableCell className={`py-2.5 pr-4 align-top sm:pr-6 ${text}`}>
           <span className="font-mono font-medium">{word.input}</span>
+          {word.display !== word.input && <p className="mt-1 text-sm">{word.display}</p>}
           {word.annotation && <p className="mt-1 text-[13px] text-muted-foreground">{word.annotation}</p>}
         </TableCell>
       </TableRow>)}
