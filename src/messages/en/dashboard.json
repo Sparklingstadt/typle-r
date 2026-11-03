@@ -4,7 +4,7 @@
   "sourceAccount": "Totals are based on the records saved to your account.",
   "start": "Get started",
   "practice": "Practice",
-  "create": "Create a pack",
+  "create": "Create a word list",
   "week": {
     "title": "This week",
     "description": "Records from {start} to {end}. Changes are compared with last week up to the same day and time.",

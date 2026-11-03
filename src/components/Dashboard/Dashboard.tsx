@@ -168,7 +168,7 @@ export default function Dashboard({ lists, storage }: { lists: SavedWordList[]; 
       </div>
       <nav aria-label={t('start')} className="flex flex-wrap gap-3">
         <Button asChild><Link href="/play"><Keyboard aria-hidden="true" />{t('practice')}</Link></Button>
-        <Button asChild variant="outline"><Link href="/packs/create"><Plus aria-hidden="true" />{t('create')}</Link></Button>
+        <Button asChild variant="outline"><Link href="/create"><Plus aria-hidden="true" />{t('create')}</Link></Button>
       </nav>
     </div>
     <Section title={t('week.title')} description={t('week.description', { start: format.dateWithWeekday(summary.weekStart, now), end: format.dateWithWeekday(addDays(summary.weekStart, 6), now) })}>
