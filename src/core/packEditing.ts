@@ -94,14 +94,31 @@ export function settle(library: Library) {
   return result
 }
 
-export function createPack(library: Library, fields: PackInput, firstList: SavedWordList, packId: string, now = new Date()): Library {
+/**
+ * Makes a pack of lists already saved, which move into it in the order given (the pack is added last). A pack the lists
+ * leave keeps its other lists; one left with none is dropped. Lists of a followed pack cannot be moved, and lists that
+ * would share a name or levels in the new pack are refused as saving a list into it would be.
+ */
+export function createPackFromLists(library: Library, fields: PackInput, listIds: string[], packId: string, now = new Date()): Library {
   const saved = packFields(library, fields)
-  if (ownListCount(library) >= MAX_LISTS) throw new AppError('listLimit', { max: MAX_LISTS })
-  validateList(firstList)
-  const { group: _group, category: _category, tags: _tags, levels, ...rest } = firstList
+  const ids = [...new Set(listIds)]
+  if (!ids.length) throw new AppError('packListsRequired')
+  const moved = ids.map(id => {
+    const list = library.lists.find(item => item.id === id)
+    if (!list) throw new AppError('listDeleted')
+    refuseFollowed(library, list.packId)
+    return list
+  })
+  moved.forEach((list, index) => {
+    const before = moved.slice(0, index)
+    validateList(list, before)
+    if (before.some(other => pathsOverlap(levelPath(other), levelPath(list)))) throw new AppError('levelsConflict')
+  })
   const pack: WordPack = { id: packId, ...saved, createdAt: now.toISOString() }
-  const created: SavedWordList = { ...rest, name: firstList.name.trim(), ...tidyLevels(levels), packId, records: [] }
-  return settle({ packs: [...library.packs, pack], lists: [...library.lists, created] })
+  return settle({
+    packs: [...library.packs, pack],
+    lists: [...library.lists.filter(list => !ids.includes(list.id)), ...moved.map(list => ({ ...list, packId }))],
+  })
 }
 
 export function updatePack(library: Library, packId: string, fields: PackInput): Library {

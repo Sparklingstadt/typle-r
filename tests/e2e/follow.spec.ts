@@ -92,11 +92,10 @@ test('a followed list opened by URL shows the notice, and /create does not offer
   await expect(page.getByRole('textbox')).toHaveCount(0)
 
   await page.goto(`/create?pack=${encodeURIComponent(packId)}`)
-  // The pack is chosen in the select named パック; each word has a select of its own for its input type.
-  const select = page.getByRole('combobox', { name: 'パック', exact: true })
+  // A followed pack takes no new lists, so the list is not added to it: it gets a pack of its own.
   await expect(page.getByRole('textbox').first()).toBeVisible()
-  if (await select.count()) await expect(select.locator('option', { hasText: 'Go構文' })).toHaveCount(0)
-  await expect(select).not.toHaveValue(packId)
+  await expect(page.getByRole('combobox', { name: 'パック', exact: true })).toHaveCount(0)
+  await expect(page.getByText(/に追加します/)).toHaveCount(0)
 })
 
 test('several official packs are followed one after another without leaving the catalog', async ({ page }) => {

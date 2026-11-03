@@ -23,7 +23,7 @@
     },
     "create": {
       "title": "Créer votre pack",
-      "text": "Enregistrez les mots que vous voulez retenir sous forme de pack, avec sa première liste. Vous pouvez aussi les importer depuis un fichier CSV ou TSV.",
+      "text": "Choisissez des listes de mots existantes et regroupez-les dans un pack. Une liste de mots se crée seule, et peut aussi être importée depuis un fichier CSV ou TSV.",
       "action": "Créer un pack"
     },
     "review": {
@@ -86,7 +86,7 @@
     "lead": "Créez un pack dans <create>Créer un pack</create> et modifiez vos packs et listes enregistrés dans <edit>Packs de mots</edit>.",
     "packs": {
       "title": "Packs et listes",
-      "p1": "Les listes de mots sont regroupées en « packs ». Pour créer un pack, saisissez son nom et sa première liste.",
+      "p1": "Les listes de mots sont regroupées en « packs ». Une liste de mots se crée seule ; pour créer un pack, saisissez son nom et choisissez les listes qu'il regroupe.",
       "p2": "« Ajouter une liste », dans le menu « … » d’un pack, ajoute une liste à un pack enregistré.",
       "p3": "« Modifier le pack », dans le menu « … » d’un pack, permet de changer son nom, sa description, sa catégorie et ses tags, ou de réorganiser les listes qu’il contient.",
       "p4": "Dans l’éditeur de liste, vous pouvez choisir le pack de la liste (ce qui la déplace vers un autre pack). Vous pouvez aussi saisir une difficulté."

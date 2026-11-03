@@ -55,6 +55,7 @@
   "deviceNotFound": "L’appareil utilisé pour l’entraînement a été supprimé ; le résultat ne peut pas être enregistré.",
   "packNameRequired": "Saisissez un nom de pack.",
   "packNameDuplicate": "Un pack porte déjà ce nom.",
+  "packListsRequired": "Choisissez au moins une liste de mots pour le pack.",
   "packDeleted": "Ce pack a été supprimé.",
   "packFollowed": "Les packs officiels ne peuvent pas être modifiés. Copiez-le pour le modifier comme votre propre pack.",
   "levelsConflict": "Ce pack contient déjà une liste avec la même difficulté (ou, pour une liste sans difficulté, le même nom).",

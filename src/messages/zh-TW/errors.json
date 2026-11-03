@@ -55,6 +55,7 @@
   "deviceNotFound": "練習所用的裝置已被刪除，無法儲存紀錄。",
   "packNameRequired": "請輸入包名稱。",
   "packNameDuplicate": "已有同名的包。",
+  "packListsRequired": "請至少選擇一份要放入包的單字清單。",
   "packDeleted": "此包已被刪除。",
   "packFollowed": "官方包無法編輯。複製後即可作為自己的包進行編輯。",
   "levelsConflict": "同一個包中已有難度（沒有難度的清單為名稱）相同的清單。",

@@ -2,7 +2,7 @@ require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { validateLibrary } = require('../src/core/wordPacks.ts')
-const { packOverviews, matchesPackQuery, matchingListIds, createPack, updatePack, reorderPackLists, deletePack, saveListInPack } = require('../src/core/packEditing.ts')
+const { packOverviews, matchesPackQuery, matchingListIds, createPackFromLists, updatePack, reorderPackLists, deletePack, saveListInPack } = require('../src/core/packEditing.ts')
 const { duplicateList, MAX_LISTS } = require('../src/core/listOverview.ts')
 const { saveList } = require('../src/core/wordLists.ts')
 
@@ -41,32 +41,34 @@ test('a pack is found by its name, labels, list names and words; matchingListIds
   assert.deepEqual(matchingListIds(p, ''), [])
 })
 
-test('createPack adds a pack and its first list at the end', () => {
-  const next = createPack(library(), { name: ' New ', description: ' ', category: ' c ', tags: ['t', 'T'] }, input('n', ' First '), 'pn', new Date('2026-10-02T00:00:00Z'))
+test('createPackFromLists moves the lists given into a new pack at the end, and drops a pack left empty', () => {
+  const next = createPackFromLists(library(), { name: ' New ', description: ' ', category: ' c ', tags: ['t', 'T'] }, ['g', 'b', 'g'], 'pn', new Date('2026-10-02T00:00:00Z'))
   validateLibrary(next)
+  assert.deepEqual(next.packs.map(pack => pack.id), ['p', 'pn'])
   assert.deepEqual(next.packs.at(-1), { id: 'pn', name: 'New', category: 'c', tags: ['t'], createdAt: '2026-10-02T00:00:00.000Z' })
-  assert.deepEqual(next.lists.at(-1), { ...input('n', 'First'), packId: 'pn', records: [] })
-  assert.throws(() => createPack(library(), { name: ' linux ' }, input('n', 'N'), 'pn'), { key: 'packNameDuplicate' })
-  assert.throws(() => createPack(library(), { name: ' ' }, input('n', 'N'), 'pn'), { key: 'packNameRequired' })
-  assert.throws(() => createPack(library(), { name: 'x'.repeat(201) }, input('n', 'N'), 'pn'), { message: 'Invalid packs' })
-  assert.throws(() => createPack(library(), { name: 'N' }, input('n', ' '), 'pn'), { key: 'listNameRequired' })
+  // The lists keep their words and records, in the order given, after the lists that stay.
+  assert.deepEqual(next.lists.map(item => [item.id, item.packId]), [['a', 'p'], ['g', 'pn'], ['b', 'pn']])
+  assert.deepEqual(next.lists[1].words, words('go'))
+  // Moving lists makes no new list, so a full library can still make a pack.
   const full = { packs: [], lists: [] }
   for (let i = 0; i < MAX_LISTS; i++) {
     full.packs.push({ id: `p${i}`, name: `P${i}`, createdAt: stamp })
     full.lists.push(list(`l${i}`, `l${i}`, `p${i}`))
   }
-  assert.throws(() => createPack(full, { name: 'N' }, input('n', 'N'), 'pn'), { key: 'listLimit', values: { max: MAX_LISTS } })
-  // Lists of followed packs are not counted.
-  const followed = { packs: full.packs.map((pack, i) => i < 10 ? { ...pack, origin: { catalogId: pack.id, version: 1, followed: true } } : pack),
-    lists: full.lists }
-  assert.equal(createPack(followed, { name: 'N' }, input('n', 'N'), 'pn').packs.at(-1).id, 'pn')
+  assert.equal(createPackFromLists(full, { name: 'N' }, ['l0', 'l1'], 'pn').packs.length, MAX_LISTS - 1)
 })
 
-test('createPack keeps the first list\'s levels, tidied', () => {
-  const next = createPack(library(), { name: 'New' }, input('n', 'First', { levels: [' 基本 ', '', '  '] }), 'pn')
-  assert.deepEqual(next.lists.at(-1).levels, ['基本'])
-  const none = createPack(library(), { name: 'New' }, input('n', 'First', { levels: [' ', ''] }), 'pn')
-  assert.equal('levels' in none.lists.at(-1), false)
+test('createPackFromLists refuses a missing name or list, followed lists, and lists that would clash', () => {
+  assert.throws(() => createPackFromLists(library(), { name: ' linux ' }, ['g'], 'pn'), { key: 'packNameDuplicate' })
+  assert.throws(() => createPackFromLists(library(), { name: ' ' }, ['g'], 'pn'), { key: 'packNameRequired' })
+  assert.throws(() => createPackFromLists(library(), { name: 'N' }, [], 'pn'), { key: 'packListsRequired' })
+  assert.throws(() => createPackFromLists(library(), { name: 'N' }, ['zz'], 'pn'), { key: 'listDeleted' })
+  // 基本 of Linux and 基本 of Go share a name.
+  assert.throws(() => createPackFromLists(library(), { name: 'N' }, ['a', 'g'], 'pn'), { key: 'listNameDuplicate' })
+  const levelled = { ...library(), lists: library().lists.map(item => item.id === 'b' ? { ...item, levels: ['初級'] } : item.id === 'g' ? { ...item, name: 'Go', levels: ['初級'] } : item) }
+  assert.throws(() => createPackFromLists(levelled, { name: 'N' }, ['b', 'g'], 'pn'), { key: 'levelsConflict' })
+  const followed = { ...library(), packs: library().packs.map(pack => pack.id === 'q' ? { ...pack, origin: { catalogId: 'q', version: 1, followed: true } } : pack) }
+  assert.throws(() => createPackFromLists(followed, { name: 'N' }, ['g'], 'pn'), { key: 'packFollowed' })
 })
 
 test('updatePack changes name, description and labels, and checks the name against other packs', () => {
@@ -194,7 +196,6 @@ test('tidyLevels, saveListInPack and createPack refuse more than one level, as t
   assert.throws(() => saveListInPack(lib, input('n', 'N', { levels: ['基本', '初級'] }), 'p', false), { key: 'tooManyLevels' })
   assert.throws(() => saveListInPack(lib, input('a', '基本', { levels: ['中級1', 'A'] }), 'p', true), { key: 'tooManyLevels' })
   assert.throws(() => saveListInPack(lib, input('n', 'N', { levels: ['基本', '初級'] }), null, false), { key: 'tooManyLevels' })
-  assert.throws(() => createPack(lib, { name: 'New' }, list('n', 'N', undefined, { levels: ['基本', '初級'] }), 'n'), { key: 'tooManyLevels' })
   assert.equal(JSON.stringify(lib), before)
 })
 

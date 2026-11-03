@@ -23,7 +23,7 @@
     },
     "create": {
       "title": "Make your own pack",
-      "text": "Register the words you want to learn as a pack, together with its first list. You can also import them from a CSV or TSV file.",
+      "text": "Choose word lists you already have and put them together in a pack. Word lists can be created on their own, and imported from CSV or TSV files.",
       "action": "Create a pack"
     },
     "review": {
@@ -86,7 +86,7 @@
     "lead": "Create a new pack in <create>Create a pack</create>, and edit saved packs and lists in <edit>Word packs</edit>.",
     "packs": {
       "title": "Packs and lists",
-      "p1": "Word lists are organized into packs. When you create a pack, you enter the pack’s name and its first list.",
+      "p1": "Word lists are organized into packs. A word list can be created on its own; when you create a pack, you enter its name and choose the word lists it holds.",
       "p2": "Use “Add a list” in a pack’s “…” menu to add a list to a saved pack.",
       "p3": "Use “Edit pack” in a pack’s “…” menu to change its name, description, category, and tags, or to reorder the lists inside it.",
       "p4": "In the list editor, you can choose which pack the list belongs to (this moves it to another pack). You can also enter one difficulty for the words."

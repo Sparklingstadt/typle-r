@@ -16,7 +16,8 @@ export default function Create() {
   </WordListEditorPage>
 }
 
-// `/create?pack=<id>` starts with that pack chosen; without it (or when it is gone) the list gets a pack of its own.
+// A word list is made on its own: no pack is chosen here, and the list gets a pack of its own (packs are put together on
+// /packs/create). `/create?pack=<id>`, a pack's 「リストを追加」, adds the list to that pack instead while it still exists.
 function Editor() {
   const router = useRouter()
   const params = useSearchParams()
@@ -26,7 +27,7 @@ function Editor() {
   const { ready, packs, error, errorKey, updateLibrary, storage } = useWordLists()
   if (!ready) return <p>{common('loading')}</p>
   // A followed pack takes no new lists, so it is not offered and `?pack=` naming one starts a pack of its own.
-  return <WordListEditor title={t('page.createTitle')} storage={storage} packs={ownPacks(packs)} packId={params.get('pack')} error={error} errorKey={errorKey}
+  return <WordListEditor title={t('page.createTitle')} storage={storage} packs={ownPacks(packs)} packId={params.get('pack')} choosePack={false} error={error} errorKey={errorKey}
     onCancel={() => router.push('/edit')} onSave={async (list, packId) => {
       // The pack of a list that starts a pack is made while saving, so its id is read from the result.
       let target = packId

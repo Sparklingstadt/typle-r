@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useId, useMemo, useRef, useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
-import { ChevronLeft, CircleAlert } from "lucide-react"
+import { ChevronLeft, CircleAlert, Search } from "lucide-react"
 import { DndContext, closestCenter, type Announcements, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
@@ -17,7 +17,7 @@ import type { SavedWordList } from "@/core/wordLists"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
 import type { WordPack } from "@/core/wordPacks"
 
-const fieldsOf = (pack: WordPack): PackInput => ({ name: pack.name, description: pack.description ?? "", category: pack.category ?? "", tags: pack.tags ?? [] })
+const fieldsOf = (pack?: WordPack): PackInput => ({ name: pack?.name ?? "", description: pack?.description ?? "", category: pack?.category ?? "", tags: pack?.tags ?? [] })
 
 // Another tab may add or delete a list of the pack while it is edited: the order keeps the ids that still exist, then the new lists.
 const rebuild = (order: string[], lists: SavedWordList[]) => {
@@ -26,10 +26,11 @@ const rebuild = (order: string[], lists: SavedWordList[]) => {
   return [...kept, ...lists.map(list => list.id).filter(id => !kept.includes(id))]
 }
 
-// Edits a pack: its fields and the order of its lists. Leaving with unsaved changes asks first.
+// Edits a pack: its fields and the order of its lists. Without `pack` it creates one, of the lists chosen from `lists`.
+// Leaving with unsaved changes asks first.
 export default function PackEditor({ pack, lists, packs, storage, error, errorKey, onSave, onCancel }: {
-  pack: WordPack
-  /** The pack's lists, in saved order. */
+  pack?: WordPack
+  /** The pack's lists, in saved order; when creating, the lists that can be chosen for the new pack. */
   lists: SavedWordList[]
   /** Every pack, whose categories and tags are offered while typing. */
   packs: WordPack[]
@@ -51,7 +52,7 @@ export default function PackEditor({ pack, lists, packs, storage, error, errorKe
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
   const [initialFields] = useState(() => fieldsOf(pack))
-  const [initialOrder] = useState(() => lists.map(list => list.id))
+  const [initialOrder] = useState(() => pack ? lists.map(list => list.id) : [])
   const [fields, setFields] = useState(initialFields)
   const [storedOrder, setOrder] = useState(initialOrder)
   const [saving, setSaving] = useState(false)
@@ -59,8 +60,11 @@ export default function PackEditor({ pack, lists, packs, storage, error, errorKe
   const [failedName, setFailedName] = useState<string | null>(null)
   // After a failed save, the name field is focused only when the error is about the name.
   const [focusRequest, setFocusRequest] = useState(0)
-  const order = rebuild(storedOrder, lists)
-  const dirty = !samePackInput(fields, initialFields) || order.join("\n") !== rebuild(initialOrder, lists).join("\n")
+  // When creating, the order is the lists chosen, kept in the order they are offered.
+  const [chosen, setChosen] = useState<string[]>([])
+  const [query, setQuery] = useState("")
+  const order = pack ? rebuild(storedOrder, lists) : lists.map(list => list.id).filter(id => chosen.includes(id))
+  const dirty = !samePackInput(fields, initialFields) || order.join("\n") !== (pack ? rebuild(initialOrder, lists) : []).join("\n")
   const suggestions = useMemo(() => listLabels(packs, locale), [packs, locale])
   const byId = useMemo(() => new Map(lists.map(list => [list.id, list])), [lists])
 
@@ -117,15 +121,16 @@ export default function PackEditor({ pack, lists, packs, storage, error, errorKe
     <Button variant="ghost" size="lg" className="-ml-2.5 mb-2 text-muted-foreground" onClick={cancel}><ChevronLeft aria-hidden="true" />{page("title")}</Button>
     <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div className="space-y-1">
-        <h1 className="text-2xl font-bold">{t("editTitle")}</h1>
-        <p className="text-sm text-muted-foreground">{t("editDescription")}</p>
+        <h1 className="text-2xl font-bold">{t(pack ? "editTitle" : "createTitle")}</h1>
+        <p className="text-sm text-muted-foreground">{t(pack ? "editDescription" : "createDescription")}</p>
       </div>
       <PageStorageBadge storage={storage} />
     </header>
 
     <div className="space-y-6">
       <PackFields value={fields} onChange={setFields} suggestions={suggestions} nameError={nameError} />
-      <section aria-labelledby={`${dragId}-lists`} className="space-y-3 rounded-xl border bg-card p-4 sm:p-6">
+      {!pack ? <ListChoices lists={lists} packs={packs} chosen={chosen} onChange={setChosen} query={query} onQuery={setQuery} disabled={saving} />
+      : <section aria-labelledby={`${dragId}-lists`} className="space-y-3 rounded-xl border bg-card p-4 sm:p-6">
         <div className="space-y-1">
           <h2 id={`${dragId}-lists`} className="text-base font-bold">{t("lists")}</h2>
           <p className="text-xs text-muted-foreground">{t("listsHelp")}</p>
@@ -149,7 +154,7 @@ export default function PackEditor({ pack, lists, packs, storage, error, errorKe
             </ul>
           </SortableContext>
         </DndContext>
-      </section>
+      </section>}
     </div>
 
     <div className="sticky bottom-0 z-20 -mx-4 mt-6 border-t bg-background/95 px-4 py-3 shadow-[0_-4px_12px_rgb(0_0_0/0.05)] backdrop-blur sm:bottom-4 sm:mx-0 sm:mb-4 sm:rounded-xl sm:border sm:px-5 sm:shadow-lg">
@@ -179,4 +184,58 @@ export default function PackEditor({ pack, lists, packs, storage, error, errorKe
       </AlertDialogContent>
     </AlertDialog>
   </form>
+}
+
+// The lists a new pack is made of, chosen with check boxes. A list's pack is named when the pack holds other lists too,
+// since choosing the list takes it out of that pack.
+function ListChoices({ lists, packs, chosen, onChange, query, onQuery, disabled }: {
+  lists: SavedWordList[]
+  packs: WordPack[]
+  chosen: string[]
+  onChange: (ids: string[]) => void
+  query: string
+  onQuery: (query: string) => void
+  disabled: boolean
+}) {
+  const t = useTranslations("wordLists.packEditor")
+  const id = useId()
+  const packName = new Map(packs.map(pack => [pack.id, pack.name]))
+  const sizes = new Map<string, number>()
+  for (const list of lists) sizes.set(list.packId ?? "", (sizes.get(list.packId ?? "") ?? 0) + 1)
+  const needle = query.trim().toLocaleLowerCase()
+  const shown = lists.filter(list => !needle || list.name.toLocaleLowerCase().includes(needle) || packName.get(list.packId ?? "")?.toLocaleLowerCase().includes(needle))
+  return <section aria-labelledby={`${id}-heading`} className="space-y-3 rounded-xl border bg-card p-4 sm:p-6">
+    <div className="space-y-1">
+      <div className="flex flex-wrap items-baseline gap-x-2">
+        <h2 id={`${id}-heading`} className="text-base font-bold">{t("choose")}</h2>
+        <span aria-live="polite" className="text-xs text-muted-foreground tabular-nums">{t("chosen", { count: chosen.length })}</span>
+      </div>
+      <p id={`${id}-help`} className="text-xs text-muted-foreground">{t("chooseHelp")}</p>
+    </div>
+    <label className="flex h-10 items-center gap-2 rounded-lg border px-3 text-muted-foreground focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+      <Search className="size-4 shrink-0" aria-hidden="true" />
+      <input type="search" value={query} onChange={event => onQuery(event.target.value)} aria-label={t("chooseFilter")} placeholder={t("chooseFilter")} autoComplete="off"
+        className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" />
+    </label>
+    {shown.length ? <ul aria-labelledby={`${id}-heading`} aria-describedby={`${id}-help`} className="grid max-h-[28rem] gap-1 overflow-y-auto overscroll-contain">
+      {shown.map(list => {
+        const checked = chosen.includes(list.id)
+        const inPack = (sizes.get(list.packId ?? "") ?? 0) >= 2 ? packName.get(list.packId ?? "") : undefined
+        return <li key={list.id}>
+          <label className="flex min-h-12 cursor-pointer items-center gap-3 rounded-lg px-3 py-2 hover:bg-muted/60 has-[:focus-visible]:ring-3 has-[:focus-visible]:ring-ring/50 has-[:checked]:bg-muted">
+            {/* Named by the list alone; its pack, levels and words describe it. */}
+            <input type="checkbox" checked={checked} disabled={disabled} aria-labelledby={`${id}-${list.id}`} aria-describedby={`${id}-${list.id}-about`}
+              className="size-4 shrink-0 accent-primary outline-none"
+              onChange={event => onChange(event.target.checked ? [...chosen, list.id] : chosen.filter(item => item !== list.id))} />
+            <span className="grid min-w-0">
+              <span id={`${id}-${list.id}`} className="text-sm font-medium [overflow-wrap:anywhere]">{list.name}</span>
+              <span id={`${id}-${list.id}-about`} className="text-xs text-muted-foreground [overflow-wrap:anywhere]">
+                {[inPack && t("inPack", { name: inPack }), list.levels?.length ? t("levels", { levels: list.levels.join("・") }) : null, t("wordCount", { count: list.words.length })].filter(Boolean).join(" · ")}
+              </span>
+            </span>
+          </label>
+        </li>
+      })}
+    </ul> : <p className="px-1 py-2 text-sm text-muted-foreground">{t("noMatch")}</p>}
+  </section>
 }
