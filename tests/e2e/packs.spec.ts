@@ -471,7 +471,10 @@ test('a pack opens to its lists with levels first and then the lists without, an
   const study = aside.locator('li[data-pack-id="study"]')
   await study.getByRole('button', { expanded: false }).click()
   // A list has one level, so the choices are one row without a step of their own.
-  await expect(study.getByRole('group', { name: 'Study の難易度' }).getByRole('button')).toHaveText(['基本・初級', '基本・上級', '応用'])
+  await expect(study.getByRole('group', { name: 'Study の難易度' }).getByRole('button')).toHaveText([/^基本・初級/, /^基本・上級/, /^応用/])
+  // Each choice is a row of a list that is named by its level and described by its list's words and best.
+  await expect(study.getByRole('group', { name: 'Study の難易度' }).getByRole('list').getByRole('listitem')).toHaveCount(3)
+  await expect(study.getByRole('button', { name: '応用', exact: true })).toHaveAccessibleDescription('1語 · 記録なし')
   await expect(study).toContainText('難易度を選んでください。')
   await expect(study.getByRole('group', { name: /段目/ })).toHaveCount(0)
   await study.getByRole('button', { name: '基本・初級', exact: true }).click()
@@ -558,7 +561,7 @@ test('a pack whose lists have no levels is chosen from by list', async ({ page }
   await expect(shell).not.toContainText('難易度')
   await shell.getByRole('button', { expanded: false }).click()
   const choices = shell.getByRole('group', { name: 'Shell のリスト' })
-  await expect(choices.getByRole('button')).toHaveText(['基本', '応用'])
+  await expect(choices.getByRole('button')).toHaveText([/^基本/, /^応用/])
   await expect(shell).toContainText('リストを選んでください。')
   await expect(shell).not.toContainText('難易度')
 })
@@ -571,7 +574,7 @@ test('a search that finds a list of a pack opens the pack and marks that list', 
   const shell = aside.locator('li[data-pack-id="shell"]')
   await expect(shell.getByRole('button', { name: /^Shell/ })).toHaveAttribute('aria-expanded', 'true')
   await expect(shell.getByRole('button', { name: '応用', exact: true })).toBeVisible()
-  await expect(shell.getByRole('button', { name: '応用', exact: true })).toHaveAccessibleDescription('検索に一致')
+  await expect(shell.getByRole('button', { name: '応用', exact: true })).toHaveAccessibleDescription(/検索に一致$/)
   await expect(shell.getByRole('button', { name: '基本', exact: true })).not.toHaveAttribute('data-match', /.*/)
 
   // A word finds its list in the same way on the words screen.
@@ -580,7 +583,7 @@ test('a search that finds a list of a pack opens the pack and marks that list', 
   await words.getByRole('searchbox').fill('tar')
   const pack = words.locator('li[data-pack-id="shell"]')
   await expect(pack.getByRole('button', { name: /^Shell/ })).toHaveAttribute('aria-expanded', 'true')
-  await expect(pack.getByRole('button', { name: '応用', exact: true })).toHaveAccessibleDescription('検索に一致')
+  await expect(pack.getByRole('button', { name: '応用', exact: true })).toHaveAccessibleDescription(/検索に一致$/)
 })
 
 test('a level that would hide another list of the pack is refused under the level', async ({ page }) => {

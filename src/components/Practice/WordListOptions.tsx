@@ -122,25 +122,32 @@ function PackOption({ packId, name, lists, selectedId, onSelect, matches, resetK
       </span>
       <ChevronDown className={cn('size-4 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none', open && 'rotate-180')} aria-hidden="true" />
     </button>
-    {open && <div id={`${id}-levels`} role="group" aria-label={t(anyLevels ? 'levels' : 'listsOf', { name })} className="grid gap-2 px-3 pt-1 pb-2.5 pl-[42px]">
-      {/* A list has one level at most (v0.97.0), so there is one step, named by the group around it. */}
-      {steps.map((step, index) => <div key={index} className="flex flex-wrap gap-1.5">
-        {step.options.map(level => {
+    {open && <div id={`${id}-levels`} role="group" aria-label={t(anyLevels ? 'levels' : 'listsOf', { name })} className="grid gap-2 px-3 pt-1 pb-2.5 pl-[34px]">
+      {/* A list has one level at most (v0.97.0), so there is one step, named by the group around it. Each choice is a row of
+          a list, which shows the words and best of the list it picks. */}
+      {steps.map((step, index) => <ul key={index} className="grid gap-0.5">
+        {step.options.map((level, option) => {
           const pressed = step.chosen === level
           const prefix = [...chosen.slice(0, index), level]
           const list = listAtLevels(lists, prefix)
           const final = list && levelSteps(lists, prefix).length === index + 1
           // A choice that leads to a list the search found is marked, in its look and for screen readers.
           const match = found(prefix)
-          return <button key={level} type="button" aria-pressed={pressed} onClick={() => choose(index, level)}
-            title={final ? `${list.name} · ${summary(list)}` : undefined} data-match={match || undefined} aria-describedby={match ? `${id}-match` : undefined}
-            className={cn('inline-flex h-8 items-center rounded-full border px-3 text-[13px] outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50',
-              match && !pressed && 'border-primary bg-primary/10 font-medium text-primary',
-              pressed && 'border-primary bg-primary text-primary-foreground hover:bg-primary/90')}>
-            {level}
-          </button>
+          // The row is named by its level alone; the words and best of its list describe it.
+          const about = `${id}-${index}-${option}`
+          const described = [final && about, match && `${id}-match`].filter(Boolean).join(' ') || undefined
+          return <li key={level}>
+            <button type="button" aria-pressed={pressed} aria-label={level} onClick={() => choose(index, level)}
+              data-match={match || undefined} aria-describedby={described}
+              className={cn('flex min-h-9 w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50',
+                match && !pressed && 'bg-primary/10 font-medium text-primary',
+                pressed && 'bg-primary text-primary-foreground hover:bg-primary/90')}>
+              <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">{level}</span>
+              {final && <span id={about} className={cn('shrink-0 text-xs tabular-nums', pressed ? 'text-primary-foreground/80' : 'text-muted-foreground')}>{summary(list)}</span>}
+            </button>
+          </li>
         })}
-      </div>)}
+      </ul>)}
       {steps.at(-1)?.chosen === null && <p className="text-xs text-muted-foreground">{t(anyLevels ? 'chooseLevel' : 'chooseList')}</p>}
       {matches.length > 0 && <span id={`${id}-match`} hidden>{t('match')}</span>}
     </div>}
