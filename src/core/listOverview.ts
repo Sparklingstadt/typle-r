@@ -1,9 +1,25 @@
 import { AppError } from './appError'
 import { recordsOfMode } from './records'
 import type { SavedWordList } from './wordLists'
+import type { Library } from './wordPacks'
 
+/** The lists an account may hold, not counting those of followed packs (see ownListCount). */
 export const MAX_LISTS = 150
+/** The official packs an account may follow. Their lists are saved without words, so MAX_LISTS does not count them. */
+export const MAX_FOLLOWED_PACKS = 200
 export const MAX_LIST_NAME = 200
+
+const followedIds = (packs: Library['packs']) => new Set(packs.filter(pack => pack.origin?.followed === true).map(pack => pack.id))
+
+/** The lists MAX_LISTS counts: those not in a followed pack, whose words the catalog has (ownListCount in Go). */
+export function ownListCount({ packs, lists }: Pick<Library, 'packs' | 'lists'>) {
+  const followed = followedIds(packs)
+  return lists.filter(list => !followed.has(list.packId!)).length
+}
+
+export function followedPackCount(packs: Library['packs']) {
+  return followedIds(packs).size
+}
 
 export type ListOverview = {
   list: SavedWordList
@@ -138,7 +154,8 @@ export function duplicateList(lists: SavedWordList[], id: string, copyId: string
   if (!source) throw new AppError('listDeleted')
   // A list of a followed pack is the only one with an origin (a copy of a pack has none), and it cannot be copied inside it.
   if (source.origin) throw new AppError('packFollowed')
-  if (lists.length >= MAX_LISTS) throw new AppError('listLimit', { max: MAX_LISTS })
+  // Only the lists of followed packs have an origin, so the copy is refused by the lists without one (see ownListCount).
+  if (lists.filter(list => !list.origin).length >= MAX_LISTS) throw new AppError('listLimit', { max: MAX_LISTS })
   // The copy has no levels, so it is picked by its name: a first level of the pack is taken as a name is, or the copy
   // would overlap that list (see pathsOverlap) and be renamed when it is saved.
   const taken = lists.filter(list => list.packId === source.packId).flatMap(list => list.levels?.length ? [list, { name: list.levels[0] }] : [list])

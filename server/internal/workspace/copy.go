@@ -61,7 +61,7 @@ func CopyList(w *Workspace, sourceID string, name *string, id string, now time.T
 	if err := refuseFollowed(w, w.Lists[at].PackID); err != nil {
 		return nil, err
 	}
-	if len(w.Lists) >= MaxLists {
+	if OwnListCount(w.Packs, w.Lists) >= MaxLists {
 		return nil, &Error{Key: "listLimit"}
 	}
 	source := &w.Lists[at]

@@ -97,6 +97,12 @@ func TestCreateListLimit(t *testing.T) {
 	if len(w.Lists) != MaxLists {
 		t.Fatalf("lists = %d", len(w.Lists))
 	}
+	// Lists of a followed pack are not counted.
+	w.Packs = []Pack{{ID: "f", Name: "F", Origin: &Origin{CatalogID: "c", Version: 1, Followed: true}, CreatedAt: packStamp}}
+	w.Lists[0].PackID = "f"
+	if _, err := CreateList(w, ListInput{Name: text("a"), Words: []Word{{Display: "a", Input: "a"}}}, "new", now); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestUpdateList(t *testing.T) {

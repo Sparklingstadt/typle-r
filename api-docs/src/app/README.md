@@ -48,7 +48,7 @@ Web版は v2.14.0 から、ワークスペース・記録・共有・ギャラ�
 | ステータス | キー | 状況 |
 |---|---|---|
 | 400 | `emptyRequest` | 書き込みに本文がない |
-| 400 | `invalidWorkspace`・`invalidRecord`・`levelsConflict`・`listLimit` など | 本文が不正（各エンドポイントを参照） |
+| 400 | `invalidWorkspace`・`invalidRecord`・`levelsConflict`・`listLimit`・`followLimit` など | 本文が不正（各エンドポイントを参照） |
 | 401 | `loginRequired` | ログインしていない、またはセッションが無効にされた |
 | 401 | `loginAccountChanged` | 本文の `accountId` がログイン中のアカウントと違う（別の画面で別のアカウントにログインした） |
 | 403 | `forbiddenRequest` | 書き込みの `Origin` がアプリのものでない、または `Content-Type` が `application/json` でない |

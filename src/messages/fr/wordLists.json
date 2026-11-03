@@ -17,10 +17,12 @@
   },
   "manager": {
     "heading": "Packs enregistrés",
-    "limitTitle": "Jusqu’à {max} listes",
+    "limitTitle": "Jusqu’à {max} listes à vous et {followedMax} packs officiels suivis. Les listes des packs suivis ne comptent pas parmi les vôtres.",
+    "ownCount": "À vous {count} / {max}",
+    "followedCount": "Suivis {count} / {max} packs",
     "create": "Créer un pack",
     "createPack": "Nouveau pack",
-    "full": "Vous pouvez enregistrer jusqu’à {max} listes de mots. Supprimez celles que vous n’utilisez plus pour en créer de nouvelles.",
+    "full": "Vous pouvez enregistrer jusqu’à {max} listes de mots à vous. Supprimez celles que vous n’utilisez plus pour en créer de nouvelles. Les listes des packs suivis ne comptent pas.",
     "search": "Rechercher par nom de pack ou de liste, catégorie, étiquette ou mot",
     "clearSearch": "Effacer la recherche",
     "countFiltered": "{shown} sur {total}",
@@ -294,7 +296,7 @@
     "description": "Packs prêts à l’emploi. Suivez-en un pour utiliser le contenu officiel, mis à jour automatiquement. Il n’est pas modifiable, mais vous pouvez le dupliquer pour créer votre propre pack.",
     "back": "Retour aux packs",
     "open": "Ouvrir",
-    "full": "Impossible de suivre : vous avez atteint la limite de {max} listes. Supprimez les listes que vous n’utilisez plus.",
+    "full": "Vous pouvez suivre jusqu’à {max} packs officiels. Cessez de suivre ceux que vous n’utilisez plus.",
     "follow": "Suivre",
     "followPack": "Suivre {name}",
     "followed": "« {name} » est suivi.",
@@ -340,7 +342,8 @@
     "loadFailed": "Impossible de charger ce partage. Réessayez dans un instant.",
     "levels": "Difficulté : {levels}",
     "lists": "Listes",
-    "addFailed": "Impossible d’ajouter le pack. Réessayez."
+    "addFailed": "Impossible d’ajouter le pack. Réessayez.",
+    "full": "Vous pouvez enregistrer jusqu’à {max} listes de mots à vous. Supprimez celles que vous n’utilisez plus pour ajouter ce pack."
   },
   "follow": {
     "badge": "Officiel",

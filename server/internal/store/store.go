@@ -328,16 +328,18 @@ func (s *Store) ReadRevision(ctx context.Context, owner string) (*Saved, error) 
 
 // WriteRevision saves change over the workspace at revision: revision 0 creates the row, any other revision replaces
 // what is saved only if it is still that revision (else ErrConflict). Lists may be more than MaxLists in saved data
-// merged from removed profiles; a save may keep or lower that number, never raise it. The size of the lists is not
-// checked here: the /api/workspace handler (server/internal/web) only limits the request.
+// merged from removed profiles (and followed packs more than MaxFollowedPacks); a save may keep or lower each number,
+// never raise it. Lists of followed packs are not counted in MaxLists (workspace.OwnListCount). The size of the lists
+// is not checked here: the /api/workspace handler (server/internal/web) only limits the request.
 //
 // It returns ErrConflict for a stale revision, a *workspace.Error for lists past the limits of validateLists or packs
-// without lists (invalidWorkspace) or more lists than allowed (listLimit), and any other error when the change cannot
-// be written. Whether packs hold their lists (workspace.CheckLibrary) is the handler's to check, on what was sent. A
-// change that Decode would refuse is never written: the account would no longer load, here or in the app. All of this,
-// apart from the conflict and the saved number of lists, is checked before the database is touched.
+// without lists (invalidWorkspace) or more lists or followed packs than allowed (listLimit, followLimit), and any other
+// error when the change cannot be written. Whether packs hold their lists (workspace.CheckLibrary) is the handler's to
+// check, on what was sent. A change that Decode would refuse is never written: the account would no longer load, here
+// or in the app. All of this, apart from the conflict and the saved numbers of lists and followed packs, is checked
+// before the database is touched.
 //
-// What is saved is not read back through Decode: only the saved revision and number of lists are read, a part left out
+// What is saved is not read back through Decode: only the saved revision and numbers are read, a part left out
 // is kept by the UPDATE itself, and the result is the row's JSON as stored, with its records put back in its lists.
 // Lists saved bring their records: those of typle_records become exactly theirs (see records.go), and the row's
 // records_split is set. When packs are saved, the links to packs no longer among them are deleted in the same
@@ -433,9 +435,13 @@ func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, c
 // writeRevision writes the parts of WriteRevision, encoded (nil for a part left out), in tx. Lists written have their
 // records in typle_records (records_split), which the caller then writes.
 func writeRevision(ctx context.Context, tx pgx.Tx, owner string, revision int, change Change, lists, packs, devices, interests []byte) error {
+	own, followed := workspace.OwnListCount(change.Packs, change.Lists), workspace.FollowedPackCount(change.Packs)
 	if revision == 0 {
-		if len(change.Lists) > workspace.MaxLists {
+		if change.HasLists && own > workspace.MaxLists {
 			return &workspace.Error{Key: "listLimit"}
+		}
+		if change.HasLists && followed > workspace.MaxFollowedPacks {
+			return &workspace.Error{Key: "followLimit"}
 		}
 		// The links PutShare made from the initial packs are seen by deleteRemovedShares (see lockOwner).
 		if err := lockOwner(ctx, tx, owner); err != nil {
@@ -453,17 +459,28 @@ func writeRevision(ctx context.Context, tx pgx.Tx, owner string, revision int, c
 		}
 		return forgetRecords(ctx, tx, owner)
 	}
-	var savedRevision, savedLists int
-	err := tx.QueryRow(ctx, `SELECT revision, jsonb_array_length(lists) FROM typle_workspaces WHERE owner_id = $1`, owner).
-		Scan(&savedRevision, &savedLists)
+	// The saved lists and followed packs are counted as OwnListCount and FollowedPackCount count them.
+	var savedRevision, savedOwn, savedFollowed int
+	err := tx.QueryRow(ctx, `WITH followed AS (
+			SELECT p->>'id' AS id FROM typle_workspaces, jsonb_array_elements(COALESCE(packs, '[]'::jsonb)) AS p
+			WHERE owner_id = $1 AND p->'origin'->>'followed' = 'true')
+		SELECT revision,
+			(SELECT count(*) FROM jsonb_array_elements(lists) AS l
+				WHERE l->>'packId' IS NULL OR l->>'packId' NOT IN (SELECT id FROM followed)),
+			(SELECT count(*) FROM followed)
+		FROM typle_workspaces WHERE owner_id = $1`, owner).
+		Scan(&savedRevision, &savedOwn, &savedFollowed)
 	if errors.Is(err, pgx.ErrNoRows) || (err == nil && savedRevision != revision) {
 		return ErrConflict
 	}
 	if err != nil {
 		return err
 	}
-	if len(change.Lists) > workspace.MaxLists && len(change.Lists) > savedLists {
+	if change.HasLists && own > workspace.MaxLists && own > savedOwn {
 		return &workspace.Error{Key: "listLimit"}
+	}
+	if change.HasLists && followed > workspace.MaxFollowedPacks && followed > savedFollowed {
+		return &workspace.Error{Key: "followLimit"}
 	}
 	// Matching the revision in the UPDATE itself makes the comparison and the write one atomic operation.
 	err = tx.QueryRow(ctx, `UPDATE typle_workspaces SET lists = COALESCE($3::jsonb, lists),

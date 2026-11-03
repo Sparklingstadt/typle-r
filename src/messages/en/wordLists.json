@@ -17,10 +17,12 @@
   },
   "manager": {
     "heading": "Saved packs",
-    "limitTitle": "You can save up to {max} lists",
+    "limitTitle": "Up to {max} lists of your own and {followedMax} followed official packs. Lists of followed packs do not count toward your own.",
+    "ownCount": "Own {count} / {max}",
+    "followedCount": "Following {count} / {max} packs",
     "create": "Create a new pack",
     "createPack": "New pack",
-    "full": "You can save up to {max} word lists. Delete lists you no longer use to create new ones.",
+    "full": "You can save up to {max} word lists of your own. Delete lists you no longer use to create new ones. Lists of followed packs are not counted.",
     "search": "Search by pack name, list name, category, tag or word",
     "clearSearch": "Clear search",
     "countFiltered": "{shown} of {total}",
@@ -294,7 +296,7 @@
     "description": "Ready-made packs. Follow one to use the official content as it is; it stays up to date. You cannot edit it, but you can duplicate it to make your own pack.",
     "back": "Back to packs",
     "open": "Open",
-    "full": "Cannot follow: you have reached the limit of {max} lists. Delete lists you no longer use.",
+    "full": "You can follow up to {max} official packs. Unfollow packs you no longer use.",
     "follow": "Follow",
     "followPack": "Follow {name}",
     "followed": "Followed “{name}”.",
@@ -340,7 +342,8 @@
     "loadFailed": "Couldn’t load this share. Try again in a moment.",
     "levels": "Difficulty: {levels}",
     "lists": "Lists",
-    "addFailed": "Couldn’t add the pack. Please try again."
+    "addFailed": "Couldn’t add the pack. Please try again.",
+    "full": "You can save up to {max} word lists of your own. Delete lists you no longer use to add this pack."
   },
   "follow": {
     "badge": "Official",

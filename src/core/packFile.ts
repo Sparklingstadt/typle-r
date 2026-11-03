@@ -1,5 +1,5 @@
 import { AppError } from './appError'
-import { copyName, MAX_LISTS, MAX_LIST_NAME } from './listOverview'
+import { copyName, followedPackCount, MAX_FOLLOWED_PACKS, MAX_LISTS, MAX_LIST_NAME, ownListCount } from './listOverview'
 import { settle, trimLevels } from './packEditing'
 import { MAX_CATEGORY, MAX_LEVEL, MAX_SAVED_LEVELS, MAX_TAG, MAX_TAGS, isInputType, isWritingMark, normalizeLabels, validateList, type SavedWordList } from './wordLists'
 import { MAX_PACK_DESCRIPTION, MAX_PACK_NAME, nameKey, separateLevels, type Library, type WordPack } from './wordPacks'
@@ -91,8 +91,11 @@ export function decodePackFile(text: string): PackFile {
   }
 }
 
-function checkRoom(library: Library, count: number) {
-  if (library.lists.length + count > MAX_LISTS) throw new AppError('listLimit', { max: MAX_LISTS })
+// A followed pack takes one of MAX_FOLLOWED_PACKS; any other pack's lists take their number of MAX_LISTS.
+function checkRoom(library: Library, count: number, followed = false) {
+  if (followed) {
+    if (followedPackCount(library.packs) >= MAX_FOLLOWED_PACKS) throw new AppError('followLimit', { max: MAX_FOLLOWED_PACKS })
+  } else if (ownListCount(library) + count > MAX_LISTS) throw new AppError('listLimit', { max: MAX_LISTS })
 }
 
 // The limits a save enforces on sizes (see validateLibrary and validateLists), checked on the file as it was read.
@@ -128,7 +131,7 @@ export function addPackFile(library: Library, file: PackFile, ids: NewPackIds, n
   checkIds(ids, file.lists.length)
   const wanted = file.pack.name.trim()
   if (!wanted) throw new AppError('packNameRequired')
-  checkRoom(library, file.lists.length)
+  checkRoom(library, file.lists.length, origin?.followed === true)
   checkSizes(file)
   const createdAt = now.toISOString()
   const lists: SavedWordList[] = []

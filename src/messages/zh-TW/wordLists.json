@@ -17,10 +17,12 @@
   },
   "manager": {
     "heading": "已儲存的包",
-    "limitTitle": "最多可儲存 {max} 個",
+    "limitTitle": "自建清單最多 {max} 個，官方包最多可追蹤 {followedMax} 個。已追蹤的包中的清單不計入自建清單數。",
+    "ownCount": "自建 {count} / {max}",
+    "followedCount": "追蹤 {count} / {max} 個包",
     "create": "建立新包",
     "createPack": "建立新包",
-    "full": "最多可儲存 {max} 個單字清單。刪除不再使用的清單後即可建立新清單。",
+    "full": "自建的單字清單最多可儲存 {max} 個。刪除不再使用的清單後即可建立新清單。已追蹤的包中的清單不計入。",
     "search": "以包名稱、清單名稱、分類、標籤或單字搜尋",
     "clearSearch": "清除搜尋",
     "countFiltered": "{shown} 個 / 共 {total} 個",
@@ -294,7 +296,7 @@
     "description": "預先準備好的單字包。追蹤後可直接使用官方內容，並自動隨官方更新。無法編輯，但可以複製成自己的單字包。",
     "back": "返回包列表",
     "open": "開啟",
-    "full": "清單已達上限（{max}個），無法追蹤。請刪除不用的清單。",
+    "full": "最多可以追蹤 {max} 個官方包。請取消追蹤不用的包。",
     "follow": "追蹤",
     "followPack": "追蹤 {name}",
     "followed": "已追蹤「{name}」",
@@ -340,7 +342,8 @@
     "loadFailed": "無法載入此分享。請稍後再試。",
     "levels": "難度：{levels}",
     "lists": "清單",
-    "addFailed": "無法加入此包。請重試。"
+    "addFailed": "無法加入此包。請重試。",
+    "full": "自建的單字清單最多可儲存 {max} 個。刪除不再使用的清單後即可新增。"
   },
   "follow": {
     "badge": "官方",

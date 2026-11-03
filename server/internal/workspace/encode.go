@@ -10,12 +10,16 @@ import (
 // The limits of validateLists (src/core/workspaceRequest.ts) and MAX_LISTS (src/core/listOverview.ts). Lengths are in
 // UTF-16 code units, as JavaScript measures them.
 const (
-	MaxLists      = 150
-	MaxListName   = 200
-	MaxWords      = 1000
-	MaxWordText   = 1000
-	MaxAnnotation = 2000
-	MaxRecords    = 10000
+	// MaxLists counts the lists not in a followed pack (OwnListCount); followed packs have MaxFollowedPacks.
+	MaxLists = 150
+	// MaxFollowedPacks is MAX_FOLLOWED_PACKS: the lists of a followed pack are saved without words, so MaxLists does
+	// not count them.
+	MaxFollowedPacks = 200
+	MaxListName      = 200
+	MaxWords         = 1000
+	MaxWordText      = 1000
+	MaxAnnotation    = 2000
+	MaxRecords       = 10000
 	// The limits of a list's category and tags (MAX_CATEGORY, MAX_TAG and MAX_TAGS in src/core/wordLists.ts).
 	MaxCategory = 50
 	MaxTag      = 50

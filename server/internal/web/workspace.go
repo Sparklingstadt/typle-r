@@ -259,7 +259,7 @@ func (s *server) saveWorkspace(r *http.Request, owner string, fields map[string]
 	switch {
 	case errors.Is(err, store.ErrConflict):
 		return nil, refused(http.StatusConflict, "conflict")
-	case errors.As(err, &refusal) && (refusal.Key == "listLimit" || refusal.Key == "invalidWorkspace"):
+	case errors.As(err, &refusal) && (refusal.Key == "listLimit" || refusal.Key == "followLimit" || refusal.Key == "invalidWorkspace"):
 		return nil, refused(http.StatusBadRequest, refusal.Key)
 	case err != nil:
 		return nil, broken(err, "workspace.write", "workspaceSaveFailed")

@@ -27,7 +27,7 @@ import { MAX_IMPORT_BYTES } from "@/core/wordFormat"
 import { copyPack, decodePackFile, encodePackFile, importPackFile } from "@/core/packFile"
 import { useFormat } from "@/i18n/useFormat"
 import { randomId } from "@/core/randomId"
-import { duplicateList, isFiltered, LIST_ORDERS, listLabels, listOverviews, matchesFilter, MAX_LISTS, NO_FILTER, type ListFilter, type ListOrder, type ListOverview } from "@/core/listOverview"
+import { duplicateList, isFiltered, LIST_ORDERS, listLabels, followedPackCount, listOverviews, matchesFilter, MAX_FOLLOWED_PACKS, MAX_LISTS, NO_FILTER, ownListCount, type ListFilter, type ListOrder, type ListOverview } from "@/core/listOverview"
 import { isFollowed, ownPacks } from "@/core/followedPacks"
 import Notice from "@/components/WordLists/Notice"
 import { deletePack, matchesPackQuery, matchingListIds, packOverviews, saveListInPack, type PackOverview } from "@/core/packEditing"
@@ -267,7 +267,10 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
   const shown = useMemo(() => sortPacks(all.filter(item => matchesPackQuery(item, query) && matchesFilter(item.pack, filter)), order, locale),
     [all, query, filter, order, locale])
   const narrowed = !!query.trim() || isFiltered(filter)
-  const full = lists.length >= MAX_LISTS
+  // Lists of followed packs are not counted: followed packs have a limit of their own.
+  const own = ownListCount({ packs, lists })
+  const followed = followedPackCount(packs)
+  const full = own >= MAX_LISTS
 
   function exportCsv(list: SavedWordList) {
     setExportError(downloadWordCsv(list) ? '' : t('page.exportFailed', { name: list.name }))
@@ -379,7 +382,8 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
   return <section aria-labelledby="list-heading" className="space-y-3">
     <div className="flex min-h-11 flex-wrap items-center gap-x-2 gap-y-2">
       <h2 id="list-heading" tabIndex={-1} className="text-base font-bold outline-none">{t('manager.heading')}</h2>
-      <Badge variant="secondary" className="tabular-nums" title={t('manager.limitTitle', { max: MAX_LISTS })}>{lists.length} / {MAX_LISTS}</Badge>
+      <Badge variant="secondary" className="tabular-nums" title={t('manager.limitTitle', { max: MAX_LISTS, followedMax: MAX_FOLLOWED_PACKS })}>{t('manager.ownCount', { count: own, max: MAX_LISTS })}</Badge>
+      <Badge variant="secondary" className="tabular-nums" title={t('manager.limitTitle', { max: MAX_LISTS, followedMax: MAX_FOLLOWED_PACKS })}>{t('manager.followedCount', { count: followed, max: MAX_FOLLOWED_PACKS })}</Badge>
       <input ref={fileInput} type="file" accept=".json,application/json" hidden tabIndex={-1} aria-hidden="true"
         onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void importFile(file) }} />
       <Button variant="outline" className="ml-auto" disabled={full || saving} onClick={() => fileInput.current?.click()}><Upload aria-hidden="true" />{t('manager.importFile')}</Button>
@@ -425,7 +429,7 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
           }}
           onEditPack={() => router.push(`/packs/edit?pack=${encodeURIComponent(pack.id)}`)}
           onAddList={full ? undefined : () => router.push(`/create?pack=${encodeURIComponent(pack.id)}`)}
-          onCopy={lists.length + item.lists.length > MAX_LISTS ? undefined : () => copyPackOf(item)} onExport={() => exportPack(item)}
+          onCopy={own + item.lists.length > MAX_LISTS ? undefined : () => copyPackOf(item)} onExport={() => exportPack(item)}
           onShare={canShare ? () => setSharing({ id: pack.id, name: pack.name }) : undefined} shared={shares.has(pack.id)} listed={shares.get(pack.id)?.listed} hidden={shares.get(pack.id)?.hidden}
           onDeletePack={() => { packDeleted.current = false; setDeletingPack({ open: true, item, position: shown.indexOf(item) }) }}
           followed={followed} onUnfollow={() => setUnfollowing({ id: pack.id, name: pack.name })}>

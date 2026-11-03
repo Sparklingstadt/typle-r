@@ -136,6 +136,32 @@ func decodePacks(data []byte) ([]Pack, error) {
 // followed follows isFollowed (src/core/followedPacks.ts): the pack is a followed official pack.
 func (p *Pack) followed() bool { return p.Origin != nil && p.Origin.Followed }
 
+func followedIDs(packs []Pack) map[string]bool {
+	ids := map[string]bool{}
+	for i := range packs {
+		if packs[i].followed() {
+			ids[packs[i].ID] = true
+		}
+	}
+	return ids
+}
+
+// OwnListCount is ownListCount (src/core/listOverview.ts): the lists MaxLists counts, those not in a followed pack,
+// whose words the catalog has.
+func OwnListCount(packs []Pack, lists []List) int {
+	followed := followedIDs(packs)
+	count := 0
+	for _, list := range lists {
+		if !followed[list.PackID] {
+			count++
+		}
+	}
+	return count
+}
+
+// FollowedPackCount is followedPackCount (src/core/listOverview.ts).
+func FollowedPackCount(packs []Pack) int { return len(followedIDs(packs)) }
+
 func nameKey(name string) string { return lowerCase(trimJS(name)) }
 
 // unique follows unique (src/core/workspaceDocument.ts): wanted, or the first variant whose lowercase is not taken.

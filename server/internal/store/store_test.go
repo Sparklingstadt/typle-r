@@ -704,6 +704,62 @@ func TestWriteRevisionListLimit(t *testing.T) {
 	}
 }
 
+// followedChange has own lists in a pack of the account's, and follows the first official packs, each with its lists, and
+// fake ones past them (catalog ids the catalog does not have) with a list each, up to followed packs.
+func followedChange(t *testing.T, own, followed int) Change {
+	t.Helper()
+	official, err := workspace.OfficialPacks()
+	if err != nil {
+		t.Fatal(err)
+	}
+	packs := []workspace.Pack{{ID: "own", Name: "Own", CreatedAt: "2026-10-10T01:23:45.000Z"}}
+	lists := newLists(own)
+	for i := range lists {
+		lists[i].PackID = "own"
+	}
+	for i := range followed {
+		entry := workspace.OfficialPack{CatalogID: fmt.Sprintf("fake-%d", i), Version: 1,
+			Pack: workspace.Pack{Name: fmt.Sprintf("Fake %d", i), CreatedAt: "2026-10-10T01:23:45.000Z"}, Lists: newLists(1)}
+		if i < len(official) {
+			entry = official[i]
+		}
+		pack := entry.Pack
+		pack.ID = fmt.Sprintf("followed-%d", i)
+		pack.Origin = &workspace.Origin{CatalogID: entry.CatalogID, Version: float64(entry.Version), Followed: true}
+		packs = append(packs, pack)
+		for _, item := range entry.Lists {
+			item.ID, item.PackID, item.Origin, item.Records = pack.ID+":"+item.ID, pack.ID, &workspace.ListOrigin{ListID: item.ID}, []workspace.Record{}
+			lists = append(lists, item)
+		}
+	}
+	return Change{Lists: lists, Packs: packs, HasLists: true, HasPacks: true}
+}
+
+// Lists of followed packs are not counted in MaxLists; followed packs have MaxFollowedPacks.
+func TestWriteRevisionFollowedLimit(t *testing.T) {
+	ctx := context.Background()
+	connection, conn := database(t)
+	s := open(t, connection, true)
+
+	id := owner(t, conn)
+	if _, err := s.WriteRevision(ctx, id, 0, followedChange(t, workspace.MaxLists, 20)); err != nil {
+		t.Fatalf("create with %d own lists and 20 followed packs: %v", workspace.MaxLists, err)
+	}
+	if _, err := s.WriteRevision(ctx, id, 1, followedChange(t, workspace.MaxLists, 30)); err != nil {
+		t.Fatalf("following 10 packs more: %v", err)
+	}
+	if _, err := s.WriteRevision(ctx, id, 2, followedChange(t, workspace.MaxLists+1, 30)); !isListLimit(err) {
+		t.Fatalf("one own list more: %v; want listLimit", err)
+	}
+
+	over := workspace.MaxFollowedPacks + 1
+	fresh := owner(t, conn)
+	var refusal *workspace.Error
+	if _, err := s.WriteRevision(ctx, fresh, 0, followedChange(t, 0, over)); !errors.As(err, &refusal) || refusal.Key != "followLimit" {
+		t.Fatalf("create following %d packs: %v; want followLimit", over, err)
+	}
+}
+
 func TestWriteRevisionConcurrent(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)

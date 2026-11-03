@@ -17,10 +17,12 @@
   },
   "manager": {
     "heading": "已保存的包",
-    "limitTitle": "最多可保存 {max} 个",
+    "limitTitle": "自建列表最多 {max} 个，官方包最多可关注 {followedMax} 个。已关注的包中的列表不计入自建列表数。",
+    "ownCount": "自建 {count} / {max}",
+    "followedCount": "关注 {count} / {max} 个包",
     "create": "创建新包",
     "createPack": "新建包",
-    "full": "最多可保存 {max} 个单词列表。删除不再使用的列表后即可创建新列表。",
+    "full": "自建的单词列表最多可保存 {max} 个。删除不再使用的列表后即可创建新列表。已关注的包中的列表不计入。",
     "search": "按包名称、列表名称、分类、标签或单词搜索",
     "clearSearch": "清除搜索",
     "countFiltered": "{shown} 个 / 共 {total} 个",
@@ -294,7 +296,7 @@
     "description": "预先准备好的单词包。关注后可直接使用官方内容，并自动随官方更新。无法编辑，但可以复制成自己的单词包。",
     "back": "返回包列表",
     "open": "打开",
-    "full": "列表已达上限（{max}个），无法关注。请删除不用的列表。",
+    "full": "最多可以关注 {max} 个官方包。请取消关注不用的包。",
     "follow": "关注",
     "followPack": "关注 {name}",
     "followed": "已关注“{name}”",
@@ -340,7 +342,8 @@
     "loadFailed": "无法加载此共享。请稍后再试。",
     "levels": "难度：{levels}",
     "lists": "列表",
-    "addFailed": "无法添加此包。请重试。"
+    "addFailed": "无法添加此包。请重试。",
+    "full": "自建的单词列表最多可保存 {max} 个。删除不再使用的列表后即可添加。"
   },
   "follow": {
     "badge": "官方",

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import ReportDialog from "@/components/Gallery/ReportDialog"
 import { graphql } from "@/core/graphql"
-import { MAX_LISTS } from "@/core/listOverview"
+import { MAX_LISTS, ownListCount } from "@/core/listOverview"
 import { decodePackFile, importPackFile, type PackFile } from "@/core/packFile"
 import { randomId } from "@/core/randomId"
 import { importedLevel } from "@/core/wordPacks"
@@ -88,7 +88,7 @@ function Pack({ id, file }: { id: string; file: PackFile }) {
   const [reporting, setReporting] = useState(false)
   const [reported, setReported] = useState(false)
   const { name, description, category, tags } = file.pack
-  const full = ready && lists.length + file.lists.length > MAX_LISTS
+  const full = ready && ownListCount({ packs, lists }) + file.lists.length > MAX_LISTS
 
   async function add() {
     setFailure('')
@@ -125,7 +125,7 @@ function Pack({ id, file }: { id: string; file: PackFile }) {
       </div>
       <ReportDialog shareId={id} open={reporting} onOpenChange={open => { if (open) setReported(false); setReporting(open) }} onSent={() => setReported(true)} />
       <p role="status" className="text-sm text-muted-foreground">{reported ? t('report.sent') : ''}</p>
-      {full ? <p id="shared-full" className="text-sm text-muted-foreground">{t('catalog.full', { max: MAX_LISTS })}</p> : null}
+      {full ? <p id="shared-full" className="text-sm text-muted-foreground">{t('sharedPage.full', { max: MAX_LISTS })}</p> : null}
       {message ? <Alert variant="destructive"><CircleAlert aria-hidden="true" /><AlertDescription>{message}</AlertDescription></Alert> : null}
     </header>
 
