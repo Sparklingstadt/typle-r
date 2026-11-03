@@ -191,7 +191,8 @@ test('empty and failed loads say different things', async ({ page }) => {
   await page.addInitScript(([k, raw]) => localStorage.setItem(k, raw), [key, guestWorkspace([], { revision: 2 })])
   await page.goto('/edit')
   await expect(page.getByRole('heading', { name: '単語パックはまだありません' })).toBeVisible()
-  await expect(page.getByRole('link', { name: '新しいパック' })).toHaveAttribute('href', '/packs/create')
+  // With no list yet, a list is made first: packs are put together from lists.
+  await expect(page.getByRole('link', { name: '単語リストを作成', exact: true })).toHaveAttribute('href', '/create')
 
   const broken = await page.context().newPage()
   await broken.addInitScript(k => localStorage.setItem(k, '{broken'), key)

@@ -387,8 +387,10 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
       <input ref={fileInput} type="file" accept=".json,application/json" hidden tabIndex={-1} aria-hidden="true"
         onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void importFile(file) }} />
       <Button variant="outline" className="ml-auto" disabled={full || saving} onClick={() => fileInput.current?.click()}><Upload aria-hidden="true" />{t('manager.importFile')}</Button>
-      {full ? <Button disabled><Plus aria-hidden="true" />{t('manager.createPack')}</Button>
-        : <Button asChild><Link href="/packs/create"><Plus aria-hidden="true" />{t('manager.createPack')}</Link></Button>}
+      {/* A pack is made of lists already saved, so only a new list counts towards the limit. */}
+      <Button asChild variant="outline"><Link href="/packs/create"><Plus aria-hidden="true" />{t('manager.createPack')}</Link></Button>
+      {full ? <Button disabled><Plus aria-hidden="true" />{t('manager.createList')}</Button>
+        : <Button asChild><Link href="/create"><Plus aria-hidden="true" />{t('manager.createList')}</Link></Button>}
     </div>
     {full && <p className="text-sm text-muted-foreground">{t('manager.full', { max: MAX_LISTS })}</p>}
     {exportError && <p role="alert" className="flex items-center gap-1.5 text-sm text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{exportError}</p>}
@@ -541,7 +543,7 @@ function EmptyState({ actions }: { actions?: ReactNode }) {
     </div>
     <div className="flex flex-wrap justify-center gap-2">
       <Button asChild><Link href="/packs/catalog"><LibraryIcon aria-hidden="true" />{t('empty.catalogLink')}</Link></Button>
-      <Button asChild variant="outline"><Link href="/packs/create"><Plus aria-hidden="true" />{t('manager.createPack')}</Link></Button>
+      <Button asChild variant="outline"><Link href="/create"><Plus aria-hidden="true" />{t('manager.createList')}</Link></Button>
       {actions}
     </div>
   </div>

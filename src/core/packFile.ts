@@ -122,7 +122,7 @@ function checkIds(ids: NewPackIds, count: number) {
 }
 
 /**
- * The library with the file's pack added at the end, checked as createPack and saveListInPack check a save, but for
+ * The library with the file's pack added at the end, checked as saveListInPack checks a save, but for
  * levels: several levels of a list are joined into one, and levels that overlap are told apart (separateLevels). The name gets （2）, （3）… when a pack has it.
  * Not settled: callers settle the result.
  */

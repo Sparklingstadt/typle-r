@@ -55,6 +55,7 @@
   "deviceNotFound": "練習したデバイスが削除されているため、記録を保存できません。",
   "packNameRequired": "パック名を入力してください",
   "packNameDuplicate": "同じ名前のパックがあります",
+  "packListsRequired": "パックにまとめる単語リストを1つ以上選んでください。",
   "packDeleted": "このパックは削除されています",
   "packFollowed": "公式パックは編集できません。複製すると自分のパックとして編集できます",
   "levelsConflict": "同じパックに、難易度（難易度がないリストは名前）が同じリストがあります",

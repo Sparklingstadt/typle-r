@@ -73,10 +73,9 @@ test('legacy words default to word and type-only edits are saved and restored', 
 test('a duplicate name is shown on the name field while the save bar stays visible', async ({ page }) => {
   await seedGoList(page)
   await page.setViewportSize({ width: 1280, height: 720 })
-  await page.goto('/create')
+  // A name is only taken within its pack, so the list is added to the pack that has Go構文.
+  await page.goto('/create?pack=pack-go')
   await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('Go構文')
-  // A name is only taken within its pack, so the pack that has Go構文 is chosen.
-  await page.getByRole('combobox', { name: 'パック', exact: true }).selectOption({ label: 'Go構文' })
   for (let n = 1; n <= 10; n++) {
     await display(page, n).fill(`word ${n}`)
     await display(page, n).press('Enter')
@@ -89,7 +88,7 @@ test('a duplicate name is shown on the name field while the save bar stays visib
   await expect(alert).toBeInViewport()
   await expect(alert).toHaveCount(1)
   await expect(save).toBeInViewport()
-  await expect(page).toHaveURL(/\/create$/)
+  await expect(page).toHaveURL(/\/create\?pack=pack-go$/)
   // Saving from the top of a long list scrolls the error into view.
   await page.getByRole('textbox', { name: '単語リスト名', exact: true }).press('Control+Enter')
   await expect(alert).toBeInViewport()

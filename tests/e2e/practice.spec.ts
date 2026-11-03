@@ -538,14 +538,13 @@ test('CSV import preserves existing records and exact strings after a failed sav
   const existing = { id: 'csv-existing', name: 'Existing', createdAt: '2026-09-27', words: [{ display: 'Old', input: 'old', annotation: '' }], records: [{ date: '2026-09-27', time: 1 }] }
   await seed(page, [existing])
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/create')
+  // A name is only taken within its pack, so the list is added to the pack that has Existing (a pack's 「リストを追加」).
+  await page.goto('/create?pack=pack-csv-existing')
   await importWords(page, { name: 'words.csv', mimeType: 'text/csv', buffer: Buffer.from('\ufeffdisplay,input,annotation\r\n" 字 ",zi,"意味,補足\r\n""引用"""\r\n字,zi,\r\n字,zi,') })
   await expect(page.getByRole('textbox', { name: '表示する単語 1', exact: true })).toHaveValue(' 字 ')
   // The seed is saved as the app saves it: the list in a pack of its own.
   expect((await saved(page)).lists).toEqual([{ ...existing, packId: `pack-${existing.id}` }])
   await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('Existing')
-  // A name is only taken within its pack.
-  await page.getByRole('combobox', { name: 'パック', exact: true }).selectOption({ label: 'Existing' })
   await page.getByRole('button', { name: '保存', exact: true }).click()
   await expect(page.getByRole('alert').filter({ hasText: '同じ名前' })).toBeVisible()
   await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('CSV Chinese')

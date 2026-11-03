@@ -41,7 +41,7 @@ function Kbd({ children }: { children: string }) {
   return <kbd className="rounded border bg-background px-1.5 py-px font-sans text-[11px] font-medium text-foreground/70">{children}</kbd>
 }
 
-export default function WordListEditor({ title, description, storage, initial, packs = [], packId, lonePackName, error, errorKey, packFields, packDirty = false, onSave, onCancel, onDirtyChange, cancelRequest = 0 }: {
+export default function WordListEditor({ title, description, storage, initial, packs = [], packId, choosePack = true, lonePackName, error, errorKey, packFields, packDirty = false, onSave, onCancel, onDirtyChange, cancelRequest = 0 }: {
   title: string
   description?: ReactNode
   storage?: WorkspaceLocation
@@ -50,6 +50,8 @@ export default function WordListEditor({ title, description, storage, initial, p
   packs?: WordPack[]
   /** The pack that is chosen at first; `null`, a pack that is gone, or none given at all means a new pack named after the list. */
   packId?: string | null
+  /** Whether the pack is chosen on the form. Without the choice the list is saved to `packId` as given, or to a pack of its own. */
+  choosePack?: boolean
   /** The name of the pack when `initial` is its only list: choosing another pack deletes it, which is said under the choice. */
   lonePackName?: string
   error?: string
@@ -243,7 +245,10 @@ export default function WordListEditor({ title, description, storage, initial, p
     <div className="space-y-6">
       {packFields}
       <section className="space-y-2 rounded-xl border bg-card p-4 sm:p-6" aria-label={t("basics")}>
-        {!packFields && <>
+        {!packFields && !choosePack && chosenPack && <p className="pb-2 text-sm text-muted-foreground [overflow-wrap:anywhere]">
+          {t("addingTo", { name: packs.find(pack => pack.id === chosenPack)?.name ?? "" })}
+        </p>}
+        {!packFields && choosePack && <>
           <Label htmlFor={packSelectId}>{t("pack")}</Label>
           <select id={packSelectId} value={chosenPack ?? ""} aria-describedby={`${leavingLonePack ? `${packSelectId}-deleted ` : ""}${packSelectId}-help`} onChange={event => setChosenPack(event.target.value || null)}
             className="h-11 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30 dark:[&>option]:bg-popover">

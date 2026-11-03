@@ -1,54 +1,42 @@
 "use client"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useRef } from "react"
 import { useRouter } from "next/navigation"
-import { useLocale, useTranslations } from "next-intl"
-import WordListEditor from "@/components/WordListEditor"
+import { useTranslations } from "next-intl"
+import PackEditor from "@/components/PackEditor"
 import WordListEditorPage from "@/components/WordListEditorPage/WordListEditorPage"
 import { useSaveNotification } from "@/components/SaveNotification"
-import PackFields, { PACK_NAME_FIELD, samePackInput } from "@/components/WordLists/PackFields"
+import Notice from "@/components/WordLists/Notice"
 import { useWordLists } from "@/lib/useWordLists"
-import { listLabels } from "@/core/listOverview"
-import { createPack, type PackInput } from "@/core/packEditing"
+import { ownPacks } from "@/core/followedPacks"
+import { createPackFromLists } from "@/core/packEditing"
 import { randomId } from "@/core/randomId"
 
-const emptyPack: PackInput = { name: "", description: "", category: "", tags: [] }
-
+// A pack is made of word lists already saved, which move into it; word lists themselves are made on /create.
 export default function CreatePack() {
   const router = useRouter()
   const notify = useSaveNotification()
-  const locale = useLocale()
   const t = useTranslations("wordLists")
-  const errors = useTranslations("errors")
   const common = useTranslations("common")
-  const { ready, packs, error, errorKey, updateLibrary, storage } = useWordLists()
-  const [fields, setFields] = useState(emptyPack)
+  const { ready, packs, lists, error, errorKey, updateLibrary, storage } = useWordLists()
   // The pack is made once, however many times saving is retried.
   const packId = useRef<string | undefined>(undefined)
-  const [failure, setFailure] = useState({ count: 0, name: "" })
-  const suggestions = useMemo(() => listLabels(packs, locale), [packs, locale])
-
-  const nameKeyError = errorKey === "packNameRequired" || errorKey === "packNameDuplicate"
-  const nameError = nameKeyError && failure.name === fields.name ? errors(errorKey) : undefined
-  const handled = useRef(0)
-  useEffect(() => {
-    if (failure.count <= handled.current) return
-    handled.current = failure.count
-    if (nameKeyError) document.querySelector<HTMLElement>(`input[name="${PACK_NAME_FIELD}"]`)?.focus()
-  }, [failure, nameKeyError])
+  const own = new Set(ownPacks(packs).map(pack => pack.id))
+  // The lists of a followed pack belong to the catalog and cannot be moved.
+  const choices = lists.filter(list => list.packId !== undefined && own.has(list.packId))
 
   return <WordListEditorPage>
-    {ready ? <WordListEditor title={t("packEditor.createTitle")} description={t("packEditor.createDescription")} storage={storage}
-      error={error} errorKey={errorKey} packDirty={!samePackInput(fields, emptyPack)}
-      packFields={<PackFields value={fields} onChange={setFields} suggestions={suggestions} nameError={nameError} />}
-      onCancel={() => router.push("/edit")} onSave={async list => {
+    {!ready ? <p>{common("loading")}</p>
+    : !choices.length ? <Notice link={{ href: "/create", label: t("packEditor.createList") }}>{t("packEditor.noLists")}</Notice>
+    : <PackEditor lists={choices} packs={packs} storage={storage} error={error} errorKey={errorKey}
+      onCancel={() => router.push("/edit")} onSave={async (fields, listIds) => {
         packId.current ??= randomId()
         const id = packId.current
-        const saved = await updateLibrary(library => createPack(library, fields, list, id))
+        const saved = await updateLibrary(library => createPackFromLists(library, fields, listIds, id))
         if (saved) {
           notify(t("packEditor.created", { name: fields.name.trim() }))
           router.push(`/edit?pack=${encodeURIComponent(id)}`)
-        } else setFailure(current => ({ count: current.count + 1, name: fields.name }))
+        }
         return saved
-      }} /> : <p>{common("loading")}</p>}
+      }} />}
   </WordListEditorPage>
 }

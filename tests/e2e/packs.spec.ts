@@ -114,35 +114,64 @@ test('the pack in ?pack= is opened and in view', async ({ page }) => {
   await expect(shell.locator('li[data-list-id]')).toHaveCount(2)
 })
 
-test('a new pack is made with its fields and first list, and shown on /edit', async ({ page }) => {
+const choice = (page: Page, name: string) => page.getByRole('checkbox', { name, exact: true })
+
+test('a new pack is made of lists already saved, which move into it; a pack left with none goes', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', error => errors.push(error.message))
   await page.goto('/packs/create')
   await expect(page.getByRole('heading', { name: 'パックを作成', level: 1 })).toBeVisible()
-  await page.getByRole('textbox', { name: 'パック名', exact: false }).fill('Rust')
+  // The words of a list are not entered here: lists are made on their own.
+  await expect(page.getByRole('textbox', { name: '単語リスト名', exact: true })).toHaveCount(0)
+  await page.getByRole('textbox', { name: 'パック名', exact: false }).fill('Mix')
   await page.getByRole('combobox', { name: 'カテゴリ（任意）' }).click()
   const search = page.getByRole('combobox', { name: 'カテゴリを検索・作成' })
-  await search.fill('プログラミング')
+  await search.fill('まとめ')
   await search.press('Enter')
-  await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('基本')
-  await page.getByRole('textbox', { name: '表示する単語 1', exact: true }).fill('fn')
+  // A list of a pack of several lists is shown with its pack.
+  await expect(page.getByRole('listitem').filter({ has: choice(page, '応用') })).toContainText('パック「Shell」')
+  await page.getByRole('searchbox', { name: '単語リストを名前で絞り込む' }).fill('単独')
+  await expect(page.getByRole('checkbox')).toHaveCount(1)
+  await choice(page, '単独リスト').check()
+  await page.getByRole('searchbox', { name: '単語リストを名前で絞り込む' }).fill('')
+  await choice(page, '応用').check()
+  await expect(page.getByText('2件を選択中')).toBeVisible()
   await page.getByRole('button', { name: '保存', exact: true }).click()
   await expect(page).toHaveURL(/\/edit\?pack=/)
-  const rust = page.locator('li[data-pack-id]', { hasText: 'Rust' })
-  await expect(rust).toContainText('プログラミング')
-  await expect(rust.locator('li[data-list-id] h3')).toHaveText(['基本'])
+  const mix = page.locator('li[data-pack-id]', { hasText: 'Mix' })
+  await expect(mix).toContainText('まとめ')
+  // The lists keep the order they were offered in.
+  await expect(mix.locator('li[data-list-id] h3')).toHaveText(['応用', '単独リスト'])
   const workspace = await saved(page)
-  const pack = workspace.packs.find((item: { name: string }) => item.name === 'Rust')
-  expect(pack.category).toBe('プログラミング')
-  const created = workspace.lists.filter((item: { packId: string }) => item.packId === pack.id)
-  expect(created.map((item: { name: string }) => item.name)).toEqual(['基本'])
+  const pack = workspace.packs.find((item: { name: string }) => item.name === 'Mix')
+  expect(pack.category).toBe('まとめ')
+  expect(workspace.lists.filter((item: { packId: string }) => item.packId === pack.id).map((item: { id: string }) => item.id)).toEqual(['adv', 'solo-list'])
+  // 単独 had only 単独リスト, so it is gone; Shell keeps 基本. The records move with the list.
+  expect(workspace.packs.map((item: { id: string }) => item.id)).toEqual(['shell', 'fruits', 'plain-pack', pack.id])
+  expect(workspace.lists.find((item: { id: string }) => item.id === 'solo-list').records).toEqual([record])
   expect(errors).toEqual([])
+})
+
+test('a pack needs a list, and lists of the same name cannot be put together', async ({ page }) => {
+  await page.goto('/packs/create')
+  await page.getByRole('textbox', { name: 'パック名', exact: false }).fill('Mix')
+  await page.getByRole('button', { name: '保存', exact: true }).click()
+  await expect(page.getByRole('alert').filter({ hasText: 'パックにまとめる単語リストを1つ以上選んでください。' })).toBeVisible()
+  await choice(page, 'Plain').check()
+  await page.getByRole('button', { name: '保存', exact: true }).click()
+  await expect(page).toHaveURL(/\/edit\?pack=/)
+})
+
+test('a page with no list of one\'s own to put in a pack offers to make a list', async ({ page }) => {
+  await page.addInitScript(([k, raw]) => localStorage.setItem(k, raw), [key, JSON.stringify({ ...workspace(), packs: [], lists: [] })])
+  await page.goto('/packs/create')
+  await expect(page.getByText('パックにまとめられる単語リストがありません。')).toBeVisible()
+  await expect(page.getByRole('link', { name: '単語リストを作成', exact: true })).toHaveAttribute('href', '/create')
 })
 
 test('a pack needs a name that no other pack has', async ({ page }) => {
   await page.goto('/packs/create')
-  await page.getByRole('textbox', { name: '単語リスト名', exact: true }).fill('基本')
-  await page.getByRole('textbox', { name: '表示する単語 1', exact: true }).fill('fn')
+  await choice(page, '基本').check()
   await page.getByRole('button', { name: '保存', exact: true }).click()
   const name = page.getByRole('textbox', { name: 'パック名', exact: false })
   await expect(page.getByText('パック名を入力してください')).toBeVisible()
@@ -289,7 +318,8 @@ test('a list made with 「リストを追加」 goes into that pack, which is op
   await page.locator('li[data-pack-id="shell"]').getByRole('button', { name: 'Shell のパックの操作' }).click()
   await page.getByRole('menuitem', { name: 'リストを追加' }).click()
   await expect(page).toHaveURL(/\/create\?pack=shell$/)
-  await expect(packSelect(page)).toHaveValue('shell')
+  await expect(page.getByText('パック「Shell」に追加します。')).toBeVisible()
+  await expect(packSelect(page)).toHaveCount(0)
   await expect(page.getByRole('combobox', { name: 'カテゴリ（任意）' })).toHaveCount(0)
   await listName(page).fill('新規')
   await firstWord(page).fill('pwd')
@@ -302,10 +332,11 @@ test('a list made with 「リストを追加」 goes into that pack, which is op
   expect(errors).toEqual([])
 })
 
-test('a list made without a pack gets a pack of its own, named after the list', async ({ page }) => {
+test('a list is made on its own, in a pack of its own named after the list', async ({ page }) => {
   await page.goto('/create')
-  await expect(packSelect(page)).toHaveValue('')
-  await expect(packSelect(page).locator('option')).toHaveText(['Shell', '果物', '単独', 'Plain', '新しいパック（リスト名で作成）'])
+  // No pack is chosen when making a list: packs are put together on /packs/create.
+  await expect(packSelect(page)).toHaveCount(0)
+  await expect(page.getByText(/に追加します/)).toHaveCount(0)
   await listName(page).fill('自分だけ')
   await firstWord(page).fill('x')
   await saveButton(page).click()
