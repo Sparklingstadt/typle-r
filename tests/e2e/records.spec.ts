@@ -3,7 +3,10 @@ import { guestWorkspace } from './guestData'
 const key = 'typle-r:guest-workspace:v1'
 const minute = 60 * 1000
 const day = 24 * 60 * minute
-const ago = (ms: number) => new Date(Date.now() - ms).toISOString()
+// Noon today, for the records and the browser's clock, so a run near midnight does not split "a minute ago" across days.
+const now = new Date()
+now.setHours(12, 0, 0, 0)
+const ago = (ms: number) => new Date(now.getTime() - ms).toISOString()
 const mac = { id: 'mac', name: 'MacBook Air', layout: 'JIS' }
 const hhkb = { id: 'hhkb', name: 'HHKB', layout: 'US' }
 const words = [{ display: 'ab', input: 'ab', annotation: '' }]
@@ -24,7 +27,8 @@ function lists() {
   ]
 }
 
-function seed(page: Page, value: unknown[] = lists()) {
+async function seed(page: Page, value: unknown[] = lists()) {
+  await page.clock.setFixedTime(now)
   return page.addInitScript(([key, raw]) => {
     if (!localStorage.getItem(key)) localStorage.setItem(key, raw)
   }, [key, guestWorkspace(value, { devices: [mac, hhkb] })])
