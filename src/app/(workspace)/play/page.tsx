@@ -255,6 +255,8 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
       create: chunks => <Link href="/packs/create" className="underline">{chunks}</Link>,
     })}</p></Card> :
     <div className={cn("grid items-start gap-6", asideOpen && "lg:grid-cols-[minmax(0,1fr)_20rem]")}>
+      {/* The best records sit under the practice card, so they stay in view when the word lists are closed. */}
+      <div className="grid min-w-0 gap-6">
       <Card className="min-w-0 gap-0 py-0 text-base">
         <div className="flex h-14 items-center gap-1.5 border-b px-2 sm:h-16 sm:gap-3 sm:px-3">
           <button type="button" onClick={openPicker} aria-haspopup="dialog" aria-label={t('header.switchList', { name: practiceName(list) })}
@@ -388,6 +390,16 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
         </>}
         </>}
       </Card>
+      <Card className="gap-2 px-4 pt-4 pb-3">
+        <div className="flex min-w-0 items-baseline gap-2">
+          <h2 className="shrink-0 text-[15px] font-bold">{t('aside.best')}</h2>
+          <span className="truncate text-xs text-muted-foreground"><PracticeName list={list} /></span>
+        </div>
+        <p className="text-xs text-muted-foreground">{bestCandidates.length < modeRecords.length ? t('aside.bestOrderAtCount', { count: selectedList?.words.length ?? 0 }) : t('aside.bestOrder')}</p>
+        <PracticeBestRecords records={bestCandidates} highlightId={saveState === 'saved' ? record?.id : undefined} />
+        <Link href={`/rankings?${rankingQuery({ list: list.id, device: null, order: 'accuracy', mode })}`} className="inline-flex w-fit items-center gap-1 rounded-sm px-2 pt-1 text-[13px] font-medium outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">{t('aside.allBest')}<ArrowRight className="size-3.5" aria-hidden="true" /></Link>
+      </Card>
+      </div>
       <aside id="practice-aside" aria-label={t('aside.label')} className={cn("grid min-w-0 gap-6", !asideOpen && "lg:hidden")}>
         <Card className="gap-1 p-3">
           <div className="flex items-center gap-2 pl-2">
@@ -407,15 +419,6 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
               onSelect={id => { setAsideQuery(''); requestSwitch(id) }} />
               : <p className="px-2 py-2 text-sm text-muted-foreground">{t('picker.noMatch')}</p>}
           </div>
-        </Card>
-        <Card className="gap-2 px-4 pt-4 pb-3">
-          <div className="flex min-w-0 items-baseline gap-2">
-            <h2 className="shrink-0 text-[15px] font-bold">{t('aside.best')}</h2>
-            <span className="truncate text-xs text-muted-foreground"><PracticeName list={list} /></span>
-          </div>
-          <p className="text-xs text-muted-foreground">{bestCandidates.length < modeRecords.length ? t('aside.bestOrderAtCount', { count: selectedList?.words.length ?? 0 }) : t('aside.bestOrder')}</p>
-          <PracticeBestRecords records={bestCandidates} highlightId={saveState === 'saved' ? record?.id : undefined} />
-          <Link href={`/rankings?${rankingQuery({ list: list.id, device: null, order: 'accuracy', mode })}`} className="inline-flex w-fit items-center gap-1 rounded-sm px-2 pt-1 text-[13px] font-medium outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">{t('aside.allBest')}<ArrowRight className="size-3.5" aria-hidden="true" /></Link>
         </Card>
       </aside>
     </div>}

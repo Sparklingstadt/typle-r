@@ -210,7 +210,7 @@ test('the lists beside the practice card put recent ones first, scroll on their 
     [key, guestWorkspace(lists)])
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/play')
-  const aside = page.getByRole('complementary', { name: '単語リストとベスト記録' })
+  const aside = page.getByRole('complementary', { name: '単語リスト', exact: true })
   const options = aside.getByRole('list', { name: '単語リスト', exact: true }).getByRole('button')
   await expect(options).toHaveCount(22)
   await expect(options.first()).toHaveAccessibleName('List 16 を選択')
