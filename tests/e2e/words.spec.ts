@@ -38,15 +38,16 @@ test('the sidebar opens the words of a list, and another list or a level of a gr
   await expect(page.getByRole('heading', { level: 1, name: '単語一覧' })).toBeVisible()
   await expect(navigation.getByRole('link', { name: '単語一覧', exact: true })).toHaveAttribute('aria-current', 'page')
 
-  // The first list is shown in two columns: the number, and the text to type with its note under it. A word without
-  // a note shows only the text to type.
+  // The first list is shown in two columns: the number, and the text to type with the shown word and the note under
+  // it. A word shown as it is typed and without a note shows only the text to type.
   const table = page.getByRole('table', { name: 'Fruits' })
   await expect(table.getByRole('columnheader')).toHaveText(['#番号', '入力する文字'])
-  await expect(table.getByRole('row').nth(1).getByRole('cell')).toHaveText(['1', /^ringo\s+赤い果物$/], { useInnerText: true })
+  await expect(table.getByRole('row').nth(1).getByRole('cell')).toHaveText(['1', /^ringo\s+りんご\s+赤い果物$/], { useInnerText: true })
   await expect(table.getByRole('row').nth(2).getByRole('cell')).toHaveText(['2', 'banana'], { useInnerText: true })
-  const [input, note] = await table.getByRole('row').nth(1).getByRole('cell').nth(1).evaluate(cell =>
+  const [input, shown, note] = await table.getByRole('row').nth(1).getByRole('cell').nth(1).evaluate(cell =>
     [...cell.children].map(child => child.getBoundingClientRect()))
-  expect(note.top).toBeGreaterThanOrEqual(input.bottom)
+  expect(shown.top).toBeGreaterThanOrEqual(input.bottom)
+  expect(note.top).toBeGreaterThanOrEqual(shown.bottom)
   await expect(page.getByRole('link', { name: 'Fruits を練習' })).toHaveAttribute('href', '/play?list=fruits')
   await expect(page.getByRole('link', { name: 'Fruits を編集' })).toHaveAttribute('href', '/edit?list=fruits')
 
@@ -107,7 +108,7 @@ test('on a phone the drawer opens the words, which fit the width, and the list i
   // A phone shows the same two columns.
   const fruits = page.getByRole('table', { name: 'Fruits' })
   await expect(fruits.getByRole('columnheader')).toHaveText(['#番号', '入力する文字'])
-  await expect(fruits.getByRole('row').nth(1).getByRole('cell').nth(1)).toHaveText('ringo赤い果物')
+  await expect(fruits.getByRole('row').nth(1).getByRole('cell').nth(1)).toHaveText('ringoりんご赤い果物')
 
   await page.getByRole('button', { name: '単語リストを選ぶ（現在: Fruits）' }).click()
   const picker = page.getByRole('dialog', { name: '単語リストを選ぶ' })
