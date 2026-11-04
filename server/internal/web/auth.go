@@ -206,14 +206,7 @@ func (s *server) signin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	state, err := random()
-	var verifier, nonce string
-	if err == nil {
-		verifier, err = random()
-	}
-	if err == nil && provider == providerFFPF {
-		nonce, err = random()
-	}
+	state, verifier, nonce, err := loginSecrets(provider == providerFFPF)
 	if err != nil {
 		log.Printf("%s %s: %v", r.Method, r.URL.Path, err)
 		refuse(w, http.StatusServiceUnavailable, "authUnavailable")
@@ -232,6 +225,22 @@ func (s *server) signin(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, s.oauthCookie(s.config.Keys.SealOAuth(pending), int(session.OAuthMaxAge.Seconds())))
 	goTo(w, location)
+}
+
+// loginSecrets makes the state and PKCE verifier of a login, and for FFPF ID (withNonce) its nonce.
+func loginSecrets(withNonce bool) (state, verifier, nonce string, err error) {
+	if state, err = random(); err != nil {
+		return "", "", "", err
+	}
+	if verifier, err = random(); err != nil {
+		return "", "", "", err
+	}
+	if withNonce {
+		if nonce, err = random(); err != nil {
+			return "", "", "", err
+		}
+	}
+	return state, verifier, nonce, nil
 }
 
 // signedInUser is who a provider says signed in, in the form the session holds.

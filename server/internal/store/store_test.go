@@ -929,7 +929,6 @@ func TestWriteRevisionRefusesUnreadableDevices(t *testing.T) {
 }
 
 func TestWriteRevisionLimits(t *testing.T) {
-	ctx := context.Background()
 	connection, conn := database(t)
 	s := open(t, connection, true)
 	long := newLists(1)
@@ -939,26 +938,45 @@ func TestWriteRevisionLimits(t *testing.T) {
 	for i := range manyWords[0].Words {
 		manyWords[0].Words[i] = workspace.Word{Display: "a", Input: "a"}
 	}
+	// Lists are checked whether they come with their packs or alone, which puts each in a pack of its own.
+	withPack := func(lists []workspace.List) Change {
+		inPack := slices.Clone(lists)
+		inPack[0].PackID = "p1"
+		pack := workspace.Pack{ID: "p1", Name: "pack", CreatedAt: "2026-10-10T01:23:45.000Z"}
+		return Change{Lists: inPack, Packs: []workspace.Pack{pack}, HasLists: true, HasPacks: true}
+	}
+	alone := func(lists []workspace.List) Change { return Change{Lists: lists, HasLists: true} }
 	for name, lists := range map[string][]workspace.List{"name": long, "words": manyWords} {
-		fresh := owner(t, conn)
-		_, err := s.WriteRevision(ctx, fresh, 0, Change{Lists: lists, HasLists: true})
-		var e *workspace.Error
-		if !errors.As(err, &e) || e.Key != "invalidWorkspace" {
-			t.Fatalf("%s, create: %v; want invalidWorkspace", name, err)
+		for form, change := range map[string]func([]workspace.List) Change{"alone": alone, "with packs": withPack} {
+			name := name + " " + form
+			writeRevisionRefused(t, s, conn, name, change(lists))
 		}
-		if saved, _ := s.ReadRevision(ctx, fresh); saved != nil {
-			t.Fatalf("%s: a refused create left a row", name)
-		}
-		id := owner(t, conn)
-		if _, err := s.WriteRevision(ctx, id, 0, Change{Lists: newLists(1), HasLists: true}); err != nil {
-			t.Fatal(err)
-		}
-		if _, err := s.WriteRevision(ctx, id, 1, Change{Lists: lists, HasLists: true}); !errors.As(err, &e) || e.Key != "invalidWorkspace" {
-			t.Fatalf("%s, update: %v; want invalidWorkspace", name, err)
-		}
-		if _, revision, _ := row(t, conn, id); revision != 1 {
-			t.Fatalf("%s: revision = %d after a refused save", name, revision)
-		}
+	}
+}
+
+// writeRevisionRefused checks that change is refused with invalidWorkspace, as a first save and as a later one, and
+// that neither leaves anything saved.
+func writeRevisionRefused(t *testing.T, s *Store, conn *pgx.Conn, name string, change Change) {
+	t.Helper()
+	ctx := context.Background()
+	fresh := owner(t, conn)
+	_, err := s.WriteRevision(ctx, fresh, 0, change)
+	var e *workspace.Error
+	if !errors.As(err, &e) || e.Key != "invalidWorkspace" {
+		t.Fatalf("%s, create: %v; want invalidWorkspace", name, err)
+	}
+	if saved, _ := s.ReadRevision(ctx, fresh); saved != nil {
+		t.Fatalf("%s: a refused create left a row", name)
+	}
+	id := owner(t, conn)
+	if _, err := s.WriteRevision(ctx, id, 0, Change{Lists: newLists(1), HasLists: true}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.WriteRevision(ctx, id, 1, change); !errors.As(err, &e) || e.Key != "invalidWorkspace" {
+		t.Fatalf("%s, update: %v; want invalidWorkspace", name, err)
+	}
+	if _, revision, _ := row(t, conn, id); revision != 1 {
+		t.Fatalf("%s: revision = %d after a refused save", name, revision)
 	}
 }
 

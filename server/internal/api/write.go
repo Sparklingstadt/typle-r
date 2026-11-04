@@ -52,7 +52,8 @@ func decode[T any](w http.ResponseWriter, r *http.Request) (*T, bool) {
 	return value, true
 }
 
-// jsonContent tells whether the request's media type, before ";", is application/json.
+// jsonContent tells whether the request's media type, before ";", is application/json, in any case, as media types
+// are case-insensitive. The app's own backend compares it as written instead (jsonContent in server/internal/web).
 func jsonContent(r *http.Request) bool {
 	mediaType, _, _ := strings.Cut(r.Header.Get("Content-Type"), ";")
 	return strings.EqualFold(strings.TrimSpace(mediaType), "application/json")
