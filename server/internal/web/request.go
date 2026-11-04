@@ -6,10 +6,12 @@ import (
 	"errors"
 	"io"
 	"math"
+	"net/http"
 	"strconv"
 	"strings"
 	"unicode/utf16"
 
+	"github.com/sparklingstadt/typle-r/server/internal/session"
 	"github.com/sparklingstadt/typle-r/server/internal/store"
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
@@ -57,6 +59,41 @@ func parseObject(body []byte) (map[string]json.RawMessage, error) {
 func accountID(fields map[string]json.RawMessage) (string, bool) {
 	var id string
 	return id, json.Unmarshal(fields["accountId"], &id) == nil
+}
+
+// saveRequest checks a request that saves, to /api/workspace or its records: the Origin of a cookie's request, a JSON
+// body, then the login. It reads the body as a JSON object, answering one that is not with invalid; the object's
+// account is the handler's to check. A body that cannot be read is reported as reported. Otherwise it answers the
+// request.
+func (s *server) saveRequest(w http.ResponseWriter, r *http.Request, reported, invalid string) (session.Session, map[string]json.RawMessage, bool) {
+	if !s.fromAppOrOrigin(r) || !jsonContent(r) {
+		refuse(w, http.StatusForbidden, "forbiddenRequest")
+		return session.Session{}, nil, false
+	}
+	user, ok := s.signedIn(w, r)
+	if !ok {
+		return session.Session{}, nil, false
+	}
+	if r.Body == nil || r.Body == http.NoBody {
+		refuse(w, http.StatusBadRequest, "emptyRequest")
+		return session.Session{}, nil, false
+	}
+	body, err := readBody(r.Body)
+	if errors.Is(err, errTooLarge) {
+		refuse(w, http.StatusRequestEntityTooLarge, "workspaceTooLarge")
+		return session.Session{}, nil, false
+	}
+	if err != nil {
+		s.report(r, err, reported)
+		refuse(w, http.StatusServiceUnavailable, "workspaceSaveFailed")
+		return session.Session{}, nil, false
+	}
+	fields, err := parseObject(body)
+	if err != nil {
+		refuse(w, http.StatusBadRequest, invalid)
+		return session.Session{}, nil, false
+	}
+	return user, fields, true
 }
 
 // decodeRequest reads a save, as validateWorkspaceRequest does: an error is a request to refuse (400). The limits of validateLists (workspace.CheckLimits) and the
@@ -230,4 +267,35 @@ func safeInteger(raw json.RawMessage) (int, bool) {
 		return 0, false
 	}
 	return int(number), true
+}
+
+// fromAppOrOrigin reports whether a request may change the account's data: the Origin keeps other sites from changing it
+// with the browser's cookie. An app's (iPad, Mac, Android or Windows) token is not sent by a browser on its own, so its
+// requests, which have no Origin, need none.
+func (s *server) fromAppOrOrigin(r *http.Request) bool {
+	return fromApp(r) || s.sameOrigin(r)
+}
+
+// sameOrigin reports whether the request comes from the app's own pages: its Origin is that of BaseURL, written as a
+// browser writes it (lower case, without the default port). State-changing requests must pass this.
+func (s *server) sameOrigin(r *http.Request) bool {
+	base := s.config.BaseURL
+	if base == nil || base.Host == "" {
+		return false
+	}
+	scheme, host := strings.ToLower(base.Scheme), strings.ToLower(base.Hostname())
+	if strings.Contains(host, ":") {
+		host = "[" + host + "]"
+	}
+	if port := base.Port(); port != "" && !(scheme == "http" && port == "80") && !(scheme == "https" && port == "443") {
+		host += ":" + port
+	}
+	origin := r.Header.Get("Origin")
+	return origin != "" && origin == scheme+"://"+host
+}
+
+// jsonContent reports whether the request's body is declared as JSON. A form cannot send that type to another site
+// without asking first (CORS), so with the Origin it keeps other sites' pages out.
+func jsonContent(r *http.Request) bool {
+	return strings.TrimSpace(strings.SplitN(r.Header.Get("Content-Type"), ";", 2)[0]) == "application/json"
 }
