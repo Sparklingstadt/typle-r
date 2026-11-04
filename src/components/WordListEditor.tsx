@@ -2,16 +2,11 @@
 import { randomId } from "../core/randomId"
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react"
 import { useTranslations } from "next-intl"
-import { ChevronLeft, GripVertical, Plus } from "lucide-react"
+import { ChevronLeft } from "lucide-react"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import WordListImport from "./WordListImport"
 import { useWordDraft } from "@/lib/useWordDraft"
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
-import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
-import { WORD_ROW_COLUMNS } from "./SortableWordRow"
 import type { SavedWordList, WritingLanguage } from "@/core/wordLists"
 import type { WordPack } from "@/core/wordPacks"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
@@ -19,13 +14,9 @@ import { type ErrorKey } from "@/core/appError"
 import { currentRecordCount } from "@/core/listOverview"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import WordListBasics from "@/components/WordLists/WordListBasics"
-import WordRowFields from "@/components/WordLists/WordRowFields"
+import WordsSection from "@/components/WordLists/WordsSection"
 import WordListSaveBar from "@/components/WordLists/WordListSaveBar"
-import { MAX_WORDS, draftProblems, draftSnapshot, emptyWord, normalizeWord, savedWords } from "@/core/wordDraft"
-
-function Kbd({ children }: { children: string }) {
-  return <kbd className="rounded border bg-background px-1.5 py-px font-sans text-[11px] font-medium text-foreground/70">{children}</kbd>
-}
+import { draftProblems, draftSnapshot, emptyWord, normalizeWord, savedWords } from "@/core/wordDraft"
 
 export default function WordListEditor({ title, description, storage, initial, packs = [], packId, choosePack = true, lonePackName, error, errorKey, packFields, packDirty = false, onSave, onCancel, onDirtyChange, cancelRequest = 0 }: {
   title: string
@@ -61,11 +52,6 @@ export default function WordListEditor({ title, description, storage, initial, p
   const nameId = `${baseId}-name`
   const displayId = (key: string) => `${baseId}-display-${key}`
   const inputId = (key: string) => `${baseId}-input-${key}`
-  const dragId = useId()
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
-  )
   const [name, setName] = useState(initial?.name ?? "")
   const [firstPackId] = useState(() => {
     const wanted = packId === undefined ? initial?.packId : packId
@@ -208,55 +194,13 @@ export default function WordListEditor({ title, description, storage, initial, p
         leavingLonePack={leavingLonePack} lonePackName={lonePackName} name={name} setName={setName} nameError={nameError} nameAlert={duplicate && !errorFor(nameId)}
         levels={levels} setLevels={setLevels} levelError={levelError} error={error} refusals={failure.count} writing={writing} setWriting={setWriting} />
 
-      <section aria-labelledby={`${baseId}-words`} className="md:overflow-hidden md:rounded-xl md:border md:bg-card">
-        <div className="flex flex-wrap items-center gap-2 pb-3 md:px-6 md:py-4">
-          <h2 id={`${baseId}-words`} className="text-base font-bold">{t("words")}</h2>
-          <Badge variant="secondary" className="tabular-nums">{words.length.toLocaleString()} / {MAX_WORDS.toLocaleString()}</Badge>
-          <div className="ml-auto">
-            <WordListImport disabled={saving} existingCount={filled.length} onImport={(imported, filename, mode) => {
-              const kept = load(imported, mode)
-              setName(value => value.trim() ? value : filename)
-              setNotice(t(kept ? "added" : "loaded", { count: imported.length }))
-            }} />
-          </div>
-          <p role="status" className="basis-full text-sm text-muted-foreground empty:hidden">{notice}</p>
-        </div>
-        <div aria-hidden="true" className={`hidden md:grid ${WORD_ROW_COLUMNS} border-y bg-muted px-6 py-2 text-xs font-medium text-muted-foreground`}>
-          <span>#</span>
-          <span>{t("display")}<span className="text-destructive">*</span></span>
-          <span>{t("input")} <span className="font-normal">{t("inputHint")}</span></span>
-          <span>{t("inputType")}</span>
-          <span>{t("annotationOptional")}</span>
-          <span />
-        </div>
-        <DndContext id={dragId} sensors={sensors} collisionDetection={closestCenter}
-          accessibility={{ screenReaderInstructions: { draggable: t("dragInstructions") } }}
-          onDragEnd={({ active, over }) => {
-            if (saving || !over || active.id === over.id) return
-            reorder(String(active.id), String(over.id))
-          }}>
-        <SortableContext items={words.map(word => word.key)} strategy={verticalListSortingStrategy}>
-        <div className="space-y-3 md:space-y-0">
-        {words.map((word, index) => {
-          const displayError = errorFor(displayId(word.key))
-          const inputError = errorFor(inputId(word.key))
-          return <WordRowFields key={word.key} word={word} index={index} count={words.length} baseId={baseId} displayId={displayId(word.key)} inputId={inputId(word.key)}
-            saving={saving} displayError={displayError} inputError={inputError} onChange={change => update(word.key, change)}
-            onMove={target => moveTo(index, target)} onRemove={() => remove(index)} />
-        })}
-        </div>
-        </SortableContext>
-        </DndContext>
-        <div className="space-y-3 pt-3 md:px-6 md:py-4">
-          <Button variant="outline" className="w-full border-dashed text-muted-foreground" onClick={addWord}><Plus aria-hidden="true" />{t("addWord")}</Button>
-          <p className="hidden flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground sm:flex">
-            <Kbd>Enter</Kbd>{t("shortcutNext")}
-            <span aria-hidden="true">・</span><Kbd>Alt+↑↓</Kbd>{t("shortcutMove")}
-            <span aria-hidden="true">・</span><Kbd>Ctrl（⌘）+Enter</Kbd>{t("shortcutSave")}
-            <span aria-hidden="true">・</span><GripVertical className="size-3.5" aria-hidden="true" />{t("shortcutDrag")}
-          </p>
-        </div>
-      </section>
+      <WordsSection words={words} baseId={baseId} displayId={displayId} inputId={inputId} saving={saving} notice={notice} filledCount={filled.length} errorFor={errorFor}
+        onAdd={addWord} onChange={update} onMove={moveTo} onRemove={remove} onReorder={reorder}
+        onImport={(imported, filename, mode) => {
+          const kept = load(imported, mode)
+          setName(value => value.trim() ? value : filename)
+          setNotice(t(kept ? "added" : "loaded", { count: imported.length }))
+        }} />
     </div>
 
     <WordListSaveBar recount={recount} errorCount={shown.length} onFirstError={() => focusField(shown[0].id)} serverError={serverError}
