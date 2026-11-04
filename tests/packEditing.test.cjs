@@ -344,4 +344,5 @@ test('packListChoices finds lists by list or pack name, and names the pack only 
   assert.deepEqual(choices('go').map(item => item.list.id), ['g'])
   assert.deepEqual(choices('none'), [])
   assert.deepEqual(choices('').map(item => item.inPack), ['Linux', undefined, 'Linux'])
+  assert.deepEqual(choices('応用').map(item => item.inPack), ['Linux'])
 })

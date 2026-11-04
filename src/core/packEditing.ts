@@ -82,7 +82,6 @@ export type PackInput = { name: string; description?: string; category?: string;
 
 const invalid = () => new Error('Invalid packs')
 
-// A pack as saved from the fields of a screen: trimmed, and without a description or labels when they are empty.
 export function packFieldsOf(pack?: WordPack): PackInput {
   return { name: pack?.name ?? '', description: pack?.description ?? '', category: pack?.category ?? '', tags: pack?.tags ?? [] }
 }
@@ -108,6 +107,7 @@ export function packListChoices(lists: SavedWordList[], packs: WordPack[], query
     .map(list => ({ list, inPack: (sizes.get(list.packId ?? '') ?? 0) >= 2 ? packName.get(list.packId ?? '') : undefined }))
 }
 
+// A pack as saved from the fields of a screen: trimmed, and without a description or labels when they are empty.
 function packFields(library: Library, fields: PackInput, selfId?: string) {
   const name = fields.name.trim()
   if (!name) throw new AppError('packNameRequired')
