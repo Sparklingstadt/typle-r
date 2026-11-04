@@ -513,3 +513,23 @@ func TestSharedPackHidden(t *testing.T) {
 		t.Fatalf("hidden: %s, %v; want nil, nil", data, err)
 	}
 }
+
+// isUUID keeps every id that is not a UUID away from the database, where comparing it with a uuid column would fail:
+// 36 characters are not enough, the dashes must be in their places and the rest hexadecimal digits, in either case.
+func TestIsUUID(t *testing.T) {
+	for id, want := range map[string]bool{
+		"00000000-0000-4000-8000-000000000000":  true,
+		"ABCDEF01-2345-4678-9ABC-DEF012345678":  true,
+		"":                                      false,
+		"not-a-uuid":                            false,
+		"00000000-0000-4000-8000-0000000000000": false,
+		"000000000-000-4000-8000-000000000000":  false,
+		"00000000-0000-4000-8000_000000000000":  false,
+		"0000000g-0000-4000-8000-000000000000":  false,
+		"00000000-0000-4000-8000-00000000000あ":  false,
+	} {
+		if got := isUUID(id); got != want {
+			t.Errorf("isUUID(%q) = %v, want %v", id, got, want)
+		}
+	}
+}

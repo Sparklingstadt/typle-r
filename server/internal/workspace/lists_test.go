@@ -262,3 +262,24 @@ func TestListInputWriting(t *testing.T) {
 		t.Fatalf("copy = %+v, %v", list, err)
 	}
 }
+
+// fits counts as the app does, in UTF-16 code units, so a character outside the BMP takes two; U+0000 never fits.
+func TestFits(t *testing.T) {
+	for _, c := range []struct {
+		text string
+		max  int
+		want bool
+	}{
+		{"", 0, true},
+		{"abc", 3, true},
+		{"abcd", 3, false},
+		{"あいう", 3, true},
+		{"😀", 2, true},
+		{"😀", 1, false},
+		{"a\x00", 5, false},
+	} {
+		if got := fits(c.text, c.max); got != c.want {
+			t.Errorf("fits(%q, %d) = %v, want %v", c.text, c.max, got, c.want)
+		}
+	}
+}

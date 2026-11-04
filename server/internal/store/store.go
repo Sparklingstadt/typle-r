@@ -410,21 +410,7 @@ func encodeChange(owner string, change *Change) (*encodedChange, error) {
 		}
 	}
 	if change.HasLists {
-		if err := workspace.CheckLimits(change.Lists); err != nil {
-			return nil, err
-		}
-		if parts.packs, err = workspace.EncodePacks(change.Packs); err != nil {
-			return nil, err
-		}
-		if parts.rows, err = recordRows(change.Lists); err != nil {
-			return nil, err
-		}
-		// Followed packs' lists are saved without their words, which the catalog has.
-		slim := workspace.WithoutFollowedWords(change.Packs, change.Lists)
-		if full, err = workspace.Encode(slim); err != nil {
-			return nil, err
-		}
-		if parts.lists, err = workspace.Encode(withoutRecords(slim)); err != nil {
+		if full, err = parts.encodeLists(change); err != nil {
 			return nil, err
 		}
 	}
@@ -447,6 +433,29 @@ func encodeChange(owner string, change *Change) (*encodedChange, error) {
 		return nil, fmt.Errorf("changed workspace of %s: %w", owner, err)
 	}
 	return parts, nil
+}
+
+// encodeLists encodes the lists and packs of change into parts, with the lists' records as rows, and returns the
+// lists with their records (full), as the app sent them, for encodeChange to check.
+func (parts *encodedChange) encodeLists(change *Change) (full []byte, err error) {
+	if err := workspace.CheckLimits(change.Lists); err != nil {
+		return nil, err
+	}
+	if parts.packs, err = workspace.EncodePacks(change.Packs); err != nil {
+		return nil, err
+	}
+	if parts.rows, err = recordRows(change.Lists); err != nil {
+		return nil, err
+	}
+	// Followed packs' lists are saved without their words, which the catalog has.
+	slim := workspace.WithoutFollowedWords(change.Packs, change.Lists)
+	if full, err = workspace.Encode(slim); err != nil {
+		return nil, err
+	}
+	if parts.lists, err = workspace.Encode(withoutRecords(slim)); err != nil {
+		return nil, err
+	}
+	return full, nil
 }
 
 // packLists puts each list of change, sent without packs, in a pack of its own, as Decode repairs lists without one.
