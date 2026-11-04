@@ -1,9 +1,9 @@
 "use client"
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { DropdownMenu } from 'radix-ui'
-import { Check, ChevronDown, ChevronRight, Search, TrendingUp, Trophy, X } from 'lucide-react'
+import { ChevronDown, ChevronRight, Search, TrendingUp, Trophy, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useFormat } from '@/i18n/useFormat'
 import { formatAccuracy } from '@/core/records'
 import { IMPROVED_DAYS, LIST_SORTS, type ListRanking, type ListSort } from '@/core/rankings'
@@ -12,8 +12,6 @@ import { matchesRankingQuery, type PackRanking } from '@/core/packRecords'
 import PracticeName, { usePracticeName } from '@/components/PracticeName'
 import { cn } from '@/lib/utils'
 import { RecordTime } from '@/components/Records/RecordRow'
-
-const menuItem = 'relative flex cursor-pointer items-center gap-2 rounded-md py-2 pr-3 pl-8 text-sm outline-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground'
 
 // Packs without a (matching) record are grouped below, so they can still be opened and practised: a pack of one list shows that list,
 // a pack of several collapses to one button that opens its first list.
@@ -152,20 +150,17 @@ function ListItem({ item, now, current, grouped, onChoose }: { item: ListRanking
 
 function SortMenu({ value, onChange }: { value: ListSort; onChange: (value: ListSort) => void }) {
   const t = useTranslations('rankings.list')
-  return <DropdownMenu.Root>
-    <DropdownMenu.Trigger aria-label={t('sortLabel', { sort: t(`sorts.${value}`) })}
+  return <DropdownMenu>
+    <DropdownMenuTrigger aria-label={t('sortLabel', { sort: t(`sorts.${value}`) })}
       className="inline-flex h-9 shrink-0 items-center gap-1 rounded-lg px-2 text-xs text-muted-foreground outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 aria-expanded:bg-muted">
       {t(`sorts.${value}`)}<ChevronDown className="size-3.5" aria-hidden="true" />
-    </DropdownMenu.Trigger>
-    <DropdownMenu.Portal>
-      <DropdownMenu.Content align="end" sideOffset={6} className="z-50 w-44 rounded-lg border bg-popover p-1 text-popover-foreground shadow-md">
-        <DropdownMenu.RadioGroup value={value} onValueChange={next => onChange(next as ListSort)}>
-          {LIST_SORTS.map(key => <DropdownMenu.RadioItem key={key} value={key} className={menuItem}>
-            <DropdownMenu.ItemIndicator className="absolute left-2.5 inline-flex"><Check className="size-4" aria-hidden="true" /></DropdownMenu.ItemIndicator>
-            {t(`sorts.${key}`)}
-          </DropdownMenu.RadioItem>)}
-        </DropdownMenu.RadioGroup>
-      </DropdownMenu.Content>
-    </DropdownMenu.Portal>
-  </DropdownMenu.Root>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent align="end" sideOffset={6} className="w-44">
+      <DropdownMenuRadioGroup value={value} onValueChange={next => onChange(next as ListSort)}>
+        {LIST_SORTS.map(key => <DropdownMenuRadioItem key={key} value={key}>
+          {t(`sorts.${key}`)}
+        </DropdownMenuRadioItem>)}
+      </DropdownMenuRadioGroup>
+    </DropdownMenuContent>
+  </DropdownMenu>
 }
