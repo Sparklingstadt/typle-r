@@ -32,31 +32,15 @@ func Initial() (*Workspace, error) {
 func OfficialPacks() ([]OfficialPack, error) {
 	var samples []*rawList
 	var countries []*rawList
-	var commands []*rawList
 	if err := json.Unmarshal(samplesJSON, &samples); err != nil {
 		return nil, err
 	}
 	if err := json.Unmarshal(countriesJSON, &countries); err != nil {
 		return nil, err
 	}
-	manifest, err := commandFiles.ReadFile("packs/commands/manifest.json")
+	commands, err := commandLists()
 	if err != nil {
 		return nil, err
-	}
-	var names []string
-	if err := json.Unmarshal(manifest, &names); err != nil {
-		return nil, err
-	}
-	for _, name := range names {
-		data, err := commandFiles.ReadFile("packs/commands/" + name)
-		if err != nil {
-			return nil, err
-		}
-		var list rawList
-		if err := json.Unmarshal(data, &list); err != nil {
-			return nil, fmt.Errorf("official list %s: %w", name, err)
-		}
-		commands = append(commands, &list)
 	}
 	for index, list := range samples {
 		id := fmt.Sprintf("sample-%d", index+1)
@@ -80,4 +64,29 @@ func OfficialPacks() ([]OfficialPack, error) {
 		official = append(official, OfficialPack{CatalogID: pack.ID, Version: 1, Pack: pack, Lists: mine})
 	}
 	return official, nil
+}
+
+// commandLists reads the official lists of packs/commands, one file each, in the order of its manifest.
+func commandLists() ([]*rawList, error) {
+	manifest, err := commandFiles.ReadFile("packs/commands/manifest.json")
+	if err != nil {
+		return nil, err
+	}
+	var names []string
+	if err := json.Unmarshal(manifest, &names); err != nil {
+		return nil, err
+	}
+	var commands []*rawList
+	for _, name := range names {
+		data, err := commandFiles.ReadFile("packs/commands/" + name)
+		if err != nil {
+			return nil, err
+		}
+		var list rawList
+		if err := json.Unmarshal(data, &list); err != nil {
+			return nil, fmt.Errorf("official list %s: %w", name, err)
+		}
+		commands = append(commands, &list)
+	}
+	return commands, nil
 }

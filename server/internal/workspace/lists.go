@@ -104,6 +104,25 @@ func checkLabels(category string, tags []string) (string, []string, error) {
 	return category, kept, nil
 }
 
+// newLabels is the category and tags of a new list: those of its pack, or those given for the pack of its own.
+func newLabels(pack *Pack, input ListInput) (string, []string, error) {
+	if pack != nil {
+		return pack.Category, slices.Clone(pack.Tags), nil
+	}
+	return givenLabels("", nil, input)
+}
+
+// givenLabels is category and tags with those input gives in their place, checked.
+func givenLabels(category string, tags []string, input ListInput) (string, []string, error) {
+	if input.Category != nil {
+		category = *input.Category
+	}
+	if input.Tags != nil {
+		tags = *input.Tags
+	}
+	return checkLabels(category, tags)
+}
+
 // CreateList adds a list with no records after the others. With a PackID it joins that pack, whose labels it shows,
 // so it may not be given a category or tags; without one it starts a pack of its own, which ApplyListChange makes.
 func CreateList(w *Workspace, input ListInput, id string, now time.Time) (*List, error) {
@@ -133,20 +152,9 @@ func CreateList(w *Workspace, input ListInput, id string, now time.Time) (*List,
 	if err := checkWords(input.Words); err != nil {
 		return nil, err
 	}
-	var category string
-	var tags []string
-	if pack != nil {
-		category, tags = pack.Category, slices.Clone(pack.Tags)
-	} else {
-		if input.Category != nil {
-			category = *input.Category
-		}
-		if input.Tags != nil {
-			tags = *input.Tags
-		}
-		if category, tags, err = checkLabels(category, tags); err != nil {
-			return nil, err
-		}
+	category, tags, err := newLabels(pack, input)
+	if err != nil {
+		return nil, err
 	}
 	var levels []string
 	if input.Levels != nil {
@@ -199,13 +207,7 @@ func UpdateList(w *Workspace, id string, input ListInput) (*List, error) {
 	if moving {
 		category, tags = pack.Category, slices.Clone(pack.Tags)
 	}
-	if input.Category != nil {
-		category = *input.Category
-	}
-	if input.Tags != nil {
-		tags = *input.Tags
-	}
-	category, tags, err = checkLabels(category, tags)
+	category, tags, err = givenLabels(category, tags, input)
 	if err != nil {
 		return nil, err
 	}

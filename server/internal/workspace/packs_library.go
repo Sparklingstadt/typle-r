@@ -381,6 +381,11 @@ func repairLibrary(saved []Pack, lists []List) ([]Pack, []List) {
 		placed[i] = withoutLabels(list)
 		used[list.PackID] = true
 	}
+	return uniquePackNames(packs, used), separateLevels(uniqueListNames(placed))
+}
+
+// uniquePackNames keeps the packs that are used, trimming their names and numbering those that repeat.
+func uniquePackNames(packs []Pack, used map[string]bool) []Pack {
 	names := map[string]bool{}
 	kept := make([]Pack, 0, len(packs))
 	for _, pack := range packs {
@@ -390,17 +395,22 @@ func repairLibrary(saved []Pack, lists []List) ([]Pack, []List) {
 			kept = append(kept, pack)
 		}
 	}
+	return kept
+}
+
+// uniqueListNames trims the names of the lists and numbers those that repeat in their pack, in place.
+func uniqueListNames(lists []List) []List {
 	listNames := map[string]map[string]bool{}
-	for i, list := range placed {
+	for i, list := range lists {
 		taken := listNames[list.PackID]
 		if taken == nil {
 			taken = map[string]bool{}
 			listNames[list.PackID] = taken
 		}
 		name := trimJS(list.Name)
-		placed[i].Name = unique(taken, name, numbered(name))
+		lists[i].Name = unique(taken, name, numbered(name))
 	}
-	return kept, separateLevels(placed)
+	return lists
 }
 
 // viewLists follows viewLists (src/core/wordPacks.ts): each list carries its pack's category and tags, so the code that
@@ -433,34 +443,7 @@ func (w *Workspace) ApplyListChange(previous *Workspace) {
 	}
 	packs := make([]Pack, 0, len(w.Packs))
 	for _, pack := range w.Packs {
-		var mine, only []List
-		for _, list := range w.Lists {
-			if list.PackID == pack.ID {
-				mine = append(mine, list)
-			}
-		}
-		for _, list := range previous.Lists {
-			if list.PackID == pack.ID {
-				only = append(only, list)
-			}
-		}
-		next := pack
-		next.Tags = slices.Clone(pack.Tags)
-		// 1. The first list whose labels differ from the pack's gives the pack its new labels.
-		wasCategory, wasTags := labelsOf(pack.Category, pack.Tags)
-		for _, list := range mine {
-			category, tags := labelsOf(list.Category, list.Tags)
-			if category != wasCategory || !slices.Equal(tags, wasTags) {
-				next.Category, next.Tags = category, tags
-				break
-			}
-		}
-		// 2. A pack of one list follows that list's rename, unless the change renamed the pack itself.
-		if name, found := names[pack.ID]; found && name == pack.Name && len(only) == 1 && len(mine) == 1 && mine[0].ID == only[0].ID &&
-			nameKey(pack.Name) == nameKey(before[mine[0].ID].Name) {
-			next.Name = mine[0].Name
-		}
-		packs = append(packs, next)
+		packs = append(packs, changedPack(pack, w.Lists, previous.Lists, before, names))
 	}
 	// 3. Labels of lists in an existing pack were settled in 1, so they are dropped; only a list without a pack keeps
 	// them for repair to move.
@@ -477,6 +460,39 @@ func (w *Workspace) ApplyListChange(previous *Workspace) {
 	}
 	w.Packs, w.Lists = repairLibrary(packs, lists)
 	viewLists(w)
+}
+
+// changedPack is steps 1 and 2 of ApplyListChange for pack: lists are the lists after the change and previous those
+// before it (before by id), and names the packs' names before it.
+func changedPack(pack Pack, lists, previous []List, before map[string]List, names map[string]string) Pack {
+	var mine, only []List
+	for _, list := range lists {
+		if list.PackID == pack.ID {
+			mine = append(mine, list)
+		}
+	}
+	for _, list := range previous {
+		if list.PackID == pack.ID {
+			only = append(only, list)
+		}
+	}
+	next := pack
+	next.Tags = slices.Clone(pack.Tags)
+	// 1. The first list whose labels differ from the pack's gives the pack its new labels.
+	wasCategory, wasTags := labelsOf(pack.Category, pack.Tags)
+	for _, list := range mine {
+		category, tags := labelsOf(list.Category, list.Tags)
+		if category != wasCategory || !slices.Equal(tags, wasTags) {
+			next.Category, next.Tags = category, tags
+			break
+		}
+	}
+	// 2. A pack of one list follows that list's rename, unless the change renamed the pack itself.
+	if name, found := names[pack.ID]; found && name == pack.Name && len(only) == 1 && len(mine) == 1 && mine[0].ID == only[0].ID &&
+		nameKey(pack.Name) == nameKey(before[mine[0].ID].Name) {
+		next.Name = mine[0].Name
+	}
+	return next
 }
 
 // CheckPacks follows validateLibrary (src/core/wordPacks.ts): it refuses packs and lists that are not in the saved

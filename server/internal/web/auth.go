@@ -250,14 +250,7 @@ func (s *server) callback(provider string) http.HandlerFunc {
 			return
 		}
 		http.SetCookie(w, s.oauthCookie("", -1))
-		returnTo := defaultTo
-		var pending session.OAuth
-		opened := false
-		if cookie, err := r.Cookie(session.OAuthCookie); err == nil {
-			if pending, opened = s.config.Keys.OpenOAuth(cookie.Value, s.now()); opened {
-				returnTo = safeReturnTo(pending.ReturnTo)
-			}
-		}
+		pending, opened, returnTo := s.pendingLogin(r)
 		if opened && pending.Admin && provider != providerFFPF {
 			goTo(w, adminRefused)
 			return
@@ -301,19 +294,37 @@ func (s *server) callback(provider string) http.HandlerFunc {
 				return
 			}
 		}
-		if app {
-			toApp(w, "code", s.config.Keys.SealCode(session.AppCode{
-				Sub: user.sub, Name: user.name, Image: user.image, Challenge: pending.Challenge,
-				Expires: s.now().Add(session.AppCodeMaxAge),
-			}))
-			return
-		}
-		if provider == providerFFPF {
-			http.SetCookie(w, s.relogin(-1))
-		}
-		s.issue(w, user.sub, user.name, user.image)
-		goTo(w, returnTo)
+		s.finishLogin(w, provider, user, pending.Challenge, returnTo)
 	}
+}
+
+// pendingLogin opens the OAuth cookie of the request: the login it started, whether there is a valid one, and where to
+// return to (defaultTo without one).
+func (s *server) pendingLogin(r *http.Request) (pending session.OAuth, opened bool, returnTo string) {
+	returnTo = defaultTo
+	if cookie, err := r.Cookie(session.OAuthCookie); err == nil {
+		if pending, opened = s.config.Keys.OpenOAuth(cookie.Value, s.now()); opened {
+			returnTo = safeReturnTo(pending.ReturnTo)
+		}
+	}
+	return pending, opened, returnTo
+}
+
+// finishLogin signs user in: an app's login (challenge not empty) goes back to the app with a code for its token, and
+// the browser's gets the session cookie and goes back to returnTo.
+func (s *server) finishLogin(w http.ResponseWriter, provider string, user signedInUser, challenge, returnTo string) {
+	if challenge != "" {
+		toApp(w, "code", s.config.Keys.SealCode(session.AppCode{
+			Sub: user.sub, Name: user.name, Image: user.image, Challenge: challenge,
+			Expires: s.now().Add(session.AppCodeMaxAge),
+		}))
+		return
+	}
+	if provider == providerFFPF {
+		http.SetCookie(w, s.relogin(-1))
+	}
+	s.issue(w, user.sub, user.name, user.image)
+	goTo(w, returnTo)
 }
 
 // ffpfUser trades the code of an FFPF ID login for the account it signs in, and reports a failure that is not FFPF ID

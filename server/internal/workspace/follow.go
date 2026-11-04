@@ -31,52 +31,16 @@ func followOfficial(packs []Pack, lists []List, official []OfficialPack) ([]Pack
 	for i := range official {
 		entries[official[i].CatalogID] = &official[i]
 	}
-	kept := make([]Pack, 0, len(packs))
-	for _, pack := range packs {
-		if pack.Origin != nil {
-			if !pack.Origin.Followed || entries[pack.Origin.CatalogID] == nil {
-				continue
-			}
-			from := entries[pack.Origin.CatalogID].Pack
-			pack.Description, pack.Category, pack.Tags = from.Description, from.Category, slices.Clone(from.Tags)
-		} else if entries[pack.ID] != nil {
-			continue
-		}
-		kept = append(kept, pack)
-	}
+	kept := keepFollowed(packs, entries)
 	byID := map[string]*Pack{}
 	for i := range kept {
 		byID[kept[i].ID] = &kept[i]
 	}
 	synced := map[string][]List{}
 	for _, pack := range kept {
-		if pack.Origin == nil {
-			continue
+		if pack.Origin != nil {
+			synced[pack.ID] = syncFollowed(pack, lists, entries[pack.Origin.CatalogID])
 		}
-		var mine []List
-		for _, list := range lists {
-			if list.PackID == pack.ID {
-				mine = append(mine, list)
-			}
-		}
-		var items []List
-		for _, item := range entries[pack.Origin.CatalogID].Lists {
-			at := slices.IndexFunc(mine, func(list List) bool { return list.Origin != nil && list.Origin.ListID == item.ID })
-			var list List
-			if at >= 0 {
-				list = mine[at]
-			} else {
-				// The id comes from the official list's, so that the app and Go make the same list.
-				list = List{ID: pack.ID + ":" + item.ID, PackID: pack.ID, Records: []Record{}, CreatedAt: item.CreatedAt,
-					Origin: &ListOrigin{ListID: item.ID}}
-			}
-			list.Name, list.Levels, list.Writing, list.Words = item.Name, nil, cloneWriting(item.Writing), slices.Clone(item.Words)
-			if len(item.Levels) > 0 {
-				list.Levels = slices.Clone(item.Levels)
-			}
-			items = append(items, list)
-		}
-		synced[pack.ID] = items
 	}
 	placed := map[string]bool{}
 	result := make([]List, 0, len(lists))
@@ -92,6 +56,54 @@ func followOfficial(packs []Pack, lists []List, official []OfficialPack) ([]Pack
 		}
 	}
 	return kept, result
+}
+
+// keepFollowed is step 1 of followOfficial: the packs without the copies from before v0.98.0, and without followed
+// packs the catalog no longer has. A followed pack takes the description and labels of its official pack.
+func keepFollowed(packs []Pack, entries map[string]*OfficialPack) []Pack {
+	kept := make([]Pack, 0, len(packs))
+	for _, pack := range packs {
+		if pack.Origin != nil {
+			if !pack.Origin.Followed || entries[pack.Origin.CatalogID] == nil {
+				continue
+			}
+			from := entries[pack.Origin.CatalogID].Pack
+			pack.Description, pack.Category, pack.Tags = from.Description, from.Category, slices.Clone(from.Tags)
+		} else if entries[pack.ID] != nil {
+			continue
+		}
+		kept = append(kept, pack)
+	}
+	return kept
+}
+
+// syncFollowed is step 2 of followOfficial for the followed pack: the lists of its official pack, in its order, each
+// keeping the id and records of the list of pack that came from it.
+func syncFollowed(pack Pack, lists []List, entry *OfficialPack) []List {
+	var mine []List
+	for _, list := range lists {
+		if list.PackID == pack.ID {
+			mine = append(mine, list)
+		}
+	}
+	var items []List
+	for _, item := range entry.Lists {
+		at := slices.IndexFunc(mine, func(list List) bool { return list.Origin != nil && list.Origin.ListID == item.ID })
+		var list List
+		if at >= 0 {
+			list = mine[at]
+		} else {
+			// The id comes from the official list's, so that the app and Go make the same list.
+			list = List{ID: pack.ID + ":" + item.ID, PackID: pack.ID, Records: []Record{}, CreatedAt: item.CreatedAt,
+				Origin: &ListOrigin{ListID: item.ID}}
+		}
+		list.Name, list.Levels, list.Writing, list.Words = item.Name, nil, cloneWriting(item.Writing), slices.Clone(item.Words)
+		if len(item.Levels) > 0 {
+			list.Levels = slices.Clone(item.Levels)
+		}
+		items = append(items, list)
+	}
+	return items
 }
 
 // WithoutFollowedWords copies the lists with no words for those of a followed pack, as they are saved since v2.1.0
