@@ -34,7 +34,7 @@ func (s *server) records(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodDelete {
 		reported = "record.delete"
 	}
-	user, fields, ok := s.recordRequest(w, r, reported)
+	user, fields, ok := s.saveRequest(w, r, reported, "invalidRecord")
 	if !ok {
 		return
 	}
@@ -45,9 +45,11 @@ func (s *server) records(w http.ResponseWriter, r *http.Request) {
 	s.addRecord(w, r, user.Sub, fields)
 }
 
-// recordRequest checks a request to records as PUT /api/workspace is checked, and reads its body as a JSON object; the
-// object's account is checked by recordAdd and recordDelete. Otherwise it answers the request.
-func (s *server) recordRequest(w http.ResponseWriter, r *http.Request, reported string) (session.Session, map[string]json.RawMessage, bool) {
+// saveRequest checks a request that saves, to /api/workspace or its records: the Origin of a cookie's request, a JSON
+// body, then the login. It reads the body as a JSON object, answering one that is not with invalid; the object's
+// account is the handler's to check. A body that cannot be read is reported as reported. Otherwise it answers the
+// request.
+func (s *server) saveRequest(w http.ResponseWriter, r *http.Request, reported, invalid string) (session.Session, map[string]json.RawMessage, bool) {
 	if !s.fromAppOrOrigin(r) || !jsonContent(r) {
 		refuse(w, http.StatusForbidden, "forbiddenRequest")
 		return session.Session{}, nil, false
@@ -72,7 +74,7 @@ func (s *server) recordRequest(w http.ResponseWriter, r *http.Request, reported 
 	}
 	fields, err := parseObject(body)
 	if err != nil {
-		refuse(w, http.StatusBadRequest, "invalidRecord")
+		refuse(w, http.StatusBadRequest, invalid)
 		return session.Session{}, nil, false
 	}
 	return user, fields, true
