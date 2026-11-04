@@ -275,7 +275,7 @@ test('duplicateList keeps writing', () => {
   assert.deepEqual(duplicateList(lists, 'a', 'b', n => `（${n}）`).copy.writing, { language: 'fr' })
 })
 
-const overview = (name, position, lastPracticed = null) => ({ pack: { name }, position, wordCount: 1, lastPracticed })
+const overview = (name, position, lastPracticed = null, wordCount = 1) => ({ pack: { name }, position, wordCount, lastPracticed })
 const twoLists = () => ({
   packs: [{ id: 'p', name: 'Linux', category: 'プログラミング', tags: [], createdAt: stamp }],
   lists: [list('a', 'Files', 'p', { words: words('ls') }), list('b', 'Moves', 'p', { words: words('cd') })],
@@ -305,4 +305,20 @@ test('storedLibrary removes the labels the screens add to lists', () => {
   const library = twoLists()
   const labelled = { ...library, lists: library.lists.map(item => ({ ...item, group: 'g', category: 'c', tags: ['t'] })) }
   assert.deepEqual(storedLibrary(labelled), library)
+})
+test('sortPacks sorts by words, then newest position', () => {
+  const sorted = sortPacks([overview('a', 1, null, 2), overview('b', 2, null, 5), overview('c', 3, null, 2)], 'words', 'en')
+  assert.deepEqual(sorted.map(item => item.pack.name), ['b', 'c', 'a'])
+})
+test('sortPacks puts the largest position first for added', () => {
+  const sorted = sortPacks([overview('a', 1), overview('b', 3), overview('c', 2)], 'added', 'en')
+  assert.deepEqual(sorted.map(item => item.pack.name), ['b', 'c', 'a'])
+})
+test('visibleListRows shows every list for an empty query', () => {
+  const [item] = packOverviews(twoLists())
+  assert.deepEqual(visibleListRows(item, '').map(row => row.list.id), ['a', 'b'])
+})
+test('loneListPack returns undefined without a pack id', () => {
+  const library = { ...twoLists(), lists: twoLists().lists.slice(0, 1) }
+  assert.equal(loneListPack(library, undefined), undefined)
 })

@@ -125,11 +125,11 @@ export default function ListManager({ lists, packs, saving, highlight, highlight
           onAddList={full ? undefined : () => router.push(`/create?pack=${encodeURIComponent(pack.id)}`)}
           onCopy={own + item.lists.length > MAX_LISTS ? undefined : () => copyPackOf(item)} onExport={() => exportPack(item)}
           onShare={canShare ? () => setSharing({ id: pack.id, name: pack.name }) : undefined} shared={shares.has(pack.id)} listed={shares.get(pack.id)?.listed} hidden={shares.get(pack.id)?.hidden}
-          onDeletePack={() => { setDeletingPack({ open: true, item, position: shown.indexOf(item) }) }}
+          onDeletePack={() => setDeletingPack({ open: true, item, position: shown.indexOf(item) })}
           followed={followed} onUnfollow={() => setUnfollowing({ id: pack.id, name: pack.name })}>
           {rows.map(row => <ListRow key={row.list.id} item={row} now={now} highlight={highlight === row.list.id} disabled={saving} canCopy={!full} readOnly={followed}
             onEdit={() => onEdit(row.list)} onExport={() => exportCsv(row.list)} onCopy={() => copyList(row.list)}
-            onDelete={() => { setDeleting({ open: true, item: row, position: rowPosition(row.list.id) }) }} />)}
+            onDelete={() => setDeleting({ open: true, item: row, position: rowPosition(row.list.id) })} />)}
         </PackRow>
       })}
     </ul> : <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed bg-card px-6 py-10 text-center">
