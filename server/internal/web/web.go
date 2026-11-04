@@ -186,3 +186,10 @@ func Unavailable(key string) http.Handler {
 		refuse(w, http.StatusServiceUnavailable, key)
 	}))
 }
+
+func (s *server) now() time.Time {
+	if s.config.Now != nil {
+		return s.config.Now()
+	}
+	return time.Now()
+}
