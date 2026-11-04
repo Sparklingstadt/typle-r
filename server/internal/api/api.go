@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"regexp"
@@ -214,12 +213,31 @@ func (s *server) owner(w http.ResponseWriter, r *http.Request) (string, bool) {
 
 // As before, nothing is cached and no CORS headers are sent.
 func respond(w http.ResponseWriter, status int, value any) {
-	header := w.Header()
-	header.Set("Content-Type", "application/json; charset=utf-8")
-	header.Set("Cache-Control", "no-store")
-	header.Set("X-Content-Type-Options", "nosniff")
+	setHeaders(w.Header(), "application/json; charset=utf-8")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(value)
+}
+
+// noContent answers 204 for a change done, kept by no cache as every answer is.
+func noContent(w http.ResponseWriter) {
+	w.Header().Set("Cache-Control", "no-store")
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// setHeaders sets the headers of every answer: its type, kept by no cache, and not to be sniffed.
+func setHeaders(header http.Header, contentType string) {
+	header.Set("Content-Type", contentType)
+	header.Set("Cache-Control", "no-store")
+	header.Set("X-Content-Type-Options", "nosniff")
+}
+
+// download answers body as a file to save, named filename (see asciiFilename and encodeRFC5987).
+func download(w http.ResponseWriter, contentType, filename string, body []byte) {
+	header := w.Header()
+	setHeaders(header, contentType)
+	header.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, asciiFilename(filename), encodeRFC5987(filename)))
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(body)
 }
 
 func failure(w http.ResponseWriter, status int, key string) {
@@ -261,14 +279,7 @@ func wordsCSV(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
 		failure(w, http.StatusNotFound, "listNotFound")
 		return
 	}
-	filename := workspace.WordFilename(list.Name, "csv")
-	header := w.Header()
-	header.Set("Content-Type", "text/csv; charset=utf-8")
-	header.Set("Cache-Control", "no-store")
-	header.Set("X-Content-Type-Options", "nosniff")
-	header.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, asciiFilename(filename), encodeRFC5987(filename)))
-	w.WriteHeader(http.StatusOK)
-	_, _ = io.WriteString(w, workspace.EncodeWordCSV(list.Words))
+	download(w, "text/csv; charset=utf-8", workspace.WordFilename(list.Name, "csv"), []byte(workspace.EncodeWordCSV(list.Words)))
 }
 
 // asciiFilename is the filename for clients that only read filename=: characters outside ASCII become _.

@@ -80,12 +80,7 @@ func keepFollowed(packs []Pack, entries map[string]*OfficialPack) []Pack {
 // syncFollowed is step 2 of followOfficial for the followed pack: the lists of its official pack, in its order, each
 // keeping the id and records of the list of pack that came from it.
 func syncFollowed(pack Pack, lists []List, entry *OfficialPack) []List {
-	var mine []List
-	for _, list := range lists {
-		if list.PackID == pack.ID {
-			mine = append(mine, list)
-		}
-	}
+	mine := listsIn(lists, pack.ID)
 	var items []List
 	for _, item := range entry.Lists {
 		at := slices.IndexFunc(mine, func(list List) bool { return list.Origin != nil && list.Origin.ListID == item.ID })

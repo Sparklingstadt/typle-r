@@ -65,7 +65,7 @@ func CopyList(w *Workspace, sourceID string, name *string, id string, now time.T
 		return nil, &Error{Key: "listLimit"}
 	}
 	source := &w.Lists[at]
-	pack := findPack(w, source.PackID)
+	pack := w.FindPack(source.PackID)
 	if name == nil {
 		packID := ""
 		if pack != nil {

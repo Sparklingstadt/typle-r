@@ -285,10 +285,9 @@ func findDevice(w *Workspace, id string) (*Device, bool) {
 	if id == DefaultDeviceID {
 		return &Device{ID: DefaultDeviceID, Name: defaultDeviceName, Layout: ""}, true
 	}
-	for _, device := range w.Devices {
-		if device.ID == id {
-			return &device, true
-		}
+	if at := deviceIndex(w, id); at >= 0 {
+		device := w.Devices[at]
+		return &device, true
 	}
 	return nil, false
 }

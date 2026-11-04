@@ -107,10 +107,16 @@ type Workspace struct {
 
 // Find returns the list with this id, or nil.
 func (w *Workspace) Find(id string) *List {
-	for i := range w.Lists {
-		if w.Lists[i].ID == id {
-			return &w.Lists[i]
-		}
+	if at := index(w, id); at >= 0 {
+		return &w.Lists[at]
+	}
+	return nil
+}
+
+// FindPack returns the pack with this id, or nil.
+func (w *Workspace) FindPack(id string) *Pack {
+	if at := packIndex(w, id); at >= 0 {
+		return &w.Packs[at]
 	}
 	return nil
 }

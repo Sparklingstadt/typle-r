@@ -134,6 +134,22 @@ func fail(w http.ResponseWriter, r *http.Request, err error) {
 	refuse(w, r, refused)
 }
 
+// readImport reads a file sent to be imported: 413 importTooLarge past workspace.MaxImportBytes, and 400 invalidJson
+// for a body that cannot be read.
+func readImport(w http.ResponseWriter, r *http.Request) ([]byte, bool) {
+	data, err := io.ReadAll(http.MaxBytesReader(w, r.Body, workspace.MaxImportBytes))
+	var tooLarge *http.MaxBytesError
+	if errors.As(err, &tooLarge) {
+		failure(w, http.StatusRequestEntityTooLarge, "importTooLarge")
+		return nil, false
+	}
+	if err != nil {
+		failure(w, http.StatusBadRequest, "invalidJson")
+		return nil, false
+	}
+	return data, true
+}
+
 // modifyList is modify for a change that makes or edits one list, which it answers with in its saved shape.
 func (s *server) modifyList(w http.ResponseWriter, r *http.Request, owner string, status int,
 	change func(*workspace.Workspace) (*workspace.List, error)) {
@@ -206,8 +222,7 @@ func (s *server) deleteList(w http.ResponseWriter, r *http.Request, owner string
 	}) {
 		return
 	}
-	w.Header().Set("Cache-Control", "no-store")
-	w.WriteHeader(http.StatusNoContent)
+	noContent(w)
 }
 
 // addRecord answers 201 for a new record, and 200 with the saved one when the list already has a record of that id.
@@ -282,8 +297,7 @@ func (s *server) deleteDevice(w http.ResponseWriter, r *http.Request, owner stri
 	}) {
 		return
 	}
-	w.Header().Set("Cache-Control", "no-store")
-	w.WriteHeader(http.StatusNoContent)
+	noContent(w)
 }
 
 func (s *server) updateRecord(w http.ResponseWriter, r *http.Request, owner string) {
@@ -308,8 +322,7 @@ func (s *server) deleteRecord(w http.ResponseWriter, r *http.Request, owner stri
 		fail(w, r, err)
 		return
 	}
-	w.Header().Set("Cache-Control", "no-store")
-	w.WriteHeader(http.StatusNoContent)
+	noContent(w)
 }
 
 // copyList takes an optional body: none copies with the generated name, { "name" } names the copy. The copy goes in
@@ -350,14 +363,8 @@ func (s *server) importList(w http.ResponseWriter, r *http.Request, owner string
 		failure(w, http.StatusBadRequest, "invalidQuery")
 		return
 	}
-	data, err := io.ReadAll(http.MaxBytesReader(w, r.Body, workspace.MaxImportBytes))
-	var tooLarge *http.MaxBytesError
-	if errors.As(err, &tooLarge) {
-		failure(w, http.StatusRequestEntityTooLarge, "importTooLarge")
-		return
-	}
-	if err != nil {
-		failure(w, http.StatusBadRequest, "invalidJson")
+	data, ok := readImport(w, r)
+	if !ok {
 		return
 	}
 	// The app reads the file as UTF-8 and refuses any other encoding, such as the Shift_JIS Excel saves.
