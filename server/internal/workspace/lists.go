@@ -191,26 +191,9 @@ func UpdateList(w *Workspace, id string, input ListInput) (*List, error) {
 		return nil, err
 	}
 	moving := target != list.PackID
-	name := list.Name
-	if input.Name != nil || moving {
-		given := input.Name
-		if given == nil {
-			given = &list.Name
-		}
-		checked, err := checkName(w, given, id, target)
-		if err != nil {
-			return nil, err
-		}
-		name = checked
-	}
-	if input.Name != nil && !moving && followsRename(w, list) {
-		// ApplyListChange renames a pack of one list after it, so the new name may not be another pack's either: repair
-		// would otherwise rename that pack. The list's name is what the request asked for, so it is the one refused.
-		for _, other := range w.Packs {
-			if other.ID != list.PackID && nameKey(other.Name) == nameKey(name) {
-				return nil, &Error{Key: "listNameDuplicate"}
-			}
-		}
+	name, err := updatedName(w, list, input.Name, target)
+	if err != nil {
+		return nil, err
 	}
 	category, tags := list.Category, list.Tags
 	if moving {
@@ -222,7 +205,7 @@ func UpdateList(w *Workspace, id string, input ListInput) (*List, error) {
 	if input.Tags != nil {
 		tags = *input.Tags
 	}
-	category, tags, err := checkLabels(category, tags)
+	category, tags, err = checkLabels(category, tags)
 	if err != nil {
 		return nil, err
 	}
@@ -254,10 +237,43 @@ func UpdateList(w *Workspace, id string, input ListInput) (*List, error) {
 		w.Lists[at] = list
 		return &w.Lists[at], nil
 	}
+	return moveList(w, at, list, source), nil
+}
+
+// updatedName is the name list has after an update that names it given (nil to keep its name) in the pack target. A
+// list that moves keeps its name only if no list of target has it.
+func updatedName(w *Workspace, list List, given *string, target string) (string, error) {
+	moving := target != list.PackID
+	if given == nil && !moving {
+		return list.Name, nil
+	}
+	asked := given
+	if asked == nil {
+		asked = &list.Name
+	}
+	name, err := checkName(w, asked, list.ID, target)
+	if err != nil {
+		return "", err
+	}
+	if given != nil && !moving && followsRename(w, list) {
+		// ApplyListChange renames a pack of one list after it, so the new name may not be another pack's either: repair
+		// would otherwise rename that pack. The list's name is what the request asked for, so it is the one refused.
+		for _, other := range w.Packs {
+			if other.ID != list.PackID && nameKey(other.Name) == nameKey(name) {
+				return "", &Error{Key: "listNameDuplicate"}
+			}
+		}
+	}
+	return name, nil
+}
+
+// moveList puts list, which was at at in the pack source, right after the last list of its new pack, and removes
+// source if that leaves it empty.
+func moveList(w *Workspace, at int, list List, source string) *List {
 	others := slices.Delete(slices.Clone(w.Lists), at, at+1)
 	end := -1
 	for i, other := range others {
-		if other.PackID == target {
+		if other.PackID == list.PackID {
 			end = i
 		}
 	}
@@ -265,7 +281,7 @@ func UpdateList(w *Workspace, id string, input ListInput) (*List, error) {
 	if !slices.ContainsFunc(w.Lists, func(other List) bool { return other.PackID == source }) {
 		w.Packs = slices.DeleteFunc(w.Packs, func(other Pack) bool { return other.ID == source })
 	}
-	return &w.Lists[end+1], nil
+	return &w.Lists[end+1]
 }
 
 // followsRename tells whether ApplyListChange makes the pack of list follow a rename of it: the list is alone in its

@@ -284,12 +284,8 @@ func (s *server) callback(provider string) http.HandlerFunc {
 		}
 		var user signedInUser
 		if provider == providerFFPF {
-			ffpfUser, err := s.config.FFPF.Exchange(r.Context(), code, pending.Verifier, s.redirectURI(ffpfCallback), pending.Nonce)
-			if err != nil {
-				// A refusal comes of what the user did, such as a code used twice, and is not the app's failure.
-				if !errors.Is(err, auth.ErrFFPFRejected) {
-					s.report(r, err, "auth.callback")
-				}
+			ffpfUser, ok := s.ffpfUser(r, code, pending)
+			if !ok {
 				fail()
 				return
 			}
@@ -299,19 +295,11 @@ func (s *server) callback(provider string) http.HandlerFunc {
 			}
 			user = signedInUser{sub: ffpfUser.Account(), name: strings.TrimSpace(ffpfUser.Name)}
 		} else {
-			token, err := s.config.OAuth.Exchange(r.Context(), code, pending.Verifier, s.redirectURI(githubCallback))
-			if err != nil {
-				s.report(r, err, "auth.callback")
+			var ok bool
+			if user, ok = s.githubUser(r, code, pending); !ok {
 				fail()
 				return
 			}
-			githubUser, err := s.config.GitHub.User(r.Context(), token)
-			if err != nil {
-				s.report(r, err, "auth.callback")
-				fail()
-				return
-			}
-			user = signedInUser{sub: githubUser.Account(), name: strings.TrimSpace(githubUser.DisplayName()), image: githubUser.AvatarURL}
 		}
 		if app {
 			toApp(w, "code", s.config.Keys.SealCode(session.AppCode{
@@ -326,6 +314,35 @@ func (s *server) callback(provider string) http.HandlerFunc {
 		s.issue(w, user.sub, user.name, user.image)
 		goTo(w, returnTo)
 	}
+}
+
+// ffpfUser trades the code of an FFPF ID login for the account it signs in, and reports a failure that is not FFPF ID
+// refusing the login.
+func (s *server) ffpfUser(r *http.Request, code string, pending session.OAuth) (auth.FFPFUser, bool) {
+	user, err := s.config.FFPF.Exchange(r.Context(), code, pending.Verifier, s.redirectURI(ffpfCallback), pending.Nonce)
+	if err != nil {
+		// A refusal comes of what the user did, such as a code used twice, and is not the app's failure.
+		if !errors.Is(err, auth.ErrFFPFRejected) {
+			s.report(r, err, "auth.callback")
+		}
+		return auth.FFPFUser{}, false
+	}
+	return user, true
+}
+
+// githubUser trades the code of a GitHub login for a token and asks GitHub whose it is, reporting any failure.
+func (s *server) githubUser(r *http.Request, code string, pending session.OAuth) (signedInUser, bool) {
+	token, err := s.config.OAuth.Exchange(r.Context(), code, pending.Verifier, s.redirectURI(githubCallback))
+	if err != nil {
+		s.report(r, err, "auth.callback")
+		return signedInUser{}, false
+	}
+	user, err := s.config.GitHub.User(r.Context(), token)
+	if err != nil {
+		s.report(r, err, "auth.callback")
+		return signedInUser{}, false
+	}
+	return signedInUser{sub: user.Account(), name: strings.TrimSpace(user.DisplayName()), image: user.AvatarURL}, true
 }
 
 // tokenAnswer is the app's token and who it signs in.
