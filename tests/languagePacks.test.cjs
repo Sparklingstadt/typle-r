@@ -108,5 +108,30 @@ test('the twenty HSK 6 handwriting packs each hold six lists of 15 words, marked
     }
   }
   // No other official list is marked for handwriting.
-  assert.equal(officialLibrary.lists.filter(list => list.writing).length, 120)
+  assert.equal(officialLibrary.lists.filter(list => list.writing).length, 126)
+})
+
+test('the Korean beginner handwriting pack holds six themed lists of 15 words, marked for handwriting in Korean', () => {
+  const { officialLibrary } = require('../src/plugins/packs/index.ts')
+  const found = officialLibrary.packs.find(item => item.name === '韓国語：手書き初級単語')
+  assert.ok(found)
+  assert.equal(found.category, '語学')
+  assert.deepEqual(found.tags, ['韓国語'])
+  const levels = ['家族・人', '食べ物・飲み物', '場所・建物', '時間・暦', '動詞', '形容詞']
+  const lists = officialLibrary.lists.filter(list => list.packId === found.id)
+  assert.deepEqual(lists.map(list => list.id), [1, 2, 3, 4, 5, 6].map(n => `korean-handwriting-beginner-words-${n}`))
+  assert.deepEqual(lists.map(list => list.name), levels.map(level => `韓国語 手書き初級（${level}）`))
+  assert.deepEqual(lists.map(list => list.levels), levels.map(level => [level]))
+  for (const list of lists) {
+    assert.deepEqual(list.writing, { language: 'ko' }, list.id)
+    assert.equal(list.words.length, 15, list.id)
+    // Hangul is shown and written, the romanization is typed and repeated in the annotation before the Japanese.
+    assert.ok(list.words.every(word => word.input_type === 'word' && /^\p{Script=Hangul}+$/u.test(word.display) &&
+      /^[a-z]+$/.test(word.input) && word.annotation.startsWith(`${word.input} / `)), list.id)
+  }
+  // No word is written twice, nor is any in the beginner Korean list.
+  const words = lists.flatMap(list => list.words.map(word => word.display))
+  assert.equal(new Set(words).size, 90)
+  const basics = new Set(officialLibrary.lists.find(list => list.id === 'korean-basics').words.map(word => word.display))
+  assert.ok(words.every(word => !basics.has(word)))
 })
