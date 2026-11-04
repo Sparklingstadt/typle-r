@@ -82,6 +82,31 @@ export type PackInput = { name: string; description?: string; category?: string;
 
 const invalid = () => new Error('Invalid packs')
 
+export function packFieldsOf(pack?: WordPack): PackInput {
+  return { name: pack?.name ?? '', description: pack?.description ?? '', category: pack?.category ?? '', tags: pack?.tags ?? [] }
+}
+
+// Another tab may add or delete a list of the pack while it is edited: the order keeps the ids that still exist, then the new lists.
+export function reconcileOrder(order: string[], lists: SavedWordList[]): string[] {
+  const ids = new Set(lists.map(list => list.id))
+  const kept = order.filter(id => ids.has(id))
+  return [...kept, ...lists.map(list => list.id).filter(id => !kept.includes(id))]
+}
+
+/**
+ * The lists matching `query` by their own name or their pack's name, without case. A list's pack is named in `inPack`
+ * when the pack holds other lists of `lists` too, since choosing the list takes it out of that pack.
+ */
+export function packListChoices(lists: SavedWordList[], packs: WordPack[], query: string): { list: SavedWordList; inPack?: string }[] {
+  const packName = new Map(packs.map(pack => [pack.id, pack.name]))
+  const sizes = new Map<string, number>()
+  for (const list of lists) sizes.set(list.packId ?? '', (sizes.get(list.packId ?? '') ?? 0) + 1)
+  const needle = query.trim().toLocaleLowerCase()
+  return lists
+    .filter(list => !needle || list.name.toLocaleLowerCase().includes(needle) || packName.get(list.packId ?? '')?.toLocaleLowerCase().includes(needle))
+    .map(list => ({ list, inPack: (sizes.get(list.packId ?? '') ?? 0) >= 2 ? packName.get(list.packId ?? '') : undefined }))
+}
+
 // A pack as saved from the fields of a screen: trimmed, and without a description or labels when they are empty.
 function packFields(library: Library, fields: PackInput, selfId?: string) {
   const name = fields.name.trim()
