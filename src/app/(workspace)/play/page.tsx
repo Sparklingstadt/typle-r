@@ -18,6 +18,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useWordLists, type RecordSave } from "@/lib/useWordLists"
 import type { SavedWordList } from "@/core/wordLists"
 import { usePractice } from "@/lib/usePractice"
+import { usePracticeSwitch } from "@/lib/usePracticeSwitch"
+import { usePracticeFocus } from "@/lib/usePracticeFocus"
 import { compareInput, simpleInputKeys, typingSpeed } from "@/core/typing"
 import { comparableRecords, recordsOfMode, type PracticeMode } from "@/core/records"
 import { rankingQuery } from "@/core/rankings"
@@ -85,8 +87,6 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   // Typing or writing is decided when a list is chosen and on every restart; a run keeps its mode to the end.
   const [preferredWriting, setPreferredWriting] = useWritingMode()
   const [writingChoice, setWritingChoice] = useState(() => writingChoiceFor(list, preferredWriting))
-  // Set when handwriting is switched off, so the typing input takes the focus once it is mounted again.
-  const focusTypingOnMount = useRef(false)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [asideQuery, setAsideQuery] = useState('')
@@ -94,17 +94,12 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   const [category, setCategory] = useState<string | null>(null)
   const locale = useLocale()
   const asideLists = useRef<HTMLDivElement>(null)
-  // A run in progress is only left after asking: for another list, or for typing instead of handwriting or back.
-  const [pendingSwitch, setPendingSwitch] = useState<{ kind: 'list'; index: number } | { kind: 'mode'; mode: WritingChoice } | null>(null)
-  // Counts the switches given up on, so the choosers let go of the levels chosen for them.
-  const [switchCancels, setSwitchCancels] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
   // All the words of the list start shown, so a list can be previewed right after choosing it.
   const [showAll, setShowAll] = useState(true)
   const [inputFocused, setInputFocused] = useState(false)
   const [focusedOnce, setFocusedOnce] = useState(false)
   const allWords = useRef<HTMLUListElement>(null)
-  const pickerOpener = useRef<HTMLElement | null>(null)
   const started = session.startedAt !== null
   // WritingPractice reports its run, so switching lists asks first and the device stays locked as when typing.
   const [writingRun, setWritingRun] = useState<WritingRun | null>(null)
@@ -130,7 +125,8 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   // Recall mode shows the annotation with the answer hidden and the display text when it differs from what is typed.
   const prompt = recall && word ? recallPrompt(word) : ''
   const displayHint = word && recall ? recallDisplayHint(word) : ''
-  const dialogOpen = pickerOpen || pendingSwitch !== null || menuOpen
+  const { pending, cancels, requestList, requestWriting, confirm, cancel } = usePracticeSwitch({ wordLists, selected, running, currentChoice: writingChoice, onSwitchList: switchTo, onChooseWriting: chooseWriting })
+  const dialogOpen = pickerOpen || pending !== null || menuOpen
   const showResume = mode !== 'writing' && focusedOnce && !inputFocused && !finished && !dialogOpen && words.length > 0
 
   useEffect(() => {
@@ -148,48 +144,11 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
     if (top < box.scrollTop || top + chosen.offsetHeight > box.scrollTop + box.clientHeight) box.scrollTop = top - 8
   }, [list?.id])
 
-  // While the input has lost focus, any printable key or Enter outside another control brings it back.
-  useEffect(() => {
-    if (!showResume) return
-    function resume(event: KeyboardEvent) {
-      if (event.defaultPrevented || event.isComposing || event.metaKey || event.ctrlKey || event.altKey) return
-      if (event.target instanceof Element && event.target.closest('input, textarea, select, button, a, [contenteditable="true"]')) return
-      if (event.key.length !== 1 && event.key !== 'Enter') return
-      event.preventDefault()
-      input.current?.focus()
-    }
-    document.addEventListener('keydown', resume)
-    return () => document.removeEventListener('keydown', resume)
-  }, [showResume, input])
-
-  // Back from handwriting, the typing input only exists after this render, so it is focused here rather than on the click.
-  useEffect(() => {
-    if (writingChoice !== 'normal' || !focusTypingOnMount.current) return
-    focusTypingOnMount.current = false
-    input.current?.focus()
-  }, [writingChoice, input])
-
-  // The typing input, or the writing field (which WritingPractice owns) while writing.
-  function focusInput() {
-    if (mode === 'writing') document.getElementById('writingInputField')?.focus()
-    else input.current?.focus()
-  }
-  // After a dialog or menu closes, typing continues in the input; on the result screen focus returns to the trigger.
-  function focusPractice(event: Event) {
-    if (finished && mode !== 'writing') return
-    if (mode === 'writing' && !document.getElementById('writingInputField')) return
-    event.preventDefault()
-    focusInput()
-  }
+  const { focusInput, focusPractice, rememberOpener, closePicker, focusTypingNext } = usePracticeFocus({ mode, finished, input, showResume, writingChoice })
   // The picker is opened from buttons that are not its Radix trigger, so remember where focus should return.
   function openPicker() {
-    pickerOpener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    rememberOpener()
     setPickerOpen(true)
-  }
-  function closePicker(event: Event) {
-    event.preventDefault()
-    if ((mode !== 'writing' && finished) || (mode === 'writing' && !document.getElementById('writingInputField'))) pickerOpener.current?.focus()
-    else focusInput()
   }
   function restart(index = selected, preferred = preferredWriting) {
     // Also reset manually scrolled display-only text, including an identical word on a fresh attempt.
@@ -197,15 +156,9 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
     setWritingChoice(writingChoiceFor(wordLists[index], preferred))
     restartPractice(index)
   }
-  // Choosing typing or handwriting starts the list again in that mode; during a run it asks first, as switching lists does.
-  function requestWritingChoice(next: WritingChoice) {
-    if (next === writingChoice) return
-    if (running) setPendingSwitch({ kind: 'mode', mode: next })
-    else chooseWriting(next)
-  }
   function chooseWriting(next: WritingChoice) {
     setPreferredWriting(next)
-    if (next === 'normal') focusTypingOnMount.current = true
+    if (next === 'normal') focusTypingNext()
     restart(selected, next)
   }
   // Switching recall starts the list again; it cannot be switched during a run.
@@ -219,12 +172,9 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
     restart(index)
   }
   function requestSwitch(id: string) {
-    const index = wordLists.findIndex(item => item.id === id)
     setPickerOpen(false)
     setQuery('')
-    if (index < 0) return
-    if (!running) switchTo(index)
-    else if (index !== selected) setPendingSwitch({ kind: 'list', index })
+    requestList(id)
   }
   // Recently practised packs come first, and both choosers can be narrowed down by category and by what the pack, its lists
   // and its words say.
@@ -233,8 +183,8 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   const filteredPacks = useMemo(() => matchingPacks(overviews, category, query), [overviews, category, query])
   const asidePacks = useMemo(() => matchingPacks(overviews, category, asideQuery), [overviews, category, asideQuery])
   // What the confirmation names as the switch's target: the other list, or the other way of practising.
-  const switchTarget = pendingSwitch?.kind === 'mode' ? t(pendingSwitch.mode === 'writing' ? 'modeWriting' : 'modeTyping')
-    : pendingSwitch?.kind === 'list' && wordLists[pendingSwitch.index] ? practiceName(wordLists[pendingSwitch.index]) : ''
+  const switchTarget = pending?.kind === 'mode' ? t(pending.mode === 'writing' ? 'modeWriting' : 'modeTyping')
+    : pending?.kind === 'list' && wordLists[pending.index] ? practiceName(wordLists[pending.index]) : ''
   const { next, remaining } = upcomingWords(words, session.index)
   const feedback = hasError
     ? <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{t('feedback.mismatch', { position: comparison.errorIndex + 1 })}</span>
@@ -283,7 +233,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
         </div>
         {/* Only a list marked for writing offers the choice; a run already going keeps its mode though the mark is removed. */}
         {selectedList?.writing && <div className="flex justify-center border-b px-4 py-2">
-          <ModeToggle options={WRITING_CHOICES} value={writingChoice} onChange={requestWritingChoice} label={t('modeLabel')} labels={{ normal: t('modeTyping'), writing: t('modeWriting') }} />
+          <ModeToggle options={WRITING_CHOICES} value={writingChoice} onChange={requestWriting} label={t('modeLabel')} labels={{ normal: t('modeTyping'), writing: t('modeWriting') }} />
         </div>}
         {mode === 'writing' ? <WritingPractice key={`${list.id}:${displayRun}`} list={list} listName={practiceName(list)} records={selectedRecords} addRecord={addRecord} device={device}
           statsVisible={statsVisible} onRun={setWritingRun} onRestart={() => restart()} onChooseList={openPicker} />
@@ -410,7 +360,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
           <div className="mx-1 mb-1"><CategorySelect labels={labels} value={category} onChange={setCategory} /></div>
           {/* Its own scroll area, so a long collection never pushes the page far below the practice card. */}
           <div ref={asideLists} className="max-h-96 overflow-y-auto overscroll-contain lg:max-h-[min(36rem,calc(100dvh-14rem))]">
-            {asidePacks.length ? <WordListOptions label={t('aside.lists')} packs={asidePacks} selectedId={list.id} query={asideQuery} resetKey={switchCancels} mode={mode}
+            {asidePacks.length ? <WordListOptions label={t('aside.lists')} packs={asidePacks} selectedId={list.id} query={asideQuery} resetKey={cancels} mode={mode}
               onSelect={id => { setAsideQuery(''); requestSwitch(id) }} />
               : <p className="px-2 py-2 text-sm text-muted-foreground">{t('picker.noMatch')}</p>}
           </div>
@@ -429,11 +379,11 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
             className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" />
         </label>
         <CategorySelect labels={labels} value={category} onChange={setCategory} className="h-10 w-full min-w-0 rounded-lg border bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30" />
-        {filteredPacks.length ? <WordListOptions label={t('picker.candidates')} packs={filteredPacks} selectedId={list?.id} query={query} resetKey={switchCancels} mode={mode} onSelect={requestSwitch} />
+        {filteredPacks.length ? <WordListOptions label={t('picker.candidates')} packs={filteredPacks} selectedId={list?.id} query={query} resetKey={cancels} mode={mode} onSelect={requestSwitch} />
           : <p className="px-1 py-2 text-sm text-muted-foreground">{t('picker.noMatch')}</p>}
       </DialogContent>
     </Dialog>
-    <AlertDialog open={pendingSwitch !== null} onOpenChange={open => { if (!open) { setPendingSwitch(null); setSwitchCancels(count => count + 1) } }}>
+    <AlertDialog open={pending !== null} onOpenChange={open => { if (!open) cancel() }}>
       <AlertDialogContent onCloseAutoFocus={focusPractice}>
         <AlertDialogHeader>
           <AlertDialogTitle>{t('switch.title')}</AlertDialogTitle>
@@ -443,10 +393,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{t('switch.continue')}</AlertDialogCancel>
-          <AlertDialogAction onClick={() => {
-            if (pendingSwitch?.kind === 'list') switchTo(pendingSwitch.index)
-            else if (pendingSwitch?.kind === 'mode') chooseWriting(pendingSwitch.mode)
-          }}>{t('switch.confirm')}</AlertDialogAction>
+          <AlertDialogAction onClick={confirm}>{t('switch.confirm')}</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
