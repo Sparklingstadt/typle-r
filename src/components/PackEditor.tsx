@@ -1,7 +1,8 @@
 "use client"
 import { useEffect, useId, useMemo, useRef, useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
-import { ChevronLeft, CircleAlert, Search } from "lucide-react"
+import { ChevronLeft, CircleAlert } from "lucide-react"
+import { SearchField } from "@/components/ui/search-field"
 import { DndContext, closestCenter, type Announcements, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
@@ -212,11 +213,7 @@ function ListChoices({ lists, packs, chosen, onChange, query, onQuery, disabled 
       </div>
       <p id={`${id}-help`} className="text-xs text-muted-foreground">{t("chooseHelp")}</p>
     </div>
-    <label className="flex h-10 items-center gap-2 rounded-lg border px-3 text-muted-foreground focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
-      <Search className="size-4 shrink-0" aria-hidden="true" />
-      <input type="search" value={query} onChange={event => onQuery(event.target.value)} aria-label={t("chooseFilter")} placeholder={t("chooseFilter")} autoComplete="off"
-        className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" />
-    </label>
+    <SearchField value={query} onChange={onQuery} placeholder={t("chooseFilter")} ariaLabel={t("chooseFilter")} className="h-10" />
     {shown.length ? <ul aria-labelledby={`${id}-heading`} aria-describedby={`${id}-help`} className="grid max-h-[28rem] gap-1 overflow-y-auto overscroll-contain">
       {shown.map(list => {
         const checked = chosen.includes(list.id)
