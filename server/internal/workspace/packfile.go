@@ -40,7 +40,7 @@ type PackFileList struct {
 // EncodePackFile follows encodePackFile (src/core/packFile.ts): the pack packID of w and its lists in saved order, as
 // JSON.stringify(file, null, 2) and a newline write them.
 func EncodePackFile(w *Workspace, packID string) ([]byte, error) {
-	pack := findPack(w, packID)
+	pack := w.FindPack(packID)
 	if pack == nil {
 		return nil, packMissing()
 	}

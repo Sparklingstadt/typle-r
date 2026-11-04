@@ -2,8 +2,6 @@ package api
 
 import (
 	"errors"
-	"fmt"
-	"io"
 	"net/http"
 	"slices"
 	"time"
@@ -86,15 +84,6 @@ func packDetailOf(ws *workspace.Workspace, pack *workspace.Pack) packDetail {
 	return packDetail{packSummary: packSummaryOf(ws, pack), Lists: lists}
 }
 
-func findPack(ws *workspace.Workspace, id string) *workspace.Pack {
-	for i := range ws.Packs {
-		if ws.Packs[i].ID == id {
-			return &ws.Packs[i]
-		}
-	}
-	return nil
-}
-
 // matchesPack follows matchesPackQuery (src/core/packEditing.ts) and matchesFilter: q finds the pack by its name, or by
 // the name, category, tags or words of a list inside; category ("" for none) and every tag narrow by the pack's labels.
 func matchesPack(ws *workspace.Workspace, pack *workspace.Pack, query string, category *string, tags []string) bool {
@@ -125,7 +114,7 @@ func packs(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
 }
 
 func pack(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace) {
-	pack := findPack(ws, r.PathValue("packId"))
+	pack := ws.FindPack(r.PathValue("packId"))
 	if pack == nil {
 		failure(w, http.StatusNotFound, "packNotFound")
 		return
@@ -145,14 +134,8 @@ func exportPack(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace)
 		}
 		return
 	}
-	filename := workspace.WordFilename(findPack(ws, r.PathValue("packId")).Name, "typle-pack.json")
-	header := w.Header()
-	header.Set("Content-Type", "application/json; charset=utf-8")
-	header.Set("Cache-Control", "no-store")
-	header.Set("X-Content-Type-Options", "nosniff")
-	header.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, asciiFilename(filename), encodeRFC5987(filename)))
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(file)
+	filename := workspace.WordFilename(ws.FindPack(r.PathValue("packId")).Name, "typle-pack.json")
+	download(w, "application/json; charset=utf-8", filename, file)
 }
 
 // modifyPack is modify for a change that makes or edits one pack, which it answers with in its saved shape.
@@ -170,7 +153,7 @@ func (s *server) modifyPack(w http.ResponseWriter, r *http.Request, owner string
 	if saved == nil {
 		return
 	}
-	respond(w, status, map[string]any{"pack": packDetailOf(saved, findPack(saved, id))})
+	respond(w, status, map[string]any{"pack": packDetailOf(saved, saved.FindPack(id))})
 }
 
 // newIDs makes count new list ids.
@@ -233,8 +216,7 @@ func (s *server) deletePack(w http.ResponseWriter, r *http.Request, owner string
 	}) {
 		return
 	}
-	w.Header().Set("Cache-Control", "no-store")
-	w.WriteHeader(http.StatusNoContent)
+	noContent(w)
 }
 
 // copyPack takes an optional body, as copyList does: none copies with the generated name, { "name" } names the copy.
@@ -262,14 +244,8 @@ func (s *server) importPack(w http.ResponseWriter, r *http.Request, owner string
 		failure(w, http.StatusUnsupportedMediaType, "unsupportedContentType")
 		return
 	}
-	data, err := io.ReadAll(http.MaxBytesReader(w, r.Body, workspace.MaxImportBytes))
-	var tooLarge *http.MaxBytesError
-	if errors.As(err, &tooLarge) {
-		failure(w, http.StatusRequestEntityTooLarge, "importTooLarge")
-		return
-	}
-	if err != nil {
-		failure(w, http.StatusBadRequest, "invalidJson")
+	data, ok := readImport(w, r)
+	if !ok {
 		return
 	}
 	file, err := workspace.DecodePackFile(data)

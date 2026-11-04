@@ -465,17 +465,7 @@ func (w *Workspace) ApplyListChange(previous *Workspace) {
 // changedPack is steps 1 and 2 of ApplyListChange for pack: lists are the lists after the change and previous those
 // before it (before by id), and names the packs' names before it.
 func changedPack(pack Pack, lists, previous []List, before map[string]List, names map[string]string) Pack {
-	var mine, only []List
-	for _, list := range lists {
-		if list.PackID == pack.ID {
-			mine = append(mine, list)
-		}
-	}
-	for _, list := range previous {
-		if list.PackID == pack.ID {
-			only = append(only, list)
-		}
-	}
+	mine, only := listsIn(lists, pack.ID), listsIn(previous, pack.ID)
 	next := pack
 	next.Tags = slices.Clone(pack.Tags)
 	// 1. The first list whose labels differ from the pack's gives the pack its new labels.
