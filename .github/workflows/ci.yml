@@ -103,7 +103,8 @@ jobs:
           key: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**', 'public/**', 'next.config.mjs', 'postcss.config.mjs', 'tsconfig.json') }}
           restore-keys: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
       - run: npm run build
-      # The API documentation (api-docs/) is its own npm project; it is built and its links are checked here.
+      # The API documentation (api-docs/) is its own npm project, built and checked here and published by hand with
+      # docs-deploy.yml.
       - name: Build API documentation
         working-directory: api-docs
         run: |

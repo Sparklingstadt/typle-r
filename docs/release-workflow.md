@@ -30,7 +30,11 @@ Releaseイベントで別のworkflowを起動する方式ではないため、GI
 5. 対象VercelプロジェクトのProduction環境にDB・Authの環境変数を設定します。
    READMEの「Neon / Vercelの構成」を参照してください。
    公開先は`https://typle-r-six.vercel.app`を想定しています。
-6. `vercel.json`の`git.deploymentEnabled: false`を維持します。
+6. API の文書（`api-docs/`）を Cloudflare Pages に公開するため、`production` Environment に次の2つを登録します。
+   - `CLOUDFLARE_API_TOKEN`: 対象アカウントの **Cloudflare Pages: Edit** の権限だけを持つ API トークン。期限を付けてください。
+   - `CLOUDFLARE_ACCOUNT_ID`: 対象アカウントのID。
+   Pages のプロジェクト `typle-api-docs` は、なければ最初の`docs-deploy`（`.github/workflows/docs-deploy.yml`）が作ります。Cloudflare の Git 連携は使いません。
+7. `vercel.json`の`git.deploymentEnabled: false`を維持します。
    別のデプロイworkflow・Deploy Hook・手動CLIによる公開は併用しません。
 
 管理者によるルール変更や手動Release・Vercel操作までYAMLだけで禁止することはできません。
@@ -74,8 +78,12 @@ CI用Vercelトークンは90日期限で作成しています。期限前にSecr
    本番の`redirect_uri`（`https://typle-r-six.vercel.app/api/auth/callback/github`）を含むことです。
    これにより、本番の関数で`AUTH_SECRET`・`AUTH_URL`・`AUTH_GITHUB_ID`・`AUTH_GITHUB_SECRET`が揃って設定されていることまで確かめます。
    iPad のログインの`POST /api/auth/token`が、本文`{}`に`400`と`{"error":"loginFailed"}`を返すことも確かめます。
-9. API の文書（`api-docs/`）は、v2.24.16 から CI では公開しません（`docs-deploy` を外しました）。
-   文書のビルドとリンクの検査は、PR を含むすべての verify で引き続き行います。
+9. API の文書（`api-docs/`）は、v2.24.16 から CI では公開せず、必要なときに手で公開します。Vercel のデプロイが成功した後、
+   Actions の「Docs deploy」を main で実行します（Run workflow。`docs-deploy.yml`、main 以外では何もしません）。
+   main の最新のコミットの文書をビルドし、リンクを検査して、固定版の Wrangler（`docs-deploy.yml`の`WRANGLER_VERSION`）で
+   Cloudflare Pages の`typle-api-docs`に公開し、公開後に主なページが返ることを確かめます。
+   文書の公開が失敗してもアプリの公開には影響しません。原因を直して「Docs deploy」を再実行します。
+   文書のビルドとリンクの検査は、PR を含むすべての verify でも行います。
 
 verifyのDBは一時DBですが、deployから起動するVercel上のビルドは本番環境変数を使います。
 `vercel.json`に従い、ここで本番DBへmigrationが適用されます。DB更新に成功した後で
@@ -95,7 +103,8 @@ DBの自動ロールバックは行いません。
 - policyまたはverify失敗: Releaseとデプロイは実行されません。
 - Release作成失敗: デプロイは実行されません。
 - deploy失敗: 先に作成したReleaseは残ります。Releaseの存在だけでは本番反映成功を意味しません。
-- GitHub の課金制限でジョブが起動しない（注釈が「The job was not started because recent account payments have failed or your spending limit needs to be increased」）: 例外として手動で公開します。verify と同じ検査を手元で行い、squash merge、Releaseの作成、Vercel本番デプロイと確認を同じ順序で行います。手順は `CLAUDE.md` の「Exception: GitHub Actions blocked by billing」を見てください。ほかの失敗では手動で公開しません。
+- docs-deploy失敗: アプリの本番には影響しません。Secretやトークンの権限を直し、「Docs deploy」を再実行します。手元から`wrangler`で公開しません（次の課金制限の例外だけは手元から公開します）。
+- GitHub の課金制限でジョブが起動しない（注釈が「The job was not started because recent account payments have failed or your spending limit needs to be increased」）: 例外として手動で公開します。verify と同じ検査を手元で行い、squash merge、Releaseの作成、Vercel本番デプロイと確認、API の文書の公開を同じ順序で行います。手順は `CLAUDE.md` の「Exception: GitHub Actions blocked by billing」を見てください。ほかの失敗では手動で公開しません。
 - 認証・通信などの一時的な問題: 原因を直して同じActions実行の失敗ジョブを再実行します。
   既存Releaseは非draft・非prerelease・同じタグ・同じSHAの場合だけ再利用します。
   タグを移動したり、同じバージョンを別コミットに使ったりしません。
