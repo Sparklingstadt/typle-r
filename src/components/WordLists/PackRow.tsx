@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
-import { DropdownMenu } from 'radix-ui'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { ChevronRight, Copy, Download, EyeOff, History, Keyboard, Library, ListPlus, MoreHorizontal, Pencil, Share2, Trash2, UserMinus } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 import ListLabels from './ListLabels'
 import { usePracticeText } from './ListRow'
 
-const menuItem = 'flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground'
+const svgClass = '[&_svg]:shrink-0 [&_svg]:text-muted-foreground'
 
 // The lists of a pack as one row, such as Linuxコマンド with its 11 lists, which opens to show each of them with its
 // own actions. A pack of one list is a row too. 練習 opens the list of the pack practised last, or its first.
@@ -81,29 +81,27 @@ export default function PackRow({ item, now, open, onToggle, highlight, disabled
         <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><History className="size-3.5 shrink-0" aria-hidden="true" />{usage}</p>
       </div>
       <div className="-mr-2 flex items-center gap-1 sm:mr-0">
-        <DropdownMenu.Root>
-          <DropdownMenu.Trigger asChild>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon-lg" className="size-10 text-muted-foreground" aria-label={t('moreFor', { name: pack.name })} title={t('moreActions')}>
               <MoreHorizontal aria-hidden="true" />
             </Button>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Portal>
-            <DropdownMenu.Content align="end" sideOffset={4} className="z-50 min-w-56 rounded-lg border bg-popover p-1 text-popover-foreground shadow-md">
-              {practiceId && <DropdownMenu.Item asChild className={menuItem}>
-                <Link href={`/play?list=${encodeURIComponent(practiceId)}`}><Keyboard aria-hidden="true" />{t('practice')}</Link>
-              </DropdownMenu.Item>}
-              {!followed && <DropdownMenu.Item className={menuItem} disabled={disabled} onSelect={onEditPack}><Pencil aria-hidden="true" />{t('edit')}</DropdownMenu.Item>}
-              {!followed && onAddList && <DropdownMenu.Item className={menuItem} disabled={disabled} onSelect={onAddList}><ListPlus aria-hidden="true" />{t('addList')}</DropdownMenu.Item>}
-              {onCopy && <DropdownMenu.Item className={menuItem} disabled={disabled} onSelect={onCopy}><Copy aria-hidden="true" />{t('copy')}</DropdownMenu.Item>}
-              <DropdownMenu.Item className={menuItem} onSelect={onExport}><Download aria-hidden="true" />{t('export')}</DropdownMenu.Item>
-              {onShare && <DropdownMenu.Item className={menuItem} onSelect={onShare}><Share2 aria-hidden="true" />{t('share')}</DropdownMenu.Item>}
-              <DropdownMenu.Separator className="my-1 h-px bg-border" />
-              <DropdownMenu.Item className={cn(menuItem, 'text-destructive data-[highlighted]:text-destructive [&_svg]:text-destructive')} disabled={disabled} onSelect={followed ? onUnfollow : onDeletePack}>
-                {followed ? <><UserMinus aria-hidden="true" />{follow('unfollow')}</> : <><Trash2 aria-hidden="true" />{t('delete')}</>}
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu.Portal>
-        </DropdownMenu.Root>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" sideOffset={4} className="min-w-56">
+            {practiceId && <DropdownMenuItem asChild className={svgClass}>
+              <Link href={`/play?list=${encodeURIComponent(practiceId)}`}><Keyboard aria-hidden="true" />{t('practice')}</Link>
+            </DropdownMenuItem>}
+            {!followed && <DropdownMenuItem className={svgClass} disabled={disabled} onSelect={onEditPack}><Pencil aria-hidden="true" />{t('edit')}</DropdownMenuItem>}
+            {!followed && onAddList && <DropdownMenuItem className={svgClass} disabled={disabled} onSelect={onAddList}><ListPlus aria-hidden="true" />{t('addList')}</DropdownMenuItem>}
+            {onCopy && <DropdownMenuItem className={svgClass} disabled={disabled} onSelect={onCopy}><Copy aria-hidden="true" />{t('copy')}</DropdownMenuItem>}
+            <DropdownMenuItem className={svgClass} onSelect={onExport}><Download aria-hidden="true" />{t('export')}</DropdownMenuItem>
+            {onShare && <DropdownMenuItem className={svgClass} onSelect={onShare}><Share2 aria-hidden="true" />{t('share')}</DropdownMenuItem>}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem variant="destructive" className="[&_svg]:shrink-0 [&_svg]:text-destructive" disabled={disabled} onSelect={followed ? onUnfollow : onDeletePack}>
+              {followed ? <><UserMinus aria-hidden="true" />{follow('unfollow')}</> : <><Trash2 aria-hidden="true" />{t('delete')}</>}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
     {open && <ul id={id} aria-label={t('listsOf', { name: pack.name })} className="ml-4 divide-y border-t border-l sm:ml-6">{children}</ul>}

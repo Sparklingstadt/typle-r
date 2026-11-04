@@ -3,11 +3,9 @@ import { useTranslations } from "next-intl"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { ArrowDown, ArrowDownToLine, ArrowUp, ArrowUpToLine, GripVertical, MoreHorizontal } from "lucide-react"
-import { DropdownMenu } from "radix-ui"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-
-const menuItem = "flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:size-4"
 
 // A list in the order of its pack: the handle sorts it by dragging or by the keyboard, and the menu moves it without dragging, as the word rows do.
 export default function SortableListRow({ id, name, levels, wordCount, index, count, disabled, onMove }: {
@@ -40,26 +38,24 @@ export default function SortableListRow({ id, name, levels, wordCount, index, co
       <p className="text-xs text-muted-foreground">{levels}</p>
     </div>
     <span className="shrink-0 text-sm text-muted-foreground tabular-nums">{wordCount}</span>
-    <DropdownMenu.Root>
-      <DropdownMenu.Trigger asChild disabled={disabled}>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild disabled={disabled}>
         <Button variant="ghost" size="icon" aria-label={t("listActions", { name })} title={editor("actions")}><MoreHorizontal aria-hidden="true" /></Button>
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Portal>
-        <DropdownMenu.Content align="end" sideOffset={4} className="z-50 min-w-52 rounded-lg border bg-popover p-1 text-popover-foreground shadow-md">
-          <DropdownMenu.Item className={menuItem} disabled={first} onSelect={() => onMove(index - 1)}>
-            <ArrowUp aria-hidden="true" />{editor("moveUp")}
-          </DropdownMenu.Item>
-          <DropdownMenu.Item className={menuItem} disabled={last} onSelect={() => onMove(index + 1)}>
-            <ArrowDown aria-hidden="true" />{editor("moveDown")}
-          </DropdownMenu.Item>
-          <DropdownMenu.Item className={menuItem} disabled={first} onSelect={() => onMove(0)}>
-            <ArrowUpToLine aria-hidden="true" />{editor("moveFirst")}
-          </DropdownMenu.Item>
-          <DropdownMenu.Item className={menuItem} disabled={last} onSelect={() => onMove(count - 1)}>
-            <ArrowDownToLine aria-hidden="true" />{editor("moveLast")}
-          </DropdownMenu.Item>
-        </DropdownMenu.Content>
-      </DropdownMenu.Portal>
-    </DropdownMenu.Root>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" sideOffset={4} className="min-w-52">
+        <DropdownMenuItem disabled={first} onSelect={() => onMove(index - 1)}>
+          <ArrowUp aria-hidden="true" />{editor("moveUp")}
+        </DropdownMenuItem>
+        <DropdownMenuItem disabled={last} onSelect={() => onMove(index + 1)}>
+          <ArrowDown aria-hidden="true" />{editor("moveDown")}
+        </DropdownMenuItem>
+        <DropdownMenuItem disabled={first} onSelect={() => onMove(0)}>
+          <ArrowUpToLine aria-hidden="true" />{editor("moveFirst")}
+        </DropdownMenuItem>
+        <DropdownMenuItem disabled={last} onSelect={() => onMove(count - 1)}>
+          <ArrowDownToLine aria-hidden="true" />{editor("moveLast")}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   </li>
 }
