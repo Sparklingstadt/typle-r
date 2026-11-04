@@ -296,6 +296,11 @@ func (s *server) sameOrigin(r *http.Request) bool {
 
 // jsonContent reports whether the request's body is declared as JSON. A form cannot send that type to another site
 // without asking first (CORS), so with the Origin it keeps other sites' pages out.
+//
+// The media type is compared as written, so Application/JSON is refused (TestPutForbidden, "other case"),
+// though media types are case-insensitive and /api/v1 accepts it (jsonContent in server/internal/api). This is on
+// purpose: the app always sends application/json, and the check is kept as it was decided. Accepting other cases
+// would not weaken the CORS check, as no case of application/json is a type a form may send without asking.
 func jsonContent(r *http.Request) bool {
 	return strings.TrimSpace(strings.SplitN(r.Header.Get("Content-Type"), ";", 2)[0]) == "application/json"
 }

@@ -172,11 +172,9 @@ func CreateList(w *Workspace, input ListInput, id string, now time.Time) (*List,
 	if err != nil {
 		return nil, err
 	}
-	var levels []string
-	if input.Levels != nil {
-		if levels, err = tidyLevels(*input.Levels); err != nil {
-			return nil, err
-		}
+	levels, err := givenLevels(nil, input.Levels)
+	if err != nil {
+		return nil, err
 	}
 	writing, err := checkWriting(nil, input.Writing)
 	if err != nil {
@@ -202,16 +200,8 @@ func UpdateList(w *Workspace, id string, input ListInput) (*List, error) {
 		return nil, missing()
 	}
 	list := w.Lists[at]
-	target := list.PackID
-	var pack *Pack
-	if input.PackID != nil {
-		if pack = w.FindPack(*input.PackID); pack == nil {
-			return nil, packMissing()
-		}
-		target = pack.ID
-	}
-	// Neither the pack the list is in nor, when it is moved, the pack it joins may be followed.
-	if err := refuseFollowed(w, list.PackID, target); err != nil {
+	target, pack, err := targetPack(w, list, input.PackID)
+	if err != nil {
 		return nil, err
 	}
 	moving := target != list.PackID
@@ -233,11 +223,9 @@ func UpdateList(w *Workspace, id string, input ListInput) (*List, error) {
 		}
 		list.Words = input.Words
 	}
-	levels := list.Levels
-	if input.Levels != nil {
-		if levels, err = tidyLevels(*input.Levels); err != nil {
-			return nil, err
-		}
+	levels, err := givenLevels(list.Levels, input.Levels)
+	if err != nil {
+		return nil, err
 	}
 	writing, err := checkWriting(list.Writing, input.Writing)
 	if err != nil {
@@ -256,6 +244,32 @@ func UpdateList(w *Workspace, id string, input ListInput) (*List, error) {
 		return &w.Lists[at], nil
 	}
 	return moveList(w, at, list, source), nil
+}
+
+// targetPack is the pack list is in after an update that moves it to packID (nil to keep it in its pack): its id, and
+// the pack when it is moved. Neither the pack the list is in nor, when it is moved, the pack it joins may be followed.
+func targetPack(w *Workspace, list List, packID *string) (string, *Pack, error) {
+	target := list.PackID
+	var pack *Pack
+	if packID != nil {
+		if pack = w.FindPack(*packID); pack == nil {
+			return "", nil, packMissing()
+		}
+		target = pack.ID
+	}
+	if err := refuseFollowed(w, list.PackID, target); err != nil {
+		return "", nil, err
+	}
+	return target, pack, nil
+}
+
+// givenLevels is the levels of a list after an update that gives levels (nil to keep current), tidied as tidyLevels
+// does.
+func givenLevels(current []string, given *[]string) ([]string, error) {
+	if given == nil {
+		return current, nil
+	}
+	return tidyLevels(*given)
 }
 
 // updatedName is the name list has after an update that names it given (nil to keep its name) in the pack target. A
