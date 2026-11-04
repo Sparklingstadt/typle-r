@@ -136,7 +136,7 @@ function WordsView({ lists, packs }: { lists: SavedWordList[]; packs: WordPack[]
                   <DialogDescription>{t('pickerDescription')}</DialogDescription>
                 </DialogHeader>
                 <WordSearch value={pickerQuery} onChange={setPickerQuery} className="h-10" />
-                <CategorySelect labels={labels} value={category} onChange={setCategory} className="h-10 w-full min-w-0 rounded-lg border bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30" />
+                <CategorySelect labels={labels} value={category} onChange={setCategory} size="large" />
                 <div className="-mx-1 max-h-[min(28rem,calc(100dvh-18rem))] overflow-y-auto overscroll-contain px-1">
                   {pickerFiltered.length ? <WordListOptions label={t('candidates')} packs={pickerFiltered} selectedId={list.id} query={pickerQuery} onSelect={choose} />
                     : <p className="px-1 py-2 text-sm text-muted-foreground">{t('noMatch')}</p>}
