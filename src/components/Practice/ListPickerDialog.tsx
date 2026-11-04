@@ -1,10 +1,10 @@
 "use client"
 import { useTranslations } from "next-intl"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import type { listLabels } from "@/core/listOverview"
+import type { Labels } from "@/core/listOverview"
 import type { PackOverview } from "@/core/packEditing"
 import type { PracticeMode } from "@/core/records"
-import ListSearchField from "@/components/Practice/ListSearchField"
+import { SearchField } from "@/components/ui/search-field"
 import CategorySelect from "@/components/Practice/CategorySelect"
 import WordListOptions from "@/components/Practice/WordListOptions"
 
@@ -13,7 +13,7 @@ export default function ListPickerDialog({ open, onOpenChange, onCloseAutoFocus,
   onOpenChange: (open: boolean) => void
   onCloseAutoFocus: (event: Event) => void
   packs: PackOverview[]
-  labels: ReturnType<typeof listLabels>
+  labels: Labels
   category: string | null
   onCategoryChange: (value: string | null) => void
   query: string
@@ -30,8 +30,7 @@ export default function ListPickerDialog({ open, onOpenChange, onCloseAutoFocus,
         <DialogTitle>{t('picker.title')}</DialogTitle>
         <DialogDescription>{t('picker.description')}</DialogDescription>
       </DialogHeader>
-      <ListSearchField value={query} onChange={onQueryChange} placeholder={t('picker.filter')} ariaLabel={t('picker.filter')}
-        className="flex h-10 items-center gap-2 rounded-lg border px-3 text-muted-foreground focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50" />
+      <SearchField value={query} onChange={onQueryChange} placeholder={t('picker.filter')} ariaLabel={t('picker.filter')} className="h-10" />
       <CategorySelect labels={labels} value={category} onChange={onCategoryChange} size="large" />
       {packs.length ? <WordListOptions label={t('picker.candidates')} packs={packs} selectedId={selectedId} query={query} resetKey={resetKey} mode={mode} onSelect={onSelect} />
         : <p className="px-1 py-2 text-sm text-muted-foreground">{t('picker.noMatch')}</p>}

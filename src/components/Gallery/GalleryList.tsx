@@ -2,6 +2,7 @@ import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { EmptyNote } from "@/components/ui/empty-state"
 import type { GalleryPack } from "@/core/gallery"
 
 type Props = {
@@ -16,9 +17,9 @@ type Props = {
 export default function GalleryList({ packs, more, loadingMore, filtered, onMore }: Props) {
   const t = useTranslations('wordLists.gallery')
   const labels = useTranslations('wordLists.labels')
-  if (!packs.length) return <p role="status" className="rounded-xl border border-dashed bg-card px-5 py-6 text-sm text-muted-foreground">
+  if (!packs.length) return <EmptyNote role="status">
     {filtered ? t('noResults') : t('empty')}
-  </p>
+  </EmptyNote>
   return <div className="space-y-4">
     <ul className="grid gap-3 sm:grid-cols-2">
       {packs.map(pack => <li key={pack.id} className="rounded-xl border bg-card transition-colors focus-within:ring-3 focus-within:ring-ring/50 hover:bg-muted/40">

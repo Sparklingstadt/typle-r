@@ -3,10 +3,12 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
-import { ChevronsUpDown, CircleAlert, Keyboard, ListPlus, Pencil, Plus, RotateCw, Search } from "lucide-react"
+import { ChevronsUpDown, CircleAlert, Keyboard, ListPlus, Pencil, Plus, RotateCw } from "lucide-react"
+import { SearchField } from "@/components/ui/search-field"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { EmptyState } from "@/components/ui/empty-state"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -44,7 +46,7 @@ export default function Words() {
     {!workspace.ready ? <LoadingState />
       : workspace.lists.length ? <Suspense fallback={<LoadingState />}><WordsView key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} /></Suspense>
         // After a failed load the lists are unknown; "no lists yet" would be wrong.
-        : !workspace.error && <EmptyState />}
+        : !workspace.error && <NoWords />}
   </main>
 }
 
@@ -104,7 +106,7 @@ function WordsView({ lists, packs }: { lists: SavedWordList[]; packs: WordPack[]
       <aside aria-label={t('lists')} className="hidden lg:sticky lg:top-20 lg:flex lg:max-h-[calc(100dvh-9rem)] lg:flex-col">
         <Card className="min-h-0 gap-1 p-3">
           <h2 className="pl-2 text-[15px] font-bold">{t('lists')}</h2>
-          <SearchField value={query} onChange={setQuery} className="mx-1 mt-1 mb-1 h-9 shrink-0" />
+          <WordSearch value={query} onChange={setQuery} className="mx-1 mt-1 mb-1 h-9 shrink-0" />
           <div className="mx-1 mb-1"><CategorySelect labels={labels} value={category} onChange={setCategory} /></div>
           <div ref={asideLists} className="max-h-[36rem] min-h-0 overflow-y-auto overscroll-contain">
             {asideFiltered.length ? <WordListOptions label={t('lists')} packs={asideFiltered} selectedId={list.id} query={query} onSelect={id => { setQuery(''); choose(id) }} />
@@ -133,7 +135,7 @@ function WordsView({ lists, packs }: { lists: SavedWordList[]; packs: WordPack[]
                   <DialogTitle>{t('pickerTitle')}</DialogTitle>
                   <DialogDescription>{t('pickerDescription')}</DialogDescription>
                 </DialogHeader>
-                <SearchField value={pickerQuery} onChange={setPickerQuery} className="h-10" />
+                <WordSearch value={pickerQuery} onChange={setPickerQuery} className="h-10" />
                 <CategorySelect labels={labels} value={category} onChange={setCategory} size="large" />
                 <div className="-mx-1 max-h-[min(28rem,calc(100dvh-18rem))] overflow-y-auto overscroll-contain px-1">
                   {pickerFiltered.length ? <WordListOptions label={t('candidates')} packs={pickerFiltered} selectedId={list.id} query={pickerQuery} onSelect={choose} />
@@ -151,13 +153,9 @@ function WordsView({ lists, packs }: { lists: SavedWordList[]; packs: WordPack[]
   </div>
 }
 
-function SearchField({ value, onChange, className }: { value: string; onChange: (value: string) => void; className: string }) {
+function WordSearch({ value, onChange, className }: { value: string; onChange: (value: string) => void; className: string }) {
   const t = useTranslations('wordLists.words')
-  return <label className={`flex items-center gap-2 rounded-lg border px-3 text-muted-foreground focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 ${className}`}>
-    <Search className="size-4 shrink-0" aria-hidden="true" />
-    <input type="search" value={value} onChange={event => onChange(event.target.value)} placeholder={t('filter')} aria-label={t('filter')} autoComplete="off"
-      className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" />
-  </label>
+  return <SearchField value={value} onChange={onChange} placeholder={t('filter')} ariaLabel={t('filter')} className={className} />
 }
 
 // Two columns at every width: the number, and the text to type with the shown word and the note under it. The shown
@@ -187,16 +185,16 @@ function WordTable({ list }: { list: SavedWordList }) {
   </Table>
 }
 
-function EmptyState() {
+function NoWords() {
   const t = useTranslations('wordLists')
-  return <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed bg-card px-6 py-10 text-center sm:py-14">
+  return <EmptyState className="py-10 sm:py-14">
     <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground"><ListPlus className="size-6" aria-hidden="true" /></span>
     <div className="space-y-1.5">
       <h2 className="font-bold">{t('empty.title')}</h2>
       <p className="max-w-md text-sm text-balance text-muted-foreground">{t('empty.description')}</p>
     </div>
     <Button asChild><Link href="/packs/create"><Plus aria-hidden="true" />{t('manager.create')}</Link></Button>
-  </div>
+  </EmptyState>
 }
 
 function LoadingState() {

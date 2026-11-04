@@ -7,6 +7,7 @@ import { RadioGroup } from "radix-ui"
 import { CircleAlert, Info, Keyboard, Plus, RotateCw, Trophy } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { EmptyState } from "@/components/ui/empty-state"
 import { Skeleton } from "@/components/ui/skeleton"
 import FilterMenu from "@/components/Records/FilterMenu"
 import RankingDetail from "@/components/Rankings/RankingDetail"
@@ -58,7 +59,7 @@ export default function Rankings() {
     {!workspace.ready ? <LoadingState />
       : practised ? <Suspense fallback={<LoadingState />}><RankingsView key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} devices={workspace.devices} /></Suspense>
         // After a failed load there is nothing to show, and "no records yet" would be wrong.
-        : !workspace.error && <EmptyState />}
+        : !workspace.error && <NoRankings />}
   </main>
 }
 
@@ -174,9 +175,9 @@ function OrderToggle({ value, onChange }: { value: RankOrder; onChange: (value: 
   </RadioGroup.Root>
 }
 
-function EmptyState() {
+function NoRankings() {
   const t = useTranslations('rankings.empty')
-  return <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed bg-card px-6 py-12 text-center sm:py-16">
+  return <EmptyState className="py-12 sm:py-16">
     <span className="grid size-12 place-items-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"><Trophy className="size-6" aria-hidden="true" /></span>
     <div className="space-y-1.5">
       <h2 className="font-bold">{t('title')}</h2>
@@ -186,7 +187,7 @@ function EmptyState() {
       <Button size="lg" asChild><Link href="/play"><Keyboard aria-hidden="true" />{t('practice')}</Link></Button>
       <Button size="lg" variant="outline" asChild><Link href="/packs/create"><Plus aria-hidden="true" />{t('create')}</Link></Button>
     </div>
-  </div>
+  </EmptyState>
 }
 
 function LoadingState() {

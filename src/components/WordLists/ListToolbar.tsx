@@ -1,12 +1,11 @@
 "use client"
 import { useTranslations } from "next-intl"
-import { Search, X } from "lucide-react"
+import { ClearableSearchField } from "@/components/ui/search-field"
 import { Button } from "@/components/ui/button"
 import LabelFilter from "@/components/WordLists/LabelFilter"
 import OrderMenu from "@/components/WordLists/OrderMenu"
-import { isFiltered, NO_FILTER, type ListFilter, type ListOrder, type listLabels } from "@/core/listOverview"
+import { isFiltered, NO_FILTER, type ListFilter, type ListOrder, type Labels } from "@/core/listOverview"
 
-type Labels = ReturnType<typeof listLabels>
 
 export default function ListToolbar({ query, onQueryChange, labels, filter, onFilterChange, order, onOrderChange, shownCount, totalCount, narrowed }: {
   query: string
@@ -22,16 +21,8 @@ export default function ListToolbar({ query, onQueryChange, labels, filter, onFi
 }) {
   const t = useTranslations('wordLists')
   return <div className="flex flex-wrap items-center gap-2">
-    <label className="relative min-w-0 flex-1 basis-60 sm:max-w-sm">
-      <span className="sr-only">{t('manager.search')}</span>
-      <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-      <input type="search" value={query} onChange={event => onQueryChange(event.target.value)} placeholder={t('manager.search')}
-        className="h-10 w-full rounded-lg border border-input bg-background pr-9 pl-9 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30 [&::-webkit-search-cancel-button]:hidden" />
-      {query && <button type="button" aria-label={t('manager.clearSearch')} onClick={() => onQueryChange('')}
-        className="absolute top-1/2 right-2 grid size-7 -translate-y-1/2 place-items-center rounded-md text-muted-foreground outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50">
-        <X className="size-3.5" aria-hidden="true" />
-      </button>}
-    </label>
+    <ClearableSearchField value={query} onChange={onQueryChange} label={t('manager.search')} clearLabel={t('manager.clearSearch')}
+      className="basis-60 sm:max-w-sm" inputClassName="bg-background" />
     <LabelFilter labels={labels} value={filter} onChange={onFilterChange} />
     <OrderMenu value={order} onChange={onOrderChange} />
     {isFiltered(filter) && <Button variant="ghost" size="lg" className="text-muted-foreground" onClick={() => onFilterChange(NO_FILTER)}>{t('filter.clear')}</Button>}

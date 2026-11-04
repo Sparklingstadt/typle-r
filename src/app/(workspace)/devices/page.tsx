@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/components/ui/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import DeleteConfirmation from '@/components/DeleteConfirmation'
 import { useSaveNotification } from '@/components/SaveNotification'
@@ -139,7 +140,7 @@ function DeviceManager({ accountId, devices, lists, saving, error, updateDevices
           </li>
         })}
       </ul>
-      {!devices.length && <EmptyState onAdd={() => openDialog(null)} />}
+      {!devices.length && <NoDevices onAdd={() => openDialog(null)} />}
     </section>
 
     <DeviceDialog state={dialog} devices={devices} records={dialog.device ? usage.get(dialog.device.id)?.count ?? 0 : 0}
@@ -168,9 +169,9 @@ function DeviceManager({ accountId, devices, lists, saving, error, updateDevices
   </div>
 }
 
-function EmptyState({ onAdd }: { onAdd: () => void }) {
+function NoDevices({ onAdd }: { onAdd: () => void }) {
   const t = useTranslations('devices')
-  return <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed bg-card px-6 py-10 text-center sm:py-12">
+  return <EmptyState className="py-10 sm:py-12">
     <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground"><Monitor className="size-6" aria-hidden="true" /></span>
     <div className="space-y-1.5">
       <h3 className="font-bold">{t('empty.title')}</h3>
@@ -178,5 +179,5 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
     </div>
     <Button onClick={onAdd}><Plus aria-hidden="true" />{t('add')}</Button>
     <p className="text-xs text-muted-foreground">{t('empty.example')}</p>
-  </div>
+  </EmptyState>
 }
