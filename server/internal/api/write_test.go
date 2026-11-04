@@ -9,6 +9,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"testing/iotest"
 
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
@@ -525,6 +526,26 @@ func TestImportErrors(t *testing.T) {
 		})
 	}
 	expect(t, serveAs(saved(t), "Bearer alice", "POST", "/api/v1/lists/import?name=a&format=csv"), 405, `{"error":"methodNotAllowed"}`)
+}
+
+// A file whose body breaks off while it is read is answered as one that cannot be read, for a list as for a pack, and
+// nothing is changed.
+func TestImportBodyNotRead(t *testing.T) {
+	for _, c := range []struct{ target, contentType string }{
+		{"/api/v1/lists/import?name=a&format=csv", "text/csv"},
+		{"/api/v1/packs/import", "application/json"},
+	} {
+		w := writable(t)
+		request := httptest.NewRequest("POST", c.target, iotest.ErrReader(errors.New("connection reset")))
+		request.Header.Set("Authorization", "Bearer alice")
+		request.Header.Set("Content-Type", c.contentType)
+		response := httptest.NewRecorder()
+		New(w, w, verifier{}).ServeHTTP(response, request)
+		expect(t, response, 400, `{"error":"invalidJson"}`)
+		if len(w.workspace.Lists) != 2 {
+			t.Fatalf("%s: lists = %d", c.target, len(w.workspace.Lists))
+		}
+	}
 }
 
 func TestExportCSV(t *testing.T) {

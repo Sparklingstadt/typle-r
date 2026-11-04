@@ -293,6 +293,22 @@ func TestDeleteRecordWithEditsDatabase(t *testing.T) {
 	expectError(t, h.put(owner, payload(owner, `"revision":3,"lists":`+lists)), http.StatusConflict, "conflict")
 }
 
+// A change the store refuses because the workspace would grow past its limit (workspace.CheckSize) is answered 413, for a
+// record added as for one deleted, with the store's key; any other refusal is a 400.
+func TestRecordChangeRefusedByStore(t *testing.T) {
+	memory := newMemoryWorkspace(t, `[`+oneList+`]`)
+	h := newHarness(t, memory, testBase)
+	for key, status := range map[string]int{"workspaceTooLarge": http.StatusRequestEntityTooLarge, "recordLimit": http.StatusBadRequest} {
+		memory.err = &workspace.Error{Key: key}
+		expectError(t, h.postRecord(testOwner, recordBody(testOwner, "one", aRun)), status, key)
+		if key == "workspaceTooLarge" {
+			// A delete's "already gone" refusals are success, but a workspace too large is not.
+			expectError(t, h.deleteRecord(testOwner, deleteBody(testOwner, "one", "run-1")), status, key)
+		}
+	}
+	memory.err = nil
+}
+
 // contract reads docs/api/workspace-records.openapi.json: for each method of /api/workspace/records, the error keys
 // each status may answer with ("" for a status without an error, such as 200).
 func contract(t *testing.T) (map[string]map[string][]string, map[string]any) {
