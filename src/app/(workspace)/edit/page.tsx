@@ -30,7 +30,7 @@ import { randomId } from "@/core/randomId"
 import { duplicateList, isFiltered, LIST_ORDERS, listLabels, followedPackCount, listOverviews, matchesFilter, MAX_FOLLOWED_PACKS, MAX_LISTS, NO_FILTER, ownListCount, type ListFilter, type ListOrder, type ListOverview } from "@/core/listOverview"
 import { isFollowed, ownPacks } from "@/core/followedPacks"
 import Notice from "@/components/WordLists/Notice"
-import { deletePack, matchesPackQuery, matchingListIds, packOverviews, saveListInPack, type PackOverview } from "@/core/packEditing"
+import { deletePack, loneListPack, matchesPackQuery, packOverviews, saveListInPack, sortPacks, storedLibrary, visibleListRows, type PackOverview } from "@/core/packEditing"
 import type { SavedWordList } from "@/core/wordLists"
 import type { Library } from "@/core/wordPacks"
 import PageStorageBadge from "@/components/PageStorageBadge"
@@ -170,7 +170,7 @@ function WordLists({ workspace }: { workspace: Workspace }) {
   const trackDirty = useCallback((value: boolean) => setDirty(value), [])
 
   // Moving the only list of a pack to another pack deletes that pack, which the editor says when another pack is chosen.
-  const lonePack = editing && lists.filter(list => list.packId === editing.packId).length === 1 ? packs.find(pack => pack.id === editing.packId) : undefined
+  const lonePack = loneListPack({ packs, lists }, editing?.packId)
   const editingPack = editing ? packs.find(pack => pack.id === editing.packId) : undefined
   // The lists of a followed pack are not edited: the notice replaces the editor, with the way back.
   if (openId && editing && editingPack && isFollowed(editingPack)) {
@@ -215,17 +215,6 @@ function WordLists({ workspace }: { workspace: Workspace }) {
       onShowPack={id => { setHighlightPack(id); setOpenPacks(current => new Set([...current, id])) }}
       openPacks={openPacks} onOpenPacksChange={setOpenPacks} onEdit={open} onHighlight={setHighlight} />}
   </>
-}
-
-// Newest first for 'added'. Packs without a record come after the practised ones for 'practiced'.
-function sortPacks(items: PackOverview[], order: ListOrder, locale: string) {
-  const collator = new Intl.Collator(locale, { numeric: true })
-  return [...items].sort((a, b) => {
-    if (order === 'name') return collator.compare(a.pack.name, b.pack.name) || b.position - a.position
-    if (order === 'words') return b.wordCount - a.wordCount || b.position - a.position
-    if (order === 'practiced') return (b.lastPracticed ?? -Infinity) - (a.lastPracticed ?? -Infinity) || b.position - a.position
-    return b.position - a.position
-  })
 }
 
 function ListManager({ lists, packs, saving, highlight, highlightPack, update, updateLibrary, notify, onShowPack, openPacks, onOpenPacksChange, onEdit, onHighlight }: {
@@ -312,7 +301,7 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
       // A file that breaks a save rule is refused here too, on this line, with nothing saved. The screens' lists carry
       // their pack's labels, which a library in the saved shape does not.
       const ids = { pack: randomId(), lists: decoded.lists.map(() => randomId()) }
-      importPackFile({ packs, lists: lists.map(({ group: _group, category: _category, tags: _tags, ...rest }) => rest) }, decoded, ids)
+      importPackFile(storedLibrary({ packs, lists }), decoded, ids)
       await savePack((library, same) => importPackFile(library, decoded, same), decoded.lists.length, ids)
     } catch (reason) {
       setExportError(errorText(reason, t('import.readFailed')))
@@ -365,8 +354,7 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
   }
 
   // The last list of a pack takes the pack with it.
-  const deletingPackName = deleting.item && lists.filter(list => list.packId === deleting.item!.list.packId).length === 1
-    ? packs.find(pack => pack.id === deleting.item!.list.packId)?.name : undefined
+  const deletingPackName = loneListPack({ packs, lists }, deleting.item?.list.packId)?.name
 
   // Restoring a pack from a file is the way to start again, so the empty state offers it too.
   if (!lists.length) return <>
@@ -418,10 +406,7 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
         const followed = isFollowed(pack)
         // A search or filter opens every pack that matched.
         const open = narrowed || openPacks.has(pack.id)
-        // A search that found lists by their name or words shows those; one that found the pack by its name or labels shows all.
-        const found = new Set(matchingListIds(item, query))
-        const byName = !!query.trim() && pack.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())
-        const rows = found.size && !byName ? item.lists.filter(row => found.has(row.list.id)) : item.lists
+        const rows = visibleListRows(item, query)
         return <PackRow key={pack.id} item={item} now={now} open={open} highlight={highlightPack === pack.id} disabled={saving}
           onToggle={() => {
             const next = new Set(openPacks)
