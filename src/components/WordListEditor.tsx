@@ -3,10 +3,9 @@ import { randomId } from "../core/randomId"
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react"
 import { useTranslations } from "next-intl"
 import { ChevronLeft } from "lucide-react"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
-  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { useWordDraft } from "@/lib/useWordDraft"
+import { useUnsavedWarning } from "@/lib/useUnsavedWarning"
 import type { SavedWordList, WritingLanguage } from "@/core/wordLists"
 import type { WordPack } from "@/core/wordPacks"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
@@ -16,6 +15,7 @@ import PageStorageBadge from "@/components/PageStorageBadge"
 import WordListBasics from "@/components/WordLists/WordListBasics"
 import WordsSection from "@/components/WordLists/WordsSection"
 import WordListSaveBar from "@/components/WordLists/WordListSaveBar"
+import DiscardChangesDialog from "@/components/WordLists/DiscardChangesDialog"
 import { draftProblems, draftSnapshot, emptyWord, normalizeWord, savedWords } from "@/core/wordDraft"
 
 export default function WordListEditor({ title, description, storage, initial, packs = [], packId, choosePack = true, lonePackName, error, errorKey, packFields, packDirty = false, onSave, onCancel, onDirtyChange, cancelRequest = 0 }: {
@@ -73,13 +73,7 @@ export default function WordListEditor({ title, description, storage, initial, p
   const [confirmingCancel, setConfirmingCancel] = useState(false)
 
   useEffect(() => { onDirtyChange?.(dirty) }, [dirty, onDirtyChange])
-  // Closing or reloading the tab would lose the changes, so the browser asks first.
-  useEffect(() => {
-    if (!dirty) return
-    const warn = (event: BeforeUnloadEvent) => event.preventDefault()
-    window.addEventListener("beforeunload", warn)
-    return () => window.removeEventListener("beforeunload", warn)
-  }, [dirty])
+  useUnsavedWarning(dirty)
 
   // Errors appear after the first save attempt and then follow the user's edits.
   const problems = draftProblems(name, words).map(problem =>
@@ -205,17 +199,6 @@ export default function WordListEditor({ title, description, storage, initial, p
 
     <WordListSaveBar recount={recount} errorCount={shown.length} onFirstError={() => focusField(shown[0].id)} serverError={serverError}
       dirty={dirty} wordCount={words.length} saving={saving} onCancel={cancel} />
-    <AlertDialog open={confirmingCancel} onOpenChange={setConfirmingCancel}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{t("discardTitle")}</AlertDialogTitle>
-          <AlertDialogDescription>{t("discardDescription")}</AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>{t("keepEditing")}</AlertDialogCancel>
-          <AlertDialogAction variant="destructive" onClick={onCancel}>{t("discard")}</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <DiscardChangesDialog open={confirmingCancel} onOpenChange={setConfirmingCancel} onDiscard={onCancel} />
   </form>
 }

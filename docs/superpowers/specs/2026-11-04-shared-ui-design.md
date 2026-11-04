@@ -59,7 +59,7 @@
 | `EmptyNote` | 小さな文の型。`<p>` に `rounded-xl border border-dashed bg-card px-5 py-6 text-sm text-muted-foreground` を付ける。`role` などは props で渡す |
 | `EmptyState` | 大きな型。`flex flex-col items-center gap-4 rounded-xl border border-dashed bg-card px-6 text-center` を持つ `<div>`。縦の余白と `gap` の違いは `className` で渡す。中身は `children` で受け取る |
 
-対象は12か所。`packs/catalog`、`GalleryList`、`InterestPacks` が `EmptyNote` で、`devices`、`rankings`、`records`（2か所）、`words`、`EmptyLists`、`ListManager` が `EmptyState` である。アイコンと見出しの形は画面ごとに違うので、部品にしない。`id`（`empty-heading`）も呼び出す側に残す。
+対象は11か所。`packs/catalog`、`GalleryList`、`InterestPacks` が `EmptyNote` で、`devices`、`rankings`、`records`（2か所）、`words`、`EmptyLists`、`ListManager` が `EmptyState` である。アイコンと見出しの形は画面ごとに違うので、部品にしない。`id`（`empty-heading`）も呼び出す側に残す。
 
 ## 4. PR 3：`ui/search-field.tsx`
 
