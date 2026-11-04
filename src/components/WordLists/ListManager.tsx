@@ -18,6 +18,7 @@ import DeleteListDialog from "@/components/WordLists/DeleteListDialog"
 import DeletePackDialog from "@/components/WordLists/DeletePackDialog"
 import { useShares } from "@/lib/useShares"
 import { useListActions } from "@/lib/useListActions"
+import { LIST_FOCUS_TARGETS } from "@/lib/focusAfterRemoval"
 import type { Workspace } from "@/lib/useWordLists"
 import { isFiltered, listLabels, followedPackCount, matchesFilter, MAX_FOLLOWED_PACKS, MAX_LISTS, NO_FILTER, ownListCount, type ListFilter, type ListOrder, type ListOverview } from "@/core/listOverview"
 import { isFollowed } from "@/core/followedPacks"
@@ -75,9 +76,9 @@ export default function ListManager({ lists, packs, saving, highlight, highlight
     if (highlightPackOfList && !openPacks.has(highlightPackOfList)) onOpenPacksChange(new Set([...openPacks, highlightPackOfList]))
   }, [highlightPackOfList, openPacks, onOpenPacksChange])
 
-  // A row's place among the rows shown, which the focus goes back to after it is deleted.
+  // A row's place among the rows that can take the focus, which the focus goes back to after it is deleted.
   function rowPosition(id: string) {
-    return [...document.querySelectorAll<HTMLElement>('[data-list-id]')].findIndex(row => row.dataset.listId === id)
+    return [...document.querySelectorAll<HTMLElement>(LIST_FOCUS_TARGETS)].findIndex(target => target.closest<HTMLElement>('[data-list-id]')?.dataset.listId === id)
   }
 
   // The last list of a pack takes the pack with it.
