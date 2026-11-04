@@ -8,6 +8,7 @@ import { SearchField } from "@/components/ui/search-field"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { EmptyState } from "@/components/ui/empty-state"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -45,7 +46,7 @@ export default function Words() {
     {!workspace.ready ? <LoadingState />
       : workspace.lists.length ? <Suspense fallback={<LoadingState />}><WordsView key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} /></Suspense>
         // After a failed load the lists are unknown; "no lists yet" would be wrong.
-        : !workspace.error && <EmptyState />}
+        : !workspace.error && <NoWords />}
   </main>
 }
 
@@ -184,16 +185,16 @@ function WordTable({ list }: { list: SavedWordList }) {
   </Table>
 }
 
-function EmptyState() {
+function NoWords() {
   const t = useTranslations('wordLists')
-  return <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed bg-card px-6 py-10 text-center sm:py-14">
+  return <EmptyState className="py-10 sm:py-14">
     <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground"><ListPlus className="size-6" aria-hidden="true" /></span>
     <div className="space-y-1.5">
       <h2 className="font-bold">{t('empty.title')}</h2>
       <p className="max-w-md text-sm text-balance text-muted-foreground">{t('empty.description')}</p>
     </div>
     <Button asChild><Link href="/packs/create"><Plus aria-hidden="true" />{t('manager.create')}</Link></Button>
-  </div>
+  </EmptyState>
 }
 
 function LoadingState() {

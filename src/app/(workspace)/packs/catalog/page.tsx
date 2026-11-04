@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl"
 import { ArrowLeft, Check, CircleAlert, Plus, SquareArrowOutUpRight, UserMinus } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { EmptyNote } from "@/components/ui/empty-state"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useSaveNotification } from "@/components/SaveNotification"
 import ListLabels from "@/components/WordLists/ListLabels"
@@ -117,7 +118,7 @@ export default function Catalog() {
             <h2 id="catalog-matching" className="text-base font-bold">{t("matching")}</h2>
             <Link href="/interests" className="text-sm underline underline-offset-3 hover:text-foreground">{t("changeInterests")}</Link>
           </div>
-          {matching.length ? renderEntries(matching, "h3") : <p className="rounded-xl border border-dashed bg-card px-5 py-6 text-sm text-muted-foreground">{t("noMatching")}</p>}
+          {matching.length ? renderEntries(matching, "h3") : <EmptyNote>{t("noMatching")}</EmptyNote>}
         </section>
         {others.length > 0 && <section aria-labelledby="catalog-others" className="space-y-3">
           <h2 id="catalog-others" className="text-base font-bold">{t("others")}</h2>

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { ListMinus, ListPlus, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { EmptyNote } from '@/components/ui/empty-state'
 import { Switch } from '@/components/ui/switch'
 import DeleteConfirmation from '@/components/DeleteConfirmation'
 import { useSaveNotification } from '@/components/SaveNotification'
@@ -74,13 +75,13 @@ export default function InterestPacks({ packs, lists, interests, saving, updateL
     })
   }
 
-  if (!interests.length) return <p className="rounded-xl border border-dashed bg-card px-5 py-6 text-sm text-muted-foreground">{t('pick')}</p>
+  if (!interests.length) return <EmptyNote>{t('pick')}</EmptyNote>
   return <section aria-labelledby="interest-packs" className="space-y-3">
     <div className="space-y-1">
       <h2 id="interest-packs" className="text-base font-bold">{t('title')}</h2>
       <p className="text-sm text-muted-foreground">{t('description')}</p>
     </div>
-    {!entries.length ? <p className="rounded-xl border border-dashed bg-card px-5 py-6 text-sm text-muted-foreground">{t('none')}</p>
+    {!entries.length ? <EmptyNote>{t('none')}</EmptyNote>
       : <ul className="divide-y overflow-hidden rounded-xl border bg-card">
         {entries.map(entry => {
           const words = entry.lists.reduce((sum, list) => sum + list.words.length, 0)
