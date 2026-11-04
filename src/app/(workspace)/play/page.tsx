@@ -23,8 +23,9 @@ import { comparableRecords, recordsOfMode, type PracticeMode } from "@/core/reco
 import { rankingQuery } from "@/core/rankings"
 import { recallDisplayHint, recallPrompt } from "@/core/recallPrompt"
 import { practiceMode as writingChoiceFor, useWritingMode, type WritingChoice } from "@/lib/writingMode"
-import { listLabels, matchesFilter } from "@/core/listOverview"
-import { matchesPackQuery, packOverviews, type PackOverview } from "@/core/packEditing"
+import { listLabels } from "@/core/listOverview"
+import { packOverviews } from "@/core/packEditing"
+import { currentMode, isParagraphWord, matchingPacks, oneLineDisplay, upcomingWords } from "@/core/practiceView"
 import { packsByRecentPractice } from "@/core/packPractice"
 import type { WordPack } from "@/core/wordPacks"
 import { cn } from "@/lib/utils"
@@ -45,11 +46,6 @@ import ModeToggle from "@/components/Practice/ModeToggle"
 import WritingPractice, { type WritingRun } from "@/components/Practice/WritingPractice"
 
 const WRITING_CHOICES = ['normal', 'writing'] as const
-
-// The packs of `category` (null for every category) that `query` finds, in the order given.
-function matchingPacks(items: PackOverview[], category: string | null, query: string) {
-  return items.filter(item => matchesFilter(item.pack, { category, tags: [] }) && matchesPackQuery(item, query))
-}
 
 function Loading() {
   const common = useTranslations('common')
@@ -115,7 +111,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   const typingRunning = started && !finished
   // Handwriting takes over the card; otherwise a started run keeps the mode it began in, like its device, and the
   // recall choice applies from the next run. Handwriting never combines with recall.
-  const mode: PracticeMode = writingChoice === 'writing' ? 'writing' : started ? practiceMode ?? chosenMode : chosenMode
+  const mode: PracticeMode = currentMode(writingChoice, started, practiceMode, chosenMode)
   const recall = mode === 'recall'
   const running = mode === 'writing' ? writingRun !== null : typingRunning
   const runDevice = mode === 'writing' ? writingRun?.device : practiceDevice
@@ -239,8 +235,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   // What the confirmation names as the switch's target: the other list, or the other way of practising.
   const switchTarget = pendingSwitch?.kind === 'mode' ? t(pendingSwitch.mode === 'writing' ? 'modeWriting' : 'modeTyping')
     : pendingSwitch?.kind === 'list' && wordLists[pendingSwitch.index] ? practiceName(wordLists[pendingSwitch.index]) : ''
-  const next = words.slice(session.index + 1, session.index + 4)
-  const remaining = words.length - session.index - 1 - next.length
+  const { next, remaining } = upcomingWords(words, session.index)
   const feedback = hasError
     ? <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{t('feedback.mismatch', { position: comparison.errorIndex + 1 })}</span>
     : composition !== null ? <span className="inline-flex flex-wrap items-center justify-center gap-x-2">
@@ -363,7 +358,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
           {/* The coming words would give away the answers in recall mode. */}
           {!recall && <div className="flex min-h-14 flex-wrap items-center gap-2 border-t px-4 py-2.5 sm:pr-3 sm:pl-6">
             <span className="text-xs text-muted-foreground">{t('upcoming.next')}</span>
-            {next.map((item, index) => <span key={index} className="inline-flex h-7 max-w-full items-center rounded-full border px-3 text-[13px] text-muted-foreground" title={item.display}><span className="truncate whitespace-pre">{item.input_type === 'code' ? item.display.replace(/\r\n|\r|\n/g, '  ') : item.display}</span></span>)}
+            {next.map((item, index) => <span key={index} className="inline-flex h-7 max-w-full items-center rounded-full border px-3 text-[13px] text-muted-foreground" title={item.display}><span className="truncate whitespace-pre">{oneLineDisplay(item)}</span></span>)}
             {!next.length && <span className="text-xs text-muted-foreground">{t('upcoming.last')}</span>}
             {remaining > 0 && <span className="text-xs text-neutral-400 dark:text-neutral-500">{t('upcoming.more', { count: remaining })}</span>}
             <span className="flex-1" />
@@ -373,8 +368,8 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
             {showAll && <ul id="all-words" ref={allWords} aria-label={t('upcoming.allWords')} className="relative mt-1.5 flex max-h-44 basis-full flex-wrap gap-1.5 overflow-y-auto border-t border-dashed pt-2.5 pb-1">
               {words.map((item, index) => {
                 const done = index < session.index
-                const display = item.input_type === 'code' ? item.display.replace(/\r\n|\r|\n/g, '  ') : item.display
-                const paragraph = item.input_type !== 'code' && (Array.from(item.display).length > 24 || item.display.includes('\n'))
+                const display = oneLineDisplay(item)
+                const paragraph = isParagraphWord(item)
                 return <li key={index} className={cn('max-w-full', paragraph && 'w-full')}>
                   <span aria-current={index === session.index ? 'step' : undefined}
                     className={cn('min-h-7 max-w-full border px-3 text-[13px] text-muted-foreground',
