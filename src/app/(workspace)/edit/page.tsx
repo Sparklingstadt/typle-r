@@ -1,19 +1,20 @@
 "use client"
-import { Suspense, type ReactNode, useEffect, useMemo, useRef, useState } from "react"
+import { Suspense, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
-import { DropdownMenu } from "radix-ui"
-import { Check, ChevronDown, CircleAlert, Download, Library as LibraryIcon, ListPlus, Plus, Upload, RotateCw, Search, X } from "lucide-react"
+import { CircleAlert, Download, Library as LibraryIcon, Plus, RotateCw } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
 import DeleteConfirmation from "@/components/DeleteConfirmation"
 import { useSaveNotification } from "@/components/SaveNotification"
 import WordListEditor from "@/components/WordListEditor"
 import ListRow, { usePracticeText } from "@/components/WordLists/ListRow"
-import LabelFilter from "@/components/WordLists/LabelFilter"
+import EmptyLists from "@/components/WordLists/EmptyLists"
+import ListToolbar from "@/components/WordLists/ListToolbar"
+import ListsLoading from "@/components/WordLists/ListsLoading"
+import PackFileInput from "@/components/WordLists/PackFileInput"
 import PackRow from "@/components/WordLists/PackRow"
 import OrphanShares from "@/components/WordLists/OrphanShares"
 import ShareDialog from "@/components/WordLists/ShareDialog"
@@ -24,7 +25,7 @@ import { useRowHighlight } from "@/lib/useRowHighlight"
 import { useListActions } from "@/lib/useListActions"
 import { useWordLists } from "@/lib/useWordLists"
 import { useFormat } from "@/i18n/useFormat"
-import { isFiltered, LIST_ORDERS, listLabels, followedPackCount, listOverviews, matchesFilter, MAX_FOLLOWED_PACKS, MAX_LISTS, NO_FILTER, ownListCount, type ListFilter, type ListOrder, type ListOverview } from "@/core/listOverview"
+import { isFiltered, listLabels, followedPackCount, listOverviews, matchesFilter, MAX_FOLLOWED_PACKS, MAX_LISTS, NO_FILTER, ownListCount, type ListFilter, type ListOrder, type ListOverview } from "@/core/listOverview"
 import { isFollowed, ownPacks } from "@/core/followedPacks"
 import Notice from "@/components/WordLists/Notice"
 import { deletePack, loneListPack, matchesPackQuery, packOverviews, saveListInPack, sortPacks, visibleListRows, type PackOverview } from "@/core/packEditing"
@@ -37,8 +38,8 @@ type Workspace = ReturnType<typeof useWordLists>
 export default function Edit() {
   const workspace = useWordLists()
   return <main className="mx-auto w-full max-w-5xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
-    {!workspace.ready ? <LoadingState />
-      : <Suspense fallback={<LoadingState />}><WordLists key={workspace.accountId} workspace={workspace} /></Suspense>}
+    {!workspace.ready ? <ListsLoading />
+      : <Suspense fallback={<ListsLoading />}><WordLists key={workspace.accountId} workspace={workspace} /></Suspense>}
   </main>
 }
 
@@ -54,21 +55,6 @@ function Header({ storage }: { storage?: WorkspaceLocation }) {
       <PageStorageBadge storage={storage} />
     </div>
   </header>
-}
-
-function LoadingState() {
-  const common = useTranslations('common')
-  return <div role="status">
-    <span className="sr-only">{common('loading')}</span>
-    <div className="mb-6 space-y-2"><Skeleton className="h-8 w-40" /><Skeleton className="h-4 w-96 max-w-full" /></div>
-    <Skeleton className="mb-3 h-11 w-full" />
-    <div className="divide-y rounded-xl border bg-card">
-      {[0, 1, 2, 3].map(key => <div key={key} className="flex items-center gap-4 px-5 py-4">
-        <div className="flex-1 space-y-2"><Skeleton className="h-4 w-48" /><Skeleton className="h-3.5 w-72 max-w-full" /></div>
-        <Skeleton className="hidden h-8 w-36 sm:block" /><Skeleton className="size-10" />
-      </div>)}
-    </div>
-  </div>
 }
 
 function WordLists({ workspace }: { workspace: Workspace }) {
@@ -164,7 +150,6 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
   const t = useTranslations('wordLists')
   const locale = useLocale()
   const router = useRouter()
-  const fileInput = useRef<HTMLInputElement>(null)
   const [now] = useState(() => new Date())
   const [query, setQuery] = useState('')
   const [order, setOrder] = useState<ListOrder>('added')
@@ -227,11 +212,7 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
 
   // Restoring a pack from a file is the way to start again, so the empty state offers it too.
   if (!lists.length) return <>
-    <EmptyState actions={<>
-      <input ref={fileInput} type="file" accept=".json,application/json" hidden tabIndex={-1} aria-hidden="true"
-        onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void importFile(file) }} />
-      <Button variant="outline" disabled={saving} onClick={() => fileInput.current?.click()}><Upload aria-hidden="true" />{t('manager.importFile')}</Button>
-    </>} />
+    <EmptyLists actions={<PackFileInput disabled={saving} onFile={file => void importFile(file)} />} />
     {exportError && <p role="alert" className="mt-3 flex items-center gap-1.5 text-sm text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{exportError}</p>}
     <OrphanShares orphans={orphans} onStop={stop} focusWhenGone="empty-heading" className="mt-6" />
   </>
@@ -241,9 +222,7 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
       <h2 id="list-heading" tabIndex={-1} className="text-base font-bold outline-none">{t('manager.heading')}</h2>
       <Badge variant="secondary" className="tabular-nums" title={t('manager.limitTitle', { max: MAX_LISTS, followedMax: MAX_FOLLOWED_PACKS })}>{t('manager.ownCount', { count: own, max: MAX_LISTS })}</Badge>
       <Badge variant="secondary" className="tabular-nums" title={t('manager.limitTitle', { max: MAX_LISTS, followedMax: MAX_FOLLOWED_PACKS })}>{t('manager.followedCount', { count: followed, max: MAX_FOLLOWED_PACKS })}</Badge>
-      <input ref={fileInput} type="file" accept=".json,application/json" hidden tabIndex={-1} aria-hidden="true"
-        onChange={event => { const file = event.target.files?.[0]; event.target.value = ''; if (file) void importFile(file) }} />
-      <Button variant="outline" className="ml-auto" disabled={full || saving} onClick={() => fileInput.current?.click()}><Upload aria-hidden="true" />{t('manager.importFile')}</Button>
+      <PackFileInput className="ml-auto" disabled={full || saving} onFile={file => void importFile(file)} />
       {/* A pack is made of lists already saved, so only a new list counts towards the limit. */}
       <Button asChild variant="outline"><Link href="/packs/create"><Plus aria-hidden="true" />{t('manager.createPack')}</Link></Button>
       {full ? <Button disabled><Plus aria-hidden="true" />{t('manager.createList')}</Button>
@@ -252,22 +231,8 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
     {full && <p className="text-sm text-muted-foreground">{t('manager.full', { max: MAX_LISTS })}</p>}
     {exportError && <p role="alert" className="flex items-center gap-1.5 text-sm text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{exportError}</p>}
 
-    <div className="flex flex-wrap items-center gap-2">
-      <label className="relative min-w-0 flex-1 basis-60 sm:max-w-sm">
-        <span className="sr-only">{t('manager.search')}</span>
-        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-        <input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={t('manager.search')}
-          className="h-10 w-full rounded-lg border border-input bg-background pr-9 pl-9 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30 [&::-webkit-search-cancel-button]:hidden" />
-        {query && <button type="button" aria-label={t('manager.clearSearch')} onClick={() => setQuery('')}
-          className="absolute top-1/2 right-2 grid size-7 -translate-y-1/2 place-items-center rounded-md text-muted-foreground outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50">
-          <X className="size-3.5" aria-hidden="true" />
-        </button>}
-      </label>
-      <LabelFilter labels={labels} value={filter} onChange={setFilter} />
-      <OrderMenu value={order} onChange={setOrder} />
-      {isFiltered(filter) && <Button variant="ghost" size="lg" className="text-muted-foreground" onClick={() => setFilter(NO_FILTER)}>{t('filter.clear')}</Button>}
-      <p aria-live="polite" className="ml-auto text-sm text-muted-foreground tabular-nums">{narrowed ? t('manager.countFiltered', { shown: shown.length, total: all.length }) : t('manager.count', { total: all.length })}</p>
-    </div>
+    <ListToolbar query={query} onQueryChange={setQuery} labels={labels} filter={filter} onFilterChange={setFilter} order={order} onOrderChange={setOrder}
+      shownCount={shown.length} totalCount={all.length} narrowed={narrowed} />
 
     {shown.length ? <ul className="divide-y overflow-hidden rounded-xl border bg-card">
       {shown.map(item => {
@@ -362,43 +327,6 @@ function DeleteDetails({ item, now, onExport }: { item: ListOverview; now: Date;
     <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[13px] text-muted-foreground">
       <span className="min-w-0 flex-1 basis-56">{t('exportHint')}</span>
       <Button variant="outline" size="lg" className="text-foreground" onClick={onExport}><Download aria-hidden="true" />{t('export')}</Button>
-    </div>
-  </div>
-}
-
-function OrderMenu({ value, onChange }: { value: ListOrder; onChange: (value: ListOrder) => void }) {
-  const t = useTranslations('wordLists.order')
-  const item = 'relative flex cursor-pointer items-center gap-2 rounded-md py-2 pr-3 pl-8 text-sm outline-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground'
-  return <DropdownMenu.Root>
-    <DropdownMenu.Trigger aria-label={t('current', { order: t(value) })}
-      className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg border bg-background px-3 text-sm outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 aria-expanded:bg-muted dark:bg-input/30">
-      <span className="text-muted-foreground">{t('label')}</span>{t(value)}<ChevronDown className="size-3.5 text-muted-foreground" aria-hidden="true" />
-    </DropdownMenu.Trigger>
-    <DropdownMenu.Portal>
-      <DropdownMenu.Content align="start" sideOffset={6} className="z-50 w-48 rounded-lg border bg-popover p-1 text-popover-foreground shadow-md">
-        <DropdownMenu.RadioGroup value={value} onValueChange={next => onChange(next as ListOrder)}>
-          {LIST_ORDERS.map(key => <DropdownMenu.RadioItem key={key} value={key} className={item}>
-            <DropdownMenu.ItemIndicator className="absolute left-2.5 inline-flex"><Check className="size-4" aria-hidden="true" /></DropdownMenu.ItemIndicator>
-            {t(key)}
-          </DropdownMenu.RadioItem>)}
-        </DropdownMenu.RadioGroup>
-      </DropdownMenu.Content>
-    </DropdownMenu.Portal>
-  </DropdownMenu.Root>
-}
-
-function EmptyState({ actions }: { actions?: ReactNode }) {
-  const t = useTranslations('wordLists')
-  return <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed bg-card px-6 py-10 text-center sm:py-14">
-    <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground"><ListPlus className="size-6" aria-hidden="true" /></span>
-    <div className="space-y-1.5">
-      <h2 id="empty-heading" tabIndex={-1} className="font-bold outline-none">{t('empty.packTitle')}</h2>
-      <p className="max-w-md text-sm text-balance text-muted-foreground">{t('empty.packDescription')}</p>
-    </div>
-    <div className="flex flex-wrap justify-center gap-2">
-      <Button asChild><Link href="/packs/catalog"><LibraryIcon aria-hidden="true" />{t('empty.catalogLink')}</Link></Button>
-      <Button asChild variant="outline"><Link href="/create"><Plus aria-hidden="true" />{t('manager.createList')}</Link></Button>
-      {actions}
     </div>
   </div>
 }
