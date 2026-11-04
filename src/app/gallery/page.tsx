@@ -6,6 +6,7 @@ import { CircleAlert, Search } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { NativeSelect } from "@/components/ui/native-select"
 import { Skeleton } from "@/components/ui/skeleton"
 import GalleryList from "@/components/Gallery/GalleryList"
 import {
@@ -33,7 +34,6 @@ function Loading() {
 
 // What a search found, tagged with the search it answers so an answer that arrives late is never shown for another one.
 type Results = { token: string; packs: GalleryPack[]; more: boolean; page: number }
-const selectClass = "h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
 
 // The typed text is applied on submit only; the box starts again (by its key) when the address brings other text.
 function SearchBox({ text, onSearch }: { text: string; onSearch: (text: string) => void }) {
@@ -113,15 +113,15 @@ function Gallery() {
     <div className="flex flex-wrap items-end gap-3">
       <SearchBox key={query.text} text={query.text} onSearch={text => go({ ...query, text })} />
       <label className="flex flex-col gap-1 text-xs text-muted-foreground">{t('category')}
-        <select className={selectClass} value={query.category} onChange={event => go({ ...query, category: event.target.value })}>
+        <NativeSelect variant="compact" value={query.category} onChange={event => go({ ...query, category: event.target.value })}>
           <option value="">{t('allCategories')}</option>
           {choices.map(category => <option key={category.name} value={category.name}>{category.name}</option>)}
-        </select>
+        </NativeSelect>
       </label>
       <label className="flex flex-col gap-1 text-xs text-muted-foreground">{t('sort')}
-        <select className={selectClass} value={query.sort} onChange={event => go({ ...query, sort: event.target.value as GallerySort })}>
+        <NativeSelect variant="compact" value={query.sort} onChange={event => go({ ...query, sort: event.target.value as GallerySort })}>
           {GALLERY_SORTS.map(sort => <option key={sort} value={sort}>{sort === 'new' ? t('sortNew') : t('sortPopular')}</option>)}
-        </select>
+        </NativeSelect>
       </label>
     </div>
 

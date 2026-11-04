@@ -3,6 +3,7 @@ import { useLocale, useTranslations } from "next-intl"
 import { Info } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { NativeSelect } from "@/components/ui/native-select"
 import { Switch } from "@/components/ui/switch"
 import LevelFields from "@/components/WordLists/LevelFields"
 import FieldError from "@/components/WordLists/FieldError"
@@ -45,11 +46,10 @@ export default function WordListBasics({ baseId, nameId, hasPackFields, choosePa
     </p>}
     {!hasPackFields && choosePack && <>
       <Label htmlFor={packSelectId}>{t("pack")}</Label>
-      <select id={packSelectId} value={chosenPack ?? ""} aria-describedby={`${leavingLonePack ? `${packSelectId}-deleted ` : ""}${packSelectId}-help`} onChange={event => setChosenPack(event.target.value || null)}
-        className="h-11 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30 dark:[&>option]:bg-popover">
+      <NativeSelect variant="form" id={packSelectId} value={chosenPack ?? ""} aria-describedby={`${leavingLonePack ? `${packSelectId}-deleted ` : ""}${packSelectId}-help`} onChange={event => setChosenPack(event.target.value || null)}>
         {packs.map(pack => <option key={pack.id} value={pack.id}>{pack.name}</option>)}
         <option value="">{t("newPack")}</option>
-      </select>
+      </NativeSelect>
       {leavingLonePack && <p id={`${packSelectId}-deleted`} className="flex gap-2 rounded-lg bg-amber-50 px-3 py-2 text-[13px] text-amber-900 dark:bg-amber-950/50 dark:text-amber-200">
         <Info className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" /><span className="[overflow-wrap:anywhere]">{t("packWillBeDeleted", { name: lonePackName ?? "" })}</span>
       </p>}
@@ -70,10 +70,9 @@ export default function WordListBasics({ baseId, nameId, hasPackFields, choosePa
     <p id={`${writingId}-help`} className="text-xs text-muted-foreground">{t("writingToggleHelp")}</p>
     {writing && <>
       <Label htmlFor={writingLanguageId}>{t("writingLanguage")}</Label>
-      <select id={writingLanguageId} value={writing} onChange={event => setWriting(event.target.value as WritingLanguage)}
-        className="h-11 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30 dark:[&>option]:bg-popover">
+      <NativeSelect variant="form" id={writingLanguageId} value={writing} onChange={event => setWriting(event.target.value as WritingLanguage)}>
         {WRITING_LANGUAGES.map(code => <option key={code} value={code}>{t(`writingLanguages.${code}`)}</option>)}
-      </select>
+      </NativeSelect>
     </>}
   </section>
 }

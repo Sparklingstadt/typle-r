@@ -31,7 +31,7 @@ export default function ListPickerDialog({ open, onOpenChange, onCloseAutoFocus,
         <DialogDescription>{t('picker.description')}</DialogDescription>
       </DialogHeader>
       <SearchField value={query} onChange={onQueryChange} placeholder={t('picker.filter')} ariaLabel={t('picker.filter')} className="h-10" />
-      <CategorySelect labels={labels} value={category} onChange={onCategoryChange} className="h-10 w-full min-w-0 rounded-lg border bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30" />
+      <CategorySelect labels={labels} value={category} onChange={onCategoryChange} size="large" />
       {packs.length ? <WordListOptions label={t('picker.candidates')} packs={packs} selectedId={selectedId} query={query} resetKey={resetKey} mode={mode} onSelect={onSelect} />
         : <p className="px-1 py-2 text-sm text-muted-foreground">{t('picker.noMatch')}</p>}
     </DialogContent>
