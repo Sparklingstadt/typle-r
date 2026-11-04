@@ -1,5 +1,5 @@
 "use client"
-import { Suspense, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { Suspense, type ReactNode, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
@@ -12,7 +12,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import DeleteConfirmation from "@/components/DeleteConfirmation"
 import { useSaveNotification } from "@/components/SaveNotification"
 import WordListEditor from "@/components/WordListEditor"
-import { downloadPackFile, downloadWordCsv } from "@/components/WordListExport"
 import ListRow, { usePracticeText } from "@/components/WordLists/ListRow"
 import LabelFilter from "@/components/WordLists/LabelFilter"
 import PackRow from "@/components/WordLists/PackRow"
@@ -20,19 +19,16 @@ import OrphanShares from "@/components/WordLists/OrphanShares"
 import ShareDialog from "@/components/WordLists/ShareDialog"
 import UnfollowDialog from "@/components/WordLists/UnfollowDialog"
 import { useShares } from "@/lib/useShares"
+import { useEditorRoute } from "@/lib/useEditorRoute"
+import { useRowHighlight } from "@/lib/useRowHighlight"
+import { useListActions } from "@/lib/useListActions"
 import { useWordLists } from "@/lib/useWordLists"
-import { useErrorText } from "@/i18n/useErrorText"
-import { AppError } from "@/core/appError"
-import { MAX_IMPORT_BYTES } from "@/core/wordFormat"
-import { copyPack, decodePackFile, encodePackFile, importPackFile } from "@/core/packFile"
 import { useFormat } from "@/i18n/useFormat"
-import { randomId } from "@/core/randomId"
-import { duplicateList, isFiltered, LIST_ORDERS, listLabels, followedPackCount, listOverviews, matchesFilter, MAX_FOLLOWED_PACKS, MAX_LISTS, NO_FILTER, ownListCount, type ListFilter, type ListOrder, type ListOverview } from "@/core/listOverview"
+import { isFiltered, LIST_ORDERS, listLabels, followedPackCount, listOverviews, matchesFilter, MAX_FOLLOWED_PACKS, MAX_LISTS, NO_FILTER, ownListCount, type ListFilter, type ListOrder, type ListOverview } from "@/core/listOverview"
 import { isFollowed, ownPacks } from "@/core/followedPacks"
 import Notice from "@/components/WordLists/Notice"
-import { deletePack, loneListPack, matchesPackQuery, packOverviews, saveListInPack, sortPacks, storedLibrary, visibleListRows, type PackOverview } from "@/core/packEditing"
+import { deletePack, loneListPack, matchesPackQuery, packOverviews, saveListInPack, sortPacks, visibleListRows, type PackOverview } from "@/core/packEditing"
 import type { SavedWordList } from "@/core/wordLists"
-import type { Library } from "@/core/wordPacks"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
 
@@ -75,8 +71,6 @@ function LoadingState() {
   </div>
 }
 
-// `/edit?list=<id>` opens the editor, so other screens can link to it and the browser's back button returns to the lists.
-// The editor stays open while it has unsaved changes: going back asks first, like キャンセル.
 function WordLists({ workspace }: { workspace: Workspace }) {
   const { lists, packs, error, errorKey, saving, update, updateLibrary, storage } = workspace
   const t = useTranslations('wordLists.page')
@@ -85,15 +79,12 @@ function WordLists({ workspace }: { workspace: Workspace }) {
   const notify = useSaveNotification()
   const params = useSearchParams()
   const urlId = params.get('list')
-  const [openId, setOpenId] = useState(urlId)
-  const [seenUrl, setSeenUrl] = useState(urlId)
-  const [dirty, setDirty] = useState(false)
-  const [cancelRequest, setCancelRequest] = useState(0)
-  const [highlight, setHighlight] = useState<string | null>(null)
+  const { openId, cancelRequest, open, close, trackDirty } = useEditorRoute(urlId)
+  const [highlight, setHighlight] = useRowHighlight('data-list-id')
   // `/edit?pack=<id>` (from the pack screens, after saving) opens that pack and points at its row.
   const packId = params.get('pack')
   const [seenPack, setSeenPack] = useState<string | null>(null)
-  const [highlightPack, setHighlightPack] = useState<string | null>(null)
+  const [highlightPack, setHighlightPack] = useRowHighlight('data-pack-id', !!openId)
   // The open packs stay open while a list is edited, so the row is there to return to.
   const [openPacks, setOpenPacks] = useState<Set<string>>(() => new Set())
   if (packId !== seenPack) {
@@ -103,71 +94,7 @@ function WordLists({ workspace }: { workspace: Workspace }) {
       setOpenPacks(current => new Set([...current, packId]))
     }
   }
-  const pushed = useRef(false)
-  const returnTo = useRef<{ id: string; scroll: number } | null>(null)
   const editing = lists.find(list => list.id === openId)
-
-  // Follow the URL (back/forward, the sidebar link), unless that would drop unsaved changes.
-  if (urlId !== seenUrl) {
-    setSeenUrl(urlId)
-    if (openId && urlId !== openId && dirty) setCancelRequest(count => count + 1)
-    else setOpenId(urlId)
-  }
-  // Put the editor's URL back once per request, so the confirmation is answered on the editor.
-  const restored = useRef(0)
-  useEffect(() => {
-    if (cancelRequest === restored.current) return
-    restored.current = cancelRequest
-    if (!openId || urlId === openId) return
-    pushed.current = true
-    window.history.pushState(null, '', `/edit?list=${encodeURIComponent(openId)}`)
-  }, [cancelRequest, openId, urlId])
-
-  // Back on the lists: where the editor was opened from, with the row that was changed in view.
-  useEffect(() => {
-    if (openId) return
-    pushed.current = false
-    const target = returnTo.current
-    returnTo.current = null
-    if (!target) return
-    window.scrollTo({ top: target.scroll })
-    document.querySelector<HTMLElement>(`[data-list-id="${CSS.escape(target.id)}"] [data-edit]`)?.focus({ preventScroll: true })
-  }, [openId])
-  useEffect(() => {
-    if (!highlight) return
-    document.querySelector(`[data-list-id="${CSS.escape(highlight)}"]`)?.scrollIntoView({ block: 'nearest' })
-    const timer = window.setTimeout(() => setHighlight(null), 2400)
-    return () => window.clearTimeout(timer)
-  }, [highlight])
-  useEffect(() => {
-    if (!highlightPack || openId) return
-    document.querySelector(`[data-pack-id="${CSS.escape(highlightPack)}"]`)?.scrollIntoView({ block: 'nearest' })
-    const timer = window.setTimeout(() => setHighlightPack(null), 2400)
-    return () => window.clearTimeout(timer)
-  }, [highlightPack, openId])
-
-  function open(list: SavedWordList) {
-    returnTo.current = { id: list.id, scroll: window.scrollY }
-    pushed.current = true
-    setDirty(false)
-    setOpenId(list.id)
-    window.history.pushState(null, '', `/edit?list=${encodeURIComponent(list.id)}`)
-    window.scrollTo({ top: 0 })
-  }
-
-  function close(saved?: string) {
-    const id = openId
-    returnTo.current ??= id ? { id, scroll: 0 } : null
-    setDirty(false)
-    setOpenId(null)
-    if (saved) setHighlight(saved)
-    if (pushed.current) {
-      pushed.current = false
-      window.history.back()
-    } else window.history.replaceState(null, '', '/edit')
-  }
-
-  const trackDirty = useCallback((value: boolean) => setDirty(value), [])
 
   // Moving the only list of a pack to another pack deletes that pack, which the editor says when another pack is chosen.
   const lonePack = loneListPack({ packs, lists }, editing?.packId)
@@ -190,7 +117,8 @@ function WordLists({ workspace }: { workspace: Workspace }) {
       if (saved) {
         // The list's pack, possibly a new one, is opened so the row is there to return to.
         if (target) setOpenPacks(current => new Set([...current, target!]))
-        close(list.id)
+        close()
+        setHighlight(list.id)
         notify(t('updated', { name: list.name.trim() }))
       }
       return saved
@@ -236,13 +164,11 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
   const t = useTranslations('wordLists')
   const locale = useLocale()
   const router = useRouter()
-  const errorText = useErrorText()
   const fileInput = useRef<HTMLInputElement>(null)
   const [now] = useState(() => new Date())
   const [query, setQuery] = useState('')
   const [order, setOrder] = useState<ListOrder>('added')
   const [filter, setFilter] = useState<ListFilter>(NO_FILTER)
-  const [exportError, setExportError] = useState('')
   const [deleting, setDeleting] = useState<{ open: boolean; item: ListOverview | null; position: number }>({ open: false, item: null, position: 0 })
   const [unfollowing, setUnfollowing] = useState<{ id: string; name: string } | null>(null)
   const [deletingPack, setDeletingPack] = useState<{ open: boolean; item: PackOverview | null; position: number }>({ open: false, item: null, position: 0 })
@@ -261,68 +187,11 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
   const followed = followedPackCount(packs)
   const full = own >= MAX_LISTS
 
-  function exportCsv(list: SavedWordList) {
-    setExportError(downloadWordCsv(list) ? '' : t('page.exportFailed', { name: list.name }))
-  }
-
-  function exportPack(item: PackOverview) {
-    const library = { packs, lists }
-    setExportError(downloadPackFile(item.pack.name, encodePackFile(library, item.pack.id)) ? '' : t('page.exportFailed', { name: item.pack.name }))
-  }
-
-  // The new pack is the one the change added; its name is read back from the saved library.
-  async function savePack(change: (library: Library, ids: { pack: string; lists: string[] }) => Library, listCount: number,
-    ids = { pack: randomId(), lists: Array.from({ length: listCount }, () => randomId()) }) {
-    let name = ''
-    const saved = await updateLibrary(library => {
-      const next = change(library, ids)
-      name = next.packs.find(pack => pack.id === ids.pack)?.name ?? ''
-      return next
-    })
-    if (saved) {
-      // Clear the search so the new pack is in view, then open it.
-      setQuery('')
-      setFilter(NO_FILTER)
-      onShowPack(ids.pack)
-      notify(t('page.created', { name }))
-    }
-  }
-
-  function copyPackOf(item: PackOverview) {
-    return savePack((library, ids) => copyPack(library, item.pack.id, ids, n => t('page.copySuffix', { n })), item.lists.length)
-  }
-
-  // A file that cannot be read, or is too large, is refused here and nothing is saved.
-  async function importFile(file: File) {
-    setExportError('')
-    try {
-      if (file.size > MAX_IMPORT_BYTES) throw new AppError('importTooLarge')
-      const decoded = decodePackFile(await file.text())
-      // A file that breaks a save rule is refused here too, on this line, with nothing saved. The screens' lists carry
-      // their pack's labels, which a library in the saved shape does not.
-      const ids = { pack: randomId(), lists: decoded.lists.map(() => randomId()) }
-      importPackFile(storedLibrary({ packs, lists }), decoded, ids)
-      await savePack((library, same) => importPackFile(library, decoded, same), decoded.lists.length, ids)
-    } catch (reason) {
-      setExportError(errorText(reason, t('import.readFailed')))
-    }
-  }
-
-  async function copy(list: SavedWordList) {
-    const copyId = randomId()
-    let name = ''
-    const saved = await update(current => {
-      const result = duplicateList(current, list.id, copyId, n => t('page.copySuffix', { n }))
-      name = result.copy.name
-      return result.lists
-    })
-    if (saved) {
-      // Clear the search so the copy is in view, then point at it.
-      setQuery('')
-      onHighlight(copyId)
-      notify(t('page.created', { name }))
-    }
-  }
+  const { error: exportError, exportCsv, exportPack, copyPackOf, copyList, importFile } = useListActions({
+    packs, lists, update, updateLibrary, notify,
+    onPackCreated: id => { setQuery(''); setFilter(NO_FILTER); onShowPack(id) },
+    onListCopied: id => { setQuery(''); onHighlight(id) },
+  })
 
   // A list just changed is shown in its pack, which stays open.
   const highlightPackOfList = lists.find(list => list.id === highlight)?.packId
@@ -421,7 +290,7 @@ function ListManager({ lists, packs, saving, highlight, highlightPack, update, u
           onDeletePack={() => { packDeleted.current = false; setDeletingPack({ open: true, item, position: shown.indexOf(item) }) }}
           followed={followed} onUnfollow={() => setUnfollowing({ id: pack.id, name: pack.name })}>
           {rows.map(row => <ListRow key={row.list.id} item={row} now={now} highlight={highlight === row.list.id} disabled={saving} canCopy={!full} readOnly={followed}
-            onEdit={() => onEdit(row.list)} onExport={() => exportCsv(row.list)} onCopy={() => copy(row.list)}
+            onEdit={() => onEdit(row.list)} onExport={() => exportCsv(row.list)} onCopy={() => copyList(row.list)}
             onDelete={() => { deleted.current = false; setDeleting({ open: true, item: row, position: rowPosition(row.list.id) }) }} />)}
         </PackRow>
       })}
