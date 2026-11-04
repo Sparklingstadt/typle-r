@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import { cn } from "cn"
 import { Search, X } from "lucide-react"
 
