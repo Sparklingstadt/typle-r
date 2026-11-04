@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
+import { followPacks } from './follow'
 import { openPacks } from './packRows'
 import { guestWorkspace } from './guestData'
 const key = 'typle-r:guest-workspace:v1'
@@ -164,6 +165,41 @@ test('copy and delete from the menu, with what is lost spelled out', async ({ pa
   // Focus moves to the row now in its place: the copy, which followed Fruits.
   await expect(page.getByRole('button', { name: 'Fruits（コピー） を編集', exact: true })).toBeFocused()
   expect((await saved(page)).map((list: { id: string }) => list.id)).not.toContain('fruits')
+})
+
+test('deleting a list below an open followed pack focuses the row that took its place', async ({ page }) => {
+  await seed(page)
+  await followPacks(page, ['Go構文'])
+  await openPacks(page)
+  // The followed pack was added last, so its read-only rows come first and have no edit button.
+  await expect(page.locator('li[data-pack-id]').first()).toContainText('Go構文')
+  await page.getByRole('button', { name: 'Kana を編集', exact: true }).waitFor()
+  await page.getByRole('button', { name: `${lists()[2].name} のその他の操作` }).click()
+  await page.getByRole('menuitem', { name: '削除' }).click()
+  const dialog = page.getByRole('alertdialog')
+  await dialog.getByRole('button', { name: '削除する' }).click()
+  await expect(dialog).toHaveCount(0)
+  await expect(row(page, 'long')).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Kana を編集', exact: true })).toBeFocused()
+})
+
+test('deleting the only list focuses the empty state heading', async ({ page }) => {
+  await seed(page, lists().slice(0, 1))
+  await page.goto('/edit')
+  await openPacks(page)
+  await page.getByRole('button', { name: 'Fruits のその他の操作' }).click()
+  await page.getByRole('menuitem', { name: '削除' }).click()
+  await page.getByRole('alertdialog').getByRole('button', { name: '削除する' }).click()
+  await expect(page.locator('#empty-heading')).toBeFocused()
+})
+
+test('deleting the only pack focuses the empty state heading', async ({ page }) => {
+  await seed(page, lists().slice(0, 1))
+  await page.goto('/edit')
+  await page.getByRole('button', { name: 'Fruits のパックの操作' }).click()
+  await page.getByRole('menuitem', { name: '削除' }).click()
+  await page.getByRole('alertdialog').getByRole('button', { name: '削除する' }).click()
+  await expect(page.locator('#empty-heading')).toBeFocused()
 })
 
 test('fits a phone without horizontal scrolling and keeps every action reachable', async ({ page }) => {
