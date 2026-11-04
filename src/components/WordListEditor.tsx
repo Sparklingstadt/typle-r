@@ -10,7 +10,7 @@ import { useWordDraft } from "@/lib/useWordDraft"
 import type { SavedWordList, WritingLanguage } from "@/core/wordLists"
 import type { WordPack } from "@/core/wordPacks"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
-import { type ErrorKey } from "@/core/appError"
+import type { ErrorKey } from "@/core/appError"
 import { currentRecordCount } from "@/core/listOverview"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import WordListBasics from "@/components/WordLists/WordListBasics"
@@ -190,7 +190,7 @@ export default function WordListEditor({ title, description, storage, initial, p
 
     <div className="space-y-6">
       {packFields}
-      <WordListBasics baseId={baseId} hasPackFields={!!packFields} choosePack={choosePack} packs={packs} chosenPack={chosenPack} setChosenPack={setChosenPack}
+      <WordListBasics baseId={baseId} nameId={nameId} hasPackFields={!!packFields} choosePack={choosePack} packs={packs} chosenPack={chosenPack} setChosenPack={setChosenPack}
         leavingLonePack={leavingLonePack} lonePackName={lonePackName} name={name} setName={setName} nameError={nameError} nameAlert={duplicate && !errorFor(nameId)}
         levels={levels} setLevels={setLevels} levelError={levelError} error={error} refusals={failure.count} writing={writing} setWriting={setWriting} />
 

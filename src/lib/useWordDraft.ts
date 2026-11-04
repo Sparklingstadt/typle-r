@@ -1,3 +1,4 @@
+"use client"
 import { useState } from "react"
 import { flushSync } from "react-dom"
 import { arrayMove } from "@dnd-kit/sortable"
@@ -7,7 +8,7 @@ import type { SavedWordList } from "@/core/wordLists"
 import { MAX_WORDS, emptyWord, isFilledWord, normalizeWord, type DraftWord, type Word } from "@/core/wordDraft"
 import type { ImportMode } from "@/components/WordListImport"
 
-/** The words being edited and the operations on them. `focusWord` is called from event handlers only, so it need not be stable. */
+/** The words being edited and the operations on them. `focusWord` is called from event handlers and from `requestAnimationFrame`, so it need not be stable. */
 export function useWordDraft(initial: SavedWordList | undefined, focusWord: (key: string) => void) {
   const [words, setWords] = useState<DraftWord[]>(() => (initial?.words ?? [emptyWord()]).map((word, index) => ({ ...normalizeWord(word), key: `initial-${index}` })))
   const filled = words.filter(isFilledWord)

@@ -6,8 +6,14 @@ const { normalizeWord, savedWords, draftSnapshot, draftProblems, isFilledWord } 
 test('normalizeWord empties an input equal to the display and defaults the type', () => {
   assert.deepEqual(normalizeWord({ display: 'ls', input: 'ls', annotation: '' }), { display: 'ls', input: '', annotation: '', input_type: 'word' })
 })
+test('normalizeWord keeps an input that differs from the display', () => {
+  assert.equal(normalizeWord({ display: 'ls', input: 'LS', annotation: '' }).input, 'LS')
+})
 test('savedWords drops the key and uses the display for an empty input', () => {
   assert.deepEqual(savedWords([{ key: 'a', display: 'ls', input: '', annotation: '', input_type: 'word' }]), [{ display: 'ls', input: 'ls', annotation: '', input_type: 'word' }])
+})
+test('savedWords keeps a non-empty input', () => {
+  assert.equal(savedWords([{ key: 'a', display: 'ls', input: 'LS', annotation: '', input_type: 'word' }])[0].input, 'LS')
 })
 test('draftSnapshot changes with a word and ignores keys', () => {
   const word = { display: 'ls', input: '', annotation: '', input_type: 'word' }

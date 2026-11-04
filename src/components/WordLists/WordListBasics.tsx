@@ -10,8 +10,9 @@ import { WRITING_LANGUAGES, type WritingLanguage } from "@/core/wordLists"
 import type { WordPack } from "@/core/wordPacks"
 import { WRITING_DEFAULTS } from "@/core/wordDraft"
 
-export default function WordListBasics({ baseId, hasPackFields, choosePack, packs, chosenPack, setChosenPack, leavingLonePack, lonePackName, name, setName, nameError, nameAlert, levels, setLevels, levelError, error, refusals, writing, setWriting }: {
+export default function WordListBasics({ baseId, nameId, hasPackFields, choosePack, packs, chosenPack, setChosenPack, leavingLonePack, lonePackName, name, setName, nameError, nameAlert, levels, setLevels, levelError, error, refusals, writing, setWriting }: {
   baseId: string
+  nameId: string
   hasPackFields: boolean
   choosePack: boolean
   packs: WordPack[]
@@ -35,7 +36,6 @@ export default function WordListBasics({ baseId, hasPackFields, choosePack, pack
 }) {
   const t = useTranslations("wordLists.editor")
   const locale = useLocale()
-  const nameId = `${baseId}-name`
   const packSelectId = `${baseId}-pack`
   const writingId = `${baseId}-writing`
   const writingLanguageId = `${baseId}-writing-language`
