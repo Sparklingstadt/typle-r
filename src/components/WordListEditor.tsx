@@ -1,7 +1,6 @@
 "use client"
 import { randomId } from "../core/randomId"
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react"
-import { flushSync } from "react-dom"
 import { useLocale, useTranslations } from "next-intl"
 import { ArrowDown, ArrowDownToLine, ArrowUp, ArrowUpToLine, ChevronLeft, CircleAlert, GripVertical, Info, MoreHorizontal, Plus, Trash2 } from "lucide-react"
 import { DropdownMenu } from "radix-ui"
@@ -13,18 +12,19 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import WordListImport from "./WordListImport"
+import { useWordDraft } from "@/lib/useWordDraft"
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
+import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import SortableWordRow, { WORD_ROW_COLUMNS } from "./SortableWordRow"
 import { WRITING_LANGUAGES, type InputType, type SavedWordList, type WritingLanguage } from "@/core/wordLists"
 import type { WordPack } from "@/core/wordPacks"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
-import { AppError, type ErrorKey } from "@/core/appError"
+import { type ErrorKey } from "@/core/appError"
 import { currentRecordCount } from "@/core/listOverview"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import LevelFields from "@/components/WordLists/LevelFields"
 import FieldError from "@/components/WordLists/FieldError"
-import { MAX_WORDS, WRITING_DEFAULTS, draftProblems, draftSnapshot, emptyWord, isFilledWord, normalizeWord, savedWords, type Word } from "@/core/wordDraft"
+import { MAX_WORDS, WRITING_DEFAULTS, draftProblems, draftSnapshot, emptyWord, normalizeWord, savedWords } from "@/core/wordDraft"
 
 const menuItem = "flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:size-4"
 
@@ -81,7 +81,7 @@ export default function WordListEditor({ title, description, storage, initial, p
   })
   const [chosenPack, setChosenPack] = useState<string | null>(firstPackId)
   const [levels, setLevels] = useState(initial?.levels ?? [])
-  const [words, setWords] = useState(() => (initial?.words ?? [emptyWord()]).map((word, index) => ({ ...normalizeWord(word), key: `initial-${index}` })))
+  const { words, filled, add, moveTo, remove, update, reorder, load } = useWordDraft(initial, focusDisplay)
   const locale = useLocale()
   // `null` is off; the list then has no `writing` mark at all.
   const [writing, setWriting] = useState<WritingLanguage | null>(initial?.writing?.language ?? null)
@@ -140,28 +140,9 @@ export default function WordListEditor({ title, description, storage, initial, p
   }
 
   function addWord() {
-    const key = randomId()
     // Once everything is valid, a freshly added row is not flagged until the next save.
     if (!problems.length) setSubmitted(false)
-    flushSync(() => setWords(current => [...current, { ...emptyWord(), key }]))
-    focusDisplay(key)
-  }
-
-  function moveTo(index: number, target: number) {
-    if (target < 0 || target >= words.length || target === index) return
-    setWords(current => arrayMove(current, index, target))
-  }
-
-  function remove(index: number) {
-    if (words.length < 2) return
-    const neighbor = words[index + 1] ?? words[index - 1]
-    setWords(current => current.filter((_, position) => position !== index))
-    // Wait for menus to close and return focus before moving it to the next word.
-    requestAnimationFrame(() => focusDisplay(neighbor.key))
-  }
-
-  function update(key: string, change: Partial<Word>) {
-    setWords(current => current.map(item => item.key === key ? { ...item, ...change } : item))
+    add()
   }
 
   function cancel() {
@@ -200,7 +181,6 @@ export default function WordListEditor({ title, description, storage, initial, p
     if (words[index]?.display.trim()) addWord()
   }
 
-  const filled = words.filter(isFilledWord)
   // Changing the word count changes the task: runs at the old count stay, but no longer count towards the best.
   const ranked = initial ? currentRecordCount(initial) : 0
   const recount = ranked > 0 && filled.length !== initial?.words.length
@@ -277,11 +257,9 @@ export default function WordListEditor({ title, description, storage, initial, p
           <Badge variant="secondary" className="tabular-nums">{words.length.toLocaleString()} / {MAX_WORDS.toLocaleString()}</Badge>
           <div className="ml-auto">
             <WordListImport disabled={saving} existingCount={filled.length} onImport={(imported, filename, mode) => {
-              const current = mode === "replace" ? [] : filled
-              if (current.length + imported.length > MAX_WORDS) throw new AppError("importTooManyRows")
-              setWords([...current, ...imported.map(word => ({ ...normalizeWord(word), key: randomId() }))])
+              const kept = load(imported, mode)
               setName(value => value.trim() ? value : filename)
-              setNotice(t(current.length ? "added" : "loaded", { count: imported.length }))
+              setNotice(t(kept ? "added" : "loaded", { count: imported.length }))
             }} />
           </div>
           <p role="status" className="basis-full text-sm text-muted-foreground empty:hidden">{notice}</p>
@@ -298,11 +276,7 @@ export default function WordListEditor({ title, description, storage, initial, p
           accessibility={{ screenReaderInstructions: { draggable: t("dragInstructions") } }}
           onDragEnd={({ active, over }) => {
             if (saving || !over || active.id === over.id) return
-            setWords(current => {
-              const from = current.findIndex(word => word.key === active.id)
-              const to = current.findIndex(word => word.key === over.id)
-              return from < 0 || to < 0 ? current : arrayMove(current, from, to)
-            })
+            reorder(String(active.id), String(over.id))
           }}>
         <SortableContext items={words.map(word => word.key)} strategy={verticalListSortingStrategy}>
         <div className="space-y-3 md:space-y-0">
