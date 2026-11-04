@@ -1,9 +1,9 @@
 "use client"
-import { Suspense, useEffect, useMemo, useRef, useState } from "react"
+import { Suspense, useMemo, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
-import { ArrowRight, Brain, ChevronDown, ChevronsUpDown, ChevronUp, CircleAlert, Eye, EyeOff, List, MousePointerClick, PanelRightClose, PanelRightOpen, Plus, RotateCcw, Search } from "lucide-react"
+import { ArrowRight, Brain, ChevronsUpDown, CircleAlert, Eye, EyeOff, List, MousePointerClick, PanelRightClose, PanelRightOpen, RotateCcw } from "lucide-react"
 import type { PracticeDevice } from "@/core/devices"
 import { useChosenDevice } from "@/lib/deviceSelection"
 import { useLiveStatsVisible } from "@/lib/liveStats"
@@ -13,8 +13,6 @@ import { useTypingOptions } from "@/lib/inputSettings"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { useWordLists, type RecordSave } from "@/lib/useWordLists"
 import type { SavedWordList } from "@/core/wordLists"
 import { usePractice } from "@/lib/usePractice"
@@ -22,12 +20,11 @@ import { usePracticeSwitch } from "@/lib/usePracticeSwitch"
 import { usePracticeFocus } from "@/lib/usePracticeFocus"
 import { compareInput, simpleInputKeys, typingSpeed } from "@/core/typing"
 import { comparableRecords, recordsOfMode, type PracticeMode } from "@/core/records"
-import { rankingQuery } from "@/core/rankings"
 import { recallDisplayHint, recallPrompt } from "@/core/recallPrompt"
 import { practiceMode as writingChoiceFor, useWritingMode, type WritingChoice } from "@/lib/writingMode"
 import { listLabels } from "@/core/listOverview"
 import { packOverviews } from "@/core/packEditing"
-import { currentMode, isParagraphWord, matchingPacks, oneLineDisplay, upcomingWords } from "@/core/practiceView"
+import { currentMode, matchingPacks } from "@/core/practiceView"
 import { packsByRecentPractice } from "@/core/packPractice"
 import type { WordPack } from "@/core/wordPacks"
 import { cn } from "@/lib/utils"
@@ -37,9 +34,11 @@ import TargetText from "@/components/Practice/TargetText"
 import PracticeText from "@/components/Practice/PracticeText"
 import Kbd from "@/components/Practice/Kbd"
 import DeviceMenu from "@/components/Practice/DeviceMenu"
-import WordListOptions from "@/components/Practice/WordListOptions"
-import CategorySelect from "@/components/Practice/CategorySelect"
-import PracticeBestRecords from "@/components/Practice/PracticeBestRecords"
+import UpcomingWords from "@/components/Practice/UpcomingWords"
+import BestRecordsCard from "@/components/Practice/BestRecordsCard"
+import ListChooserAside from "@/components/Practice/ListChooserAside"
+import ListPickerDialog from "@/components/Practice/ListPickerDialog"
+import SwitchConfirmDialog from "@/components/Practice/SwitchConfirmDialog"
 import PracticeName, { usePracticeName } from "@/components/PracticeName"
 import PracticeResult from "@/components/Practice/PracticeResult"
 import PracticeProgress from "@/components/Practice/PracticeProgress"
@@ -93,13 +92,11 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   // One category for both list choosers: the lists of a subject stay in view while switching between them.
   const [category, setCategory] = useState<string | null>(null)
   const locale = useLocale()
-  const asideLists = useRef<HTMLDivElement>(null)
   const [menuOpen, setMenuOpen] = useState(false)
   // All the words of the list start shown, so a list can be previewed right after choosing it.
   const [showAll, setShowAll] = useState(true)
   const [inputFocused, setInputFocused] = useState(false)
   const [focusedOnce, setFocusedOnce] = useState(false)
-  const allWords = useRef<HTMLUListElement>(null)
   const started = session.startedAt !== null
   // WritingPractice reports its run, so switching lists asks first and the device stays locked as when typing.
   const [writingRun, setWritingRun] = useState<WritingRun | null>(null)
@@ -128,21 +125,6 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   const { pending, cancels, requestList, requestWriting, confirm, cancel } = usePracticeSwitch({ wordLists, selected, running, currentChoice: writingChoice, onSwitchList: switchTo, onChooseWriting: chooseWriting })
   const dialogOpen = pickerOpen || pending !== null || menuOpen
   const showResume = mode !== 'writing' && focusedOnce && !inputFocused && !finished && !dialogOpen && words.length > 0
-
-  useEffect(() => {
-    const box = allWords.current
-    const current = box?.querySelector<HTMLElement>('[aria-current="step"]')
-    if (box && current) box.scrollTop = current.offsetTop - 48
-  }, [showAll, session.index])
-
-  // Keeps the chosen list in view inside the scrolling list of lists, without scrolling the page.
-  useEffect(() => {
-    const box = asideLists.current
-    const chosen = box?.querySelector<HTMLElement>('[aria-pressed="true"]')
-    if (!box || !chosen) return
-    const top = chosen.offsetTop - box.offsetTop
-    if (top < box.scrollTop || top + chosen.offsetHeight > box.scrollTop + box.clientHeight) box.scrollTop = top - 8
-  }, [list?.id])
 
   const { focusInput, focusPractice, rememberOpener, closePicker, focusTypingNext } = usePracticeFocus({ mode, finished, input, showResume, writingChoice })
   // The picker is opened from buttons that are not its Radix trigger, so remember where focus should return.
@@ -185,7 +167,6 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   // What the confirmation names as the switch's target: the other list, or the other way of practising.
   const switchTarget = pending?.kind === 'mode' ? t(pending.mode === 'writing' ? 'modeWriting' : 'modeTyping')
     : pending?.kind === 'list' && wordLists[pending.index] ? practiceName(wordLists[pending.index]) : ''
-  const { next, remaining } = upcomingWords(words, session.index)
   const feedback = hasError
     ? <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{t('feedback.mismatch', { position: comparison.errorIndex + 1 })}</span>
     : composition !== null ? <span className="inline-flex flex-wrap items-center justify-center gap-x-2">
@@ -307,95 +288,21 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
           {statsVisible && <LiveStats mode={mode} session={session} accuracy={result.accuracy} />}
           {/* The coming words would give away the answers in recall mode. */}
           {!recall && <div className="flex min-h-14 flex-wrap items-center gap-2 border-t px-4 py-2.5 sm:pr-3 sm:pl-6">
-            <span className="text-xs text-muted-foreground">{t('upcoming.next')}</span>
-            {next.map((item, index) => <span key={index} className="inline-flex h-7 max-w-full items-center rounded-full border px-3 text-[13px] text-muted-foreground" title={item.display}><span className="truncate whitespace-pre">{oneLineDisplay(item)}</span></span>)}
-            {!next.length && <span className="text-xs text-muted-foreground">{t('upcoming.last')}</span>}
-            {remaining > 0 && <span className="text-xs text-neutral-400 dark:text-neutral-500">{t('upcoming.more', { count: remaining })}</span>}
-            <span className="flex-1" />
-            <Button variant="ghost" size="lg" aria-expanded={showAll} aria-controls="all-words" onClick={() => { setShowAll(value => !value); focusInput() }}>
-              {t('upcoming.showAll')}{showAll ? <ChevronUp aria-hidden="true" /> : <ChevronDown aria-hidden="true" />}
-            </Button>
-            {showAll && <ul id="all-words" ref={allWords} aria-label={t('upcoming.allWords')} className="relative mt-1.5 flex max-h-44 basis-full flex-wrap gap-1.5 overflow-y-auto border-t border-dashed pt-2.5 pb-1">
-              {words.map((item, index) => {
-                const done = index < session.index
-                const display = oneLineDisplay(item)
-                const paragraph = isParagraphWord(item)
-                return <li key={index} className={cn('max-w-full', paragraph && 'w-full')}>
-                  <span aria-current={index === session.index ? 'step' : undefined}
-                    className={cn('min-h-7 max-w-full border px-3 text-[13px] text-muted-foreground',
-                      paragraph ? 'block rounded-lg py-2 text-left leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]' : 'inline-flex items-center rounded-full break-all whitespace-pre-wrap',
-                      done && 'border-transparent bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300',
-                      index === session.index && 'border-transparent bg-primary text-primary-foreground')}>
-                    {display}<span className="sr-only">{t(done ? 'upcoming.done' : index === session.index ? 'upcoming.current' : 'upcoming.pending')}</span>
-                  </span>
-                </li>
-              })}
-            </ul>}
+            <UpcomingWords words={words} index={session.index} showAll={showAll} onToggleAll={() => { setShowAll(value => !value); focusInput() }} />
           </div>}
         </>}
         </>}
       </Card>
-      <Card className="gap-2 px-4 pt-4 pb-3">
-        <div className="flex min-w-0 items-baseline gap-2">
-          <h2 className="shrink-0 text-[15px] font-bold">{t('aside.best')}</h2>
-          <span className="truncate text-xs text-muted-foreground"><PracticeName list={list} /></span>
-        </div>
-        <p className="text-xs text-muted-foreground">{bestCandidates.length < modeRecords.length ? t('aside.bestOrderAtCount', { count: selectedList?.words.length ?? 0 }) : t('aside.bestOrder')}</p>
-        <PracticeBestRecords records={bestCandidates} highlightId={saveState === 'saved' ? record?.id : undefined} />
-        <Link href={`/rankings?${rankingQuery({ list: list.id, device: null, order: 'accuracy', mode })}`} className="inline-flex w-fit items-center gap-1 rounded-sm px-2 pt-1 text-[13px] font-medium outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50">{t('aside.allBest')}<ArrowRight className="size-3.5" aria-hidden="true" /></Link>
-      </Card>
+      <BestRecordsCard list={list} mode={mode} records={bestCandidates} showsCountNote={bestCandidates.length < modeRecords.length} wordCount={selectedList?.words.length ?? 0}
+        highlightId={saveState === 'saved' ? record?.id : undefined} />
       </div>
-      <aside id="practice-aside" aria-label={t('aside.label')} className={cn("grid min-w-0 gap-6", !asideOpen && "lg:hidden")}>
-        <Card className="gap-1 p-3">
-          <div className="flex items-center gap-2 pl-2">
-            <h2 className="text-[15px] font-bold">{t('aside.lists')}</h2>
-            <span className="flex-1" />
-            <Button variant="ghost" size="lg" asChild><Link href="/packs/create"><Plus aria-hidden="true" />{t('aside.create')}</Link></Button>
-          </div>
-          <label className="mx-1 mt-1 mb-1 flex h-9 items-center gap-2 rounded-lg border px-3 text-muted-foreground focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
-            <Search className="size-4 shrink-0" aria-hidden="true" />
-            <input type="search" value={asideQuery} onChange={event => setAsideQuery(event.target.value)} placeholder={t('picker.filter')} aria-label={t('aside.filter')} autoComplete="off"
-              className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" />
-          </label>
-          <div className="mx-1 mb-1"><CategorySelect labels={labels} value={category} onChange={setCategory} /></div>
-          {/* Its own scroll area, so a long collection never pushes the page far below the practice card. */}
-          <div ref={asideLists} className="max-h-96 overflow-y-auto overscroll-contain lg:max-h-[min(36rem,calc(100dvh-14rem))]">
-            {asidePacks.length ? <WordListOptions label={t('aside.lists')} packs={asidePacks} selectedId={list.id} query={asideQuery} resetKey={cancels} mode={mode}
-              onSelect={id => { setAsideQuery(''); requestSwitch(id) }} />
-              : <p className="px-2 py-2 text-sm text-muted-foreground">{t('picker.noMatch')}</p>}
-          </div>
-        </Card>
-      </aside>
+      <ListChooserAside open={asideOpen} packs={asidePacks} labels={labels} category={category} onCategoryChange={setCategory} query={asideQuery} onQueryChange={setAsideQuery}
+        selectedId={list.id} resetKey={cancels} mode={mode} onSelect={id => { setAsideQuery(''); requestSwitch(id) }} />
     </div>}
-    <Dialog open={pickerOpen} onOpenChange={open => { setPickerOpen(open); if (!open) setQuery('') }}>
-      <DialogContent className="max-w-md" onCloseAutoFocus={closePicker}>
-        <DialogHeader>
-          <DialogTitle>{t('picker.title')}</DialogTitle>
-          <DialogDescription>{t('picker.description')}</DialogDescription>
-        </DialogHeader>
-        <label className="flex h-10 items-center gap-2 rounded-lg border px-3 text-muted-foreground focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
-          <Search className="size-4 shrink-0" aria-hidden="true" />
-          <input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={t('picker.filter')} aria-label={t('picker.filter')} autoComplete="off"
-            className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" />
-        </label>
-        <CategorySelect labels={labels} value={category} onChange={setCategory} className="h-10 w-full min-w-0 rounded-lg border bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30" />
-        {filteredPacks.length ? <WordListOptions label={t('picker.candidates')} packs={filteredPacks} selectedId={list?.id} query={query} resetKey={cancels} mode={mode} onSelect={requestSwitch} />
-          : <p className="px-1 py-2 text-sm text-muted-foreground">{t('picker.noMatch')}</p>}
-      </DialogContent>
-    </Dialog>
-    <AlertDialog open={pending !== null} onOpenChange={open => { if (!open) cancel() }}>
-      <AlertDialogContent onCloseAutoFocus={focusPractice}>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{t('switch.title')}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {t('switch.description', { list: list ? practiceName(list) : '', done: mode === 'writing' ? writingRun?.index ?? 0 : session.index, total: words.length, next: switchTarget })}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>{t('switch.continue')}</AlertDialogCancel>
-          <AlertDialogAction onClick={confirm}>{t('switch.confirm')}</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <ListPickerDialog open={pickerOpen} onOpenChange={open => { setPickerOpen(open); if (!open) setQuery('') }} onCloseAutoFocus={closePicker}
+      packs={filteredPacks} labels={labels} category={category} onCategoryChange={setCategory} query={query} onQueryChange={setQuery}
+      selectedId={list?.id} resetKey={cancels} mode={mode} onSelect={requestSwitch} />
+    <SwitchConfirmDialog open={pending !== null} onCancel={cancel} onConfirm={confirm} onCloseAutoFocus={focusPractice}
+      description={t('switch.description', { list: list ? practiceName(list) : '', done: mode === 'writing' ? writingRun?.index ?? 0 : session.index, total: words.length, next: switchTarget })} />
   </main>
 }
