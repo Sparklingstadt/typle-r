@@ -91,11 +91,7 @@ func sharedWorkspace(ctx context.Context, tx pgx.Tx, owner string) (*workspace.W
 	case err != nil:
 		return nil, err
 	}
-	w, err := workspace.Decode(lists, devices, packs)
-	if err != nil {
-		return nil, fmt.Errorf("saved workspace of %s: %w", owner, err)
-	}
-	return w, nil
+	return decodeSaved(owner, lists, devices, packs)
 }
 
 // refuseHidden is sharedPackHidden when the link to the owner's pack is hidden, locking it until the transaction ends.

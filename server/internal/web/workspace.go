@@ -204,31 +204,8 @@ func (s *server) loadWorkspace(r *http.Request, owner string) (*store.Saved, *fa
 }
 
 func (s *server) writeWorkspace(w http.ResponseWriter, r *http.Request) {
-	if !s.fromAppOrOrigin(r) || !jsonContent(r) {
-		refuse(w, http.StatusForbidden, "forbiddenRequest")
-		return
-	}
-	user, ok := s.signedIn(w, r)
+	user, fields, ok := s.saveRequest(w, r, "workspace.write", "invalidWorkspace")
 	if !ok {
-		return
-	}
-	if r.Body == nil || r.Body == http.NoBody {
-		refuse(w, http.StatusBadRequest, "emptyRequest")
-		return
-	}
-	body, err := readBody(r.Body)
-	if errors.Is(err, errTooLarge) {
-		refuse(w, http.StatusRequestEntityTooLarge, "workspaceTooLarge")
-		return
-	}
-	if err != nil {
-		s.report(r, err, "workspace.write")
-		refuse(w, http.StatusServiceUnavailable, "workspaceSaveFailed")
-		return
-	}
-	fields, err := parseObject(body)
-	if err != nil {
-		refuse(w, http.StatusBadRequest, "invalidWorkspace")
 		return
 	}
 	result, f := s.saveWorkspace(r, user.Sub, fields)

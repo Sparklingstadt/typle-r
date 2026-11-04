@@ -153,19 +153,27 @@ func readImport(w http.ResponseWriter, r *http.Request) ([]byte, bool) {
 // modifyList is modify for a change that makes or edits one list, which it answers with in its saved shape.
 func (s *server) modifyList(w http.ResponseWriter, r *http.Request, owner string, status int,
 	change func(*workspace.Workspace) (*workspace.List, error)) {
-	var id string
-	saved := s.save(w, r, owner, func(ws *workspace.Workspace) (bool, error) {
-		list, err := change(ws)
-		if err != nil {
-			return false, err
-		}
-		id = list.ID
-		return true, nil
-	})
+	saved, id := changeOne(s, w, r, owner, change, func(list *workspace.List) string { return list.ID })
 	if saved == nil {
 		return
 	}
 	respond(w, status, map[string]any{"list": detail(saved.Find(id))})
+}
+
+// changeOne saves a change that makes or edits one item of the workspace, and returns the workspace as saved with the
+// item's id (idOf), to find it in that workspace. It is nil when the request was answered with a failure.
+func changeOne[T any](s *server, w http.ResponseWriter, r *http.Request, owner string,
+	change func(*workspace.Workspace) (*T, error), idOf func(*T) string) (*workspace.Workspace, string) {
+	var id string
+	saved := s.save(w, r, owner, func(ws *workspace.Workspace) (bool, error) {
+		item, err := change(ws)
+		if err != nil {
+			return false, err
+		}
+		id = idOf(item)
+		return true, nil
+	})
+	return saved, id
 }
 
 // refuse answers a change that cannot be made with its key, and the line of a word file when there is one.
