@@ -45,20 +45,16 @@ func invalidPack() error { return &Error{Key: "invalidPack"} }
 // added, changed and deleted.
 func refuseFollowed(w *Workspace, packIDs ...string) error {
 	for _, id := range packIDs {
-		if pack := findPack(w, id); pack != nil && pack.followed() {
+		if pack := w.FindPack(id); pack != nil && pack.followed() {
 			return &Error{Key: "packFollowed"}
 		}
 	}
 	return nil
 }
 
-func findPack(w *Workspace, id string) *Pack {
-	for i := range w.Packs {
-		if w.Packs[i].ID == id {
-			return &w.Packs[i]
-		}
-	}
-	return nil
+// packIndex is where the pack id is in w.Packs, or -1.
+func packIndex(w *Workspace, id string) int {
+	return slices.IndexFunc(w.Packs, func(pack Pack) bool { return pack.ID == id })
 }
 
 // tidyLevels follows tidyLevels (src/core/packEditing.ts): the levels as trimLevels keeps them, one at most
@@ -253,7 +249,7 @@ func CreatePack(w *Workspace, input PackInput, packID string, listIDs []string, 
 // new order; it may be stale, so ids the pack does not hold are dropped and its lists not given keep their saved order
 // after the given ones. The pack's lists keep the places in the lists they had.
 func UpdatePack(w *Workspace, id string, input PackInput) (*Pack, error) {
-	at := slices.IndexFunc(w.Packs, func(pack Pack) bool { return pack.ID == id })
+	at := packIndex(w, id)
 	if at < 0 {
 		return nil, packMissing()
 	}
@@ -324,7 +320,7 @@ func reorder(w *Workspace, packID string, ids []string) {
 
 // DeletePack removes a pack with its lists and their records.
 func DeletePack(w *Workspace, id string) error {
-	if findPack(w, id) == nil {
+	if w.FindPack(id) == nil {
 		return packMissing()
 	}
 	w.Packs = slices.DeleteFunc(w.Packs, func(pack Pack) bool { return pack.ID == id })
@@ -338,17 +334,12 @@ func DeletePack(w *Workspace, id string) error {
 // copy is named as copyName names a copied list: （コピー）, then （コピー2）… among the packs. A name given is checked
 // as CreatePack checks one.
 func CopyPack(w *Workspace, sourceID string, name *string, packID string, listIDs []string, now time.Time) (*Pack, error) {
-	at := slices.IndexFunc(w.Packs, func(pack Pack) bool { return pack.ID == sourceID })
+	at := packIndex(w, sourceID)
 	if at < 0 {
 		return nil, packMissing()
 	}
 	source := w.Packs[at]
-	var mine []List
-	for _, list := range w.Lists {
-		if list.PackID == sourceID {
-			mine = append(mine, list)
-		}
-	}
+	mine := listsIn(w.Lists, sourceID)
 	if len(listIDs) != len(mine) {
 		return nil, errors.New("one list id is needed for each list")
 	}

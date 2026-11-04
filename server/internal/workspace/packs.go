@@ -55,13 +55,7 @@ func OfficialPacks() ([]OfficialPack, error) {
 	official := make([]OfficialPack, 0, len(packs))
 	for _, pack := range packs {
 		pack.Origin = &Origin{CatalogID: pack.ID, Version: 1}
-		var mine []List
-		for _, list := range converted {
-			if list.PackID == pack.ID {
-				mine = append(mine, list)
-			}
-		}
-		official = append(official, OfficialPack{CatalogID: pack.ID, Version: 1, Pack: pack, Lists: mine})
+		official = append(official, OfficialPack{CatalogID: pack.ID, Version: 1, Pack: pack, Lists: listsIn(converted, pack.ID)})
 	}
 	return official, nil
 }

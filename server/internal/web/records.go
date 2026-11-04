@@ -118,15 +118,11 @@ func (s *server) recordAdd(r *http.Request, owner string, fields map[string]json
 	}
 	record, added, err := operation.AddRecord(r.Context(), s.config.Store, owner, listID, *input)
 	var refusal *workspace.Error
-	switch {
-	case errors.As(err, &refusal) && refusal.Key == "listNotFound":
+	if errors.As(err, &refusal) && refusal.Key == "listNotFound" {
 		return workspace.Record{}, false, nil, refused(http.StatusNotFound, "recordListDeleted")
-	case errors.As(err, &refusal) && refusal.Key == "workspaceTooLarge":
-		return workspace.Record{}, false, nil, refused(http.StatusRequestEntityTooLarge, refusal.Key)
-	case errors.As(err, &refusal):
-		return workspace.Record{}, false, nil, refused(http.StatusBadRequest, refusal.Key)
-	case err != nil:
-		return workspace.Record{}, false, nil, broken(err, "record.add", "workspaceSaveFailed")
+	}
+	if f := recordFailure(err, "record.add"); f != nil {
+		return workspace.Record{}, false, nil, f
 	}
 	result, f := s.savedAfter(r, owner, "record.add")
 	if f != nil {
@@ -160,15 +156,25 @@ func (s *server) recordDelete(r *http.Request, owner string, fields map[string]j
 	if errors.As(err, &refusal) && (refusal.Key == "recordNotFound" || refusal.Key == "listNotFound") {
 		err = nil
 	}
-	switch {
-	case errors.As(err, &refusal) && refusal.Key == "workspaceTooLarge":
-		return nil, refused(http.StatusRequestEntityTooLarge, refusal.Key)
-	case errors.As(err, &refusal):
-		return nil, refused(http.StatusBadRequest, refusal.Key)
-	case err != nil:
-		return nil, broken(err, "record.delete", "workspaceSaveFailed")
+	if f := recordFailure(err, "record.delete"); f != nil {
+		return nil, f
 	}
 	return s.savedAfter(r, owner, "record.delete")
+}
+
+// recordFailure is how a change of a record that failed with err is answered: 413 for a workspace that would be too
+// large, 400 for any other refusal, and 503 for the server's failure, reported as operation. nil when err is.
+func recordFailure(err error, operation string) *failure {
+	var refusal *workspace.Error
+	switch {
+	case errors.As(err, &refusal) && refusal.Key == "workspaceTooLarge":
+		return refused(http.StatusRequestEntityTooLarge, refusal.Key)
+	case errors.As(err, &refusal):
+		return refused(http.StatusBadRequest, refusal.Key)
+	case err != nil:
+		return broken(err, operation, "workspaceSaveFailed")
+	}
+	return nil
 }
 
 // savedAfter reads the workspace as stored after a change, as GET answers it; a save made since is in it too, with its

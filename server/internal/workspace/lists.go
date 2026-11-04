@@ -36,6 +36,17 @@ func checkWriting(current, given *Writing) (*Writing, error) {
 
 func missing() error { return &Error{Key: "listNotFound"} }
 
+// listsIn is the lists of the pack packID, in their order; nil when it has none.
+func listsIn(lists []List, packID string) []List {
+	var mine []List
+	for _, list := range lists {
+		if list.PackID == packID {
+			mine = append(mine, list)
+		}
+	}
+	return mine
+}
+
 func index(w *Workspace, id string) int {
 	return slices.IndexFunc(w.Lists, func(list List) bool { return list.ID == id })
 }
@@ -131,7 +142,7 @@ func CreateList(w *Workspace, input ListInput, id string, now time.Time) (*List,
 		if input.Category != nil || input.Tags != nil {
 			return nil, &Error{Key: "invalidList"}
 		}
-		if pack = findPack(w, *input.PackID); pack == nil {
+		if pack = w.FindPack(*input.PackID); pack == nil {
 			return nil, packMissing()
 		}
 		if err := refuseFollowed(w, pack.ID); err != nil {
@@ -189,7 +200,7 @@ func UpdateList(w *Workspace, id string, input ListInput) (*List, error) {
 	target := list.PackID
 	var pack *Pack
 	if input.PackID != nil {
-		if pack = findPack(w, *input.PackID); pack == nil {
+		if pack = w.FindPack(*input.PackID); pack == nil {
 			return nil, packMissing()
 		}
 		target = pack.ID
@@ -289,7 +300,7 @@ func moveList(w *Workspace, at int, list List, source string) *List {
 // followsRename tells whether ApplyListChange makes the pack of list follow a rename of it: the list is alone in its
 // pack, which has its name.
 func followsRename(w *Workspace, list List) bool {
-	pack := findPack(w, list.PackID)
+	pack := w.FindPack(list.PackID)
 	if pack == nil || nameKey(pack.Name) != nameKey(list.Name) {
 		return false
 	}
