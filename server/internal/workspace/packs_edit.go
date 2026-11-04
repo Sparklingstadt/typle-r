@@ -3,7 +3,6 @@ package workspace
 import (
 	"errors"
 	"slices"
-	"strings"
 	"time"
 )
 
@@ -76,7 +75,7 @@ func trimLevels(levels []string) ([]string, error) {
 		}
 	}
 	if len(kept) > MaxSavedLevels ||
-		slices.ContainsFunc(kept, func(level string) bool { return length(level) > MaxLevel || strings.ContainsRune(level, 0) }) {
+		slices.ContainsFunc(kept, func(level string) bool { return !fits(level, MaxLevel) }) {
 		return nil, &Error{Key: "invalidList"}
 	}
 	return kept, nil
@@ -129,9 +128,8 @@ func checkPackName(w *Workspace, name *string, self string) (string, error) {
 // checkPack refuses a pack past the limits validateLibrary (src/core/wordPacks.ts) keeps, or with U+0000, which
 // Postgres cannot store in jsonb.
 func checkPack(pack Pack) error {
-	if length(pack.Name) > MaxPackName || length(pack.Description) > MaxPackDescription || length(pack.Category) > MaxCategory ||
-		len(pack.Tags) > MaxTags || slices.ContainsFunc(pack.Tags, func(tag string) bool { return length(tag) > MaxTag }) ||
-		strings.ContainsRune(pack.Name+pack.Description+pack.Category+strings.Join(pack.Tags, ""), 0) {
+	if !fits(pack.Name, MaxPackName) || !fits(pack.Description, MaxPackDescription) || !fits(pack.Category, MaxCategory) ||
+		len(pack.Tags) > MaxTags || slices.ContainsFunc(pack.Tags, func(tag string) bool { return !fits(tag, MaxTag) }) {
 		return invalidPack()
 	}
 	return nil

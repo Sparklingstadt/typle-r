@@ -82,6 +82,7 @@ func readRecords(ctx context.Context, q querier, owner string) (storedRecords, [
 	if err != nil {
 		return nil, nil, err
 	}
+	defer rows.Close()
 	records := storedRecords{}
 	var stored []recordRow
 	for rows.Next() {

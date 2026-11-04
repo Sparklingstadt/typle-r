@@ -34,6 +34,12 @@ func checkWriting(current, given *Writing) (*Writing, error) {
 	return &Writing{Language: given.Language}, nil
 }
 
+// fits tells whether text is at most max characters long, as length counts them, and has no U+0000, which Postgres
+// cannot store in jsonb.
+func fits(text string, max int) bool {
+	return length(text) <= max && !strings.ContainsRune(text, 0)
+}
+
 func missing() error { return &Error{Key: "listNotFound"} }
 
 // listsIn is the lists of the pack packID, in their order; nil when it has none.
@@ -65,7 +71,7 @@ func checkName(w *Workspace, name *string, self, packID string) (string, error) 
 			return "", &Error{Key: "listNameDuplicate"}
 		}
 	}
-	if length(trimmed) > MaxListName || strings.ContainsRune(trimmed, 0) {
+	if !fits(trimmed, MaxListName) {
 		return "", &Error{Key: "invalidList"}
 	}
 	return trimmed, nil
@@ -86,8 +92,8 @@ func checkWords(words []Word) error {
 		return &Error{Key: "invalidList"}
 	}
 	for _, word := range words {
-		if length(word.Display) > MaxWordText || length(word.Input) > MaxWordText || length(word.Annotation) > MaxAnnotation ||
-			strings.ContainsRune(word.Display+word.Input+word.Annotation, 0) || !validInputType(word.InputType) {
+		if !fits(word.Display, MaxWordText) || !fits(word.Input, MaxWordText) || !fits(word.Annotation, MaxAnnotation) ||
+			!validInputType(word.InputType) {
 			return &Error{Key: "invalidList"}
 		}
 	}
@@ -108,8 +114,7 @@ func checkLabels(category string, tags []string) (string, []string, error) {
 		seen[lowerCase(tag)] = true
 		kept = append(kept, tag)
 	}
-	if length(category) > MaxCategory || len(kept) > MaxTags || strings.ContainsRune(category, 0) ||
-		slices.ContainsFunc(kept, func(tag string) bool { return length(tag) > MaxTag || strings.ContainsRune(tag, 0) }) {
+	if !fits(category, MaxCategory) || len(kept) > MaxTags || slices.ContainsFunc(kept, func(tag string) bool { return !fits(tag, MaxTag) }) {
 		return "", nil, &Error{Key: "invalidList"}
 	}
 	return category, kept, nil
