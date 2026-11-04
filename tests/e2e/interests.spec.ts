@@ -149,7 +149,7 @@ test('the checked packs are followed and unfollowed at once from the bar', async
 
   // すべて選択 checks every pack, and unchecks them again.
   await all.check()
-  await expect(page.getByText('33個を選択中')).toBeVisible()
+  await expect(page.getByText('34個を選択中')).toBeVisible()
   await all.uncheck()
   await expect(page.getByText('0個を選択中')).toBeVisible()
 
