@@ -2,7 +2,7 @@ require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { validateLibrary } = require('../src/core/wordPacks.ts')
-const { packOverviews, sortPacks, visibleListRows, loneListPack, storedLibrary, matchesPackQuery, matchingListIds, createPackFromLists, updatePack, reorderPackLists, deletePack, saveListInPack } = require('../src/core/packEditing.ts')
+const { packOverviews, sortPacks, visibleListRows, loneListPack, storedLibrary, matchesPackQuery, matchingListIds, createPackFromLists, updatePack, reorderPackLists, deletePack, saveListInPack, packFieldsOf, reconcileOrder, packListChoices } = require('../src/core/packEditing.ts')
 const { duplicateList, MAX_LISTS } = require('../src/core/listOverview.ts')
 const { saveList } = require('../src/core/wordLists.ts')
 
@@ -321,4 +321,28 @@ test('visibleListRows shows every list for an empty query', () => {
 test('loneListPack returns undefined without a pack id', () => {
   const library = { ...twoLists(), lists: twoLists().lists.slice(0, 1) }
   assert.equal(loneListPack(library, undefined), undefined)
+})
+
+test('reconcileOrder keeps the ids that still exist, then adds the new lists', () => {
+  const lists = [list('a', 'A', 'p'), list('b', 'B', 'p'), list('c', 'C', 'p')]
+  assert.deepEqual(reconcileOrder(['b', 'gone', 'a'], lists), ['b', 'a', 'c'])
+})
+
+test('packFieldsOf gives empty values without a pack and the pack values with one', () => {
+  assert.deepEqual(packFieldsOf(), { name: '', description: '', category: '', tags: [] })
+  assert.deepEqual(packFieldsOf({ id: 'p', name: 'Linux', description: 'd', category: 'c', tags: ['x'], createdAt: stamp }),
+    { name: 'Linux', description: 'd', category: 'c', tags: ['x'] })
+  assert.deepEqual(packFieldsOf({ id: 'q', name: 'Go', createdAt: stamp }), { name: 'Go', description: '', category: '', tags: [] })
+})
+
+test('packListChoices finds lists by list or pack name, and names the pack only when it holds two or more of the lists', () => {
+  const lib = library()
+  const choices = query => packListChoices(lib.lists, lib.packs, query)
+  assert.deepEqual(choices('').map(item => item.list.id), ['a', 'g', 'b'])
+  assert.deepEqual(choices('  応用 ').map(item => item.list.id), ['b'])
+  assert.deepEqual(choices('LINUX').map(item => item.list.id), ['a', 'b'])
+  assert.deepEqual(choices('go').map(item => item.list.id), ['g'])
+  assert.deepEqual(choices('none'), [])
+  assert.deepEqual(choices('').map(item => item.inPack), ['Linux', undefined, 'Linux'])
+  assert.deepEqual(choices('応用').map(item => item.inPack), ['Linux'])
 })
