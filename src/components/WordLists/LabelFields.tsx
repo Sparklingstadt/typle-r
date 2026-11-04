@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
 import { Label } from '@/components/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import type { listLabels } from '@/core/listOverview'
+import type { Labels } from '@/core/listOverview'
 import { MAX_CATEGORY, MAX_TAG, MAX_TAGS, normalizeLabels } from '@/core/wordLists'
 
 // A comma (or 、 and ，) ends a tag, so a pasted "Go, CLI" becomes two.
@@ -59,7 +59,7 @@ function LabelPicker({ id, open, onOpenChange, trigger, search, placeholder, max
 export default function LabelFields({ category, tags, suggestions, onCategoryChange, onTagsChange }: {
   category: string
   tags: string[]
-  suggestions: ReturnType<typeof listLabels>
+  suggestions: Labels
   onCategoryChange: (value: string) => void
   onTagsChange: (value: string[]) => void
 }) {

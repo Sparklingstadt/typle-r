@@ -4,9 +4,8 @@ import { Search, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import LabelFilter from "@/components/WordLists/LabelFilter"
 import OrderMenu from "@/components/WordLists/OrderMenu"
-import { isFiltered, NO_FILTER, type ListFilter, type ListOrder, type listLabels } from "@/core/listOverview"
+import { isFiltered, NO_FILTER, type ListFilter, type ListOrder, type Labels } from "@/core/listOverview"
 
-type Labels = ReturnType<typeof listLabels>
 
 export default function ListToolbar({ query, onQueryChange, labels, filter, onFilterChange, order, onOrderChange, shownCount, totalCount, narrowed }: {
   query: string

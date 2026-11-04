@@ -1,7 +1,7 @@
 "use client"
 import { useTranslations } from "next-intl"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import type { listLabels } from "@/core/listOverview"
+import type { Labels } from "@/core/listOverview"
 import type { PackOverview } from "@/core/packEditing"
 import type { PracticeMode } from "@/core/records"
 import ListSearchField from "@/components/Practice/ListSearchField"
@@ -13,7 +13,7 @@ export default function ListPickerDialog({ open, onOpenChange, onCloseAutoFocus,
   onOpenChange: (open: boolean) => void
   onCloseAutoFocus: (event: Event) => void
   packs: PackOverview[]
-  labels: ReturnType<typeof listLabels>
+  labels: Labels
   category: string | null
   onCategoryChange: (value: string | null) => void
   query: string

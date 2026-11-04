@@ -2,10 +2,9 @@
 import { useTranslations } from 'next-intl'
 import { DropdownMenu } from 'radix-ui'
 import { Check, ChevronDown, Folder, Tag } from 'lucide-react'
-import type { ListFilter, listLabels } from '@/core/listOverview'
+import type { ListFilter, Labels } from '@/core/listOverview'
 import { cn } from '@/lib/utils'
 
-type Labels = ReturnType<typeof listLabels>
 
 const trigger = 'inline-flex h-10 max-w-full shrink-0 items-center gap-1.5 rounded-lg border bg-background px-3 text-sm outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 aria-expanded:bg-muted dark:bg-input/30'
 const item = 'relative flex cursor-pointer items-center gap-2 rounded-md py-2 pr-3 pl-8 text-sm outline-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground'

@@ -181,6 +181,8 @@ export function compareInput(target: string, typed: string, missed = false) {
   return { characters, states, extra: actual.slice(characters.length), errorIndex }
 }
 
+export type InputComparison = ReturnType<typeof compareInput>
+
 // Characters to draw for a hidden answer: typed characters are shown, untyped ones become a placeholder (spaces stay).
 export function concealCharacters(characters: string[], states: CharacterState[]): string[] {
   return characters.map((char, index) => {
