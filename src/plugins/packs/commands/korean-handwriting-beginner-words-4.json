@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-beginner-words-4",
+  "name": "韓国語 手書き初級（時間・暦）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き初級単語",
+  "levels": [
+    "時間・暦"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "아침",
+      "input": "achim",
+      "annotation": "achim / 朝",
+      "input_type": "word"
+    },
+    {
+      "display": "점심",
+      "input": "jeomsim",
+      "annotation": "jeomsim / 昼・昼食",
+      "input_type": "word"
+    },
+    {
+      "display": "저녁",
+      "input": "jeonyeok",
+      "annotation": "jeonyeok / 夕方・夕食",
+      "input_type": "word"
+    },
+    {
+      "display": "밤",
+      "input": "bam",
+      "annotation": "bam / 夜",
+      "input_type": "word"
+    },
+    {
+      "display": "월요일",
+      "input": "woryoil",
+      "annotation": "woryoil / 月曜日",
+      "input_type": "word"
+    },
+    {
+      "display": "화요일",
+      "input": "hwayoil",
+      "annotation": "hwayoil / 火曜日",
+      "input_type": "word"
+    },
+    {
+      "display": "수요일",
+      "input": "suyoil",
+      "annotation": "suyoil / 水曜日",
+      "input_type": "word"
+    },
+    {
+      "display": "목요일",
+      "input": "mogyoil",
+      "annotation": "mogyoil / 木曜日",
+      "input_type": "word"
+    },
+    {
+      "display": "금요일",
+      "input": "geumyoil",
+      "annotation": "geumyoil / 金曜日",
+      "input_type": "word"
+    },
+    {
+      "display": "토요일",
+      "input": "toyoil",
+      "annotation": "toyoil / 土曜日",
+      "input_type": "word"
+    },
+    {
+      "display": "일요일",
+      "input": "iryoil",
+      "annotation": "iryoil / 日曜日",
+      "input_type": "word"
+    },
+    {
+      "display": "봄",
+      "input": "bom",
+      "annotation": "bom / 春",
+      "input_type": "word"
+    },
+    {
+      "display": "여름",
+      "input": "yeoreum",
+      "annotation": "yeoreum / 夏",
+      "input_type": "word"
+    },
+    {
+      "display": "가을",
+      "input": "gaeul",
+      "annotation": "gaeul / 秋",
+      "input_type": "word"
+    },
+    {
+      "display": "겨울",
+      "input": "gyeoul",
+      "annotation": "gyeoul / 冬",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-04T00:00:00.000Z"
+}

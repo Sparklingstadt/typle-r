@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-beginner-words-6",
+  "name": "韓国語 手書き初級（形容詞）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き初級単語",
+  "levels": [
+    "形容詞"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "싸다",
+      "input": "ssada",
+      "annotation": "ssada / 安い",
+      "input_type": "word"
+    },
+    {
+      "display": "많다",
+      "input": "manta",
+      "annotation": "manta / 多い",
+      "input_type": "word"
+    },
+    {
+      "display": "적다",
+      "input": "jeokda",
+      "annotation": "jeokda / 少ない",
+      "input_type": "word"
+    },
+    {
+      "display": "길다",
+      "input": "gilda",
+      "annotation": "gilda / 長い",
+      "input_type": "word"
+    },
+    {
+      "display": "짧다",
+      "input": "jjalda",
+      "annotation": "jjalda / 短い",
+      "input_type": "word"
+    },
+    {
+      "display": "덥다",
+      "input": "deopda",
+      "annotation": "deopda / 暑い",
+      "input_type": "word"
+    },
+    {
+      "display": "춥다",
+      "input": "chupda",
+      "annotation": "chupda / 寒い",
+      "input_type": "word"
+    },
+    {
+      "display": "쉽다",
+      "input": "swipda",
+      "annotation": "swipda / 易しい",
+      "input_type": "word"
+    },
+    {
+      "display": "어렵다",
+      "input": "eoryeopda",
+      "annotation": "eoryeopda / 難しい",
+      "input_type": "word"
+    },
+    {
+      "display": "비싸다",
+      "input": "bissada",
+      "annotation": "bissada / （値段が）高い",
+      "input_type": "word"
+    },
+    {
+      "display": "바쁘다",
+      "input": "bappeuda",
+      "annotation": "bappeuda / 忙しい",
+      "input_type": "word"
+    },
+    {
+      "display": "예쁘다",
+      "input": "yeppeuda",
+      "annotation": "yeppeuda / きれいだ",
+      "input_type": "word"
+    },
+    {
+      "display": "나쁘다",
+      "input": "nappeuda",
+      "annotation": "nappeuda / 悪い",
+      "input_type": "word"
+    },
+    {
+      "display": "맛있다",
+      "input": "masitda",
+      "annotation": "masitda / おいしい",
+      "input_type": "word"
+    },
+    {
+      "display": "재미있다",
+      "input": "jaemiitda",
+      "annotation": "jaemiitda / 面白い",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-04T00:00:00.000Z"
+}

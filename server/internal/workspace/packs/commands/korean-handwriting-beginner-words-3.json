@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-beginner-words-3",
+  "name": "韓国語 手書き初級（場所・建物）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き初級単語",
+  "levels": [
+    "場所・建物"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "방",
+      "input": "bang",
+      "annotation": "bang / 部屋",
+      "input_type": "word"
+    },
+    {
+      "display": "교실",
+      "input": "gyosil",
+      "annotation": "gyosil / 教室",
+      "input_type": "word"
+    },
+    {
+      "display": "역",
+      "input": "yeok",
+      "annotation": "yeok / 駅",
+      "input_type": "word"
+    },
+    {
+      "display": "공원",
+      "input": "gongwon",
+      "annotation": "gongwon / 公園",
+      "input_type": "word"
+    },
+    {
+      "display": "시장",
+      "input": "sijang",
+      "annotation": "sijang / 市場",
+      "input_type": "word"
+    },
+    {
+      "display": "식당",
+      "input": "sikdang",
+      "annotation": "sikdang / 食堂",
+      "input_type": "word"
+    },
+    {
+      "display": "회사",
+      "input": "hoesa",
+      "annotation": "hoesa / 会社",
+      "input_type": "word"
+    },
+    {
+      "display": "병원",
+      "input": "byeongwon",
+      "annotation": "byeongwon / 病院",
+      "input_type": "word"
+    },
+    {
+      "display": "약국",
+      "input": "yakguk",
+      "annotation": "yakguk / 薬局",
+      "input_type": "word"
+    },
+    {
+      "display": "은행",
+      "input": "eunhaeng",
+      "annotation": "eunhaeng / 銀行",
+      "input_type": "word"
+    },
+    {
+      "display": "호텔",
+      "input": "hotel",
+      "annotation": "hotel / ホテル",
+      "input_type": "word"
+    },
+    {
+      "display": "공항",
+      "input": "gonghang",
+      "annotation": "gonghang / 空港",
+      "input_type": "word"
+    },
+    {
+      "display": "우체국",
+      "input": "ucheguk",
+      "annotation": "ucheguk / 郵便局",
+      "input_type": "word"
+    },
+    {
+      "display": "도서관",
+      "input": "doseogwan",
+      "annotation": "doseogwan / 図書館",
+      "input_type": "word"
+    },
+    {
+      "display": "편의점",
+      "input": "pyeonuijeom",
+      "annotation": "pyeonuijeom / コンビニ",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-04T00:00:00.000Z"
+}

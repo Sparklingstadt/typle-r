@@ -209,6 +209,12 @@ import list205 from './chinese-hsk6-handwriting-20-words-3.json'
 import list206 from './chinese-hsk6-handwriting-20-words-4.json'
 import list207 from './chinese-hsk6-handwriting-20-words-5.json'
 import list208 from './chinese-hsk6-handwriting-20-words-6.json'
+import list209 from './korean-handwriting-beginner-words-1.json'
+import list210 from './korean-handwriting-beginner-words-2.json'
+import list211 from './korean-handwriting-beginner-words-3.json'
+import list212 from './korean-handwriting-beginner-words-4.json'
+import list213 from './korean-handwriting-beginner-words-5.json'
+import list214 from './korean-handwriting-beginner-words-6.json'
 
 const commands: SavedWordList[] = [
   list0,
@@ -420,6 +426,12 @@ const commands: SavedWordList[] = [
   list206,
   list207,
   list208,
+  list209,
+  list210,
+  list211,
+  list212,
+  list213,
+  list214,
 ].map(list => ({
   ...list,
   words: list.words.map(word => {
