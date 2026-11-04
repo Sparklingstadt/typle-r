@@ -154,12 +154,14 @@ func recordDevice(w *Workspace, input RecordInput) (*Device, error) {
 	case input.DeviceID != nil:
 		device, ok := findDevice(w, *input.DeviceID)
 		if !ok {
-			return nil, &Error{Key: "deviceNotFound"}
+			return nil, deviceMissing()
 		}
 		return device, nil
 	}
 	return nil, nil
 }
+
+func recordMissing() error { return &Error{Key: "recordNotFound"} }
 
 func validTime(value *float64) bool { return finite(value) && *value >= 0 }
 
@@ -204,7 +206,7 @@ func UpdateRecord(w *Workspace, listID, recordID string, change RecordChange) (R
 	}
 	saved := w.Lists[at].FindRecord(recordID)
 	if saved == nil {
-		return Record{}, &Error{Key: "recordNotFound"}
+		return Record{}, recordMissing()
 	}
 	record := *saved
 	invalid := &Error{Key: "invalidRecord"}
@@ -260,7 +262,7 @@ func changedDevice(w *Workspace, id string) (*Device, error) {
 	}
 	device, ok := findDevice(w, id)
 	if !ok {
-		return nil, &Error{Key: "deviceNotFound"}
+		return nil, deviceMissing()
 	}
 	return device, nil
 }
@@ -274,7 +276,7 @@ func DeleteRecord(w *Workspace, listID, recordID string) error {
 	list := &w.Lists[at]
 	i := slices.IndexFunc(list.Records, func(r Record) bool { return recordID != "" && r.ID != nil && *r.ID == recordID })
 	if i < 0 {
-		return &Error{Key: "recordNotFound"}
+		return recordMissing()
 	}
 	list.Records = slices.Delete(list.Records, i, i+1)
 	return nil
