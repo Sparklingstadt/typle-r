@@ -1,7 +1,8 @@
 "use client"
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { ChevronDown, ChevronRight, Search, TrendingUp, Trophy, X } from 'lucide-react'
+import { ChevronDown, ChevronRight, TrendingUp, Trophy } from 'lucide-react'
+import { ClearableSearchField } from '@/components/ui/search-field'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useFormat } from '@/i18n/useFormat'
@@ -38,16 +39,7 @@ export default function RankingList({ packs, selectedId, filtered, sort, onSort,
   const unpractised = matches.filter(({ item }) => !item.items.some(ranking => ranking.ranked.length))
   return <>
     <div className="flex items-center gap-2 border-b p-3">
-      <label className="relative min-w-0 flex-1">
-        <span className="sr-only">{t('search')}</span>
-        <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-        <input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={t('search')}
-          className="h-9 w-full rounded-lg border border-input bg-transparent pr-8 pl-8 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30 [&::-webkit-search-cancel-button]:hidden" />
-        {query && <button type="button" aria-label={t('clearSearch')} onClick={() => setQuery('')}
-          className="absolute top-1/2 right-1.5 grid size-6 -translate-y-1/2 place-items-center rounded-md text-muted-foreground outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50">
-          <X className="size-3.5" aria-hidden="true" />
-        </button>}
-      </label>
+      <ClearableSearchField value={query} onChange={setQuery} label={t('search')} clearLabel={t('clearSearch')} size="sm" inputClassName="bg-transparent" />
       <SortMenu value={sort} onChange={onSort} />
     </div>
     {practised.length > 0 && <ul className="space-y-0.5 p-1.5">

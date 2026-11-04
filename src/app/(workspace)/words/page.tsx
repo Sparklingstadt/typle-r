@@ -3,7 +3,8 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
-import { ChevronsUpDown, CircleAlert, Keyboard, ListPlus, Pencil, Plus, RotateCw, Search } from "lucide-react"
+import { ChevronsUpDown, CircleAlert, Keyboard, ListPlus, Pencil, Plus, RotateCw } from "lucide-react"
+import { SearchField } from "@/components/ui/search-field"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -105,7 +106,7 @@ function WordsView({ lists, packs }: { lists: SavedWordList[]; packs: WordPack[]
       <aside aria-label={t('lists')} className="hidden lg:sticky lg:top-20 lg:flex lg:max-h-[calc(100dvh-9rem)] lg:flex-col">
         <Card className="min-h-0 gap-1 p-3">
           <h2 className="pl-2 text-[15px] font-bold">{t('lists')}</h2>
-          <SearchField value={query} onChange={setQuery} className="mx-1 mt-1 mb-1 h-9 shrink-0" />
+          <WordSearch value={query} onChange={setQuery} className="mx-1 mt-1 mb-1 h-9 shrink-0" />
           <div className="mx-1 mb-1"><CategorySelect labels={labels} value={category} onChange={setCategory} /></div>
           <div ref={asideLists} className="max-h-[36rem] min-h-0 overflow-y-auto overscroll-contain">
             {asideFiltered.length ? <WordListOptions label={t('lists')} packs={asideFiltered} selectedId={list.id} query={query} onSelect={id => { setQuery(''); choose(id) }} />
@@ -134,7 +135,7 @@ function WordsView({ lists, packs }: { lists: SavedWordList[]; packs: WordPack[]
                   <DialogTitle>{t('pickerTitle')}</DialogTitle>
                   <DialogDescription>{t('pickerDescription')}</DialogDescription>
                 </DialogHeader>
-                <SearchField value={pickerQuery} onChange={setPickerQuery} className="h-10" />
+                <WordSearch value={pickerQuery} onChange={setPickerQuery} className="h-10" />
                 <CategorySelect labels={labels} value={category} onChange={setCategory} className="h-10 w-full min-w-0 rounded-lg border bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30" />
                 <div className="-mx-1 max-h-[min(28rem,calc(100dvh-18rem))] overflow-y-auto overscroll-contain px-1">
                   {pickerFiltered.length ? <WordListOptions label={t('candidates')} packs={pickerFiltered} selectedId={list.id} query={pickerQuery} onSelect={choose} />
@@ -152,13 +153,9 @@ function WordsView({ lists, packs }: { lists: SavedWordList[]; packs: WordPack[]
   </div>
 }
 
-function SearchField({ value, onChange, className }: { value: string; onChange: (value: string) => void; className: string }) {
+function WordSearch({ value, onChange, className }: { value: string; onChange: (value: string) => void; className: string }) {
   const t = useTranslations('wordLists.words')
-  return <label className={`flex items-center gap-2 rounded-lg border px-3 text-muted-foreground focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 ${className}`}>
-    <Search className="size-4 shrink-0" aria-hidden="true" />
-    <input type="search" value={value} onChange={event => onChange(event.target.value)} placeholder={t('filter')} aria-label={t('filter')} autoComplete="off"
-      className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" />
-  </label>
+  return <SearchField value={value} onChange={onChange} placeholder={t('filter')} ariaLabel={t('filter')} className={className} />
 }
 
 // Two columns at every width: the number, and the text to type with the shown word and the note under it. The shown

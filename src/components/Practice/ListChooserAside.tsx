@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import type { listLabels } from "@/core/listOverview"
 import type { PackOverview } from "@/core/packEditing"
 import type { PracticeMode } from "@/core/records"
-import ListSearchField from "@/components/Practice/ListSearchField"
+import { SearchField } from "@/components/ui/search-field"
 import CategorySelect from "@/components/Practice/CategorySelect"
 import WordListOptions from "@/components/Practice/WordListOptions"
 
@@ -45,8 +45,7 @@ export default function ListChooserAside({ open, packs, labels, category, onCate
         <span className="flex-1" />
         <Button variant="ghost" size="lg" asChild><Link href="/packs/create"><Plus aria-hidden="true" />{t('aside.create')}</Link></Button>
       </div>
-      <ListSearchField value={query} onChange={onQueryChange} placeholder={t('picker.filter')} ariaLabel={t('aside.filter')}
-        className="mx-1 mt-1 mb-1 flex h-9 items-center gap-2 rounded-lg border px-3 text-muted-foreground focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50" />
+      <SearchField value={query} onChange={onQueryChange} placeholder={t('picker.filter')} ariaLabel={t('aside.filter')} className="mx-1 mt-1 mb-1 h-9" />
       <div className="mx-1 mb-1"><CategorySelect labels={labels} value={category} onChange={onCategoryChange} /></div>
       {/* Its own scroll area, so a long collection never pushes the page far below the practice card. */}
       <div ref={asideLists} className="max-h-96 overflow-y-auto overscroll-contain lg:max-h-[min(36rem,calc(100dvh-14rem))]">
