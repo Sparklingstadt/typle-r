@@ -135,7 +135,12 @@ func (s *Store) Read(ctx context.Context, owner string) (*workspace.Workspace, e
 	if err != nil {
 		return nil, err
 	}
-	w, err := workspace.Decode(saved.Lists, saved.Devices, saved.Packs)
+	return decodeSaved(owner, saved.Lists, saved.Devices, saved.Packs)
+}
+
+// decodeSaved reads a workspace as it is stored, naming the owner whose saved data cannot be read.
+func decodeSaved(owner string, lists, devices, packs []byte) (*workspace.Workspace, error) {
+	w, err := workspace.Decode(lists, devices, packs)
 	if err != nil {
 		return nil, fmt.Errorf("saved workspace of %s: %w", owner, err)
 	}
@@ -252,9 +257,9 @@ func lock(ctx context.Context, tx pgx.Tx, owner string) (w *workspace.Workspace,
 					return nil, nil, fmt.Errorf("saved workspace of %s: %w", owner, err)
 				}
 			}
-			w, err := workspace.Decode(lists, devices, packs)
+			w, err := decodeSaved(owner, lists, devices, packs)
 			if err != nil {
-				return nil, nil, fmt.Errorf("saved workspace of %s: %w", owner, err)
+				return nil, nil, err
 			}
 			return w, before, nil
 		}
@@ -323,8 +328,8 @@ func (s *Store) ReadRevision(ctx context.Context, owner string) (*Saved, error) 
 	if err != nil {
 		return nil, err
 	}
-	if _, err := workspace.Decode(saved.Lists, saved.Devices, saved.Packs); err != nil {
-		return nil, fmt.Errorf("saved workspace of %s: %w", owner, err)
+	if _, err := decodeSaved(owner, saved.Lists, saved.Devices, saved.Packs); err != nil {
+		return nil, err
 	}
 	if _, err := workspace.DecodeInterests(saved.Interests); err != nil {
 		return nil, fmt.Errorf("saved interests of %s: %w", owner, err)

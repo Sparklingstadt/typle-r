@@ -5,7 +5,7 @@ import { Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import DeleteConfirmation from "@/components/DeleteConfirmation"
 import { useFormat } from "@/i18n/useFormat"
-import { focusAfterRemoval } from "@/lib/focusAfterRemoval"
+import { focusAfterRemoval, LIST_FOCUS_TARGETS } from "@/lib/focusAfterRemoval"
 import type { ListOverview } from "@/core/listOverview"
 import type { SavedWordList } from "@/core/wordLists"
 
@@ -27,7 +27,7 @@ export default function DeleteListDialog({ state, lonePackName, now, onOpenChang
     description={[item.practiceCount ? t('delete.withRecords') : t('delete.listOnly'), lonePackName ? t('delete.lastInPack', { name: lonePackName }) : ''].filter(Boolean).join(' ')}
     // After a deletion, focus the row that took the removed row's place so the next list can be handled too.
     onCloseAutoFocus={event => {
-      focusAfterRemoval(event, '[data-list-id] [data-edit]', state.position, deleted.current)
+      focusAfterRemoval(event, LIST_FOCUS_TARGETS, state.position, deleted.current)
       deleted.current = false
     }}
     onConfirm={async () => {

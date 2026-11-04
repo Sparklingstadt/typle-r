@@ -141,15 +141,7 @@ func exportPack(w http.ResponseWriter, r *http.Request, ws *workspace.Workspace)
 // modifyPack is modify for a change that makes or edits one pack, which it answers with in its saved shape.
 func (s *server) modifyPack(w http.ResponseWriter, r *http.Request, owner string, status int,
 	change func(*workspace.Workspace) (*workspace.Pack, error)) {
-	var id string
-	saved := s.save(w, r, owner, func(ws *workspace.Workspace) (bool, error) {
-		pack, err := change(ws)
-		if err != nil {
-			return false, err
-		}
-		id = pack.ID
-		return true, nil
-	})
+	saved, id := changeOne(s, w, r, owner, change, func(pack *workspace.Pack) string { return pack.ID })
 	if saved == nil {
 		return
 	}
