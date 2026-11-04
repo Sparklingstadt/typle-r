@@ -24,17 +24,8 @@ import { currentRecordCount } from "@/core/listOverview"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import LevelFields from "@/components/WordLists/LevelFields"
 import FieldError from "@/components/WordLists/FieldError"
+import { MAX_WORDS, WRITING_DEFAULTS, draftProblems, draftSnapshot, emptyWord, isFilledWord, normalizeWord, savedWords, type Word } from "@/core/wordDraft"
 
-type Word = SavedWordList["words"][number]
-const MAX_WORDS = 1000
-const emptyWord = (): Word => ({ display: "", input: "", annotation: "", input_type: "word" })
-// An input equal to the display is shown as empty; saving uses the display for empty inputs.
-const normalize = (word: Word): Word => ({ ...word, input: word.input === word.display ? "" : word.input, input_type: word.input_type ?? "word" })
-const snapshot = (name: string, packId: string | null, levels: string[], writing: WritingLanguage | null, words: Word[]) =>
-  JSON.stringify([name, packId, levels, writing, words.map(word => [word.display, word.input, word.annotation, word.input_type ?? "word"])])
-// The recognition language a list starts with when the switch is turned on: the display language, or English when it has no counterpart.
-const WRITING_DEFAULTS: Record<string, WritingLanguage> = { ja: "ja", en: "en", fr: "fr", ru: "ru", "zh-CN": "zh-Hans", "zh-TW": "zh-Hant" }
-const isFilled = (word: Word) => !!(word.display || word.input || word.annotation)
 const menuItem = "flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:size-4"
 
 function Kbd({ children }: { children: string }) {
@@ -90,13 +81,13 @@ export default function WordListEditor({ title, description, storage, initial, p
   })
   const [chosenPack, setChosenPack] = useState<string | null>(firstPackId)
   const [levels, setLevels] = useState(initial?.levels ?? [])
-  const [words, setWords] = useState(() => (initial?.words ?? [emptyWord()]).map((word, index) => ({ ...normalize(word), key: `initial-${index}` })))
+  const [words, setWords] = useState(() => (initial?.words ?? [emptyWord()]).map((word, index) => ({ ...normalizeWord(word), key: `initial-${index}` })))
   const locale = useLocale()
   // `null` is off; the list then has no `writing` mark at all.
   const [writing, setWriting] = useState<WritingLanguage | null>(initial?.writing?.language ?? null)
-  const [initialSnapshot] = useState(() => snapshot(initial?.name ?? "", firstPackId, initial?.levels ?? [], initial?.writing?.language ?? null, (initial?.words ?? [emptyWord()]).map(normalize)))
+  const [initialSnapshot] = useState(() => draftSnapshot(initial?.name ?? "", firstPackId, initial?.levels ?? [], initial?.writing?.language ?? null, (initial?.words ?? [emptyWord()]).map(normalizeWord)))
   const leavingLonePack = !!lonePackName && !!initial?.packId && chosenPack !== initial.packId
-  const dirty = snapshot(name, chosenPack, levels, writing, words) !== initialSnapshot || packDirty
+  const dirty = draftSnapshot(name, chosenPack, levels, writing, words) !== initialSnapshot || packDirty
 
   const draftId = useRef<string | undefined>(undefined)
   const [saving, setSaving] = useState(false)
@@ -114,12 +105,10 @@ export default function WordListEditor({ title, description, storage, initial, p
   }, [dirty])
 
   // Errors appear after the first save attempt and then follow the user's edits.
-  const problems: { id: string; message: string }[] = []
-  if (!name.trim()) problems.push({ id: nameId, message: errors("listNameRequired") })
-  for (const word of words) {
-    if (!word.display.trim()) problems.push({ id: displayId(word.key), message: t("displayRequired") })
-    else if (word.input && !word.input.trim()) problems.push({ id: inputId(word.key), message: t("inputBlank") })
-  }
+  const problems = draftProblems(name, words).map(problem =>
+    problem.field === "name" ? { id: nameId, message: errors("listNameRequired") }
+    : problem.field === "display" ? { id: displayId(problem.key), message: t("displayRequired") }
+    : { id: inputId(problem.key), message: t("inputBlank") })
   const shown = submitted ? problems : []
   const errorFor = (id: string) => shown.find(problem => problem.id === id)?.message
 
@@ -211,7 +200,7 @@ export default function WordListEditor({ title, description, storage, initial, p
     if (words[index]?.display.trim()) addWord()
   }
 
-  const filled = words.filter(isFilled)
+  const filled = words.filter(isFilledWord)
   // Changing the word count changes the task: runs at the old count stay, but no longer count towards the best.
   const ranked = initial ? currentRecordCount(initial) : 0
   const recount = ranked > 0 && filled.length !== initial?.words.length
@@ -228,7 +217,7 @@ export default function WordListEditor({ title, description, storage, initial, p
     try {
       // The category, tags and group are the pack's, so the list does not carry them.
       const saved = await onSave({ id: draftId.current, name, levels, packId: initial?.packId, ...(writing ? { writing: { language: writing } } : {}),
-        words: words.map(({ key, ...word }) => ({ ...word, input: word.input || word.display })),
+        words: savedWords(words),
         records: initial?.records ?? [], createdAt: initial?.createdAt ?? new Date().toISOString() }, packFields ? null : chosenPack)
       if (!saved) setFailure(current => ({ count: current.count + 1, name, pack: chosenPack, levels: JSON.stringify(levels) }))
     } finally { setSaving(false) }
@@ -290,7 +279,7 @@ export default function WordListEditor({ title, description, storage, initial, p
             <WordListImport disabled={saving} existingCount={filled.length} onImport={(imported, filename, mode) => {
               const current = mode === "replace" ? [] : filled
               if (current.length + imported.length > MAX_WORDS) throw new AppError("importTooManyRows")
-              setWords([...current, ...imported.map(word => ({ ...normalize(word), key: randomId() }))])
+              setWords([...current, ...imported.map(word => ({ ...normalizeWord(word), key: randomId() }))])
               setName(value => value.trim() ? value : filename)
               setNotice(t(current.length ? "added" : "loaded", { count: imported.length }))
             }} />
