@@ -39,6 +39,7 @@ test('upcomingWords returns up to three words and the rest', () => {
 
 test('oneLineDisplay joins code lines with two spaces and leaves other words alone', () => {
   assert.equal(oneLineDisplay(word('a\r\nb\nc', 'code')), 'a  b  c')
+  assert.equal(oneLineDisplay(word('a\rb', 'code')), 'a  b')
   assert.equal(oneLineDisplay(word('a\nb')), 'a\nb')
 })
 

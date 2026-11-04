@@ -35,7 +35,7 @@ import BestRecordsCard from "@/components/Practice/BestRecordsCard"
 import ListChooserAside from "@/components/Practice/ListChooserAside"
 import ListPickerDialog from "@/components/Practice/ListPickerDialog"
 import SwitchConfirmDialog from "@/components/Practice/SwitchConfirmDialog"
-import PracticeName, { usePracticeName } from "@/components/PracticeName"
+import { usePracticeName } from "@/components/PracticeName"
 import PracticeResult from "@/components/Practice/PracticeResult"
 import PracticeProgress from "@/components/Practice/PracticeProgress"
 import LiveStats from "@/components/Practice/LiveStats"
@@ -97,8 +97,6 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   // WritingPractice reports its run, so switching lists asks first and the device stays locked as when typing.
   const [writingRun, setWritingRun] = useState<WritingRun | null>(null)
   const typingRunning = started && !finished
-  // Handwriting takes over the card; otherwise a started run keeps the mode it began in, like its device, and the
-  // recall choice applies from the next run. Handwriting never combines with recall.
   const mode: PracticeMode = currentMode(writingChoice, started, practiceMode, chosenMode)
   const recall = mode === 'recall'
   const running = mode === 'writing' ? writingRun !== null : typingRunning
@@ -119,7 +117,6 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   const showResume = mode !== 'writing' && focusedOnce && !inputFocused && !finished && !dialogOpen && words.length > 0
 
   const { focusInput, focusPractice, rememberOpener, closePicker, focusTypingNext } = usePracticeFocus({ mode, finished, input, showResume, writingChoice })
-  // The picker is opened from buttons that are not its Radix trigger, so remember where focus should return.
   function openPicker() {
     rememberOpener()
     setPickerOpen(true)
@@ -191,9 +188,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
             onCompositionStart={startComposition} onCompositionEnd={endComposition} onChange={changeInput} />
           {statsVisible && <LiveStats mode={mode} session={session} accuracy={result.accuracy} />}
           {/* The coming words would give away the answers in recall mode. */}
-          {!recall && <div className="flex min-h-14 flex-wrap items-center gap-2 border-t px-4 py-2.5 sm:pr-3 sm:pl-6">
-            <UpcomingWords words={words} index={session.index} showAll={showAll} onToggleAll={() => { setShowAll(value => !value); focusInput() }} />
-          </div>}
+          {!recall && <UpcomingWords words={words} index={session.index} showAll={showAll} onToggleAll={() => { setShowAll(value => !value); focusInput() }} />}
         </>}
         </>}
       </Card>

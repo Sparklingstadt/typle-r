@@ -23,7 +23,7 @@ export default function UpcomingWords({ words, index, showAll, onToggleAll }: {
     if (box && current) box.scrollTop = current.offsetTop - 48
   }, [showAll, index])
 
-  return <>
+  return <div className="flex min-h-14 flex-wrap items-center gap-2 border-t px-4 py-2.5 sm:pr-3 sm:pl-6">
     <span className="text-xs text-muted-foreground">{t('upcoming.next')}</span>
     {next.map((item, index) => <span key={index} className="inline-flex h-7 max-w-full items-center rounded-full border px-3 text-[13px] text-muted-foreground" title={item.display}><span className="truncate whitespace-pre">{oneLineDisplay(item)}</span></span>)}
     {!next.length && <span className="text-xs text-muted-foreground">{t('upcoming.last')}</span>}
@@ -48,5 +48,5 @@ export default function UpcomingWords({ words, index, showAll, onToggleAll }: {
         </li>
       })}
     </ul>}
-  </>
+  </div>
 }
