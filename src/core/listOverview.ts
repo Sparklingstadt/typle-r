@@ -98,6 +98,8 @@ export function listLabels(lists: Pick<SavedWordList, 'category' | 'tags'>[], lo
   }
 }
 
+export type Labels = ReturnType<typeof listLabels>
+
 /** A list's name in its group: its levels, such as 基本・初級, or its name when it has none. */
 export function levelName(list: Pick<SavedWordList, 'name' | 'levels'>, separator = '・') {
   return list.levels?.length ? list.levels.join(separator) : list.name

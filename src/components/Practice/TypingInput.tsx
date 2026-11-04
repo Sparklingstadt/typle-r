@@ -3,14 +3,14 @@ import type { RefObject } from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { ArrowRight, CircleAlert } from "lucide-react"
-import type { compareInput, TypingSession } from "@/core/typing"
+import type { InputComparison, TypingSession } from "@/core/typing"
 import Kbd from "./Kbd"
 
 export default function TypingInput({ inputRef, session, composition, comparison, simpleKeys, onFocus, onBlur, onRestart, onCompositionStart, onCompositionEnd, onChange }: {
   inputRef: RefObject<HTMLInputElement | null>
   session: TypingSession
   composition: string | null
-  comparison: ReturnType<typeof compareInput>
+  comparison: InputComparison
   simpleKeys: [string, string][]
   onFocus: () => void
   onBlur: () => void
