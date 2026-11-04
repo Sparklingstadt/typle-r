@@ -2,7 +2,7 @@ require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { validateLibrary } = require('../src/core/wordPacks.ts')
-const { packOverviews, matchesPackQuery, matchingListIds, createPackFromLists, updatePack, reorderPackLists, deletePack, saveListInPack } = require('../src/core/packEditing.ts')
+const { packOverviews, sortPacks, visibleListRows, loneListPack, storedLibrary, matchesPackQuery, matchingListIds, createPackFromLists, updatePack, reorderPackLists, deletePack, saveListInPack } = require('../src/core/packEditing.ts')
 const { duplicateList, MAX_LISTS } = require('../src/core/listOverview.ts')
 const { saveList } = require('../src/core/wordLists.ts')
 
@@ -273,4 +273,52 @@ test('saveListInPack sets and removes writing', () => {
 test('duplicateList keeps writing', () => {
   const lists = [list('a', 'A', 'p', { writing: { language: 'fr' } })]
   assert.deepEqual(duplicateList(lists, 'a', 'b', n => `（${n}）`).copy.writing, { language: 'fr' })
+})
+
+const overview = (name, position, lastPracticed = null, wordCount = 1) => ({ pack: { name }, position, wordCount, lastPracticed })
+const twoLists = () => ({
+  packs: [{ id: 'p', name: 'Linux', category: 'プログラミング', tags: [], createdAt: stamp }],
+  lists: [list('a', 'Files', 'p', { words: words('ls') }), list('b', 'Moves', 'p', { words: words('cd') })],
+})
+test('sortPacks sorts by name, then newest position', () => {
+  const sorted = sortPacks([overview('b', 1), overview('a', 2), overview('a', 3)], 'name', 'en')
+  assert.deepEqual(sorted.map(item => [item.pack.name, item.position]), [['a', 3], ['a', 2], ['b', 1]])
+})
+test('sortPacks puts unpractised packs last for practiced', () => {
+  const sorted = sortPacks([overview('new', 2), overview('old', 1, 100)], 'practiced', 'en')
+  assert.deepEqual(sorted.map(item => item.pack.name), ['old', 'new'])
+})
+test('visibleListRows shows only the lists found by their words', () => {
+  const [item] = packOverviews(twoLists())
+  assert.deepEqual(visibleListRows(item, 'cd').map(row => row.list.id), ['b'])
+})
+test('visibleListRows shows every list when the pack name matches', () => {
+  const [item] = packOverviews(twoLists())
+  assert.deepEqual(visibleListRows(item, 'linux').map(row => row.list.id), ['a', 'b'])
+})
+test('loneListPack returns the pack only when it has one list', () => {
+  const library = twoLists()
+  assert.equal(loneListPack(library, 'p'), undefined)
+  assert.equal(loneListPack({ ...library, lists: library.lists.slice(0, 1) }, 'p')?.id, 'p')
+})
+test('storedLibrary removes the labels the screens add to lists', () => {
+  const library = twoLists()
+  const labelled = { ...library, lists: library.lists.map(item => ({ ...item, group: 'g', category: 'c', tags: ['t'] })) }
+  assert.deepEqual(storedLibrary(labelled), library)
+})
+test('sortPacks sorts by words, then newest position', () => {
+  const sorted = sortPacks([overview('a', 1, null, 2), overview('b', 2, null, 5), overview('c', 3, null, 2)], 'words', 'en')
+  assert.deepEqual(sorted.map(item => item.pack.name), ['b', 'c', 'a'])
+})
+test('sortPacks puts the largest position first for added', () => {
+  const sorted = sortPacks([overview('a', 1), overview('b', 3), overview('c', 2)], 'added', 'en')
+  assert.deepEqual(sorted.map(item => item.pack.name), ['b', 'c', 'a'])
+})
+test('visibleListRows shows every list for an empty query', () => {
+  const [item] = packOverviews(twoLists())
+  assert.deepEqual(visibleListRows(item, '').map(row => row.list.id), ['a', 'b'])
+})
+test('loneListPack returns undefined without a pack id', () => {
+  const library = { ...twoLists(), lists: twoLists().lists.slice(0, 1) }
+  assert.equal(loneListPack(library, undefined), undefined)
 })
