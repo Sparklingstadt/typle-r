@@ -38,7 +38,7 @@ and one release at a time:
    the `deploy` job in `.github/workflows/ci.yml` against
    `https://typle-r-six.vercel.app`, and publish `api-docs/` as `docs-deploy` does.
    This is the only case in which `api-docs/` is published from a local
-   `wrangler` (the version pinned as `WRANGLER_VERSION` in `ci.yml`).
+   `wrangler` (the version pinned as `WRANGLER_VERSION` in `docs-deploy.yml`).
 
 ## コードとコミットの規約
 

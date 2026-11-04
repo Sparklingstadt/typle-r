@@ -103,7 +103,8 @@ jobs:
           key: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**', 'public/**', 'next.config.mjs', 'postcss.config.mjs', 'tsconfig.json') }}
           restore-keys: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
       - run: npm run build
-      # The API documentation (api-docs/) is its own npm project, published to Cloudflare Pages by docs-deploy.
+      # The API documentation (api-docs/) is its own npm project, built and checked here and published by hand with
+      # docs-deploy.yml.
       - name: Build API documentation
         working-directory: api-docs
         run: |
@@ -256,84 +257,3 @@ jobs:
           status=$(curl --silent --show-error --retry 3 --max-time 60 --request POST --header 'Content-Type: application/json' --data '{}' --output "$RUNNER_TEMP/token-response" --write-out '%{http_code}' https://typle-r-six.vercel.app/api/auth/token)
           body=$(cat "$RUNNER_TEMP/token-response")
           test "$status $body" = '400 {"error":"loginFailed"}' || { echo "Expected the token exchange to answer 400 loginFailed, got $status $body"; exit 1; }
-
-  # The API documentation goes to Cloudflare Pages after the app's production deployment, from the same released
-  # commit, so a failure here never holds back the app. It is retried at this job, never published by hand.
-  docs-deploy:
-    needs: [release, deploy]
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    environment:
-      name: production
-      url: ${{ steps.docs.outputs.url }}
-    permissions:
-      contents: read
-    # CLOUDFLARE_API_TOKEN is given only to the steps that need it, never to the CLI's installation.
-    env:
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      CLOUDFLARE_PAGES_PROJECT: typle-api-docs
-      WRANGLER_VERSION: 4.151.0
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          ref: ${{ needs.release.outputs.sha }}
-          persist-credentials: false
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: '24'
-          cache: npm
-          cache-dependency-path: api-docs/package-lock.json
-      - name: Check Cloudflare credentials
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: |
-          test -n "$CLOUDFLARE_API_TOKEN" || { echo 'Missing CLOUDFLARE_API_TOKEN'; exit 1; }
-          test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo 'Missing CLOUDFLARE_ACCOUNT_ID'; exit 1; }
-      - name: Build API documentation
-        working-directory: api-docs
-        run: |
-          npm ci
-          npm run docs:build
-          npm run docs:check
-      # As with the Vercel CLI: a pinned version in its own prefix, cached by version on main only, installed without
-      # running its dependencies' install scripts.
-      - name: Cache pinned Wrangler
-        id: wrangler-cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        with:
-          path: ~/.wrangler-cli
-          key: wrangler-${{ runner.os }}-node24-${{ env.WRANGLER_VERSION }}-ignore-scripts
-      - name: Install pinned Wrangler
-        if: steps.wrangler-cache.outputs.cache-hit != 'true'
-        run: npm install --global --ignore-scripts --prefix "$HOME/.wrangler-cli" "wrangler@$WRANGLER_VERSION"
-      - name: Use pinned Wrangler
-        run: |
-          echo "$HOME/.wrangler-cli/bin" >> "$GITHUB_PATH"
-          "$HOME/.wrangler-cli/bin/wrangler" --version
-      - name: Create the Pages project if it is missing
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: |
-          if wrangler pages project list --json | jq -e --arg name "$CLOUDFLARE_PAGES_PROJECT" 'any(.[]; .["Project Name"] == $name)' > /dev/null; then
-            echo "Pages project $CLOUDFLARE_PAGES_PROJECT exists"
-          else
-            wrangler pages project create "$CLOUDFLARE_PAGES_PROJECT" --production-branch main
-          fi
-      - name: Deploy API documentation
-        id: docs
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          SOURCE_SHA: ${{ needs.release.outputs.sha }}
-        run: |
-          wrangler pages deploy api-docs/src/.vuepress/dist --project-name "$CLOUDFLARE_PAGES_PROJECT" --branch main --commit-hash "$SOURCE_SHA" --commit-dirty=false | tee "$RUNNER_TEMP/pages-deploy.log"
-          url=$(grep -o 'https://[A-Za-z0-9.-]*\.pages\.dev' "$RUNNER_TEMP/pages-deploy.log" | tail -n 1)
-          test -n "$url" || { echo 'No deployment URL in the Wrangler output'; exit 1; }
-          echo "url=$url" >> "$GITHUB_OUTPUT"
-          printf 'API documentation: %s\n' "$url" >> "$GITHUB_STEP_SUMMARY"
-      - name: Check the deployed documentation
-        env:
-          URL: ${{ steps.docs.outputs.url }}
-        run: |
-          for page in / /app/ /v1/ /openapi.html; do
-            curl --fail --silent --show-error --location --retry 5 --retry-all-errors --max-time 60 "$URL$page" | grep -q 'Typle API' || { echo "Expected $URL$page to be the API documentation"; exit 1; }
-          done
