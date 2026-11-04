@@ -2,7 +2,7 @@
 import { useState } from "react"
 import { useTranslations } from "next-intl"
 import { downloadPackFile, downloadWordCsv } from "@/components/WordListExport"
-import { useWordLists } from "@/lib/useWordLists"
+import type { Workspace } from "@/lib/useWordLists"
 import { useErrorText } from "@/i18n/useErrorText"
 import { AppError } from "@/core/appError"
 import { MAX_IMPORT_BYTES } from "@/core/wordFormat"
@@ -12,8 +12,6 @@ import { duplicateList } from "@/core/listOverview"
 import { storedLibrary, type PackOverview } from "@/core/packEditing"
 import type { SavedWordList } from "@/core/wordLists"
 import type { Library } from "@/core/wordPacks"
-
-type Workspace = ReturnType<typeof useWordLists>
 
 export function useListActions({ packs, lists, update, updateLibrary, notify, onPackCreated, onListCopied }: {
   packs: Workspace['packs']
