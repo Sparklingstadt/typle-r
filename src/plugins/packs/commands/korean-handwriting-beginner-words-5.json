@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-beginner-words-5",
+  "name": "韓国語 手書き初級（動詞）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き初級単語",
+  "levels": [
+    "動詞"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "오다",
+      "input": "oda",
+      "annotation": "oda / 来る",
+      "input_type": "word"
+    },
+    {
+      "display": "보다",
+      "input": "boda",
+      "annotation": "boda / 見る",
+      "input_type": "word"
+    },
+    {
+      "display": "사다",
+      "input": "sada",
+      "annotation": "sada / 買う",
+      "input_type": "word"
+    },
+    {
+      "display": "자다",
+      "input": "jada",
+      "annotation": "jada / 寝る",
+      "input_type": "word"
+    },
+    {
+      "display": "쓰다",
+      "input": "sseuda",
+      "annotation": "sseuda / 書く",
+      "input_type": "word"
+    },
+    {
+      "display": "읽다",
+      "input": "ikda",
+      "annotation": "ikda / 読む",
+      "input_type": "word"
+    },
+    {
+      "display": "듣다",
+      "input": "deutda",
+      "annotation": "deutda / 聞く",
+      "input_type": "word"
+    },
+    {
+      "display": "앉다",
+      "input": "anda",
+      "annotation": "anda / 座る",
+      "input_type": "word"
+    },
+    {
+      "display": "마시다",
+      "input": "masida",
+      "annotation": "masida / 飲む",
+      "input_type": "word"
+    },
+    {
+      "display": "만나다",
+      "input": "mannada",
+      "annotation": "mannada / 会う",
+      "input_type": "word"
+    },
+    {
+      "display": "배우다",
+      "input": "baeuda",
+      "annotation": "baeuda / 学ぶ",
+      "input_type": "word"
+    },
+    {
+      "display": "일하다",
+      "input": "ilhada",
+      "annotation": "ilhada / 働く",
+      "input_type": "word"
+    },
+    {
+      "display": "일어나다",
+      "input": "ireonada",
+      "annotation": "ireonada / 起きる",
+      "input_type": "word"
+    },
+    {
+      "display": "가르치다",
+      "input": "gareuchida",
+      "annotation": "gareuchida / 教える",
+      "input_type": "word"
+    },
+    {
+      "display": "공부하다",
+      "input": "gongbuhada",
+      "annotation": "gongbuhada / 勉強する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-04T00:00:00.000Z"
+}

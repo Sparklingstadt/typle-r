@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-beginner-words-1",
+  "name": "韓国語 手書き初級（家族・人）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き初級単語",
+  "levels": [
+    "家族・人"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "아버지",
+      "input": "abeoji",
+      "annotation": "abeoji / 父",
+      "input_type": "word"
+    },
+    {
+      "display": "어머니",
+      "input": "eomeoni",
+      "annotation": "eomeoni / 母",
+      "input_type": "word"
+    },
+    {
+      "display": "할아버지",
+      "input": "harabeoji",
+      "annotation": "harabeoji / 祖父",
+      "input_type": "word"
+    },
+    {
+      "display": "할머니",
+      "input": "halmeoni",
+      "annotation": "halmeoni / 祖母",
+      "input_type": "word"
+    },
+    {
+      "display": "형",
+      "input": "hyeong",
+      "annotation": "hyeong / （男性から見た）兄",
+      "input_type": "word"
+    },
+    {
+      "display": "누나",
+      "input": "nuna",
+      "annotation": "nuna / （男性から見た）姉",
+      "input_type": "word"
+    },
+    {
+      "display": "오빠",
+      "input": "oppa",
+      "annotation": "oppa / （女性から見た）兄",
+      "input_type": "word"
+    },
+    {
+      "display": "언니",
+      "input": "eonni",
+      "annotation": "eonni / （女性から見た）姉",
+      "input_type": "word"
+    },
+    {
+      "display": "남동생",
+      "input": "namdongsaeng",
+      "annotation": "namdongsaeng / 弟",
+      "input_type": "word"
+    },
+    {
+      "display": "여동생",
+      "input": "yeodongsaeng",
+      "annotation": "yeodongsaeng / 妹",
+      "input_type": "word"
+    },
+    {
+      "display": "아들",
+      "input": "adeul",
+      "annotation": "adeul / 息子",
+      "input_type": "word"
+    },
+    {
+      "display": "딸",
+      "input": "ttal",
+      "annotation": "ttal / 娘",
+      "input_type": "word"
+    },
+    {
+      "display": "남편",
+      "input": "nampyeon",
+      "annotation": "nampyeon / 夫",
+      "input_type": "word"
+    },
+    {
+      "display": "아내",
+      "input": "anae",
+      "annotation": "anae / 妻",
+      "input_type": "word"
+    },
+    {
+      "display": "선생님",
+      "input": "seonsaengnim",
+      "annotation": "seonsaengnim / 先生",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-04T00:00:00.000Z"
+}
