@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl"
 import { CircleAlert, Plus } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { EmptyState } from "@/components/ui/empty-state"
 import ListRow from "@/components/WordLists/ListRow"
 import EmptyLists from "@/components/WordLists/EmptyLists"
 import ListToolbar from "@/components/WordLists/ListToolbar"
@@ -133,10 +134,10 @@ export default function ListManager({ lists, packs, saving, highlight, highlight
             onDelete={() => setDeleting({ open: true, item: row, position: rowPosition(row.list.id) })} />)}
         </PackRow>
       })}
-    </ul> : <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed bg-card px-6 py-10 text-center">
+    </ul> : <EmptyState className="gap-3 py-10">
       <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">{query.trim() ? t('manager.noMatch', { query: query.trim() }) : t('filter.noMatch')}</p>
       <Button variant="outline" onClick={() => { setQuery(''); setFilter(NO_FILTER) }}>{isFiltered(filter) ? t('filter.clearAll') : t('manager.clearSearch')}</Button>
-    </div>}
+    </EmptyState>}
     <p className="text-xs text-muted-foreground">{t('manager.csvNote')}</p>
     <OrphanShares orphans={orphans} onStop={stop} focusWhenGone="list-heading" />
 

@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl"
 import { History, Keyboard, Trophy } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { EmptyState } from "@/components/ui/empty-state"
 import { Skeleton } from "@/components/ui/skeleton"
 import DeleteConfirmation from "@/components/DeleteConfirmation"
 import { useSaveNotification } from "@/components/SaveNotification"
@@ -132,7 +133,7 @@ function RecordHistory({ lists, packs, saving, deleteRecord }: {
     else document.getElementById('record-count')?.focus()
   }
 
-  if (!all.length) return <EmptyState />
+  if (!all.length) return <NoRecords />
 
   return <div className="space-y-6">
     <div className="flex flex-wrap items-center gap-2">
@@ -211,23 +212,23 @@ function DeleteDetails({ row, dayHeading }: { row: Row; dayHeading: (day: Date) 
   </div>
 }
 
-function EmptyState() {
+function NoRecords() {
   const t = useTranslations('records.empty')
-  return <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed bg-card px-6 py-10 text-center sm:py-14">
+  return <EmptyState className="py-10 sm:py-14">
     <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground"><History className="size-6" aria-hidden="true" /></span>
     <div className="space-y-1.5">
       <h2 className="font-bold">{t('title')}</h2>
       <p className="max-w-md text-sm text-balance text-muted-foreground">{t('description')}</p>
     </div>
     <Button asChild><Link href="/play"><Keyboard aria-hidden="true" />{t('practice')}</Link></Button>
-  </div>
+  </EmptyState>
 }
 
 function FilteredEmpty({ list, onClear }: { list?: SavedWordList; onClear: () => void }) {
   const t = useTranslations('records')
   const nameOf = usePracticeName()
   const unpractised = list && !list.records.length
-  return <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed bg-card px-6 py-10 text-center">
+  return <EmptyState className="py-10">
     <div className="space-y-1.5">
       <h2 className="font-bold">{unpractised ? t('filteredEmpty.listTitle', { name: nameOf(list) }) : t('filteredEmpty.title')}</h2>
       <p className="text-sm text-muted-foreground">{t(unpractised ? 'filteredEmpty.listDescription' : 'filteredEmpty.description')}</p>
@@ -236,5 +237,5 @@ function FilteredEmpty({ list, onClear }: { list?: SavedWordList; onClear: () =>
       {list && <Button asChild><Link href={`/play?list=${encodeURIComponent(list.id)}`}><Keyboard aria-hidden="true" />{t('filteredEmpty.practiceList')}</Link></Button>}
       <Button variant="outline" onClick={onClear}>{t('filter.clear')}</Button>
     </div>
-  </div>
+  </EmptyState>
 }
