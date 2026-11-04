@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
-import type { listLabels } from "@/core/listOverview"
+import type { Labels } from "@/core/listOverview"
 import type { PackOverview } from "@/core/packEditing"
 import type { PracticeMode } from "@/core/records"
 import { SearchField } from "@/components/ui/search-field"
@@ -16,7 +16,7 @@ import WordListOptions from "@/components/Practice/WordListOptions"
 export default function ListChooserAside({ open, packs, labels, category, onCategoryChange, query, onQueryChange, selectedId, resetKey, mode, onSelect }: {
   open: boolean
   packs: PackOverview[]
-  labels: ReturnType<typeof listLabels>
+  labels: Labels
   category: string | null
   onCategoryChange: (value: string | null) => void
   query: string

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import LabelFields from "@/components/WordLists/LabelFields"
-import type { listLabels } from "@/core/listOverview"
+import type { Labels } from "@/core/listOverview"
 import type { PackInput } from "@/core/packEditing"
 import { MAX_PACK_DESCRIPTION, MAX_PACK_NAME } from "@/core/wordPacks"
 
@@ -21,7 +21,7 @@ export const samePackInput = (a: PackInput, b: PackInput) =>
 export default function PackFields({ value, onChange, suggestions, nameError }: {
   value: PackInput
   onChange: (value: PackInput) => void
-  suggestions: ReturnType<typeof listLabels>
+  suggestions: Labels
   nameError?: string
 }) {
   const t = useTranslations("wordLists.packEditor")

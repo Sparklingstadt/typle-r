@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl'
-import type { listLabels } from '@/core/listOverview'
+import type { Labels } from '@/core/listOverview'
 
 const ALL = 'all'
 const NONE = 'none'
@@ -8,7 +8,7 @@ const named = (name: string) => `category:${name}`
 // Narrows the lists to choose from down to one category: null is every list and '' those without one. Left out while
 // no list has a category.
 export default function CategorySelect({ labels, value, onChange, className }: {
-  labels: ReturnType<typeof listLabels>
+  labels: Labels
   value: string | null
   onChange: (value: string | null) => void
   className?: string

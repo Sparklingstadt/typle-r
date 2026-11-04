@@ -2,10 +2,9 @@
 import { useTranslations } from 'next-intl'
 import { ChevronDown, Folder, Tag } from 'lucide-react'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import type { ListFilter, listLabels } from '@/core/listOverview'
+import type { ListFilter, Labels } from '@/core/listOverview'
 import { cn } from '@/lib/utils'
 
-type Labels = ReturnType<typeof listLabels>
 
 const trigger = 'inline-flex h-10 max-w-full shrink-0 items-center gap-1.5 rounded-lg border bg-background px-3 text-sm outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 aria-expanded:bg-muted dark:bg-input/30'
 const content = 'max-h-[min(24rem,var(--radix-dropdown-menu-content-available-height))] w-60 overflow-y-auto'
