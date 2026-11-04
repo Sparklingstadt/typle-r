@@ -7,6 +7,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { useWordDraft } from "@/lib/useWordDraft"
+import { useUnsavedWarning } from "@/lib/useUnsavedWarning"
 import type { SavedWordList, WritingLanguage } from "@/core/wordLists"
 import type { WordPack } from "@/core/wordPacks"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
@@ -73,13 +74,7 @@ export default function WordListEditor({ title, description, storage, initial, p
   const [confirmingCancel, setConfirmingCancel] = useState(false)
 
   useEffect(() => { onDirtyChange?.(dirty) }, [dirty, onDirtyChange])
-  // Closing or reloading the tab would lose the changes, so the browser asks first.
-  useEffect(() => {
-    if (!dirty) return
-    const warn = (event: BeforeUnloadEvent) => event.preventDefault()
-    window.addEventListener("beforeunload", warn)
-    return () => window.removeEventListener("beforeunload", warn)
-  }, [dirty])
+  useUnsavedWarning(dirty)
 
   // Errors appear after the first save attempt and then follow the user's edits.
   const problems = draftProblems(name, words).map(problem =>
