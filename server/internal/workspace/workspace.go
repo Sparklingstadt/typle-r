@@ -247,50 +247,34 @@ func decodeList(raw *rawList) (List, error) {
 	if len(raw.Words) == 0 && raw.Origin == nil {
 		return List{}, errors.New("words are empty")
 	}
-	words := make([]Word, 0, len(raw.Words))
-	for index, word := range raw.Words {
-		if word == nil || word.Display == nil || word.Input == nil || word.Annotation == nil {
-			return List{}, fmt.Errorf("word %d: display, input and annotation are required", index+1)
-		}
-		if trimJS(*word.Display) == "" || trimJS(*word.Input) == "" {
-			return List{}, fmt.Errorf("word %d: display and input must not be empty", index+1)
-		}
-		words = append(words, Word{Display: *word.Display, Input: *word.Input, Annotation: *word.Annotation, InputType: word.InputType, Extra: word.extra})
+	words, err := decodeWords(raw.Words)
+	if err != nil {
+		return List{}, err
 	}
 	// The category and tags are optional; decodeLists checks only that they are a string and strings.
 	category := ""
 	if raw.Category != nil {
 		category = *raw.Category
 	}
-	var tags []string
-	for _, tag := range raw.Tags {
-		if tag == nil {
-			return List{}, errors.New("tags must be strings")
-		}
-		tags = append(tags, *tag)
+	tags, ok := decodeStrings(raw.Tags)
+	if !ok {
+		return List{}, errors.New("tags must be strings")
 	}
-	// levels is optional too: strings, kept as they are.
-	var levels []string
-	if raw.Levels != nil {
-		levels = make([]string, 0, len(raw.Levels))
+	// No tags are nil, as before; levels sent empty stay an empty list, as they are kept as they are.
+	if len(tags) == 0 {
+		tags = nil
 	}
-	for _, level := range raw.Levels {
-		if level == nil {
-			return List{}, errors.New("levels must be strings")
-		}
-		levels = append(levels, *level)
+	levels, ok := decodeStrings(raw.Levels)
+	if !ok {
+		return List{}, errors.New("levels must be strings")
 	}
 	writing, err := writingOf(raw.Writing)
 	if err != nil {
 		return List{}, err
 	}
-	records := make([]Record, 0, len(raw.Records))
-	for index, item := range raw.Records {
-		record, err := decodeRecord(item)
-		if err != nil {
-			return List{}, fmt.Errorf("record %d: %w", index+1, err)
-		}
-		records = append(records, record)
+	records, err := decodeRecords(raw.Records)
+	if err != nil {
+		return List{}, err
 	}
 	var group, packID string
 	if raw.Group != nil {
@@ -305,6 +289,49 @@ func decodeList(raw *rawList) (List, error) {
 	}
 	return List{ID: *raw.ID, Name: *raw.Name, Levels: levels, Writing: writing, PackID: packID, Group: group, Category: category, Tags: tags, Words: words, Records: records,
 		CreatedAt: *raw.CreatedAt, Origin: origin, Extra: raw.extra}, nil
+}
+
+// decodeWords reads a list's words: each has the text to show, to type and an annotation, and shows and types some.
+func decodeWords(raw []*rawWord) ([]Word, error) {
+	words := make([]Word, 0, len(raw))
+	for index, word := range raw {
+		if word == nil || word.Display == nil || word.Input == nil || word.Annotation == nil {
+			return nil, fmt.Errorf("word %d: display, input and annotation are required", index+1)
+		}
+		if trimJS(*word.Display) == "" || trimJS(*word.Input) == "" {
+			return nil, fmt.Errorf("word %d: display and input must not be empty", index+1)
+		}
+		words = append(words, Word{Display: *word.Display, Input: *word.Input, Annotation: *word.Annotation, InputType: word.InputType, Extra: word.extra})
+	}
+	return words, nil
+}
+
+// decodeStrings reads an optional array of strings: nil when it is left out, false when an item is not a string.
+func decodeStrings(raw []*string) ([]string, bool) {
+	if raw == nil {
+		return nil, true
+	}
+	values := make([]string, 0, len(raw))
+	for _, value := range raw {
+		if value == nil {
+			return nil, false
+		}
+		values = append(values, *value)
+	}
+	return values, true
+}
+
+// decodeRecords reads a list's records, naming the one that cannot be read.
+func decodeRecords(raw []*rawRecord) ([]Record, error) {
+	records := make([]Record, 0, len(raw))
+	for index, item := range raw {
+		record, err := decodeRecord(item)
+		if err != nil {
+			return nil, fmt.Errorf("record %d: %w", index+1, err)
+		}
+		records = append(records, record)
+	}
+	return records, nil
 }
 
 // writingOf follows isWritingMark (src/core/wordLists.ts): the mark is an object whose only field is a listed language.

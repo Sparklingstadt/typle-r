@@ -360,21 +360,8 @@ func CopyPack(w *Workspace, sourceID string, name *string, packID string, listID
 	if len(pack.Tags) == 0 {
 		pack.Tags = nil
 	}
-	if name == nil {
-		names := make([]string, 0, len(w.Packs))
-		for _, other := range w.Packs {
-			names = append(names, other.Name)
-		}
-		pack.Name = copyNameAmong(names, source.Name)
-	} else {
-		checked, err := checkPackName(w, name, "")
-		if err != nil {
-			return nil, err
-		}
-		pack.Name = checked
-		if err := checkPack(pack); err != nil {
-			return nil, err
-		}
+	if err := nameCopy(w, &pack, name, source.Name); err != nil {
+		return nil, err
 	}
 	created := FormatTime(now)
 	lists := make([]List, 0, len(mine))
@@ -389,4 +376,23 @@ func CopyPack(w *Workspace, sourceID string, name *string, packID string, listID
 	w.Lists = append(w.Lists, lists...)
 	viewLists(w)
 	return &w.Packs[at+1], nil
+}
+
+// nameCopy names the copy pack of the pack named original: name as CreatePack checks one, or without a name the
+// first of （コピー）, （コピー2）… that no pack has.
+func nameCopy(w *Workspace, pack *Pack, name *string, original string) error {
+	if name == nil {
+		names := make([]string, 0, len(w.Packs))
+		for _, other := range w.Packs {
+			names = append(names, other.Name)
+		}
+		pack.Name = copyNameAmong(names, original)
+		return nil
+	}
+	checked, err := checkPackName(w, name, "")
+	if err != nil {
+		return err
+	}
+	pack.Name = checked
+	return checkPack(*pack)
 }

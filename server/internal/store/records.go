@@ -181,42 +181,11 @@ func syncRecords(ctx context.Context, tx pgx.Tx, owner string, before map[record
 			write = append(write, row)
 		}
 	}
-	if before == nil {
-		lists, ids := keyColumns(rows)
-		if _, err := tx.Exec(ctx, `DELETE FROM typle_records r WHERE r.owner_id = $1 AND NOT EXISTS (SELECT 1 FROM
-			unnest($2::text[], $3::text[]) AS k(list_id, record_id) WHERE k.list_id = r.list_id AND k.record_id = r.record_id)`,
-			owner, lists, ids); err != nil {
-			return err
-		}
-	} else {
-		var gone []recordRow
-		for key, row := range before {
-			if !after[key] {
-				gone = append(gone, row)
-			}
-		}
-		if len(gone) > 0 {
-			lists, ids := keyColumns(gone)
-			if _, err := tx.Exec(ctx, `DELETE FROM typle_records r USING unnest($2::text[], $3::text[]) AS k(list_id, record_id)
-				WHERE r.owner_id = $1 AND r.list_id = k.list_id AND r.record_id = k.record_id`, owner, lists, ids); err != nil {
-				return err
-			}
-		}
+	if err := deleteGone(ctx, tx, owner, before, after, rows); err != nil {
+		return err
 	}
-	if len(write) > 0 {
-		lists, ids := keyColumns(write)
-		positions, ats, data := make([]int32, len(write)), make([]time.Time, len(write)), make([]string, len(write))
-		for i, row := range write {
-			positions[i], ats[i], data[i] = int32(row.position), row.at, string(row.data)
-		}
-		if _, err := tx.Exec(ctx, `INSERT INTO typle_records (owner_id, list_id, record_id, position, at, data)
-			SELECT $1, k.list_id, k.record_id, k.position, k.at, k.data
-			FROM unnest($2::text[], $3::text[], $4::int[], $5::timestamptz[], $6::jsonb[]) AS k(list_id, record_id, position, at, data)
-			ON CONFLICT (owner_id, list_id, record_id) DO UPDATE SET position = EXCLUDED.position, at = EXCLUDED.at, data = EXCLUDED.data
-			WHERE (typle_records.position, typle_records.at, typle_records.data) IS DISTINCT FROM (EXCLUDED.position, EXCLUDED.at, EXCLUDED.data)`,
-			owner, lists, ids, positions, ats, data); err != nil {
-			return err
-		}
+	if err := writeRows(ctx, tx, owner, write); err != nil {
+		return err
 	}
 	var count int
 	if err := tx.QueryRow(ctx, `SELECT count(*) FROM typle_records WHERE owner_id = $1`, owner).Scan(&count); err != nil {
@@ -226,6 +195,50 @@ func syncRecords(ctx context.Context, tx pgx.Tx, owner string, before map[record
 		return fmt.Errorf("records of %s: %d rows saved for %d records", owner, count, len(rows))
 	}
 	return nil
+}
+
+// deleteGone deletes the owner's rows that are not among rows: of those read (before, with after the keys of rows), or
+// without before every other row of the owner.
+func deleteGone(ctx context.Context, tx pgx.Tx, owner string, before map[recordKey]recordRow, after map[recordKey]bool, rows []recordRow) error {
+	if before == nil {
+		lists, ids := keyColumns(rows)
+		_, err := tx.Exec(ctx, `DELETE FROM typle_records r WHERE r.owner_id = $1 AND NOT EXISTS (SELECT 1 FROM
+			unnest($2::text[], $3::text[]) AS k(list_id, record_id) WHERE k.list_id = r.list_id AND k.record_id = r.record_id)`,
+			owner, lists, ids)
+		return err
+	}
+	var gone []recordRow
+	for key, row := range before {
+		if !after[key] {
+			gone = append(gone, row)
+		}
+	}
+	if len(gone) == 0 {
+		return nil
+	}
+	lists, ids := keyColumns(gone)
+	_, err := tx.Exec(ctx, `DELETE FROM typle_records r USING unnest($2::text[], $3::text[]) AS k(list_id, record_id)
+		WHERE r.owner_id = $1 AND r.list_id = k.list_id AND r.record_id = k.record_id`, owner, lists, ids)
+	return err
+}
+
+// writeRows inserts the rows, or updates the saved row of the same record when it differs.
+func writeRows(ctx context.Context, tx pgx.Tx, owner string, write []recordRow) error {
+	if len(write) == 0 {
+		return nil
+	}
+	lists, ids := keyColumns(write)
+	positions, ats, data := make([]int32, len(write)), make([]time.Time, len(write)), make([]string, len(write))
+	for i, row := range write {
+		positions[i], ats[i], data[i] = int32(row.position), row.at, string(row.data)
+	}
+	_, err := tx.Exec(ctx, `INSERT INTO typle_records (owner_id, list_id, record_id, position, at, data)
+		SELECT $1, k.list_id, k.record_id, k.position, k.at, k.data
+		FROM unnest($2::text[], $3::text[], $4::int[], $5::timestamptz[], $6::jsonb[]) AS k(list_id, record_id, position, at, data)
+		ON CONFLICT (owner_id, list_id, record_id) DO UPDATE SET position = EXCLUDED.position, at = EXCLUDED.at, data = EXCLUDED.data
+		WHERE (typle_records.position, typle_records.at, typle_records.data) IS DISTINCT FROM (EXCLUDED.position, EXCLUDED.at, EXCLUDED.data)`,
+		owner, lists, ids, positions, ats, data)
+	return err
 }
 
 func keyColumns(rows []recordRow) (lists, ids []string) {

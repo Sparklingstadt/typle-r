@@ -173,44 +173,50 @@ func (s *Store) Modify(ctx context.Context, owner string, change func(*workspace
 		if !changed {
 			return nil
 		}
-		// Records are given ids before anything is encoded, so the workspace returned and the rows agree.
-		rows, err := recordRows(w.Lists)
-		if err != nil {
-			return err
-		}
-		after, afterPacks, err := encodeLibrary(w)
-		if err != nil {
-			return err
-		}
-		if err := workspace.CheckSize(len(lists)+len(packs), len(after)+len(afterPacks)); err != nil {
-			return err
-		}
-		devices, err := workspace.EncodeDevices(w.Devices)
-		if err != nil {
-			return err
-		}
-		// A workspace that would not be read back is never saved: the account would no longer load, here or in the app.
-		if _, err := workspace.Decode(after, devices, afterPacks); err != nil {
-			return fmt.Errorf("changed workspace of %s: %w", owner, err)
-		}
-		stored, err := workspace.Encode(withoutRecords(workspace.WithoutFollowedWords(w.Packs, w.Lists)))
-		if err != nil {
-			return err
-		}
-		if _, err := tx.Exec(ctx, `UPDATE typle_workspaces SET lists = $2::jsonb, packs = $3::jsonb, devices = $4::jsonb,
-			records_split = true, revision = revision + 1, updated_at = now() WHERE owner_id = $1`,
-			owner, string(stored), string(afterPacks), string(devices)); err != nil {
-			return err
-		}
-		if err := syncRecords(ctx, tx, owner, before, rows); err != nil {
-			return err
-		}
-		return deleteRemovedShares(ctx, tx, owner, w.Packs)
+		return saveModified(ctx, tx, owner, w, before, len(lists)+len(packs))
 	})
 	if err != nil {
 		return nil, err
 	}
 	return result, nil
+}
+
+// saveModified writes w, changed by Modify, over the owner's locked row: before is its records as they were read
+// (see lock), and size the bytes of its lists and packs, which CheckSize compares the changed ones with.
+func saveModified(ctx context.Context, tx pgx.Tx, owner string, w *workspace.Workspace, before map[recordKey]recordRow, size int) error {
+	// Records are given ids before anything is encoded, so the workspace returned and the rows agree.
+	rows, err := recordRows(w.Lists)
+	if err != nil {
+		return err
+	}
+	after, afterPacks, err := encodeLibrary(w)
+	if err != nil {
+		return err
+	}
+	if err := workspace.CheckSize(size, len(after)+len(afterPacks)); err != nil {
+		return err
+	}
+	devices, err := workspace.EncodeDevices(w.Devices)
+	if err != nil {
+		return err
+	}
+	// A workspace that would not be read back is never saved: the account would no longer load, here or in the app.
+	if _, err := workspace.Decode(after, devices, afterPacks); err != nil {
+		return fmt.Errorf("changed workspace of %s: %w", owner, err)
+	}
+	stored, err := workspace.Encode(withoutRecords(workspace.WithoutFollowedWords(w.Packs, w.Lists)))
+	if err != nil {
+		return err
+	}
+	if _, err := tx.Exec(ctx, `UPDATE typle_workspaces SET lists = $2::jsonb, packs = $3::jsonb, devices = $4::jsonb,
+		records_split = true, revision = revision + 1, updated_at = now() WHERE owner_id = $1`,
+		owner, string(stored), string(afterPacks), string(devices)); err != nil {
+		return err
+	}
+	if err := syncRecords(ctx, tx, owner, before, rows); err != nil {
+		return err
+	}
+	return deleteRemovedShares(ctx, tx, owner, w.Packs)
 }
 
 // encodeLibrary writes the lists and packs of w as the app saves them: the lists with their records, and without the
@@ -345,75 +351,18 @@ func (s *Store) ReadRevision(ctx context.Context, owner string) (*Saved, error) 
 // records_split is set. When packs are saved, the links to packs no longer among them are deleted in the same
 // transaction; devices or interests alone leave the links as they are.
 func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, change Change) (*Saved, error) {
-	// nil is a part left out: NULL in the queries below. full is the lists with their records, as the app sent them;
-	// lists, as the column keeps them, have none: rows are their records, for typle_records.
-	var lists, full, packs, devices, interests []byte
-	var rows []recordRow
-	var err error
-	// Packs are saved only with their lists. Lists sent without packs are each put in a pack of their own, as Decode
-	// repairs lists without one.
-	if change.HasPacks && !change.HasLists {
-		return nil, &workspace.Error{Key: "invalidWorkspace"}
-	}
-	if change.HasLists && !change.HasPacks {
-		if err := workspace.CheckLimits(change.Lists); err != nil {
-			return nil, err
-		}
-		encoded, err := workspace.Encode(change.Lists)
-		if err != nil {
-			return nil, err
-		}
-		repaired, err := workspace.Decode(encoded, []byte("[]"), []byte("[]"))
-		if err != nil {
-			return nil, fmt.Errorf("changed workspace of %s: %w", owner, err)
-		}
-		change.Lists, change.Packs, change.HasPacks = repaired.Lists, repaired.Packs, true
-	}
-	if change.HasLists {
-		if err := workspace.CheckLimits(change.Lists); err != nil {
-			return nil, err
-		}
-		if packs, err = workspace.EncodePacks(change.Packs); err != nil {
-			return nil, err
-		}
-		if rows, err = recordRows(change.Lists); err != nil {
-			return nil, err
-		}
-		// Followed packs' lists are saved without their words, which the catalog has.
-		slim := workspace.WithoutFollowedWords(change.Packs, change.Lists)
-		if full, err = workspace.Encode(slim); err != nil {
-			return nil, err
-		}
-		if lists, err = workspace.Encode(withoutRecords(slim)); err != nil {
-			return nil, err
-		}
-	}
-	if change.HasDevices {
-		if devices, err = workspace.EncodeDevices(change.Devices); err != nil {
-			return nil, err
-		}
-	}
-	if change.HasInterests {
-		// Interests the app would refuse are refused as the request would be.
-		if err := workspace.CheckInterests(change.Interests); err != nil {
-			return nil, &workspace.Error{Key: "invalidWorkspace"}
-		}
-		if interests, err = workspace.EncodeInterests(change.Interests); err != nil {
-			return nil, err
-		}
-	}
-	// A part left out is saved as it is, so only the other one can be refused; it is read with an empty one.
-	if _, err := workspace.Decode(orEmpty(full), orEmpty(devices), orEmpty(packs)); err != nil {
-		return nil, fmt.Errorf("changed workspace of %s: %w", owner, err)
+	parts, err := encodeChange(owner, &change)
+	if err != nil {
+		return nil, err
 	}
 	var saved *Saved
 	err = pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
-		if err := writeRevision(ctx, tx, owner, revision, change, lists, packs, devices, interests); err != nil {
+		if err := writeRevision(ctx, tx, owner, revision, change, parts); err != nil {
 			return err
 		}
 		// Lists saved bring their records: the owner's rows become exactly theirs.
 		if change.HasLists {
-			if err := syncRecords(ctx, tx, owner, nil, rows); err != nil {
+			if err := syncRecords(ctx, tx, owner, nil, parts.rows); err != nil {
 				return err
 			}
 		}
@@ -432,9 +381,90 @@ func (s *Store) WriteRevision(ctx context.Context, owner string, revision int, c
 	return saved, nil
 }
 
-// writeRevision writes the parts of WriteRevision, encoded (nil for a part left out), in tx. Lists written have their
+// encodedChange is a Change as WriteRevision writes it. nil is a part left out: NULL in the queries of writeRevision.
+// Lists, as the column keeps them, have no records: rows are their records, for typle_records.
+type encodedChange struct {
+	lists, packs, devices, interests []byte
+	rows                             []recordRow
+}
+
+// encodeChange checks and encodes change for WriteRevision, without the database. Lists sent without packs are each
+// put in a pack of their own, as Decode repairs lists without one, and change is given those packs.
+func encodeChange(owner string, change *Change) (*encodedChange, error) {
+	parts := &encodedChange{}
+	// full is the lists with their records, as the app sent them.
+	var full []byte
+	var err error
+	// Packs are saved only with their lists.
+	if change.HasPacks && !change.HasLists {
+		return nil, &workspace.Error{Key: "invalidWorkspace"}
+	}
+	if change.HasLists && !change.HasPacks {
+		if err := packLists(owner, change); err != nil {
+			return nil, err
+		}
+	}
+	if change.HasLists {
+		if err := workspace.CheckLimits(change.Lists); err != nil {
+			return nil, err
+		}
+		if parts.packs, err = workspace.EncodePacks(change.Packs); err != nil {
+			return nil, err
+		}
+		if parts.rows, err = recordRows(change.Lists); err != nil {
+			return nil, err
+		}
+		// Followed packs' lists are saved without their words, which the catalog has.
+		slim := workspace.WithoutFollowedWords(change.Packs, change.Lists)
+		if full, err = workspace.Encode(slim); err != nil {
+			return nil, err
+		}
+		if parts.lists, err = workspace.Encode(withoutRecords(slim)); err != nil {
+			return nil, err
+		}
+	}
+	if change.HasDevices {
+		if parts.devices, err = workspace.EncodeDevices(change.Devices); err != nil {
+			return nil, err
+		}
+	}
+	if change.HasInterests {
+		// Interests the app would refuse are refused as the request would be.
+		if err := workspace.CheckInterests(change.Interests); err != nil {
+			return nil, &workspace.Error{Key: "invalidWorkspace"}
+		}
+		if parts.interests, err = workspace.EncodeInterests(change.Interests); err != nil {
+			return nil, err
+		}
+	}
+	// A part left out is saved as it is, so only the other one can be refused; it is read with an empty one.
+	if _, err := workspace.Decode(orEmpty(full), orEmpty(parts.devices), orEmpty(parts.packs)); err != nil {
+		return nil, fmt.Errorf("changed workspace of %s: %w", owner, err)
+	}
+	return parts, nil
+}
+
+// packLists puts each list of change, sent without packs, in a pack of its own, as Decode repairs lists without one.
+func packLists(owner string, change *Change) error {
+	if err := workspace.CheckLimits(change.Lists); err != nil {
+		return err
+	}
+	encoded, err := workspace.Encode(change.Lists)
+	if err != nil {
+		return err
+	}
+	repaired, err := workspace.Decode(encoded, []byte("[]"), []byte("[]"))
+	if err != nil {
+		return fmt.Errorf("changed workspace of %s: %w", owner, err)
+	}
+	change.Lists, change.Packs, change.HasPacks = repaired.Lists, repaired.Packs, true
+	return nil
+}
+
+// writeRevision writes the parts of WriteRevision, as encodeChange encoded them, in tx. Lists written have their
 // records in typle_records (records_split), which the caller then writes.
-func writeRevision(ctx context.Context, tx pgx.Tx, owner string, revision int, change Change, lists, packs, devices, interests []byte) error {
+func writeRevision(ctx context.Context, tx pgx.Tx, owner string, revision int, change Change, parts *encodedChange) error {
+	lists, packs, devices, interests := parts.lists, parts.packs, parts.devices, parts.interests
 	own, followed := workspace.OwnListCount(change.Packs, change.Lists), workspace.FollowedPackCount(change.Packs)
 	if revision == 0 {
 		if change.HasLists && own > workspace.MaxLists {
@@ -443,21 +473,7 @@ func writeRevision(ctx context.Context, tx pgx.Tx, owner string, revision int, c
 		if change.HasLists && followed > workspace.MaxFollowedPacks {
 			return &workspace.Error{Key: "followLimit"}
 		}
-		// The links PutShare made from the initial packs are seen by deleteRemovedShares (see lockOwner).
-		if err := lockOwner(ctx, tx, owner); err != nil {
-			return err
-		}
-		// Unique owner makes the existence check and the insert one atomic operation.
-		err := tx.QueryRow(ctx, `INSERT INTO typle_workspaces (owner_id, lists, packs, devices, interests, records_split)
-			VALUES ($1, $2::jsonb, $3::jsonb, $4::jsonb, $5::jsonb, true) ON CONFLICT (owner_id) DO NOTHING RETURNING revision`,
-			owner, string(orEmpty(lists)), nullable(packs), string(orEmpty(devices)), nullable(interests)).Scan(new(int))
-		if errors.Is(err, pgx.ErrNoRows) {
-			return ErrConflict
-		}
-		if err != nil {
-			return err
-		}
-		return forgetRecords(ctx, tx, owner)
+		return insertRevision(ctx, tx, owner, parts)
 	}
 	// The saved lists and followed packs are counted as OwnListCount and FollowedPackCount count them.
 	var savedRevision, savedOwn, savedFollowed int
@@ -492,6 +508,25 @@ func writeRevision(ctx context.Context, tx pgx.Tx, owner string, revision int, c
 		return ErrConflict
 	}
 	return err
+}
+
+// insertRevision writes the first save of the owner, revision 0: ErrConflict when another save made the row first.
+func insertRevision(ctx context.Context, tx pgx.Tx, owner string, parts *encodedChange) error {
+	// The links PutShare made from the initial packs are seen by deleteRemovedShares (see lockOwner).
+	if err := lockOwner(ctx, tx, owner); err != nil {
+		return err
+	}
+	// Unique owner makes the existence check and the insert one atomic operation.
+	err := tx.QueryRow(ctx, `INSERT INTO typle_workspaces (owner_id, lists, packs, devices, interests, records_split)
+		VALUES ($1, $2::jsonb, $3::jsonb, $4::jsonb, $5::jsonb, true) ON CONFLICT (owner_id) DO NOTHING RETURNING revision`,
+		owner, string(orEmpty(parts.lists)), nullable(parts.packs), string(orEmpty(parts.devices)), nullable(parts.interests)).Scan(new(int))
+	if errors.Is(err, pgx.ErrNoRows) {
+		return ErrConflict
+	}
+	if err != nil {
+		return err
+	}
+	return forgetRecords(ctx, tx, owner)
 }
 
 func orEmpty(part []byte) []byte {
