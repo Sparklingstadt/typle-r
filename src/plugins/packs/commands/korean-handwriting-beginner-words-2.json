@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-beginner-words-2",
+  "name": "韓国語 手書き初級（食べ物・飲み物）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き初級単語",
+  "levels": [
+    "食べ物・飲み物"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "밥",
+      "input": "bap",
+      "annotation": "bap / ご飯",
+      "input_type": "word"
+    },
+    {
+      "display": "김치",
+      "input": "gimchi",
+      "annotation": "gimchi / キムチ",
+      "input_type": "word"
+    },
+    {
+      "display": "고기",
+      "input": "gogi",
+      "annotation": "gogi / 肉",
+      "input_type": "word"
+    },
+    {
+      "display": "생선",
+      "input": "saengseon",
+      "annotation": "saengseon / 魚（食べ物）",
+      "input_type": "word"
+    },
+    {
+      "display": "과일",
+      "input": "gwail",
+      "annotation": "gwail / 果物",
+      "input_type": "word"
+    },
+    {
+      "display": "사과",
+      "input": "sagwa",
+      "annotation": "sagwa / りんご",
+      "input_type": "word"
+    },
+    {
+      "display": "야채",
+      "input": "yachae",
+      "annotation": "yachae / 野菜",
+      "input_type": "word"
+    },
+    {
+      "display": "계란",
+      "input": "gyeran",
+      "annotation": "gyeran / 卵",
+      "input_type": "word"
+    },
+    {
+      "display": "국",
+      "input": "guk",
+      "annotation": "guk / スープ",
+      "input_type": "word"
+    },
+    {
+      "display": "라면",
+      "input": "ramyeon",
+      "annotation": "ramyeon / ラーメン",
+      "input_type": "word"
+    },
+    {
+      "display": "우유",
+      "input": "uyu",
+      "annotation": "uyu / 牛乳",
+      "input_type": "word"
+    },
+    {
+      "display": "차",
+      "input": "cha",
+      "annotation": "cha / お茶",
+      "input_type": "word"
+    },
+    {
+      "display": "커피",
+      "input": "keopi",
+      "annotation": "keopi / コーヒー",
+      "input_type": "word"
+    },
+    {
+      "display": "주스",
+      "input": "juseu",
+      "annotation": "juseu / ジュース",
+      "input_type": "word"
+    },
+    {
+      "display": "술",
+      "input": "sul",
+      "annotation": "sul / 酒",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-04T00:00:00.000Z"
+}
