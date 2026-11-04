@@ -1,7 +1,7 @@
 "use client"
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { DropdownMenu } from 'radix-ui'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Copy, Download, History, Keyboard, MoreHorizontal, Pencil, Trash2, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useFormat } from '@/i18n/useFormat'
@@ -9,7 +9,7 @@ import { wordPreview, type ListOverview } from '@/core/listOverview'
 import { cn } from '@/lib/utils'
 import ListLabels from './ListLabels'
 
-const menuItem = 'flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground'
+const svgClass = '[&_svg]:shrink-0 [&_svg]:text-muted-foreground'
 
 /** How often a list has been practised and when last, such as 練習 3回 · 最終 今日. */
 export function usePracticeText() {
@@ -63,37 +63,35 @@ export default function ListRow({ item, now, highlight, disabled, canCopy, readO
       {!readOnly && <Button data-edit variant="outline" size="lg" className="size-10 px-0 sm:w-auto sm:px-3" disabled={disabled} onClick={onEdit} aria-label={t('editList', { name: list.name })} title={t('edit')}>
         <Pencil aria-hidden="true" /><span className="hidden sm:inline">{t('edit')}</span>
       </Button>}
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger asChild>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon-lg" className="size-10 text-muted-foreground" aria-label={t('moreFor', { name: list.name })} title={t('moreActions')}>
             <MoreHorizontal aria-hidden="true" />
           </Button>
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Portal>
-          <DropdownMenu.Content align="end" sideOffset={4} className="z-50 min-w-56 rounded-lg border bg-popover p-1 text-popover-foreground shadow-md">
-            <DropdownMenu.Item asChild className={cn(menuItem, 'sm:hidden')}>
-              <Link href={`/play?list=${id}`}><Keyboard aria-hidden="true" />{t('practiceThis')}</Link>
-            </DropdownMenu.Item>
-            {practiceCount > 0 && <>
-              <DropdownMenu.Item asChild className={menuItem}>
-                <Link href={`/rankings?list=${id}`}><Trophy aria-hidden="true" />{t('rankings')}</Link>
-              </DropdownMenu.Item>
-              <DropdownMenu.Item asChild className={menuItem}>
-                <Link href={`/records?list=${id}`}><History aria-hidden="true" />{t('records')}<span className="ml-auto text-xs text-muted-foreground tabular-nums">{t('recordCount', { count: practiceCount })}</span></Link>
-              </DropdownMenu.Item>
-            </>}
-            <DropdownMenu.Separator className={cn('my-1 h-px bg-border', !practiceCount && 'sm:hidden')} />
-            <DropdownMenu.Item className={menuItem} onSelect={onExport}><Download aria-hidden="true" />{t('export')}</DropdownMenu.Item>
-            {!readOnly && <>
-              <DropdownMenu.Item className={menuItem} disabled={disabled || !canCopy} onSelect={onCopy}><Copy aria-hidden="true" />{t('copy')}</DropdownMenu.Item>
-              <DropdownMenu.Separator className="my-1 h-px bg-border" />
-              <DropdownMenu.Item className={cn(menuItem, 'text-destructive data-[highlighted]:text-destructive [&_svg]:text-destructive')} disabled={disabled} onSelect={onDelete}>
-                <Trash2 aria-hidden="true" />{t('delete')}
-              </DropdownMenu.Item>
-            </>}
-          </DropdownMenu.Content>
-        </DropdownMenu.Portal>
-      </DropdownMenu.Root>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" sideOffset={4} className="min-w-56">
+          <DropdownMenuItem asChild className={cn(svgClass, 'sm:hidden')}>
+            <Link href={`/play?list=${id}`}><Keyboard aria-hidden="true" />{t('practiceThis')}</Link>
+          </DropdownMenuItem>
+          {practiceCount > 0 && <>
+            <DropdownMenuItem asChild className={svgClass}>
+              <Link href={`/rankings?list=${id}`}><Trophy aria-hidden="true" />{t('rankings')}</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className={svgClass}>
+              <Link href={`/records?list=${id}`}><History aria-hidden="true" />{t('records')}<span className="ml-auto text-xs text-muted-foreground tabular-nums">{t('recordCount', { count: practiceCount })}</span></Link>
+            </DropdownMenuItem>
+          </>}
+          <DropdownMenuSeparator className={!practiceCount ? 'sm:hidden' : undefined} />
+          <DropdownMenuItem className={svgClass} onSelect={onExport}><Download aria-hidden="true" />{t('export')}</DropdownMenuItem>
+          {!readOnly && <>
+            <DropdownMenuItem className={svgClass} disabled={disabled || !canCopy} onSelect={onCopy}><Copy aria-hidden="true" />{t('copy')}</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem variant="destructive" className="[&_svg]:shrink-0 [&_svg]:text-destructive" disabled={disabled} onSelect={onDelete}>
+              <Trash2 aria-hidden="true" />{t('delete')}
+            </DropdownMenuItem>
+          </>}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   </li>
 }

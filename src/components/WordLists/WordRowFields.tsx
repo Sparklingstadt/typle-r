@@ -1,7 +1,7 @@
 "use client"
 import { useTranslations } from "next-intl"
 import { ArrowDown, ArrowDownToLine, ArrowUp, ArrowUpToLine, MoreHorizontal, Trash2 } from "lucide-react"
-import { DropdownMenu } from "radix-ui"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -9,8 +9,6 @@ import SortableWordRow from "@/components/SortableWordRow"
 import FieldError from "@/components/WordLists/FieldError"
 import type { InputType } from "@/core/wordLists"
 import type { DraftWord, Word } from "@/core/wordDraft"
-
-const menuItem = "flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-40 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:size-4"
 
 export default function WordRowFields({ word, index, count, baseId, displayId, inputId, saving, displayError, inputError, onChange, onMove, onRemove }: {
   word: DraftWord
@@ -59,31 +57,29 @@ export default function WordRowFields({ word, index, count, baseId, displayId, i
       </div>
     </div>
     <div className="col-start-3 row-start-1 flex items-center justify-end gap-0.5 md:col-start-6">
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger asChild>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" aria-label={t("wordActions", { n })} title={t("actions")}><MoreHorizontal aria-hidden="true" /></Button>
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Portal>
-          <DropdownMenu.Content align="end" sideOffset={4} className="z-50 min-w-52 rounded-lg border bg-popover p-1 text-popover-foreground shadow-md">
-            <DropdownMenu.Item className={menuItem} disabled={index === 0} aria-keyshortcuts="Alt+ArrowUp" onSelect={() => onMove(index - 1)}>
-              <ArrowUp aria-hidden="true" />{t("moveUp")}<span aria-hidden="true" className="ml-auto text-xs text-muted-foreground">Alt+↑</span>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item className={menuItem} disabled={index === count - 1} aria-keyshortcuts="Alt+ArrowDown" onSelect={() => onMove(index + 1)}>
-              <ArrowDown aria-hidden="true" />{t("moveDown")}<span aria-hidden="true" className="ml-auto text-xs text-muted-foreground">Alt+↓</span>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item className={menuItem} disabled={index === 0} onSelect={() => onMove(0)}>
-              <ArrowUpToLine aria-hidden="true" />{t("moveFirst")}
-            </DropdownMenu.Item>
-            <DropdownMenu.Item className={menuItem} disabled={index === count - 1} onSelect={() => onMove(count - 1)}>
-              <ArrowDownToLine aria-hidden="true" />{t("moveLast")}
-            </DropdownMenu.Item>
-            <DropdownMenu.Separator className="my-1 h-px bg-border" />
-            <DropdownMenu.Item className={`${menuItem} text-destructive data-[highlighted]:text-destructive`} disabled={count < 2} onSelect={() => onRemove()}>
-              <Trash2 aria-hidden="true" />{t("deleteWord")}
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu.Portal>
-      </DropdownMenu.Root>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" sideOffset={4} className="min-w-52">
+          <DropdownMenuItem disabled={index === 0} aria-keyshortcuts="Alt+ArrowUp" onSelect={() => onMove(index - 1)}>
+            <ArrowUp aria-hidden="true" />{t("moveUp")}<span aria-hidden="true" className="ml-auto text-xs text-muted-foreground">Alt+↑</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem disabled={index === count - 1} aria-keyshortcuts="Alt+ArrowDown" onSelect={() => onMove(index + 1)}>
+            <ArrowDown aria-hidden="true" />{t("moveDown")}<span aria-hidden="true" className="ml-auto text-xs text-muted-foreground">Alt+↓</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem disabled={index === 0} onSelect={() => onMove(0)}>
+            <ArrowUpToLine aria-hidden="true" />{t("moveFirst")}
+          </DropdownMenuItem>
+          <DropdownMenuItem disabled={index === count - 1} onSelect={() => onMove(count - 1)}>
+            <ArrowDownToLine aria-hidden="true" />{t("moveLast")}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive" disabled={count < 2} onSelect={() => onRemove()}>
+            <Trash2 aria-hidden="true" />{t("deleteWord")}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <span className="hidden md:inline-flex">
         <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" disabled={count < 2}
           onClick={() => onRemove()} aria-label={t("deleteWordN", { n })} title={t("delete")}><Trash2 aria-hidden="true" /></Button>
