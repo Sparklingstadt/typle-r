@@ -135,5 +135,16 @@
   "writingJudge": "Проверить",
   "writingSkip": "Пропустить",
   "writingRead": "Распознано как «{text}»",
-  "writingInput": "Пишите здесь от руки"
+  "writingInput": "Пишите здесь от руки",
+  "writingInputMethod": "Способ письма",
+  "writingInputPad": "Панель для письма",
+  "writingInputField": "Поле ввода",
+  "writingPad": "Панель для рукописного ввода",
+  "writingPadHint": "Пишите здесь",
+  "writingPadLoading": "Подготовка распознавания почерка…",
+  "writingPadFailed": "Не удалось загрузить распознавание почерка.",
+  "writingPadRetry": "Повторить",
+  "writingPadUndo": "Отменить штрих",
+  "writingPadClear": "Стереть",
+  "writingPadReading": "Распознано: {text}"
 }

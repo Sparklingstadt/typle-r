@@ -135,5 +135,16 @@
   "writingJudge": "Vérifier",
   "writingSkip": "Passer",
   "writingRead": "Lu comme « {text} »",
-  "writingInput": "Écrivez ici à la main"
+  "writingInput": "Écrivez ici à la main",
+  "writingInputMethod": "Mode d’écriture",
+  "writingInputPad": "Zone d’écriture",
+  "writingInputField": "Champ de texte",
+  "writingPad": "Zone d’écriture manuscrite",
+  "writingPadHint": "Écrivez ici",
+  "writingPadLoading": "Préparation de la reconnaissance de l’écriture…",
+  "writingPadFailed": "Impossible de charger la reconnaissance de l’écriture.",
+  "writingPadRetry": "Réessayer",
+  "writingPadUndo": "Annuler le trait",
+  "writingPadClear": "Effacer",
+  "writingPadReading": "Lu : {text}"
 }

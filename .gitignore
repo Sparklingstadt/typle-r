@@ -44,3 +44,6 @@ next-env.d.ts
 /api-docs/src/.vuepress/.temp
 /api-docs/src/.vuepress/.cache
 /api-docs/src/.vuepress/dist
+
+# onnxruntime-web runtime, copied by scripts/copy-handwriting-runtime.cjs
+/public/handwriting/ort/

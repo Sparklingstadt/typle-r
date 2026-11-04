@@ -1,10 +1,9 @@
 "use client"
 import { RadioGroup } from 'radix-ui'
-import type { PracticeMode } from '@/core/records'
 
-// A choice among practice modes; used by the practice screen (typing or handwriting) and ベスト記録 (every mode), each
-// with its own labels.
-export default function ModeToggle<T extends PracticeMode>({ options, value, onChange, label, labels, disabled }: {
+// A choice among practice modes; used by the practice screen (typing or handwriting, and the handwriting pad or the
+// field) and ベスト記録 (every mode), each with its own labels.
+export default function ModeToggle<T extends string>({ options, value, onChange, label, labels, disabled }: {
   options: readonly T[]
   value: T
   onChange: (value: T) => void

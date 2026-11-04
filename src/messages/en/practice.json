@@ -135,5 +135,16 @@
   "writingJudge": "Check",
   "writingSkip": "Skip",
   "writingRead": "Read as “{text}”",
-  "writingInput": "Write here by hand"
+  "writingInput": "Write here by hand",
+  "writingInputMethod": "How to write",
+  "writingInputPad": "Handwriting pad",
+  "writingInputField": "Text field",
+  "writingPad": "Handwriting pad",
+  "writingPadHint": "Write here",
+  "writingPadLoading": "Getting handwriting recognition ready…",
+  "writingPadFailed": "Handwriting recognition could not be loaded.",
+  "writingPadRetry": "Try again",
+  "writingPadUndo": "Undo stroke",
+  "writingPadClear": "Clear",
+  "writingPadReading": "Reads as: {text}"
 }

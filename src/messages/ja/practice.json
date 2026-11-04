@@ -135,5 +135,16 @@
   "writingJudge": "判定",
   "writingSkip": "飛ばす",
   "writingRead": "「{text}」と読めました",
-  "writingInput": "ここに手書きで入力"
+  "writingInput": "ここに手書きで入力",
+  "writingInputMethod": "手書きの入力方法",
+  "writingInputPad": "手書きパッド",
+  "writingInputField": "入力欄",
+  "writingPad": "手書きパッド",
+  "writingPadHint": "ここに書く",
+  "writingPadLoading": "手書きの認識を準備しています…",
+  "writingPadFailed": "手書きの認識を読み込めませんでした。",
+  "writingPadRetry": "もう一度読み込む",
+  "writingPadUndo": "1画戻す",
+  "writingPadClear": "消す",
+  "writingPadReading": "いまの読み取り：{text}"
 }

@@ -3,7 +3,9 @@ import { useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { CircleAlert, SkipForward } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import HandwritingPad from '@/components/Practice/HandwritingPad'
 import Kbd from '@/components/Practice/Kbd'
+import ModeToggle from '@/components/Practice/ModeToggle'
 import LiveStats from '@/components/Practice/LiveStats'
 import PracticeResult from '@/components/Practice/PracticeResult'
 import PracticeProgress from '@/components/Practice/PracticeProgress'
@@ -12,12 +14,15 @@ import type { PracticeDevice } from '@/core/devices'
 import { typingSpeed } from '@/core/typing'
 import type { SavedWordList } from '@/core/wordLists'
 import type { RecordSave } from '@/lib/useWordLists'
+import { hasHandwritingModel } from '@/lib/handwritingRecognizer'
 import { useWritingPractice } from '@/lib/useWritingPractice'
+import { useWritingInput, type WritingInput } from '@/lib/writingMode'
 
 export type WritingRun = { index: number; device?: PracticeDevice }
 
-// The body of the practice card in Typle Writing: the word as a model, a field the OS handwriting input writes into,
-// 判定 and 飛ばす. Remounted (key) for every new run, so each starts afresh.
+// The body of the practice card in Typle Writing: the word as a model, a field the OS handwriting input writes into (or,
+// for languages the app reads itself, its own handwriting pad), 判定 and 飛ばす. Remounted (key) for every new run, so
+// each starts afresh.
 export default function WritingPractice({ list, listName, records, addRecord, device, statsVisible, onRun, onRestart, onChooseList }: {
   list: SavedWordList
   listName: string
@@ -32,7 +37,10 @@ export default function WritingPractice({ list, listName, records, addRecord, de
   onChooseList: () => void
 }) {
   const t = useTranslations('practice')
-  const { session, word, finished, result, language, practiceDevice, record, saveState, input, value, read, change, submit, skip, startComposition, endComposition, pause, resume, retrySave } = useWritingPractice(list, addRecord, device)
+  const { session, word, finished, result, language, practiceDevice, record, saveState, input, value, read, change, submit, skip, startComposition, endComposition, startPad, write, pause, resume, retrySave } = useWritingPractice(list, addRecord, device)
+  const [preferredInput, setPreferredInput] = useWritingInput()
+  const padAvailable = hasHandwritingModel(language)
+  const writingInput: WritingInput = padAvailable ? preferredInput : 'field'
   const words = list.words
   const running = session.startedAt !== null && !finished
 
@@ -53,28 +61,36 @@ export default function WritingPractice({ list, listName, records, addRecord, de
       {word && <PracticeText id="wordDisplay" text={word.display} />}
     </div>
     <div className="flex flex-col items-center gap-2.5 px-4 pt-2 pb-4 sm:px-6 sm:pb-5">
-      <div className="flex w-full max-w-xl flex-wrap items-center justify-center gap-2">
-        <input ref={input} id="writingInputField" lang={language} value={value}
-          autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false}
-          aria-label={t('writingInput')} placeholder={t('writingInput')} aria-describedby="writing-feedback"
-          className="h-12 min-w-0 flex-1 basis-60 rounded-lg border bg-background px-3 text-center text-xl outline-none placeholder:text-base placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
-          onFocus={resume} onBlur={pause}
-          onKeyDown={event => {
-            // Safari ends composition before the Enter that confirms it, which then reports keyCode 229.
-            if (event.nativeEvent.isComposing || event.keyCode === 229) return
-            if (event.key === 'Enter') { event.preventDefault(); submit() }
-            else if (event.key === 'Escape') { event.preventDefault(); onRestart() }
-          }}
-          onCompositionStart={startComposition}
-          onCompositionEnd={event => endComposition(event.currentTarget.value)}
-          onChange={event => change(event.target.value, (event.nativeEvent as InputEvent).isComposing)} />
-        <Button size="lg" className="h-12" onClick={submit} aria-label={t('writingJudge')} aria-keyshortcuts="Enter">{t('writingJudge')}<Kbd className="hidden sm:inline-flex">Enter</Kbd></Button>
-        <Button variant="outline" size="lg" className="h-12" onClick={skip}><SkipForward aria-hidden="true" />{t('writingSkip')}</Button>
-      </div>
+      {padAvailable && <ModeToggle options={['pad', 'field'] as const} value={writingInput} onChange={setPreferredInput} label={t('writingInputMethod')}
+        labels={{ pad: t('writingInputPad'), field: t('writingInputField') }} />}
+      {writingInput === 'pad'
+        ? <HandwritingPad key={session.index} language={language} expected={word?.display ?? ''} onStart={startPad} onRead={write} onEscape={onRestart}>
+          <Button variant="outline" size="lg" className="h-12" onClick={skip}><SkipForward aria-hidden="true" />{t('writingSkip')}</Button>
+        </HandwritingPad>
+        : <div className="flex w-full max-w-xl flex-wrap items-center justify-center gap-2">
+          <input ref={input} id="writingInputField" lang={language} value={value}
+            autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false}
+            aria-label={t('writingInput')} placeholder={t('writingInput')} aria-describedby="writing-feedback"
+            className="h-12 min-w-0 flex-1 basis-60 rounded-lg border bg-background px-3 text-center text-xl outline-none placeholder:text-base placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+            onFocus={resume} onBlur={pause}
+            onKeyDown={event => {
+              // Safari ends composition before the Enter that confirms it, which then reports keyCode 229.
+              if (event.nativeEvent.isComposing || event.keyCode === 229) return
+              if (event.key === 'Enter') { event.preventDefault(); submit() }
+              else if (event.key === 'Escape') { event.preventDefault(); onRestart() }
+            }}
+            onCompositionStart={startComposition}
+            onCompositionEnd={event => endComposition(event.currentTarget.value)}
+            onChange={event => change(event.target.value, (event.nativeEvent as InputEvent).isComposing)} />
+          <Button size="lg" className="h-12" onClick={submit} aria-label={t('writingJudge')} aria-keyshortcuts="Enter">{t('writingJudge')}<Kbd className="hidden sm:inline-flex">Enter</Kbd></Button>
+          <Button variant="outline" size="lg" className="h-12" onClick={skip}><SkipForward aria-hidden="true" />{t('writingSkip')}</Button>
+        </div>}
       <p id="writing-feedback" aria-live="polite" className="flex min-h-5 flex-wrap items-center justify-center text-xs text-muted-foreground">
         {read !== null
           ? <span key={session.mistakes} className="inline-flex items-center gap-1.5 text-[13px] font-medium text-destructive"><CircleAlert className="size-4 shrink-0" aria-hidden="true" />{t('writingRead', { text: read })}</span>
-          : <span className="hidden items-center gap-1.5 sm:inline-flex"><Kbd>Esc</Kbd>{t('feedback.restart')}</span>}
+          : writingInput === 'pad' && value
+            ? <span className="text-[13px]">{t('writingPadReading', { text: value })}</span>
+            : <span className="hidden items-center gap-1.5 sm:inline-flex"><Kbd>Esc</Kbd>{t('feedback.restart')}</span>}
       </p>
     </div>
     {statsVisible && <LiveStats mode="writing" session={session} accuracy={result.accuracy} />}

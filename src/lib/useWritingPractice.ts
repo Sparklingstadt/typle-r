@@ -10,6 +10,7 @@ import { useTypingOptions } from './inputSettings'
 
 // Practice by the OS's handwriting input (pen panel, IME handwriting, handwriting keyboards) into a text field: every
 // change outside IME composition is checked against the word's display, a match moves on, and Enter counts a mistake.
+// For languages the app reads itself, the handwriting pad (HandwritingPad) reports its readings through write().
 // The record is saved with mode 'writing'. A new run remounts the screen, so there is no restart here.
 export function useWritingPractice(list: SavedWordList, addRecord: RecordSave, device?: PracticeDevice) {
   // The list is the one chosen for this run, so the mark (and its language) stays even if it is removed meanwhile.
@@ -76,6 +77,22 @@ export function useWritingPractice(list: SavedWordList, addRecord: RecordSave, d
     input.current?.focus()
   }
 
+  // The handwriting pad: the first stroke starts the clock; a reading is judged like the field's text, and an explicit
+  // one (判定) counts a mistake when it does not match, as Enter does.
+  function startPad() {
+    if (completed() || session.startedAt !== null) return
+    update(startWriting(session, Date.now()))
+  }
+  function write(text: string, explicit: boolean) {
+    if (completed()) return
+    const now = Date.now()
+    const started = text && session.startedAt === null ? startWriting(session, now) : session
+    setValue(text)
+    const next = judgeWriting(started, words, [text], now, language, typingOptions, explicit)
+    if (next.mistakes > session.mistakes && next.index === session.index) setRead(normalizeWriting(text, language))
+    apply(next)
+  }
+
   function startComposition() {
     composing.current = true
   }
@@ -86,5 +103,5 @@ export function useWritingPractice(list: SavedWordList, addRecord: RecordSave, d
     enter(text, true)
   }
 
-  return { language, session, practiceDevice, word, finished, result, record, saveState, input, value, read, change, submit, skip, startComposition, endComposition, pause, resume, retrySave }
+  return { language, session, practiceDevice, word, finished, result, record, saveState, input, value, read, change, submit, skip, startComposition, endComposition, startPad, write, pause, resume, retrySave }
 }
