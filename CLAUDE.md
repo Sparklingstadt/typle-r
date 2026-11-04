@@ -36,9 +36,8 @@ and one release at a time:
    machine that has Vercel credentials (the user's Mac; cloud sessions have none,
    so hand this step to the user with the exact commands). Then make the checks of
    the `deploy` job in `.github/workflows/ci.yml` against
-   `https://typle-r-six.vercel.app`, and publish `api-docs/` as `docs-deploy` does.
-   This is the only case in which `api-docs/` is published from a local
-   `wrangler` (the version pinned as `WRANGLER_VERSION` in `ci.yml`).
+   `https://typle-r-six.vercel.app`. CI no longer publishes `api-docs/`, so
+   there is nothing to publish for it.
 
 ## コードとコミットの規約
 
