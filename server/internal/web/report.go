@@ -59,3 +59,12 @@ func newReporter(client *sentry.Client) func(*http.Request, error, string) {
 		hub.Flush(flushTimeout)
 	}
 }
+
+// report tells Config.Report, or the log, of a failure that is answered with a 503.
+func (s *server) report(r *http.Request, err error, operation string) {
+	if s.config.Report != nil {
+		s.config.Report(r, err, operation)
+		return
+	}
+	logOnly(r, err, operation)
+}

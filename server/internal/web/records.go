@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/sparklingstadt/typle-r/server/internal/operation"
-	"github.com/sparklingstadt/typle-r/server/internal/session"
 	"github.com/sparklingstadt/typle-r/server/internal/store"
 	"github.com/sparklingstadt/typle-r/server/internal/workspace"
 )
@@ -43,41 +42,6 @@ func (s *server) records(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.addRecord(w, r, user.Sub, fields)
-}
-
-// saveRequest checks a request that saves, to /api/workspace or its records: the Origin of a cookie's request, a JSON
-// body, then the login. It reads the body as a JSON object, answering one that is not with invalid; the object's
-// account is the handler's to check. A body that cannot be read is reported as reported. Otherwise it answers the
-// request.
-func (s *server) saveRequest(w http.ResponseWriter, r *http.Request, reported, invalid string) (session.Session, map[string]json.RawMessage, bool) {
-	if !s.fromAppOrOrigin(r) || !jsonContent(r) {
-		refuse(w, http.StatusForbidden, "forbiddenRequest")
-		return session.Session{}, nil, false
-	}
-	user, ok := s.signedIn(w, r)
-	if !ok {
-		return session.Session{}, nil, false
-	}
-	if r.Body == nil || r.Body == http.NoBody {
-		refuse(w, http.StatusBadRequest, "emptyRequest")
-		return session.Session{}, nil, false
-	}
-	body, err := readBody(r.Body)
-	if errors.Is(err, errTooLarge) {
-		refuse(w, http.StatusRequestEntityTooLarge, "workspaceTooLarge")
-		return session.Session{}, nil, false
-	}
-	if err != nil {
-		s.report(r, err, reported)
-		refuse(w, http.StatusServiceUnavailable, "workspaceSaveFailed")
-		return session.Session{}, nil, false
-	}
-	fields, err := parseObject(body)
-	if err != nil {
-		refuse(w, http.StatusBadRequest, invalid)
-		return session.Session{}, nil, false
-	}
-	return user, fields, true
 }
 
 // sameAccount refuses the members of a record request that are not for owner.
