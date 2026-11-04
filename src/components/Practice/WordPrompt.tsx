@@ -2,7 +2,7 @@
 import { useTranslations } from "next-intl"
 import { Eye, MousePointerClick } from "lucide-react"
 import { recallDisplayHint, recallPrompt } from "@/core/recallPrompt"
-import type { compareInput } from "@/core/typing"
+import type { InputComparison } from "@/core/typing"
 import type { Word } from "@/core/wordFormat"
 import { Button } from "@/components/ui/button"
 import PracticeText from "./PracticeText"
@@ -11,7 +11,7 @@ import TargetText from "./TargetText"
 export default function WordPrompt({ word, recall, comparison, revealed, showResume, onReveal, onResume }: {
   word?: Word
   recall: boolean
-  comparison: ReturnType<typeof compareInput>
+  comparison: InputComparison
   revealed?: boolean
   showResume: boolean
   onReveal: () => void
