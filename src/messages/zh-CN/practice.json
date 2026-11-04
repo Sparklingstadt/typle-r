@@ -135,5 +135,16 @@
   "writingJudge": "判定",
   "writingSkip": "跳过",
   "writingRead": "识别为“{text}”",
-  "writingInput": "在此手写输入"
+  "writingInput": "在此手写输入",
+  "writingInputMethod": "书写方式",
+  "writingInputPad": "手写板",
+  "writingInputField": "输入框",
+  "writingPad": "手写板",
+  "writingPadHint": "在这里书写",
+  "writingPadLoading": "正在准备手写识别…",
+  "writingPadFailed": "无法加载手写识别。",
+  "writingPadRetry": "重试",
+  "writingPadUndo": "撤销一笔",
+  "writingPadClear": "清除",
+  "writingPadReading": "当前识别：{text}"
 }

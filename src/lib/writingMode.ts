@@ -27,3 +27,23 @@ export function useWritingMode() {
 export function practiceMode(list: { writing?: unknown } | undefined, preferred: WritingChoice): WritingChoice {
   return list?.writing && preferred === 'writing' ? 'writing' : 'normal'
 }
+
+// How handwriting reaches the app for languages it reads itself (hasHandwritingModel): the in-app handwriting pad, or a
+// text field for the OS's handwriting input. Remembered per browser; the pad by default, and only `field` is written.
+export const WRITING_INPUT_KEY = 'typle-r:writing-input'
+
+export type WritingInput = 'pad' | 'field'
+
+export function useWritingInput() {
+  const [input, setInput] = useState<WritingInput>(() => {
+    try { return localStorage.getItem(WRITING_INPUT_KEY) === 'field' ? 'field' : 'pad' } catch { return 'pad' }
+  })
+  const choose = useCallback((next: WritingInput) => {
+    setInput(next)
+    try {
+      if (next === 'field') localStorage.setItem(WRITING_INPUT_KEY, 'field')
+      else localStorage.removeItem(WRITING_INPUT_KEY)
+    } catch { /* The choice still holds for this visit when browser storage is unavailable. */ }
+  }, [])
+  return [input, choose] as const
+}
