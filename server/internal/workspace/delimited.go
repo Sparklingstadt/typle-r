@@ -21,12 +21,46 @@ func ParseWordFile(source string, delimiter rune) ([]Word, error) {
 	if len(source) > MaxImportBytes {
 		return nil, &Error{Key: "importTooLarge"}
 	}
-	type row struct {
-		cells []string
-		line  int
+	rows, err := splitRows(source, delimiter)
+	if err != nil {
+		return nil, err
 	}
+	if len(rows) == 0 {
+		return nil, &Error{Key: "importHeaderRequired"}
+	}
+	header, err := readHeader(rows[0].cells)
+	if err != nil {
+		return nil, err
+	}
+	rows = rows[1:]
+	if len(rows) == 0 {
+		return nil, &Error{Key: "importNoRows"}
+	}
+	if len(rows) > maxImportRows {
+		return nil, &Error{Key: "importTooManyRows"}
+	}
+	words := make([]Word, 0, len(rows))
+	for _, r := range rows {
+		word, err := readWord(header, r)
+		if err != nil {
+			return nil, err
+		}
+		words = append(words, word)
+	}
+	return words, nil
+}
+
+// delimitedRow is a row of a word file that is not blank: its fields, and the line it starts on.
+type delimitedRow struct {
+	cells []string
+	line  int
+}
+
+// splitRows splits source into its rows of fields, skipping blank lines. A quote that is not closed, or one that is
+// not at the start of its field or is followed by more than the delimiter or a newline, is importQuote.
+func splitRows(source string, delimiter rune) ([]delimitedRow, error) {
 	text := []rune(strings.TrimPrefix(source, bom))
-	var rows []row
+	var rows []delimitedRow
 	var cells []string
 	var value strings.Builder
 	quoted, closed, line, start := false, false, 1, 1
@@ -39,7 +73,7 @@ func ParseWordFile(source string, delimiter rune) ([]Word, error) {
 		explicit := closed
 		field()
 		if len(cells) > 1 || slices.ContainsFunc(cells, func(cell string) bool { return trimJS(cell) != "" }) || explicit {
-			rows = append(rows, row{cells, start})
+			rows = append(rows, delimitedRow{cells, start})
 		}
 		cells = nil
 	}
@@ -89,17 +123,19 @@ func ParseWordFile(source string, delimiter rune) ([]Word, error) {
 		return nil, fail()
 	}
 	endRow()
-	if len(rows) == 0 {
-		return nil, &Error{Key: "importHeaderRequired"}
-	}
-	header := make([]string, len(rows[0].cells))
-	for i, cell := range rows[0].cells {
+	return rows, nil
+}
+
+// readHeader reads the names of the columns: input and display are required, annotation and input_type may be there
+// (anotation is read as annotation), and no name may come twice or be any other.
+func readHeader(cells []string) ([]string, error) {
+	header := make([]string, len(cells))
+	for i, cell := range cells {
 		header[i] = trimJS(cell)
 		if header[i] == "anotation" {
 			header[i] = "annotation"
 		}
 	}
-	rows = rows[1:]
 	if !slices.Contains(header, "input") || !slices.Contains(header, "display") {
 		return nil, &Error{Key: "importHeaderRequired"}
 	}
@@ -115,36 +151,31 @@ func ParseWordFile(source string, delimiter rune) ([]Word, error) {
 			return nil, &Error{Key: "importHeaderUnknown"}
 		}
 	}
-	if len(rows) == 0 {
-		return nil, &Error{Key: "importNoRows"}
+	return header, nil
+}
+
+// readWord reads the word of row r under header, checking its fields as the app does.
+func readWord(header []string, r delimitedRow) (Word, error) {
+	if len(r.cells) != len(header) {
+		return Word{}, &Error{Key: "importColumnCount", Line: r.line}
 	}
-	if len(rows) > maxImportRows {
-		return nil, &Error{Key: "importTooManyRows"}
+	get := func(name string) string {
+		if i := slices.Index(header, name); i >= 0 {
+			return r.cells[i]
+		}
+		return ""
 	}
-	words := make([]Word, 0, len(rows))
-	for _, r := range rows {
-		if len(r.cells) != len(header) {
-			return nil, &Error{Key: "importColumnCount", Line: r.line}
-		}
-		get := func(name string) string {
-			if i := slices.Index(header, name); i >= 0 {
-				return r.cells[i]
-			}
-			return ""
-		}
-		word := Word{Input: get("input"), Display: get("display"), Annotation: get("annotation"), InputType: get("input_type")}
-		if trimJS(word.Input) == "" || trimJS(word.Display) == "" {
-			return nil, &Error{Key: "importFieldRequired", Line: r.line}
-		}
-		if length(word.Input) > MaxWordText || length(word.Display) > MaxWordText || length(word.Annotation) > MaxAnnotation {
-			return nil, &Error{Key: "importFieldTooLong", Line: r.line}
-		}
-		if !validInputType(word.InputType) {
-			return nil, &Error{Key: "importInputTypeInvalid", Line: r.line}
-		}
-		words = append(words, word)
+	word := Word{Input: get("input"), Display: get("display"), Annotation: get("annotation"), InputType: get("input_type")}
+	if trimJS(word.Input) == "" || trimJS(word.Display) == "" {
+		return Word{}, &Error{Key: "importFieldRequired", Line: r.line}
 	}
-	return words, nil
+	if length(word.Input) > MaxWordText || length(word.Display) > MaxWordText || length(word.Annotation) > MaxAnnotation {
+		return Word{}, &Error{Key: "importFieldTooLong", Line: r.line}
+	}
+	if !validInputType(word.InputType) {
+		return Word{}, &Error{Key: "importInputTypeInvalid", Line: r.line}
+	}
+	return word, nil
 }
 
 // EncodeWordCSV writes words as encodeWordCsv does: a BOM, the header, every field quoted, CRLF after every line.

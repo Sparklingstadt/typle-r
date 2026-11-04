@@ -171,43 +171,52 @@ func DecodePackFile(data []byte) (*PackFile, error) {
 		}
 	}
 	for _, item := range items {
-		fields, ok := readObject(item)
+		list, ok := readPackFileList(item)
 		if !ok {
 			return nil, unreadable
-		}
-		var list PackFileList
-		var isName bool
-		var err error
-		list.Name, isName = readString(fields["name"])
-		words, isWords := readArray(fields["words"])
-		if !isName || !isWords {
-			return nil, unreadable
-		}
-		if !absent(fields["levels"]) {
-			if list.Levels, ok = readStrings(fields["levels"]); !ok {
-				return nil, unreadable
-			}
-		}
-		if !absent(fields["writing"]) {
-			if list.Writing, err = writingOf(fields["writing"]); err != nil {
-				return nil, unreadable
-			}
-		}
-		list.Words = make([]Word, 0, len(words))
-		for _, raw := range words {
-			word, ok := readObject(raw)
-			display, isDisplay := readString(word["display"])
-			input, isInput := readString(word["input"])
-			annotation, isAnnotation := readString(word["annotation"])
-			inputType, typeErr := readInputType(word["input_type"])
-			if !ok || !isDisplay || !isInput || !isAnnotation || typeErr != nil {
-				return nil, unreadable
-			}
-			list.Words = append(list.Words, Word{Display: display, Input: input, Annotation: annotation, InputType: inputType})
 		}
 		file.Lists = append(file.Lists, list)
 	}
 	return file, nil
+}
+
+// readPackFileList reads a list of a pack file as DecodePackFile does: false when its shape is not that of one.
+func readPackFileList(item json.RawMessage) (PackFileList, bool) {
+	fields, ok := readObject(item)
+	if !ok {
+		return PackFileList{}, false
+	}
+	var list PackFileList
+	var isName bool
+	list.Name, isName = readString(fields["name"])
+	words, isWords := readArray(fields["words"])
+	if !isName || !isWords {
+		return PackFileList{}, false
+	}
+	if !absent(fields["levels"]) {
+		if list.Levels, ok = readStrings(fields["levels"]); !ok {
+			return PackFileList{}, false
+		}
+	}
+	if !absent(fields["writing"]) {
+		var err error
+		if list.Writing, err = writingOf(fields["writing"]); err != nil {
+			return PackFileList{}, false
+		}
+	}
+	list.Words = make([]Word, 0, len(words))
+	for _, raw := range words {
+		word, ok := readObject(raw)
+		display, isDisplay := readString(word["display"])
+		input, isInput := readString(word["input"])
+		annotation, isAnnotation := readString(word["annotation"])
+		inputType, typeErr := readInputType(word["input_type"])
+		if !ok || !isDisplay || !isInput || !isAnnotation || typeErr != nil {
+			return PackFileList{}, false
+		}
+		list.Words = append(list.Words, Word{Display: display, Input: input, Annotation: annotation, InputType: inputType})
+	}
+	return list, true
 }
 
 // ImportPack follows importPackFile and addPackFile (src/core/packFile.ts): the file's pack goes after the others as a

@@ -180,59 +180,80 @@ func urlCause(err error) error {
 
 // verify checks the ID token's signature and claims, and returns who it names.
 func (f *FFPF) verify(ctx context.Context, idToken, nonce string) (FFPFUser, error) {
-	reject := func(reason string) (FFPFUser, error) {
-		return FFPFUser{}, fmt.Errorf("%w: the ID token %s", ErrFFPFRejected, reason)
+	segments, decoded, err := splitJWT(idToken)
+	if err != nil {
+		return FFPFUser{}, err
 	}
-	segments := strings.Split(idToken, ".")
+	if err := f.checkSignature(ctx, segments, decoded); err != nil {
+		return FFPFUser{}, err
+	}
+	return f.readClaims(decoded[1], nonce)
+}
+
+// rejected is an ID token refused for reason.
+func rejected(reason string) error {
+	return fmt.Errorf("%w: the ID token %s", ErrFFPFRejected, reason)
+}
+
+// splitJWT splits a compact JWT into its three segments, and decodes each from strict base64url.
+func splitJWT(idToken string) (segments []string, decoded [3][]byte, err error) {
+	segments = strings.Split(idToken, ".")
 	if len(segments) != 3 {
-		return reject("is not a compact JWT")
+		return nil, decoded, rejected("is not a compact JWT")
 	}
-	var decoded [3][]byte
 	for i, segment := range segments {
 		if !jwtSegment.MatchString(segment) {
-			return reject("is not a compact JWT")
+			return nil, decoded, rejected("is not a compact JWT")
 		}
 		data, err := strictB64.DecodeString(segment)
 		if err != nil {
-			return reject("is not a compact JWT")
+			return nil, decoded, rejected("is not a compact JWT")
 		}
 		decoded[i] = data
 	}
+	return segments, decoded, nil
+}
 
+// checkSignature checks the JWT's header, and its signature with the key of the provider's JWKS that the header names.
+func (f *FFPF) checkSignature(ctx context.Context, segments []string, decoded [3][]byte) error {
 	var header struct {
 		Alg string  `json:"alg"`
 		Typ *string `json:"typ"`
 		Kid string  `json:"kid"`
 	}
 	if err := json.Unmarshal(decoded[0], &header); err != nil {
-		return reject("header is not JSON")
+		return rejected("header is not JSON")
 	}
 	// Only ES256 is accepted, whatever the header claims, so neither "none" nor an HMAC keyed with the public key can
 	// get in.
 	if header.Alg != "ES256" {
-		return reject("is not ES256")
+		return rejected("is not ES256")
 	}
 	if header.Typ != nil && *header.Typ != "JWT" {
-		return reject("is not typed JWT")
+		return rejected("is not typed JWT")
 	}
 	if header.Kid == "" {
-		return reject("has no kid")
+		return rejected("has no kid")
 	}
 	key, err := f.key(ctx, header.Kid)
 	if err != nil {
-		return FFPFUser{}, err
+		return err
 	}
 	// An ES256 signature is r‖s, 32 bytes each (RFC 7518 §3.4), not ASN.1.
 	signature := decoded[2]
 	if len(signature) != 64 {
-		return reject("signature is not 64 bytes")
+		return rejected("signature is not 64 bytes")
 	}
 	digest := sha256.Sum256([]byte(segments[0] + "." + segments[1]))
 	r, s := new(big.Int).SetBytes(signature[:32]), new(big.Int).SetBytes(signature[32:])
 	if !ecdsa.Verify(key, digest[:], r, s) {
-		return reject("signature does not verify")
+		return rejected("signature does not verify")
 	}
+	return nil
+}
 
+// readClaims checks the claims of a signed ID token, and returns who they name.
+func (f *FFPF) readClaims(payload []byte, nonce string) (FFPFUser, error) {
 	var claims struct {
 		Iss           string          `json:"iss"`
 		Aud           json.RawMessage `json:"aud"`
@@ -243,7 +264,8 @@ func (f *FFPF) verify(ctx context.Context, idToken, nonce string) (FFPFUser, err
 		EmailVerified json.RawMessage `json:"email_verified"`
 		Name          string          `json:"name"`
 	}
-	if err := json.Unmarshal(decoded[1], &claims); err != nil {
+	reject := func(reason string) (FFPFUser, error) { return FFPFUser{}, rejected(reason) }
+	if err := json.Unmarshal(payload, &claims); err != nil {
 		return reject("claims are not JSON of the expected types")
 	}
 	if claims.Iss != f.Issuer {

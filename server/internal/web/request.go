@@ -96,35 +96,7 @@ func decodeFields(fields map[string]json.RawMessage) (revision int, change store
 		}
 		return revision, store.Change{Interests: interests, HasInterests: hasInterests}, nil
 	}
-	// null is not a left-out part: the app refuses it. A part that is left out is read as empty, so that only the
-	// other one is checked.
-	for _, raw := range []*json.RawMessage{&lists, &packs, &devices} {
-		if bytes.Equal(*raw, []byte("null")) {
-			return 0, store.Change{}, errInvalid
-		}
-	}
-	if unstorable(lists) || unstorable(packs) || unstorable(devices) {
-		return 0, store.Change{}, errInvalid
-	}
-	// Lists sent with packs are checked with them as they were sent, before Decode repairs them.
-	if hasPacks {
-		if err := workspace.CheckLibrary(lists, packs); err != nil {
-			return 0, store.Change{}, err
-		}
-	} else {
-		packs = json.RawMessage("[]")
-	}
-	if !hasLists {
-		lists = json.RawMessage("[]")
-	} else if sent, err := workspace.DecodeLists(lists); err != nil || workspace.CheckLimits(sent) != nil {
-		// The limits of the lists as sent, such as their levels before Decode joins them.
-		return 0, store.Change{}, errInvalid
-	}
-	if !hasDevices {
-		devices = json.RawMessage("[]")
-	}
-	// The limits of the lists and the number of them are checked by the store, before it touches the database.
-	decoded, err := workspace.Decode(lists, devices, packs)
+	decoded, err := decodeParts(lists, packs, devices, hasLists, hasPacks, hasDevices)
 	if err != nil {
 		return 0, store.Change{}, err
 	}
@@ -134,6 +106,40 @@ func decodeFields(fields map[string]json.RawMessage) (revision int, change store
 	// The lists are stored as Decode repaired them, with the packs it made for lists sent without them.
 	return revision, store.Change{Lists: decoded.Lists, Packs: decoded.Packs, Devices: decoded.Devices, Interests: interests,
 		HasLists: hasLists, HasPacks: hasLists, HasDevices: hasDevices, HasInterests: hasInterests}, nil
+}
+
+// decodeParts checks the lists, packs and devices of a save as validateWorkspaceRequest does, and reads them with
+// Decode. A part left out (has… false) is read as empty, so that only the others are checked.
+func decodeParts(lists, packs, devices json.RawMessage, hasLists, hasPacks, hasDevices bool) (*workspace.Workspace, error) {
+	// null is not a left-out part: the app refuses it. A part that is left out is read as empty, so that only the
+	// other one is checked.
+	for _, raw := range []*json.RawMessage{&lists, &packs, &devices} {
+		if bytes.Equal(*raw, []byte("null")) {
+			return nil, errInvalid
+		}
+	}
+	if unstorable(lists) || unstorable(packs) || unstorable(devices) {
+		return nil, errInvalid
+	}
+	// Lists sent with packs are checked with them as they were sent, before Decode repairs them.
+	if hasPacks {
+		if err := workspace.CheckLibrary(lists, packs); err != nil {
+			return nil, err
+		}
+	} else {
+		packs = json.RawMessage("[]")
+	}
+	if !hasLists {
+		lists = json.RawMessage("[]")
+	} else if sent, err := workspace.DecodeLists(lists); err != nil || workspace.CheckLimits(sent) != nil {
+		// The limits of the lists as sent, such as their levels before Decode joins them.
+		return nil, errInvalid
+	}
+	if !hasDevices {
+		devices = json.RawMessage("[]")
+	}
+	// The limits of the lists and the number of them are checked by the store, before it touches the database.
+	return workspace.Decode(lists, devices, packs)
 }
 
 // decodeInterests reads the interests of a save as decodeInterests (src/core/interests.ts) does: null is none. Left out

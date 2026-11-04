@@ -47,21 +47,9 @@ func (s *Store) PutShare(ctx context.Context, owner, packID string, listed *bool
 		if err := lockOwner(ctx, tx, owner); err != nil {
 			return err
 		}
-		var lists, packs, devices []byte
-		var w *workspace.Workspace
-		err := tx.QueryRow(ctx, `SELECT lists::text, packs::text, devices::text FROM typle_workspaces WHERE owner_id = $1 FOR UPDATE`,
-			owner).Scan(&lists, &packs, &devices)
-		switch {
-		case errors.Is(err, pgx.ErrNoRows):
-			if w, err = workspace.Initial(); err != nil {
-				return err
-			}
-		case err != nil:
+		w, err := sharedWorkspace(ctx, tx, owner)
+		if err != nil {
 			return err
-		default:
-			if w, err = workspace.Decode(lists, devices, packs); err != nil {
-				return fmt.Errorf("saved workspace of %s: %w", owner, err)
-			}
 		}
 		data, err := workspace.EncodePackFile(w, packID)
 		if err != nil {
@@ -71,14 +59,8 @@ func (s *Store) PutShare(ctx context.Context, owner, packID string, listed *bool
 			return &workspace.Error{Key: "invalidWorkspace"}
 		}
 		if listed != nil {
-			var hidden bool
-			err := tx.QueryRow(ctx, `SELECT hidden_at IS NOT NULL FROM typle_shared_packs WHERE owner_id = $1 AND pack_id = $2 FOR UPDATE`,
-				owner, packID).Scan(&hidden)
-			if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			if err := refuseHidden(ctx, tx, owner, packID); err != nil {
 				return err
-			}
-			if hidden {
-				return &workspace.Error{Key: "sharedPackHidden"}
 			}
 		}
 		share = &Share{PackID: packID}
@@ -95,6 +77,39 @@ func (s *Store) PutShare(ctx context.Context, owner, packID string, listed *bool
 		return nil, err
 	}
 	return share, nil
+}
+
+// sharedWorkspace reads the owner's workspace FOR UPDATE, as PutShare copies a pack from it: the initial one for an
+// account that has saved nothing.
+func sharedWorkspace(ctx context.Context, tx pgx.Tx, owner string) (*workspace.Workspace, error) {
+	var lists, packs, devices []byte
+	err := tx.QueryRow(ctx, `SELECT lists::text, packs::text, devices::text FROM typle_workspaces WHERE owner_id = $1 FOR UPDATE`,
+		owner).Scan(&lists, &packs, &devices)
+	switch {
+	case errors.Is(err, pgx.ErrNoRows):
+		return workspace.Initial()
+	case err != nil:
+		return nil, err
+	}
+	w, err := workspace.Decode(lists, devices, packs)
+	if err != nil {
+		return nil, fmt.Errorf("saved workspace of %s: %w", owner, err)
+	}
+	return w, nil
+}
+
+// refuseHidden is sharedPackHidden when the link to the owner's pack is hidden, locking it until the transaction ends.
+func refuseHidden(ctx context.Context, tx pgx.Tx, owner, packID string) error {
+	var hidden bool
+	err := tx.QueryRow(ctx, `SELECT hidden_at IS NOT NULL FROM typle_shared_packs WHERE owner_id = $1 AND pack_id = $2 FOR UPDATE`,
+		owner, packID).Scan(&hidden)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return err
+	}
+	if hidden {
+		return &workspace.Error{Key: "sharedPackHidden"}
+	}
+	return nil
 }
 
 // DeleteShare stops sharing the owner's pack. A pack that is not shared is left as it is, without an error.

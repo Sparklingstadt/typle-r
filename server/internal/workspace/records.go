@@ -97,11 +97,8 @@ func AddRecord(w *Workspace, listID string, input RecordInput, newID string) (re
 		return Record{}, false, invalid
 	}
 	// The mode is checked before a resend is looked up, as addRecord does in the app.
-	mode := ""
-	if input.Mode != nil {
-		mode = *input.Mode
-	}
-	if input.ModeNull || (input.Mode != nil && (mode == "" || !validMode(mode))) {
+	mode, ok := recordMode(input)
+	if !ok {
 		return Record{}, false, invalid
 	}
 	wordCount := len(list.Words)
@@ -123,22 +120,45 @@ func AddRecord(w *Workspace, listID string, input RecordInput, newID string) (re
 	if len(list.Records) >= MaxRecords {
 		return Record{}, false, &Error{Key: "recordLimit"}
 	}
-	var device *Device
-	switch {
-	case input.Device != nil && (input.DeviceID != nil || !isDevice(*input.Device)):
-		return Record{}, false, invalid
-	case input.Device != nil:
-		device = &Device{ID: input.Device.ID, Name: input.Device.Name, Layout: input.Device.Layout}
-	case input.DeviceID != nil:
-		if device, ok = findDevice(w, *input.DeviceID); !ok {
-			return Record{}, false, &Error{Key: "deviceNotFound"}
-		}
+	device, err := recordDevice(w, input)
+	if err != nil {
+		return Record{}, false, err
 	}
 	accuracy := *input.Accuracy
 	record = Record{ID: &id, Time: *input.Time, Date: FormatTime(date), Mistakes: &mistakes, Accuracy: &accuracy,
 		WordCount: &wordCount, Device: device, Mode: mode, At: date}
 	list.Records = append(list.Records, record)
 	return record, true, nil
+}
+
+// recordMode is the mode of a run, "" when it is left out; false when it is null, empty or not one of the modes.
+func recordMode(input RecordInput) (string, bool) {
+	mode := ""
+	if input.Mode != nil {
+		mode = *input.Mode
+	}
+	if input.ModeNull || (input.Mode != nil && (mode == "" || !validMode(mode))) {
+		return "", false
+	}
+	return mode, true
+}
+
+// recordDevice is the device a run was practised on: the one it gives, or the registered one it names by deviceId
+// (deviceNotFound when there is none), but not both. nil when it names none.
+func recordDevice(w *Workspace, input RecordInput) (*Device, error) {
+	switch {
+	case input.Device != nil && (input.DeviceID != nil || !isDevice(*input.Device)):
+		return nil, &Error{Key: "invalidRecord"}
+	case input.Device != nil:
+		return &Device{ID: input.Device.ID, Name: input.Device.Name, Layout: input.Device.Layout}, nil
+	case input.DeviceID != nil:
+		device, ok := findDevice(w, *input.DeviceID)
+		if !ok {
+			return nil, &Error{Key: "deviceNotFound"}
+		}
+		return device, nil
+	}
+	return nil, nil
 }
 
 func validTime(value *float64) bool { return finite(value) && *value >= 0 }
@@ -223,17 +243,26 @@ func UpdateRecord(w *Workspace, listID, recordID string, change RecordChange) (R
 		record.WordCount = &wordCount
 	}
 	if change.DeviceID != nil {
-		record.Device = nil
-		if *change.DeviceID != "" {
-			device, ok := findDevice(w, *change.DeviceID)
-			if !ok {
-				return Record{}, &Error{Key: "deviceNotFound"}
-			}
-			record.Device = device
+		device, err := changedDevice(w, *change.DeviceID)
+		if err != nil {
+			return Record{}, err
 		}
+		record.Device = device
 	}
 	*saved = record
 	return record, nil
+}
+
+// changedDevice is the device a run is changed to: the registered one with the id, or none for "".
+func changedDevice(w *Workspace, id string) (*Device, error) {
+	if id == "" {
+		return nil, nil
+	}
+	device, ok := findDevice(w, id)
+	if !ok {
+		return nil, &Error{Key: "deviceNotFound"}
+	}
+	return device, nil
 }
 
 // DeleteRecord removes a saved run, as removeRecord (src/core/records.ts) does for a record with an id.

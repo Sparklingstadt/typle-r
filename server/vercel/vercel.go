@@ -277,11 +277,7 @@ func (b *Backend) database() web.Store {
 	if open := b.source.Load(); open != nil {
 		return *open
 	}
-	// The same variables as typle-api.
-	connection := os.Getenv("DATABASE_URL")
-	if connection == "" {
-		connection = os.Getenv("POSTGRES_URL")
-	}
+	connection := connectionString()
 	if connection == "" {
 		log.Print("start the backend: set DATABASE_URL (or POSTGRES_URL)")
 		return nil
@@ -304,7 +300,19 @@ func (b *Backend) database() web.Store {
 	mine := &attempt{done: make(chan struct{})}
 	b.flight = mine
 	b.mu.Unlock()
+	return b.openDatabase(mine, connection)
+}
 
+// connectionString is the database to open, from the same variables as typle-api.
+func connectionString() string {
+	if connection := os.Getenv("DATABASE_URL"); connection != "" {
+		return connection
+	}
+	return os.Getenv("POSTGRES_URL")
+}
+
+// openDatabase opens the database as mine, the attempt this request started, and then releases those waiting for it.
+func (b *Backend) openDatabase(mine *attempt, connection string) web.Store {
 	// Whatever happens, the waiters are released, with nil unless the database opened.
 	defer func() {
 		b.mu.Lock()
