@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-advanced-words-2",
+  "name": "韓国語 手書き上級（経済・産業）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き上級単語",
+  "levels": [
+    "経済・産業"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "경제",
+      "input": "gyeongje",
+      "annotation": "gyeongje / 経済",
+      "input_type": "word"
+    },
+    {
+      "display": "물가",
+      "input": "mulga",
+      "annotation": "mulga / 物価",
+      "input_type": "word"
+    },
+    {
+      "display": "세금",
+      "input": "segeum",
+      "annotation": "segeum / 税金",
+      "input_type": "word"
+    },
+    {
+      "display": "투자",
+      "input": "tuja",
+      "annotation": "tuja / 投資",
+      "input_type": "word"
+    },
+    {
+      "display": "수출",
+      "input": "suchul",
+      "annotation": "suchul / 輸出",
+      "input_type": "word"
+    },
+    {
+      "display": "수입",
+      "input": "suip",
+      "annotation": "suip / 輸入・収入",
+      "input_type": "word"
+    },
+    {
+      "display": "무역",
+      "input": "muyeok",
+      "annotation": "muyeok / 貿易",
+      "input_type": "word"
+    },
+    {
+      "display": "기업",
+      "input": "gieop",
+      "annotation": "gieop / 企業",
+      "input_type": "word"
+    },
+    {
+      "display": "산업",
+      "input": "saneop",
+      "annotation": "saneop / 産業",
+      "input_type": "word"
+    },
+    {
+      "display": "소비",
+      "input": "sobi",
+      "annotation": "sobi / 消費",
+      "input_type": "word"
+    },
+    {
+      "display": "생산",
+      "input": "saengsan",
+      "annotation": "saengsan / 生産",
+      "input_type": "word"
+    },
+    {
+      "display": "환율",
+      "input": "hwanyul",
+      "annotation": "hwanyul / 為替レート",
+      "input_type": "word"
+    },
+    {
+      "display": "주식",
+      "input": "jusik",
+      "annotation": "jusik / 株式",
+      "input_type": "word"
+    },
+    {
+      "display": "예산",
+      "input": "yesan",
+      "annotation": "yesan / 予算",
+      "input_type": "word"
+    },
+    {
+      "display": "실업",
+      "input": "sireop",
+      "annotation": "sireop / 失業",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

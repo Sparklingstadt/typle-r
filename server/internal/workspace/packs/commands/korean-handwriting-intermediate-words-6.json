@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-intermediate-words-6",
+  "name": "韓国語 手書き中級（形容詞）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き中級単語",
+  "levels": [
+    "形容詞"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "밝다",
+      "input": "bakda",
+      "annotation": "bakda / 明るい",
+      "input_type": "word"
+    },
+    {
+      "display": "좁다",
+      "input": "jopda",
+      "annotation": "jopda / 狭い",
+      "input_type": "word"
+    },
+    {
+      "display": "깊다",
+      "input": "gipda",
+      "annotation": "gipda / 深い",
+      "input_type": "word"
+    },
+    {
+      "display": "높다",
+      "input": "nopda",
+      "annotation": "nopda / 高い",
+      "input_type": "word"
+    },
+    {
+      "display": "낮다",
+      "input": "natda",
+      "annotation": "natda / 低い",
+      "input_type": "word"
+    },
+    {
+      "display": "넓다",
+      "input": "neolda",
+      "annotation": "neolda / 広い",
+      "input_type": "word"
+    },
+    {
+      "display": "얇다",
+      "input": "yalda",
+      "annotation": "yalda / 薄い",
+      "input_type": "word"
+    },
+    {
+      "display": "어둡다",
+      "input": "eodupda",
+      "annotation": "eodupda / 暗い",
+      "input_type": "word"
+    },
+    {
+      "display": "무겁다",
+      "input": "mugeopda",
+      "annotation": "mugeopda / 重い",
+      "input_type": "word"
+    },
+    {
+      "display": "가볍다",
+      "input": "gabyeopda",
+      "annotation": "gabyeopda / 軽い",
+      "input_type": "word"
+    },
+    {
+      "display": "두껍다",
+      "input": "dukkeopda",
+      "annotation": "dukkeopda / 厚い",
+      "input_type": "word"
+    },
+    {
+      "display": "조용하다",
+      "input": "joyonghada",
+      "annotation": "joyonghada / 静かだ",
+      "input_type": "word"
+    },
+    {
+      "display": "깨끗하다",
+      "input": "kkaekkeutada",
+      "annotation": "kkaekkeutada / 清潔だ",
+      "input_type": "word"
+    },
+    {
+      "display": "따뜻하다",
+      "input": "ttatteutada",
+      "annotation": "ttatteutada / 暖かい",
+      "input_type": "word"
+    },
+    {
+      "display": "시끄럽다",
+      "input": "sikkeureopda",
+      "annotation": "sikkeureopda / うるさい",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

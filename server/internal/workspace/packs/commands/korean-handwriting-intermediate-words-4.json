@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-intermediate-words-4",
+  "name": "韓国語 手書き中級（仕事・学校）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き中級単語",
+  "levels": [
+    "仕事・学校"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "회의",
+      "input": "hoeui",
+      "annotation": "hoeui / 会議",
+      "input_type": "word"
+    },
+    {
+      "display": "월급",
+      "input": "wolgeup",
+      "annotation": "wolgeup / 給料",
+      "input_type": "word"
+    },
+    {
+      "display": "출근",
+      "input": "chulgeun",
+      "annotation": "chulgeun / 出勤",
+      "input_type": "word"
+    },
+    {
+      "display": "퇴근",
+      "input": "toegeun",
+      "annotation": "toegeun / 退勤",
+      "input_type": "word"
+    },
+    {
+      "display": "서류",
+      "input": "seoryu",
+      "annotation": "seoryu / 書類",
+      "input_type": "word"
+    },
+    {
+      "display": "직장",
+      "input": "jikjang",
+      "annotation": "jikjang / 職場",
+      "input_type": "word"
+    },
+    {
+      "display": "동료",
+      "input": "dongnyo",
+      "annotation": "dongnyo / 同僚",
+      "input_type": "word"
+    },
+    {
+      "display": "면접",
+      "input": "myeonjeop",
+      "annotation": "myeonjeop / 面接",
+      "input_type": "word"
+    },
+    {
+      "display": "시험",
+      "input": "siheom",
+      "annotation": "siheom / 試験",
+      "input_type": "word"
+    },
+    {
+      "display": "숙제",
+      "input": "sukje",
+      "annotation": "sukje / 宿題",
+      "input_type": "word"
+    },
+    {
+      "display": "졸업",
+      "input": "joreop",
+      "annotation": "joreop / 卒業",
+      "input_type": "word"
+    },
+    {
+      "display": "전공",
+      "input": "jeongong",
+      "annotation": "jeongong / 専攻",
+      "input_type": "word"
+    },
+    {
+      "display": "강의",
+      "input": "gangui",
+      "annotation": "gangui / 講義",
+      "input_type": "word"
+    },
+    {
+      "display": "성적",
+      "input": "seongjeok",
+      "annotation": "seongjeok / 成績",
+      "input_type": "word"
+    },
+    {
+      "display": "장학금",
+      "input": "janghakgeum",
+      "annotation": "janghakgeum / 奨学金",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

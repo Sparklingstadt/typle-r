@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-advanced-words-5",
+  "name": "韓国語 手書き上級（動詞）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き上級単語",
+  "levels": [
+    "動詞"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "겪다",
+      "input": "gyeokda",
+      "annotation": "gyeokda / 経験する",
+      "input_type": "word"
+    },
+    {
+      "display": "견디다",
+      "input": "gyeondida",
+      "annotation": "gyeondida / 耐える",
+      "input_type": "word"
+    },
+    {
+      "display": "미루다",
+      "input": "miruda",
+      "annotation": "miruda / 先延ばしにする",
+      "input_type": "word"
+    },
+    {
+      "display": "깨닫다",
+      "input": "kkaedatda",
+      "annotation": "kkaedatda / 悟る",
+      "input_type": "word"
+    },
+    {
+      "display": "드러나다",
+      "input": "deureonada",
+      "annotation": "deureonada / 現れる",
+      "input_type": "word"
+    },
+    {
+      "display": "포기하다",
+      "input": "pogihada",
+      "annotation": "pogihada / 諦める",
+      "input_type": "word"
+    },
+    {
+      "display": "유지하다",
+      "input": "yujihada",
+      "annotation": "yujihada / 維持する",
+      "input_type": "word"
+    },
+    {
+      "display": "개선하다",
+      "input": "gaeseonhada",
+      "annotation": "gaeseonhada / 改善する",
+      "input_type": "word"
+    },
+    {
+      "display": "제안하다",
+      "input": "jeanhada",
+      "annotation": "jeanhada / 提案する",
+      "input_type": "word"
+    },
+    {
+      "display": "주장하다",
+      "input": "jujanghada",
+      "annotation": "jujanghada / 主張する",
+      "input_type": "word"
+    },
+    {
+      "display": "비판하다",
+      "input": "bipanhada",
+      "annotation": "bipanhada / 批判する",
+      "input_type": "word"
+    },
+    {
+      "display": "해결하다",
+      "input": "haegyeolhada",
+      "annotation": "haegyeolhada / 解決する",
+      "input_type": "word"
+    },
+    {
+      "display": "존중하다",
+      "input": "jonjunghada",
+      "annotation": "jonjunghada / 尊重する",
+      "input_type": "word"
+    },
+    {
+      "display": "인정하다",
+      "input": "injeonghada",
+      "annotation": "injeonghada / 認める",
+      "input_type": "word"
+    },
+    {
+      "display": "극복하다",
+      "input": "geukbokada",
+      "annotation": "geukbokada / 克服する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

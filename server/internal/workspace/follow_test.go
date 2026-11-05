@@ -90,7 +90,7 @@ func TestOfficialPacks(t *testing.T) {
 		t.Fatal(err)
 	}
 	// The same catalog ids, in the same order, as officialPacks() in src/plugins/packs/catalog.ts.
-	if len(official) != 62 || official[0].CatalogID != "pack-8f3cf116-1f9f-4579-a071-e600094b104d" ||
+	if len(official) != 64 || official[0].CatalogID != "pack-8f3cf116-1f9f-4579-a071-e600094b104d" ||
 		official[1].CatalogID != "pack-ef974a4b-3c7a-4eeb-9979-6721a0a1c81a" {
 		t.Fatalf("official = %d packs, first %v", len(official), official[:min(2, len(official))])
 	}
@@ -109,8 +109,8 @@ func TestOfficialPacks(t *testing.T) {
 	}
 	// The 66 existing lists are followed by six beginner language lists, the four English and four Russian lists, two
 	// intermediate Czech lists, two lists each of HSK 5 and HSK 6 Chinese words, three lists of PostgreSQL error codes,
-	// the six lists each of the twenty HSK 6 handwriting packs and the six lists of the Korean handwriting pack.
-	if count != 215 || official[0].Lists[0].ID != "8f3cf116-1f9f-4579-a071-e600094b104d" {
+	// the six lists each of the twenty HSK 6 handwriting packs and the six lists each of the three Korean handwriting packs.
+	if count != 227 || official[0].Lists[0].ID != "8f3cf116-1f9f-4579-a071-e600094b104d" {
 		t.Fatalf("%d lists, first %s", count, official[0].Lists[0].ID)
 	}
 	// The group Arch Linuxコマンド is named after the list arch-linux, which comes first and has no group.

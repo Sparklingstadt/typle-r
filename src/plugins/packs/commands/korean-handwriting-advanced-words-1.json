@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-advanced-words-1",
+  "name": "韓国語 手書き上級（社会・政治）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き上級単語",
+  "levels": [
+    "社会・政治"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "정부",
+      "input": "jeongbu",
+      "annotation": "jeongbu / 政府",
+      "input_type": "word"
+    },
+    {
+      "display": "국회",
+      "input": "gukhoe",
+      "annotation": "gukhoe / 国会",
+      "input_type": "word"
+    },
+    {
+      "display": "선거",
+      "input": "seongeo",
+      "annotation": "seongeo / 選挙",
+      "input_type": "word"
+    },
+    {
+      "display": "투표",
+      "input": "tupyo",
+      "annotation": "tupyo / 投票",
+      "input_type": "word"
+    },
+    {
+      "display": "외교",
+      "input": "oegyo",
+      "annotation": "oegyo / 外交",
+      "input_type": "word"
+    },
+    {
+      "display": "헌법",
+      "input": "heonbeop",
+      "annotation": "heonbeop / 憲法",
+      "input_type": "word"
+    },
+    {
+      "display": "인권",
+      "input": "ingwon",
+      "annotation": "ingwon / 人権",
+      "input_type": "word"
+    },
+    {
+      "display": "평등",
+      "input": "pyeongdeung",
+      "annotation": "pyeongdeung / 平等",
+      "input_type": "word"
+    },
+    {
+      "display": "복지",
+      "input": "bokji",
+      "annotation": "bokji / 福祉",
+      "input_type": "word"
+    },
+    {
+      "display": "여론",
+      "input": "yeoron",
+      "annotation": "yeoron / 世論",
+      "input_type": "word"
+    },
+    {
+      "display": "갈등",
+      "input": "galdeung",
+      "annotation": "galdeung / 対立・葛藤",
+      "input_type": "word"
+    },
+    {
+      "display": "정책",
+      "input": "jeongchaek",
+      "annotation": "jeongchaek / 政策",
+      "input_type": "word"
+    },
+    {
+      "display": "법률",
+      "input": "beomnyul",
+      "annotation": "beomnyul / 法律",
+      "input_type": "word"
+    },
+    {
+      "display": "대통령",
+      "input": "daetongnyeong",
+      "annotation": "daetongnyeong / 大統領",
+      "input_type": "word"
+    },
+    {
+      "display": "민주주의",
+      "input": "minjujuui",
+      "annotation": "minjujuui / 民主主義",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

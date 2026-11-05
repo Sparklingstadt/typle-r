@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-intermediate-words-5",
+  "name": "韓国語 手書き中級（動詞）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き中級単語",
+  "levels": [
+    "動詞"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "웃다",
+      "input": "utda",
+      "annotation": "utda / 笑う",
+      "input_type": "word"
+    },
+    {
+      "display": "울다",
+      "input": "ulda",
+      "annotation": "ulda / 泣く",
+      "input_type": "word"
+    },
+    {
+      "display": "씻다",
+      "input": "ssitda",
+      "annotation": "ssitda / 洗う",
+      "input_type": "word"
+    },
+    {
+      "display": "찾다",
+      "input": "chatda",
+      "annotation": "chatda / 探す",
+      "input_type": "word"
+    },
+    {
+      "display": "잊다",
+      "input": "itda",
+      "annotation": "itda / 忘れる",
+      "input_type": "word"
+    },
+    {
+      "display": "믿다",
+      "input": "mitda",
+      "annotation": "mitda / 信じる",
+      "input_type": "word"
+    },
+    {
+      "display": "잡다",
+      "input": "japda",
+      "annotation": "japda / つかむ",
+      "input_type": "word"
+    },
+    {
+      "display": "버리다",
+      "input": "beorida",
+      "annotation": "beorida / 捨てる",
+      "input_type": "word"
+    },
+    {
+      "display": "보내다",
+      "input": "bonaeda",
+      "annotation": "bonaeda / 送る",
+      "input_type": "word"
+    },
+    {
+      "display": "고르다",
+      "input": "goreuda",
+      "annotation": "goreuda / 選ぶ",
+      "input_type": "word"
+    },
+    {
+      "display": "바꾸다",
+      "input": "bakkuda",
+      "annotation": "bakkuda / 変える",
+      "input_type": "word"
+    },
+    {
+      "display": "빌리다",
+      "input": "billida",
+      "annotation": "billida / 借りる",
+      "input_type": "word"
+    },
+    {
+      "display": "기다리다",
+      "input": "gidarida",
+      "annotation": "gidarida / 待つ",
+      "input_type": "word"
+    },
+    {
+      "display": "준비하다",
+      "input": "junbihada",
+      "annotation": "junbihada / 準備する",
+      "input_type": "word"
+    },
+    {
+      "display": "설명하다",
+      "input": "seolmyeonghada",
+      "annotation": "seolmyeonghada / 説明する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

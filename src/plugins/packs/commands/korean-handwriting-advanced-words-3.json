@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-advanced-words-3",
+  "name": "韓国語 手書き上級（科学・環境）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き上級単語",
+  "levels": [
+    "科学・環境"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "지구",
+      "input": "jigu",
+      "annotation": "jigu / 地球",
+      "input_type": "word"
+    },
+    {
+      "display": "우주",
+      "input": "uju",
+      "annotation": "uju / 宇宙",
+      "input_type": "word"
+    },
+    {
+      "display": "기후",
+      "input": "gihu",
+      "annotation": "gihu / 気候",
+      "input_type": "word"
+    },
+    {
+      "display": "환경",
+      "input": "hwangyeong",
+      "annotation": "hwangyeong / 環境",
+      "input_type": "word"
+    },
+    {
+      "display": "오염",
+      "input": "oyeom",
+      "annotation": "oyeom / 汚染",
+      "input_type": "word"
+    },
+    {
+      "display": "자원",
+      "input": "jawon",
+      "annotation": "jawon / 資源",
+      "input_type": "word"
+    },
+    {
+      "display": "탄소",
+      "input": "tanso",
+      "annotation": "tanso / 炭素",
+      "input_type": "word"
+    },
+    {
+      "display": "연구",
+      "input": "yeongu",
+      "annotation": "yeongu / 研究",
+      "input_type": "word"
+    },
+    {
+      "display": "기술",
+      "input": "gisul",
+      "annotation": "gisul / 技術",
+      "input_type": "word"
+    },
+    {
+      "display": "과학",
+      "input": "gwahak",
+      "annotation": "gwahak / 科学",
+      "input_type": "word"
+    },
+    {
+      "display": "실험",
+      "input": "silheom",
+      "annotation": "silheom / 実験",
+      "input_type": "word"
+    },
+    {
+      "display": "멸종",
+      "input": "myeoljong",
+      "annotation": "myeoljong / 絶滅",
+      "input_type": "word"
+    },
+    {
+      "display": "유전자",
+      "input": "yujeonja",
+      "annotation": "yujeonja / 遺伝子",
+      "input_type": "word"
+    },
+    {
+      "display": "재활용",
+      "input": "jaehwaryong",
+      "annotation": "jaehwaryong / リサイクル",
+      "input_type": "word"
+    },
+    {
+      "display": "인공지능",
+      "input": "ingongjineung",
+      "annotation": "ingongjineung / 人工知能",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

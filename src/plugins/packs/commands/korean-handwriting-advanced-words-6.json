@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-advanced-words-6",
+  "name": "韓国語 手書き上級（形容詞）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き上級単語",
+  "levels": [
+    "形容詞"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "외롭다",
+      "input": "oeropda",
+      "annotation": "oeropda / 寂しい",
+      "input_type": "word"
+    },
+    {
+      "display": "그립다",
+      "input": "geuripda",
+      "annotation": "geuripda / 恋しい",
+      "input_type": "word"
+    },
+    {
+      "display": "아쉽다",
+      "input": "aswipda",
+      "annotation": "aswipda / 惜しい",
+      "input_type": "word"
+    },
+    {
+      "display": "낯설다",
+      "input": "natseolda",
+      "annotation": "natseolda / 見慣れない",
+      "input_type": "word"
+    },
+    {
+      "display": "귀찮다",
+      "input": "gwichanta",
+      "annotation": "gwichanta / 面倒だ",
+      "input_type": "word"
+    },
+    {
+      "display": "날카롭다",
+      "input": "nalkaropda",
+      "annotation": "nalkaropda / 鋭い",
+      "input_type": "word"
+    },
+    {
+      "display": "부끄럽다",
+      "input": "bukkeureopda",
+      "annotation": "bukkeureopda / 恥ずかしい",
+      "input_type": "word"
+    },
+    {
+      "display": "단순하다",
+      "input": "dansunhada",
+      "annotation": "dansunhada / 単純だ",
+      "input_type": "word"
+    },
+    {
+      "display": "복잡하다",
+      "input": "bokjapada",
+      "annotation": "bokjapada / 複雑だ",
+      "input_type": "word"
+    },
+    {
+      "display": "심각하다",
+      "input": "simgakada",
+      "annotation": "simgakada / 深刻だ",
+      "input_type": "word"
+    },
+    {
+      "display": "솔직하다",
+      "input": "soljikada",
+      "annotation": "soljikada / 率直だ",
+      "input_type": "word"
+    },
+    {
+      "display": "성실하다",
+      "input": "seongsilhada",
+      "annotation": "seongsilhada / 誠実だ",
+      "input_type": "word"
+    },
+    {
+      "display": "겸손하다",
+      "input": "gyeomsonhada",
+      "annotation": "gyeomsonhada / 謙虚だ",
+      "input_type": "word"
+    },
+    {
+      "display": "신중하다",
+      "input": "sinjunghada",
+      "annotation": "sinjunghada / 慎重だ",
+      "input_type": "word"
+    },
+    {
+      "display": "뚜렷하다",
+      "input": "tturyeotada",
+      "annotation": "tturyeotada / はっきりしている",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

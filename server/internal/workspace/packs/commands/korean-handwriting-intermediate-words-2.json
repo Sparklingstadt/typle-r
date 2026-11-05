@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-intermediate-words-2",
+  "name": "韓国語 手書き中級（交通・旅行）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き中級単語",
+  "levels": [
+    "交通・旅行"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "짐",
+      "input": "jim",
+      "annotation": "jim / 荷物",
+      "input_type": "word"
+    },
+    {
+      "display": "지도",
+      "input": "jido",
+      "annotation": "jido / 地図",
+      "input_type": "word"
+    },
+    {
+      "display": "기차",
+      "input": "gicha",
+      "annotation": "gicha / 汽車",
+      "input_type": "word"
+    },
+    {
+      "display": "여권",
+      "input": "yeogwon",
+      "annotation": "yeogwon / パスポート",
+      "input_type": "word"
+    },
+    {
+      "display": "여행",
+      "input": "yeohaeng",
+      "annotation": "yeohaeng / 旅行",
+      "input_type": "word"
+    },
+    {
+      "display": "예약",
+      "input": "yeyak",
+      "annotation": "yeyak / 予約",
+      "input_type": "word"
+    },
+    {
+      "display": "출발",
+      "input": "chulbal",
+      "annotation": "chulbal / 出発",
+      "input_type": "word"
+    },
+    {
+      "display": "도착",
+      "input": "dochak",
+      "annotation": "dochak / 到着",
+      "input_type": "word"
+    },
+    {
+      "display": "교통",
+      "input": "gyotong",
+      "annotation": "gyotong / 交通",
+      "input_type": "word"
+    },
+    {
+      "display": "관광",
+      "input": "gwangwang",
+      "annotation": "gwangwang / 観光",
+      "input_type": "word"
+    },
+    {
+      "display": "지하철",
+      "input": "jihacheol",
+      "annotation": "jihacheol / 地下鉄",
+      "input_type": "word"
+    },
+    {
+      "display": "자전거",
+      "input": "jajeongeo",
+      "annotation": "jajeongeo / 自転車",
+      "input_type": "word"
+    },
+    {
+      "display": "비행기",
+      "input": "bihaenggi",
+      "annotation": "bihaenggi / 飛行機",
+      "input_type": "word"
+    },
+    {
+      "display": "정류장",
+      "input": "jeongnyujang",
+      "annotation": "jeongnyujang / 停留所",
+      "input_type": "word"
+    },
+    {
+      "display": "신호등",
+      "input": "sinhodeung",
+      "annotation": "sinhodeung / 信号機",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

@@ -150,6 +150,10 @@ test('the initial lists decode in Typle with their own ids and names', () => {
     ['chinese-hsk6-handwriting-20-words-4', [15]], ['chinese-hsk6-handwriting-20-words-5', [15]], ['chinese-hsk6-handwriting-20-words-6', [15]],
     ['korean-handwriting-beginner-words-1', [15]], ['korean-handwriting-beginner-words-2', [15]], ['korean-handwriting-beginner-words-3', [15]],
     ['korean-handwriting-beginner-words-4', [15]], ['korean-handwriting-beginner-words-5', [15]], ['korean-handwriting-beginner-words-6', [15]],
+    ['korean-handwriting-intermediate-words-1', [15]], ['korean-handwriting-intermediate-words-2', [15]], ['korean-handwriting-intermediate-words-3', [15]],
+    ['korean-handwriting-intermediate-words-4', [15]], ['korean-handwriting-intermediate-words-5', [15]], ['korean-handwriting-intermediate-words-6', [15]],
+    ['korean-handwriting-advanced-words-1', [15]], ['korean-handwriting-advanced-words-2', [15]], ['korean-handwriting-advanced-words-3', [15]],
+    ['korean-handwriting-advanced-words-4', [15]], ['korean-handwriting-advanced-words-5', [15]], ['korean-handwriting-advanced-words-6', [15]],
   ])
   assert.equal(lists.length, commands.length)
   const { initialLists } = require('../src/plugins/packs/index.ts')

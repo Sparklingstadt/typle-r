@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-intermediate-words-3",
+  "name": "韓国語 手書き中級（自然・天気）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き中級単語",
+  "levels": [
+    "自然・天気"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "숲",
+      "input": "sup",
+      "annotation": "sup / 森",
+      "input_type": "word"
+    },
+    {
+      "display": "섬",
+      "input": "seom",
+      "annotation": "seom / 島",
+      "input_type": "word"
+    },
+    {
+      "display": "하늘",
+      "input": "haneul",
+      "annotation": "haneul / 空",
+      "input_type": "word"
+    },
+    {
+      "display": "바람",
+      "input": "baram",
+      "annotation": "baram / 風",
+      "input_type": "word"
+    },
+    {
+      "display": "구름",
+      "input": "gureum",
+      "annotation": "gureum / 雲",
+      "input_type": "word"
+    },
+    {
+      "display": "안개",
+      "input": "angae",
+      "annotation": "angae / 霧",
+      "input_type": "word"
+    },
+    {
+      "display": "번개",
+      "input": "beongae",
+      "annotation": "beongae / 稲妻",
+      "input_type": "word"
+    },
+    {
+      "display": "천둥",
+      "input": "cheondung",
+      "annotation": "cheondung / 雷",
+      "input_type": "word"
+    },
+    {
+      "display": "태풍",
+      "input": "taepung",
+      "annotation": "taepung / 台風",
+      "input_type": "word"
+    },
+    {
+      "display": "장마",
+      "input": "jangma",
+      "annotation": "jangma / 梅雨",
+      "input_type": "word"
+    },
+    {
+      "display": "날씨",
+      "input": "nalssi",
+      "annotation": "nalssi / 天気",
+      "input_type": "word"
+    },
+    {
+      "display": "기온",
+      "input": "gion",
+      "annotation": "gion / 気温",
+      "input_type": "word"
+    },
+    {
+      "display": "지진",
+      "input": "jijin",
+      "annotation": "jijin / 地震",
+      "input_type": "word"
+    },
+    {
+      "display": "소나기",
+      "input": "sonagi",
+      "annotation": "sonagi / にわか雨",
+      "input_type": "word"
+    },
+    {
+      "display": "무지개",
+      "input": "mujigae",
+      "annotation": "mujigae / 虹",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}
