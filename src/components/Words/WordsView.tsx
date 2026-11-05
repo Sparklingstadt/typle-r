@@ -13,16 +13,12 @@ import WordListOptions from '@/components/Practice/WordListOptions'
 import PracticeName, { usePracticeName } from '@/components/PracticeName'
 import ListLabels from '@/components/WordLists/ListLabels'
 import WordTable from '@/components/Words/WordTable'
-import { listLabels, matchesFilter } from '@/core/listOverview'
-import { matchesPackQuery, packOverviews, type PackOverview } from '@/core/packEditing'
+import { listLabels } from '@/core/listOverview'
+import { packOverviews } from '@/core/packEditing'
 import { packsByRecentPractice } from '@/core/packPractice'
+import { matchingPacks } from '@/core/practiceView'
 import type { SavedWordList } from '@/core/wordLists'
 import type { WordPack } from '@/core/wordPacks'
-
-// The packs of `category` (null for every category) that `query` finds, in the order given.
-function matchingPacks(items: PackOverview[], category: string | null, query: string) {
-  return items.filter(item => matchesFilter(item.pack, { category, tags: [] }) && matchesPackQuery(item, query))
-}
 
 // `?list=<id>` keeps the chosen list in the URL, so it can be reloaded or opened from elsewhere. Without it the first
 // list is shown, as on the practice screen.
