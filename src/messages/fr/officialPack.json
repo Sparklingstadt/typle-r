@@ -1,0 +1,13 @@
+{
+  "title": "Entraînement à la frappe : {name}",
+  "stats": "{lists, plural, one {# liste} other {# listes}} · {words, plural, one {# élément} other {# éléments}}",
+  "practice": "S’entraîner avec ce pack",
+  "preparing": "Préparation…",
+  "full": "Vous pouvez suivre jusqu’à {max} packs officiels. Ne suivez plus un pack que vous n’utilisez pas, puis appuyez de nouveau.",
+  "catalog": "Voir les autres packs officiels",
+  "free": "Gratuit, sans connexion. Le bouton suit ce pack et lance l’entraînement tout de suite.",
+  "wordsHeading": "Contenu du pack",
+  "input": "À taper",
+  "note": "Sens et remarques",
+  "details": "Détails"
+}

@@ -1,0 +1,13 @@
+{
+  "title": "Typing practice: {name}",
+  "stats": "{lists, plural, one {# list} other {# lists}} · {words, plural, one {# item} other {# items}}",
+  "practice": "Practice this pack",
+  "preparing": "Getting ready…",
+  "full": "You can follow up to {max} official packs. Unfollow a pack you no longer use, then press again.",
+  "catalog": "Browse other official packs",
+  "free": "Free, no login needed. Pressing it follows this pack and starts practice right away.",
+  "wordsHeading": "What this pack contains",
+  "input": "What you type",
+  "note": "Meaning and notes",
+  "details": "Details"
+}

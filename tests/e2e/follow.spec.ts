@@ -110,3 +110,35 @@ test('several official packs are followed one after another without leaving the 
   await expect(page.getByRole('button', { name: 'Go構文', exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Kotlin構文', exact: true })).toBeVisible()
 })
+
+test('an official pack page shows the pack and its words, and its button follows the pack and starts practice', async ({ page }) => {
+  await page.goto('/packs/catalog')
+  const entry = page.locator('li[data-catalog-id]', { has: page.getByRole('heading', { name: 'Go構文', exact: true }) })
+  await entry.getByRole('link', { name: '詳しく見る Go構文' }).click()
+  await expect(page).toHaveURL(/\/packs\/go-syntax$/)
+  await expect(page).toHaveTitle('Go構文のタイピング練習 | Typle')
+  await expect(page.getByRole('heading', { level: 1, name: 'Go構文のタイピング練習' })).toBeVisible()
+  await expect(page.getByText('3リスト・109語')).toBeVisible()
+  await expect(page.getByRole('heading', { level: 3, name: 'Go構文（初級）' })).toBeVisible()
+  await expect(page.getByRole('cell', { name: 'package main', exact: true })).toBeVisible()
+  await expect(page.locator('meta[name="robots"]')).toHaveCount(0)
+
+  await page.getByRole('button', { name: 'このパックで練習する' }).click()
+  await expect(page).toHaveURL(/\/play\?list=/)
+  await expect(page.getByRole('textbox', { name: '表示された文字を入力', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: /^単語リストを切り替える（現在: .*初級/ })).toBeVisible()
+
+  // Once followed, the button goes straight to the pack, without following it twice.
+  await page.goto('/packs/go-syntax')
+  await page.getByRole('button', { name: 'このパックで練習する' }).click()
+  await expect(page).toHaveURL(/\/play\?list=/)
+  await page.goto('/packs/catalog')
+  await expect(entry.getByRole('button', { name: 'フォロー中' })).toBeDisabled()
+  await page.goto('/edit')
+  await expect(page.getByRole('button', { name: 'Go構文', exact: true })).toHaveCount(1)
+})
+
+test('a pack page that does not exist is not found', async ({ page }) => {
+  const response = await page.goto('/packs/no-such-pack')
+  expect(response?.status()).toBe(404)
+})

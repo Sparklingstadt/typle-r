@@ -16,6 +16,7 @@ import { randomId } from "@/core/randomId"
 import { followedPackCount, MAX_FOLLOWED_PACKS } from "@/core/listOverview"
 import { matchesInterests } from "@/core/interests"
 import { followOfficialPack, catalogEntries, type CatalogEntry } from "@/plugins/packs/catalog"
+import { OFFICIAL_PACK_PAGES } from "@/plugins/packs/pages"
 import { PageHeader, PageMain } from "@/components/ui/page-layout"
 import { CardList } from "@/components/ui/card"
 
@@ -25,6 +26,7 @@ export default function Catalog() {
   const row = useTranslations("wordLists.pack")
   const unfollow = useTranslations("wordLists.follow")
   const common = useTranslations("common")
+  const details = useTranslations("officialPack")
   const notify = useSaveNotification()
   const [unfollowing, setUnfollowing] = useState<{ id: string; name: string } | null>(null)
   const entries = useMemo(() => catalogEntries({ packs, lists }), [packs, lists])
@@ -42,6 +44,9 @@ export default function Catalog() {
     return [fits, rest]
   }, [entries, interests])
   const split = interests.length > 0
+
+  // The page of an official pack that has one (/packs/<slug>), for its description and every word.
+  const pageSlug = (entry: CatalogEntry) => OFFICIAL_PACK_PAGES.find(page => page.catalogId === entry.catalogId)?.slug
 
   // The pack that came from an entry: the one with its origin, or the one with its id (see catalogEntries).
   function ownedPack(entry: CatalogEntry) {
@@ -73,6 +78,9 @@ export default function Catalog() {
             <Name className="font-bold [overflow-wrap:anywhere]">{entry.pack.name}</Name>
             <ListLabels list={entry.pack} />
             <p className="text-[13px] text-muted-foreground tabular-nums">{row("lists", { count: entry.lists.length })} · {row("wordCount", { count: words })}</p>
+            {pageSlug(entry) && <Link href={`/packs/${pageSlug(entry)}`} className="text-[13px] underline underline-offset-3 hover:text-muted-foreground">
+              {details("details")}<span className="sr-only"> {entry.pack.name}</span>
+            </Link>}
             {!entry.followed && full && <p className="text-[13px] text-muted-foreground">{t("full", { max: MAX_FOLLOWED_PACKS })}</p>}
           </div>
           <div className="flex flex-wrap items-center gap-2">
