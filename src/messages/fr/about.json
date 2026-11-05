@@ -46,7 +46,8 @@
   },
   "reports": {
     "title": "Rapports d’erreur",
-    "text": "Pour analyser les problèmes, nous pouvons envoyer le détail des erreurs et l’environnement dans lequel elles se sont produites (navigateur, système d’exploitation, etc.). Avant l’envoi, le contenu des requêtes (listes de mots, par exemple), les cookies, les informations utilisateur et l’historique des actions sont supprimés."
+    "text": "Pour analyser les problèmes, nous pouvons envoyer le détail des erreurs et l’environnement dans lequel elles se sont produites (navigateur, système d’exploitation, etc.). Avant l’envoi, le contenu des requêtes (listes de mots, par exemple), les cookies, les informations utilisateur et l’historique des actions sont supprimés.",
+    "analytics": "Pour savoir quelles pages sont consultées et à quelle fréquence, les affichages de pages sont comptés avec Vercel Web Analytics. Seuls l’adresse de la page (sans ce qui suit ?), le site d’origine, le navigateur, le système d’exploitation et le pays sont envoyés. Aucun cookie n’est utilisé, et vos listes de mots et vos résultats d’entraînement ne sont jamais envoyés."
   },
   "version": {
     "title": "Version et développement",
@@ -55,7 +56,7 @@
     "techList": "Next.js, React, PostgreSQL (Neon)",
     "source": "Code source",
     "newTab": "(s’ouvre dans un nouvel onglet)",
-    "private": "Ce dépôt est privé. Seuls les comptes GitHub autorisés peuvent l’ouvrir.",
+    "public": "Ce dépôt est public. Tout le monde peut consulter le code source.",
     "licenses": "Licences",
     "licensesLink": "Licences open source"
   },

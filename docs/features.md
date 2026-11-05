@@ -43,6 +43,17 @@ API（Go、`server/`）は、アカウントのクラウド保存をDBから読�
 | ъ | `"` | ы | y | ь | `'` |
 | э | e | ю | yu | я | ya |
 
+## 初めての人向けのページ（/）
+
+`/` は、初めて来た人に Typle を紹介するページです（v2.31.0 から。それまでは `/home` へ移るだけでした）。検索エンジンに中身が見えるよう、サーバーで描画します（`src/app/page.tsx`、文言は `src/messages/*/landing.json`）。ログインしているかどうかにかかわらず、だれにでもこのページを出し、ホーム（`/home`）へのリンクを置きます。
+
+- 見出しと「ログインせずに練習を始める」（`/play`）・「公式パックを見る」（`/packs/catalog`）・「ホームへ」
+- 公式パック：プログラミングと語学に分けて、公式リストの数と主な内容を出します。数は公式リストのカテゴリから数えます（`src/core/landing.ts`）。公式リストを足すと自動で変わりますが、カテゴリが「プログラミング」「語学」以外のリストを足したときは、このページの分け方も見直してください（`tests/landing.test.cjs` が知らせます）
+- できること：自分の単語リスト・思い出して打つ・記録
+- データの保存先と、使い方・Typleについてへのリンク
+
+sitemap.xml では `/` の優先度を一番高くしています。
+
 ## ホームのダッシュボード
 
 記録が1件以上あると、ホームに練習の状況を表示します（0件のときは従来の案内）。集計は `src/core/dashboard.ts` にあり、日付・週（月曜はじまり）は端末のローカル時刻で区切ります。
@@ -61,7 +72,7 @@ API（Go、`server/`）は、アカウントのクラウド保存をDBから読�
 
 ## Typleについて（/about）
 
-できること（リストを作成・練習する・ベスト記録）、データの保存先（このブラウザー／アカウントの比較と今の保存先）、不具合の報告で送る情報、バージョン（`package.json` の値）と使用している技術をまとめています。ソースコードのリンクは新しいタブで開き、非公開のリポジトリであることを表示します。デザインレビューは `docs/design/about-page-review.md` を参照してください。
+できること（リストを作成・練習する・ベスト記録）、データの保存先（このブラウザー／アカウントの比較と今の保存先）、不具合の報告で送る情報、バージョン（`package.json` の値）と使用している技術をまとめています。ソースコードのリンクは新しいタブで開き、公開のリポジトリであることを表示します。デザインレビューは `docs/design/about-page-review.md` を参照してください。
 
 ### オープンソースのライセンス（/about/licenses、v2.26.1 から）
 
@@ -183,11 +194,32 @@ Open GraphとXの大きな画像カードに対応しています。共通画像
 
 画像の絶対URLには `SITE_URL`（任意、`src/lib/siteUrl.ts`）、次に `AUTH_URL` を使用し、未設定なら `VERCEL_PROJECT_PRODUCTION_URL`、ローカルでは `http://localhost:3000` にフォールバックします。本番ビルド時は `AUTH_URL` を公開サイトのHTTPS URLに設定してください。共有先のクローラーがページと画像へ認証なしでアクセスできる必要があります。
 
+## ページのタイトルと説明
+
+どのページも「ページ名 | Typle」をタイトルにします（v2.32.0 から）。ページ名は、サイドバーのリンクやページの見出しで使っている言葉をそのまま使い、6言語でそろえます。クライアント部品のページは、そのフォルダーの `layout.tsx` から `src/lib/pageMetadata.ts` の `pageMetadata` で設定します。
+
+- 説明（description）：検索から来る人がいるページ（`/play`・`/packs/catalog`）だけ専用の文にし、ほかはサイト全体の説明のままです（`PAGE_DESCRIPTIONS`）
+- 自分のデータだけを表示するページ（`/home`・`/records`・`/rankings`・`/edit`・`/words`・`/devices`・`/interests`・`/create`・`/packs/create`・`/packs/edit`）は `noindex, follow` にします。クローラーには空の画面しか見えないためです
+- 新しいページを足したら、`PAGE_TITLES` にページ名のキーを足し、`layout.tsx` を置いてください。キーが全言語にあること、sitemap.xml に `noindex` のページがないことは `tests/pageMetadata.test.cjs` で確かめます
+
 ## 検索エンジン向けの sitemap.xml・robots.txt
 
 `/sitemap.xml` と `/robots.txt` を返します（v2.29.0 から）。どちらも上の OGP と同じサイトの URL を使い、載せるページと除くページは `src/core/searchIndex.ts` に1か所でまとめています。
 
-- sitemap.xml：ログインせずに開けて、だれが見ても同じ内容のページ（`/home`・`/play`・`/gallery`・`/guide`・`/about`）。練習記録やベスト記録のように自分のデータを表示するページは、クローラーには空の画面しか見えないため載せません。
+- sitemap.xml：ログインせずに開けて、だれが見ても同じ内容のページ（`/`・`/play`・`/packs/catalog`・`/guide`・`/about`）。ギャラリーは中身が入れ替わる検索ページなので `noindex` にしていて、載せません。練習記録やベスト記録のように自分のデータを表示するページは、クローラーには空の画面しか見えないため載せません。
 - robots.txt：管理画面（`/admin`）、開発用ログイン（`/local-login`）、バックエンド（`/api/`）へのクロールを断り、sitemap.xml の場所を示します。
 
+Google Search Console は「URL プレフィックス」のプロパティ（`https://typle-r-six.vercel.app`）で登録し、所有権は HTML タグで確認します（v2.29.1 から）。タグの値は `src/app/layout.tsx` の `GOOGLE_SITE_VERIFICATION` にあり、全ページの `<head>` に `google-site-verification` として出ます。秘密の値ではありません。消すと所有権の確認が外れるので、残してください。
+
 ページを足したり名前を変えたりしたときは `INDEXED_PATHS` も直してください。載せたページの `page.tsx` があることは単体テスト（`tests/searchIndex.test.cjs`）で確かめます。
+
+## アクセス解析（Vercel Web Analytics）
+
+ページの表示数を Vercel Web Analytics で数えます（v2.30.0 から）。`src/app/layout.tsx` で全ページに `src/components/WebAnalytics.tsx`（`@vercel/analytics/next` の `Analytics`）を置いています。Cookie は使いません。`VERCEL=1`（Vercel 上で動いているとき）のときだけ置きます。スクリプトは Vercel だけが `/_vercel/insights` で配信するので、ローカルや CI の E2E で置くと404になるためです。
+
+- 送る前に `src/core/analytics.ts` の `analyticsUrl` で、URL をオリジンとパスだけにします（`?` 以降と `#` 以降を除く）。ベスト記録の `?list=` などに入るリストのIDや絞り込みを送らないためです。
+- 管理画面（`/admin`）と開発用ログイン（`/local-login`）の表示は送りません。
+- 「Typleについて」の「不具合の報告」の節に、送る内容（ページのアドレス・参照元・ブラウザー・OS・国）を書いています。送る内容を変えたら、6言語の `about.json` の `reports.analytics` も直してください。
+
+Hobby プランでは月50,000イベントまで無料で、超えると翌月まで収集が止まります（課金はされません）。集計の期間は1か月分です。有効にするには、Vercel のプロジェクトの「Analytics」タブで Web Analytics を有効にしてからデプロイします。
+
