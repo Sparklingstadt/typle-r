@@ -4,7 +4,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { ErrorAlert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { NativeSelect } from "@/components/ui/native-select"
 import GalleryList from "@/components/Gallery/GalleryList"
 import {
   GALLERY_SORTS, fetchGalleryCategories, fetchGalleryPage, galleryQueryOf, gallerySearchParams,
@@ -13,7 +12,7 @@ import {
 import { useErrorText } from "@/i18n/useErrorText"
 import { PageMain } from "@/components/ui/page-layout"
 import GalleryLoading from "@/components/Gallery/GalleryLoading"
-import GallerySearchBox from "@/components/Gallery/GallerySearchBox"
+import GalleryFilters from "@/components/Gallery/GalleryFilters"
 
 // The gallery is public: this page sits outside the (workspace) group, so it opens without a login or the workspace gate.
 // useSearchParams makes the page client-rendered up to the Suspense boundary, so the boundary wraps just the part that reads it.
@@ -82,8 +81,6 @@ function Gallery() {
     } catch (reason) { setFailed({ token: results.token, reason }) } finally { setLoadingMore(false) }
   }
 
-  const choices = query.category && !categories.some(category => category.name === query.category)
-    ? [...categories, { name: query.category, count: 0 }] : categories
   const message = failure ? errorText(failure, t('loadFailed')) : ''
   return <div className="space-y-6">
     <header className="space-y-1">
@@ -91,20 +88,7 @@ function Gallery() {
       <p className="max-w-2xl text-sm text-muted-foreground">{t('intro')}</p>
     </header>
 
-    <div className="flex flex-wrap items-end gap-3">
-      <GallerySearchBox key={query.text} text={query.text} onSearch={text => go({ ...query, text })} />
-      <label className="flex flex-col gap-1 text-xs text-muted-foreground">{t('category')}
-        <NativeSelect variant="compact" value={query.category} onChange={event => go({ ...query, category: event.target.value })}>
-          <option value="">{t('allCategories')}</option>
-          {choices.map(category => <option key={category.name} value={category.name}>{category.name}</option>)}
-        </NativeSelect>
-      </label>
-      <label className="flex flex-col gap-1 text-xs text-muted-foreground">{t('sort')}
-        <NativeSelect variant="compact" value={query.sort} onChange={event => go({ ...query, sort: event.target.value as GallerySort })}>
-          {GALLERY_SORTS.map(sort => <option key={sort} value={sort}>{sort === 'new' ? t('sortNew') : t('sortPopular')}</option>)}
-        </NativeSelect>
-      </label>
-    </div>
+    <GalleryFilters query={query} categories={categories} onChange={go} />
 
     {message ? <ErrorAlert action={<Button variant="outline" size="sm" onClick={() => results ? void loadMore() : setAttempt(n => n + 1)}>{t('retry')}</Button>}>{message}</ErrorAlert> : null}
     {results ? <GalleryList packs={results.packs} more={results.more} loadingMore={loadingMore} filtered={Boolean(query.text.trim() || query.category)} onMore={() => void loadMore()} />
