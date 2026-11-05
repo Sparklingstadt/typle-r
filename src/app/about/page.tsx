@@ -5,7 +5,6 @@ import { BookOpen, ChevronRight, ExternalLink, Keyboard, Plus, Trophy, type Luci
 import { Button } from "@/components/ui/button"
 import StorageComparison from "@/components/About/StorageComparison"
 import packageJson from "../../../package.json"
-import { PageMain } from "@/components/ui/page-layout"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("about.meta")
@@ -27,7 +26,7 @@ function Section({ id, title, children }: { id: string; title: string; children:
 
 export default async function About() {
   const t = await getTranslations("about")
-  return <PageMain width="narrow">
+  return <main className="mx-auto w-full max-w-4xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
     <header className="mb-10 space-y-4">
       <div className="space-y-1">
         <h1 className="text-2xl font-bold">{t("title")}</h1>
@@ -93,5 +92,5 @@ export default async function About() {
         </dl>
       </Section>
     </div>
-  </PageMain>
+  </main>
 }
