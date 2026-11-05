@@ -3,5 +3,6 @@
   "description": "A typing app for practising with your own word lists. Add the words you like, practise typing them and look back on your best records.",
   "imageAlt": "Typle — Typing practice with your own words. Practise and track progress with word lists",
   "sharedTitle": "Shared pack | Typle",
-  "galleryTitle": "Gallery | Typle"
+  "galleryTitle": "Gallery | Typle",
+  "playDescription": "Pick an official pack or one of your own word lists and practice typing. Speed, accuracy and mistakes are shown as you type, and every run is saved. No login needed."
 }
