@@ -19,22 +19,16 @@ import { useSaveNotification } from '@/components/SaveNotification'
 import CurrentDevice from '@/components/Devices/CurrentDevice'
 import DeviceDialog, { type DeviceDialogState } from '@/components/Devices/DeviceDialog'
 import PageStorageBadge from '@/components/PageStorageBadge'
-import { PageMain } from '@/components/ui/page-layout'
+import { PageHeader, PageMain } from '@/components/ui/page-layout'
 
 export default function Devices() {
   const workspace = useWordLists()
   const t = useTranslations('devices')
   const common = useTranslations('common')
   return <PageMain width="narrow">
-    <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-bold">{t('title')}</h1>
-        <p className="text-sm text-muted-foreground">
-          {t.rich('description', { link: chunks => <Link href="/play" className="underline underline-offset-3 hover:text-foreground">{chunks}</Link> })}
-        </p>
-      </div>
+    <PageHeader title={t('title')} description={t.rich('description', { link: chunks => <Link href="/play" className="underline underline-offset-3 hover:text-foreground">{chunks}</Link> })}>
       {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
-    </header>
+    </PageHeader>
     {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
     {!workspace.ready ? <div role="status" className="space-y-3"><p>{common('loading')}</p><Skeleton className="h-20 w-full" /><Skeleton className="h-40 w-full" /></div>
       : <DeviceManager key={workspace.accountId} {...workspace} accountId={workspace.accountId ?? ''} />}

@@ -23,20 +23,16 @@ import type { WordPack } from "@/core/wordPacks"
 import { listLabels, matchesFilter } from "@/core/listOverview"
 import PracticeName, { usePracticeName } from "@/components/PracticeName"
 import type { SavedWordList } from "@/core/wordLists"
-import { PageMain } from "@/components/ui/page-layout"
+import { PageHeader, PageMain } from "@/components/ui/page-layout"
 
 export default function Words() {
   const t = useTranslations('wordLists.words')
   const page = useTranslations('wordLists.page')
   const workspace = useWordLists()
   return <PageMain width="wide">
-    <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-bold">{t('title')}</h1>
-        <p className="text-sm text-muted-foreground">{t('description')}</p>
-      </div>
+    <PageHeader title={t('title')} description={t('description')}>
       {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
-    </header>
+    </PageHeader>
     {workspace.error && <Alert variant="destructive" className="mb-6 border-destructive/40 bg-destructive/5">
       <CircleAlert aria-hidden="true" />
       <AlertDescription className="flex flex-wrap items-center gap-x-3 gap-y-2">

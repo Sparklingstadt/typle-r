@@ -20,7 +20,7 @@ import { isFollowed, ownPacks } from "@/core/followedPacks"
 import { loneListPack, saveListInPack } from "@/core/packEditing"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
-import { PageMain } from "@/components/ui/page-layout"
+import { PageHeader, PageMain } from "@/components/ui/page-layout"
 
 export default function Edit() {
   const workspace = useWordLists()
@@ -32,16 +32,12 @@ export default function Edit() {
 
 function Header({ storage }: { storage?: WorkspaceLocation }) {
   const t = useTranslations('wordLists.page')
-  return <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
-    <div className="space-y-1">
-      <h1 className="text-2xl font-bold">{t('title')}</h1>
-      <p className="text-sm text-muted-foreground">{t('description')}</p>
-    </div>
+  return <PageHeader title={t('title')} description={t('description')}>
     <div className="flex items-center gap-2">
       <Button asChild variant="outline"><Link href="/packs/catalog"><LibraryIcon aria-hidden="true" />{t('catalog')}</Link></Button>
       <PageStorageBadge storage={storage} />
     </div>
-  </header>
+  </PageHeader>
 }
 
 function WordLists({ workspace }: { workspace: Workspace }) {

@@ -24,7 +24,7 @@ import type { SavedWordList } from "@/core/wordLists"
 import type { WordPack } from "@/core/wordPacks"
 import { cn } from "@/lib/utils"
 import PageStorageBadge from "@/components/PageStorageBadge"
-import { PageMain } from "@/components/ui/page-layout"
+import { PageHeader, PageMain } from "@/components/ui/page-layout"
 
 const PAGE_SIZE = 50
 
@@ -43,18 +43,12 @@ function RecordsPage() {
   const workspace = useWordLists()
   const link = "underline underline-offset-3 hover:text-foreground"
   return <PageMain width="medium">
-    <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-bold">{t('title')}</h1>
-        <p className="text-sm text-muted-foreground">
-          {t.rich('intro', {
-            rankings: chunks => <Link href="/rankings" className={link}>{chunks}</Link>,
-            home: chunks => <Link href="/home" className={link}>{chunks}</Link>,
-          })}
-        </p>
-      </div>
+    <PageHeader title={t('title')} description={t.rich('intro', {
+        rankings: chunks => <Link href="/rankings" className={link}>{chunks}</Link>,
+        home: chunks => <Link href="/home" className={link}>{chunks}</Link>,
+      })}>
       {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
-    </header>
+    </PageHeader>
     {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
     {!workspace.ready ? <Loading /> : <RecordHistory key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} saving={workspace.saving} deleteRecord={workspace.deleteRecord} />}
   </PageMain>

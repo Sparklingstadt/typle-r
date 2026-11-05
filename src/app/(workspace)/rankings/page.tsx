@@ -23,7 +23,7 @@ import type { SavedWordList } from "@/core/wordLists"
 import type { WordPack } from "@/core/wordPacks"
 import { cn } from "@/lib/utils"
 import PageStorageBadge from "@/components/PageStorageBadge"
-import { PageMain } from "@/components/ui/page-layout"
+import { PageHeader, PageMain } from "@/components/ui/page-layout"
 
 // Matches Tailwind's `xl`, where the list and the detail sit side by side.
 const WIDE = '(min-width: 80rem)'
@@ -43,13 +43,9 @@ export default function Rankings() {
   const workspace = useWordLists()
   const practised = workspace.lists.some(list => list.records.length)
   return <PageMain width="wide">
-    <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-bold">{t('title')}</h1>
-        <p className="text-sm text-muted-foreground">{t('intro')}</p>
-      </div>
+    <PageHeader title={t('title')} description={t('intro')}>
       {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
-    </header>
+    </PageHeader>
     {workspace.error && <Alert variant="destructive" className="mb-6 border-destructive/40 bg-destructive/5">
       <CircleAlert aria-hidden="true" />
       <AlertDescription className="flex flex-wrap items-center gap-x-3 gap-y-2">

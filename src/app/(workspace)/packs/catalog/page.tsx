@@ -16,7 +16,7 @@ import { randomId } from "@/core/randomId"
 import { followedPackCount, MAX_FOLLOWED_PACKS } from "@/core/listOverview"
 import { matchesInterests } from "@/core/interests"
 import { followOfficialPack, catalogEntries, type CatalogEntry } from "@/plugins/packs/catalog"
-import { PageMain } from "@/components/ui/page-layout"
+import { PageHeader, PageMain } from "@/components/ui/page-layout"
 
 export default function Catalog() {
   const { ready, packs, lists, interests, error, updateLibrary, saving, storage } = useWordLists()
@@ -101,13 +101,9 @@ export default function Catalog() {
         {[0, 1, 2].map(key => <div key={key} className="space-y-2 px-5 py-4"><Skeleton className="h-4 w-48" /><Skeleton className="h-3.5 w-72 max-w-full" /></div>)}
       </div>
     </div> : <>
-      <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold">{t("title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("description")}</p>
-        </div>
+      <PageHeader title={t("title")} description={t("description")}>
         <PageStorageBadge storage={storage} />
-      </header>
+      </PageHeader>
       <Button asChild variant="ghost" className="mb-3 -ml-2 text-muted-foreground"><Link href="/edit"><ArrowLeft aria-hidden="true" />{t("back")}</Link></Button>
       {error && <Alert variant="destructive" className="mb-4 border-destructive/40 bg-destructive/5">
         <CircleAlert aria-hidden="true" />
