@@ -138,3 +138,13 @@ test('without records the page explains how to get one', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'まだ練習記録がありません' })).toBeVisible()
   await expect(page.getByRole('main').getByRole('link', { name: '練習する' })).toHaveAttribute('href', '/play')
 })
+
+test('unreadable saved data shows the error, not an empty history', async ({ page }) => {
+  await seed(page)
+  await page.goto('/records')
+  await page.evaluate(key => localStorage.setItem(key, '{broken'), key)
+  await page.reload()
+  const main = page.getByRole('main')
+  await expect(main.getByRole('alert')).toContainText('保存データを読み込めません')
+  await expect(main.getByText('まだ練習記録がありません')).toHaveCount(0)
+})

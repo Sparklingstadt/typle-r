@@ -51,7 +51,7 @@ function RecordsPage() {
       {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
     </PageHeader>
     {workspace.error && <ErrorAlert className="mb-6">{workspace.error}</ErrorAlert>}
-    {!workspace.ready ? <Loading /> : <RecordHistory key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} saving={workspace.saving} deleteRecord={workspace.deleteRecord} />}
+    {!workspace.ready ? <Loading /> : <RecordHistory key={workspace.accountId} failed={Boolean(workspace.error)} lists={workspace.lists} packs={workspace.packs} saving={workspace.saving} deleteRecord={workspace.deleteRecord} />}
   </PageMain>
 }
 
@@ -80,7 +80,8 @@ function useDayHeading(now: Date) {
   }
 }
 
-function RecordHistory({ lists, packs, saving, deleteRecord }: {
+function RecordHistory({ failed, lists, packs, saving, deleteRecord }: {
+  failed: boolean
   lists: SavedWordList[]
   packs: WordPack[]
   saving: boolean
@@ -129,7 +130,8 @@ function RecordHistory({ lists, packs, saving, deleteRecord }: {
     else document.getElementById('record-count')?.focus()
   }
 
-  if (!all.length) return <NoRecords />
+  // After a failed load no records does not mean none were practised, so the error stands alone.
+  if (!all.length) return failed ? null : <NoRecords />
 
   return <div className="space-y-6">
     <div className="flex flex-wrap items-center gap-2">
