@@ -26,10 +26,18 @@ test('the query object Next.js gives a page is read too, first value of a repeat
 test('a link with a value missing or out of range shows nothing', () => {
   const base = { n: 'A', t: '1.5', a: '90', w: '3' }
   for (const broken of [
-    { ...base, n: '   ' }, { ...base, n: undefined }, { ...base, t: '0' }, { ...base, t: '-1' }, { ...base, t: '1e3' },
+    { ...base, n: '   ' }, { ...base, n: undefined }, { ...base, t: '' }, { ...base, t: '-1' }, { ...base, t: '1e3' },
     { ...base, t: '99999' }, { ...base, a: '101' }, { ...base, a: '50.5' }, { ...base, w: '0' }, { ...base, w: '2.5' },
     { ...base, s: 'fast' }, { ...base, s: '9999' }, { ...base, m: 'race' },
   ]) assert.equal(fromSharedQuery(broken), null, JSON.stringify(broken))
+})
+
+test('a run shorter than the 0.01 s the link keeps is still a result', () => {
+  assert.equal(fromSharedQuery(new URLSearchParams(toSharedQuery({ ...result, time: 0.004 }))).time, 0)
+})
+
+test('a speed the link would refuse is left out, and the rest still reads', () => {
+  assert.equal(fromSharedQuery(new URLSearchParams(toSharedQuery({ ...result, speed: 99999 }))).speed, null)
 })
 
 test('a name is one line and at most MAX_SHARED_NAME characters', () => {

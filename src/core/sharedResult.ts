@@ -45,7 +45,8 @@ export function toSharedQuery(result: SharedResult): string {
     a: String(Math.round(result.accuracy)),
     w: String(result.words),
   })
-  if (result.speed !== null) query.set('s', String(Math.round(result.speed)))
+  // A speed the link would refuse is left out rather than spoiling the whole link.
+  if (result.speed !== null && result.speed >= 0 && Math.round(result.speed) <= MAX_SPEED) query.set('s', String(Math.round(result.speed)))
   if (result.mode !== 'normal') query.set('m', result.mode)
   return query.toString()
 }
@@ -60,7 +61,8 @@ export function fromSharedQuery(query: Query): SharedResult | null {
   const speed = speedText === undefined ? null : number(speedText, MAX_SPEED, true)
   const modeText = read(query, 'm') ?? 'normal'
   const mode = SHARED_RESULT_MODES.find(item => item === modeText)
-  if (!name || time === null || time <= 0 || accuracy === null || words === null || words < 1 || !mode) return null
+  // A time of 0 is a real run: one character can take under the 0.01 s the link keeps.
+  if (!name || time === null || accuracy === null || words === null || words < 1 || !mode) return null
   if (speedText !== undefined && speed === null) return null
   return { name, time: Math.round(time * 100) / 100, accuracy, speed, words, mode }
 }
