@@ -239,6 +239,36 @@ import list235 from './korean-handwriting-beginner-3-words-3.json'
 import list236 from './korean-handwriting-beginner-3-words-4.json'
 import list237 from './korean-handwriting-beginner-3-words-5.json'
 import list238 from './korean-handwriting-beginner-3-words-6.json'
+import list239 from './chinese-hsk6-handwriting-21-words-1.json'
+import list240 from './chinese-hsk6-handwriting-21-words-2.json'
+import list241 from './chinese-hsk6-handwriting-21-words-3.json'
+import list242 from './chinese-hsk6-handwriting-21-words-4.json'
+import list243 from './chinese-hsk6-handwriting-21-words-5.json'
+import list244 from './chinese-hsk6-handwriting-21-words-6.json'
+import list245 from './chinese-hsk6-handwriting-22-words-1.json'
+import list246 from './chinese-hsk6-handwriting-22-words-2.json'
+import list247 from './chinese-hsk6-handwriting-22-words-3.json'
+import list248 from './chinese-hsk6-handwriting-22-words-4.json'
+import list249 from './chinese-hsk6-handwriting-22-words-5.json'
+import list250 from './chinese-hsk6-handwriting-22-words-6.json'
+import list251 from './chinese-hsk6-handwriting-23-words-1.json'
+import list252 from './chinese-hsk6-handwriting-23-words-2.json'
+import list253 from './chinese-hsk6-handwriting-23-words-3.json'
+import list254 from './chinese-hsk6-handwriting-23-words-4.json'
+import list255 from './chinese-hsk6-handwriting-23-words-5.json'
+import list256 from './chinese-hsk6-handwriting-23-words-6.json'
+import list257 from './chinese-hsk6-handwriting-24-words-1.json'
+import list258 from './chinese-hsk6-handwriting-24-words-2.json'
+import list259 from './chinese-hsk6-handwriting-24-words-3.json'
+import list260 from './chinese-hsk6-handwriting-24-words-4.json'
+import list261 from './chinese-hsk6-handwriting-24-words-5.json'
+import list262 from './chinese-hsk6-handwriting-24-words-6.json'
+import list263 from './chinese-hsk6-handwriting-25-words-1.json'
+import list264 from './chinese-hsk6-handwriting-25-words-2.json'
+import list265 from './chinese-hsk6-handwriting-25-words-3.json'
+import list266 from './chinese-hsk6-handwriting-25-words-4.json'
+import list267 from './chinese-hsk6-handwriting-25-words-5.json'
+import list268 from './chinese-hsk6-handwriting-25-words-6.json'
 
 const commands: SavedWordList[] = [
   list0,
@@ -480,6 +510,36 @@ const commands: SavedWordList[] = [
   list236,
   list237,
   list238,
+  list239,
+  list240,
+  list241,
+  list242,
+  list243,
+  list244,
+  list245,
+  list246,
+  list247,
+  list248,
+  list249,
+  list250,
+  list251,
+  list252,
+  list253,
+  list254,
+  list255,
+  list256,
+  list257,
+  list258,
+  list259,
+  list260,
+  list261,
+  list262,
+  list263,
+  list264,
+  list265,
+  list266,
+  list267,
+  list268,
 ].map(list => ({
   ...list,
   words: list.words.map(word => {

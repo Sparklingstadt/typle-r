@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-24-words-6",
+  "name": "中国語HSK6級 手書き24（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語24",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "演绎",
+      "input": "yǎnyì",
+      "annotation": "yǎnyì / 演繹する、演じる",
+      "input_type": "word"
+    },
+    {
+      "display": "要点",
+      "input": "yàodiǎn",
+      "annotation": "yàodiǎn / 要点",
+      "input_type": "word"
+    },
+    {
+      "display": "要命",
+      "input": "yàomìng",
+      "annotation": "yàomìng / ひどく、たまらない",
+      "input_type": "word"
+    },
+    {
+      "display": "耀眼",
+      "input": "yàoyǎn",
+      "annotation": "yàoyǎn / まぶしい",
+      "input_type": "word"
+    },
+    {
+      "display": "压岁钱",
+      "input": "yāsuìqián",
+      "annotation": "yāsuìqián / お年玉",
+      "input_type": "word"
+    },
+    {
+      "display": "压榨",
+      "input": "yāzhà",
+      "annotation": "yāzhà / 搾る、搾取する",
+      "input_type": "word"
+    },
+    {
+      "display": "液体",
+      "input": "yètǐ",
+      "annotation": "yètǐ / 液体",
+      "input_type": "word"
+    },
+    {
+      "display": "异常",
+      "input": "yìcháng",
+      "annotation": "yìcháng / 異常な、非常に",
+      "input_type": "word"
+    },
+    {
+      "display": "一帆风顺",
+      "input": "yìfān fēngshùn",
+      "annotation": "yìfān fēngshùn / 順風満帆",
+      "input_type": "word"
+    },
+    {
+      "display": "依旧",
+      "input": "yījiù",
+      "annotation": "yījiù / 依然として",
+      "input_type": "word"
+    },
+    {
+      "display": "依赖",
+      "input": "yīlài",
+      "annotation": "yīlài / 依存する",
+      "input_type": "word"
+    },
+    {
+      "display": "医疗",
+      "input": "yīliáo",
+      "annotation": "yīliáo / 医療",
+      "input_type": "word"
+    },
+    {
+      "display": "一目了然",
+      "input": "yímù liǎorán",
+      "annotation": "yímù liǎorán / 一目瞭然",
+      "input_type": "word"
+    },
+    {
+      "display": "盈利",
+      "input": "yínglì",
+      "annotation": "yínglì / 利益、もうける",
+      "input_type": "word"
+    },
+    {
+      "display": "应邀",
+      "input": "yìngyāo",
+      "annotation": "yìngyāo / 招きに応じる",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

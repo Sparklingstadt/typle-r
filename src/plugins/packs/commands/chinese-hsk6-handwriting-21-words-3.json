@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-21-words-3",
+  "name": "中国語HSK6級 手書き21（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語21",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "逮捕",
+      "input": "dàibǔ",
+      "annotation": "dàibǔ / 逮捕する",
+      "input_type": "word"
+    },
+    {
+      "display": "当代",
+      "input": "dāngdài",
+      "annotation": "dāngdài / 現代",
+      "input_type": "word"
+    },
+    {
+      "display": "搭配",
+      "input": "dāpèi",
+      "annotation": "dāpèi / 組み合わせる",
+      "input_type": "word"
+    },
+    {
+      "display": "典礼",
+      "input": "diǎnlǐ",
+      "annotation": "diǎnlǐ / 式典",
+      "input_type": "word"
+    },
+    {
+      "display": "低落",
+      "input": "dīluò",
+      "annotation": "dīluò / 落ち込む",
+      "input_type": "word"
+    },
+    {
+      "display": "定居",
+      "input": "dìngjū",
+      "annotation": "dìngjū / 定住する",
+      "input_type": "word"
+    },
+    {
+      "display": "地势",
+      "input": "dìshì",
+      "annotation": "dìshì / 地勢",
+      "input_type": "word"
+    },
+    {
+      "display": "短促",
+      "input": "duǎncù",
+      "annotation": "duǎncù / 短い",
+      "input_type": "word"
+    },
+    {
+      "display": "断定",
+      "input": "duàndìng",
+      "annotation": "duàndìng / 断定する",
+      "input_type": "word"
+    },
+    {
+      "display": "对策",
+      "input": "duìcè",
+      "annotation": "duìcè / 対策",
+      "input_type": "word"
+    },
+    {
+      "display": "对称",
+      "input": "duìchèn",
+      "annotation": "duìchèn / 対称の",
+      "input_type": "word"
+    },
+    {
+      "display": "对付",
+      "input": "duìfu",
+      "annotation": "duìfu / 対処する",
+      "input_type": "word"
+    },
+    {
+      "display": "哆嗦",
+      "input": "duōsuo",
+      "annotation": "duōsuo / 震える",
+      "input_type": "word"
+    },
+    {
+      "display": "反常",
+      "input": "fǎncháng",
+      "annotation": "fǎncháng / 異常な",
+      "input_type": "word"
+    },
+    {
+      "display": "繁华",
+      "input": "fánhuá",
+      "annotation": "fánhuá / にぎやかな",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

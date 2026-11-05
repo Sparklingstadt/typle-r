@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-21-words-4",
+  "name": "中国語HSK6級 手書き21（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語21",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "风气",
+      "input": "fēngqì",
+      "annotation": "fēngqì / 風潮",
+      "input_type": "word"
+    },
+    {
+      "display": "风险",
+      "input": "fēngxiǎn",
+      "annotation": "fēngxiǎn / リスク",
+      "input_type": "word"
+    },
+    {
+      "display": "夫妇",
+      "input": "fūfù",
+      "annotation": "fūfù / 夫婦",
+      "input_type": "word"
+    },
+    {
+      "display": "腐蚀",
+      "input": "fǔshí",
+      "annotation": "fǔshí / 腐食する",
+      "input_type": "word"
+    },
+    {
+      "display": "副作用",
+      "input": "fùzuòyòng",
+      "annotation": "fùzuòyòng / 副作用",
+      "input_type": "word"
+    },
+    {
+      "display": "纲领",
+      "input": "gānglǐng",
+      "annotation": "gānglǐng / 綱領",
+      "input_type": "word"
+    },
+    {
+      "display": "搞鬼",
+      "input": "gǎoguǐ",
+      "annotation": "gǎoguǐ / 悪だくみをする",
+      "input_type": "word"
+    },
+    {
+      "display": "隔离",
+      "input": "gélí",
+      "annotation": "gélí / 隔離する",
+      "input_type": "word"
+    },
+    {
+      "display": "歌颂",
+      "input": "gēsòng",
+      "annotation": "gēsòng / たたえる",
+      "input_type": "word"
+    },
+    {
+      "display": "功效",
+      "input": "gōngxiào",
+      "annotation": "gōngxiào / 効き目",
+      "input_type": "word"
+    },
+    {
+      "display": "公益",
+      "input": "gōngyì",
+      "annotation": "gōngyì / 公益",
+      "input_type": "word"
+    },
+    {
+      "display": "辜负",
+      "input": "gūfù",
+      "annotation": "gūfù / 期待に背く",
+      "input_type": "word"
+    },
+    {
+      "display": "诡计",
+      "input": "guǐjì",
+      "annotation": "guǐjì / 悪だくみ",
+      "input_type": "word"
+    },
+    {
+      "display": "规模",
+      "input": "guīmó",
+      "annotation": "guīmó / 規模",
+      "input_type": "word"
+    },
+    {
+      "display": "棍棒",
+      "input": "gùnbàng",
+      "annotation": "gùnbàng / 棍棒",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

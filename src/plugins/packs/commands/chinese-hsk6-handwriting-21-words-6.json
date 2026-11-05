@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-21-words-6",
+  "name": "中国語HSK6級 手書き21（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語21",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "讲究",
+      "input": "jiǎngjiu",
+      "annotation": "jiǎngjiu / こだわる",
+      "input_type": "word"
+    },
+    {
+      "display": "僵硬",
+      "input": "jiāngyìng",
+      "annotation": "jiāngyìng / こわばった",
+      "input_type": "word"
+    },
+    {
+      "display": "检讨",
+      "input": "jiǎntǎo",
+      "annotation": "jiǎntǎo / 反省する",
+      "input_type": "word"
+    },
+    {
+      "display": "兼职",
+      "input": "jiānzhí",
+      "annotation": "jiānzhí / 兼職する",
+      "input_type": "word"
+    },
+    {
+      "display": "狡猾",
+      "input": "jiǎohuá",
+      "annotation": "jiǎohuá / ずる賢い",
+      "input_type": "word"
+    },
+    {
+      "display": "焦急",
+      "input": "jiāojí",
+      "annotation": "jiāojí / 焦る",
+      "input_type": "word"
+    },
+    {
+      "display": "假设",
+      "input": "jiǎshè",
+      "annotation": "jiǎshè / 仮定する",
+      "input_type": "word"
+    },
+    {
+      "display": "架势",
+      "input": "jiàshi",
+      "annotation": "jiàshi / 構え",
+      "input_type": "word"
+    },
+    {
+      "display": "极端",
+      "input": "jíduān",
+      "annotation": "jíduān / 極端な",
+      "input_type": "word"
+    },
+    {
+      "display": "界限",
+      "input": "jièxiàn",
+      "annotation": "jièxiàn / 境界",
+      "input_type": "word"
+    },
+    {
+      "display": "机灵",
+      "input": "jīling",
+      "annotation": "jīling / 利口な",
+      "input_type": "word"
+    },
+    {
+      "display": "惊慌",
+      "input": "jīnghuāng",
+      "annotation": "jīnghuāng / うろたえる",
+      "input_type": "word"
+    },
+    {
+      "display": "惊讶",
+      "input": "jīngyà",
+      "annotation": "jīngyà / 驚く",
+      "input_type": "word"
+    },
+    {
+      "display": "锦上添花",
+      "input": "jǐnshàng tiānhuā",
+      "annotation": "jǐnshàng tiānhuā / 錦上に花を添える",
+      "input_type": "word"
+    },
+    {
+      "display": "谨慎",
+      "input": "jǐnshèn",
+      "annotation": "jǐnshèn / 慎重な",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

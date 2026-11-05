@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-23-words-2",
+  "name": "中国語HSK6級 手書き23（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語23",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "融洽",
+      "input": "róngqià",
+      "annotation": "róngqià / 打ち解けた",
+      "input_type": "word"
+    },
+    {
+      "display": "柔和",
+      "input": "róuhé",
+      "annotation": "róuhé / 柔らかい、穏やかな",
+      "input_type": "word"
+    },
+    {
+      "display": "若干",
+      "input": "ruògān",
+      "annotation": "ruògān / 若干の",
+      "input_type": "word"
+    },
+    {
+      "display": "丧失",
+      "input": "sàngshī",
+      "annotation": "sàngshī / 失う、喪失する",
+      "input_type": "word"
+    },
+    {
+      "display": "刹车",
+      "input": "shāchē",
+      "annotation": "shāchē / ブレーキをかける",
+      "input_type": "word"
+    },
+    {
+      "display": "上级",
+      "input": "shàngjí",
+      "annotation": "shàngjí / 上司、上級機関",
+      "input_type": "word"
+    },
+    {
+      "display": "尚且",
+      "input": "shàngqiě",
+      "annotation": "shàngqiě / 〜さえ",
+      "input_type": "word"
+    },
+    {
+      "display": "山脉",
+      "input": "shānmài",
+      "annotation": "shānmài / 山脈",
+      "input_type": "word"
+    },
+    {
+      "display": "奢侈",
+      "input": "shēchǐ",
+      "annotation": "shēchǐ / 贅沢な",
+      "input_type": "word"
+    },
+    {
+      "display": "申报",
+      "input": "shēnbào",
+      "annotation": "shēnbào / 申告する",
+      "input_type": "word"
+    },
+    {
+      "display": "牲畜",
+      "input": "shēngchù",
+      "annotation": "shēngchù / 家畜",
+      "input_type": "word"
+    },
+    {
+      "display": "省会",
+      "input": "shěnghuì",
+      "annotation": "shěnghuì / 省都",
+      "input_type": "word"
+    },
+    {
+      "display": "生理",
+      "input": "shēnglǐ",
+      "annotation": "shēnglǐ / 生理",
+      "input_type": "word"
+    },
+    {
+      "display": "生态",
+      "input": "shēngtài",
+      "annotation": "shēngtài / 生態",
+      "input_type": "word"
+    },
+    {
+      "display": "生效",
+      "input": "shēngxiào",
+      "annotation": "shēngxiào / 効力を生じる",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

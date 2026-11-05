@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-22-words-5",
+  "name": "中国語HSK6級 手書き22（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語22",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "迫不及待",
+      "input": "pòbù jídài",
+      "annotation": "pòbù jídài / 待ちきれない",
+      "input_type": "word"
+    },
+    {
+      "display": "魄力",
+      "input": "pòlì",
+      "annotation": "pòlì / 気迫、決断力",
+      "input_type": "word"
+    },
+    {
+      "display": "瀑布",
+      "input": "pùbù",
+      "annotation": "pùbù / 滝",
+      "input_type": "word"
+    },
+    {
+      "display": "恰到好处",
+      "input": "qiàdào hǎochù",
+      "annotation": "qiàdào hǎochù / ちょうどよい",
+      "input_type": "word"
+    },
+    {
+      "display": "抢劫",
+      "input": "qiǎngjié",
+      "annotation": "qiǎngjié / 強奪する",
+      "input_type": "word"
+    },
+    {
+      "display": "强制",
+      "input": "qiángzhì",
+      "annotation": "qiángzhì / 強制する",
+      "input_type": "word"
+    },
+    {
+      "display": "潜水",
+      "input": "qiánshuǐ",
+      "annotation": "qiánshuǐ / 潜水する",
+      "input_type": "word"
+    },
+    {
+      "display": "谦逊",
+      "input": "qiānxùn",
+      "annotation": "qiānxùn / 謙遜な",
+      "input_type": "word"
+    },
+    {
+      "display": "谴责",
+      "input": "qiǎnzé",
+      "annotation": "qiǎnzé / 非難する",
+      "input_type": "word"
+    },
+    {
+      "display": "窍门",
+      "input": "qiàomén",
+      "annotation": "qiàomén / こつ",
+      "input_type": "word"
+    },
+    {
+      "display": "洽谈",
+      "input": "qiàtán",
+      "annotation": "qiàtán / 商談する",
+      "input_type": "word"
+    },
+    {
+      "display": "启程",
+      "input": "qǐchéng",
+      "annotation": "qǐchéng / 出発する",
+      "input_type": "word"
+    },
+    {
+      "display": "欺负",
+      "input": "qīfu",
+      "annotation": "qīfu / いじめる",
+      "input_type": "word"
+    },
+    {
+      "display": "气功",
+      "input": "qìgōng",
+      "annotation": "qìgōng / 気功",
+      "input_type": "word"
+    },
+    {
+      "display": "凄凉",
+      "input": "qīliáng",
+      "annotation": "qīliáng / もの寂しい",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

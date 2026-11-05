@@ -60,10 +60,10 @@ test('every interest is picked at first, so every official pack is listed and ma
     await expect(page.getByRole('button', { name, exact: true })).toHaveAttribute('aria-pressed', 'true')
   }
   const section = page.getByRole('region', { name: '関心に合う公式パック' })
-  await expect(section.locator('li[data-catalog-id]')).toHaveCount(66)
+  await expect(section.locator('li[data-catalog-id]')).toHaveCount(71)
   for (const toggle of await section.getByRole('switch').all()) await expect(toggle).not.toBeChecked()
   await page.goto('/packs/catalog')
-  await expect(page.getByRole('region', { name: '関心に合うパック' }).locator('li[data-catalog-id]')).toHaveCount(66)
+  await expect(page.getByRole('region', { name: '関心に合うパック' }).locator('li[data-catalog-id]')).toHaveCount(71)
   await expect(page.getByRole('region', { name: 'そのほかのパック' })).toHaveCount(0)
 })
 
@@ -98,7 +98,7 @@ test('the interests screen lists the fitting official packs with switches, and �
   const row = section.locator('li[data-catalog-id]', { has: page.getByRole('heading', { name, exact: true }) })
   // Each pack shows its name, its lists and its word count, with its switch off. 語学 has the country list in levels
   // and whole.
-  await expect(section.locator('li[data-catalog-id]')).toHaveCount(38)
+  await expect(section.locator('li[data-catalog-id]')).toHaveCount(43)
   await expect(section.getByRole('heading', { name: '国名：中国語・国連加盟193か国（小文字）', exact: true })).toBeVisible()
   await expect(row).toContainText('国名：中国語・国連加盟国（小文字・初級1）')
   await expect(row).toContainText('193語')
@@ -139,7 +139,7 @@ test('the checked packs are followed and unfollowed at once from the bar', async
   await clearInterests(page)
   await page.getByRole('button', { name: '語学', exact: true }).click()
   const section = page.getByRole('region', { name: '関心に合う公式パック' })
-  await expect(section.locator('li[data-catalog-id]')).toHaveCount(38)
+  await expect(section.locator('li[data-catalog-id]')).toHaveCount(43)
   const names = ['国名：中国語・国連加盟193か国（小文字）', '国名：中国語・国連加盟国（小文字）']
   const follow = page.getByRole('button', { name: 'まとめてフォロー', exact: true })
   const unfollow = page.getByRole('button', { name: 'まとめて解除', exact: true })

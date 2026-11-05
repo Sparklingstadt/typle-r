@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-22-words-2",
+  "name": "中国語HSK6級 手書き22（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語22",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "滥用",
+      "input": "lànyòng",
+      "annotation": "lànyòng / 濫用する",
+      "input_type": "word"
+    },
+    {
+      "display": "乐意",
+      "input": "lèyì",
+      "annotation": "lèyì / 喜んで〜する",
+      "input_type": "word"
+    },
+    {
+      "display": "两口子",
+      "input": "liǎngkǒuzi",
+      "annotation": "liǎngkǒuzi / 夫婦",
+      "input_type": "word"
+    },
+    {
+      "display": "廉价",
+      "input": "liánjià",
+      "annotation": "liánjià / 安価な",
+      "input_type": "word"
+    },
+    {
+      "display": "理睬",
+      "input": "lǐcǎi",
+      "annotation": "lǐcǎi / 相手にする",
+      "input_type": "word"
+    },
+    {
+      "display": "裂缝",
+      "input": "lièfèng",
+      "annotation": "lièfèng / 裂け目",
+      "input_type": "word"
+    },
+    {
+      "display": "领事馆",
+      "input": "lǐngshìguǎn",
+      "annotation": "lǐngshìguǎn / 領事館",
+      "input_type": "word"
+    },
+    {
+      "display": "流传",
+      "input": "liúchuán",
+      "annotation": "liúchuán / 広く伝わる",
+      "input_type": "word"
+    },
+    {
+      "display": "例外",
+      "input": "lìwài",
+      "annotation": "lìwài / 例外",
+      "input_type": "word"
+    },
+    {
+      "display": "利益",
+      "input": "lìyì",
+      "annotation": "lìyì / 利益",
+      "input_type": "word"
+    },
+    {
+      "display": "笼统",
+      "input": "lǒngtǒng",
+      "annotation": "lǒngtǒng / 大ざっぱな",
+      "input_type": "word"
+    },
+    {
+      "display": "漏洞",
+      "input": "lòudòng",
+      "annotation": "lòudòng / 抜け穴",
+      "input_type": "word"
+    },
+    {
+      "display": "啰唆",
+      "input": "luōsuo",
+      "annotation": "luōsuo / くどい",
+      "input_type": "word"
+    },
+    {
+      "display": "漫长",
+      "input": "màncháng",
+      "annotation": "màncháng / 長い",
+      "input_type": "word"
+    },
+    {
+      "display": "蛮横",
+      "input": "mánhèng",
+      "annotation": "mánhèng / 横暴な",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

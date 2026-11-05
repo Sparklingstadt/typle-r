@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-23-words-3",
+  "name": "中国語HSK6級 手書き23（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語23",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "盛行",
+      "input": "shèngxíng",
+      "annotation": "shèngxíng / 流行する",
+      "input_type": "word"
+    },
+    {
+      "display": "声誉",
+      "input": "shēngyù",
+      "annotation": "shēngyù / 名声",
+      "input_type": "word"
+    },
+    {
+      "display": "神经",
+      "input": "shénjīng",
+      "annotation": "shénjīng / 神経",
+      "input_type": "word"
+    },
+    {
+      "display": "神奇",
+      "input": "shénqí",
+      "annotation": "shénqí / 不思議な",
+      "input_type": "word"
+    },
+    {
+      "display": "神圣",
+      "input": "shénshèng",
+      "annotation": "shénshèng / 神聖な",
+      "input_type": "word"
+    },
+    {
+      "display": "渗透",
+      "input": "shèntòu",
+      "annotation": "shèntòu / 浸透する",
+      "input_type": "word"
+    },
+    {
+      "display": "社区",
+      "input": "shèqū",
+      "annotation": "shèqū / 地域社会、コミュニティ",
+      "input_type": "word"
+    },
+    {
+      "display": "设想",
+      "input": "shèxiǎng",
+      "annotation": "shèxiǎng / 想定する、構想",
+      "input_type": "word"
+    },
+    {
+      "display": "识别",
+      "input": "shíbié",
+      "annotation": "shíbié / 識別する",
+      "input_type": "word"
+    },
+    {
+      "display": "师范",
+      "input": "shīfàn",
+      "annotation": "shīfàn / 師範",
+      "input_type": "word"
+    },
+    {
+      "display": "事故",
+      "input": "shìgù",
+      "annotation": "shìgù / 事故",
+      "input_type": "word"
+    },
+    {
+      "display": "时机",
+      "input": "shíjī",
+      "annotation": "shíjī / 時機",
+      "input_type": "word"
+    },
+    {
+      "display": "实力",
+      "input": "shílì",
+      "annotation": "shílì / 実力",
+      "input_type": "word"
+    },
+    {
+      "display": "视力",
+      "input": "shìlì",
+      "annotation": "shìlì / 視力",
+      "input_type": "word"
+    },
+    {
+      "display": "视频",
+      "input": "shìpín",
+      "annotation": "shìpín / 動画",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

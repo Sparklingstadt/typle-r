@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-24-words-5",
+  "name": "中国語HSK6級 手書き24（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語24",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "旋转",
+      "input": "xuánzhuǎn",
+      "annotation": "xuánzhuǎn / 回転する",
+      "input_type": "word"
+    },
+    {
+      "display": "学位",
+      "input": "xuéwèi",
+      "annotation": "xuéwèi / 学位",
+      "input_type": "word"
+    },
+    {
+      "display": "酗酒",
+      "input": "xùjiǔ",
+      "annotation": "xùjiǔ / 大酒を飲む",
+      "input_type": "word"
+    },
+    {
+      "display": "循环",
+      "input": "xúnhuán",
+      "annotation": "xúnhuán / 循環する",
+      "input_type": "word"
+    },
+    {
+      "display": "循序渐进",
+      "input": "xúnxù jiànjìn",
+      "annotation": "xúnxù jiànjìn / 順を追って進む",
+      "input_type": "word"
+    },
+    {
+      "display": "虚伪",
+      "input": "xūwěi",
+      "annotation": "xūwěi / 偽善的な",
+      "input_type": "word"
+    },
+    {
+      "display": "亚军",
+      "input": "yàjūn",
+      "annotation": "yàjūn / 準優勝",
+      "input_type": "word"
+    },
+    {
+      "display": "样品",
+      "input": "yàngpǐn",
+      "annotation": "yàngpǐn / サンプル",
+      "input_type": "word"
+    },
+    {
+      "display": "仰望",
+      "input": "yǎngwàng",
+      "annotation": "yǎngwàng / 仰ぎ見る",
+      "input_type": "word"
+    },
+    {
+      "display": "沿海",
+      "input": "yánhǎi",
+      "annotation": "yánhǎi / 沿海",
+      "input_type": "word"
+    },
+    {
+      "display": "严禁",
+      "input": "yánjìn",
+      "annotation": "yánjìn / 厳禁する",
+      "input_type": "word"
+    },
+    {
+      "display": "严密",
+      "input": "yánmì",
+      "annotation": "yánmì / 厳密な",
+      "input_type": "word"
+    },
+    {
+      "display": "炎热",
+      "input": "yánrè",
+      "annotation": "yánrè / 猛暑の",
+      "input_type": "word"
+    },
+    {
+      "display": "岩石",
+      "input": "yánshí",
+      "annotation": "yánshí / 岩石",
+      "input_type": "word"
+    },
+    {
+      "display": "厌恶",
+      "input": "yànwù",
+      "annotation": "yànwù / 嫌悪する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

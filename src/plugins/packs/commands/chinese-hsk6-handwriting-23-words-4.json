@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-23-words-4",
+  "name": "中国語HSK6級 手書き23（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語23",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "试图",
+      "input": "shìtú",
+      "annotation": "shìtú / 〜しようと試みる",
+      "input_type": "word"
+    },
+    {
+      "display": "失误",
+      "input": "shīwù",
+      "annotation": "shīwù / ミス、失策",
+      "input_type": "word"
+    },
+    {
+      "display": "实行",
+      "input": "shíxíng",
+      "annotation": "shíxíng / 実行する",
+      "input_type": "word"
+    },
+    {
+      "display": "示意",
+      "input": "shìyì",
+      "annotation": "shìyì / 合図する",
+      "input_type": "word"
+    },
+    {
+      "display": "实质",
+      "input": "shízhì",
+      "annotation": "shízhì / 実質",
+      "input_type": "word"
+    },
+    {
+      "display": "收藏",
+      "input": "shōucáng",
+      "annotation": "shōucáng / 収集する、所蔵する",
+      "input_type": "word"
+    },
+    {
+      "display": "首饰",
+      "input": "shǒushi",
+      "annotation": "shǒushi / アクセサリー",
+      "input_type": "word"
+    },
+    {
+      "display": "首要",
+      "input": "shǒuyào",
+      "annotation": "shǒuyào / 最も重要な",
+      "input_type": "word"
+    },
+    {
+      "display": "收音机",
+      "input": "shōuyīnjī",
+      "annotation": "shōuyīnjī / ラジオ",
+      "input_type": "word"
+    },
+    {
+      "display": "率领",
+      "input": "shuàilǐng",
+      "annotation": "shuàilǐng / 率いる",
+      "input_type": "word"
+    },
+    {
+      "display": "爽快",
+      "input": "shuǎngkuai",
+      "annotation": "shuǎngkuai / 爽快な、率直な",
+      "input_type": "word"
+    },
+    {
+      "display": "书法",
+      "input": "shūfǎ",
+      "annotation": "shūfǎ / 書道",
+      "input_type": "word"
+    },
+    {
+      "display": "水利",
+      "input": "shuǐlì",
+      "annotation": "shuǐlì / 水利",
+      "input_type": "word"
+    },
+    {
+      "display": "书记",
+      "input": "shūjì",
+      "annotation": "shūjì / 書記",
+      "input_type": "word"
+    },
+    {
+      "display": "瞬间",
+      "input": "shùnjiān",
+      "annotation": "shùnjiān / 瞬間",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

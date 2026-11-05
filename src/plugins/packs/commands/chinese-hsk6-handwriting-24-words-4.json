@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-24-words-4",
+  "name": "中国語HSK6級 手書き24（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語24",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "性能",
+      "input": "xìngnéng",
+      "annotation": "xìngnéng / 性能",
+      "input_type": "word"
+    },
+    {
+      "display": "兴旺",
+      "input": "xīngwàng",
+      "annotation": "xīngwàng / 盛んな",
+      "input_type": "word"
+    },
+    {
+      "display": "信赖",
+      "input": "xìnlài",
+      "annotation": "xìnlài / 信頼する",
+      "input_type": "word"
+    },
+    {
+      "display": "新娘",
+      "input": "xīnniáng",
+      "annotation": "xīnniáng / 新婦",
+      "input_type": "word"
+    },
+    {
+      "display": "心态",
+      "input": "xīntài",
+      "annotation": "xīntài / 心理状態",
+      "input_type": "word"
+    },
+    {
+      "display": "心血",
+      "input": "xīnxuè",
+      "annotation": "xīnxuè / 心血",
+      "input_type": "word"
+    },
+    {
+      "display": "信誉",
+      "input": "xìnyù",
+      "annotation": "xìnyù / 信用と名声",
+      "input_type": "word"
+    },
+    {
+      "display": "胸膛",
+      "input": "xiōngtáng",
+      "annotation": "xiōngtáng / 胸",
+      "input_type": "word"
+    },
+    {
+      "display": "昔日",
+      "input": "xīrì",
+      "annotation": "xīrì / 昔、往時",
+      "input_type": "word"
+    },
+    {
+      "display": "修复",
+      "input": "xiūfù",
+      "annotation": "xiūfù / 修復する",
+      "input_type": "word"
+    },
+    {
+      "display": "喜闻乐见",
+      "input": "xǐwén lèjiàn",
+      "annotation": "xǐwén lèjiàn / 喜んで受け入れられる",
+      "input_type": "word"
+    },
+    {
+      "display": "细致",
+      "input": "xìzhì",
+      "annotation": "xìzhì / きめ細かい、綿密な",
+      "input_type": "word"
+    },
+    {
+      "display": "喧哗",
+      "input": "xuānhuá",
+      "annotation": "xuānhuá / 騒ぐ、騒がしい",
+      "input_type": "word"
+    },
+    {
+      "display": "宣誓",
+      "input": "xuānshì",
+      "annotation": "xuānshì / 宣誓する",
+      "input_type": "word"
+    },
+    {
+      "display": "宣扬",
+      "input": "xuānyáng",
+      "annotation": "xuānyáng / 宣伝する、広める",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-22-words-6",
+  "name": "中国語HSK6級 手書き22（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語22",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "情报",
+      "input": "qíngbào",
+      "annotation": "qíngbào / 情報",
+      "input_type": "word"
+    },
+    {
+      "display": "清除",
+      "input": "qīngchú",
+      "annotation": "qīngchú / 一掃する",
+      "input_type": "word"
+    },
+    {
+      "display": "情节",
+      "input": "qíngjié",
+      "annotation": "qíngjié / 筋、いきさつ",
+      "input_type": "word"
+    },
+    {
+      "display": "清理",
+      "input": "qīnglǐ",
+      "annotation": "qīnglǐ / 整理する",
+      "input_type": "word"
+    },
+    {
+      "display": "倾听",
+      "input": "qīngtīng",
+      "annotation": "qīngtīng / 耳を傾ける",
+      "input_type": "word"
+    },
+    {
+      "display": "情形",
+      "input": "qíngxing",
+      "annotation": "qíngxing / 様子、状況",
+      "input_type": "word"
+    },
+    {
+      "display": "勤恳",
+      "input": "qínkěn",
+      "annotation": "qínkěn / 勤勉で誠実な",
+      "input_type": "word"
+    },
+    {
+      "display": "亲热",
+      "input": "qīnrè",
+      "annotation": "qīnrè / 親しい、仲むつまじい",
+      "input_type": "word"
+    },
+    {
+      "display": "气魄",
+      "input": "qìpò",
+      "annotation": "qìpò / 気迫",
+      "input_type": "word"
+    },
+    {
+      "display": "气势",
+      "input": "qìshì",
+      "annotation": "qìshì / 勢い",
+      "input_type": "word"
+    },
+    {
+      "display": "启事",
+      "input": "qǐshì",
+      "annotation": "qǐshì / 告知、お知らせ",
+      "input_type": "word"
+    },
+    {
+      "display": "丘陵",
+      "input": "qiūlíng",
+      "annotation": "qiūlíng / 丘陵",
+      "input_type": "word"
+    },
+    {
+      "display": "栖息",
+      "input": "qīxī",
+      "annotation": "qīxī / 生息する",
+      "input_type": "word"
+    },
+    {
+      "display": "气压",
+      "input": "qìyā",
+      "annotation": "qìyā / 気圧",
+      "input_type": "word"
+    },
+    {
+      "display": "旗帜",
+      "input": "qízhì",
+      "annotation": "qízhì / 旗、旗印",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

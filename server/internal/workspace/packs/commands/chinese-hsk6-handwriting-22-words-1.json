@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-22-words-1",
+  "name": "中国語HSK6級 手書き22（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語22",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "急于",
+      "input": "jíyú",
+      "annotation": "jíyú / 〜を急ぐ",
+      "input_type": "word"
+    },
+    {
+      "display": "具备",
+      "input": "jùbèi",
+      "annotation": "jùbèi / 備える",
+      "input_type": "word"
+    },
+    {
+      "display": "鞠躬",
+      "input": "jūgōng",
+      "annotation": "jūgōng / お辞儀する",
+      "input_type": "word"
+    },
+    {
+      "display": "均匀",
+      "input": "jūnyún",
+      "annotation": "jūnyún / 均等な",
+      "input_type": "word"
+    },
+    {
+      "display": "开展",
+      "input": "kāizhǎn",
+      "annotation": "kāizhǎn / 展開する",
+      "input_type": "word"
+    },
+    {
+      "display": "抗议",
+      "input": "kàngyì",
+      "annotation": "kàngyì / 抗議する",
+      "input_type": "word"
+    },
+    {
+      "display": "恳求",
+      "input": "kěnqiú",
+      "annotation": "kěnqiú / 懇願する",
+      "input_type": "word"
+    },
+    {
+      "display": "可恶",
+      "input": "kěwù",
+      "annotation": "kěwù / 憎らしい",
+      "input_type": "word"
+    },
+    {
+      "display": "控告",
+      "input": "kònggào",
+      "annotation": "kònggào / 告訴する",
+      "input_type": "word"
+    },
+    {
+      "display": "快活",
+      "input": "kuàihuo",
+      "annotation": "kuàihuo / 愉快な",
+      "input_type": "word"
+    },
+    {
+      "display": "狂妄",
+      "input": "kuángwàng",
+      "annotation": "kuángwàng / 思い上がった",
+      "input_type": "word"
+    },
+    {
+      "display": "跨越",
+      "input": "kuàyuè",
+      "annotation": "kuàyuè / またいで越える",
+      "input_type": "word"
+    },
+    {
+      "display": "昆虫",
+      "input": "kūnchóng",
+      "annotation": "kūnchóng / 昆虫",
+      "input_type": "word"
+    },
+    {
+      "display": "困扰",
+      "input": "kùnrǎo",
+      "annotation": "kùnrǎo / 悩ませる",
+      "input_type": "word"
+    },
+    {
+      "display": "枯萎",
+      "input": "kūwěi",
+      "annotation": "kūwěi / しおれる",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-25-words-5",
+  "name": "中国語HSK6級 手書き25（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語25",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "忠诚",
+      "input": "zhōngchéng",
+      "annotation": "zhōngchéng / 忠実な",
+      "input_type": "word"
+    },
+    {
+      "display": "终究",
+      "input": "zhōngjiū",
+      "annotation": "zhōngjiū / 結局",
+      "input_type": "word"
+    },
+    {
+      "display": "终身",
+      "input": "zhōngshēn",
+      "annotation": "zhōngshēn / 生涯",
+      "input_type": "word"
+    },
+    {
+      "display": "衷心",
+      "input": "zhōngxīn",
+      "annotation": "zhōngxīn / 心からの",
+      "input_type": "word"
+    },
+    {
+      "display": "种族",
+      "input": "zhǒngzú",
+      "annotation": "zhǒngzú / 種族、人種",
+      "input_type": "word"
+    },
+    {
+      "display": "周年",
+      "input": "zhōunián",
+      "annotation": "zhōunián / 周年",
+      "input_type": "word"
+    },
+    {
+      "display": "周折",
+      "input": "zhōuzhé",
+      "annotation": "zhōuzhé / 曲折、手間",
+      "input_type": "word"
+    },
+    {
+      "display": "专程",
+      "input": "zhuānchéng",
+      "annotation": "zhuānchéng / わざわざ",
+      "input_type": "word"
+    },
+    {
+      "display": "壮观",
+      "input": "zhuàngguān",
+      "annotation": "zhuàngguān / 壮観な",
+      "input_type": "word"
+    },
+    {
+      "display": "庄严",
+      "input": "zhuāngyán",
+      "annotation": "zhuāngyán / 荘厳な",
+      "input_type": "word"
+    },
+    {
+      "display": "专利",
+      "input": "zhuānlì",
+      "annotation": "zhuānlì / 特許",
+      "input_type": "word"
+    },
+    {
+      "display": "转移",
+      "input": "zhuǎnyí",
+      "annotation": "zhuǎnyí / 移す、移転する",
+      "input_type": "word"
+    },
+    {
+      "display": "嘱咐",
+      "input": "zhǔfu",
+      "annotation": "zhǔfu / 言い聞かせる",
+      "input_type": "word"
+    },
+    {
+      "display": "追究",
+      "input": "zhuījiū",
+      "annotation": "zhuījiū / 追及する",
+      "input_type": "word"
+    },
+    {
+      "display": "逐年",
+      "input": "zhúnián",
+      "annotation": "zhúnián / 年ごとに",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}
