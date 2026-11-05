@@ -1,7 +1,6 @@
 "use client"
 import { Suspense, useMemo, useRef, useState } from "react"
 import Link from "next/link"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { ErrorAlert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -14,7 +13,6 @@ import RecordRow, { recordColumns } from "@/components/Records/RecordRow"
 import { useFormat } from "@/i18n/useFormat"
 import { useWordLists, type Workspace } from "@/lib/useWordLists"
 import { usePracticeName } from "@/components/PracticeName"
-import { dayKind } from "@/core/dashboard"
 import { deviceOptions, filterRows, groupByDay, recordRows, type RecordFilter, type RecordRow as Row } from "@/core/records"
 import { levelName } from "@/core/listOverview"
 import { packRecordOptions } from "@/core/packRecords"
@@ -26,10 +24,11 @@ import { PageHeader, PageMain } from "@/components/ui/page-layout"
 import { CardList } from "@/components/ui/card"
 import { FilteredEmpty, NoRecords } from "@/components/Records/RecordsEmpty"
 import RecordDeleteDetails from "@/components/Records/RecordDeleteDetails"
+import { useDayHeading } from "@/lib/useDayHeading"
+import { useRecordFilter } from "@/lib/useRecordFilter"
 
 const PAGE_SIZE = 50
 
-// `?pack=<id>&list=<id>&device=<id>` keeps the filter in the URL, so the practice result and the dashboard can link to one list's history.
 export default function Records() {
   return <Suspense fallback={<Loading />}><RecordsPage /></Suspense>
 }
@@ -55,31 +54,6 @@ function RecordsPage() {
   </PageMain>
 }
 
-function useFilter(): [RecordFilter, (next: RecordFilter) => void] {
-  const params = useSearchParams()
-  const router = useRouter()
-  const pathname = usePathname()
-  const filter = { pack: params.get('pack'), list: params.get('list'), device: params.get('device') }
-  return [filter, next => {
-    const query = new URLSearchParams()
-    if (next.pack) query.set('pack', next.pack)
-    if (next.list) query.set('list', next.list)
-    if (next.device) query.set('device', next.device)
-    router.replace(query.size ? `${pathname}?${query}` : pathname, { scroll: false })
-  }]
-}
-
-// Today and yesterday are named before the date; other days show the date alone.
-function useDayHeading(now: Date) {
-  const t = useTranslations('records.day')
-  const format = useFormat()
-  return (day: Date) => {
-    const date = format.dateWithWeekday(day, now)
-    const kind = dayKind(day, now)
-    return kind === 'today' || kind === 'yesterday' ? t('heading', { relative: format.day(day, now), date }) : date
-  }
-}
-
 function RecordHistory({ failed, lists, packs, saving, deleteRecord }: {
   failed: boolean
   lists: SavedWordList[]
@@ -91,7 +65,7 @@ function RecordHistory({ failed, lists, packs, saving, deleteRecord }: {
   const format = useFormat()
   const notify = useSaveNotification()
   const nameOf = usePracticeName()
-  const [requested, setFilter] = useFilter()
+  const [requested, setFilter] = useRecordFilter()
   const [now] = useState(() => new Date())
   const dayHeading = useDayHeading(now)
   const [shown, setShown] = useState(PAGE_SIZE)
