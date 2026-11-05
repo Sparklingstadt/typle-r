@@ -1,13 +1,11 @@
 "use client"
 import { useEffect, useState } from "react"
-import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { Flag, Plus } from "lucide-react"
 import { ErrorAlert } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
 import ReportDialog from "@/components/Gallery/ReportDialog"
 import { graphql } from "@/core/graphql"
 import { MAX_LISTS, ownListCount } from "@/core/listOverview"
@@ -17,6 +15,7 @@ import { useErrorText } from "@/i18n/useErrorText"
 import { useWordLists } from "@/lib/useWordLists"
 import { PageMain } from "@/components/ui/page-layout"
 import SharedLists from "@/components/Shared/SharedLists"
+import { OpenPacks, SharedEnded, SharedFailed, SharedLoading } from "@/components/Shared/SharedStates"
 
 // A shared pack is public: this page sits outside the (workspace) group, so it opens without a login or the workspace
 // gate. The root layout's WorkspaceProvider still gives it the signed-in account's library, or the guest's.
@@ -41,40 +40,11 @@ export default function SharedPack() {
   }, [id])
 
   return <PageMain width="narrow">
-    {shared.state === 'loading' ? <Loading />
-      : shared.state === 'ended' ? <Ended />
-      : shared.state === 'failed' ? <Failed reason={shared.reason} />
+    {shared.state === 'loading' ? <SharedLoading />
+      : shared.state === 'ended' ? <SharedEnded />
+      : shared.state === 'failed' ? <SharedFailed reason={shared.reason} />
       : <Pack id={id} file={shared.file} />}
   </PageMain>
-}
-
-function Loading() {
-  const t = useTranslations('wordLists.sharedPage')
-  return <div role="status" aria-label={t('loading')} className="space-y-3">
-    <Skeleton className="h-8 w-1/2" /><Skeleton className="h-5 w-2/3" /><Skeleton className="h-40 w-full" />
-  </div>
-}
-
-function OpenPacks() {
-  const t = useTranslations('wordLists.sharedPage')
-  return <Button asChild variant="outline"><Link href="/edit">{t('toPacks')}</Link></Button>
-}
-
-function Ended() {
-  const errors = useTranslations('errors')
-  return <div className="space-y-4">
-    <p role="status" className="text-lg font-bold">{errors('sharedPackNotFound')}</p>
-    <OpenPacks />
-  </div>
-}
-
-function Failed({ reason }: { reason: unknown }) {
-  const t = useTranslations('wordLists.sharedPage')
-  const errorText = useErrorText()
-  return <div className="space-y-4">
-    <ErrorAlert>{errorText(reason, t('loadFailed'))}</ErrorAlert>
-    <OpenPacks />
-  </div>
 }
 
 function Pack({ id, file }: { id: string; file: PackFile }) {
