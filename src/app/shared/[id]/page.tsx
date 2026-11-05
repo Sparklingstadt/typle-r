@@ -3,8 +3,8 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { CircleAlert, Flag, Plus } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Flag, Plus } from "lucide-react"
+import { ErrorAlert } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -72,9 +72,7 @@ function Failed({ reason }: { reason: unknown }) {
   const t = useTranslations('wordLists.sharedPage')
   const errorText = useErrorText()
   return <div className="space-y-4">
-    <Alert variant="destructive"><CircleAlert aria-hidden="true" />
-      <AlertDescription>{errorText(reason, t('loadFailed'))}</AlertDescription>
-    </Alert>
+    <ErrorAlert>{errorText(reason, t('loadFailed'))}</ErrorAlert>
     <OpenPacks />
   </div>
 }
@@ -127,7 +125,7 @@ function Pack({ id, file }: { id: string; file: PackFile }) {
       <ReportDialog shareId={id} open={reporting} onOpenChange={open => { if (open) setReported(false); setReporting(open) }} onSent={() => setReported(true)} />
       <p role="status" className="text-sm text-muted-foreground">{reported ? t('report.sent') : ''}</p>
       {full ? <p id="shared-full" className="text-sm text-muted-foreground">{t('sharedPage.full', { max: MAX_LISTS })}</p> : null}
-      {message ? <Alert variant="destructive"><CircleAlert aria-hidden="true" /><AlertDescription>{message}</AlertDescription></Alert> : null}
+      {message ? <ErrorAlert>{message}</ErrorAlert> : null}
     </header>
 
     <section aria-labelledby="shared-lists" className="space-y-6">

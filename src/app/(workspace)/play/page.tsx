@@ -9,7 +9,7 @@ import { useLiveStatsVisible } from "@/lib/liveStats"
 import { usePracticeMode } from "@/lib/practiceMode"
 import { usePlayAsideOpen } from "@/lib/playAside"
 import { useTypingOptions } from "@/lib/inputSettings"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ErrorAlert } from "@/components/ui/alert"
 import { Card } from "@/components/ui/card"
 import { useWordLists, type RecordSave } from "@/lib/useWordLists"
 import type { SavedWordList } from "@/core/wordLists"
@@ -158,7 +158,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
     : pending?.kind === 'list' && wordLists[pending.index] ? practiceName(wordLists[pending.index]) : ''
 
   return <main className="mx-auto my-6 w-11/12 max-w-7xl pb-12 sm:my-8">
-    {error && <Alert variant="destructive" className="mb-4"><AlertDescription>{error}</AlertDescription></Alert>}
+    {error && <ErrorAlert className="mb-4">{error}</ErrorAlert>}
     {!list?.words.length ? <Card className="px-5 py-8 text-base sm:px-8"><p>{t.rich('empty', {
       catalog: chunks => <Link href="/packs/catalog" className="underline">{chunks}</Link>,
       create: chunks => <Link href="/packs/create" className="underline">{chunks}</Link>,

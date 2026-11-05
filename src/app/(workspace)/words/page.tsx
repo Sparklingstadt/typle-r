@@ -3,9 +3,10 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
-import { ChevronsUpDown, CircleAlert, Keyboard, ListPlus, Pencil, Plus, RotateCw } from "lucide-react"
+import { ChevronsUpDown, CircleAlert, Keyboard, ListPlus, Pencil, Plus } from "lucide-react"
 import { SearchField } from "@/components/ui/search-field"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Alert, AlertDescription, ErrorAlert } from "@/components/ui/alert"
+import { ReloadButton } from "@/components/ui/reload-button"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -33,13 +34,7 @@ export default function Words() {
     <PageHeader title={t('title')} description={t('description')}>
       {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
     </PageHeader>
-    {workspace.error && <Alert variant="destructive" className="mb-6 border-destructive/40 bg-destructive/5">
-      <CircleAlert aria-hidden="true" />
-      <AlertDescription className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <span className="min-w-0 flex-1 basis-64">{workspace.error}</span>
-        <Button variant="outline" size="lg" onClick={() => window.location.reload()}><RotateCw aria-hidden="true" />{page('reload')}</Button>
-      </AlertDescription>
-    </Alert>}
+    {workspace.error && <ErrorAlert className="mb-6" action={<ReloadButton>{page('reload')}</ReloadButton>}>{workspace.error}</ErrorAlert>}
     {!workspace.ready ? <LoadingState />
       : workspace.lists.length ? <Suspense fallback={<LoadingState />}><WordsView key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} /></Suspense>
         // After a failed load the lists are unknown; "no lists yet" would be wrong.
