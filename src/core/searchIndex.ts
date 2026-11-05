@@ -17,7 +17,8 @@ export type RobotsRules = {
 // Pages that show the visitor's own lists or records (records, rankings, edit, ...) are left out:
 // a crawler would only see an empty workspace there.
 export const INDEXED_PATHS: readonly { path: string; changeFrequency: SitemapEntry['changeFrequency']; priority: number }[] = [
-  { path: '/home', changeFrequency: 'weekly', priority: 1 },
+  { path: '/', changeFrequency: 'weekly', priority: 1 },
+  { path: '/home', changeFrequency: 'weekly', priority: 0.8 },
   { path: '/play', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/gallery', changeFrequency: 'weekly', priority: 0.8 },
   { path: '/guide', changeFrequency: 'monthly', priority: 0.6 },
