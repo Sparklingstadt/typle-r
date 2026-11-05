@@ -17,6 +17,7 @@ import { followedPackCount, MAX_FOLLOWED_PACKS } from "@/core/listOverview"
 import { matchesInterests } from "@/core/interests"
 import { followOfficialPack, catalogEntries, type CatalogEntry } from "@/plugins/packs/catalog"
 import { PageHeader, PageMain } from "@/components/ui/page-layout"
+import { CardList } from "@/components/ui/card"
 
 export default function Catalog() {
   const { ready, packs, lists, interests, error, updateLibrary, saving, storage } = useWordLists()
@@ -63,7 +64,7 @@ export default function Catalog() {
 
   // Entries sit under a section heading once the catalog is split, so their names step down a level.
   const renderEntries = (items: CatalogEntry[], Name: "h2" | "h3") => (
-    <ul className="divide-y overflow-hidden rounded-xl border bg-card">
+    <CardList>
       {items.map(entry => {
         const owned = entry.followed ? ownedPack(entry) : undefined
         const words = entry.lists.reduce((sum, list) => sum + list.words.length, 0)
@@ -90,7 +91,7 @@ export default function Catalog() {
           </div>
         </li>
       })}
-    </ul>
+    </CardList>
   )
 
   return <PageMain width="medium">

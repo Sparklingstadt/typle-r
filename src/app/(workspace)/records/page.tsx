@@ -25,6 +25,7 @@ import type { WordPack } from "@/core/wordPacks"
 import { cn } from "@/lib/utils"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import { PageHeader, PageMain } from "@/components/ui/page-layout"
+import { CardList } from "@/components/ui/card"
 
 const PAGE_SIZE = 50
 
@@ -152,12 +153,12 @@ function RecordHistory({ lists, packs, saving, deleteRecord }: {
           <h2 className="text-sm font-bold">{dayHeading(group.day)}</h2>
           <p className="text-xs text-muted-foreground tabular-nums">{t('day.summary', { count: group.rows.length, duration: format.duration(group.seconds) })}</p>
         </div>
-        <ul className="divide-y overflow-hidden rounded-xl border bg-card">
+        <CardList>
           {group.rows.map(row => <RecordRow key={row.key} row={row} showList={!filter.list} inPack={Boolean(filter.pack)} disabled={saving} onDelete={() => {
             deleted.current = false
             setDeleting({ open: true, row, position: rows.indexOf(row) })
           }} />)}
-        </ul>
+        </CardList>
       </section>)}
       {rows.length > shown && <div className="flex justify-center">
         <Button variant="outline" onClick={() => setShown(current => current + PAGE_SIZE)}>{t('more', { count: rows.length - shown })}</Button>

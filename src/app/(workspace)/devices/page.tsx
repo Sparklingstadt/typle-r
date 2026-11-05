@@ -20,6 +20,7 @@ import CurrentDevice from '@/components/Devices/CurrentDevice'
 import DeviceDialog, { type DeviceDialogState } from '@/components/Devices/DeviceDialog'
 import PageStorageBadge from '@/components/PageStorageBadge'
 import { PageHeader, PageMain } from '@/components/ui/page-layout'
+import { CardList } from '@/components/ui/card'
 
 export default function Devices() {
   const workspace = useWordLists()
@@ -106,7 +107,7 @@ function DeviceManager({ accountId, devices, lists, saving, error, updateDevices
         {devices.length > 0 && <Button className="ml-auto" disabled={full || saving} onClick={() => openDialog(null)}><Plus aria-hidden="true" />{t('add')}</Button>}
       </div>
       {full && <p className="text-sm text-muted-foreground">{t('limit', { max: MAX_DEVICES })}</p>}
-      <ul ref={list} className="divide-y overflow-hidden rounded-xl border bg-card">
+      <CardList ref={list}>
         {[defaultDevice(defaultName), ...devices].map(device => {
           const current = device.id === selected?.id
           const builtIn = device.id === DEFAULT_DEVICE_ID
@@ -134,7 +135,7 @@ function DeviceManager({ accountId, devices, lists, saving, error, updateDevices
             </div>}
           </li>
         })}
-      </ul>
+      </CardList>
       {!devices.length && <NoDevices onAdd={() => openDialog(null)} />}
     </section>
 
