@@ -86,3 +86,15 @@ test('the text field can be chosen instead, and the choice is kept', async ({ pa
   await expect(page.getByRole('radio', { name: '入力欄', exact: true })).toBeChecked()
   await expect(pad(page)).toHaveCount(0)
 })
+
+test('the text around the pad cannot be selected while writing, and can with the field', async ({ page }) => {
+  await start(page)
+  const selected = async () => {
+    await page.evaluate(() => getSelection()?.removeAllRanges())
+    await model(page).dblclick()
+    return page.evaluate(() => getSelection()?.toString())
+  }
+  expect(await selected()).toBe('')
+  await page.getByRole('radio', { name: '入力欄', exact: true }).click()
+  expect(await selected()).not.toBe('')
+})
