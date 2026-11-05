@@ -2,12 +2,13 @@
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
-import { ArrowRight, Brain, CircleCheck, Keyboard, PenLine, RotateCcw, TrendingDown, Trophy } from 'lucide-react'
+import { ArrowRight, Brain, CircleCheck, Keyboard, PenLine, RotateCcw, Share2, TrendingDown, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ErrorAlert } from '@/components/ui/alert'
 import Kbd from '@/components/Practice/Kbd'
 import type { PracticeDevice } from '@/core/devices'
 import { bestRecords, recordsOfMode, type PracticeMode, type PracticeRecord } from '@/core/records'
+import { sharedName, toSharedQuery, xIntentUrl } from '@/core/sharedResult'
 import type { SavedWordList } from '@/core/wordLists'
 import { cn } from '@/lib/utils'
 import { useFormat } from '@/i18n/useFormat'
@@ -65,6 +66,10 @@ export default function PracticeResult({ listName, wordCount, result, correct, s
     { term: t('speed'), value: speed === null ? '—' : String(speed), unit: t(writing ? 'wordSpeedUnit' : 'speedUnit'), note: t(writing ? 'correctWords' : 'correct', { count: correct }) },
     { term: t('words'), value: String(wordCount), unit: t('wordUnit', { count: wordCount }), note: format.device(device), device: true },
   ]
+  // The result screen only renders in the browser, after a run, so the page's own origin is at hand.
+  const shared = toSharedQuery({ name: listName, time: result.time, accuracy: result.accuracy, speed, words: wordCount, mode })
+  const shareText = `${t('shareText', { name: sharedName(listName), time: result.time.toFixed(2), accuracy: result.accuracy })} #Typle`
+  const shareHref = typeof window === 'undefined' ? undefined : xIntentUrl(shareText, `${window.location.origin}/result?${shared}`)
   return <section aria-label={t('label')} className="flex flex-1 flex-col gap-4 px-4 pt-5 pb-5 sm:gap-5 sm:px-6 sm:pt-7 sm:pb-6">
     <div className="flex flex-wrap items-center gap-3">
       <h2 className="text-[22px] font-bold sm:text-[26px]">{t('title')}</h2>
@@ -94,6 +99,7 @@ export default function PracticeResult({ listName, wordCount, result, correct, s
       <Button ref={again} className="grow sm:grow-0" onClick={onRestart} aria-keyshortcuts="Enter"><RotateCcw aria-hidden="true" />{t('again')}<Kbd>Enter</Kbd></Button>
       <Button variant="outline" className="grow sm:grow-0" onClick={onChooseList}>{t('chooseList')}</Button>
       <Button variant="ghost" asChild><Link href="/records">{t('viewRecords')}<ArrowRight aria-hidden="true" /></Link></Button>
+      {shareHref && <Button variant="ghost" asChild><a href={shareHref} target="_blank" rel="noopener noreferrer"><Share2 aria-hidden="true" />{t('shareOnX')}</a></Button>}
     </div>
   </section>
 }

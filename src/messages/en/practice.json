@@ -102,7 +102,9 @@
     "viewRecords": "View history",
     "wordSpeedUnit": "words/min",
     "correctWords": "{count, plural, one {# word} other {# words}}",
-    "mistakesWords": "{count, plural, one {# mistake} other {# mistakes}}"
+    "mistakesWords": "{count, plural, one {# mistake} other {# mistakes}}",
+    "shareOnX": "Share on X",
+    "shareText": "I typed “{name}” in {time} s with {accuracy}% accuracy on Typle"
   },
   "best": {
     "label": "Top 5 best records",

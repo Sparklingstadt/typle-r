@@ -1,0 +1,10 @@
+{
+  "title": "練習記錄：{name}",
+  "description": "{time} 秒，正確率 {accuracy}%。在 Typle 上打字記住你想學的詞。",
+  "heading": "練習記錄：{name}",
+  "lead": "這是在 Typle 上打出的記錄。Typle 是一款邊打字邊記住想學的詞的應用程式。",
+  "play": "試試在 Typle 上練習",
+  "about": "關於 Typle",
+  "invalidTitle": "無法顯示此記錄",
+  "invalid": "無法讀取此連結中的記錄。請確認連結沒有被截斷。"
+}

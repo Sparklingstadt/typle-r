@@ -102,7 +102,9 @@
     "viewRecords": "查看紀錄",
     "wordSpeedUnit": "詞/分",
     "correctWords": "{count} 個詞",
-    "mistakesWords": "錯誤 {count} 個詞"
+    "mistakesWords": "錯誤 {count} 個詞",
+    "shareOnX": "分享到 X",
+    "shareText": "我在 Typle 上以 {time} 秒、{accuracy}% 的正確率打完了「{name}」"
   },
   "best": {
     "label": "最佳紀錄前 5 名",

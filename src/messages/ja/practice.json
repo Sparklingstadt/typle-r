@@ -102,7 +102,9 @@
     "viewRecords": "記録を見る",
     "wordSpeedUnit": "語/分",
     "correctWords": "{count} 語",
-    "mistakesWords": "ミス {count} 語"
+    "mistakesWords": "ミス {count} 語",
+    "shareOnX": "X でシェア",
+    "shareText": "Typle で「{name}」を {time} 秒・正確率 {accuracy}% で打ちました"
   },
   "best": {
     "label": "ベスト記録 上位5件",
