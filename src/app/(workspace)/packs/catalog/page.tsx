@@ -16,6 +16,8 @@ import { randomId } from "@/core/randomId"
 import { followedPackCount, MAX_FOLLOWED_PACKS } from "@/core/listOverview"
 import { matchesInterests } from "@/core/interests"
 import { followOfficialPack, catalogEntries, type CatalogEntry } from "@/plugins/packs/catalog"
+import { PageHeader, PageMain } from "@/components/ui/page-layout"
+import { CardList } from "@/components/ui/card"
 
 export default function Catalog() {
   const { ready, packs, lists, interests, error, updateLibrary, saving, storage } = useWordLists()
@@ -62,7 +64,7 @@ export default function Catalog() {
 
   // Entries sit under a section heading once the catalog is split, so their names step down a level.
   const renderEntries = (items: CatalogEntry[], Name: "h2" | "h3") => (
-    <ul className="divide-y overflow-hidden rounded-xl border bg-card">
+    <CardList>
       {items.map(entry => {
         const owned = entry.followed ? ownedPack(entry) : undefined
         const words = entry.lists.reduce((sum, list) => sum + list.words.length, 0)
@@ -89,10 +91,10 @@ export default function Catalog() {
           </div>
         </li>
       })}
-    </ul>
+    </CardList>
   )
 
-  return <main className="mx-auto w-full max-w-5xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
+  return <PageMain width="medium">
     {!ready ? <div role="status">
       <span className="sr-only">{common("loading")}</span>
       <div className="mb-6 space-y-2"><Skeleton className="h-8 w-40" /><Skeleton className="h-4 w-96 max-w-full" /></div>
@@ -100,13 +102,9 @@ export default function Catalog() {
         {[0, 1, 2].map(key => <div key={key} className="space-y-2 px-5 py-4"><Skeleton className="h-4 w-48" /><Skeleton className="h-3.5 w-72 max-w-full" /></div>)}
       </div>
     </div> : <>
-      <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold">{t("title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("description")}</p>
-        </div>
+      <PageHeader title={t("title")} description={t("description")}>
         <PageStorageBadge storage={storage} />
-      </header>
+      </PageHeader>
       <Button asChild variant="ghost" className="mb-3 -ml-2 text-muted-foreground"><Link href="/edit"><ArrowLeft aria-hidden="true" />{t("back")}</Link></Button>
       {error && <Alert variant="destructive" className="mb-4 border-destructive/40 bg-destructive/5">
         <CircleAlert aria-hidden="true" />
@@ -128,5 +126,5 @@ export default function Catalog() {
       <p className="mt-8 text-sm"><Link href="/gallery" className="underline underline-offset-3 hover:text-foreground">{t("toGallery")}</Link></p>
       <UnfollowDialog pack={unfollowing} onOpenChange={open => { if (!open) setUnfollowing(null) }} updateLibrary={updateLibrary} onUnfollowed={() => setUnfollowing(null)} />
     </>}
-  </main>
+  </PageMain>
 }

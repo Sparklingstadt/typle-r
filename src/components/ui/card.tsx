@@ -91,8 +91,14 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
+// A card holding a list, with a line between its rows.
+function CardList({ className, ...props }: React.ComponentProps<"ul">) {
+  return <ul data-slot="card-list" className={cn("divide-y overflow-hidden rounded-xl border bg-card", className)} {...props} />
+}
+
 export {
   Card,
+  CardList,
   CardHeader,
   CardFooter,
   CardTitle,

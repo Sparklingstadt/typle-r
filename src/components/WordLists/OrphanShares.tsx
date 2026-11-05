@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useErrorText } from '@/i18n/useErrorText'
 import type { OrphanShare } from '@/lib/useShares'
+import { CardList } from '@/components/ui/card'
 
 // Share links whose pack the account no longer has. Older versions kept them when a pack went away, so they are
 // listed here to be stopped; the pack's name is the one in the shared copy. `focusWhenGone` is the id of the element
@@ -53,7 +54,7 @@ export default function OrphanShares({ orphans, onStop, focusWhenGone, className
   return <section aria-labelledby="orphan-shares-heading" className={cn('space-y-2', className)}>
     <h2 id="orphan-shares-heading" className="text-base font-bold">{t('orphans.title')}</h2>
     <p className="text-sm text-muted-foreground">{t('orphans.description')}</p>
-    <ul ref={list} className="divide-y overflow-hidden rounded-xl border bg-card">
+    <CardList ref={list}>
       {orphans.map((item, position) => {
         const name = item.name || t('orphans.unnamed')
         return <li key={item.packId} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3">
@@ -66,7 +67,7 @@ export default function OrphanShares({ orphans, onStop, focusWhenGone, className
           </Button>
         </li>
       })}
-    </ul>
+    </CardList>
     {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
   </section>
 }

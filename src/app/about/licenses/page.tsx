@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server"
 import { ChevronLeft, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import LicenseList from "@/components/About/LicenseList"
+import { PageMain } from "@/components/ui/page-layout"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("about.licenses.meta")
@@ -14,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 // public/licenses on every install and build, so the page reads them from there.
 export default async function Licenses() {
   const t = await getTranslations("about.licenses")
-  return <main className="mx-auto w-full max-w-4xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
+  return <PageMain width="narrow">
     <header className="mb-8 space-y-4">
       <Link href="/about" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ChevronLeft aria-hidden="true" className="size-4" />{t("back")}
@@ -28,5 +29,5 @@ export default async function Licenses() {
       </Button>
     </header>
     <LicenseList />
-  </main>
+  </PageMain>
 }
