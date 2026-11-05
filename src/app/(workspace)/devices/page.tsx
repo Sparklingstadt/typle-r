@@ -12,7 +12,6 @@ import { cn } from '@/lib/utils'
 import { ErrorAlert } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { EmptyState, EmptyStateIcon } from '@/components/ui/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import DeleteConfirmation from '@/components/DeleteConfirmation'
 import { useSaveNotification } from '@/components/SaveNotification'
@@ -22,6 +21,8 @@ import PageStorageBadge from '@/components/PageStorageBadge'
 import { PageHeader, PageMain } from '@/components/ui/page-layout'
 import { CardList } from '@/components/ui/card'
 import { IconTile } from '@/components/ui/icon-tile'
+import NoDevices from '@/components/Devices/NoDevices'
+
 
 export default function Devices() {
   const workspace = useWordLists()
@@ -164,17 +165,4 @@ function DeviceManager({ accountId, devices, lists, saving, error, updateDevices
         return saved
       }} />}
   </div>
-}
-
-function NoDevices({ onAdd }: { onAdd: () => void }) {
-  const t = useTranslations('devices')
-  return <EmptyState className="py-10 sm:py-12">
-    <EmptyStateIcon icon={Monitor} />
-    <div className="space-y-1.5">
-      <h3 className="font-bold">{t('empty.title')}</h3>
-      <p className="max-w-md text-sm text-balance text-muted-foreground">{t('empty.description')}</p>
-    </div>
-    <Button onClick={onAdd}><Plus aria-hidden="true" />{t('add')}</Button>
-    <p className="text-xs text-muted-foreground">{t('empty.example')}</p>
-  </EmptyState>
 }
