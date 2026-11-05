@@ -64,6 +64,7 @@ export default async function About() {
 
       <Section id="reports-heading" title={t("reports.title")}>
         <p className="max-w-2xl text-sm text-muted-foreground">{t("reports.text")}</p>
+        <p className="max-w-2xl text-sm text-muted-foreground">{t("reports.analytics")}</p>
       </Section>
 
       <Section id="version-heading" title={t("version.title")}>
@@ -82,7 +83,7 @@ export default async function About() {
               <a href="https://github.com/Sparklingstadt/typle-r" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-medium underline underline-offset-3 hover:text-muted-foreground">
                 GitHub<span className="sr-only">{t("version.newTab")}</span><ExternalLink aria-hidden="true" className="size-3.5" />
               </a>
-              <p className="text-muted-foreground">{t("version.private")}</p>
+              <p className="text-muted-foreground">{t("version.public")}</p>
             </dd>
           </div>
           <div className="grid gap-1 px-4 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
