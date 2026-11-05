@@ -1,7 +1,7 @@
 "use client"
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Alert, AlertDescription, ErrorAlert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -71,7 +71,7 @@ export default function GalleryList({ time, errorText }: { time: (value: string 
       <CardDescription>{t('description')}</CardDescription>
     </CardHeader>
     <CardContent className="space-y-4">
-      {actionFailed && <Alert variant="destructive"><AlertDescription>{actionFailed}</AlertDescription></Alert>}
+      {actionFailed && <ErrorAlert>{actionFailed}</ErrorAlert>}
       {state.kind === 'loading' && <p role="status">{t('loading')}</p>}
       {state.kind === 'failed' && <Alert variant="destructive"><AlertDescription className="flex flex-wrap items-center gap-3">
         {state.error}<Button variant="outline" size="sm" onClick={() => { setState({ kind: 'loading' }); void fetchPacks().then(setState) }}>{t('retry')}</Button>

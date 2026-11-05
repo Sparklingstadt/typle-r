@@ -9,7 +9,7 @@ import { useChosenDevice } from '@/lib/deviceSelection'
 import { DEFAULT_DEVICE_ID, defaultDevice, deviceUsage, MAX_DEVICES, saveDevice, type DeviceUsage, type PracticeDevice } from '@/core/devices'
 import type { SavedWordList } from '@/core/wordLists'
 import { cn } from '@/lib/utils'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { ErrorAlert } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -30,7 +30,7 @@ export default function Devices() {
     <PageHeader title={t('title')} description={t.rich('description', { link: chunks => <Link href="/play" className="underline underline-offset-3 hover:text-foreground">{chunks}</Link> })}>
       {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
     </PageHeader>
-    {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
+    {workspace.error && <ErrorAlert className="mb-6">{workspace.error}</ErrorAlert>}
     {!workspace.ready ? <div role="status" className="space-y-3"><p>{common('loading')}</p><Skeleton className="h-20 w-full" /><Skeleton className="h-40 w-full" /></div>
       : <DeviceManager key={workspace.accountId} {...workspace} accountId={workspace.accountId ?? ''} />}
   </PageMain>

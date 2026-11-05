@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { History, Keyboard, Trophy } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ErrorAlert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -50,7 +50,7 @@ function RecordsPage() {
       })}>
       {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
     </PageHeader>
-    {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
+    {workspace.error && <ErrorAlert className="mb-6">{workspace.error}</ErrorAlert>}
     {!workspace.ready ? <Loading /> : <RecordHistory key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} saving={workspace.saving} deleteRecord={workspace.deleteRecord} />}
   </PageMain>
 }

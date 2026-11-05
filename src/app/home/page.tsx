@@ -1,5 +1,5 @@
 "use client"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ErrorAlert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
@@ -15,7 +15,7 @@ export default function Home() {
   const { lists, storage, ready, error, saving, update } = useWordLists()
   const count = lists.reduce((total, list) => total + list.records.length, 0)
   return <Page><PageContainer>
-    {error && <Alert variant="destructive" className="mb-6"><AlertDescription>{error}</AlertDescription></Alert>}
+    {error && <ErrorAlert className="mb-6">{error}</ErrorAlert>}
     {!ready ? <p>{common("loading")}</p> : count ? <Dashboard lists={lists} storage={storage} /> : <>
       <h1 className="text-3xl mb-4">{t("welcome.title")}</h1>
       <p className="mb-6">{t("welcome.text")}</p>

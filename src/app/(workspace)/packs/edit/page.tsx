@@ -3,8 +3,8 @@ import { Suspense, useState } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ArrowLeft, CircleAlert, Copy, UserMinus } from "lucide-react"
+import { ErrorAlert } from "@/components/ui/alert"
+import { ArrowLeft, Copy, UserMinus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import UnfollowDialog from "@/components/WordLists/UnfollowDialog"
 import PackEditor from "@/components/PackEditor"
@@ -55,7 +55,7 @@ function Editor() {
     }
     return <section className="space-y-4">
       <h1 className="text-2xl font-bold [overflow-wrap:anywhere]">{pack.name}</h1>
-      {error && <Alert variant="destructive"><CircleAlert aria-hidden="true" /><AlertDescription>{error}</AlertDescription></Alert>}
+      {error && <ErrorAlert>{error}</ErrorAlert>}
       <Notice>{errors("packFollowed")}</Notice>
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" onClick={() => router.push(back)}><ArrowLeft aria-hidden="true" />{t("catalog.back")}</Button>
