@@ -3,7 +3,6 @@ import { Suspense, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { Trophy } from "lucide-react"
 import { ErrorAlert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -11,12 +10,12 @@ import DeleteConfirmation from "@/components/DeleteConfirmation"
 import { useSaveNotification } from "@/components/SaveNotification"
 import FilterMenu, { type FilterOption } from "@/components/Records/FilterMenu"
 import ListSummary from "@/components/Records/ListSummary"
-import RecordRow, { recordColumns, RecordTime } from "@/components/Records/RecordRow"
+import RecordRow, { recordColumns } from "@/components/Records/RecordRow"
 import { useFormat } from "@/i18n/useFormat"
 import { useWordLists, type Workspace } from "@/lib/useWordLists"
-import PracticeName, { usePracticeName } from "@/components/PracticeName"
+import { usePracticeName } from "@/components/PracticeName"
 import { dayKind } from "@/core/dashboard"
-import { deviceOptions, filterRows, formatAccuracy, groupByDay, listBest, recordRows, type RecordFilter, type RecordRow as Row } from "@/core/records"
+import { deviceOptions, filterRows, groupByDay, recordRows, type RecordFilter, type RecordRow as Row } from "@/core/records"
 import { levelName } from "@/core/listOverview"
 import { packRecordOptions } from "@/core/packRecords"
 import type { SavedWordList } from "@/core/wordLists"
@@ -26,6 +25,7 @@ import PageStorageBadge from "@/components/PageStorageBadge"
 import { PageHeader, PageMain } from "@/components/ui/page-layout"
 import { CardList } from "@/components/ui/card"
 import { FilteredEmpty, NoRecords } from "@/components/Records/RecordsEmpty"
+import RecordDeleteDetails from "@/components/Records/RecordDeleteDetails"
 
 const PAGE_SIZE = 50
 
@@ -184,28 +184,7 @@ function RecordHistory({ failed, lists, packs, saving, deleteRecord }: {
         }
         return saved
       }}>
-      <DeleteDetails row={deleting.row} dayHeading={dayHeading} />
+      <RecordDeleteDetails row={deleting.row} dayHeading={dayHeading} />
     </DeleteConfirmation>}
-  </div>
-}
-
-function DeleteDetails({ row, dayHeading }: { row: Row; dayHeading: (day: Date) => string }) {
-  const t = useTranslations('records.delete')
-  const format = useFormat()
-  const { list, record, best } = row
-  const date = new Date(record.date)
-  const next = best ? listBest({ ...list, records: list.records.filter(item => item !== record) }, row.mode) : undefined
-  return <div className="space-y-3">
-    <dl className="grid gap-1 rounded-lg border bg-muted/40 px-3.5 py-3 text-sm">
-      <dt className="sr-only">{t('list')}</dt><dd className="font-medium [overflow-wrap:anywhere]"><PracticeName list={list} /></dd>
-      <dt className="sr-only">{t('when')}</dt>
-      <dd className="text-[13px] text-muted-foreground">{dayHeading(date)} {format.clock(date)} · {format.device(record.device)}</dd>
-      <dt className="sr-only">{t('result')}</dt>
-      <dd className="tabular-nums"><RecordTime seconds={record.time} className="font-bold" /><span className="ml-3">{t('accuracy', { value: formatAccuracy(record.accuracy) })}</span><span className="ml-3">{t('mistakes', { value: record.mistakes ?? '—' })}</span></dd>
-    </dl>
-    {best && <p className="flex gap-2 rounded-lg bg-amber-50 px-3.5 py-2.5 text-[13px] text-amber-900 dark:bg-amber-950/50 dark:text-amber-200">
-      <Trophy className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-      <span>{next ? t('bestNext', { time: format.recordTime(next.time), accuracy: formatAccuracy(next.accuracy) }) : t('bestLast')}</span>
-    </p>}
   </div>
 }
