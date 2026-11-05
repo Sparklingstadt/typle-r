@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-beginner-3-words-3",
+  "name": "韓国語 手書き初級3（町・乗り物）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き初級単語3",
+  "levels": [
+    "町・乗り物"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "길",
+      "input": "gil",
+      "annotation": "gil / 道",
+      "input_type": "word"
+    },
+    {
+      "display": "버스",
+      "input": "beoseu",
+      "annotation": "beoseu / バス",
+      "input_type": "word"
+    },
+    {
+      "display": "택시",
+      "input": "taeksi",
+      "annotation": "taeksi / タクシー",
+      "input_type": "word"
+    },
+    {
+      "display": "거리",
+      "input": "geori",
+      "annotation": "geori / 通り",
+      "input_type": "word"
+    },
+    {
+      "display": "극장",
+      "input": "geukjang",
+      "annotation": "geukjang / 劇場",
+      "input_type": "word"
+    },
+    {
+      "display": "학원",
+      "input": "hagwon",
+      "annotation": "hagwon / 塾",
+      "input_type": "word"
+    },
+    {
+      "display": "빵집",
+      "input": "ppangjip",
+      "annotation": "ppangjip / パン屋",
+      "input_type": "word"
+    },
+    {
+      "display": "카페",
+      "input": "kape",
+      "annotation": "kape / カフェ",
+      "input_type": "word"
+    },
+    {
+      "display": "서점",
+      "input": "seojeom",
+      "annotation": "seojeom / 本屋",
+      "input_type": "word"
+    },
+    {
+      "display": "자동차",
+      "input": "jadongcha",
+      "annotation": "jadongcha / 自動車",
+      "input_type": "word"
+    },
+    {
+      "display": "미용실",
+      "input": "miyongsil",
+      "annotation": "miyongsil / 美容院",
+      "input_type": "word"
+    },
+    {
+      "display": "경찰서",
+      "input": "gyeongchalseo",
+      "annotation": "gyeongchalseo / 警察署",
+      "input_type": "word"
+    },
+    {
+      "display": "주차장",
+      "input": "juchajang",
+      "annotation": "juchajang / 駐車場",
+      "input_type": "word"
+    },
+    {
+      "display": "놀이터",
+      "input": "noriteo",
+      "annotation": "noriteo / 遊び場",
+      "input_type": "word"
+    },
+    {
+      "display": "수영장",
+      "input": "suyeongjang",
+      "annotation": "suyeongjang / プール",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

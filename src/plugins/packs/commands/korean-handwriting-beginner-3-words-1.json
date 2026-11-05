@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-beginner-3-words-1",
+  "name": "韓国語 手書き初級3（家・家具）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き初級単語3",
+  "levels": [
+    "家・家具"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "문",
+      "input": "mun",
+      "annotation": "mun / ドア",
+      "input_type": "word"
+    },
+    {
+      "display": "방석",
+      "input": "bangseok",
+      "annotation": "bangseok / 座布団",
+      "input_type": "word"
+    },
+    {
+      "display": "창문",
+      "input": "changmun",
+      "annotation": "changmun / 窓",
+      "input_type": "word"
+    },
+    {
+      "display": "침대",
+      "input": "chimdae",
+      "annotation": "chimdae / ベッド",
+      "input_type": "word"
+    },
+    {
+      "display": "의자",
+      "input": "uija",
+      "annotation": "uija / 椅子",
+      "input_type": "word"
+    },
+    {
+      "display": "책상",
+      "input": "chaeksang",
+      "annotation": "chaeksang / 机",
+      "input_type": "word"
+    },
+    {
+      "display": "소파",
+      "input": "sopa",
+      "annotation": "sopa / ソファ",
+      "input_type": "word"
+    },
+    {
+      "display": "거울",
+      "input": "geoul",
+      "annotation": "geoul / 鏡",
+      "input_type": "word"
+    },
+    {
+      "display": "부엌",
+      "input": "bueok",
+      "annotation": "bueok / 台所",
+      "input_type": "word"
+    },
+    {
+      "display": "거실",
+      "input": "geosil",
+      "annotation": "geosil / 居間",
+      "input_type": "word"
+    },
+    {
+      "display": "계단",
+      "input": "gyedan",
+      "annotation": "gyedan / 階段",
+      "input_type": "word"
+    },
+    {
+      "display": "이불",
+      "input": "ibul",
+      "annotation": "ibul / 布団",
+      "input_type": "word"
+    },
+    {
+      "display": "베개",
+      "input": "begae",
+      "annotation": "begae / 枕",
+      "input_type": "word"
+    },
+    {
+      "display": "냉장고",
+      "input": "naengjanggo",
+      "annotation": "naengjanggo / 冷蔵庫",
+      "input_type": "word"
+    },
+    {
+      "display": "텔레비전",
+      "input": "tellebijeon",
+      "annotation": "tellebijeon / テレビ",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-beginner-3-words-4",
+  "name": "韓国語 手書き初級3（食事・料理）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き初級単語3",
+  "levels": [
+    "食事・料理"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "컵",
+      "input": "keop",
+      "annotation": "keop / コップ",
+      "input_type": "word"
+    },
+    {
+      "display": "칼",
+      "input": "kal",
+      "annotation": "kal / 包丁",
+      "input_type": "word"
+    },
+    {
+      "display": "쌀",
+      "input": "ssal",
+      "annotation": "ssal / 米",
+      "input_type": "word"
+    },
+    {
+      "display": "떡",
+      "input": "tteok",
+      "annotation": "tteok / 餅",
+      "input_type": "word"
+    },
+    {
+      "display": "접시",
+      "input": "jeopsi",
+      "annotation": "jeopsi / 皿",
+      "input_type": "word"
+    },
+    {
+      "display": "그릇",
+      "input": "geureut",
+      "annotation": "geureut / 器",
+      "input_type": "word"
+    },
+    {
+      "display": "소금",
+      "input": "sogeum",
+      "annotation": "sogeum / 塩",
+      "input_type": "word"
+    },
+    {
+      "display": "설탕",
+      "input": "seoltang",
+      "annotation": "seoltang / 砂糖",
+      "input_type": "word"
+    },
+    {
+      "display": "국수",
+      "input": "guksu",
+      "annotation": "guksu / 麺",
+      "input_type": "word"
+    },
+    {
+      "display": "만두",
+      "input": "mandu",
+      "annotation": "mandu / 餃子",
+      "input_type": "word"
+    },
+    {
+      "display": "숟가락",
+      "input": "sutgarak",
+      "annotation": "sutgarak / スプーン",
+      "input_type": "word"
+    },
+    {
+      "display": "젓가락",
+      "input": "jeotgarak",
+      "annotation": "jeotgarak / 箸",
+      "input_type": "word"
+    },
+    {
+      "display": "비빔밥",
+      "input": "bibimbap",
+      "annotation": "bibimbap / ビビンバ",
+      "input_type": "word"
+    },
+    {
+      "display": "불고기",
+      "input": "bulgogi",
+      "annotation": "bulgogi / プルコギ",
+      "input_type": "word"
+    },
+    {
+      "display": "아이스크림",
+      "input": "aiseukeurim",
+      "annotation": "aiseukeurim / アイスクリーム",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

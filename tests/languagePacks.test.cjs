@@ -108,7 +108,7 @@ test('the twenty HSK 6 handwriting packs each hold six lists of 15 words, marked
     }
   }
   // No other official list is marked for handwriting.
-  assert.equal(officialLibrary.lists.filter(list => list.writing).length, 138)
+  assert.equal(officialLibrary.lists.filter(list => list.writing).length, 150)
 })
 
 test('the Korean beginner handwriting pack holds six themed lists of 15 words, marked for handwriting in Korean', () => {
@@ -134,6 +134,38 @@ test('the Korean beginner handwriting pack holds six themed lists of 15 words, m
   assert.equal(new Set(words).size, 90)
   const basics = new Set(officialLibrary.lists.find(list => list.id === 'korean-basics').words.map(word => word.display))
   assert.ok(words.every(word => !basics.has(word)))
+})
+
+test('the Korean beginner handwriting packs 2 and 3 hold six themed lists of 15 words, and share no word with the other Korean lists', () => {
+  const { officialLibrary } = require('../src/plugins/packs/index.ts')
+  const packs = [
+    [2, ['体', '衣服・持ち物', '動物', '数・色', '動詞', '形容詞']],
+    [3, ['家・家具', '趣味・スポーツ', '町・乗り物', '食事・料理', '動詞', '形容詞']],
+  ]
+  const ids = new Set()
+  const words = []
+  for (const [pack, themes] of packs) {
+    const found = officialLibrary.packs.find(item => item.name === `韓国語：手書き初級単語${pack}`)
+    assert.ok(found, String(pack))
+    assert.equal(found.category, '語学')
+    assert.deepEqual(found.tags, ['韓国語'])
+    const lists = officialLibrary.lists.filter(list => list.packId === found.id)
+    assert.deepEqual(lists.map(list => list.id), [1, 2, 3, 4, 5, 6].map(n => `korean-handwriting-beginner-${pack}-words-${n}`))
+    assert.deepEqual(lists.map(list => list.name), themes.map(theme => `韓国語 手書き初級${pack}（${theme}）`))
+    assert.deepEqual(lists.map(list => list.levels), themes.map(theme => [theme]))
+    for (const list of lists) {
+      ids.add(list.id)
+      assert.deepEqual(list.writing, { language: 'ko' }, list.id)
+      assert.equal(list.words.length, 15, list.id)
+      assert.ok(list.words.every(word => word.input_type === 'word' && /^\p{Script=Hangul}+$/u.test(word.display) &&
+        /^[a-z]+$/.test(word.input) && word.annotation.startsWith(`${word.input} / `)), list.id)
+      words.push(...list.words.map(word => word.display))
+    }
+  }
+  assert.equal(new Set(words).size, 180)
+  const others = new Set(officialLibrary.lists.filter(list => list.id.startsWith('korean-') && !ids.has(list.id))
+    .flatMap(list => list.words.map(word => word.display)))
+  assert.ok(words.every(word => !others.has(word)))
 })
 
 test('the Korean intermediate and advanced handwriting packs hold six themed lists of 15 words, and share no word with the other Korean lists', () => {

@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-beginner-2-words-1",
+  "name": "韓国語 手書き初級2（体）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き初級単語2",
+  "levels": [
+    "体"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "눈",
+      "input": "nun",
+      "annotation": "nun / 目",
+      "input_type": "word"
+    },
+    {
+      "display": "코",
+      "input": "ko",
+      "annotation": "ko / 鼻",
+      "input_type": "word"
+    },
+    {
+      "display": "입",
+      "input": "ip",
+      "annotation": "ip / 口",
+      "input_type": "word"
+    },
+    {
+      "display": "귀",
+      "input": "gwi",
+      "annotation": "gwi / 耳",
+      "input_type": "word"
+    },
+    {
+      "display": "목",
+      "input": "mok",
+      "annotation": "mok / 首・のど",
+      "input_type": "word"
+    },
+    {
+      "display": "손",
+      "input": "son",
+      "annotation": "son / 手",
+      "input_type": "word"
+    },
+    {
+      "display": "팔",
+      "input": "pal",
+      "annotation": "pal / 腕",
+      "input_type": "word"
+    },
+    {
+      "display": "배",
+      "input": "bae",
+      "annotation": "bae / お腹",
+      "input_type": "word"
+    },
+    {
+      "display": "등",
+      "input": "deung",
+      "annotation": "deung / 背中",
+      "input_type": "word"
+    },
+    {
+      "display": "발",
+      "input": "bal",
+      "annotation": "bal / 足",
+      "input_type": "word"
+    },
+    {
+      "display": "머리",
+      "input": "meori",
+      "annotation": "meori / 頭",
+      "input_type": "word"
+    },
+    {
+      "display": "얼굴",
+      "input": "eolgul",
+      "annotation": "eolgul / 顔",
+      "input_type": "word"
+    },
+    {
+      "display": "이마",
+      "input": "ima",
+      "annotation": "ima / 額",
+      "input_type": "word"
+    },
+    {
+      "display": "다리",
+      "input": "dari",
+      "annotation": "dari / 脚",
+      "input_type": "word"
+    },
+    {
+      "display": "머리카락",
+      "input": "meorikarak",
+      "annotation": "meorikarak / 髪の毛",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

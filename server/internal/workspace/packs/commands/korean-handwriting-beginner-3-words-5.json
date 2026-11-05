@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-beginner-3-words-5",
+  "name": "韓国語 手書き初級3（動詞）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き初級単語3",
+  "levels": [
+    "動詞"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "닦다",
+      "input": "dakda",
+      "annotation": "dakda / 拭く・磨く",
+      "input_type": "word"
+    },
+    {
+      "display": "끄다",
+      "input": "kkeuda",
+      "annotation": "kkeuda / 消す",
+      "input_type": "word"
+    },
+    {
+      "display": "켜다",
+      "input": "kyeoda",
+      "annotation": "kyeoda / つける",
+      "input_type": "word"
+    },
+    {
+      "display": "묻다",
+      "input": "mutda",
+      "annotation": "mutda / 尋ねる",
+      "input_type": "word"
+    },
+    {
+      "display": "돕다",
+      "input": "dopda",
+      "annotation": "dopda / 手伝う",
+      "input_type": "word"
+    },
+    {
+      "display": "넣다",
+      "input": "neota",
+      "annotation": "neota / 入れる",
+      "input_type": "word"
+    },
+    {
+      "display": "놓다",
+      "input": "nota",
+      "annotation": "nota / 置く",
+      "input_type": "word"
+    },
+    {
+      "display": "그리다",
+      "input": "geurida",
+      "annotation": "geurida / 描く",
+      "input_type": "word"
+    },
+    {
+      "display": "부르다",
+      "input": "bureuda",
+      "annotation": "bureuda / 呼ぶ・歌う",
+      "input_type": "word"
+    },
+    {
+      "display": "내리다",
+      "input": "naerida",
+      "annotation": "naerida / 降りる",
+      "input_type": "word"
+    },
+    {
+      "display": "다니다",
+      "input": "danida",
+      "annotation": "danida / 通う",
+      "input_type": "word"
+    },
+    {
+      "display": "좋아하다",
+      "input": "joahada",
+      "annotation": "joahada / 好きだ",
+      "input_type": "word"
+    },
+    {
+      "display": "시작하다",
+      "input": "sijakada",
+      "annotation": "sijakada / 始める",
+      "input_type": "word"
+    },
+    {
+      "display": "싫어하다",
+      "input": "sireohada",
+      "annotation": "sireohada / 嫌いだ",
+      "input_type": "word"
+    },
+    {
+      "display": "청소하다",
+      "input": "cheongsohada",
+      "annotation": "cheongsohada / 掃除する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

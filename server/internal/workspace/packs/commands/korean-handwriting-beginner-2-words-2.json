@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-beginner-2-words-2",
+  "name": "韓国語 手書き初級2（衣服・持ち物）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き初級単語2",
+  "levels": [
+    "衣服・持ち物"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "옷",
+      "input": "ot",
+      "annotation": "ot / 服",
+      "input_type": "word"
+    },
+    {
+      "display": "모자",
+      "input": "moja",
+      "annotation": "moja / 帽子",
+      "input_type": "word"
+    },
+    {
+      "display": "바지",
+      "input": "baji",
+      "annotation": "baji / ズボン",
+      "input_type": "word"
+    },
+    {
+      "display": "치마",
+      "input": "chima",
+      "annotation": "chima / スカート",
+      "input_type": "word"
+    },
+    {
+      "display": "신발",
+      "input": "sinbal",
+      "annotation": "sinbal / 靴",
+      "input_type": "word"
+    },
+    {
+      "display": "양말",
+      "input": "yangmal",
+      "annotation": "yangmal / 靴下",
+      "input_type": "word"
+    },
+    {
+      "display": "가방",
+      "input": "gabang",
+      "annotation": "gabang / かばん",
+      "input_type": "word"
+    },
+    {
+      "display": "안경",
+      "input": "angyeong",
+      "annotation": "angyeong / 眼鏡",
+      "input_type": "word"
+    },
+    {
+      "display": "시계",
+      "input": "sigye",
+      "annotation": "sigye / 時計",
+      "input_type": "word"
+    },
+    {
+      "display": "우산",
+      "input": "usan",
+      "annotation": "usan / 傘",
+      "input_type": "word"
+    },
+    {
+      "display": "지갑",
+      "input": "jigap",
+      "annotation": "jigap / 財布",
+      "input_type": "word"
+    },
+    {
+      "display": "반지",
+      "input": "banji",
+      "annotation": "banji / 指輪",
+      "input_type": "word"
+    },
+    {
+      "display": "셔츠",
+      "input": "syeocheu",
+      "annotation": "syeocheu / シャツ",
+      "input_type": "word"
+    },
+    {
+      "display": "장갑",
+      "input": "janggap",
+      "annotation": "janggap / 手袋",
+      "input_type": "word"
+    },
+    {
+      "display": "휴대폰",
+      "input": "hyudaepon",
+      "annotation": "hyudaepon / 携帯電話",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}
