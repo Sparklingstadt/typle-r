@@ -55,7 +55,7 @@
     "techList": "Next.js, React, PostgreSQL (Neon)",
     "source": "Code source",
     "newTab": "(s’ouvre dans un nouvel onglet)",
-    "private": "Ce dépôt est privé. Seuls les comptes GitHub autorisés peuvent l’ouvrir.",
+    "public": "Ce dépôt est public. Tout le monde peut consulter le code source.",
     "licenses": "Licences",
     "licensesLink": "Licences open source"
   },

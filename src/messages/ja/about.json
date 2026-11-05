@@ -55,7 +55,7 @@
     "techList": "Next.js・React・PostgreSQL（Neon）",
     "source": "ソースコード",
     "newTab": "（新しいタブで開く）",
-    "private": "非公開のリポジトリです。閲覧を許可されたGitHubアカウントでのみ開けます。",
+    "public": "公開のリポジトリです。だれでもソースコードを見られます。",
     "licenses": "ライセンス",
     "licensesLink": "オープンソースのライセンス"
   },
