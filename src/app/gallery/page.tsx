@@ -1,10 +1,5 @@
 "use client"
 import { Suspense } from "react"
-import { useSearchParams } from "next/navigation"
-import {
-  GALLERY_SORTS, fetchGalleryCategories, fetchGalleryPage, galleryQueryOf, gallerySearchParams,
-  type GalleryCategory, type GalleryPack, type GalleryQuery, type GallerySort,
-} from "@/core/gallery"
 import { PageMain } from "@/components/ui/page-layout"
 import GalleryLoading from "@/components/Gallery/GalleryLoading"
 import GalleryView from "@/components/Gallery/GalleryView"
