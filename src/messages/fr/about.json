@@ -55,6 +55,24 @@
     "techList": "Next.js, React, PostgreSQL (Neon)",
     "source": "Code source",
     "newTab": "(s’ouvre dans un nouvel onglet)",
-    "private": "Ce dépôt est privé. Seuls les comptes GitHub autorisés peuvent l’ouvrir."
+    "private": "Ce dépôt est privé. Seuls les comptes GitHub autorisés peuvent l’ouvrir.",
+    "licenses": "Licences",
+    "licensesLink": "Licences open source"
+  },
+  "licenses": {
+    "meta": {
+      "title": "Licences | Typle",
+      "description": "Les logiciels, polices et modèles open source utilisés par Typle, et leurs licences."
+    },
+    "back": "À propos de Typle",
+    "title": "Licences open source",
+    "intro": "Typle utilise les logiciels, polices et modèles open source suivants. Chaque nom ouvre la page du projet. Les textes complets des licences sont réunis dans « Tous les textes de licence ».",
+    "fullText": "Tous les textes de licence",
+    "filter": "Filtrer par nom ou licence",
+    "count": "{shown} sur {total}",
+    "loading": "Chargement…",
+    "failed": "Impossible de charger la liste des licences.",
+    "newTab": "(s’ouvre dans un nouvel onglet)",
+    "noText": "(aucun texte de licence dans le paquet)"
   }
 }

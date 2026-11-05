@@ -84,6 +84,10 @@ export default async function About() {
               <p className="text-muted-foreground">{t("version.private")}</p>
             </dd>
           </div>
+          <div className="grid gap-1 px-4 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+            <dt className="text-muted-foreground">{t("version.licenses")}</dt>
+            <dd><Link href="/about/licenses" className="font-medium underline underline-offset-3 hover:text-muted-foreground">{t("version.licensesLink")}</Link></dd>
+          </div>
         </dl>
       </Section>
     </div>

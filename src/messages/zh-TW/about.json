@@ -55,6 +55,24 @@
     "techList": "Next.js、React、PostgreSQL（Neon）",
     "source": "原始碼",
     "newTab": "（在新分頁中開啟）",
-    "private": "這是不公開的存放庫，只有獲准檢視的 GitHub 帳號才能開啟。"
+    "private": "這是不公開的存放庫，只有獲准檢視的 GitHub 帳號才能開啟。",
+    "licenses": "授權",
+    "licensesLink": "開放原始碼授權"
+  },
+  "licenses": {
+    "meta": {
+      "title": "授權 | Typle",
+      "description": "Typle 使用的開放原始碼軟體、字型和模型及其授權。"
+    },
+    "back": "關於 Typle",
+    "title": "開放原始碼授權",
+    "intro": "Typle 使用了以下開放原始碼軟體、字型和模型。點選名稱可開啟專案頁面。完整的授權文字彙整在「全部授權文字」中。",
+    "fullText": "全部授權文字",
+    "filter": "依名稱或授權篩選",
+    "count": "{total} 項中的 {shown} 項",
+    "loading": "正在載入…",
+    "failed": "無法載入授權清單。",
+    "newTab": "（在新分頁中開啟）",
+    "noText": "（套件中沒有授權文字）"
   }
 }

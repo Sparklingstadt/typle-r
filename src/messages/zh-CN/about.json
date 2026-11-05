@@ -55,6 +55,24 @@
     "techList": "Next.js、React、PostgreSQL（Neon）",
     "source": "源代码",
     "newTab": "（在新标签页中打开）",
-    "private": "这是一个非公开仓库，只有获准访问的 GitHub 账号才能打开。"
+    "private": "这是一个非公开仓库，只有获准访问的 GitHub 账号才能打开。",
+    "licenses": "许可证",
+    "licensesLink": "开源许可证"
+  },
+  "licenses": {
+    "meta": {
+      "title": "许可证 | Typle",
+      "description": "Typle 使用的开源软件、字体和模型及其许可证。"
+    },
+    "back": "关于 Typle",
+    "title": "开源许可证",
+    "intro": "Typle 使用了以下开源软件、字体和模型。点击名称可打开项目页面。完整的许可证文本汇总在“全部许可证文本”中。",
+    "fullText": "全部许可证文本",
+    "filter": "按名称或许可证筛选",
+    "count": "{total} 项中的 {shown} 项",
+    "loading": "正在加载…",
+    "failed": "无法加载许可证列表。",
+    "newTab": "（在新标签页中打开）",
+    "noText": "（软件包中没有许可证文本）"
   }
 }
