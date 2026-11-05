@@ -46,7 +46,8 @@
   },
   "reports": {
     "title": "Error reports",
-    "text": "To investigate problems, we may send details of errors and the environment where they occurred (browser, OS, and so on). Before sending, request contents such as word lists, cookies, user information, and the history of your actions are removed."
+    "text": "To investigate problems, we may send details of errors and the environment where they occurred (browser, OS, and so on). Before sending, request contents such as word lists, cookies, user information, and the history of your actions are removed.",
+    "analytics": "To see which pages are viewed and how often, page views are counted with Vercel Web Analytics. Only the page address (without anything after ?), the referrer, the browser, the OS and the country are sent. No cookies are used, and your word lists and practice records are never sent."
   },
   "version": {
     "title": "Version and development",

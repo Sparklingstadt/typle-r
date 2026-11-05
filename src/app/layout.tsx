@@ -5,12 +5,16 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import Navbar from "@/components/Navbar/Navbar";
+import WebAnalytics from "@/components/WebAnalytics";
 import AuthProvider from "@/components/AuthProvider";
 import { WorkspaceProvider } from "@/lib/useWordLists";
 import { THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme/bootstrap";
 import { openGraphLocales } from "@/i18n/config";
 import { clientMessages, type Messages } from "@/i18n/messages";
 import { siteUrl } from "@/lib/siteUrl";
+
+// Vercel serves the analytics script at /_vercel/insights; anywhere else (local builds, CI) it would 404.
+const onVercel = process.env.VERCEL === "1";
 
 const GOOGLE_SITE_VERIFICATION = "9AxSaSJWX-s1vpCQI0DDHzhVq9Aq8poWc7q4YX-Js-I";
 
@@ -78,6 +82,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       </WorkspaceProvider>
       </AuthProvider>
       </NextIntlClientProvider>
+      {onVercel && <WebAnalytics />}
       </body>
     </html>
   );
