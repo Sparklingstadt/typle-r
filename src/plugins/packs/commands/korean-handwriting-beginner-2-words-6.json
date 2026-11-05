@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-beginner-2-words-6",
+  "name": "韓国語 手書き初級2（形容詞）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き初級単語2",
+  "levels": [
+    "形容詞"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "같다",
+      "input": "gatda",
+      "annotation": "gatda / 同じだ",
+      "input_type": "word"
+    },
+    {
+      "display": "멀다",
+      "input": "meolda",
+      "annotation": "meolda / 遠い",
+      "input_type": "word"
+    },
+    {
+      "display": "짜다",
+      "input": "jjada",
+      "annotation": "jjada / 塩辛い",
+      "input_type": "word"
+    },
+    {
+      "display": "달다",
+      "input": "dalda",
+      "annotation": "dalda / 甘い",
+      "input_type": "word"
+    },
+    {
+      "display": "맵다",
+      "input": "maepda",
+      "annotation": "maepda / 辛い",
+      "input_type": "word"
+    },
+    {
+      "display": "빠르다",
+      "input": "ppareuda",
+      "annotation": "ppareuda / 速い",
+      "input_type": "word"
+    },
+    {
+      "display": "느리다",
+      "input": "neurida",
+      "annotation": "neurida / 遅い",
+      "input_type": "word"
+    },
+    {
+      "display": "다르다",
+      "input": "dareuda",
+      "annotation": "dareuda / 違う",
+      "input_type": "word"
+    },
+    {
+      "display": "가깝다",
+      "input": "gakkapda",
+      "annotation": "gakkapda / 近い",
+      "input_type": "word"
+    },
+    {
+      "display": "아프다",
+      "input": "apeuda",
+      "annotation": "apeuda / 痛い",
+      "input_type": "word"
+    },
+    {
+      "display": "기쁘다",
+      "input": "gippeuda",
+      "annotation": "gippeuda / うれしい",
+      "input_type": "word"
+    },
+    {
+      "display": "슬프다",
+      "input": "seulpeuda",
+      "annotation": "seulpeuda / 悲しい",
+      "input_type": "word"
+    },
+    {
+      "display": "차갑다",
+      "input": "chagapda",
+      "annotation": "chagapda / 冷たい",
+      "input_type": "word"
+    },
+    {
+      "display": "뜨겁다",
+      "input": "tteugeopda",
+      "annotation": "tteugeopda / 熱い",
+      "input_type": "word"
+    },
+    {
+      "display": "배고프다",
+      "input": "baegopeuda",
+      "annotation": "baegopeuda / お腹が空いた",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

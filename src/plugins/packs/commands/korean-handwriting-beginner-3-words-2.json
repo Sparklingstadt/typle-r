@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-beginner-3-words-2",
+  "name": "韓国語 手書き初級3（趣味・スポーツ）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き初級単語3",
+  "levels": [
+    "趣味・スポーツ"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "춤",
+      "input": "chum",
+      "annotation": "chum / 踊り",
+      "input_type": "word"
+    },
+    {
+      "display": "노래",
+      "input": "norae",
+      "annotation": "norae / 歌",
+      "input_type": "word"
+    },
+    {
+      "display": "영화",
+      "input": "yeonghwa",
+      "annotation": "yeonghwa / 映画",
+      "input_type": "word"
+    },
+    {
+      "display": "사진",
+      "input": "sajin",
+      "annotation": "sajin / 写真",
+      "input_type": "word"
+    },
+    {
+      "display": "그림",
+      "input": "geurim",
+      "annotation": "geurim / 絵",
+      "input_type": "word"
+    },
+    {
+      "display": "축구",
+      "input": "chukgu",
+      "annotation": "chukgu / サッカー",
+      "input_type": "word"
+    },
+    {
+      "display": "야구",
+      "input": "yagu",
+      "annotation": "yagu / 野球",
+      "input_type": "word"
+    },
+    {
+      "display": "수영",
+      "input": "suyeong",
+      "annotation": "suyeong / 水泳",
+      "input_type": "word"
+    },
+    {
+      "display": "등산",
+      "input": "deungsan",
+      "annotation": "deungsan / 登山",
+      "input_type": "word"
+    },
+    {
+      "display": "게임",
+      "input": "geim",
+      "annotation": "geim / ゲーム",
+      "input_type": "word"
+    },
+    {
+      "display": "요리",
+      "input": "yori",
+      "annotation": "yori / 料理",
+      "input_type": "word"
+    },
+    {
+      "display": "독서",
+      "input": "dokseo",
+      "annotation": "dokseo / 読書",
+      "input_type": "word"
+    },
+    {
+      "display": "산책",
+      "input": "sanchaek",
+      "annotation": "sanchaek / 散歩",
+      "input_type": "word"
+    },
+    {
+      "display": "기타",
+      "input": "gita",
+      "annotation": "gita / ギター",
+      "input_type": "word"
+    },
+    {
+      "display": "피아노",
+      "input": "piano",
+      "annotation": "piano / ピアノ",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

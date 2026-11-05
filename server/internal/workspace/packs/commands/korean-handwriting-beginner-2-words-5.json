@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-beginner-2-words-5",
+  "name": "韓国語 手書き初級2（動詞）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き初級単語2",
+  "levels": [
+    "動詞"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "열다",
+      "input": "yeolda",
+      "annotation": "yeolda / 開ける",
+      "input_type": "word"
+    },
+    {
+      "display": "닫다",
+      "input": "datda",
+      "annotation": "datda / 閉める",
+      "input_type": "word"
+    },
+    {
+      "display": "타다",
+      "input": "tada",
+      "annotation": "tada / 乗る",
+      "input_type": "word"
+    },
+    {
+      "display": "놀다",
+      "input": "nolda",
+      "annotation": "nolda / 遊ぶ",
+      "input_type": "word"
+    },
+    {
+      "display": "팔다",
+      "input": "palda",
+      "annotation": "palda / 売る",
+      "input_type": "word"
+    },
+    {
+      "display": "걷다",
+      "input": "geotda",
+      "annotation": "geotda / 歩く",
+      "input_type": "word"
+    },
+    {
+      "display": "서다",
+      "input": "seoda",
+      "annotation": "seoda / 立つ",
+      "input_type": "word"
+    },
+    {
+      "display": "주다",
+      "input": "juda",
+      "annotation": "juda / あげる・くれる",
+      "input_type": "word"
+    },
+    {
+      "display": "받다",
+      "input": "batda",
+      "annotation": "batda / 受け取る",
+      "input_type": "word"
+    },
+    {
+      "display": "입다",
+      "input": "ipda",
+      "annotation": "ipda / 着る",
+      "input_type": "word"
+    },
+    {
+      "display": "벗다",
+      "input": "beotda",
+      "annotation": "beotda / 脱ぐ",
+      "input_type": "word"
+    },
+    {
+      "display": "살다",
+      "input": "salda",
+      "annotation": "salda / 住む・暮らす",
+      "input_type": "word"
+    },
+    {
+      "display": "쉬다",
+      "input": "swida",
+      "annotation": "swida / 休む",
+      "input_type": "word"
+    },
+    {
+      "display": "만들다",
+      "input": "mandeulda",
+      "annotation": "mandeulda / 作る",
+      "input_type": "word"
+    },
+    {
+      "display": "운동하다",
+      "input": "undonghada",
+      "annotation": "undonghada / 運動する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

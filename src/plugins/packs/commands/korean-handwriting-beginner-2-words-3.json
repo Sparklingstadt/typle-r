@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-beginner-2-words-3",
+  "name": "韓国語 手書き初級2（動物）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き初級単語2",
+  "levels": [
+    "動物"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "개",
+      "input": "gae",
+      "annotation": "gae / 犬",
+      "input_type": "word"
+    },
+    {
+      "display": "새",
+      "input": "sae",
+      "annotation": "sae / 鳥",
+      "input_type": "word"
+    },
+    {
+      "display": "소",
+      "input": "so",
+      "annotation": "so / 牛",
+      "input_type": "word"
+    },
+    {
+      "display": "말",
+      "input": "mal",
+      "annotation": "mal / 馬",
+      "input_type": "word"
+    },
+    {
+      "display": "닭",
+      "input": "dak",
+      "annotation": "dak / 鶏",
+      "input_type": "word"
+    },
+    {
+      "display": "쥐",
+      "input": "jwi",
+      "annotation": "jwi / ネズミ",
+      "input_type": "word"
+    },
+    {
+      "display": "곰",
+      "input": "gom",
+      "annotation": "gom / 熊",
+      "input_type": "word"
+    },
+    {
+      "display": "돼지",
+      "input": "dwaeji",
+      "annotation": "dwaeji / 豚",
+      "input_type": "word"
+    },
+    {
+      "display": "토끼",
+      "input": "tokki",
+      "annotation": "tokki / ウサギ",
+      "input_type": "word"
+    },
+    {
+      "display": "사자",
+      "input": "saja",
+      "annotation": "saja / ライオン",
+      "input_type": "word"
+    },
+    {
+      "display": "고양이",
+      "input": "goyangi",
+      "annotation": "goyangi / 猫",
+      "input_type": "word"
+    },
+    {
+      "display": "호랑이",
+      "input": "horangi",
+      "annotation": "horangi / 虎",
+      "input_type": "word"
+    },
+    {
+      "display": "원숭이",
+      "input": "wonsungi",
+      "annotation": "wonsungi / 猿",
+      "input_type": "word"
+    },
+    {
+      "display": "물고기",
+      "input": "mulgogi",
+      "annotation": "mulgogi / 魚",
+      "input_type": "word"
+    },
+    {
+      "display": "코끼리",
+      "input": "kokkiri",
+      "annotation": "kokkiri / 象",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-beginner-2-words-4",
+  "name": "韓国語 手書き初級2（数・色）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き初級単語2",
+  "levels": [
+    "数・色"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "둘",
+      "input": "dul",
+      "annotation": "dul / 二つ",
+      "input_type": "word"
+    },
+    {
+      "display": "셋",
+      "input": "set",
+      "annotation": "set / 三つ",
+      "input_type": "word"
+    },
+    {
+      "display": "넷",
+      "input": "net",
+      "annotation": "net / 四つ",
+      "input_type": "word"
+    },
+    {
+      "display": "열",
+      "input": "yeol",
+      "annotation": "yeol / 十",
+      "input_type": "word"
+    },
+    {
+      "display": "하나",
+      "input": "hana",
+      "annotation": "hana / 一つ",
+      "input_type": "word"
+    },
+    {
+      "display": "다섯",
+      "input": "daseot",
+      "annotation": "daseot / 五つ",
+      "input_type": "word"
+    },
+    {
+      "display": "여섯",
+      "input": "yeoseot",
+      "annotation": "yeoseot / 六つ",
+      "input_type": "word"
+    },
+    {
+      "display": "일곱",
+      "input": "ilgop",
+      "annotation": "ilgop / 七つ",
+      "input_type": "word"
+    },
+    {
+      "display": "여덟",
+      "input": "yeodeol",
+      "annotation": "yeodeol / 八つ",
+      "input_type": "word"
+    },
+    {
+      "display": "아홉",
+      "input": "ahop",
+      "annotation": "ahop / 九つ",
+      "input_type": "word"
+    },
+    {
+      "display": "빨간색",
+      "input": "ppalgansaek",
+      "annotation": "ppalgansaek / 赤",
+      "input_type": "word"
+    },
+    {
+      "display": "파란색",
+      "input": "paransaek",
+      "annotation": "paransaek / 青",
+      "input_type": "word"
+    },
+    {
+      "display": "노란색",
+      "input": "noransaek",
+      "annotation": "noransaek / 黄色",
+      "input_type": "word"
+    },
+    {
+      "display": "하얀색",
+      "input": "hayansaek",
+      "annotation": "hayansaek / 白",
+      "input_type": "word"
+    },
+    {
+      "display": "검은색",
+      "input": "geomeunsaek",
+      "annotation": "geomeunsaek / 黒",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

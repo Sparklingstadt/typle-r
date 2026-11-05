@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-beginner-3-words-6",
+  "name": "韓国語 手書き初級3（形容詞）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き初級単語3",
+  "levels": [
+    "形容詞"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "젊다",
+      "input": "jeomda",
+      "annotation": "jeomda / 若い",
+      "input_type": "word"
+    },
+    {
+      "display": "편하다",
+      "input": "pyeonhada",
+      "annotation": "pyeonhada / 楽だ",
+      "input_type": "word"
+    },
+    {
+      "display": "졸리다",
+      "input": "jollida",
+      "annotation": "jollida / 眠い",
+      "input_type": "word"
+    },
+    {
+      "display": "착하다",
+      "input": "chakada",
+      "annotation": "chakada / 優しい・善良だ",
+      "input_type": "word"
+    },
+    {
+      "display": "귀엽다",
+      "input": "gwiyeopda",
+      "annotation": "gwiyeopda / かわいい",
+      "input_type": "word"
+    },
+    {
+      "display": "멋있다",
+      "input": "meositda",
+      "annotation": "meositda / かっこいい",
+      "input_type": "word"
+    },
+    {
+      "display": "즐겁다",
+      "input": "jeulgeopda",
+      "annotation": "jeulgeopda / 楽しい",
+      "input_type": "word"
+    },
+    {
+      "display": "무섭다",
+      "input": "museopda",
+      "annotation": "museopda / 怖い",
+      "input_type": "word"
+    },
+    {
+      "display": "더럽다",
+      "input": "deoreopda",
+      "annotation": "deoreopda / 汚い",
+      "input_type": "word"
+    },
+    {
+      "display": "피곤하다",
+      "input": "pigonhada",
+      "annotation": "pigonhada / 疲れている",
+      "input_type": "word"
+    },
+    {
+      "display": "친절하다",
+      "input": "chinjeolhada",
+      "annotation": "chinjeolhada / 親切だ",
+      "input_type": "word"
+    },
+    {
+      "display": "행복하다",
+      "input": "haengbokada",
+      "annotation": "haengbokada / 幸せだ",
+      "input_type": "word"
+    },
+    {
+      "display": "시원하다",
+      "input": "siwonhada",
+      "annotation": "siwonhada / 涼しい",
+      "input_type": "word"
+    },
+    {
+      "display": "심심하다",
+      "input": "simsimhada",
+      "annotation": "simsimhada / 退屈だ",
+      "input_type": "word"
+    },
+    {
+      "display": "부드럽다",
+      "input": "budeureopda",
+      "annotation": "budeureopda / 柔らかい",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}
