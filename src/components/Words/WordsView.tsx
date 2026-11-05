@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { useLocale, useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { ChevronsUpDown, CircleAlert, Keyboard, Pencil } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -13,10 +13,7 @@ import WordListOptions from '@/components/Practice/WordListOptions'
 import PracticeName, { usePracticeName } from '@/components/PracticeName'
 import ListLabels from '@/components/WordLists/ListLabels'
 import WordTable from '@/components/Words/WordTable'
-import { listLabels } from '@/core/listOverview'
-import { packOverviews } from '@/core/packEditing'
-import { packsByRecentPractice } from '@/core/packPractice'
-import { matchingPacks } from '@/core/practiceView'
+import { useListChoosers } from '@/lib/useListChoosers'
 import type { SavedWordList } from '@/core/wordLists'
 import type { WordPack } from '@/core/wordPacks'
 
@@ -26,16 +23,12 @@ export default function WordsView({ lists, packs }: { lists: SavedWordList[]; pa
   const t = useTranslations('wordLists.words')
   const practiceName = usePracticeName()
   const page = useTranslations('wordLists.page')
-  const locale = useLocale()
   const params = useSearchParams()
   const requestedId = params.get('list')
   const requested = lists.find(list => list.id === requestedId)
   const list = requested ?? lists[0]
   const [pickerOpen, setPickerOpen] = useState(false)
-  const [query, setQuery] = useState('')
-  const [pickerQuery, setPickerQuery] = useState('')
-  // One category for both list choosers, as on the practice screen.
-  const [category, setCategory] = useState<string | null>(null)
+  const { labels, category, setCategory, asideQuery: query, setAsideQuery: setQuery, asidePacks: asideFiltered, pickerQuery, setPickerQuery, pickerPacks: pickerFiltered } = useListChoosers(packs, lists)
   const asideLists = useRef<HTMLDivElement>(null)
 
   // Keeps the chosen list in view inside the scrolling list of lists, without scrolling the page.
@@ -52,12 +45,6 @@ export default function WordsView({ lists, packs }: { lists: SavedWordList[]; pa
     setPickerQuery('')
     window.history.replaceState(null, '', `${window.location.pathname}?list=${encodeURIComponent(id)}`)
   }
-
-  // Recently practised packs come first, narrowed down by category and by what the pack, its lists and its words say.
-  const overviews = useMemo(() => packsByRecentPractice(packOverviews({ packs, lists })), [packs, lists])
-  const labels = useMemo(() => listLabels(packs, locale), [packs, locale])
-  const asideFiltered = useMemo(() => matchingPacks(overviews, category, query), [overviews, category, query])
-  const pickerFiltered = useMemo(() => matchingPacks(overviews, category, pickerQuery), [overviews, category, pickerQuery])
 
   return <div className="space-y-4">
     {requestedId && !requested && <Alert>

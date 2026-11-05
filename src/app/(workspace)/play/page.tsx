@@ -1,8 +1,8 @@
 "use client"
-import { Suspense, useMemo, useState } from "react"
+import { Suspense, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { useLocale, useTranslations } from "next-intl"
+import { useTranslations } from "next-intl"
 import type { PracticeDevice } from "@/core/devices"
 import { useChosenDevice } from "@/lib/deviceSelection"
 import { useLiveStatsVisible } from "@/lib/liveStats"
@@ -19,10 +19,8 @@ import { usePracticeFocus } from "@/lib/usePracticeFocus"
 import { compareInput, simpleInputKeys, typingSpeed } from "@/core/typing"
 import { comparableRecords, recordsOfMode, type PracticeMode } from "@/core/records"
 import { practiceMode as writingChoiceFor, useWritingMode, type WritingChoice } from "@/lib/writingMode"
-import { listLabels } from "@/core/listOverview"
-import { packOverviews } from "@/core/packEditing"
-import { currentMode, matchingPacks } from "@/core/practiceView"
-import { packsByRecentPractice } from "@/core/packPractice"
+import { currentMode } from "@/core/practiceView"
+import { useListChoosers } from "@/lib/useListChoosers"
 import type { WordPack } from "@/core/wordPacks"
 import { cn } from "@/lib/utils"
 import Page from "@/components/Page/Page"
@@ -83,11 +81,7 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
   const [preferredWriting, setPreferredWriting] = useWritingMode()
   const [writingChoice, setWritingChoice] = useState(() => writingChoiceFor(list, preferredWriting))
   const [pickerOpen, setPickerOpen] = useState(false)
-  const [query, setQuery] = useState('')
-  const [asideQuery, setAsideQuery] = useState('')
-  // One category for both list choosers: the lists of a subject stay in view while switching between them.
-  const [category, setCategory] = useState<string | null>(null)
-  const locale = useLocale()
+  const { labels, category, setCategory, asideQuery, setAsideQuery, asidePacks, pickerQuery: query, setPickerQuery: setQuery, pickerPacks: filteredPacks } = useListChoosers(packs, wordLists)
   const [menuOpen, setMenuOpen] = useState(false)
   // All the words of the list start shown, so a list can be previewed right after choosing it.
   const [showAll, setShowAll] = useState(true)
@@ -147,12 +141,6 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
     setQuery('')
     requestList(id)
   }
-  // Recently practised packs come first, and both choosers can be narrowed down by category and by what the pack, its lists
-  // and its words say.
-  const overviews = useMemo(() => packsByRecentPractice(packOverviews({ packs, lists: wordLists })), [packs, wordLists])
-  const labels = useMemo(() => listLabels(packs, locale), [packs, locale])
-  const filteredPacks = useMemo(() => matchingPacks(overviews, category, query), [overviews, category, query])
-  const asidePacks = useMemo(() => matchingPacks(overviews, category, asideQuery), [overviews, category, asideQuery])
   // What the confirmation names as the switch's target: the other list, or the other way of practising.
   const switchTarget = pending?.kind === 'mode' ? t(pending.mode === 'writing' ? 'modeWriting' : 'modeTyping')
     : pending?.kind === 'list' && wordLists[pending.index] ? practiceName(wordLists[pending.index]) : ''
