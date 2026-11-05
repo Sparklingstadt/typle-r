@@ -3,8 +3,9 @@ import { Suspense, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { CircleAlert, Library as LibraryIcon, RotateCw } from "lucide-react"
+import { CircleAlert, Library as LibraryIcon } from "lucide-react"
 import { Alert, AlertDescription, ErrorAlert } from "@/components/ui/alert"
+import { ReloadButton } from "@/components/ui/reload-button"
 import { Button } from "@/components/ui/button"
 import { useSaveNotification } from "@/components/SaveNotification"
 import WordListEditor from "@/components/WordListEditor"
@@ -95,7 +96,7 @@ function WordLists({ workspace }: { workspace: Workspace }) {
 
   return <>
     <Header storage={storage} />
-    {error && <ErrorAlert className="mb-6" action={<Button variant="outline" size="lg" onClick={() => window.location.reload()}><RotateCw aria-hidden="true" />{t('reload')}</Button>}>{error}</ErrorAlert>}
+    {error && <ErrorAlert className="mb-6" action={<ReloadButton>{t('reload')}</ReloadButton>}>{error}</ErrorAlert>}
     {openId && !editing && <Alert className="mb-6">
       <CircleAlert aria-hidden="true" />
       <AlertDescription>{t('notFound')}</AlertDescription>

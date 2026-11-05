@@ -4,8 +4,9 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
 import { RadioGroup } from "radix-ui"
-import { Info, Keyboard, Plus, RotateCw, Trophy } from "lucide-react"
+import { Info, Keyboard, Plus, Trophy } from "lucide-react"
 import { ErrorAlert } from "@/components/ui/alert"
+import { ReloadButton } from "@/components/ui/reload-button"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -46,7 +47,7 @@ export default function Rankings() {
     <PageHeader title={t('title')} description={t('intro')}>
       {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
     </PageHeader>
-    {workspace.error && <ErrorAlert className="mb-6" action={<Button variant="outline" size="lg" onClick={() => window.location.reload()}><RotateCw aria-hidden="true" />{t('reload')}</Button>}>{workspace.error}</ErrorAlert>}
+    {workspace.error && <ErrorAlert className="mb-6" action={<ReloadButton>{t('reload')}</ReloadButton>}>{workspace.error}</ErrorAlert>}
     {!workspace.ready ? <LoadingState />
       : practised ? <Suspense fallback={<LoadingState />}><RankingsView key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} devices={workspace.devices} /></Suspense>
         // After a failed load there is nothing to show, and "no records yet" would be wrong.
