@@ -24,6 +24,8 @@ import type { SavedWordList } from "@/core/wordLists"
 import type { WordPack } from "@/core/wordPacks"
 import { cn } from "@/lib/utils"
 import PageStorageBadge from "@/components/PageStorageBadge"
+import { PageHeader, PageMain } from "@/components/ui/page-layout"
+import { CardList } from "@/components/ui/card"
 
 const PAGE_SIZE = 50
 
@@ -41,22 +43,16 @@ function RecordsPage() {
   const t = useTranslations('records')
   const workspace = useWordLists()
   const link = "underline underline-offset-3 hover:text-foreground"
-  return <main className="mx-auto w-full max-w-5xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
-    <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-bold">{t('title')}</h1>
-        <p className="text-sm text-muted-foreground">
-          {t.rich('intro', {
-            rankings: chunks => <Link href="/rankings" className={link}>{chunks}</Link>,
-            home: chunks => <Link href="/home" className={link}>{chunks}</Link>,
-          })}
-        </p>
-      </div>
+  return <PageMain width="medium">
+    <PageHeader title={t('title')} description={t.rich('intro', {
+        rankings: chunks => <Link href="/rankings" className={link}>{chunks}</Link>,
+        home: chunks => <Link href="/home" className={link}>{chunks}</Link>,
+      })}>
       {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
-    </header>
+    </PageHeader>
     {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
     {!workspace.ready ? <Loading /> : <RecordHistory key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} saving={workspace.saving} deleteRecord={workspace.deleteRecord} />}
-  </main>
+  </PageMain>
 }
 
 function useFilter(): [RecordFilter, (next: RecordFilter) => void] {
@@ -157,12 +153,12 @@ function RecordHistory({ lists, packs, saving, deleteRecord }: {
           <h2 className="text-sm font-bold">{dayHeading(group.day)}</h2>
           <p className="text-xs text-muted-foreground tabular-nums">{t('day.summary', { count: group.rows.length, duration: format.duration(group.seconds) })}</p>
         </div>
-        <ul className="divide-y overflow-hidden rounded-xl border bg-card">
+        <CardList>
           {group.rows.map(row => <RecordRow key={row.key} row={row} showList={!filter.list} inPack={Boolean(filter.pack)} disabled={saving} onDelete={() => {
             deleted.current = false
             setDeleting({ open: true, row, position: rows.indexOf(row) })
           }} />)}
-        </ul>
+        </CardList>
       </section>)}
       {rows.length > shown && <div className="flex justify-center">
         <Button variant="outline" onClick={() => setShown(current => current + PAGE_SIZE)}>{t('more', { count: rows.length - shown })}</Button>

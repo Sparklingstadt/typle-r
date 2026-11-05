@@ -6,19 +6,16 @@ import { Skeleton } from '@/components/ui/skeleton'
 import InterestSettings from '@/components/Settings/InterestSettings'
 import InterestPacks from '@/components/Settings/InterestPacks'
 import PageStorageBadge from '@/components/PageStorageBadge'
+import { PageHeader, PageMain } from '@/components/ui/page-layout'
 
 export default function Interests() {
   const workspace = useWordLists()
   const t = useTranslations('interests')
   const common = useTranslations('common')
-  return <main className="mx-auto w-full max-w-4xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
-    <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-bold">{t('title')}</h1>
-        <p className="text-sm text-muted-foreground">{t('description')}</p>
-      </div>
+  return <PageMain width="narrow">
+    <PageHeader title={t('title')} description={t('description')}>
       {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
-    </header>
+    </PageHeader>
     {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
     {!workspace.ready ? <div role="status" className="space-y-3"><p className="sr-only">{common('loading')}</p><Skeleton className="h-10 w-72 max-w-full" /><Skeleton className="h-24 w-full" /></div>
       : <div className="space-y-8">
@@ -26,5 +23,5 @@ export default function Interests() {
         <InterestPacks key={`packs-${workspace.accountId}`} packs={workspace.packs} lists={workspace.lists} interests={workspace.interests}
           saving={workspace.saving} updateLibrary={workspace.updateLibrary} />
       </div>}
-  </main>
+  </PageMain>
 }

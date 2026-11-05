@@ -25,6 +25,7 @@ import { isFiltered, listLabels, followedPackCount, matchesFilter, MAX_FOLLOWED_
 import { isFollowed } from "@/core/followedPacks"
 import { deletePack, loneListPack, matchesPackQuery, packOverviews, sortPacks, visibleListRows, type PackOverview } from "@/core/packEditing"
 import type { SavedWordList } from "@/core/wordLists"
+import { CardList } from "@/components/ui/card"
 
 export default function ListManager({ lists, packs, saving, highlight, highlightPack, update, updateLibrary, notify, onShowPack, openPacks, onOpenPacksChange, onEdit, onHighlight }: {
   lists: SavedWordList[]
@@ -109,7 +110,7 @@ export default function ListManager({ lists, packs, saving, highlight, highlight
     <ListToolbar query={query} onQueryChange={setQuery} labels={labels} filter={filter} onFilterChange={setFilter} order={order} onOrderChange={setOrder}
       shownCount={shown.length} totalCount={all.length} narrowed={narrowed} />
 
-    {shown.length ? <ul className="divide-y overflow-hidden rounded-xl border bg-card">
+    {shown.length ? <CardList>
       {shown.map(item => {
         const { pack } = item
         const followed = isFollowed(pack)
@@ -134,7 +135,7 @@ export default function ListManager({ lists, packs, saving, highlight, highlight
             onDelete={() => setDeleting({ open: true, item: row, position: rowPosition(row.list.id) })} />)}
         </PackRow>
       })}
-    </ul> : <EmptyState className="gap-3 py-10">
+    </CardList> : <EmptyState className="gap-3 py-10">
       <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">{query.trim() ? t('manager.noMatch', { query: query.trim() }) : t('filter.noMatch')}</p>
       <Button variant="outline" onClick={() => { setQuery(''); setFilter(NO_FILTER) }}>{isFiltered(filter) ? t('filter.clearAll') : t('manager.clearSearch')}</Button>
     </EmptyState>}

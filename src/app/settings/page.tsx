@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import LanguageSettings from '@/components/Settings/LanguageSettings'
 import SessionSettings from '@/components/Settings/SessionSettings'
+import { PageMain } from '@/components/ui/page-layout'
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('settings')
@@ -10,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Settings() {
   const t = await getTranslations('settings')
-  return <main className="mx-auto w-full max-w-4xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
+  return <PageMain width="narrow">
     <header className="mb-6 space-y-1">
       <h1 className="text-2xl font-bold">{t('title')}</h1>
       <p className="text-sm text-muted-foreground">{t('description')}</p>
@@ -19,5 +20,5 @@ export default async function Settings() {
       <LanguageSettings />
       <SessionSettings />
     </div>
-  </main>
+  </PageMain>
 }
