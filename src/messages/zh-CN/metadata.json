@@ -3,5 +3,6 @@
   "description": "一款可以用自己的单词列表练习的打字应用。添加喜欢的词汇，练习打字，并回顾最佳记录。",
   "imageAlt": "Typle — 用自己的词汇练习打字。用单词列表练习与记录",
   "sharedTitle": "共享的包 | Typle",
-  "galleryTitle": "图库 | Typle"
+  "galleryTitle": "图库 | Typle",
+  "playDescription": "选择官方单词包或自己的单词列表练习打字。速度、正确率和错误数会实时显示，每次练习都会自动保存。无需登录。"
 }
