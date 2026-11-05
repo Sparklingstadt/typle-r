@@ -166,7 +166,8 @@ function Practice({ wordLists, packs, listId, error, addRecord, devices, account
     <div className={cn("grid items-start gap-6", asideOpen && "lg:grid-cols-[minmax(0,1fr)_20rem]")}>
       {/* The best records sit under the practice card, so they stay in view when the word lists are closed. */}
       <div className="grid min-w-0 gap-6">
-      <Card className="min-w-0 gap-0 py-0 text-base">
+      {/* A finger straying off the handwriting pad would otherwise start selecting the text around it. */}
+      <Card className="min-w-0 gap-0 py-0 text-base has-[#writingPad]:select-none">
         <PracticeHeader list={list} listName={practiceName(list)} wordCount={words.length} devices={devices} device={running ? runDevice : device} running={running} mode={mode} finished={finished}
           statsVisible={statsVisible} asideOpen={asideOpen} onOpenPicker={openPicker} onChooseDevice={chooseDevice} onDeviceMenuOpenChange={setMenuOpen} onDeviceMenuCloseAutoFocus={focusPractice}
           onSwitchRecall={switchRecall} onStatsVisibleChange={setStatsVisible} onAsideOpenChange={setAsideOpen} onFocusInput={focusInput} onRestart={() => restart()} />
