@@ -3,15 +3,13 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
-import { ChevronsUpDown, CircleAlert, Keyboard, ListPlus, Pencil, Plus } from "lucide-react"
+import { ChevronsUpDown, CircleAlert, Keyboard, Pencil } from "lucide-react"
 import { SearchField } from "@/components/ui/search-field"
 import { Alert, AlertDescription, ErrorAlert } from "@/components/ui/alert"
 import { ReloadButton } from "@/components/ui/reload-button"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { EmptyState, EmptyStateIcon } from "@/components/ui/empty-state"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Skeleton } from "@/components/ui/skeleton"
 import CategorySelect from "@/components/Practice/CategorySelect"
 import WordListOptions from "@/components/Practice/WordListOptions"
 import ListLabels from "@/components/WordLists/ListLabels"
@@ -25,6 +23,9 @@ import PracticeName, { usePracticeName } from "@/components/PracticeName"
 import type { SavedWordList } from "@/core/wordLists"
 import { PageHeader, PageMain } from "@/components/ui/page-layout"
 import WordTable from "@/components/Words/WordTable"
+import NoWords from "@/components/Words/NoWords"
+import WordsLoading from "@/components/Words/WordsLoading"
+
 
 
 export default function Words() {
@@ -36,8 +37,8 @@ export default function Words() {
       {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
     </PageHeader>
     {workspace.error && <ErrorAlert className="mb-6" action={<ReloadButton>{page('reload')}</ReloadButton>}>{workspace.error}</ErrorAlert>}
-    {!workspace.ready ? <LoadingState />
-      : workspace.lists.length ? <Suspense fallback={<LoadingState />}><WordsView key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} /></Suspense>
+    {!workspace.ready ? <WordsLoading />
+      : workspace.lists.length ? <Suspense fallback={<WordsLoading />}><WordsView key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} /></Suspense>
         // After a failed load the lists are unknown; "no lists yet" would be wrong.
         : !workspace.error && <NoWords />}
   </PageMain>
@@ -149,32 +150,4 @@ function WordsView({ lists, packs }: { lists: SavedWordList[]; packs: WordPack[]
 function WordSearch({ value, onChange, className }: { value: string; onChange: (value: string) => void; className: string }) {
   const t = useTranslations('wordLists.words')
   return <SearchField value={value} onChange={onChange} placeholder={t('filter')} ariaLabel={t('filter')} className={className} />
-}
-
-function NoWords() {
-  const t = useTranslations('wordLists')
-  return <EmptyState className="py-10 sm:py-14">
-    <EmptyStateIcon icon={ListPlus} />
-    <div className="space-y-1.5">
-      <h2 className="font-bold">{t('empty.title')}</h2>
-      <p className="max-w-md text-sm text-balance text-muted-foreground">{t('empty.description')}</p>
-    </div>
-    <Button asChild><Link href="/packs/create"><Plus aria-hidden="true" />{t('manager.create')}</Link></Button>
-  </EmptyState>
-}
-
-function LoadingState() {
-  const common = useTranslations('common')
-  return <div role="status" className="grid items-start gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
-    <span className="sr-only">{common('loading')}</span>
-    <div className="hidden space-y-3 rounded-xl border bg-card p-3 lg:block">
-      <Skeleton className="h-9 w-full" />
-      {Array.from({ length: 5 }, (_, index) => <div key={index} className="space-y-1.5 px-1 py-1.5"><Skeleton className="h-4 w-3/4" /><Skeleton className="h-3.5 w-1/2" /></div>)}
-    </div>
-    <div className="space-y-3 rounded-xl border bg-card p-4 sm:p-6">
-      <Skeleton className="h-6 w-1/3" />
-      <Skeleton className="h-4 w-24" />
-      {Array.from({ length: 6 }, (_, index) => <Skeleton key={index} className="h-9 w-full" />)}
-    </div>
-  </div>
 }
