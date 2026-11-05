@@ -7,6 +7,7 @@ import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader,
   AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel,
   AlertDialogAction } from '@/components/ui/alert-dialog'
 import { signOutEverywhere, useSession } from '@/lib/session'
+import { IconTile } from '@/components/ui/icon-tile'
 
 // Signing out of every device, for an account signed in to the cloud: shown only then, as a guest has no session.
 export default function SessionSettings() {
@@ -21,7 +22,7 @@ export default function SessionSettings() {
 
   return <section aria-labelledby={`${id}-heading`} className="rounded-xl border bg-card p-4 sm:p-5">
     <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-3 sm:gap-x-4">
-      <span className="grid size-10 place-items-center rounded-lg bg-muted text-muted-foreground"><MonitorSmartphone className="size-5" aria-hidden="true" /></span>
+      <IconTile icon={MonitorSmartphone} />
       <div className="min-w-0 space-y-1">
         <h2 id={`${id}-heading`} className="font-bold">{t('heading')}</h2>
         <p className="text-sm text-muted-foreground">{t('description')}</p>

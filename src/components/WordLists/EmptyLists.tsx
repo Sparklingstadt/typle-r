@@ -4,12 +4,12 @@ import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { Library as LibraryIcon, ListPlus, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { EmptyState } from "@/components/ui/empty-state"
+import { EmptyState, EmptyStateIcon } from "@/components/ui/empty-state"
 
 export default function EmptyLists({ actions }: { actions?: ReactNode }) {
   const t = useTranslations('wordLists')
   return <EmptyState className="py-10 sm:py-14">
-    <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground"><ListPlus className="size-6" aria-hidden="true" /></span>
+    <EmptyStateIcon icon={ListPlus} />
     <div className="space-y-1.5">
       <h2 id="empty-heading" tabIndex={-1} className="font-bold outline-none">{t('empty.packTitle')}</h2>
       <p className="max-w-md text-sm text-balance text-muted-foreground">{t('empty.packDescription')}</p>

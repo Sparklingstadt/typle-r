@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useDeviceOptions } from './useDeviceOptions'
 import type { PracticeDevice } from '@/core/devices'
+import { IconTile } from '@/components/ui/icon-tile'
 
 // The same per-browser choice as the device menu on the practice screen, shown where devices are managed.
 export default function CurrentDevice({ devices, device, onChange }: {
@@ -17,7 +18,7 @@ export default function CurrentDevice({ devices, device, onChange }: {
   const { label, options } = useDeviceOptions(devices, device)
   return <section aria-labelledby="current-device-heading" className="rounded-xl border bg-card p-4 sm:p-5">
     <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-x-4">
-      <span className="grid size-10 place-items-center rounded-lg bg-muted text-muted-foreground"><Monitor className="size-5" aria-hidden="true" /></span>
+      <IconTile icon={Monitor} />
       <div className="min-w-0">
         <h2 id="current-device-heading" className="text-[13px] text-muted-foreground">{t('heading')}</h2>
         <p className="font-medium [overflow-wrap:anywhere]" aria-live="polite">{label}</p>

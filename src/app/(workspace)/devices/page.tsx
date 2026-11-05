@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils'
 import { ErrorAlert } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { EmptyState } from '@/components/ui/empty-state'
+import { EmptyState, EmptyStateIcon } from '@/components/ui/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import DeleteConfirmation from '@/components/DeleteConfirmation'
 import { useSaveNotification } from '@/components/SaveNotification'
@@ -21,6 +21,7 @@ import DeviceDialog, { type DeviceDialogState } from '@/components/Devices/Devic
 import PageStorageBadge from '@/components/PageStorageBadge'
 import { PageHeader, PageMain } from '@/components/ui/page-layout'
 import { CardList } from '@/components/ui/card'
+import { IconTile } from '@/components/ui/icon-tile'
 
 export default function Devices() {
   const workspace = useWordLists()
@@ -114,7 +115,7 @@ function DeviceManager({ accountId, devices, lists, saving, error, updateDevices
           return <li key={device.id} data-device-id={device.id}
             className={cn('grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3 gap-y-1.5 px-4 py-3.5 transition-colors duration-700 motion-reduce:transition-none sm:grid-cols-[auto_minmax(0,1fr)_10rem_auto] sm:items-center sm:gap-x-4 sm:px-5',
               highlight === device.id && 'bg-green-50 duration-0 dark:bg-green-950/40')}>
-            <span className="hidden size-10 place-items-center rounded-lg bg-muted text-muted-foreground sm:grid"><Monitor className="size-5" aria-hidden="true" /></span>
+            <IconTile icon={Monitor} className="hidden sm:grid" />
             <div className="min-w-0 space-y-0.5">
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                 <h3 className="font-medium [overflow-wrap:anywhere]">{device.name}</h3>
@@ -168,7 +169,7 @@ function DeviceManager({ accountId, devices, lists, saving, error, updateDevices
 function NoDevices({ onAdd }: { onAdd: () => void }) {
   const t = useTranslations('devices')
   return <EmptyState className="py-10 sm:py-12">
-    <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground"><Monitor className="size-6" aria-hidden="true" /></span>
+    <EmptyStateIcon icon={Monitor} />
     <div className="space-y-1.5">
       <h3 className="font-bold">{t('empty.title')}</h3>
       <p className="max-w-md text-sm text-balance text-muted-foreground">{t('empty.description')}</p>

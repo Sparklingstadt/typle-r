@@ -9,7 +9,7 @@ import { Alert, AlertDescription, ErrorAlert } from "@/components/ui/alert"
 import { ReloadButton } from "@/components/ui/reload-button"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { EmptyState } from "@/components/ui/empty-state"
+import { EmptyState, EmptyStateIcon } from "@/components/ui/empty-state"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -180,7 +180,7 @@ function WordTable({ list }: { list: SavedWordList }) {
 function NoWords() {
   const t = useTranslations('wordLists')
   return <EmptyState className="py-10 sm:py-14">
-    <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground"><ListPlus className="size-6" aria-hidden="true" /></span>
+    <EmptyStateIcon icon={ListPlus} />
     <div className="space-y-1.5">
       <h2 className="font-bold">{t('empty.title')}</h2>
       <p className="max-w-md text-sm text-balance text-muted-foreground">{t('empty.description')}</p>

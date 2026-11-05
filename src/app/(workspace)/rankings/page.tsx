@@ -8,7 +8,7 @@ import { Info, Keyboard, Plus, Trophy } from "lucide-react"
 import { ErrorAlert } from "@/components/ui/alert"
 import { ReloadButton } from "@/components/ui/reload-button"
 import { Button } from "@/components/ui/button"
-import { EmptyState } from "@/components/ui/empty-state"
+import { EmptyState, EmptyStateIcon } from "@/components/ui/empty-state"
 import { Skeleton } from "@/components/ui/skeleton"
 import FilterMenu from "@/components/Records/FilterMenu"
 import RankingDetail from "@/components/Rankings/RankingDetail"
@@ -170,7 +170,7 @@ function OrderToggle({ value, onChange }: { value: RankOrder; onChange: (value: 
 function NoRankings() {
   const t = useTranslations('rankings.empty')
   return <EmptyState className="py-12 sm:py-16">
-    <span className="grid size-12 place-items-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"><Trophy className="size-6" aria-hidden="true" /></span>
+    <EmptyStateIcon icon={Trophy} className="bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300" />
     <div className="space-y-1.5">
       <h2 className="font-bold">{t('title')}</h2>
       <p className="max-w-md text-sm text-balance text-muted-foreground">{t('description')}</p>
