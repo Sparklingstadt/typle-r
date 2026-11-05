@@ -8,8 +8,6 @@ import PageStorageBadge from '@/components/PageStorageBadge'
 import { PageHeader, PageMain } from '@/components/ui/page-layout'
 import DeviceManager from '@/components/Devices/DeviceManager'
 
-
-
 export default function Devices() {
   const workspace = useWordLists()
   const t = useTranslations('devices')

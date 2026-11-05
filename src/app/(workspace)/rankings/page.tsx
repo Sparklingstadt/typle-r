@@ -10,10 +10,6 @@ import NoRankings from "@/components/Rankings/NoRankings"
 import RankingsLoading from "@/components/Rankings/RankingsLoading"
 import RankingsView from "@/components/Rankings/RankingsView"
 
-
-
-
-
 export default function Rankings() {
   const t = useTranslations('rankings')
   const workspace = useWordLists()

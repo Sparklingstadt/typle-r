@@ -10,9 +10,6 @@ import NoWords from "@/components/Words/NoWords"
 import WordsLoading from "@/components/Words/WordsLoading"
 import WordsView from "@/components/Words/WordsView"
 
-
-
-
 export default function Words() {
   const t = useTranslations('wordLists.words')
   const page = useTranslations('wordLists.page')
