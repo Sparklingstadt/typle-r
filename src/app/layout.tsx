@@ -13,6 +13,9 @@ import { openGraphLocales } from "@/i18n/config";
 import { clientMessages, type Messages } from "@/i18n/messages";
 import { siteUrl } from "@/lib/siteUrl";
 
+// Vercel serves the analytics script at /_vercel/insights; anywhere else (local builds, CI) it would 404.
+const onVercel = process.env.VERCEL === "1";
+
 const GOOGLE_SITE_VERIFICATION = "9AxSaSJWX-s1vpCQI0DDHzhVq9Aq8poWc7q4YX-Js-I";
 
 const notoSans = Noto_Sans_JP({
@@ -79,7 +82,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       </WorkspaceProvider>
       </AuthProvider>
       </NextIntlClientProvider>
-      <WebAnalytics />
+      {onVercel && <WebAnalytics />}
       </body>
     </html>
   );

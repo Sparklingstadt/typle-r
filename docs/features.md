@@ -196,7 +196,7 @@ Google Search Console は「URL プレフィックス」のプロパティ（`ht
 
 ## アクセス解析（Vercel Web Analytics）
 
-ページの表示数を Vercel Web Analytics で数えます（v2.30.0 から）。`src/app/layout.tsx` で全ページに `src/components/WebAnalytics.tsx`（`@vercel/analytics/next` の `Analytics`）を置いています。Cookie は使いません。スクリプトは Vercel にデプロイしたときだけ動き、ローカルの開発では送りません。
+ページの表示数を Vercel Web Analytics で数えます（v2.30.0 から）。`src/app/layout.tsx` で全ページに `src/components/WebAnalytics.tsx`（`@vercel/analytics/next` の `Analytics`）を置いています。Cookie は使いません。`VERCEL=1`（Vercel 上で動いているとき）のときだけ置きます。スクリプトは Vercel だけが `/_vercel/insights` で配信するので、ローカルや CI の E2E で置くと404になるためです。
 
 - 送る前に `src/core/analytics.ts` の `analyticsUrl` で、URL をオリジンとパスだけにします（`?` 以降と `#` 以降を除く）。ベスト記録の `?list=` などに入るリストのIDや絞り込みを送らないためです。
 - 管理画面（`/admin`）と開発用ログイン（`/local-login`）の表示は送りません。
