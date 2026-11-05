@@ -237,23 +237,36 @@ jobs:
           done
           echo "Production still serves ${served:-an unknown deployment} five minutes after deploying $expected"
           exit 1
+      # The site is served at typle.sparklingstadt.com (SITE_URL and AUTH_URL). The Vercel domain typle-r-six.vercel.app
+      # stays for the iPad and Mac apps, which call /api/* there: vercel.json sends its pages, and the start of a login,
+      # to the custom domain, so that the OAuth cookie and the callback share one host.
       - name: Check production home and authentication boundary
+        env:
+          SITE: https://typle.sparklingstadt.com
+          LEGACY: https://typle-r-six.vercel.app
         run: |
-          curl --fail --silent --show-error --location --retry 3 --max-time 60 https://typle-r-six.vercel.app/home > /dev/null
-          curl --fail --silent --show-error --retry 3 --max-time 60 https://typle-r-six.vercel.app/api/health > /dev/null
-          status=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --max-time 60 https://typle-r-six.vercel.app/api/workspace)
-          test "$status" = 401 || { echo "Expected anonymous API HTTP 401, got $status"; exit 1; }
-          body=$(curl --fail --silent --show-error --retry 3 --max-time 60 https://typle-r-six.vercel.app/api/auth/session)
+          curl --fail --silent --show-error --location --retry 3 --max-time 60 "$SITE/home" > /dev/null
+          redirect=$(curl --silent --show-error --retry 3 --max-time 60 --output /dev/null --write-out '%{http_code} %{redirect_url}' "$LEGACY/home?from=ci")
+          test "$redirect" = "308 $SITE/home?from=ci" || { echo "Expected the Vercel domain to send pages to $SITE with HTTP 308, got $redirect"; exit 1; }
+          for origin in "$SITE" "$LEGACY"; do
+            curl --fail --silent --show-error --retry 3 --max-time 60 "$origin/api/health" > /dev/null
+            status=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --max-time 60 "$origin/api/workspace")
+            test "$status" = 401 || { echo "Expected anonymous API HTTP 401 at $origin, got $status"; exit 1; }
+          done
+          body=$(curl --fail --silent --show-error --retry 3 --max-time 60 "$SITE/api/auth/session")
           echo "$body" | jq -e '.user == null and (.providers | type == "array") and (.providers | index("github")) != null' > /dev/null || { echo "Expected anonymous session with a null user and a providers array containing github, got $body"; exit 1; }
-          signin=$(curl --silent --show-error --retry 3 --max-time 60 --output "$RUNNER_TEMP/signin-response" --write-out '%{http_code} %{redirect_url}' https://typle-r-six.vercel.app/api/auth/signin)
+          signin=$(curl --silent --show-error --retry 3 --max-time 60 --output "$RUNNER_TEMP/signin-response" --write-out '%{http_code} %{redirect_url}' "$SITE/api/auth/signin")
           status=${signin%% *}
           location=${signin#* }
           test "$status" = 302 || { echo "Expected sign-in HTTP 302, got $status"; exit 1; }
           case "$location" in
-            "https://github.com/login/oauth/authorize?"*redirect_uri=https%3A%2F%2Ftyple-r-six.vercel.app%2Fapi%2Fauth%2Fcallback%2Fgithub*) ;;
+            "https://github.com/login/oauth/authorize?"*redirect_uri=https%3A%2F%2Ftyple.sparklingstadt.com%2Fapi%2Fauth%2Fcallback%2Fgithub*) ;;
             *) echo "Expected sign-in to redirect to GitHub with the production callback, got $location"; exit 1 ;;
           esac
-          # The iPad app's token exchange is deployed, and refuses a request without a valid code.
-          status=$(curl --silent --show-error --retry 3 --max-time 60 --request POST --header 'Content-Type: application/json' --data '{}' --output "$RUNNER_TEMP/token-response" --write-out '%{http_code}' https://typle-r-six.vercel.app/api/auth/token)
+          # An app's login starts at the Vercel domain and must move to the custom domain with its query intact.
+          signin=$(curl --silent --show-error --retry 3 --max-time 60 --output /dev/null --write-out '%{http_code} %{redirect_url}' "$LEGACY/api/auth/signin?client=ipad&returnTo=%2Fplay")
+          test "$signin" = "307 $SITE/api/auth/signin?client=ipad&returnTo=%2Fplay" || { echo "Expected the Vercel domain to send sign-in to $SITE with HTTP 307, got $signin"; exit 1; }
+          # The iPad app's token exchange is deployed at the Vercel domain it calls, and refuses a request without a valid code.
+          status=$(curl --silent --show-error --retry 3 --max-time 60 --request POST --header 'Content-Type: application/json' --data '{}' --output "$RUNNER_TEMP/token-response" --write-out '%{http_code}' "$LEGACY/api/auth/token")
           body=$(cat "$RUNNER_TEMP/token-response")
           test "$status $body" = '400 {"error":"loginFailed"}' || { echo "Expected the token exchange to answer 400 loginFailed, got $status $body"; exit 1; }

@@ -209,7 +209,7 @@ Open GraphとXの大きな画像カードに対応しています。共通画像
 - sitemap.xml：ログインせずに開けて、だれが見ても同じ内容のページ（`/`・`/play`・`/packs/catalog`・`/guide`・`/about`）。ギャラリーは中身が入れ替わる検索ページなので `noindex` にしていて、載せません。練習記録やベスト記録のように自分のデータを表示するページは、クローラーには空の画面しか見えないため載せません。
 - robots.txt：管理画面（`/admin`）、開発用ログイン（`/local-login`）、バックエンド（`/api/`）へのクロールを断り、sitemap.xml の場所を示します。
 
-Google Search Console は「URL プレフィックス」のプロパティ（`https://typle-r-six.vercel.app`）で登録し、所有権は HTML タグで確認します（v2.29.1 から）。タグの値は `src/app/layout.tsx` の `GOOGLE_SITE_VERIFICATION` にあり、全ページの `<head>` に `google-site-verification` として出ます。秘密の値ではありません。消すと所有権の確認が外れるので、残してください。
+Google Search Console は「URL プレフィックス」のプロパティ（`https://typle-r-six.vercel.app`）で登録し、所有権は HTML タグで確認します（v2.29.1 から）。独自ドメインに移ってからは、`sparklingstadt.com` の「ドメイン」プロパティ（DNS の TXT レコードで確認）でも登録し、`https://typle.sparklingstadt.com/sitemap.xml` を送信しています。タグの値は `src/app/layout.tsx` の `GOOGLE_SITE_VERIFICATION` にあり、全ページの `<head>` に `google-site-verification` として出ます。秘密の値ではありません。消すと所有権の確認が外れるので、残してください。
 
 ページを足したり名前を変えたりしたときは `INDEXED_PATHS` も直してください。載せたページの `page.tsx` があることは単体テスト（`tests/searchIndex.test.cjs`）で確かめます。
 
