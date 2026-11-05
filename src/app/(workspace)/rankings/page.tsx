@@ -1,14 +1,10 @@
 "use client"
 import { Suspense, useEffect, useMemo, useRef, useState } from "react"
-import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
-import { Info, Keyboard, Plus, Trophy } from "lucide-react"
+import { Info } from "lucide-react"
 import { ErrorAlert } from "@/components/ui/alert"
 import { ReloadButton } from "@/components/ui/reload-button"
-import { Button } from "@/components/ui/button"
-import { EmptyState, EmptyStateIcon } from "@/components/ui/empty-state"
-import { Skeleton } from "@/components/ui/skeleton"
 import FilterMenu from "@/components/Records/FilterMenu"
 import RankingDetail from "@/components/Rankings/RankingDetail"
 import RankingList from "@/components/Rankings/RankingList"
@@ -26,6 +22,9 @@ import PageStorageBadge from "@/components/PageStorageBadge"
 import { PageHeader, PageMain } from "@/components/ui/page-layout"
 import { useWide } from "@/lib/useWide"
 import OrderToggle from "@/components/Rankings/OrderToggle"
+import NoRankings from "@/components/Rankings/NoRankings"
+import RankingsLoading from "@/components/Rankings/RankingsLoading"
+
 
 
 
@@ -38,8 +37,8 @@ export default function Rankings() {
       {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
     </PageHeader>
     {workspace.error && <ErrorAlert className="mb-6" action={<ReloadButton>{t('reload')}</ReloadButton>}>{workspace.error}</ErrorAlert>}
-    {!workspace.ready ? <LoadingState />
-      : practised ? <Suspense fallback={<LoadingState />}><RankingsView key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} devices={workspace.devices} /></Suspense>
+    {!workspace.ready ? <RankingsLoading />
+      : practised ? <Suspense fallback={<RankingsLoading />}><RankingsView key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} devices={workspace.devices} /></Suspense>
         // After a failed load there is nothing to show, and "no records yet" would be wrong.
         : !workspace.error && <NoRankings />}
   </PageMain>
@@ -141,41 +140,6 @@ function RankingsView({ lists, packs, devices }: { lists: SavedWordList[]; packs
         <RankingDetail key={selected.id} list={selected} devices={devices} device={device} deviceName={deviceName} order={order} mode={mode} now={now}
           onBack={back} onShowAllDevices={() => navigate({ device: null })} />
       </section>}
-    </div>
-  </div>
-}
-
-function NoRankings() {
-  const t = useTranslations('rankings.empty')
-  return <EmptyState className="py-12 sm:py-16">
-    <EmptyStateIcon icon={Trophy} className="bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300" />
-    <div className="space-y-1.5">
-      <h2 className="font-bold">{t('title')}</h2>
-      <p className="max-w-md text-sm text-balance text-muted-foreground">{t('description')}</p>
-    </div>
-    <div className="flex flex-wrap justify-center gap-2">
-      <Button size="lg" asChild><Link href="/play"><Keyboard aria-hidden="true" />{t('practice')}</Link></Button>
-      <Button size="lg" variant="outline" asChild><Link href="/packs/create"><Plus aria-hidden="true" />{t('create')}</Link></Button>
-    </div>
-  </EmptyState>
-}
-
-function LoadingState() {
-  const common = useTranslations('common')
-  return <div role="status" className="space-y-4">
-    <span className="sr-only">{common('loading')}</span>
-    <div className="flex gap-2"><Skeleton className="h-9 w-36 rounded-full" /><Skeleton className="h-9 w-52 rounded-full" /></div>
-    <div className="xl:grid xl:grid-cols-[320px_minmax(0,1fr)] xl:gap-6">
-      <div className="space-y-3 rounded-xl border bg-card p-3">
-        <Skeleton className="h-9 w-full" />
-        {Array.from({ length: 5 }, (_, index) => <div key={index} className="space-y-1.5 px-1 py-1.5"><Skeleton className="h-4 w-3/4" /><Skeleton className="h-3.5 w-1/2" /></div>)}
-      </div>
-      <div className="hidden space-y-5 rounded-xl border bg-card p-6 xl:block">
-        <Skeleton className="h-7 w-1/3" />
-        <div className="grid grid-cols-4 gap-3">{Array.from({ length: 4 }, (_, index) => <Skeleton key={index} className="h-24" />)}</div>
-        <Skeleton className="h-24 w-full" />
-        {Array.from({ length: 5 }, (_, index) => <Skeleton key={index} className="h-9 w-full" />)}
-      </div>
     </div>
   </div>
 }
