@@ -194,11 +194,19 @@ Open GraphとXの大きな画像カードに対応しています。共通画像
 
 画像の絶対URLには `SITE_URL`（任意、`src/lib/siteUrl.ts`）、次に `AUTH_URL` を使用し、未設定なら `VERCEL_PROJECT_PRODUCTION_URL`、ローカルでは `http://localhost:3000` にフォールバックします。本番ビルド時は `AUTH_URL` を公開サイトのHTTPS URLに設定してください。共有先のクローラーがページと画像へ認証なしでアクセスできる必要があります。
 
+## ページのタイトルと説明
+
+どのページも「ページ名 | Typle」をタイトルにします（v2.32.0 から）。ページ名は、サイドバーのリンクやページの見出しで使っている言葉をそのまま使い、6言語でそろえます。クライアント部品のページは、そのフォルダーの `layout.tsx` から `src/lib/pageMetadata.ts` の `pageMetadata` で設定します。
+
+- 説明（description）：検索から来る人がいるページ（`/play`・`/packs/catalog`）だけ専用の文にし、ほかはサイト全体の説明のままです（`PAGE_DESCRIPTIONS`）
+- 自分のデータだけを表示するページ（`/home`・`/records`・`/rankings`・`/edit`・`/words`・`/devices`・`/interests`・`/create`・`/packs/create`・`/packs/edit`）は `noindex, follow` にします。クローラーには空の画面しか見えないためです
+- 新しいページを足したら、`PAGE_TITLES` にページ名のキーを足し、`layout.tsx` を置いてください。キーが全言語にあること、sitemap.xml に `noindex` のページがないことは `tests/pageMetadata.test.cjs` で確かめます
+
 ## 検索エンジン向けの sitemap.xml・robots.txt
 
 `/sitemap.xml` と `/robots.txt` を返します（v2.29.0 から）。どちらも上の OGP と同じサイトの URL を使い、載せるページと除くページは `src/core/searchIndex.ts` に1か所でまとめています。
 
-- sitemap.xml：ログインせずに開けて、だれが見ても同じ内容のページ（`/home`・`/play`・`/gallery`・`/guide`・`/about`）。練習記録やベスト記録のように自分のデータを表示するページは、クローラーには空の画面しか見えないため載せません。
+- sitemap.xml：ログインせずに開けて、だれが見ても同じ内容のページ（`/`・`/play`・`/packs/catalog`・`/guide`・`/about`）。ギャラリーは中身が入れ替わる検索ページなので `noindex` にしていて、載せません。練習記録やベスト記録のように自分のデータを表示するページは、クローラーには空の画面しか見えないため載せません。
 - robots.txt：管理画面（`/admin`）、開発用ログイン（`/local-login`）、バックエンド（`/api/`）へのクロールを断り、sitemap.xml の場所を示します。
 
 Google Search Console は「URL プレフィックス」のプロパティ（`https://typle-r-six.vercel.app`）で登録し、所有権は HTML タグで確認します（v2.29.1 から）。タグの値は `src/app/layout.tsx` の `GOOGLE_SITE_VERIFICATION` にあり、全ページの `<head>` に `google-site-verification` として出ます。秘密の値ではありません。消すと所有権の確認が外れるので、残してください。

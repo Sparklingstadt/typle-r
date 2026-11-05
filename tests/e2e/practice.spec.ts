@@ -104,6 +104,19 @@ test('create, reorder, edit, play, reload and delete records', async ({ page }) 
 })
 
 
+test('each page has its own title, and pages of one\'s own data are kept out of search', async ({ page }) => {
+  await page.goto('/play')
+  await expect(page).toHaveTitle('練習する | Typle')
+  await expect(page.locator('meta[name="robots"]')).toHaveCount(0)
+  await page.goto('/packs/catalog')
+  await expect(page).toHaveTitle('公式パック | Typle')
+  for (const [path, title] of [['/home', 'ホーム | Typle'], ['/records', '練習記録 | Typle'], ['/rankings', 'ベスト記録 | Typle']]) {
+    await page.goto(path)
+    await expect(page).toHaveTitle(title)
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, follow')
+  }
+})
+
 test('supporting pages, landing page and GitHub link', async ({ page }) => {
   await page.goto('/')
   await expect(page).toHaveURL(/\/$/)

@@ -10,13 +10,13 @@ const site = 'https://typle-r-six.vercel.app'
 test('the sitemap lists the public pages under the site origin', () => {
   const urls = sitemapEntries(site).map(entry => entry.url)
   assert.deepEqual(urls, [
-    `${site}/`, `${site}/home`, `${site}/play`, `${site}/gallery`, `${site}/guide`, `${site}/about`,
+    `${site}/`, `${site}/play`, `${site}/packs/catalog`, `${site}/guide`, `${site}/about`,
   ])
 })
 
 test('a path or trailing slash on the site URL does not leak into the entries', () => {
   assert.equal(sitemapEntries(`${site}/`).at(0).url, `${site}/`)
-  assert.equal(sitemapEntries(`${site}/api/auth`).at(1).url, `${site}/home`)
+  assert.equal(sitemapEntries(`${site}/api/auth`).at(1).url, `${site}/play`)
   assert.equal(robotsRules(`${site}/`).sitemap, `${site}/sitemap.xml`)
 })
 
