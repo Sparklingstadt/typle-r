@@ -19,7 +19,6 @@ export function RankBadge({ rank }: { rank: number }) {
 // Only the name is shown so it fits one line; the layout stays in the tooltip. Deleted devices live on in their records.
 // Dates read as 今日 / 昨日 / the date, with the time.
 function useCells(devices: PracticeDevice[], now: Date) {
-  const t = useTranslations('rankings.top')
   const format = useFormat()
   return {
     device(record: StoredRecord) {

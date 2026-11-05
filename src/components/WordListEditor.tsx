@@ -47,7 +47,6 @@ export default function WordListEditor({ title, description, storage, initial, p
   cancelRequest?: number
 }) {
   const t = useTranslations("wordLists.editor")
-  const form = useTranslations("common.form")
   const errors = useTranslations("errors")
   const baseId = useId()
   const nameId = `${baseId}-name`

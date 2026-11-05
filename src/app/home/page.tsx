@@ -12,7 +12,7 @@ import Dashboard from "@/components/Dashboard/Dashboard"
 export default function Home() {
   const t = useTranslations("home")
   const common = useTranslations("common")
-  const { lists, storage, ready, error, saving, update } = useWordLists()
+  const { lists, storage, ready, error } = useWordLists()
   const count = lists.reduce((total, list) => total + list.records.length, 0)
   return <Page><PageContainer>
     {error && <ErrorAlert className="mb-6">{error}</ErrorAlert>}
