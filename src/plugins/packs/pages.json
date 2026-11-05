@@ -1,0 +1,52 @@
+[
+  {
+    "slug": "go-syntax",
+    "catalogId": "pack-go-syntax-beginner",
+    "description": "Go の構文を、初級・中級・上級の3つのリストで打って覚えます。package と import、:= による宣言、if・for・switch、関数と複数の戻り値、構造体とメソッド、エラー処理まで、実際に書く形のまま練習できます。"
+  },
+  {
+    "slug": "linux-commands-basic",
+    "catalogId": "pack-0b27f311-38aa-40aa-9c29-ea17e374e1fe",
+    "description": "pwd・ls・cd・cp・mv・rm・grep など、Linux の基本コマンド118個を打って覚えます。コマンドごとに、何の略か・何をするかの説明が付いています。"
+  },
+  {
+    "slug": "vim-commands",
+    "catalogId": "pack-vim",
+    "description": "i・a・o などの挿入、w・b・e などの移動、dd・yy・p などの編集まで、Vim のコマンド112個を打って覚えます。キーごとに、何をするかの説明が付いています。"
+  },
+  {
+    "slug": "postgresql-error-codes",
+    "catalogId": "pack-postgresql-error-codes-beginner",
+    "description": "PostgreSQL のエラーの条件名（unique_violation・foreign_key_violation など）を、初級・中級・上級の120個で打って覚えます。SQLSTATE のコードと意味の説明が付いています。"
+  },
+  {
+    "slug": "typescript-syntax",
+    "catalogId": "pack-typescript-syntax-beginner",
+    "description": "TypeScript の構文を、初級・中級・上級の3つのリストで打って覚えます。型注釈、ユニオン型、unknown と型の絞り込み、ジェネリクス、型エイリアスとインターフェースなどを、コードの形で練習できます。"
+  },
+  {
+    "slug": "aws-cli-commands",
+    "catalogId": "pack-ef974a4b-3c7a-4eeb-9979-6721a0a1c81a",
+    "description": "AWS CLI v2 のコマンド46個を打って覚えます。aws configure sso でのログインから、EC2・S3 などの操作、ヘルプの見方まで、コマンドごとに説明が付いています。"
+  },
+  {
+    "slug": "kotlin-syntax",
+    "catalogId": "pack-kotlin-syntax-beginner-1",
+    "description": "Kotlin の構文を、初級から上級までの5つのリスト（163個）で打って覚えます。fun main、val と var、null 安全、文字列テンプレート、式としての if・when、Unit と Nothing などを、コードの形で練習できます。"
+  },
+  {
+    "slug": "hsk5-chinese-words",
+    "catalogId": "pack-chinese-hsk5-words-1",
+    "description": "中国語 HSK5級レベルの単語80個を、ピンインで打って覚えます。単語ごとに、ピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "korean-basics",
+    "catalogId": "pack-korean-basics",
+    "description": "「저는 학생이에요.」のような韓国語の基礎の単語と文80個を、打って覚えます。ローマ字の読みと日本語の意味が付いています。"
+  },
+  {
+    "slug": "english-basics",
+    "catalogId": "pack-english-basic-words",
+    "description": "英語の基礎・中級の単語と構文、あわせて160個を打って覚えます。apple・water などの単語から、現在完了の文まで、日本語の意味が付いています。"
+  }
+]

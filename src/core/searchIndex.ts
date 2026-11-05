@@ -31,9 +31,15 @@ export function siteOrigin(siteUrl: string): string {
   return new URL(siteUrl).origin
 }
 
-export function sitemapEntries(siteUrl: string): SitemapEntry[] {
+// The official pack pages (/packs/<slug>) come from the packs, which src/core may not read, so the caller passes them.
+export const PACK_PAGE_PRIORITY = 0.7
+
+export function sitemapEntries(siteUrl: string, packPagePaths: readonly string[] = []): SitemapEntry[] {
   const origin = siteOrigin(siteUrl)
-  return INDEXED_PATHS.map(({ path, changeFrequency, priority }) => ({ url: `${origin}${path}`, changeFrequency, priority }))
+  return [
+    ...INDEXED_PATHS.map(({ path, changeFrequency, priority }) => ({ url: `${origin}${path}`, changeFrequency, priority })),
+    ...packPagePaths.map(path => ({ url: `${origin}${path}`, changeFrequency: 'monthly' as const, priority: PACK_PAGE_PRIORITY })),
+  ]
 }
 
 export function robotsRules(siteUrl: string): RobotsRules {
