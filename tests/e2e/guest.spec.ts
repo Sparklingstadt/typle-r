@@ -160,7 +160,7 @@ test('about page explains features and storage, marks the browser as the current
   const github = version_.getByRole('link', { name: /^GitHub\s*（新しいタブで開く）$/ })
   await expect(github).toHaveAttribute('target', '_blank')
   await expect(github).toHaveAttribute('rel', 'noopener noreferrer')
-  await expect(version_).toContainText('非公開のリポジトリです')
+  await expect(version_).toContainText('公開のリポジトリです。だれでもソースコードを見られます。')
   await features.getByRole('link', { name: '練習する', exact: true }).focus()
   await page.keyboard.press('Enter')
   await expect(page).toHaveURL(/\/play$/)
