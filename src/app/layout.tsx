@@ -12,6 +12,8 @@ import { openGraphLocales } from "@/i18n/config";
 import { clientMessages, type Messages } from "@/i18n/messages";
 import { siteUrl } from "@/lib/siteUrl";
 
+const GOOGLE_SITE_VERIFICATION = "9AxSaSJWX-s1vpCQI0DDHzhVq9Aq8poWc7q4YX-Js-I";
+
 const notoSans = Noto_Sans_JP({
   subsets: ["latin"],
   variable: "--font-noto-sans",
@@ -33,6 +35,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
   return {
     metadataBase: new URL(siteUrl),
+    // Proves ownership of the site in Google Search Console (URL-prefix property). Not a secret.
+    verification: { google: GOOGLE_SITE_VERIFICATION },
     title,
     description,
     openGraph: {
