@@ -14,14 +14,13 @@ import {
   type GalleryCategory, type GalleryPack, type GalleryQuery, type GallerySort,
 } from "@/core/gallery"
 import { useErrorText } from "@/i18n/useErrorText"
-import { PageMain } from "@/components/ui/page-layout"
 
 // The gallery is public: this page sits outside the (workspace) group, so it opens without a login or the workspace gate.
 // useSearchParams makes the page client-rendered up to the Suspense boundary, so the boundary wraps just the part that reads it.
 export default function GalleryPage() {
-  return <PageMain width="medium">
+  return <main className="mx-auto w-full max-w-5xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
     <Suspense fallback={<Loading />}><Gallery /></Suspense>
-  </PageMain>
+  </main>
 }
 
 function Loading() {

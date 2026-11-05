@@ -23,7 +23,6 @@ import type { SavedWordList } from "@/core/wordLists"
 import type { WordPack } from "@/core/wordPacks"
 import { cn } from "@/lib/utils"
 import PageStorageBadge from "@/components/PageStorageBadge"
-import { PageHeader, PageMain } from "@/components/ui/page-layout"
 
 // Matches Tailwind's `xl`, where the list and the detail sit side by side.
 const WIDE = '(min-width: 80rem)'
@@ -42,10 +41,14 @@ export default function Rankings() {
   const t = useTranslations('rankings')
   const workspace = useWordLists()
   const practised = workspace.lists.some(list => list.records.length)
-  return <PageMain width="wide">
-    <PageHeader title={t('title')} description={t('intro')}>
+  return <main className="mx-auto w-full max-w-6xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
+    <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
+        <p className="text-sm text-muted-foreground">{t('intro')}</p>
+      </div>
       {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
-    </PageHeader>
+    </header>
     {workspace.error && <Alert variant="destructive" className="mb-6 border-destructive/40 bg-destructive/5">
       <CircleAlert aria-hidden="true" />
       <AlertDescription className="flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -57,7 +60,7 @@ export default function Rankings() {
       : practised ? <Suspense fallback={<LoadingState />}><RankingsView key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} devices={workspace.devices} /></Suspense>
         // After a failed load there is nothing to show, and "no records yet" would be wrong.
         : !workspace.error && <NoRankings />}
-  </PageMain>
+  </main>
 }
 
 type View = RankingView

@@ -19,21 +19,25 @@ import { useSaveNotification } from '@/components/SaveNotification'
 import CurrentDevice from '@/components/Devices/CurrentDevice'
 import DeviceDialog, { type DeviceDialogState } from '@/components/Devices/DeviceDialog'
 import PageStorageBadge from '@/components/PageStorageBadge'
-import { PageHeader, PageMain } from '@/components/ui/page-layout'
-import { CardList } from '@/components/ui/card'
 
 export default function Devices() {
   const workspace = useWordLists()
   const t = useTranslations('devices')
   const common = useTranslations('common')
-  return <PageMain width="narrow">
-    <PageHeader title={t('title')} description={t.rich('description', { link: chunks => <Link href="/play" className="underline underline-offset-3 hover:text-foreground">{chunks}</Link> })}>
+  return <main className="mx-auto w-full max-w-4xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
+    <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
+        <p className="text-sm text-muted-foreground">
+          {t.rich('description', { link: chunks => <Link href="/play" className="underline underline-offset-3 hover:text-foreground">{chunks}</Link> })}
+        </p>
+      </div>
       {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
-    </PageHeader>
+    </header>
     {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
     {!workspace.ready ? <div role="status" className="space-y-3"><p>{common('loading')}</p><Skeleton className="h-20 w-full" /><Skeleton className="h-40 w-full" /></div>
       : <DeviceManager key={workspace.accountId} {...workspace} accountId={workspace.accountId ?? ''} />}
-  </PageMain>
+  </main>
 }
 
 function DeviceManager({ accountId, devices, lists, saving, error, updateDevices }: {
@@ -107,7 +111,7 @@ function DeviceManager({ accountId, devices, lists, saving, error, updateDevices
         {devices.length > 0 && <Button className="ml-auto" disabled={full || saving} onClick={() => openDialog(null)}><Plus aria-hidden="true" />{t('add')}</Button>}
       </div>
       {full && <p className="text-sm text-muted-foreground">{t('limit', { max: MAX_DEVICES })}</p>}
-      <CardList ref={list}>
+      <ul ref={list} className="divide-y overflow-hidden rounded-xl border bg-card">
         {[defaultDevice(defaultName), ...devices].map(device => {
           const current = device.id === selected?.id
           const builtIn = device.id === DEFAULT_DEVICE_ID
@@ -135,7 +139,7 @@ function DeviceManager({ accountId, devices, lists, saving, error, updateDevices
             </div>}
           </li>
         })}
-      </CardList>
+      </ul>
       {!devices.length && <NoDevices onAdd={() => openDialog(null)} />}
     </section>
 

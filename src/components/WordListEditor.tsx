@@ -17,7 +17,6 @@ import WordsSection from "@/components/WordLists/WordsSection"
 import WordListSaveBar from "@/components/WordLists/WordListSaveBar"
 import DiscardChangesDialog from "@/components/WordLists/DiscardChangesDialog"
 import { draftProblems, draftSnapshot, emptyWord, normalizeWord, savedWords } from "@/core/wordDraft"
-import { PageHeader } from "@/components/ui/page-layout"
 
 export default function WordListEditor({ title, description, storage, initial, packs = [], packId, choosePack = true, lonePackName, error, errorKey, packFields, packDirty = false, onSave, onCancel, onDirtyChange, cancelRequest = 0 }: {
   title: string
@@ -175,9 +174,13 @@ export default function WordListEditor({ title, description, storage, initial, p
     } finally { setSaving(false) }
   }}>
     <Button variant="ghost" size="lg" className="-ml-2.5 mb-2 text-muted-foreground" onClick={cancel}><ChevronLeft aria-hidden="true" />{t("back")}</Button>
-    <PageHeader title={title} description={description ?? t("description")}>
+    <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold">{title}</h1>
+        <p className="text-sm text-muted-foreground">{description ?? t("description")}</p>
+      </div>
       <PageStorageBadge storage={storage} />
-    </PageHeader>
+    </header>
 
     <div className="space-y-6">
       {packFields}
