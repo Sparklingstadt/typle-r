@@ -47,3 +47,6 @@ next-env.d.ts
 
 # onnxruntime-web runtime, copied by scripts/copy-handwriting-runtime.cjs
 /public/handwriting/ort/
+
+# Third-party license list, written by scripts/generate-licenses.cjs
+/public/licenses/
