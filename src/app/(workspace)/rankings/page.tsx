@@ -1,5 +1,5 @@
 "use client"
-import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react"
+import { Suspense, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
@@ -25,19 +25,8 @@ import type { WordPack } from "@/core/wordPacks"
 import { cn } from "@/lib/utils"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import { PageHeader, PageMain } from "@/components/ui/page-layout"
+import { useWide } from "@/lib/useWide"
 
-// Matches Tailwind's `xl`, where the list and the detail sit side by side.
-const WIDE = '(min-width: 80rem)'
-
-function subscribeWide(onChange: () => void) {
-  const query = window.matchMedia(WIDE)
-  query.addEventListener('change', onChange)
-  return () => query.removeEventListener('change', onChange)
-}
-
-function useWide() {
-  return useSyncExternalStore(subscribeWide, () => window.matchMedia(WIDE).matches, () => false)
-}
 
 export default function Rankings() {
   const t = useTranslations('rankings')
