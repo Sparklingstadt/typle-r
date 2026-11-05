@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { CircleAlert, Library as LibraryIcon, RotateCw } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Alert, AlertDescription, ErrorAlert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { useSaveNotification } from "@/components/SaveNotification"
 import WordListEditor from "@/components/WordListEditor"
@@ -95,13 +95,7 @@ function WordLists({ workspace }: { workspace: Workspace }) {
 
   return <>
     <Header storage={storage} />
-    {error && <Alert variant="destructive" className="mb-6 border-destructive/40 bg-destructive/5">
-      <CircleAlert aria-hidden="true" />
-      <AlertDescription className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <span className="min-w-0 flex-1 basis-64">{error}</span>
-        <Button variant="outline" size="lg" onClick={() => window.location.reload()}><RotateCw aria-hidden="true" />{t('reload')}</Button>
-      </AlertDescription>
-    </Alert>}
+    {error && <ErrorAlert className="mb-6" action={<Button variant="outline" size="lg" onClick={() => window.location.reload()}><RotateCw aria-hidden="true" />{t('reload')}</Button>}>{error}</ErrorAlert>}
     {openId && !editing && <Alert className="mb-6">
       <CircleAlert aria-hidden="true" />
       <AlertDescription>{t('notFound')}</AlertDescription>
