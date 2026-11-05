@@ -2,8 +2,8 @@
 import { Suspense, useEffect, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { CircleAlert, Search } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Search } from "lucide-react"
+import { ErrorAlert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { NativeSelect } from "@/components/ui/native-select"
@@ -126,12 +126,7 @@ function Gallery() {
       </label>
     </div>
 
-    {message ? <Alert variant="destructive"><CircleAlert aria-hidden="true" />
-      <AlertDescription className="flex flex-wrap items-center gap-3">
-        {message}
-        <Button variant="outline" size="sm" onClick={() => results ? void loadMore() : setAttempt(n => n + 1)}>{t('retry')}</Button>
-      </AlertDescription>
-    </Alert> : null}
+    {message ? <ErrorAlert action={<Button variant="outline" size="sm" onClick={() => results ? void loadMore() : setAttempt(n => n + 1)}>{t('retry')}</Button>}>{message}</ErrorAlert> : null}
     {results ? <GalleryList packs={results.packs} more={results.more} loadingMore={loadingMore} filtered={Boolean(query.text.trim() || query.category)} onMore={() => void loadMore()} />
       : failure ? null : <Loading />}
   </div>
