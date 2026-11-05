@@ -2,18 +2,25 @@ const assert = require('node:assert/strict')
 const { execFileSync } = require('node:child_process')
 const { appendFileSync, readFileSync } = require('node:fs')
 
+function validateMergeSettings(repo) {
+  assert.equal(repo.allow_squash_merge, true, 'Enable squash merging')
+  assert.equal(repo.allow_rebase_merge, false, 'Disable rebase merging in repository settings')
+}
+
 function validatePolicy({ event, sha, parentLine, commits, repo, prs, repository }) {
   assert.equal(event.ref, 'refs/heads/main', 'Only main may publish')
   assert.equal(event.after, sha, 'Push SHA mismatch')
   assert.equal(event.forced, false, 'Force pushes cannot publish')
-  assert.deepEqual(parentLine.trim().split(/\s+/), [sha, event.before], 'Require exactly one parent: the previous main commit')
-  assert.equal(commits, '1', 'Require one squash commit per main push')
-  assert.equal(repo.allow_squash_merge, true, 'Enable squash merging')
-  assert.equal(repo.allow_merge_commit, false, 'Disable merge commits in repository settings')
-  assert.equal(repo.allow_rebase_merge, false, 'Disable rebase merging in repository settings')
+  const [commit, previous, mergedHead, ...others] = parentLine.trim().split(/\s+/)
+  assert.equal(commit, sha, 'Parent list is for another commit')
+  assert.equal(previous, event.before, 'Require the previous main commit as the first parent')
+  assert.equal(others.length, 0, 'Require at most two parents')
+  if (!mergedHead) assert.equal(commits, '1', 'Require one squash commit per main push')
+  validateMergeSettings(repo)
   const matches = prs.filter(pr => pr.merged_at && pr.merge_commit_sha === sha &&
     pr.base.ref === 'main' && pr.base.repo.full_name === repository)
-  assert.equal(matches.length, 1, 'Require exactly one merged PR for this squash commit')
+  assert.equal(matches.length, 1, 'Require exactly one merged PR for this commit')
+  if (mergedHead) assert.equal(mergedHead, matches[0].head.sha, 'A merge commit must bring in the head of its PR')
 }
 
 function releaseTag(version) {
@@ -43,15 +50,12 @@ function run(mode) {
         // exposes these repository configuration fields to read-only callers.
         const [owner, name] = repository.split('/')
         const result = JSON.parse(gh('api', 'graphql', '-f', `owner=${owner}`, '-f', `name=${name}`,
-          '-f', 'query=query($owner:String!,$name:String!){repository(owner:$owner,name:$name){allow_squash_merge:squashMergeAllowed allow_merge_commit:mergeCommitAllowed allow_rebase_merge:rebaseMergeAllowed}}'))
+          '-f', 'query=query($owner:String!,$name:String!){repository(owner:$owner,name:$name){allow_squash_merge:squashMergeAllowed allow_rebase_merge:rebaseMergeAllowed}}'))
         assert.ok(!result.errors, 'Could not read repository merge settings')
         return result.data.repository
   }
   if (mode === 'settings') {
-    const repo = readMergeSettings()
-    assert.equal(repo.allow_squash_merge, true)
-    assert.equal(repo.allow_merge_commit, false)
-    assert.equal(repo.allow_rebase_merge, false)
+    validateMergeSettings(readMergeSettings())
     console.log('Read-only merge settings check passed')
     return
   }
@@ -68,7 +72,7 @@ function run(mode) {
       repo: readMergeSettings(),
       prs: pages(`commits/${sha}/pulls?per_page=100`),
     })
-    console.log('Verified a merged PR, single-parent commit, and squash-only repository settings.')
+    console.log('Verified a merged PR, its squash or merge commit, and the repository merge settings.')
     return
   }
 
