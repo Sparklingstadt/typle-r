@@ -3,5 +3,6 @@
   "description": "Une application de dactylographie avec vos propres listes de mots. Ajoutez les mots de votre choix, entraînez-vous et revoyez vos meilleurs résultats.",
   "imageAlt": "Typle — Entraînez-vous à taper avec vos propres mots. Entraînement et résultats par listes de mots",
   "sharedTitle": "Pack partagé | Typle",
-  "galleryTitle": "Galerie | Typle"
+  "galleryTitle": "Galerie | Typle",
+  "playDescription": "Choisissez un pack officiel ou l’une de vos listes de mots et entraînez-vous à taper. La vitesse, la précision et les erreurs s’affichent en direct, et chaque session est enregistrée. Sans connexion."
 }

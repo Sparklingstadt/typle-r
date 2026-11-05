@@ -1,0 +1,48 @@
+{
+  "meta": {
+    "title": "Typle | Apprenez les mots que vous voulez en les tapant",
+    "description": "Une application de dactylographie gratuite pour apprendre des commandes et la syntaxe de programmation, ou des mots d’autres langues. Entraînez-vous avec {total} listes officielles ou vos propres listes, sans connexion."
+  },
+  "hero": {
+    "eyebrow": "Gratuit, sans connexion",
+    "title": "Apprenez les mots que vous voulez en les tapant.",
+    "lead": "Typle est une application de dactylographie pour s’entraîner avec vos propres listes de mots ou des packs officiels. Retenez des commandes et la syntaxe de programmation, ou des mots d’une autre langue, en les tapant.",
+    "play": "Commencer sans se connecter",
+    "catalog": "Voir les packs officiels",
+    "home": "Aller à l’accueil"
+  },
+  "packs": {
+    "title": "Packs officiels",
+    "lead": "Suivez l’une des {total} listes officielles et entraînez-vous tout de suite.",
+    "programming": {
+      "title": "Programmation",
+      "count": "{count, plural, one {# liste} other {# listes}}",
+      "text": "La syntaxe de Go, Java, Kotlin, TypeScript et d’autres, les commandes de Linux, Vim, AWS CLI et d’autres, et les codes d’erreur de PostgreSQL."
+    },
+    "languages": {
+      "title": "Langues",
+      "count": "{count, plural, one {# liste} other {# listes}}",
+      "text": "Mots et phrases en chinois (HSK niveaux 5 et 6), coréen, anglais, français, allemand, espagnol, russe et tchèque. Le chinois et le coréen peuvent aussi se pratiquer à l’écriture manuscrite."
+    }
+  },
+  "features": {
+    "title": "Ce que vous pouvez faire",
+    "own": {
+      "title": "S’entraîner avec vos propres listes",
+      "text": "Ajoutez les mots que vous voulez retenir et entraînez-vous. Le mot affiché et les caractères à taper peuvent différer, et vous pouvez importer des fichiers CSV ou TSV."
+    },
+    "recall": {
+      "title": "Taper de mémoire",
+      "text": "Un mode qui cache la réponse et affiche la note comme indice, pour vérifier si vous retenez vraiment chaque mot."
+    },
+    "records": {
+      "title": "Suivre vos progrès",
+      "text": "La vitesse, la précision et les erreurs sont enregistrées à chaque fois : vos records et leur évolution montrent vos progrès."
+    }
+  },
+  "storage": {
+    "title": "Où sont gardées vos données",
+    "text": "Toutes les fonctions marchent sans connexion. Vos données sont gardées dans ce navigateur, et une connexion avec GitHub les synchronise entre vos appareils.",
+    "more": "<guide>Mode d’emploi</guide> / <about>À propos de Typle</about>"
+  }
+}

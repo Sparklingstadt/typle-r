@@ -547,7 +547,7 @@ test('the words screen names the list once in its heading, and the line below on
 })
 
 test('the home screen names the next lists 「pack › list」', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/home')
   await expect(page.getByRole('link', { name: 'Shell › 応用 を練習する' })).toBeVisible()
   await expect(page.getByRole('region', { name: '次に練習するリスト', exact: true }).getByText('Shell › 応用')).toBeVisible()
 })

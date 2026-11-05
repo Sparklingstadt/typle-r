@@ -104,8 +104,26 @@ test('create, reorder, edit, play, reload and delete records', async ({ page }) 
 })
 
 
-test('supporting pages, root redirect and GitHub link', async ({ page }) => {
+test('each page has its own title, and pages of one\'s own data are kept out of search', async ({ page }) => {
+  await page.goto('/play')
+  await expect(page).toHaveTitle('練習する | Typle')
+  await expect(page.locator('meta[name="robots"]')).toHaveCount(0)
+  await page.goto('/packs/catalog')
+  await expect(page).toHaveTitle('公式パック | Typle')
+  for (const [path, title] of [['/home', 'ホーム | Typle'], ['/records', '練習記録 | Typle'], ['/rankings', 'ベスト記録 | Typle']]) {
+    await page.goto(path)
+    await expect(page).toHaveTitle(title)
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, follow')
+  }
+})
+
+test('supporting pages, landing page and GitHub link', async ({ page }) => {
   await page.goto('/')
+  await expect(page).toHaveURL(/\/$/)
+  await expect(page.getByRole('heading', { level: 1, name: '覚えたい言葉を、打って覚える。', exact: true })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'ログインせずに練習を始める' }).first()).toHaveAttribute('href', '/play')
+  await expect(page.getByRole('link', { name: '公式パックを見る' })).toHaveAttribute('href', '/packs/catalog')
+  await page.getByRole('link', { name: 'ホームへ', exact: true }).click()
   await expect(page).toHaveURL(/\/home$/)
   await expect(page.getByRole('link', { name: 'GitHub', exact: true })).toHaveAttribute('href', 'https://github.com/Sparklingstadt/typle-r')
   for (const [path, title] of [['/guide', '使い方'], ['/about', 'Typleについて'], ['/rankings', 'ベスト記録']]) {
