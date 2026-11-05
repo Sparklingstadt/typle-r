@@ -55,7 +55,7 @@
     "techList": "Next.js、React、PostgreSQL（Neon）",
     "source": "原始碼",
     "newTab": "（在新分頁中開啟）",
-    "private": "這是不公開的存放庫，只有獲准檢視的 GitHub 帳號才能開啟。",
+    "public": "這是公開的存放庫，任何人都可以檢視原始碼。",
     "licenses": "授權",
     "licensesLink": "開放原始碼授權"
   },
