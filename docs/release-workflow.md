@@ -1,6 +1,6 @@
 # PRから本番公開まで
 
-必須順序: **PR作成 → squash merge → マージ後のverify → GitHub Release → Vercel本番デプロイ**。
+必須順序: **PR作成 → マージ（squash merge か普通のマージ） → マージ後のverify → GitHub Release → Vercel本番デプロイ**。
 
 `.github/workflows/ci.yml` の `policy → verify → release → deploy` が順番を制御します。
 PR・devへのpush・手動実行は検証のみで、公開はmainへのpushイベントに限定します。
@@ -10,11 +10,12 @@ Releaseイベントで別のworkflowを起動する方式ではないため、GI
 
 ## 初回設定（このファイルの追加だけでは完了しません）
 
-1. GitHubの **Settings → General → Pull Requests** で、Allow squash mergingだけを有効にし、
-   Allow merge commitsとAllow rebase mergingを無効にします。policyでもこの状態を確認します。
+1. GitHubの **Settings → General → Pull Requests** で、Allow squash mergingを有効にし、
+   Allow rebase mergingを無効にします。policyでもこの状態を確認します。
+   普通のマージを使うときはAllow merge commitsも有効にします。policyはこの設定を問いません。
 2. **Settings → Rules → Rulesets** でmainを対象とした有効なルールを作ります。
    PR必須、required status checkに`verify`、ブランチを最新にすることを必須にし、
-   linear history必須、force push・削除禁止、bypass対象なしを設定します。
+   force push・削除禁止、bypass対象なしを設定します。
    初回PRでcheckが出てから`verify`を選択してください。
    private repoのプラン等によりルールを強制できない場合、YAMLだけでは直接pushを禁止できません。
    policyは直接push後の公開を拒否しますが、pushそのものを取り消す機能ではありません。
@@ -43,7 +44,7 @@ Releaseイベントで別のworkflowを起動する方式ではないため、GI
 ## 現在の導入状態
 
 2026-09-29時点で、非公開repoのプラン制限によりmainのRulesets・branch protection APIは403です。
-squash限定とproduction Environmentのmain限定は利用できます。
+マージの方法の設定とproduction Environmentのmain限定は利用できます。
 現プランではmainへの直接push自体は防げませんが、policyでRelease・deployを拒否します。
 GitHub Proへ変更した場合は、上記のmain保護ルールを追加してください。
 CI用Vercelトークンは90日期限で作成しています。期限前にSecretを更新してください。
@@ -55,8 +56,9 @@ CI用Vercelトークンは90日期限で作成しています。期限前にSecr
    `npm version 0.18.2 --no-git-tag-version`のように、未使用の安定版`X.Y.Z`を指定します。
    package.jsonとpackage-lock.jsonを両方コミットしてください。
 2. PRを作成し、verifyの結果と変更内容を確認します。
-3. squash mergeします。前のmainのRelease・デプロイが完了するまでは次のPRをマージしません。
-4. マージ後のpolicyがPRとの対応・1コミットのpush・1親コミット・squash専用設定を確認します。
+3. マージします。既定はsquash mergeで、コミットの履歴を残したいPRは普通のマージにします。普通のマージでは、マージコミットのタイトルをPRのタイトルと同じにします。
+   前のmainのRelease・デプロイが完了するまでは次のPRをマージしません。
+4. マージ後のpolicyがPRとの対応、第1親が直前のmainであること、マージの設定を確認します。squash mergeは1コミットのpushで親が1つ、普通のマージは親が2つで第2親がPRのheadであることも確認します。
 5. verifyが一時PostgreSQLでDB更新・型チェック・単体/DBテスト・Lint・ビルド・E2Eを実行します。
    E2E用のChromiumはPlaywrightのバージョンごとにActionsのキャッシュに保存し、OSの依存パッケージだけ毎回入れます。
 6. 成功したSHAに対して`v<package.jsonのversion>`のタグと公開済みの通常Releaseを作ります。
@@ -104,7 +106,7 @@ DBの自動ロールバックは行いません。
 - Release作成失敗: デプロイは実行されません。
 - deploy失敗: 先に作成したReleaseは残ります。Releaseの存在だけでは本番反映成功を意味しません。
 - docs-deploy失敗: アプリの本番には影響しません。Secretやトークンの権限を直し、「Docs deploy」を再実行します。手元から`wrangler`で公開しません（次の課金制限の例外だけは手元から公開します）。
-- GitHub の課金制限でジョブが起動しない（注釈が「The job was not started because recent account payments have failed or your spending limit needs to be increased」）: 例外として手動で公開します。verify と同じ検査を手元で行い、squash merge、Releaseの作成、Vercel本番デプロイと確認、API の文書の公開を同じ順序で行います。手順は `CLAUDE.md` の「Exception: GitHub Actions blocked by billing」を見てください。ほかの失敗では手動で公開しません。
+- GitHub の課金制限でジョブが起動しない（注釈が「The job was not started because recent account payments have failed or your spending limit needs to be increased」）: 例外として手動で公開します。verify と同じ検査を手元で行い、マージ、Releaseの作成、Vercel本番デプロイと確認、API の文書の公開を同じ順序で行います。手順は `CLAUDE.md` の「Exception: GitHub Actions blocked by billing」を見てください。ほかの失敗では手動で公開しません。
 - 認証・通信などの一時的な問題: 原因を直して同じActions実行の失敗ジョブを再実行します。
   既存Releaseは非draft・非prerelease・同じタグ・同じSHAの場合だけ再利用します。
   タグを移動したり、同じバージョンを別コミットに使ったりしません。
