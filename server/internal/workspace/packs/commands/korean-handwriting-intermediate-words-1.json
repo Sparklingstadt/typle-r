@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-intermediate-words-1",
+  "name": "韓国語 手書き中級（体・健康）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き中級単語",
+  "levels": [
+    "体・健康"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "뼈",
+      "input": "ppyeo",
+      "annotation": "ppyeo / 骨",
+      "input_type": "word"
+    },
+    {
+      "display": "무릎",
+      "input": "mureup",
+      "annotation": "mureup / 膝",
+      "input_type": "word"
+    },
+    {
+      "display": "어깨",
+      "input": "eokkae",
+      "annotation": "eokkae / 肩",
+      "input_type": "word"
+    },
+    {
+      "display": "허리",
+      "input": "heori",
+      "annotation": "heori / 腰",
+      "input_type": "word"
+    },
+    {
+      "display": "발목",
+      "input": "balmok",
+      "annotation": "balmok / 足首",
+      "input_type": "word"
+    },
+    {
+      "display": "피부",
+      "input": "pibu",
+      "annotation": "pibu / 肌",
+      "input_type": "word"
+    },
+    {
+      "display": "심장",
+      "input": "simjang",
+      "annotation": "simjang / 心臓",
+      "input_type": "word"
+    },
+    {
+      "display": "감기",
+      "input": "gamgi",
+      "annotation": "gamgi / 風邪",
+      "input_type": "word"
+    },
+    {
+      "display": "두통",
+      "input": "dutong",
+      "annotation": "dutong / 頭痛",
+      "input_type": "word"
+    },
+    {
+      "display": "기침",
+      "input": "gichim",
+      "annotation": "gichim / 咳",
+      "input_type": "word"
+    },
+    {
+      "display": "상처",
+      "input": "sangcheo",
+      "annotation": "sangcheo / 傷",
+      "input_type": "word"
+    },
+    {
+      "display": "수술",
+      "input": "susul",
+      "annotation": "susul / 手術",
+      "input_type": "word"
+    },
+    {
+      "display": "주사",
+      "input": "jusa",
+      "annotation": "jusa / 注射",
+      "input_type": "word"
+    },
+    {
+      "display": "건강",
+      "input": "geongang",
+      "annotation": "geongang / 健康",
+      "input_type": "word"
+    },
+    {
+      "display": "손가락",
+      "input": "songarak",
+      "annotation": "songarak / 指",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

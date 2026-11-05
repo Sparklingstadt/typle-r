@@ -1,0 +1,109 @@
+{
+  "id": "korean-handwriting-advanced-words-4",
+  "name": "韓国語 手書き上級（文化・歴史）",
+  "category": "語学",
+  "tags": [
+    "韓国語"
+  ],
+  "group": "韓国語：手書き上級単語",
+  "levels": [
+    "文化・歴史"
+  ],
+  "writing": {
+    "language": "ko"
+  },
+  "words": [
+    {
+      "display": "역사",
+      "input": "yeoksa",
+      "annotation": "yeoksa / 歴史",
+      "input_type": "word"
+    },
+    {
+      "display": "전통",
+      "input": "jeontong",
+      "annotation": "jeontong / 伝統",
+      "input_type": "word"
+    },
+    {
+      "display": "문화",
+      "input": "munhwa",
+      "annotation": "munhwa / 文化",
+      "input_type": "word"
+    },
+    {
+      "display": "예술",
+      "input": "yesul",
+      "annotation": "yesul / 芸術",
+      "input_type": "word"
+    },
+    {
+      "display": "문학",
+      "input": "munhak",
+      "annotation": "munhak / 文学",
+      "input_type": "word"
+    },
+    {
+      "display": "철학",
+      "input": "cheolhak",
+      "annotation": "cheolhak / 哲学",
+      "input_type": "word"
+    },
+    {
+      "display": "종교",
+      "input": "jonggyo",
+      "annotation": "jonggyo / 宗教",
+      "input_type": "word"
+    },
+    {
+      "display": "왕조",
+      "input": "wangjo",
+      "annotation": "wangjo / 王朝",
+      "input_type": "word"
+    },
+    {
+      "display": "유적",
+      "input": "yujeok",
+      "annotation": "yujeok / 遺跡",
+      "input_type": "word"
+    },
+    {
+      "display": "전쟁",
+      "input": "jeonjaeng",
+      "annotation": "jeonjaeng / 戦争",
+      "input_type": "word"
+    },
+    {
+      "display": "혁명",
+      "input": "hyeongmyeong",
+      "annotation": "hyeongmyeong / 革命",
+      "input_type": "word"
+    },
+    {
+      "display": "독립",
+      "input": "dongnip",
+      "annotation": "dongnip / 独立",
+      "input_type": "word"
+    },
+    {
+      "display": "신화",
+      "input": "sinhwa",
+      "annotation": "sinhwa / 神話",
+      "input_type": "word"
+    },
+    {
+      "display": "문명",
+      "input": "munmyeong",
+      "annotation": "munmyeong / 文明",
+      "input_type": "word"
+    },
+    {
+      "display": "박물관",
+      "input": "bangmulgwan",
+      "annotation": "bangmulgwan / 博物館",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-05T00:00:00.000Z"
+}

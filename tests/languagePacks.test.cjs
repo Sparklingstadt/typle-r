@@ -108,7 +108,7 @@ test('the twenty HSK 6 handwriting packs each hold six lists of 15 words, marked
     }
   }
   // No other official list is marked for handwriting.
-  assert.equal(officialLibrary.lists.filter(list => list.writing).length, 126)
+  assert.equal(officialLibrary.lists.filter(list => list.writing).length, 138)
 })
 
 test('the Korean beginner handwriting pack holds six themed lists of 15 words, marked for handwriting in Korean', () => {
@@ -134,4 +134,34 @@ test('the Korean beginner handwriting pack holds six themed lists of 15 words, m
   assert.equal(new Set(words).size, 90)
   const basics = new Set(officialLibrary.lists.find(list => list.id === 'korean-basics').words.map(word => word.display))
   assert.ok(words.every(word => !basics.has(word)))
+})
+
+test('the Korean intermediate and advanced handwriting packs hold six themed lists of 15 words, and share no word with the other Korean lists', () => {
+  const { officialLibrary } = require('../src/plugins/packs/index.ts')
+  const packs = [
+    ['intermediate', '中級', ['体・健康', '交通・旅行', '自然・天気', '仕事・学校', '動詞', '形容詞']],
+    ['advanced', '上級', ['社会・政治', '経済・産業', '科学・環境', '文化・歴史', '動詞', '形容詞']],
+  ]
+  const words = []
+  for (const [key, level, themes] of packs) {
+    const found = officialLibrary.packs.find(item => item.name === `韓国語：手書き${level}単語`)
+    assert.ok(found)
+    assert.equal(found.category, '語学')
+    assert.deepEqual(found.tags, ['韓国語'])
+    const lists = officialLibrary.lists.filter(list => list.packId === found.id)
+    assert.deepEqual(lists.map(list => list.id), [1, 2, 3, 4, 5, 6].map(n => `korean-handwriting-${key}-words-${n}`))
+    assert.deepEqual(lists.map(list => list.name), themes.map(theme => `韓国語 手書き${level}（${theme}）`))
+    assert.deepEqual(lists.map(list => list.levels), themes.map(theme => [theme]))
+    for (const list of lists) {
+      assert.deepEqual(list.writing, { language: 'ko' }, list.id)
+      assert.equal(list.words.length, 15, list.id)
+      assert.ok(list.words.every(word => word.input_type === 'word' && /^\p{Script=Hangul}+$/u.test(word.display) &&
+        /^[a-z]+$/.test(word.input) && word.annotation.startsWith(`${word.input} / `)), list.id)
+      words.push(...list.words.map(word => word.display))
+    }
+  }
+  assert.equal(new Set(words).size, 180)
+  const others = new Set(officialLibrary.lists.filter(list => list.id === 'korean-basics' || list.id.startsWith('korean-handwriting-beginner-'))
+    .flatMap(list => list.words.map(word => word.display)))
+  assert.ok(words.every(word => !others.has(word)))
 })

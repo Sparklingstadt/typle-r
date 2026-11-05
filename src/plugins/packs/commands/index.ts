@@ -215,6 +215,18 @@ import list211 from './korean-handwriting-beginner-words-3.json'
 import list212 from './korean-handwriting-beginner-words-4.json'
 import list213 from './korean-handwriting-beginner-words-5.json'
 import list214 from './korean-handwriting-beginner-words-6.json'
+import list215 from './korean-handwriting-intermediate-words-1.json'
+import list216 from './korean-handwriting-intermediate-words-2.json'
+import list217 from './korean-handwriting-intermediate-words-3.json'
+import list218 from './korean-handwriting-intermediate-words-4.json'
+import list219 from './korean-handwriting-intermediate-words-5.json'
+import list220 from './korean-handwriting-intermediate-words-6.json'
+import list221 from './korean-handwriting-advanced-words-1.json'
+import list222 from './korean-handwriting-advanced-words-2.json'
+import list223 from './korean-handwriting-advanced-words-3.json'
+import list224 from './korean-handwriting-advanced-words-4.json'
+import list225 from './korean-handwriting-advanced-words-5.json'
+import list226 from './korean-handwriting-advanced-words-6.json'
 
 const commands: SavedWordList[] = [
   list0,
@@ -432,6 +444,18 @@ const commands: SavedWordList[] = [
   list212,
   list213,
   list214,
+  list215,
+  list216,
+  list217,
+  list218,
+  list219,
+  list220,
+  list221,
+  list222,
+  list223,
+  list224,
+  list225,
+  list226,
 ].map(list => ({
   ...list,
   words: list.words.map(word => {
