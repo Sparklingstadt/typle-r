@@ -44,6 +44,6 @@ npm run docs:build  # api-docs/src/.vuepress/dist に書き出す
 npm run docs:check  # ビルドしたページのリンクと見出しへのアンカーを検査する
 ```
 
-公開先は Cloudflare Pages（プロジェクト `typle-api-docs`）です。v2.24.16 から自動では公開しません。アプリの本番デプロイの後、GitHub Actions の「Docs deploy」（`.github/workflows/docs-deploy.yml`）を main で手で実行して公開します（[リリースの手順](https://github.com/Sparklingstadt/typle-r/blob/main/docs/release-workflow.md)）。手元から公開はしません。
+公開先は Cloudflare Pages（プロジェクト `typle-api-docs`）です。v2.25.2 から自動では公開しません。アプリの本番デプロイの後、GitHub Actions の「Docs deploy」（`.github/workflows/docs-deploy.yml`）を main で手で実行して公開します（[リリースの手順](https://github.com/Sparklingstadt/typle-r/blob/main/docs/release-workflow.md)）。手元から公開はしません。
 
 API を変えたら、同じ PR でこのサイトの該当ページも直してください。
