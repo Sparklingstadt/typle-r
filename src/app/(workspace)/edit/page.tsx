@@ -20,13 +20,14 @@ import { isFollowed, ownPacks } from "@/core/followedPacks"
 import { loneListPack, saveListInPack } from "@/core/packEditing"
 import PageStorageBadge from "@/components/PageStorageBadge"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
+import { PageMain } from "@/components/ui/page-layout"
 
 export default function Edit() {
   const workspace = useWordLists()
-  return <main className="mx-auto w-full max-w-5xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
+  return <PageMain width="medium">
     {!workspace.ready ? <ListsLoading />
       : <Suspense fallback={<ListsLoading />}><WordLists key={workspace.accountId} workspace={workspace} /></Suspense>}
-  </main>
+  </PageMain>
 }
 
 function Header({ storage }: { storage?: WorkspaceLocation }) {

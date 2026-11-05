@@ -19,12 +19,13 @@ import { useSaveNotification } from '@/components/SaveNotification'
 import CurrentDevice from '@/components/Devices/CurrentDevice'
 import DeviceDialog, { type DeviceDialogState } from '@/components/Devices/DeviceDialog'
 import PageStorageBadge from '@/components/PageStorageBadge'
+import { PageMain } from '@/components/ui/page-layout'
 
 export default function Devices() {
   const workspace = useWordLists()
   const t = useTranslations('devices')
   const common = useTranslations('common')
-  return <main className="mx-auto w-full max-w-4xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
+  return <PageMain width="narrow">
     <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div className="space-y-1">
         <h1 className="text-2xl font-bold">{t('title')}</h1>
@@ -37,7 +38,7 @@ export default function Devices() {
     {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
     {!workspace.ready ? <div role="status" className="space-y-3"><p>{common('loading')}</p><Skeleton className="h-20 w-full" /><Skeleton className="h-40 w-full" /></div>
       : <DeviceManager key={workspace.accountId} {...workspace} accountId={workspace.accountId ?? ''} />}
-  </main>
+  </PageMain>
 }
 
 function DeviceManager({ accountId, devices, lists, saving, error, updateDevices }: {

@@ -24,6 +24,7 @@ import type { SavedWordList } from "@/core/wordLists"
 import type { WordPack } from "@/core/wordPacks"
 import { cn } from "@/lib/utils"
 import PageStorageBadge from "@/components/PageStorageBadge"
+import { PageMain } from "@/components/ui/page-layout"
 
 const PAGE_SIZE = 50
 
@@ -41,7 +42,7 @@ function RecordsPage() {
   const t = useTranslations('records')
   const workspace = useWordLists()
   const link = "underline underline-offset-3 hover:text-foreground"
-  return <main className="mx-auto w-full max-w-5xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
+  return <PageMain width="medium">
     <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div className="space-y-1">
         <h1 className="text-2xl font-bold">{t('title')}</h1>
@@ -56,7 +57,7 @@ function RecordsPage() {
     </header>
     {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
     {!workspace.ready ? <Loading /> : <RecordHistory key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} saving={workspace.saving} deleteRecord={workspace.deleteRecord} />}
-  </main>
+  </PageMain>
 }
 
 function useFilter(): [RecordFilter, (next: RecordFilter) => void] {

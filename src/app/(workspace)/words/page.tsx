@@ -23,12 +23,13 @@ import type { WordPack } from "@/core/wordPacks"
 import { listLabels, matchesFilter } from "@/core/listOverview"
 import PracticeName, { usePracticeName } from "@/components/PracticeName"
 import type { SavedWordList } from "@/core/wordLists"
+import { PageMain } from "@/components/ui/page-layout"
 
 export default function Words() {
   const t = useTranslations('wordLists.words')
   const page = useTranslations('wordLists.page')
   const workspace = useWordLists()
-  return <main className="mx-auto w-full max-w-6xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
+  return <PageMain width="wide">
     <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div className="space-y-1">
         <h1 className="text-2xl font-bold">{t('title')}</h1>
@@ -47,7 +48,7 @@ export default function Words() {
       : workspace.lists.length ? <Suspense fallback={<LoadingState />}><WordsView key={workspace.accountId} lists={workspace.lists} packs={workspace.packs} /></Suspense>
         // After a failed load the lists are unknown; "no lists yet" would be wrong.
         : !workspace.error && <NoWords />}
-  </main>
+  </PageMain>
 }
 
 // `?list=<id>` keeps the chosen list in the URL, so it can be reloaded or opened from elsewhere. Without it the first

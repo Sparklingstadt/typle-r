@@ -16,6 +16,7 @@ import { randomId } from "@/core/randomId"
 import { followedPackCount, MAX_FOLLOWED_PACKS } from "@/core/listOverview"
 import { matchesInterests } from "@/core/interests"
 import { followOfficialPack, catalogEntries, type CatalogEntry } from "@/plugins/packs/catalog"
+import { PageMain } from "@/components/ui/page-layout"
 
 export default function Catalog() {
   const { ready, packs, lists, interests, error, updateLibrary, saving, storage } = useWordLists()
@@ -92,7 +93,7 @@ export default function Catalog() {
     </ul>
   )
 
-  return <main className="mx-auto w-full max-w-5xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
+  return <PageMain width="medium">
     {!ready ? <div role="status">
       <span className="sr-only">{common("loading")}</span>
       <div className="mb-6 space-y-2"><Skeleton className="h-8 w-40" /><Skeleton className="h-4 w-96 max-w-full" /></div>
@@ -128,5 +129,5 @@ export default function Catalog() {
       <p className="mt-8 text-sm"><Link href="/gallery" className="underline underline-offset-3 hover:text-foreground">{t("toGallery")}</Link></p>
       <UnfollowDialog pack={unfollowing} onOpenChange={open => { if (!open) setUnfollowing(null) }} updateLibrary={updateLibrary} onUnfollowed={() => setUnfollowing(null)} />
     </>}
-  </main>
+  </PageMain>
 }
