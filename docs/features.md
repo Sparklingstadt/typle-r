@@ -193,3 +193,14 @@ Open GraphとXの大きな画像カードに対応しています。共通画像
 Google Search Console は「URL プレフィックス」のプロパティ（`https://typle-r-six.vercel.app`）で登録し、所有権は HTML タグで確認します（v2.29.1 から）。タグの値は `src/app/layout.tsx` の `GOOGLE_SITE_VERIFICATION` にあり、全ページの `<head>` に `google-site-verification` として出ます。秘密の値ではありません。消すと所有権の確認が外れるので、残してください。
 
 ページを足したり名前を変えたりしたときは `INDEXED_PATHS` も直してください。載せたページの `page.tsx` があることは単体テスト（`tests/searchIndex.test.cjs`）で確かめます。
+
+## アクセス解析（Vercel Web Analytics）
+
+ページの表示数を Vercel Web Analytics で数えます（v2.30.0 から）。`src/app/layout.tsx` で全ページに `src/components/WebAnalytics.tsx`（`@vercel/analytics/next` の `Analytics`）を置いています。Cookie は使いません。スクリプトは Vercel にデプロイしたときだけ動き、ローカルの開発では送りません。
+
+- 送る前に `src/core/analytics.ts` の `analyticsUrl` で、URL をオリジンとパスだけにします（`?` 以降と `#` 以降を除く）。ベスト記録の `?list=` などに入るリストのIDや絞り込みを送らないためです。
+- 管理画面（`/admin`）と開発用ログイン（`/local-login`）の表示は送りません。
+- 「Typleについて」の「不具合の報告」の節に、送る内容（ページのアドレス・参照元・ブラウザー・OS・国）を書いています。送る内容を変えたら、6言語の `about.json` の `reports.analytics` も直してください。
+
+Hobby プランでは月50,000イベントまで無料で、超えると翌月まで収集が止まります（課金はされません）。集計の期間は1か月分です。有効にするには、Vercel のプロジェクトの「Analytics」タブで Web Analytics を有効にしてからデプロイします。
+

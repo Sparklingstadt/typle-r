@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import Navbar from "@/components/Navbar/Navbar";
+import WebAnalytics from "@/components/WebAnalytics";
 import AuthProvider from "@/components/AuthProvider";
 import { WorkspaceProvider } from "@/lib/useWordLists";
 import { THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme/bootstrap";
@@ -78,6 +79,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       </WorkspaceProvider>
       </AuthProvider>
       </NextIntlClientProvider>
+      <WebAnalytics />
       </body>
     </html>
   );

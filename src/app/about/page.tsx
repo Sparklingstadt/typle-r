@@ -63,6 +63,7 @@ export default async function About() {
 
       <Section id="reports-heading" title={t("reports.title")}>
         <p className="max-w-2xl text-sm text-muted-foreground">{t("reports.text")}</p>
+        <p className="max-w-2xl text-sm text-muted-foreground">{t("reports.analytics")}</p>
       </Section>
 
       <Section id="version-heading" title={t("version.title")}>
