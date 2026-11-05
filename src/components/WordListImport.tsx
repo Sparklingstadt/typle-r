@@ -2,7 +2,7 @@
 import { useId, useRef, useState, type DragEvent } from "react"
 import { useTranslations } from "next-intl"
 import { FileSpreadsheet, Upload, X } from "lucide-react"
-import { Alert, AlertDescription } from "./ui/alert"
+import { ErrorAlert } from "./ui/alert"
 import { Button } from "./ui/button"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog"
 import { useErrorText } from "@/i18n/useErrorText"
@@ -132,7 +132,7 @@ export default function WordListImport({ onImport, disabled, existingCount }: {
         </div>
       </>}
       <p role="status" className="sr-only">{busy ? common("loading") : parsed ? t("loadedStatus", { count }) : ""}</p>
-      {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
+      {error && <ErrorAlert>{error}</ErrorAlert>}
       <DialogFooter>
         <DialogClose asChild><Button variant="ghost">{common("form.cancel")}</Button></DialogClose>
         {parsed && <Button onClick={confirm}>{existingCount && mode === "replace" ? t("replaceWith", { count }) : t("add", { count })}</Button>}

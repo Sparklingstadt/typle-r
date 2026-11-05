@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { LogIn, LogOut, RefreshCw } from 'lucide-react'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { ErrorAlert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -106,13 +106,11 @@ export default function AdminDashboard() {
         <Button variant="outline" size="sm" onClick={() => void signOut()}><LogOut aria-hidden="true" />{t('signOut')}</Button>
       </div>}
     </header>
-    {signOutFailed && <Alert variant="destructive"><AlertDescription>{t('signOutFailed')}</AlertDescription></Alert>}
+    {signOutFailed && <ErrorAlert>{t('signOutFailed')}</ErrorAlert>}
 
     {state.kind === 'loading' && <p role="status">{t('checking')}</p>}
 
-    {state.kind === 'failed' && <Alert variant="destructive"><AlertDescription className="flex flex-wrap items-center gap-3">
-      {state.error}<Button variant="outline" size="sm" onClick={() => void load()}>{t('retry')}</Button>
-    </AlertDescription></Alert>}
+    {state.kind === 'failed' && <ErrorAlert action={<Button variant="outline" size="sm" onClick={() => void load()}>{t('retry')}</Button>}>{state.error}</ErrorAlert>}
 
     {state.kind === 'signedOut' && <Card className="max-w-lg">
       <CardHeader>
@@ -120,7 +118,7 @@ export default function AdminDashboard() {
         <CardDescription>{t('signIn.description')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {(state.error || refused) && <Alert variant="destructive"><AlertDescription>{state.error ?? (refused && errors(refused))}</AlertDescription></Alert>}
+        {(state.error || refused) && <ErrorAlert>{state.error ?? (refused && errors(refused))}</ErrorAlert>}
         <Button asChild><a href="/api/auth/signin?admin=1"><LogIn aria-hidden="true" />{t('signIn.button')}</a></Button>
       </CardContent>
     </Card>}

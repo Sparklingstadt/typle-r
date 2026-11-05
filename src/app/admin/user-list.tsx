@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Avatar } from 'radix-ui'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { ErrorAlert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -63,9 +63,7 @@ export default function UserList({ time, errorText }: { time: (value: string) =>
     </CardHeader>
     <CardContent className="space-y-4">
       {state.kind === 'loading' && <p role="status">{t('loading')}</p>}
-      {state.kind === 'failed' && <Alert variant="destructive"><AlertDescription className="flex flex-wrap items-center gap-3">
-        {state.error}<Button variant="outline" size="sm" onClick={() => go(page)}>{t('retry')}</Button>
-      </AlertDescription></Alert>}
+      {state.kind === 'failed' && <ErrorAlert action={<Button variant="outline" size="sm" onClick={() => go(page)}>{t('retry')}</Button>}>{state.error}</ErrorAlert>}
       {answer && (answer.total === 0 ? <p>{t('empty')}</p> : <>
         <Table>
           <TableHeader><TableRow>

@@ -1,6 +1,7 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
+import { CircleAlert } from "lucide-react"
 
 const alertVariants = cva(
   "group/alert relative grid w-full gap-0.5 rounded-lg border px-2.5 py-2 text-left text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4",
@@ -72,4 +73,16 @@ function AlertAction({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-export { Alert, AlertTitle, AlertDescription, AlertAction }
+// A failure to show on a page or in a dialog. `action` is a button that sits after the message, or under it on a narrow screen.
+function ErrorAlert({ className, children, action, ...props }: React.ComponentProps<"div"> & { action?: React.ReactNode }) {
+  return (
+    <Alert variant="destructive" className={cn("border-destructive/40 bg-destructive/5", className)} {...props}>
+      <CircleAlert aria-hidden="true" />
+      {action
+        ? <AlertDescription className="flex flex-wrap items-center gap-x-3 gap-y-2"><span className="min-w-0 flex-1 basis-64">{children}</span>{action}</AlertDescription>
+        : <AlertDescription>{children}</AlertDescription>}
+    </Alert>
+  )
+}
+
+export { Alert, AlertTitle, AlertDescription, AlertAction, ErrorAlert }

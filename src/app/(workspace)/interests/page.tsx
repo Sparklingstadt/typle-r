@@ -1,7 +1,7 @@
 "use client"
 import { useTranslations } from 'next-intl'
 import { useWordLists } from '@/lib/useWordLists'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { ErrorAlert } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import InterestSettings from '@/components/Settings/InterestSettings'
 import InterestPacks from '@/components/Settings/InterestPacks'
@@ -16,7 +16,7 @@ export default function Interests() {
     <PageHeader title={t('title')} description={t('description')}>
       {workspace.ready && <PageStorageBadge storage={workspace.storage} />}
     </PageHeader>
-    {workspace.error && <Alert variant="destructive" className="mb-6"><AlertDescription>{workspace.error}</AlertDescription></Alert>}
+    {workspace.error && <ErrorAlert className="mb-6">{workspace.error}</ErrorAlert>}
     {!workspace.ready ? <div role="status" className="space-y-3"><p className="sr-only">{common('loading')}</p><Skeleton className="h-10 w-72 max-w-full" /><Skeleton className="h-24 w-full" /></div>
       : <div className="space-y-8">
         <InterestSettings key={workspace.accountId} interests={workspace.interests} saving={workspace.saving} updateInterests={workspace.updateInterests} />

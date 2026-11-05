@@ -2,9 +2,9 @@
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
-import { ArrowRight, Brain, CircleAlert, CircleCheck, Keyboard, PenLine, RotateCcw, TrendingDown, Trophy } from 'lucide-react'
+import { ArrowRight, Brain, CircleCheck, Keyboard, PenLine, RotateCcw, TrendingDown, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { ErrorAlert } from '@/components/ui/alert'
 import Kbd from '@/components/Practice/Kbd'
 import type { PracticeDevice } from '@/core/devices'
 import { bestRecords, recordsOfMode, type PracticeMode, type PracticeRecord } from '@/core/records'
@@ -85,13 +85,7 @@ export default function PracticeResult({ listName, wordCount, result, correct, s
       </div>)}
     </dl>
     {saveState === 'failed'
-      ? <Alert variant="destructive" className="border-destructive/40 bg-destructive/5">
-        <CircleAlert aria-hidden="true" />
-        <AlertDescription className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <span className="min-w-0 flex-1 basis-56">{t('saveFailed')}</span>
-          <Button variant="outline" size="lg" onClick={onRetry}>{t('retry')}</Button>
-        </AlertDescription>
-      </Alert>
+      ? <ErrorAlert action={<Button variant="outline" size="lg" onClick={onRetry}>{t('retry')}</Button>}>{t('saveFailed')}</ErrorAlert>
       : <p role="status" className={cn('flex items-center gap-2 text-[13px]', saveState === 'saved' ? 'text-green-700 dark:text-green-400' : 'text-muted-foreground')}>
         {saveState === 'saved' && <CircleCheck className="size-3.5" aria-hidden="true" />}
         {saveState === 'saved' ? t('saved', { rank }) : t('saving')}

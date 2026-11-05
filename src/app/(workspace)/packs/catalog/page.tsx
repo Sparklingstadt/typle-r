@@ -2,8 +2,8 @@
 import { useMemo, useState } from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
-import { ArrowLeft, Check, CircleAlert, Plus, SquareArrowOutUpRight, UserMinus } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ArrowLeft, Check, Plus, SquareArrowOutUpRight, UserMinus } from "lucide-react"
+import { ErrorAlert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { EmptyNote } from "@/components/ui/empty-state"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -106,10 +106,7 @@ export default function Catalog() {
         <PageStorageBadge storage={storage} />
       </PageHeader>
       <Button asChild variant="ghost" className="mb-3 -ml-2 text-muted-foreground"><Link href="/edit"><ArrowLeft aria-hidden="true" />{t("back")}</Link></Button>
-      {error && <Alert variant="destructive" className="mb-4 border-destructive/40 bg-destructive/5">
-        <CircleAlert aria-hidden="true" />
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>}
+      {error && <ErrorAlert className="mb-4">{error}</ErrorAlert>}
       {!split ? renderEntries(entries, "h2") : <div className="space-y-8">
         <section aria-labelledby="catalog-matching" className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">

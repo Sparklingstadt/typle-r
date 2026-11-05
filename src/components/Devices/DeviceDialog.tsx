@@ -2,7 +2,7 @@
 import { useId, useRef, useState } from 'react'
 import { CircleAlert, Info } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { ErrorAlert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -114,7 +114,7 @@ function DeviceForm({ device, devices, records, offerUse, saving, error, onCance
         <p id={`${id}-use-help`} className="text-xs text-muted-foreground">{t('useHelp')}</p>
       </div>
     </div>}
-    {formError && <Alert variant="destructive"><CircleAlert aria-hidden="true" /><AlertDescription>{formError}</AlertDescription></Alert>}
+    {formError && <ErrorAlert>{formError}</ErrorAlert>}
     <DialogFooter>
       <Button type="button" variant="outline" disabled={saving} onClick={onCancel}>{form('cancel')}</Button>
       <Button type="submit" disabled={saving}>{saving ? form('saving') : form(editing ? 'save' : 'add')}</Button>
