@@ -4,7 +4,7 @@
 
 練習画面（`/play`）の「思い出して打つ」を入れると、答えを隠して練習します。補足は答えを伏せて表示し（「apple / りんご」なら「りんご」だけ、区切りのない補足では答えを「＿＿」にします）、表示する単語が入力する文字と違うときはそれも出します（どちらもないときは「ヒントがありません」）。答えは未入力の文字数だけ「＿」で示します。次の単語・すべての単語・入力する文字の案内・簡易入力の対応は表示しません。「答えを見る」で答えを表示でき、その単語の残りの文字は1回だけミスに数えます。選んだモードはブラウザーごとに保存され、練習の途中では切り替えられません。この練習の記録は `mode: "recall"` を持ち、ベストと順位では通常の記録と分けて比べます（ベスト記録ページは「通常／思い出す」で切り替え、`?mode=recall`）。ダッシュボードは通常の記録だけを使います。
 
-- 本番: https://typle-r-six.vercel.app
+- 本番: https://typle.sparklingstadt.com （v2.33.0 から。`https://typle-r-six.vercel.app` のページはここへ移ります）
 - リポジトリ: https://github.com/Sparklingstadt/typle-r （公開）
 
 本番はGitHub認証とNeon DB、ローカル/LANは開発用アカウントとDocker DBを使用します。開発ログインは本番では無効です。
@@ -32,7 +32,7 @@
 | [typle-a](https://github.com/Sparklingstadt/typle-a) | Android タブレット版（Kotlin・Jetpack Compose）。v2.6.9 でアーカイブし、開発を止めました |
 | [typle-kotlin-backend](https://github.com/Sparklingstadt/typle-kotlin-backend) | Go のバックエンドと同じ API の Kotlin（Ktor）版。v2.6.10 でアーカイブし、`TYPLE_BACKEND=kotlin` の切り替えも外しました |
 
-どのアプリも、このリポジトリの Go のバックエンド（本番は `https://typle-r-six.vercel.app`）に同じ GitHub ログインでつなぎます。ほかのリポジトリは、このリポジトリのコードやデータの写しや対応する実装を持っています。ここを変えたら、合わせて直してください。
+どのアプリも、このリポジトリの Go のバックエンドに同じ GitHub ログインでつなぎます。Web は `https://typle.sparklingstadt.com`、iPad・Mac 版は `https://typle-r-six.vercel.app` の `/api/*` を呼びます。Vercel のドメインで始めたログイン（`/api/auth/signin`）は、OAuth の cookie とコールバックを同じホストにするため、`vercel.json` で本番のドメインへ移します（`tests/domainRedirect.test.cjs`）。ほかのリポジトリは、このリポジトリのコードやデータの写しや対応する実装を持っています。ここを変えたら、合わせて直してください。
 
 - 公式の単語リスト（`src/plugins/packs`）：`commands/` の各 JSON が1リストです。並び順の原本は `commands/manifest.json` です。追加・削除時は JSON と manifest を更新して `npm run packs:generate` を実行すると、Web が読み込む `commands/index.ts` と Go の埋め込み用コピー（`server/internal/workspace/packs`）を生成します（v1.5.0 から。`go generate ./server/internal/workspace` も同じスクリプトを実行します）。生成し忘れは単体テストで分かります。以前の `commands.json` 形式を使う他アプリには、`commands/manifest.json` の順に各 JSON を配列へまとめて渡してください。
 - iPad 版と Mac 版：typle-ipad の `TypleCore/` は `src/core` の規則の Swift 版で、`catalog.json` は公式の単語リストから作った写しです。公式の単語リストを変えたら、typle-ipad で `node scripts/catalog.cjs ../typle-r` を実行して作り直します。
@@ -195,7 +195,7 @@ FFPF ID（ffpf-portal）は、GitHub と並ぶもう1つのログイン方法で
 | `FFPF_ID_CLIENT_ID` | portal に登録したクライアントの ID |
 | `FFPF_ID_CLIENT_SECRET` | そのクライアントのシークレット |
 
-- portal に登録する redirect URI は `<AUTH_URL のオリジン>/api/auth/callback/ffpf` です（本番は `https://typle-r-six.vercel.app/api/auth/callback/ffpf`）。portal は redirect URI が登録と完全に一致しないと拒否します。
+- portal に登録する redirect URI は `<AUTH_URL のオリジン>/api/auth/callback/ffpf` です（本番は `https://typle.sparklingstadt.com/api/auth/callback/ffpf`）。portal は redirect URI が登録と完全に一致しないと拒否します。
 - クライアントの登録（client_id・シークレットの作成と redirect URI の登録）は ffpf-portal 側の作業です。手順は ffpf-portal の README と、`docs/superpowers/specs/2026-10-27-ffpf-id-design.md` の「クライアント」を見てください。
 - `.env.example` に3つの変数を載せています。ローカルで試すときは `.env.local` に書きます。Vercel では「Neon / Vercelの構成」の環境変数に足します。
 - ログインした利用者は GitHub のアカウントとは別のアカウントです（アカウント ID は `ffpf:` で始まります）。
