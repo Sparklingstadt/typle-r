@@ -1,5 +1,6 @@
 import * as React from "react"
 import { cn } from "cn"
+import type { LucideIcon } from "lucide-react"
 
 // A one-line dashed note for a list that has nothing to show.
 function EmptyNote({ className, ...props }: React.ComponentProps<"p">) {
@@ -23,4 +24,13 @@ function EmptyState({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-export { EmptyNote, EmptyState }
+// The round icon at the top of an EmptyState. `className` can give it its own colors.
+function EmptyStateIcon({ icon: Icon, className }: { icon: LucideIcon; className?: string }) {
+  return (
+    <span data-slot="empty-state-icon" className={cn("grid size-12 place-items-center rounded-full bg-muted text-muted-foreground", className)}>
+      <Icon className="size-6" aria-hidden="true" />
+    </span>
+  )
+}
+
+export { EmptyNote, EmptyState, EmptyStateIcon }

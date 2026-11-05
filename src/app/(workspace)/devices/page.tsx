@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils'
 import { ErrorAlert } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { EmptyState } from '@/components/ui/empty-state'
+import { EmptyState, EmptyStateIcon } from '@/components/ui/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import DeleteConfirmation from '@/components/DeleteConfirmation'
 import { useSaveNotification } from '@/components/SaveNotification'
@@ -168,7 +168,7 @@ function DeviceManager({ accountId, devices, lists, saving, error, updateDevices
 function NoDevices({ onAdd }: { onAdd: () => void }) {
   const t = useTranslations('devices')
   return <EmptyState className="py-10 sm:py-12">
-    <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground"><Monitor className="size-6" aria-hidden="true" /></span>
+    <EmptyStateIcon icon={Monitor} />
     <div className="space-y-1.5">
       <h3 className="font-bold">{t('empty.title')}</h3>
       <p className="max-w-md text-sm text-balance text-muted-foreground">{t('empty.description')}</p>

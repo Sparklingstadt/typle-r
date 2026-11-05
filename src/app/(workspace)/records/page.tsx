@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl"
 import { History, Keyboard, Trophy } from "lucide-react"
 import { ErrorAlert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { EmptyState } from "@/components/ui/empty-state"
+import { EmptyState, EmptyStateIcon } from "@/components/ui/empty-state"
 import { Skeleton } from "@/components/ui/skeleton"
 import DeleteConfirmation from "@/components/DeleteConfirmation"
 import { useSaveNotification } from "@/components/SaveNotification"
@@ -213,7 +213,7 @@ function DeleteDetails({ row, dayHeading }: { row: Row; dayHeading: (day: Date) 
 function NoRecords() {
   const t = useTranslations('records.empty')
   return <EmptyState className="py-10 sm:py-14">
-    <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground"><History className="size-6" aria-hidden="true" /></span>
+    <EmptyStateIcon icon={History} />
     <div className="space-y-1.5">
       <h2 className="font-bold">{t('title')}</h2>
       <p className="max-w-md text-sm text-balance text-muted-foreground">{t('description')}</p>
