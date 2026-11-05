@@ -1,0 +1,10 @@
+{
+  "title": "Résultat d’entraînement : {name}",
+  "description": "{time} s avec {accuracy} % de précision. Apprenez les mots que vous voulez en les tapant sur Typle.",
+  "heading": "Résultat d’entraînement : {name}",
+  "lead": "Un résultat tapé sur Typle, une application de dactylographie pour apprendre les mots que vous voulez en les tapant.",
+  "play": "Essayer Typle",
+  "about": "À propos de Typle",
+  "invalidTitle": "Ce résultat ne peut pas être affiché",
+  "invalid": "Le résultat de ce lien n’a pas pu être lu. Vérifiez que le lien n’a pas été coupé."
+}

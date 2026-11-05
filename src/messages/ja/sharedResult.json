@@ -1,0 +1,10 @@
+{
+  "title": "「{name}」の練習記録",
+  "description": "{time} 秒・正確率 {accuracy}%。Typle で覚えたい言葉を打って覚えよう。",
+  "heading": "「{name}」の練習記録",
+  "lead": "Typle で打った記録です。Typle は、覚えたい言葉を打って覚えるタイピングアプリです。",
+  "play": "Typle で練習してみる",
+  "about": "Typle について",
+  "invalidTitle": "記録を表示できません",
+  "invalid": "このリンクの記録は読み取れませんでした。リンクが途中で切れていないか確かめてください。"
+}

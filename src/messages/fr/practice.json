@@ -102,7 +102,9 @@
     "viewRecords": "Voir l’historique",
     "wordSpeedUnit": "mots/min",
     "correctWords": "{count, plural, one {# mot} other {# mots}}",
-    "mistakesWords": "{count, plural, one {# erreur} other {# erreurs}}"
+    "mistakesWords": "{count, plural, one {# erreur} other {# erreurs}}",
+    "shareOnX": "Partager sur X",
+    "shareText": "J’ai tapé « {name} » en {time} s avec {accuracy} % de précision sur Typle"
   },
   "best": {
     "label": "Top 5 des meilleurs résultats",
