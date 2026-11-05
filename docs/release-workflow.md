@@ -30,7 +30,8 @@ Releaseイベントで別のworkflowを起動する方式ではないため、GI
    Release作成にはジョブのGITHUB_TOKENを使うため、GitHub PATは不要です。
 5. 対象VercelプロジェクトのProduction環境にDB・Authの環境変数を設定します。
    READMEの「Neon / Vercelの構成」を参照してください。
-   公開先は`https://typle-r-six.vercel.app`を想定しています。
+   公開先は`https://typle.sparklingstadt.com`です（v2.33.0 から。`SITE_URL`・`AUTH_URL` にこの URL を設定します）。
+   Vercel のドメイン`https://typle-r-six.vercel.app`も残し、iPad・Mac 版はそこの`/api/*`を呼びます。
 6. API の文書（`api-docs/`）を Cloudflare Pages に公開するため、`production` Environment に次の2つを登録します。
    - `CLOUDFLARE_API_TOKEN`: 対象アカウントの **Cloudflare Pages: Edit** の権限だけを持つ API トークン。期限を付けてください。
    - `CLOUDFLARE_ACCOUNT_ID`: 対象アカウントのID。
@@ -74,12 +75,14 @@ CI用Vercelトークンは90日期限で作成しています。期限前にSecr
    一致するまで5秒ごとに最大5分待ちます。一致しなければ失敗します。v2.5.10 より前は本番の `/home` の `data-dpl-id` で比べていましたが、
    Next.js がこの属性を書くのは Skew Protection が有効なときだけで、このプロジェクトでは書かれなくなっていたため、
    v2.5.8 の deploy がここで失敗しました（デプロイ自体は成功していました）。
-   その後、本番ホームの成功応答、Goの関数が返す`/api/health`の200（本番DBへの接続を含む）、匿名APIアクセスの401を確認します。
+   その後、本番（`https://typle.sparklingstadt.com`）のホームの成功応答、Vercel のドメインのページが本番へ308で移ること（クエリも残す）、
+   両方のドメインで Goの関数が返す`/api/health`の200（本番DBへの接続を含む）と匿名APIアクセスの401を確認します。
    ログインの関数も確認します。`/api/auth/session`が200で、本文の`user`が`null`、`providers`が`"github"`を含む配列であること（FFPF IDを設定している場合は`"ffpf"`も入りますが、確認はしません）、
    `/api/auth/signin`がリダイレクトを辿らずに302を返し、`Location`が`https://github.com/login/oauth/authorize?`で始まり
-   本番の`redirect_uri`（`https://typle-r-six.vercel.app/api/auth/callback/github`）を含むことです。
+   本番の`redirect_uri`（`https://typle.sparklingstadt.com/api/auth/callback/github`）を含むことです。
    これにより、本番の関数で`AUTH_SECRET`・`AUTH_URL`・`AUTH_GITHUB_ID`・`AUTH_GITHUB_SECRET`が揃って設定されていることまで確かめます。
-   iPad のログインの`POST /api/auth/token`が、本文`{}`に`400`と`{"error":"loginFailed"}`を返すことも確かめます。
+   Vercel のドメインで始めたログイン（iPad・Mac 版）が、クエリを残したまま本番の`/api/auth/signin`へ307で移ることと、
+   iPad のログインの`POST /api/auth/token`が Vercel のドメインで本文`{}`に`400`と`{"error":"loginFailed"}`を返すことも確かめます。
 9. API の文書（`api-docs/`）は、v2.25.2 から CI では公開せず、必要なときに手で公開します。Vercel のデプロイが成功した後、
    Actions の「Docs deploy」を main で実行します（Run workflow。`docs-deploy.yml`、main 以外では何もしません）。
    main の最新のコミットの文書をビルドし、リンクを検査して、固定版の Wrangler（`docs-deploy.yml`の`WRANGLER_VERSION`）で
