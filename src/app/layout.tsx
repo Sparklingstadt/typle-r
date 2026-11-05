@@ -10,6 +10,7 @@ import { WorkspaceProvider } from "@/lib/useWordLists";
 import { THEME_BOOTSTRAP_SCRIPT } from "@/lib/theme/bootstrap";
 import { openGraphLocales } from "@/i18n/config";
 import { clientMessages, type Messages } from "@/i18n/messages";
+import { siteUrl } from "@/lib/siteUrl";
 
 const notoSans = Noto_Sans_JP({
   subsets: ["latin"],
@@ -17,11 +18,6 @@ const notoSans = Noto_Sans_JP({
   display: "swap",
 });
 
-const siteUrl = process.env.SITE_URL
-  || process.env.AUTH_URL
-  || (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : "http://localhost:3000");
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();

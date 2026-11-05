@@ -181,4 +181,13 @@ France,フランス,
 
 Open GraphとXの大きな画像カードに対応しています。共通画像は `public/og-image.png`（1200 × 630 PNG）、タイトル・説明・代替テキストは `src/app/layout.tsx` に定義しています。
 
-画像の絶対URLには `SITE_URL`（任意）、次に `AUTH_URL` を使用し、未設定なら `VERCEL_PROJECT_PRODUCTION_URL`、ローカルでは `http://localhost:3000` にフォールバックします。本番ビルド時は `AUTH_URL` を公開サイトのHTTPS URLに設定してください。共有先のクローラーがページと画像へ認証なしでアクセスできる必要があります。
+画像の絶対URLには `SITE_URL`（任意、`src/lib/siteUrl.ts`）、次に `AUTH_URL` を使用し、未設定なら `VERCEL_PROJECT_PRODUCTION_URL`、ローカルでは `http://localhost:3000` にフォールバックします。本番ビルド時は `AUTH_URL` を公開サイトのHTTPS URLに設定してください。共有先のクローラーがページと画像へ認証なしでアクセスできる必要があります。
+
+## 検索エンジン向けの sitemap.xml・robots.txt
+
+`/sitemap.xml` と `/robots.txt` を返します（v2.29.0 から）。どちらも上の OGP と同じサイトの URL を使い、載せるページと除くページは `src/core/searchIndex.ts` に1か所でまとめています。
+
+- sitemap.xml：ログインせずに開けて、だれが見ても同じ内容のページ（`/home`・`/play`・`/gallery`・`/guide`・`/about`）。練習記録やベスト記録のように自分のデータを表示するページは、クローラーには空の画面しか見えないため載せません。
+- robots.txt：管理画面（`/admin`）、開発用ログイン（`/local-login`）、バックエンド（`/api/`）へのクロールを断り、sitemap.xml の場所を示します。
+
+ページを足したり名前を変えたりしたときは `INDEXED_PATHS` も直してください。載せたページの `page.tsx` があることは単体テスト（`tests/searchIndex.test.cjs`）で確かめます。
