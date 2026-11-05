@@ -88,6 +88,31 @@ test('the list picker filters lists and the result screen offers the next step',
   await page.keyboard.press('Escape')
   await expect(other).toBeFocused()
   await expect(result.getByRole('link', { name: '記録を見る' })).toHaveAttribute('href', '/records')
+
+  // Sharing on X opens a post with the result and a link to it; the link's page shows the result and its own image.
+  const share = result.getByRole('link', { name: 'X でシェア' })
+  await expect(share).toHaveAttribute('target', '_blank')
+  const intent = new URL(await share.getAttribute('href') ?? '')
+  expect(intent.origin + intent.pathname).toBe('https://x.com/intent/post')
+  expect(intent.searchParams.get('text')).toMatch(/^Typle で「Second list」を \d+\.\d{2} 秒・正確率 \d+% で打ちました #Typle$/)
+  const shared = new URL(intent.searchParams.get('url') ?? '')
+  expect(shared.pathname).toBe('/result')
+  expect(shared.searchParams.get('n')).toBe('Second list')
+  await page.goto(shared.pathname + shared.search)
+  await expect(page.getByRole('heading', { level: 1, name: '「Second list」の練習記録' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Typle で練習してみる' })).toHaveAttribute('href', '/play')
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, follow')
+  const image = await page.locator('meta[property="og:image"]').getAttribute('content') ?? ''
+  expect(new URL(image).pathname).toBe('/result/image')
+  const png = await page.request.get(new URL(image).pathname + new URL(image).search)
+  expect(png.status()).toBe(200)
+  expect(png.headers()['content-type']).toBe('image/png')
+})
+
+test('a shared result link that cannot be read shows a message, and its image is not found', async ({ page }) => {
+  await page.goto('/result?n=Broken&t=-1&a=90&w=3')
+  await expect(page.getByRole('heading', { level: 1, name: '記録を表示できません' })).toBeVisible()
+  expect((await page.request.get('/result/image?n=Broken&t=-1&a=90&w=3')).status()).toBe(404)
 })
 
 test('the clock stops while the input has lost focus and runs again once it is back', async ({ page }) => {

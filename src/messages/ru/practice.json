@@ -102,7 +102,9 @@
     "viewRecords": "Открыть историю",
     "wordSpeedUnit": "сл./мин",
     "correctWords": "{count, plural, one {# слово} few {# слова} many {# слов} other {# слова}}",
-    "mistakesWords": "Ошибок: {count}"
+    "mistakesWords": "Ошибок: {count}",
+    "shareOnX": "Поделиться в X",
+    "shareText": "Я набрал(а) «{name}» за {time} с с точностью {accuracy}% в Typle"
   },
   "best": {
     "label": "Лучшие результаты, топ-5",

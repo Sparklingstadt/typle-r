@@ -1,0 +1,10 @@
+{
+  "title": "Practice result: {name}",
+  "description": "{time} s with {accuracy}% accuracy. Learn the words you want by typing them on Typle.",
+  "heading": "Practice result: {name}",
+  "lead": "A result typed on Typle, a typing app for learning the words you want by typing them.",
+  "play": "Try practicing on Typle",
+  "about": "About Typle",
+  "invalidTitle": "This result cannot be shown",
+  "invalid": "The result in this link could not be read. Check that the link was not cut off."
+}
