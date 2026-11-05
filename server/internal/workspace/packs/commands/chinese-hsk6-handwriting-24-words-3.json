@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-24-words-3",
+  "name": "中国語HSK6級 手書き24（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語24",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "镶嵌",
+      "input": "xiāngqiàn",
+      "annotation": "xiāngqiàn / はめ込む",
+      "input_type": "word"
+    },
+    {
+      "display": "相应",
+      "input": "xiāngyìng",
+      "annotation": "xiāngyìng / 相応の、対応する",
+      "input_type": "word"
+    },
+    {
+      "display": "闲话",
+      "input": "xiánhuà",
+      "annotation": "xiánhuà / 無駄話、陰口",
+      "input_type": "word"
+    },
+    {
+      "display": "陷阱",
+      "input": "xiànjǐng",
+      "annotation": "xiànjǐng / 落とし穴、わな",
+      "input_type": "word"
+    },
+    {
+      "display": "线索",
+      "input": "xiànsuǒ",
+      "annotation": "xiànsuǒ / 手がかり",
+      "input_type": "word"
+    },
+    {
+      "display": "显著",
+      "input": "xiǎnzhù",
+      "annotation": "xiǎnzhù / 顕著な",
+      "input_type": "word"
+    },
+    {
+      "display": "晓得",
+      "input": "xiǎode",
+      "annotation": "xiǎode / 知っている",
+      "input_type": "word"
+    },
+    {
+      "display": "销毁",
+      "input": "xiāohuǐ",
+      "annotation": "xiāohuǐ / 焼却する、廃棄する",
+      "input_type": "word"
+    },
+    {
+      "display": "肖像",
+      "input": "xiàoxiàng",
+      "annotation": "xiàoxiàng / 肖像",
+      "input_type": "word"
+    },
+    {
+      "display": "下属",
+      "input": "xiàshǔ",
+      "annotation": "xiàshǔ / 部下",
+      "input_type": "word"
+    },
+    {
+      "display": "协会",
+      "input": "xiéhuì",
+      "annotation": "xiéhuì / 協会",
+      "input_type": "word"
+    },
+    {
+      "display": "泄气",
+      "input": "xièqì",
+      "annotation": "xièqì / 気落ちする",
+      "input_type": "word"
+    },
+    {
+      "display": "协助",
+      "input": "xiézhù",
+      "annotation": "xiézhù / 協力する、補佐する",
+      "input_type": "word"
+    },
+    {
+      "display": "细菌",
+      "input": "xìjūn",
+      "annotation": "xìjūn / 細菌",
+      "input_type": "word"
+    },
+    {
+      "display": "新陈代谢",
+      "input": "xīnchén dàixiè",
+      "annotation": "xīnchén dàixiè / 新陳代謝",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

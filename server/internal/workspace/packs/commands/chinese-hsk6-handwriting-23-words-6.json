@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-23-words-6",
+  "name": "中国語HSK6級 手書き23（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語23",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "调和",
+      "input": "tiáohé",
+      "annotation": "tiáohé / 調和する",
+      "input_type": "word"
+    },
+    {
+      "display": "条款",
+      "input": "tiáokuǎn",
+      "annotation": "tiáokuǎn / 条項",
+      "input_type": "word"
+    },
+    {
+      "display": "挑剔",
+      "input": "tiāoti",
+      "annotation": "tiāoti / あら探しをする",
+      "input_type": "word"
+    },
+    {
+      "display": "跳跃",
+      "input": "tiàoyuè",
+      "annotation": "tiàoyuè / 跳躍する",
+      "input_type": "word"
+    },
+    {
+      "display": "提炼",
+      "input": "tíliàn",
+      "annotation": "tíliàn / 精製する、抽出する",
+      "input_type": "word"
+    },
+    {
+      "display": "停泊",
+      "input": "tíngbó",
+      "annotation": "tíngbó / 停泊する",
+      "input_type": "word"
+    },
+    {
+      "display": "亭子",
+      "input": "tíngzi",
+      "annotation": "tíngzi / あずまや",
+      "input_type": "word"
+    },
+    {
+      "display": "同胞",
+      "input": "tóngbāo",
+      "annotation": "tóngbāo / 同胞",
+      "input_type": "word"
+    },
+    {
+      "display": "通货膨胀",
+      "input": "tōnghuò péngzhàng",
+      "annotation": "tōnghuò péngzhàng / インフレ",
+      "input_type": "word"
+    },
+    {
+      "display": "通俗",
+      "input": "tōngsú",
+      "annotation": "tōngsú / わかりやすい、通俗的な",
+      "input_type": "word"
+    },
+    {
+      "display": "同志",
+      "input": "tóngzhì",
+      "annotation": "tóngzhì / 同志",
+      "input_type": "word"
+    },
+    {
+      "display": "透露",
+      "input": "tòulù",
+      "annotation": "tòulù / 漏らす",
+      "input_type": "word"
+    },
+    {
+      "display": "投降",
+      "input": "tóuxiáng",
+      "annotation": "tóuxiáng / 降伏する",
+      "input_type": "word"
+    },
+    {
+      "display": "团圆",
+      "input": "tuányuán",
+      "annotation": "tuányuán / 一家が集まる",
+      "input_type": "word"
+    },
+    {
+      "display": "推翻",
+      "input": "tuīfān",
+      "annotation": "tuīfān / 覆す",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

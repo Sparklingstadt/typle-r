@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-22-words-4",
+  "name": "中国語HSK6級 手書き22（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語22",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "排练",
+      "input": "páiliàn",
+      "annotation": "páiliàn / リハーサルする",
+      "input_type": "word"
+    },
+    {
+      "display": "庞大",
+      "input": "pángdà",
+      "annotation": "pángdà / 巨大な",
+      "input_type": "word"
+    },
+    {
+      "display": "泡沫",
+      "input": "pàomò",
+      "annotation": "pàomò / 泡",
+      "input_type": "word"
+    },
+    {
+      "display": "培育",
+      "input": "péiyù",
+      "annotation": "péiyù / 育成する",
+      "input_type": "word"
+    },
+    {
+      "display": "偏差",
+      "input": "piānchā",
+      "annotation": "piānchā / 偏差、ずれ",
+      "input_type": "word"
+    },
+    {
+      "display": "片刻",
+      "input": "piànkè",
+      "annotation": "piànkè / しばらく",
+      "input_type": "word"
+    },
+    {
+      "display": "飘扬",
+      "input": "piāoyáng",
+      "annotation": "piāoyáng / はためく",
+      "input_type": "word"
+    },
+    {
+      "display": "皮革",
+      "input": "pígé",
+      "annotation": "pígé / 皮革",
+      "input_type": "word"
+    },
+    {
+      "display": "拼搏",
+      "input": "pīnbó",
+      "annotation": "pīnbó / 全力で戦う",
+      "input_type": "word"
+    },
+    {
+      "display": "平凡",
+      "input": "píngfán",
+      "annotation": "píngfán / 平凡な",
+      "input_type": "word"
+    },
+    {
+      "display": "平面",
+      "input": "píngmiàn",
+      "annotation": "píngmiàn / 平面",
+      "input_type": "word"
+    },
+    {
+      "display": "平行",
+      "input": "píngxíng",
+      "annotation": "píngxíng / 平行の、同等の",
+      "input_type": "word"
+    },
+    {
+      "display": "屏障",
+      "input": "píngzhàng",
+      "annotation": "píngzhàng / 障壁",
+      "input_type": "word"
+    },
+    {
+      "display": "簡体字",
+      "input": "pinyin",
+      "annotation": "pinyin / 日本語訳`, sorted by pinyin.",
+      "input_type": "word"
+    },
+    {
+      "display": "品质",
+      "input": "pǐnzhì",
+      "annotation": "pǐnzhì / 品質、人柄",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

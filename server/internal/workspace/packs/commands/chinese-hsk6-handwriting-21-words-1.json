@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-21-words-1",
+  "name": "中国語HSK6級 手書き21（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語21",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "版本",
+      "input": "bǎnběn",
+      "annotation": "bǎnběn / 版、バージョン",
+      "input_type": "word"
+    },
+    {
+      "display": "颁发",
+      "input": "bānfā",
+      "annotation": "bānfā / 授与する",
+      "input_type": "word"
+    },
+    {
+      "display": "半途而废",
+      "input": "bàntú érfèi",
+      "annotation": "bàntú érfèi / 途中で投げ出す",
+      "input_type": "word"
+    },
+    {
+      "display": "报酬",
+      "input": "bàochou",
+      "annotation": "bàochou / 報酬",
+      "input_type": "word"
+    },
+    {
+      "display": "报到",
+      "input": "bàodào",
+      "annotation": "bàodào / 到着を届け出る",
+      "input_type": "word"
+    },
+    {
+      "display": "饱和",
+      "input": "bǎohé",
+      "annotation": "bǎohé / 飽和",
+      "input_type": "word"
+    },
+    {
+      "display": "报社",
+      "input": "bàoshè",
+      "annotation": "bàoshè / 新聞社",
+      "input_type": "word"
+    },
+    {
+      "display": "保卫",
+      "input": "bǎowèi",
+      "annotation": "bǎowèi / 防衛する",
+      "input_type": "word"
+    },
+    {
+      "display": "北极",
+      "input": "běijí",
+      "annotation": "běijí / 北極",
+      "input_type": "word"
+    },
+    {
+      "display": "备忘录",
+      "input": "bèiwànglù",
+      "annotation": "bèiwànglù / 覚え書き",
+      "input_type": "word"
+    },
+    {
+      "display": "本着",
+      "input": "běnzhe",
+      "annotation": "běnzhe / 〜に基づいて",
+      "input_type": "word"
+    },
+    {
+      "display": "辩论",
+      "input": "biànlùn",
+      "annotation": "biànlùn / 討論する",
+      "input_type": "word"
+    },
+    {
+      "display": "变迁",
+      "input": "biànqiān",
+      "annotation": "biànqiān / 移り変わり",
+      "input_type": "word"
+    },
+    {
+      "display": "表彰",
+      "input": "biǎozhāng",
+      "annotation": "biǎozhāng / 表彰する",
+      "input_type": "word"
+    },
+    {
+      "display": "标志",
+      "input": "biāozhì",
+      "annotation": "biāozhì / 標識、象徴",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

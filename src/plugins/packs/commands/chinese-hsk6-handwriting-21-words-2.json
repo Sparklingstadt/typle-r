@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-21-words-2",
+  "name": "中国語HSK6級 手書き21（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語21",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "病毒",
+      "input": "bìngdú",
+      "annotation": "bìngdú / ウイルス",
+      "input_type": "word"
+    },
+    {
+      "display": "比喻",
+      "input": "bǐyù",
+      "annotation": "bǐyù / 比喩",
+      "input_type": "word"
+    },
+    {
+      "display": "哺乳",
+      "input": "bǔrǔ",
+      "annotation": "bǔrǔ / 授乳する",
+      "input_type": "word"
+    },
+    {
+      "display": "布置",
+      "input": "bùzhì",
+      "annotation": "bùzhì / しつらえる",
+      "input_type": "word"
+    },
+    {
+      "display": "苍白",
+      "input": "cāngbái",
+      "annotation": "cāngbái / 青白い",
+      "input_type": "word"
+    },
+    {
+      "display": "惭愧",
+      "input": "cánkuì",
+      "annotation": "cánkuì / 恥じ入る",
+      "input_type": "word"
+    },
+    {
+      "display": "查获",
+      "input": "cháhuò",
+      "annotation": "cháhuò / 摘発する",
+      "input_type": "word"
+    },
+    {
+      "display": "拆迁",
+      "input": "chāiqiān",
+      "annotation": "chāiqiān / 立ち退く",
+      "input_type": "word"
+    },
+    {
+      "display": "差距",
+      "input": "chājù",
+      "annotation": "chājù / 格差",
+      "input_type": "word"
+    },
+    {
+      "display": "产业",
+      "input": "chǎnyè",
+      "annotation": "chǎnyè / 産業",
+      "input_type": "word"
+    },
+    {
+      "display": "成天",
+      "input": "chéngtiān",
+      "annotation": "chéngtiān / 一日中",
+      "input_type": "word"
+    },
+    {
+      "display": "赤道",
+      "input": "chìdào",
+      "annotation": "chìdào / 赤道",
+      "input_type": "word"
+    },
+    {
+      "display": "崇高",
+      "input": "chónggāo",
+      "annotation": "chónggāo / 崇高な",
+      "input_type": "word"
+    },
+    {
+      "display": "床单",
+      "input": "chuángdān",
+      "annotation": "chuángdān / シーツ",
+      "input_type": "word"
+    },
+    {
+      "display": "次品",
+      "input": "cìpǐn",
+      "annotation": "cìpǐn / 不良品",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

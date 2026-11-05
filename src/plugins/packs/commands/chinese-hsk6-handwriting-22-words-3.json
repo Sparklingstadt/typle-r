@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-22-words-3",
+  "name": "中国語HSK6級 手書き22（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語22",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "茂密",
+      "input": "màomì",
+      "annotation": "màomì / 生い茂った",
+      "input_type": "word"
+    },
+    {
+      "display": "没辙",
+      "input": "méizhé",
+      "annotation": "méizhé / お手上げだ",
+      "input_type": "word"
+    },
+    {
+      "display": "门诊",
+      "input": "ménzhěn",
+      "annotation": "ménzhěn / 外来診療",
+      "input_type": "word"
+    },
+    {
+      "display": "瞄准",
+      "input": "miáozhǔn",
+      "annotation": "miáozhǔn / 狙う",
+      "input_type": "word"
+    },
+    {
+      "display": "名副其实",
+      "input": "míngfù qíshí",
+      "annotation": "míngfù qíshí / 名実相伴う",
+      "input_type": "word"
+    },
+    {
+      "display": "模式",
+      "input": "móshì",
+      "annotation": "móshì / モデル、パターン",
+      "input_type": "word"
+    },
+    {
+      "display": "摸索",
+      "input": "mōsuǒ",
+      "annotation": "mōsuǒ / 模索する",
+      "input_type": "word"
+    },
+    {
+      "display": "难堪",
+      "input": "nánkān",
+      "annotation": "nánkān / 耐えがたい、気まずい",
+      "input_type": "word"
+    },
+    {
+      "display": "恼火",
+      "input": "nǎohuǒ",
+      "annotation": "nǎohuǒ / 腹を立てる",
+      "input_type": "word"
+    },
+    {
+      "display": "内幕",
+      "input": "nèimù",
+      "annotation": "nèimù / 内幕、内情",
+      "input_type": "word"
+    },
+    {
+      "display": "拟定",
+      "input": "nǐdìng",
+      "annotation": "nǐdìng / 起草する、立案する",
+      "input_type": "word"
+    },
+    {
+      "display": "宁肯",
+      "input": "nìngkěn",
+      "annotation": "nìngkěn / むしろ〜したい",
+      "input_type": "word"
+    },
+    {
+      "display": "扭转",
+      "input": "niǔzhuǎn",
+      "annotation": "niǔzhuǎn / 転換させる、好転させる",
+      "input_type": "word"
+    },
+    {
+      "display": "虐待",
+      "input": "nüèdài",
+      "annotation": "nüèdài / 虐待する",
+      "input_type": "word"
+    },
+    {
+      "display": "呕吐",
+      "input": "ǒutù",
+      "annotation": "ǒutù / 嘔吐する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

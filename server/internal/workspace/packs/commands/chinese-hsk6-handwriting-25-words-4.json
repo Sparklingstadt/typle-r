@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-25-words-4",
+  "name": "中国語HSK6級 手書き25（単語4）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語25",
+  "levels": [
+    "単語4"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "珍稀",
+      "input": "zhēnxī",
+      "annotation": "zhēnxī / 希少な",
+      "input_type": "word"
+    },
+    {
+      "display": "真挚",
+      "input": "zhēnzhì",
+      "annotation": "zhēnzhì / 真摯な",
+      "input_type": "word"
+    },
+    {
+      "display": "值班",
+      "input": "zhíbān",
+      "annotation": "zhíbān / 当番をする",
+      "input_type": "word"
+    },
+    {
+      "display": "制裁",
+      "input": "zhìcái",
+      "annotation": "zhìcái / 制裁する",
+      "input_type": "word"
+    },
+    {
+      "display": "致辞",
+      "input": "zhìcí",
+      "annotation": "zhìcí / 挨拶を述べる",
+      "input_type": "word"
+    },
+    {
+      "display": "之际",
+      "input": "zhījì",
+      "annotation": "zhījì / 〜の際",
+      "input_type": "word"
+    },
+    {
+      "display": "知觉",
+      "input": "zhījué",
+      "annotation": "zhījué / 知覚",
+      "input_type": "word"
+    },
+    {
+      "display": "智力",
+      "input": "zhìlì",
+      "annotation": "zhìlì / 知力",
+      "input_type": "word"
+    },
+    {
+      "display": "指令",
+      "input": "zhǐlìng",
+      "annotation": "zhǐlìng / 指令",
+      "input_type": "word"
+    },
+    {
+      "display": "指南针",
+      "input": "zhǐnánzhēn",
+      "annotation": "zhǐnánzhēn / 羅針盤",
+      "input_type": "word"
+    },
+    {
+      "display": "支配",
+      "input": "zhīpèi",
+      "annotation": "zhīpèi / 支配する、割り振る",
+      "input_type": "word"
+    },
+    {
+      "display": "致使",
+      "input": "zhìshǐ",
+      "annotation": "zhìshǐ / 〜の結果を招く",
+      "input_type": "word"
+    },
+    {
+      "display": "职务",
+      "input": "zhíwù",
+      "annotation": "zhíwù / 職務",
+      "input_type": "word"
+    },
+    {
+      "display": "制约",
+      "input": "zhìyuē",
+      "annotation": "zhìyuē / 制約する",
+      "input_type": "word"
+    },
+    {
+      "display": "支柱",
+      "input": "zhīzhù",
+      "annotation": "zhīzhù / 支柱",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

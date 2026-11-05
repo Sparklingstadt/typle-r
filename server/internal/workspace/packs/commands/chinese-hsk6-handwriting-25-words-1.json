@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-25-words-1",
+  "name": "中国語HSK6級 手書き25（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語25",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "隐私",
+      "input": "yǐnsī",
+      "annotation": "yǐnsī / プライバシー",
+      "input_type": "word"
+    },
+    {
+      "display": "隐约",
+      "input": "yǐnyuē",
+      "annotation": "yǐnyuē / かすかな",
+      "input_type": "word"
+    },
+    {
+      "display": "一如既往",
+      "input": "yìrú jìwǎng",
+      "annotation": "yìrú jìwǎng / これまでどおり",
+      "input_type": "word"
+    },
+    {
+      "display": "遗失",
+      "input": "yíshī",
+      "annotation": "yíshī / 紛失する",
+      "input_type": "word"
+    },
+    {
+      "display": "一向",
+      "input": "yíxiàng",
+      "annotation": "yíxiàng / これまでずっと",
+      "input_type": "word"
+    },
+    {
+      "display": "以至",
+      "input": "yǐzhì",
+      "annotation": "yǐzhì / 〜に至るまで",
+      "input_type": "word"
+    },
+    {
+      "display": "拥护",
+      "input": "yōnghù",
+      "annotation": "yōnghù / 擁護する",
+      "input_type": "word"
+    },
+    {
+      "display": "勇于",
+      "input": "yǒngyú",
+      "annotation": "yǒngyú / 勇敢に〜する",
+      "input_type": "word"
+    },
+    {
+      "display": "油腻",
+      "input": "yóunì",
+      "annotation": "yóunì / 脂っこい",
+      "input_type": "word"
+    },
+    {
+      "display": "优胜劣汰",
+      "input": "yōushèng liètài",
+      "annotation": "yōushèng liètài / 優勝劣敗",
+      "input_type": "word"
+    },
+    {
+      "display": "忧郁",
+      "input": "yōuyù",
+      "annotation": "yōuyù / 憂鬱な",
+      "input_type": "word"
+    },
+    {
+      "display": "原告",
+      "input": "yuángào",
+      "annotation": "yuángào / 原告",
+      "input_type": "word"
+    },
+    {
+      "display": "园林",
+      "input": "yuánlín",
+      "annotation": "yuánlín / 庭園",
+      "input_type": "word"
+    },
+    {
+      "display": "元首",
+      "input": "yuánshǒu",
+      "annotation": "yuánshǒu / 元首",
+      "input_type": "word"
+    },
+    {
+      "display": "原先",
+      "input": "yuánxiān",
+      "annotation": "yuánxiān / もともと",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

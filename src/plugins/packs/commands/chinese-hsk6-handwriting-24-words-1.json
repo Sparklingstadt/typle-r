@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-24-words-1",
+  "name": "中国語HSK6級 手書き24（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語24",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "妥当",
+      "input": "tuǒdang",
+      "annotation": "tuǒdang / 妥当な",
+      "input_type": "word"
+    },
+    {
+      "display": "妥善",
+      "input": "tuǒshàn",
+      "annotation": "tuǒshàn / 適切な",
+      "input_type": "word"
+    },
+    {
+      "display": "托运",
+      "input": "tuōyùn",
+      "annotation": "tuōyùn / 託送する",
+      "input_type": "word"
+    },
+    {
+      "display": "外行",
+      "input": "wàiháng",
+      "annotation": "wàiháng / 素人",
+      "input_type": "word"
+    },
+    {
+      "display": "外向",
+      "input": "wàixiàng",
+      "annotation": "wàixiàng / 外向的な",
+      "input_type": "word"
+    },
+    {
+      "display": "完备",
+      "input": "wánbèi",
+      "annotation": "wánbèi / 完備した",
+      "input_type": "word"
+    },
+    {
+      "display": "往事",
+      "input": "wǎngshì",
+      "annotation": "wǎngshì / 昔のこと",
+      "input_type": "word"
+    },
+    {
+      "display": "挽回",
+      "input": "wǎnhuí",
+      "annotation": "wǎnhuí / 挽回する",
+      "input_type": "word"
+    },
+    {
+      "display": "顽强",
+      "input": "wánqiáng",
+      "annotation": "wánqiáng / 粘り強い",
+      "input_type": "word"
+    },
+    {
+      "display": "娃娃",
+      "input": "wáwa",
+      "annotation": "wáwa / 赤ちゃん、人形",
+      "input_type": "word"
+    },
+    {
+      "display": "唯独",
+      "input": "wéidú",
+      "annotation": "wéidú / ただ〜だけ",
+      "input_type": "word"
+    },
+    {
+      "display": "危机",
+      "input": "wēijī",
+      "annotation": "wēijī / 危機",
+      "input_type": "word"
+    },
+    {
+      "display": "威力",
+      "input": "wēilì",
+      "annotation": "wēilì / 威力",
+      "input_type": "word"
+    },
+    {
+      "display": "维生素",
+      "input": "wéishēngsù",
+      "annotation": "wéishēngsù / ビタミン",
+      "input_type": "word"
+    },
+    {
+      "display": "慰问",
+      "input": "wèiwèn",
+      "annotation": "wèiwèn / 慰問する",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

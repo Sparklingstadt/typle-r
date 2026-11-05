@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-25-words-3",
+  "name": "中国語HSK6級 手書き25（単語3）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語25",
+  "levels": [
+    "単語3"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "战略",
+      "input": "zhànlüè",
+      "annotation": "zhànlüè / 戦略",
+      "input_type": "word"
+    },
+    {
+      "display": "展望",
+      "input": "zhǎnwàng",
+      "annotation": "zhǎnwàng / 展望する",
+      "input_type": "word"
+    },
+    {
+      "display": "战役",
+      "input": "zhànyì",
+      "annotation": "zhànyì / 戦役",
+      "input_type": "word"
+    },
+    {
+      "display": "朝气蓬勃",
+      "input": "zhāoqì péngbó",
+      "annotation": "zhāoqì péngbó / 元気はつらつ",
+      "input_type": "word"
+    },
+    {
+      "display": "照耀",
+      "input": "zhàoyào",
+      "annotation": "zhàoyào / 照らす",
+      "input_type": "word"
+    },
+    {
+      "display": "遮挡",
+      "input": "zhēdǎng",
+      "annotation": "zhēdǎng / さえぎる",
+      "input_type": "word"
+    },
+    {
+      "display": "镇定",
+      "input": "zhèndìng",
+      "annotation": "zhèndìng / 落ち着いた",
+      "input_type": "word"
+    },
+    {
+      "display": "正当",
+      "input": "zhèngdàng",
+      "annotation": "zhèngdàng / 正当な",
+      "input_type": "word"
+    },
+    {
+      "display": "蒸发",
+      "input": "zhēngfā",
+      "annotation": "zhēngfā / 蒸発する",
+      "input_type": "word"
+    },
+    {
+      "display": "正规",
+      "input": "zhèngguī",
+      "annotation": "zhèngguī / 正規の",
+      "input_type": "word"
+    },
+    {
+      "display": "争气",
+      "input": "zhēngqì",
+      "annotation": "zhēngqì / 負けん気を出す",
+      "input_type": "word"
+    },
+    {
+      "display": "证书",
+      "input": "zhèngshū",
+      "annotation": "zhèngshū / 証書",
+      "input_type": "word"
+    },
+    {
+      "display": "正义",
+      "input": "zhèngyì",
+      "annotation": "zhèngyì / 正義",
+      "input_type": "word"
+    },
+    {
+      "display": "挣扎",
+      "input": "zhēngzhá",
+      "annotation": "zhēngzhá / もがく",
+      "input_type": "word"
+    },
+    {
+      "display": "镇静",
+      "input": "zhènjìng",
+      "annotation": "zhènjìng / 冷静な",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

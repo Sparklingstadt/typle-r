@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-24-words-2",
+  "name": "中国語HSK6級 手書き24（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語24",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "委员",
+      "input": "wěiyuán",
+      "annotation": "wěiyuán / 委員",
+      "input_type": "word"
+    },
+    {
+      "display": "文凭",
+      "input": "wénpíng",
+      "annotation": "wénpíng / 卒業証書",
+      "input_type": "word"
+    },
+    {
+      "display": "文献",
+      "input": "wénxiàn",
+      "annotation": "wénxiàn / 文献",
+      "input_type": "word"
+    },
+    {
+      "display": "无比",
+      "input": "wúbǐ",
+      "annotation": "wúbǐ / 比べものにならない",
+      "input_type": "word"
+    },
+    {
+      "display": "无耻",
+      "input": "wúchǐ",
+      "annotation": "wúchǐ / 恥知らずな",
+      "input_type": "word"
+    },
+    {
+      "display": "无非",
+      "input": "wúfēi",
+      "annotation": "wúfēi / 〜にすぎない",
+      "input_type": "word"
+    },
+    {
+      "display": "无精打采",
+      "input": "wújīng dǎcǎi",
+      "annotation": "wújīng dǎcǎi / 元気がない",
+      "input_type": "word"
+    },
+    {
+      "display": "无理取闹",
+      "input": "wúlǐ qǔnào",
+      "annotation": "wúlǐ qǔnào / 理由もなく騒ぎ立てる",
+      "input_type": "word"
+    },
+    {
+      "display": "无能为力",
+      "input": "wúnéng wéilì",
+      "annotation": "wúnéng wéilì / どうすることもできない",
+      "input_type": "word"
+    },
+    {
+      "display": "侮辱",
+      "input": "wǔrǔ",
+      "annotation": "wǔrǔ / 侮辱する",
+      "input_type": "word"
+    },
+    {
+      "display": "物业",
+      "input": "wùyè",
+      "annotation": "wùyè / 不動産管理",
+      "input_type": "word"
+    },
+    {
+      "display": "武装",
+      "input": "wǔzhuāng",
+      "annotation": "wǔzhuāng / 武装する",
+      "input_type": "word"
+    },
+    {
+      "display": "现场",
+      "input": "xiànchǎng",
+      "annotation": "xiànchǎng / 現場",
+      "input_type": "word"
+    },
+    {
+      "display": "向导",
+      "input": "xiàngdǎo",
+      "annotation": "xiàngdǎo / ガイド、案内人",
+      "input_type": "word"
+    },
+    {
+      "display": "相辅相成",
+      "input": "xiāngfǔ xiāngchéng",
+      "annotation": "xiāngfǔ xiāngchéng / 互いに補い合う",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

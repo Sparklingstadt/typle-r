@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-25-words-6",
+  "name": "中国語HSK6級 手書き25（単語6）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語25",
+  "levels": [
+    "単語6"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "卓越",
+      "input": "zhuóyuè",
+      "annotation": "zhuóyuè / 卓越した",
+      "input_type": "word"
+    },
+    {
+      "display": "注视",
+      "input": "zhùshì",
+      "annotation": "zhùshì / 注視する",
+      "input_type": "word"
+    },
+    {
+      "display": "主义",
+      "input": "zhǔyì",
+      "annotation": "zhǔyì / 主義",
+      "input_type": "word"
+    },
+    {
+      "display": "注重",
+      "input": "zhùzhòng",
+      "annotation": "zhùzhòng / 重視する",
+      "input_type": "word"
+    },
+    {
+      "display": "资本",
+      "input": "zīběn",
+      "annotation": "zīběn / 資本",
+      "input_type": "word"
+    },
+    {
+      "display": "自发",
+      "input": "zìfā",
+      "annotation": "zìfā / 自発的な",
+      "input_type": "word"
+    },
+    {
+      "display": "资深",
+      "input": "zīshēn",
+      "annotation": "zīshēn / ベテランの",
+      "input_type": "word"
+    },
+    {
+      "display": "资助",
+      "input": "zīzhù",
+      "annotation": "zīzhù / 資金援助する",
+      "input_type": "word"
+    },
+    {
+      "display": "宗教",
+      "input": "zōngjiào",
+      "annotation": "zōngjiào / 宗教",
+      "input_type": "word"
+    },
+    {
+      "display": "走漏",
+      "input": "zǒulòu",
+      "annotation": "zǒulòu / 漏れる、漏らす",
+      "input_type": "word"
+    },
+    {
+      "display": "钻研",
+      "input": "zuānyán",
+      "annotation": "zuānyán / 研究する、掘り下げる",
+      "input_type": "word"
+    },
+    {
+      "display": "阻拦",
+      "input": "zǔlán",
+      "annotation": "zǔlán / 阻む",
+      "input_type": "word"
+    },
+    {
+      "display": "尊严",
+      "input": "zūnyán",
+      "annotation": "zūnyán / 尊厳",
+      "input_type": "word"
+    },
+    {
+      "display": "作风",
+      "input": "zuòfēng",
+      "annotation": "zuòfēng / やり方、作風",
+      "input_type": "word"
+    },
+    {
+      "display": "座右铭",
+      "input": "zuòyòumíng",
+      "annotation": "zuòyòumíng / 座右の銘",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

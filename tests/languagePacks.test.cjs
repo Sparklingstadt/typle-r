@@ -84,15 +84,15 @@ test('Czech intermediate and Chinese HSK 5 and 6 packs each hold two lists of 40
   // Chinese words show the characters and are typed in pinyin with tone marks; no word is in both HSK packs.
   const hsk = officialLibrary.lists.filter(list => list.id.startsWith('chinese-hsk'))
   const words = hsk.flatMap(list => list.words)
-  assert.equal(new Set(words.map(word => word.display)).size, 1960)
+  assert.equal(new Set(words.map(word => word.display)).size, 2410)
   assert.ok(words.every(word => /^\p{Script=Han}+$/u.test(word.display) && /^[\p{Script=Latin} ]+$/u.test(word.input)))
   assert.equal(words.find(word => word.display === '规律').input, 'guīlǜ')
   assert.equal(officialLibrary.lists.find(list => list.id === 'czech-intermediate-words').words[0].input, 'zkušenost')
 })
 
-test('the twenty HSK 6 handwriting packs each hold six lists of 15 words, marked for handwriting in simplified Chinese', () => {
+test('the twenty-five HSK 6 handwriting packs each hold six lists of 15 words, marked for handwriting in simplified Chinese', () => {
   const { officialLibrary } = require('../src/plugins/packs/index.ts')
-  for (let pack = 1; pack <= 20; pack++) {
+  for (let pack = 1; pack <= 25; pack++) {
     const found = officialLibrary.packs.find(item => item.name === `中国語：HSK6級 手書き単語${pack}`)
     assert.ok(found, String(pack))
     assert.equal(found.category, '語学')
@@ -108,7 +108,7 @@ test('the twenty HSK 6 handwriting packs each hold six lists of 15 words, marked
     }
   }
   // No other official list is marked for handwriting.
-  assert.equal(officialLibrary.lists.filter(list => list.writing).length, 150)
+  assert.equal(officialLibrary.lists.filter(list => list.writing).length, 180)
 })
 
 test('the Korean beginner handwriting pack holds six themed lists of 15 words, marked for handwriting in Korean', () => {

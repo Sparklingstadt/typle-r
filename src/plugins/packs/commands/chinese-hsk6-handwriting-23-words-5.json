@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-23-words-5",
+  "name": "中国語HSK6級 手書き23（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語23",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "司令",
+      "input": "sīlìng",
+      "annotation": "sīlìng / 司令官",
+      "input_type": "word"
+    },
+    {
+      "display": "死亡",
+      "input": "sǐwáng",
+      "annotation": "sǐwáng / 死亡する",
+      "input_type": "word"
+    },
+    {
+      "display": "肆无忌惮",
+      "input": "sìwú jìdàn",
+      "annotation": "sìwú jìdàn / 好き勝手にふるまう",
+      "input_type": "word"
+    },
+    {
+      "display": "私自",
+      "input": "sīzì",
+      "annotation": "sīzì / ひそかに、勝手に",
+      "input_type": "word"
+    },
+    {
+      "display": "随即",
+      "input": "suíjí",
+      "annotation": "suíjí / すぐに",
+      "input_type": "word"
+    },
+    {
+      "display": "索取",
+      "input": "suǒqǔ",
+      "annotation": "suǒqǔ / 請求する",
+      "input_type": "word"
+    },
+    {
+      "display": "诉讼",
+      "input": "sùsòng",
+      "annotation": "sùsòng / 訴訟",
+      "input_type": "word"
+    },
+    {
+      "display": "泰斗",
+      "input": "tàidǒu",
+      "annotation": "tàidǒu / 大家、権威",
+      "input_type": "word"
+    },
+    {
+      "display": "探测",
+      "input": "tàncè",
+      "annotation": "tàncè / 探査する",
+      "input_type": "word"
+    },
+    {
+      "display": "贪婪",
+      "input": "tānlán",
+      "annotation": "tānlán / 貪欲な",
+      "input_type": "word"
+    },
+    {
+      "display": "探望",
+      "input": "tànwàng",
+      "annotation": "tànwàng / 見舞う、訪ねる",
+      "input_type": "word"
+    },
+    {
+      "display": "陶瓷",
+      "input": "táocí",
+      "annotation": "táocí / 陶磁器",
+      "input_type": "word"
+    },
+    {
+      "display": "踏实",
+      "input": "tāshi",
+      "annotation": "tāshi / 着実な、落ち着いた",
+      "input_type": "word"
+    },
+    {
+      "display": "天伦之乐",
+      "input": "tiānlún zhīlè",
+      "annotation": "tiānlún zhīlè / 一家団らんの楽しみ",
+      "input_type": "word"
+    },
+    {
+      "display": "天堂",
+      "input": "tiāntáng",
+      "annotation": "tiāntáng / 天国",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

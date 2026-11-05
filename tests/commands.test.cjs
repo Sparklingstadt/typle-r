@@ -158,6 +158,16 @@ test('the initial lists decode in Typle with their own ids and names', () => {
     ['korean-handwriting-beginner-2-words-4', [15]], ['korean-handwriting-beginner-2-words-5', [15]], ['korean-handwriting-beginner-2-words-6', [15]],
     ['korean-handwriting-beginner-3-words-1', [15]], ['korean-handwriting-beginner-3-words-2', [15]], ['korean-handwriting-beginner-3-words-3', [15]],
     ['korean-handwriting-beginner-3-words-4', [15]], ['korean-handwriting-beginner-3-words-5', [15]], ['korean-handwriting-beginner-3-words-6', [15]],
+    ['chinese-hsk6-handwriting-21-words-1', [15]], ['chinese-hsk6-handwriting-21-words-2', [15]], ['chinese-hsk6-handwriting-21-words-3', [15]],
+    ['chinese-hsk6-handwriting-21-words-4', [15]], ['chinese-hsk6-handwriting-21-words-5', [15]], ['chinese-hsk6-handwriting-21-words-6', [15]],
+    ['chinese-hsk6-handwriting-22-words-1', [15]], ['chinese-hsk6-handwriting-22-words-2', [15]], ['chinese-hsk6-handwriting-22-words-3', [15]],
+    ['chinese-hsk6-handwriting-22-words-4', [15]], ['chinese-hsk6-handwriting-22-words-5', [15]], ['chinese-hsk6-handwriting-22-words-6', [15]],
+    ['chinese-hsk6-handwriting-23-words-1', [15]], ['chinese-hsk6-handwriting-23-words-2', [15]], ['chinese-hsk6-handwriting-23-words-3', [15]],
+    ['chinese-hsk6-handwriting-23-words-4', [15]], ['chinese-hsk6-handwriting-23-words-5', [15]], ['chinese-hsk6-handwriting-23-words-6', [15]],
+    ['chinese-hsk6-handwriting-24-words-1', [15]], ['chinese-hsk6-handwriting-24-words-2', [15]], ['chinese-hsk6-handwriting-24-words-3', [15]],
+    ['chinese-hsk6-handwriting-24-words-4', [15]], ['chinese-hsk6-handwriting-24-words-5', [15]], ['chinese-hsk6-handwriting-24-words-6', [15]],
+    ['chinese-hsk6-handwriting-25-words-1', [15]], ['chinese-hsk6-handwriting-25-words-2', [15]], ['chinese-hsk6-handwriting-25-words-3', [15]],
+    ['chinese-hsk6-handwriting-25-words-4', [15]], ['chinese-hsk6-handwriting-25-words-5', [15]], ['chinese-hsk6-handwriting-25-words-6', [15]],
   ])
   assert.equal(lists.length, commands.length)
   const { initialLists } = require('../src/plugins/packs/index.ts')

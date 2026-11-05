@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-25-words-2",
+  "name": "中国語HSK6級 手書き25（単語2）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語25",
+  "levels": [
+    "単語2"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "岳母",
+      "input": "yuèmǔ",
+      "annotation": "yuèmǔ / 妻の母",
+      "input_type": "word"
+    },
+    {
+      "display": "舆论",
+      "input": "yúlùn",
+      "annotation": "yúlùn / 世論",
+      "input_type": "word"
+    },
+    {
+      "display": "蕴藏",
+      "input": "yùncáng",
+      "annotation": "yùncáng / 埋蔵する、秘める",
+      "input_type": "word"
+    },
+    {
+      "display": "运行",
+      "input": "yùnxíng",
+      "annotation": "yùnxíng / 運行する、作動する",
+      "input_type": "word"
+    },
+    {
+      "display": "羽绒服",
+      "input": "yǔróngfú",
+      "annotation": "yǔróngfú / ダウンジャケット",
+      "input_type": "word"
+    },
+    {
+      "display": "预先",
+      "input": "yùxiān",
+      "annotation": "yùxiān / あらかじめ",
+      "input_type": "word"
+    },
+    {
+      "display": "寓言",
+      "input": "yùyán",
+      "annotation": "yùyán / 寓話",
+      "input_type": "word"
+    },
+    {
+      "display": "宇宙",
+      "input": "yǔzhòu",
+      "annotation": "yǔzhòu / 宇宙",
+      "input_type": "word"
+    },
+    {
+      "display": "在意",
+      "input": "zàiyì",
+      "annotation": "zàiyì / 気にかける",
+      "input_type": "word"
+    },
+    {
+      "display": "赞叹",
+      "input": "zàntàn",
+      "annotation": "zàntàn / 称賛する",
+      "input_type": "word"
+    },
+    {
+      "display": "糟蹋",
+      "input": "zāotà",
+      "annotation": "zāotà / 無駄にする、踏みにじる",
+      "input_type": "word"
+    },
+    {
+      "display": "遭遇",
+      "input": "zāoyù",
+      "annotation": "zāoyù / 遭遇する",
+      "input_type": "word"
+    },
+    {
+      "display": "增添",
+      "input": "zēngtiān",
+      "annotation": "zēngtiān / 付け加える",
+      "input_type": "word"
+    },
+    {
+      "display": "斩钉截铁",
+      "input": "zhǎndīng jiétiě",
+      "annotation": "zhǎndīng jiétiě / きっぱりと",
+      "input_type": "word"
+    },
+    {
+      "display": "沾光",
+      "input": "zhānguāng",
+      "annotation": "zhānguāng / おこぼれにあずかる",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-21-words-5",
+  "name": "中国語HSK6級 手書き21（単語5）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語21",
+  "levels": [
+    "単語5"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "雇佣",
+      "input": "gùyōng",
+      "annotation": "gùyōng / 雇う",
+      "input_type": "word"
+    },
+    {
+      "display": "航行",
+      "input": "hángxíng",
+      "annotation": "hángxíng / 航行する",
+      "input_type": "word"
+    },
+    {
+      "display": "好客",
+      "input": "hàokè",
+      "annotation": "hàokè / 客好きな",
+      "input_type": "word"
+    },
+    {
+      "display": "合成",
+      "input": "héchéng",
+      "annotation": "héchéng / 合成する",
+      "input_type": "word"
+    },
+    {
+      "display": "黑社会",
+      "input": "hēishèhuì",
+      "annotation": "hēishèhuì / 暴力団",
+      "input_type": "word"
+    },
+    {
+      "display": "核心",
+      "input": "héxīn",
+      "annotation": "héxīn / 核心",
+      "input_type": "word"
+    },
+    {
+      "display": "后代",
+      "input": "hòudài",
+      "annotation": "hòudài / 子孫",
+      "input_type": "word"
+    },
+    {
+      "display": "怀孕",
+      "input": "huáiyùn",
+      "annotation": "huáiyùn / 妊娠する",
+      "input_type": "word"
+    },
+    {
+      "display": "荒唐",
+      "input": "huāngtáng",
+      "annotation": "huāngtáng / でたらめな",
+      "input_type": "word"
+    },
+    {
+      "display": "慌张",
+      "input": "huāngzhāng",
+      "annotation": "huāngzhāng / 慌てる",
+      "input_type": "word"
+    },
+    {
+      "display": "幻想",
+      "input": "huànxiǎng",
+      "annotation": "huànxiǎng / 幻想",
+      "input_type": "word"
+    },
+    {
+      "display": "昏迷",
+      "input": "hūnmí",
+      "annotation": "hūnmí / 昏睡する",
+      "input_type": "word"
+    },
+    {
+      "display": "或许",
+      "input": "huòxǔ",
+      "annotation": "huòxǔ / もしかすると",
+      "input_type": "word"
+    },
+    {
+      "display": "呼啸",
+      "input": "hūxiào",
+      "annotation": "hūxiào / ひゅうひゅう鳴る",
+      "input_type": "word"
+    },
+    {
+      "display": "肩负",
+      "input": "jiānfù",
+      "annotation": "jiānfù / 担う",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "chinese-hsk6-handwriting-23-words-1",
+  "name": "中国語HSK6級 手書き23（単語1）",
+  "category": "語学",
+  "tags": [
+    "中国語"
+  ],
+  "group": "中国語：HSK6級 手書き単語23",
+  "levels": [
+    "単語1"
+  ],
+  "writing": {
+    "language": "zh-Hans"
+  },
+  "words": [
+    {
+      "display": "渠道",
+      "input": "qúdào",
+      "annotation": "qúdào / 水路、ルート",
+      "input_type": "word"
+    },
+    {
+      "display": "缺口",
+      "input": "quēkǒu",
+      "annotation": "quēkǒu / 欠けた所、不足",
+      "input_type": "word"
+    },
+    {
+      "display": "缺席",
+      "input": "quēxí",
+      "annotation": "quēxí / 欠席する",
+      "input_type": "word"
+    },
+    {
+      "display": "屈服",
+      "input": "qūfú",
+      "annotation": "qūfú / 屈服する",
+      "input_type": "word"
+    },
+    {
+      "display": "区域",
+      "input": "qūyù",
+      "annotation": "qūyù / 区域",
+      "input_type": "word"
+    },
+    {
+      "display": "曲子",
+      "input": "qǔzi",
+      "annotation": "qǔzi / 曲",
+      "input_type": "word"
+    },
+    {
+      "display": "惹祸",
+      "input": "rěhuò",
+      "annotation": "rěhuò / 災いを招く",
+      "input_type": "word"
+    },
+    {
+      "display": "仁慈",
+      "input": "réncí",
+      "annotation": "réncí / 慈悲深い",
+      "input_type": "word"
+    },
+    {
+      "display": "人格",
+      "input": "réngé",
+      "annotation": "réngé / 人格",
+      "input_type": "word"
+    },
+    {
+      "display": "人间",
+      "input": "rénjiān",
+      "annotation": "rénjiān / この世",
+      "input_type": "word"
+    },
+    {
+      "display": "忍耐",
+      "input": "rěnnài",
+      "annotation": "rěnnài / 忍耐する",
+      "input_type": "word"
+    },
+    {
+      "display": "人为",
+      "input": "rénwéi",
+      "annotation": "rénwéi / 人為的な",
+      "input_type": "word"
+    },
+    {
+      "display": "任意",
+      "input": "rènyì",
+      "annotation": "rènyì / 任意に、勝手に",
+      "input_type": "word"
+    },
+    {
+      "display": "日益",
+      "input": "rìyì",
+      "annotation": "rìyì / 日増しに",
+      "input_type": "word"
+    },
+    {
+      "display": "容貌",
+      "input": "róngmào",
+      "annotation": "róngmào / 容貌",
+      "input_type": "word"
+    }
+  ],
+  "records": [],
+  "createdAt": "2026-11-06T00:00:00.000Z"
+}
