@@ -1,6 +1,5 @@
 "use client"
 import { Suspense, useState } from "react"
-import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { ErrorAlert } from "@/components/ui/alert"
