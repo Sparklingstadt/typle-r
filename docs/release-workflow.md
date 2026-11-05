@@ -78,7 +78,7 @@ CI用Vercelトークンは90日期限で作成しています。期限前にSecr
    本番の`redirect_uri`（`https://typle-r-six.vercel.app/api/auth/callback/github`）を含むことです。
    これにより、本番の関数で`AUTH_SECRET`・`AUTH_URL`・`AUTH_GITHUB_ID`・`AUTH_GITHUB_SECRET`が揃って設定されていることまで確かめます。
    iPad のログインの`POST /api/auth/token`が、本文`{}`に`400`と`{"error":"loginFailed"}`を返すことも確かめます。
-9. API の文書（`api-docs/`）は、v2.24.16 から CI では公開せず、必要なときに手で公開します。Vercel のデプロイが成功した後、
+9. API の文書（`api-docs/`）は、v2.25.2 から CI では公開せず、必要なときに手で公開します。Vercel のデプロイが成功した後、
    Actions の「Docs deploy」を main で実行します（Run workflow。`docs-deploy.yml`、main 以外では何もしません）。
    main の最新のコミットの文書をビルドし、リンクを検査して、固定版の Wrangler（`docs-deploy.yml`の`WRANGLER_VERSION`）で
    Cloudflare Pages の`typle-api-docs`に公開し、公開後に主なページが返ることを確かめます。
