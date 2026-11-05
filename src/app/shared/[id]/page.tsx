@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { Flag, Plus } from "lucide-react"
@@ -9,35 +9,20 @@ import { Button } from "@/components/ui/button"
 import ReportDialog from "@/components/Gallery/ReportDialog"
 import { graphql } from "@/core/graphql"
 import { MAX_LISTS, ownListCount } from "@/core/listOverview"
-import { decodePackFile, importPackFile, type PackFile } from "@/core/packFile"
+import { importPackFile, type PackFile } from "@/core/packFile"
 import { randomId } from "@/core/randomId"
 import { useErrorText } from "@/i18n/useErrorText"
 import { useWordLists } from "@/lib/useWordLists"
 import { PageMain } from "@/components/ui/page-layout"
 import SharedLists from "@/components/Shared/SharedLists"
 import { OpenPacks, SharedEnded, SharedFailed, SharedLoading } from "@/components/Shared/SharedStates"
+import { useSharedPack } from "@/lib/useSharedPack"
 
 // A shared pack is public: this page sits outside the (workspace) group, so it opens without a login or the workspace
 // gate. The root layout's WorkspaceProvider still gives it the signed-in account's library, or the guest's.
-type Shared =
-  | { state: 'loading' }
-  | { state: 'ended' }
-  | { state: 'failed'; reason: unknown }
-  | { state: 'ready'; file: PackFile }
-
 export default function SharedPack() {
   const { id } = useParams<{ id: string }>()
-  const [shared, setShared] = useState<Shared>({ state: 'loading' })
-  useEffect(() => {
-    let active = true
-    const show = (next: Shared) => { if (active) setShared(next) }
-    // The file comes as the JSON value it was stored as, and null once the link is stopped.
-    graphql<{ sharedPack: unknown }>('query SharedPack($id: String!) { sharedPack(id: $id) }', { id }).then(({ sharedPack }) => {
-      if (sharedPack === null) return show({ state: 'ended' })
-      show({ state: 'ready', file: decodePackFile(JSON.stringify(sharedPack)) })
-    }).catch(reason => show({ state: 'failed', reason }))
-    return () => { active = false }
-  }, [id])
+  const shared = useSharedPack(id)
 
   return <PageMain width="narrow">
     {shared.state === 'loading' ? <SharedLoading />
