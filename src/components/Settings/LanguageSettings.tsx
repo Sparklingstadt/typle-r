@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { setLocale } from '@/i18n/actions'
 import { localeNames, locales, type Locale } from '@/i18n/config'
 import { cn } from '@/lib/utils'
+import { IconTile } from '@/components/ui/icon-tile'
 
 // Choosing a language applies it at once: the server action stores it in a cookie and the page re-renders in it.
 export default function LanguageSettings() {
@@ -27,7 +28,7 @@ export default function LanguageSettings() {
 
   return <section aria-labelledby={`${id}-heading`} className="rounded-xl border bg-card p-4 sm:p-5">
     <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-3 sm:gap-x-4">
-      <span className="grid size-10 place-items-center rounded-lg bg-muted text-muted-foreground"><Languages className="size-5" aria-hidden="true" /></span>
+      <IconTile icon={Languages} />
       <div className="min-w-0 space-y-1">
         <h2 id={`${id}-heading`} className="font-bold">{t('language.heading')}</h2>
         <p id={`${id}-description`} className="text-sm text-muted-foreground">{t('language.description')}</p>

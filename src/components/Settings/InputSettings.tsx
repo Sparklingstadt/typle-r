@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { Switch } from '@/components/ui/switch'
 import { setInputSetting, useInputSetting, type InputSetting } from '@/lib/inputSettings'
 import { cn } from '@/lib/utils'
+import { IconTile } from '@/components/ui/icon-tile'
 
 const icons: Record<InputSetting, LucideIcon> = { simpleSpecial: CaseSensitive, ignoreCase: CaseUpper }
 
@@ -18,7 +19,7 @@ export default function InputSettings({ setting }: { setting: InputSetting }) {
 
   return <section aria-labelledby={`${id}-heading`} className="rounded-xl border bg-card p-4 sm:p-5">
     <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-3 sm:gap-x-4">
-      <span className="grid size-10 place-items-center rounded-lg bg-muted text-muted-foreground"><Icon className="size-5" aria-hidden="true" /></span>
+      <IconTile icon={Icon} />
       <div className="min-w-0 space-y-1">
         <h2 id={`${id}-heading`} className="font-bold">{t(`${setting}.heading`)}</h2>
         <p id={`${id}-description`} className="text-sm text-muted-foreground">{t(`${setting}.description`)}</p>
