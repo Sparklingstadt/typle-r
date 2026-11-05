@@ -4,7 +4,6 @@ import { getTranslations } from "next-intl/server"
 import { ArrowRight, Cloud, Command, HardDrive, History, Keyboard, Library, List, Monitor, Plus, TriangleAlert, Trophy, type LucideIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ColorLegend, GuideSection, Keys, Points, Topic, guideTags } from "@/components/Guide/GuideParts"
-import { PageMain } from "@/components/ui/page-layout"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("guide.meta")
@@ -35,7 +34,7 @@ const shortcuts: { screen: "practice" | "complete" | "editor"; rows: { keys: str
 export default async function Guide() {
   const t = await getTranslations("guide")
   const rich = (key: Parameters<typeof t.rich>[0]) => t.rich(key, guideTags)
-  return <PageMain width="medium">
+  return <main className="mx-auto w-full max-w-5xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
     <header className="mb-8 space-y-1">
       <h1 className="text-2xl font-bold">{t("title")}</h1>
       <p className="text-sm text-muted-foreground">{t("intro")}</p>
@@ -263,5 +262,5 @@ export default async function Guide() {
         </div>
       </div>
     </div>
-  </PageMain>
+  </main>
 }

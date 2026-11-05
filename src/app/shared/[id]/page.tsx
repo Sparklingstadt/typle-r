@@ -16,7 +16,6 @@ import { randomId } from "@/core/randomId"
 import { importedLevel } from "@/core/wordPacks"
 import { useErrorText } from "@/i18n/useErrorText"
 import { useWordLists } from "@/lib/useWordLists"
-import { PageMain } from "@/components/ui/page-layout"
 
 // A shared pack is public: this page sits outside the (workspace) group, so it opens without a login or the workspace
 // gate. The root layout's WorkspaceProvider still gives it the signed-in account's library, or the guest's.
@@ -40,12 +39,12 @@ export default function SharedPack() {
     return () => { active = false }
   }, [id])
 
-  return <PageMain width="narrow">
+  return <main className="mx-auto w-full max-w-4xl px-4 pt-8 pb-16 sm:px-6 lg:px-8">
     {shared.state === 'loading' ? <Loading />
       : shared.state === 'ended' ? <Ended />
       : shared.state === 'failed' ? <Failed reason={shared.reason} />
       : <Pack id={id} file={shared.file} />}
-  </PageMain>
+  </main>
 }
 
 function Loading() {

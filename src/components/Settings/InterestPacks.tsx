@@ -12,7 +12,6 @@ import { randomId } from '@/core/randomId'
 import type { SavedWordList } from '@/core/wordLists'
 import type { Library, WordPack } from '@/core/wordPacks'
 import { applyCatalogChoices, catalogEntries, type CatalogChoice } from '@/plugins/packs/catalog'
-import { CardList } from '@/components/ui/card'
 
 type Props = {
   packs: WordPack[]
@@ -83,7 +82,7 @@ export default function InterestPacks({ packs, lists, interests, saving, updateL
       <p className="text-sm text-muted-foreground">{t('description')}</p>
     </div>
     {!entries.length ? <EmptyNote>{t('none')}</EmptyNote>
-      : <CardList>
+      : <ul className="divide-y overflow-hidden rounded-xl border bg-card">
         {entries.map(entry => {
           const words = entry.lists.reduce((sum, list) => sum + list.words.length, 0)
           const id = `interest-pack-${entry.catalogId}`
@@ -103,7 +102,7 @@ export default function InterestPacks({ packs, lists, interests, saving, updateL
               onCheckedChange={checked => setMoved(current => ({ ...current, [entry.catalogId]: checked }))} />
           </li>
         })}
-      </CardList>}
+      </ul>}
     <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 border-t bg-background/95 px-4 py-3 backdrop-blur sm:mx-0 sm:rounded-b-xl">
       {entries.length > 0 && <label className="mr-auto flex cursor-pointer items-center gap-2.5 text-sm">
         <input ref={all} type="checkbox" disabled={saving} checked={selected.length === entries.length}

@@ -16,7 +16,6 @@ import type { ErrorKey } from "@/core/appError"
 import type { SavedWordList } from "@/core/wordLists"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
 import type { WordPack } from "@/core/wordPacks"
-import { PageHeader } from "@/components/ui/page-layout"
 
 // Edits a pack: its fields and the order of its lists. Without `pack` it creates one, of the lists chosen from `lists`.
 // Leaving with unsaved changes asks first.
@@ -90,9 +89,13 @@ export default function PackEditor({ pack, lists, packs, storage, error, errorKe
     } finally { setSaving(false) }
   }}>
     <Button variant="ghost" size="lg" className="-ml-2.5 mb-2 text-muted-foreground" onClick={cancel}><ChevronLeft aria-hidden="true" />{page("title")}</Button>
-    <PageHeader title={t(pack ? "editTitle" : "createTitle")} description={t(pack ? "editDescription" : "createDescription")}>
+    <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold">{t(pack ? "editTitle" : "createTitle")}</h1>
+        <p className="text-sm text-muted-foreground">{t(pack ? "editDescription" : "createDescription")}</p>
+      </div>
       <PageStorageBadge storage={storage} />
-    </PageHeader>
+    </header>
 
     <div className="space-y-6">
       <PackFields value={fields} onChange={setFields} suggestions={suggestions} nameError={nameError} />
