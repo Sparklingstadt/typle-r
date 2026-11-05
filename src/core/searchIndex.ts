@@ -14,12 +14,12 @@ export type RobotsRules = {
 }
 
 // Pages that open without a login and say the same thing to every visitor.
-// Pages that show the visitor's own lists or records (records, rankings, edit, ...) are left out:
-// a crawler would only see an empty workspace there.
+// Pages that show the visitor's own lists or records (home, records, rankings, edit, ...) are left out and marked
+// noindex (src/lib/pageMetadata.ts): a crawler would only see an empty workspace there. The gallery is noindex too.
 export const INDEXED_PATHS: readonly { path: string; changeFrequency: SitemapEntry['changeFrequency']; priority: number }[] = [
-  { path: '/home', changeFrequency: 'weekly', priority: 1 },
+  { path: '/', changeFrequency: 'weekly', priority: 1 },
   { path: '/play', changeFrequency: 'weekly', priority: 0.9 },
-  { path: '/gallery', changeFrequency: 'weekly', priority: 0.8 },
+  { path: '/packs/catalog', changeFrequency: 'weekly', priority: 0.8 },
   { path: '/guide', changeFrequency: 'monthly', priority: 0.6 },
   { path: '/about', changeFrequency: 'monthly', priority: 0.5 },
 ]

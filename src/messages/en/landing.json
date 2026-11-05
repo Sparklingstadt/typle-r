@@ -1,0 +1,48 @@
+{
+  "meta": {
+    "title": "Typle | Learn the words you want by typing them",
+    "description": "A free typing app for learning programming commands and syntax as well as words in other languages. Practice with {total} official lists or your own word lists, no login needed."
+  },
+  "hero": {
+    "eyebrow": "Free, no login needed",
+    "title": "Learn the words you want by typing them.",
+    "lead": "Typle is a typing app that lets you practice with your own word lists or official packs. Pick up programming commands and syntax, or words in another language, as you type.",
+    "play": "Start practicing without logging in",
+    "catalog": "Browse official packs",
+    "home": "Go to Home"
+  },
+  "packs": {
+    "title": "Official packs",
+    "lead": "Follow any of {total} official lists and start practicing right away.",
+    "programming": {
+      "title": "Programming",
+      "count": "{count, plural, one {# list} other {# lists}}",
+      "text": "Syntax for Go, Java, Kotlin, TypeScript and more, commands for Linux, Vim, the AWS CLI and more, and PostgreSQL error codes."
+    },
+    "languages": {
+      "title": "Languages",
+      "count": "{count, plural, one {# list} other {# lists}}",
+      "text": "Words and phrases in Chinese (HSK levels 5 and 6), Korean, English, French, German, Spanish, Russian and Czech. Chinese and Korean can also be practiced by handwriting."
+    }
+  },
+  "features": {
+    "title": "What you can do",
+    "own": {
+      "title": "Practice with your own word lists",
+      "text": "Add the words you want to learn and practice them. The word shown and the characters typed can differ, and you can import from CSV or TSV files."
+    },
+    "recall": {
+      "title": "Type from memory",
+      "text": "A mode that hides the answer and shows the note as a hint, so you can check whether you really remember each word."
+    },
+    "records": {
+      "title": "See your progress",
+      "text": "Speed, accuracy and mistakes are recorded every time, so your personal bests and trends show how far you have come."
+    }
+  },
+  "storage": {
+    "title": "Where your data is kept",
+    "text": "Every feature works without logging in. Your data is kept in this browser, and logging in with GitHub syncs it across devices.",
+    "more": "<guide>How to use</guide> / <about>About Typle</about>"
+  }
+}
