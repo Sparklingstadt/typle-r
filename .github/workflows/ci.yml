@@ -95,6 +95,7 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run lint
+      - run: npm run knip
       # Next.js reuses its build cache across runs; a key that misses the sources still restores the newest cache for
       # the same lockfile, and next build only reuses what is still valid.
       - name: Cache Next.js build
