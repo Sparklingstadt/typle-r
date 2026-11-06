@@ -17,7 +17,6 @@ import { createWorkspaceSession, type WorkspaceSession } from '../core/workspace
 import { WorkspaceError } from '../core/workspaceStore'
 
 export type RecordSave = (listId: string, record: PracticeRecord) => Promise<boolean>
-export type WorkspaceUpdate = (change: (lists: SavedWordList[]) => SavedWordList[], useDefaults?: boolean) => Promise<boolean>
 // The error is kept as caught and turned into text while rendering, so it follows a change of language.
 type Failure = { reason: unknown; fallback: ErrorKey } | null
 
