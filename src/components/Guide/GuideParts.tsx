@@ -16,7 +16,7 @@ export function PageLink({ href, children }: { href: string; children: ReactNode
 const chunkText = (chunks: ReactNode) => (Array.isArray(chunks) ? chunks : [chunks]).join('')
 
 // Rich-text tags shared by the guide's messages: links to each screen, in-page links and key combinations ("Ctrl+Enter").
-export const guideTags = {
+const guideTags = {
   play: (chunks: ReactNode) => <PageLink href="/play">{chunks}</PageLink>,
   create: (chunks: ReactNode) => <PageLink href="/packs/create">{chunks}</PageLink>,
   edit: (chunks: ReactNode) => <PageLink href="/edit">{chunks}</PageLink>,
@@ -28,6 +28,13 @@ export const guideTags = {
   devicesSection: (chunks: ReactNode) => <a href="#devices" className={guideLink}>{chunks}</a>,
   wordCount: (chunks: ReactNode) => <a href="#word-count" className={guideLink}>{chunks}</a>,
   keys: (chunks: ReactNode) => <Keys keys={chunkText(chunks).split('+')} />,
+}
+
+// The guide's messages, plain and with the tags above.
+export function useGuideText() {
+  const t = useTranslations('guide')
+  const rich = (key: Parameters<typeof t.rich>[0]) => t.rich(key, guideTags)
+  return { t, rich }
 }
 
 export function GuideSection({ id, icon: Icon, title, lead, children }: {
