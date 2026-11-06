@@ -24,6 +24,7 @@ and one release at a time:
 
 1. Run the checks `verify` would have run, on the PR head, in its order:
    `node --test scripts/ci/release.test.cjs`, `npm run db:migrate` on a test DB,
+   `node --test tests/migrate.test.cjs` (with `TYPLE_TEST_DATABASE_URL` on that DB),
    `gofmt -l .` (empty), `go vet ./...`,
    `GOTOOLCHAIN=go1.25.0 go run honnef.co/go/tools/cmd/staticcheck@v0.7.0 ./...`, `go test ./...` (with
    `TYPLE_TEST_DATABASE_URL` on that DB), `npm run typecheck`, `npm test`, `npm run lint`, `npm run knip`, `npm run build`,

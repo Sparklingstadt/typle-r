@@ -467,7 +467,7 @@ func TestDropLegacyMigration(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	script, err := os.ReadFile(filepath.Join("..", "..", "..", "prisma", "migrations", "0032_drop_legacy", "migration.sql"))
+	script, err := os.ReadFile(filepath.Join("..", "..", "..", "db", "migrations", "0032_drop_legacy", "migration.sql"))
 	if err != nil {
 		t.Fatal(err)
 	}

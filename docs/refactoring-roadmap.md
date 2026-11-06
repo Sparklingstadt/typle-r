@@ -4,10 +4,10 @@
 
 ## 終わったこと
 
-段階 0〜2 は v2.36.1 から v2.36.14 で終わりました。
+段階 0〜2 は v2.36.1 から v2.36.14 で、#16 は v2.36.19 で終わりました。
 
 - 検査: `staticcheck`・`knip`・単体テストのカバレッジ、`.claude` を除いた `npm run lint`、`cn` の import の規則を CI に入れました。
-- 依存: Prisma を移行専用にし、範囲内の依存を更新しました。
+- 依存: 範囲内の依存を更新し、Prisma をなくしました。マイグレーションは `db/migrations` の SQL を `scripts/migrate.cjs` が適用します（事故の手順は `docs/release-workflow.md`）。
 - 画面: 旧 `Page`／`PageContainer` を消し、200 行を超えていた画面を分けました。
 - TS と Go: 上限値と CSV・TSV を `tests/fixtures` の共通の fixture で照合しています。
 - CI: `verify` を Node・Go・E2E の並列ジョブに分けました。
@@ -20,10 +20,8 @@
 | # | 項目 | 決めること |
 |---|---|---|
 | 11 | `/api/v1`（`typle-api`）の行く末 | 使う人がいるか。iPad・Mac を GraphQL へ移すか |
-| 16 | `prisma migrate` を SQL だけの移行に置き換える | 本番の移行の流れを変えてよいか |
 
 - **#11 `/api/v1`** — `server/internal/api`（1,355 行、テスト 1,427 行）は手元の `typle-api` 専用で、Vercel には載せていません。Web は v2.14.0 から GraphQL、iPad・Mac は REST を使っています。iPad・Mac が GraphQL へ移れば REST の HTTP の包み（`server/internal/web` の各ハンドラー）を減らせます。`/api/v1` は、使う人がいるなら `api-docs` で保証する範囲を書き、いないなら消します。
-- **#16 移行の道具** — `prisma migrate deploy` が本番の移行を流しています。SQL だけの移行に置き換えれば Prisma への依存がなくなりますが、本番の DB の流れを変えるので、0002 の失敗（2026-10-31）のような事故の手順を先に書いてから進めます。急ぎません。
 
 メジャーの依存の更新（ESLint 10・TypeScript 7・`@types/node` 26・`cn` 0.5）は、1つずつ別の PR にします。範囲内の依存の更新は月に1回、1つの PR にまとめます。
 

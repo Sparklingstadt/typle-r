@@ -205,7 +205,7 @@ func normalized(lists, devices, packs []byte) (*Workspace, error) {
 		}
 	}
 	// Data without packs is no longer converted by the lists' groups (data from before v1.0.0 is deleted, see
-	// prisma/migrations/0032_drop_legacy): a list without a pack is given one of its own, as any is.
+	// db/migrations/0032_drop_legacy): a list without a pack is given one of its own, as any is.
 	w := &Workspace{Devices: registered}
 	w.Packs, w.Lists = repairLibrary(saved, decoded)
 	return w, nil
