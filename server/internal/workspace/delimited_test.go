@@ -1,7 +1,12 @@
 package workspace
 
 import (
+	"encoding/json"
+	"errors"
+	"os"
+	"path/filepath"
 	"reflect"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -136,5 +141,67 @@ func TestTrimJS(t *testing.T) {
 		if got := trimJS(input); got != want {
 			t.Errorf("trimJS(%q) = %q, want %q", input, got, want)
 		}
+	}
+}
+
+// The cases are shared with tests/delimited.test.cjs, so both read and write word files alike.
+func TestDelimitedFixtures(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join("..", "..", "..", "tests", "fixtures", "delimited", "cases.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	type word struct {
+		Input, Display, Annotation string
+		InputType                  string `json:"input_type"`
+	}
+	var cases struct {
+		Read []struct {
+			Name, Delimiter, Source string
+			Words                   []word
+			Error                   *struct {
+				Key  string
+				Line int
+			}
+		}
+		Write []struct {
+			Name, CSV string
+			Words     []word
+		}
+	}
+	if err := json.Unmarshal(data, &cases); err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range cases.Read {
+		t.Run("reads "+c.Name, func(t *testing.T) {
+			words, err := ParseWordFile(c.Source, []rune(c.Delimiter)[0])
+			if c.Error != nil {
+				var failure *Error
+				if !errors.As(err, &failure) || failure.Key != c.Error.Key || failure.Line != c.Error.Line {
+					t.Fatalf("err = %#v, want %+v", err, *c.Error)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			got := make([]word, 0, len(words))
+			for _, w := range words {
+				got = append(got, word{w.Input, w.Display, w.Annotation, w.InputType})
+			}
+			if !slices.Equal(got, c.Words) {
+				t.Fatalf("words = %+v, want %+v", got, c.Words)
+			}
+		})
+	}
+	for _, c := range cases.Write {
+		t.Run("writes "+c.Name, func(t *testing.T) {
+			words := make([]Word, 0, len(c.Words))
+			for _, w := range c.Words {
+				words = append(words, Word{Input: w.Input, Display: w.Display, Annotation: w.Annotation, InputType: w.InputType})
+			}
+			if got := EncodeWordCSV(words); got != c.CSV {
+				t.Fatalf("csv = %q, want %q", got, c.CSV)
+			}
+		})
 	}
 }
