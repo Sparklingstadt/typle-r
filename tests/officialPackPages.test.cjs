@@ -39,9 +39,25 @@ test('an unknown slug has no page', () => {
   assert.equal(officialPackPage('catalog'), null)
 })
 
-test('the sitemap lists every pack page after the fixed pages', () => {
+test('every official pack has a page', () => {
+  const paged = new Set(OFFICIAL_PACK_PAGES.map(page => page.catalogId))
+  for (const entry of officialPacks()) assert.ok(paged.has(entry.catalogId), entry.catalogId)
+})
+
+test('a canonical page is another page that has no canonical of its own', () => {
+  const canonicals = OFFICIAL_PACK_PAGES.filter(page => page.canonical)
+  assert.ok(canonicals.length > 0)
+  for (const page of canonicals) {
+    const target = OFFICIAL_PACK_PAGES.find(item => item.slug === page.canonical)
+    assert.ok(target && target.slug !== page.slug, page.slug)
+    assert.equal(target.canonical, undefined, page.slug)
+  }
+})
+
+test('the sitemap lists every pack page but the ones that point to another, after the fixed pages', () => {
   const entries = sitemapEntries('https://typle.sparklingstadt.com', officialPackPagePaths())
   const packs = entries.filter(entry => entry.url.startsWith('https://typle.sparklingstadt.com/packs/') && !entry.url.endsWith('/catalog'))
-  assert.deepEqual(packs.map(entry => entry.url), OFFICIAL_PACK_PAGES.map(page => `https://typle.sparklingstadt.com/packs/${page.slug}`))
+  const listed = OFFICIAL_PACK_PAGES.filter(page => !page.canonical)
+  assert.deepEqual(packs.map(entry => entry.url), listed.map(page => `https://typle.sparklingstadt.com/packs/${page.slug}`))
   for (const entry of packs) assert.equal(entry.priority, PACK_PAGE_PRIORITY)
 })

@@ -3,7 +3,9 @@
 import pages from './pages.json'
 import { officialPacks, type OfficialPack } from './catalog'
 
-export type OfficialPackPage = { slug: string; catalogId: string; description: string }
+// A pack whose words are the same as another's (the same words split by level) names that page as `canonical`:
+// search engines are pointed to that page, and the sitemap leaves this one out.
+export type OfficialPackPage = { slug: string; catalogId: string; description: string; canonical?: string }
 
 export const OFFICIAL_PACK_PAGES: readonly OfficialPackPage[] = pages
 
@@ -16,5 +18,5 @@ export function officialPackPage(slug: string): OfficialPackPageEntry | null {
 }
 
 export function officialPackPagePaths(): string[] {
-  return OFFICIAL_PACK_PAGES.map(page => `/packs/${page.slug}`)
+  return OFFICIAL_PACK_PAGES.filter(page => !page.canonical).map(page => `/packs/${page.slug}`)
 }
