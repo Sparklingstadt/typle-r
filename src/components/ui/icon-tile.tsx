@@ -1,4 +1,4 @@
-import { cn } from "cn"
+import { cn } from "@/lib/utils"
 import type { LucideIcon } from "lucide-react"
 
 // The square icon at the start of a card or row.
