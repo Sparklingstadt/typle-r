@@ -153,7 +153,7 @@ func (s *server) categories(r *http.Request) ([]store.GalleryCategory, *failure)
 }
 
 // galleryAdded counts one more "added to my packs" for the pack ?id=. Its Origin is checked as DELETE /api/shares's is.
-// It is limited to addedPerMinute a minute per client (limited), after the checks. A pack that is not in the gallery is answered the same 204, so that the answer does not tell which shares are listed.
+// It is limited to addedPerMinute a minute per client (overLimit), after the checks. A pack that is not in the gallery is answered the same 204, so that the answer does not tell which shares are listed.
 func (s *server) galleryAdded(w http.ResponseWriter, r *http.Request) {
 	w = galleryHeaders(w)
 	if !methods(w, r, http.MethodPost) {
@@ -213,7 +213,7 @@ func readStringFields(r *http.Request, limit int64, names ...string) (map[string
 
 // galleryReport records a report of the pack "id" for "reason". It is checked as POST /api/gallery/added is, and as
 // PUT /api/shares is for its JSON body. A share that is not in the gallery is notInGallery, so that /shared/<id> does
-// not say a link-only share has ended. It is limited to reportsPerMinute a minute per client (limited), after the checks.
+// not say a link-only share has ended. It is limited to reportsPerMinute a minute per client (overLimit), after the checks.
 func (s *server) galleryReport(w http.ResponseWriter, r *http.Request) {
 	w = galleryHeaders(w)
 	if !methods(w, r, http.MethodPost) {
