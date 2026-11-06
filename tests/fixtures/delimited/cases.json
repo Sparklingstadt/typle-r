@@ -1,0 +1,5397 @@
+{
+ "read": [
+  {
+   "name": "csv",
+   "delimiter": ",",
+   "source": "input,display\na,あ\n",
+   "words": [
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    }
+   ]
+  },
+  {
+   "name": "tsv",
+   "delimiter": "\t",
+   "source": "input\tdisplay\na\tあ\n",
+   "words": [
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    }
+   ]
+  },
+  {
+   "name": "a comma is plain text in a tsv",
+   "delimiter": "\t",
+   "source": "input\tdisplay\na,b\tあ\n",
+   "words": [
+    {
+     "input": "a,b",
+     "display": "あ",
+     "annotation": ""
+    }
+   ]
+  },
+  {
+   "name": "bom and crlf",
+   "delimiter": ",",
+   "source": "﻿input,display\r\na,あ\r\n",
+   "words": [
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    }
+   ]
+  },
+  {
+   "name": "a lone cr ends a row",
+   "delimiter": ",",
+   "source": "input,display\ra,あ\rb,い",
+   "words": [
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "b",
+     "display": "い",
+     "annotation": ""
+    }
+   ]
+  },
+  {
+   "name": "no newline at the end",
+   "delimiter": ",",
+   "source": "input,display\na,あ",
+   "words": [
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    }
+   ]
+  },
+  {
+   "name": "reordered columns",
+   "delimiter": ",",
+   "source": "annotation,display,input\n注,あ,a\n",
+   "words": [
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": "注"
+    }
+   ]
+  },
+  {
+   "name": "anotation is read as annotation",
+   "delimiter": ",",
+   "source": "input,display,anotation\na,あ,注\n",
+   "words": [
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": "注"
+    }
+   ]
+  },
+  {
+   "name": "spaces around header names",
+   "delimiter": ",",
+   "source": " input , display \na,あ\n",
+   "words": [
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    }
+   ]
+  },
+  {
+   "name": "input_type",
+   "delimiter": ",",
+   "source": "input,display,input_type\na,あ,command\nb,い,code\nc,う,word\nd,え,\n",
+   "words": [
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": "",
+     "input_type": "command"
+    },
+    {
+     "input": "b",
+     "display": "い",
+     "annotation": "",
+     "input_type": "code"
+    },
+    {
+     "input": "c",
+     "display": "う",
+     "annotation": "",
+     "input_type": "word"
+    },
+    {
+     "input": "d",
+     "display": "え",
+     "annotation": ""
+    }
+   ]
+  },
+  {
+   "name": "quotes hold the delimiter, newlines and doubled quotes",
+   "delimiter": ",",
+   "source": "input,display,annotation\n\"a,b\",\"x\r\ny\",\"say \"\"hi\"\"\"\n",
+   "words": [
+    {
+     "input": "a,b",
+     "display": "x\r\ny",
+     "annotation": "say \"hi\""
+    }
+   ]
+  },
+  {
+   "name": "blank lines are skipped",
+   "delimiter": ",",
+   "source": "input,display\n\n  \na,あ\n\n",
+   "words": [
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    }
+   ]
+  },
+  {
+   "name": "fields keep their spaces",
+   "delimiter": ",",
+   "source": "input,display\n a , あ \n",
+   "words": [
+    {
+     "input": " a ",
+     "display": " あ ",
+     "annotation": ""
+    }
+   ]
+  },
+  {
+   "name": "the longest fields, in UTF-16 units",
+   "delimiter": ",",
+   "source": "input,display,annotation\n😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀,あ,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n",
+   "words": [
+    {
+     "input": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+     "display": "あ",
+     "annotation": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+   ]
+  },
+  {
+   "name": "the most rows",
+   "delimiter": ",",
+   "source": "input,display\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\n",
+   "words": [
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    },
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": ""
+    }
+   ]
+  },
+  {
+   "name": "an empty file",
+   "delimiter": ",",
+   "source": "",
+   "error": {
+    "key": "importHeaderRequired"
+   }
+  },
+  {
+   "name": "only blank lines",
+   "delimiter": ",",
+   "source": "\n\n",
+   "error": {
+    "key": "importHeaderRequired"
+   }
+  },
+  {
+   "name": "no display column",
+   "delimiter": ",",
+   "source": "input,annotation\na,注\n",
+   "error": {
+    "key": "importHeaderRequired"
+   }
+  },
+  {
+   "name": "a repeated column",
+   "delimiter": ",",
+   "source": "input,display,input\na,あ,b\n",
+   "error": {
+    "key": "importHeaderDuplicate"
+   }
+  },
+  {
+   "name": "anotation beside annotation",
+   "delimiter": ",",
+   "source": "input,display,annotation,anotation\na,あ,b,c\n",
+   "error": {
+    "key": "importHeaderDuplicate"
+   }
+  },
+  {
+   "name": "an unknown column",
+   "delimiter": ",",
+   "source": "input,display,note\na,あ,b\n",
+   "error": {
+    "key": "importHeaderUnknown"
+   }
+  },
+  {
+   "name": "no rows",
+   "delimiter": ",",
+   "source": "input,display\n",
+   "error": {
+    "key": "importNoRows"
+   }
+  },
+  {
+   "name": "too many rows",
+   "delimiter": ",",
+   "source": "input,display\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\na,あ\n",
+   "error": {
+    "key": "importTooManyRows"
+   }
+  },
+  {
+   "name": "too few columns",
+   "delimiter": ",",
+   "source": "input,display\na,あ\nb\n",
+   "error": {
+    "key": "importColumnCount",
+    "line": 3
+   }
+  },
+  {
+   "name": "too many columns, after a multiline field",
+   "delimiter": ",",
+   "source": "input,display\n\"a\nb\",あ\nc,い,う\n",
+   "error": {
+    "key": "importColumnCount",
+    "line": 4
+   }
+  },
+  {
+   "name": "an unclosed quote",
+   "delimiter": ",",
+   "source": "input,display\n\"a,あ\n",
+   "error": {
+    "key": "importQuote",
+    "line": 3
+   }
+  },
+  {
+   "name": "a quote inside a field",
+   "delimiter": ",",
+   "source": "input,display\na\"b,あ\n",
+   "error": {
+    "key": "importQuote",
+    "line": 2
+   }
+  },
+  {
+   "name": "text after a closing quote",
+   "delimiter": ",",
+   "source": "input,display\n\"a\"b,あ\n",
+   "error": {
+    "key": "importQuote",
+    "line": 2
+   }
+  },
+  {
+   "name": "an empty input",
+   "delimiter": ",",
+   "source": "input,display\n ,あ\n",
+   "error": {
+    "key": "importFieldRequired",
+    "line": 2
+   }
+  },
+  {
+   "name": "an empty display",
+   "delimiter": ",",
+   "source": "input,display\na,\n",
+   "error": {
+    "key": "importFieldRequired",
+    "line": 2
+   }
+  },
+  {
+   "name": "an input too long",
+   "delimiter": ",",
+   "source": "input,display\n😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀a,あ\n",
+   "error": {
+    "key": "importFieldTooLong",
+    "line": 2
+   }
+  },
+  {
+   "name": "an annotation too long",
+   "delimiter": ",",
+   "source": "input,display,annotation\na,あ,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n",
+   "error": {
+    "key": "importFieldTooLong",
+    "line": 2
+   }
+  },
+  {
+   "name": "an unknown input_type",
+   "delimiter": ",",
+   "source": "input,display,input_type\na,あ,other\n",
+   "error": {
+    "key": "importInputTypeInvalid",
+    "line": 2
+   }
+  }
+ ],
+ "write": [
+  {
+   "name": "plain words",
+   "words": [
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": "注"
+    }
+   ],
+   "csv": "﻿input,display,annotation\r\n\"a\",\"あ\",\"注\"\r\n"
+  },
+  {
+   "name": "quotes and newlines",
+   "words": [
+    {
+     "input": "a\"b",
+     "display": "x\ny",
+     "annotation": "a,b"
+    }
+   ],
+   "csv": "﻿input,display,annotation\r\n\"a\"\"b\",\"x\ny\",\"a,b\"\r\n"
+  },
+  {
+   "name": "input_type appears when any word has one",
+   "words": [
+    {
+     "input": "a",
+     "display": "あ",
+     "annotation": "",
+     "input_type": "code"
+    },
+    {
+     "input": "b",
+     "display": "い",
+     "annotation": ""
+    }
+   ],
+   "csv": "﻿input,display,annotation,input_type\r\n\"a\",\"あ\",\"\",\"code\"\r\n\"b\",\"い\",\"\",\"\"\r\n"
+  }
+ ]
+}
