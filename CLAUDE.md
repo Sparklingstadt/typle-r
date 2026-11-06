@@ -24,8 +24,9 @@ and one release at a time:
 
 1. Run the checks `verify` would have run, on the PR head, in its order:
    `node --test scripts/ci/release.test.cjs`, `npm run db:migrate` on a test DB,
-   `gofmt -l .` (empty), `go vet ./...`, `go test ./...` (with
-   `TYPLE_TEST_DATABASE_URL` on that DB), `npm run typecheck`, `npm test`, `npm run lint`, `npm run build`,
+   `gofmt -l .` (empty), `go vet ./...`,
+   `GOTOOLCHAIN=go1.25.0 go run honnef.co/go/tools/cmd/staticcheck@v0.7.0 ./...`, `go test ./...` (with
+   `TYPLE_TEST_DATABASE_URL` on that DB), `npm run typecheck`, `npm test`, `npm run lint`, `npm run knip`, `npm run build`,
    `npm run test:e2e`, and `npm run docs:build` / `npm run docs:check` in
    `api-docs/`. Report any check that could not be run; do not merge on a failure.
 2. Merge the PR as in the required order (never push to main directly), after the user confirms.

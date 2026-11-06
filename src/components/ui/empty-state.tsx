@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cn } from "cn"
+import { cn } from "@/lib/utils"
 import type { LucideIcon } from "lucide-react"
 
 // A one-line dashed note for a list that has nothing to show.

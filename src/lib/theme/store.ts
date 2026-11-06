@@ -2,7 +2,6 @@ import { parseThemePreference, SYSTEM_DARK_QUERY, THEME_STORAGE_KEY, type ThemeP
 
 const changeEvent = 'typle-r:theme-change'
 export const getResolvedSnapshot = () => document.documentElement.classList.contains('dark')
-export const getServerSnapshot = (): ThemePreference => 'system'
 export const getSnapshot = () => parseThemePreference(document.documentElement.dataset.themePreference)
 
 function apply(preference: ThemePreference) {
