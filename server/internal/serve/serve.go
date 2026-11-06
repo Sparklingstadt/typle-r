@@ -1,4 +1,4 @@
-// Package serve runs the HTTP server of a command (typle-web, typle-api) until it is told to stop.
+// Package serve runs the HTTP server of a command (typle-web) until it is told to stop.
 package serve
 
 import (

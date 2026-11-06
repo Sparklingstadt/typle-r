@@ -35,7 +35,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	// The timeouts of typle-api: a client that sends or reads slowly, or keeps an idle connection open, does not hold it
+	// A client that sends or reads slowly, or keeps an idle connection open, does not hold it
 	// for ever.
 	server := &http.Server{Handler: backend, ReadHeaderTimeout: 10 * time.Second,
 		ReadTimeout: 30 * time.Second, WriteTimeout: time.Minute, IdleTimeout: 2 * time.Minute}

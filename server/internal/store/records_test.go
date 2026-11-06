@@ -71,7 +71,7 @@ func TestRecordsMoveOnFirstWrite(t *testing.T) {
 	connection, conn := database(t)
 	id := owner(t, conn)
 	insertLegacy(t, conn, id, legacyLists)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	before, err := s.Read(ctx, id)
 	if err != nil {
 		t.Fatal(err)
@@ -115,7 +115,7 @@ func TestAddRecordWritesOneRow(t *testing.T) {
 	connection, conn := database(t)
 	id := owner(t, conn)
 	insertLegacy(t, conn, id, legacyLists)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	if _, err := s.Modify(ctx, id, createList("c")); err != nil {
 		t.Fatal(err)
 	}
@@ -150,7 +150,7 @@ func TestWriteRevisionRecords(t *testing.T) {
 	connection, conn := database(t)
 	id := owner(t, conn)
 	insertLegacy(t, conn, id, legacyLists)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	if _, err := s.WriteRevision(ctx, id, 1, Change{HasDevices: true}); err != nil {
 		t.Fatal(err)
 	}
@@ -198,7 +198,7 @@ func TestRecordsLeftInLists(t *testing.T) {
 	connection, conn := database(t)
 	id := owner(t, conn)
 	insertLegacy(t, conn, id, legacyLists)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	if _, err := s.Modify(ctx, id, createList("c")); err != nil {
 		t.Fatal(err)
 	}
@@ -234,7 +234,7 @@ func TestRecordPage(t *testing.T) {
 	connection, conn := database(t)
 	id := owner(t, conn)
 	insertLegacy(t, conn, id, legacyLists)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	if _, ok, err := s.Records(ctx, id, "l1", nil, 10); ok || err != nil {
 		t.Fatalf("before the move: %v, %v", ok, err)
 	}
@@ -291,7 +291,7 @@ func TestRecordsRollback(t *testing.T) {
 	moved, kept := owner(t, conn), owner(t, conn)
 	insertLegacy(t, conn, moved, legacyLists)
 	insertLegacy(t, conn, kept, legacyLists)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	if _, err := s.Modify(ctx, moved, createList("c")); err != nil {
 		t.Fatal(err)
 	}
@@ -323,7 +323,7 @@ func TestRecordsRollbackDuringSave(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	if _, err := s.WriteRevision(ctx, id, 0, Change{HasDevices: true}); err != nil {
 		t.Fatal(err)
 	}
@@ -399,7 +399,7 @@ func sameLists(t *testing.T, got, want json.RawMessage) {
 func TestRecordsOfDeletedWorkspace(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	for name, create := range map[string]func(id string) error{
 		"save":   func(id string) error { _, err := s.WriteRevision(ctx, id, 0, Change{HasDevices: true}); return err },
 		"change": func(id string) error { _, err := s.Modify(ctx, id, createList("c")); return err },
@@ -505,7 +505,7 @@ func TestFollowedWordsNotSaved(t *testing.T) {
 	lists := `[{"id":"fl","name":"x","packId":"f","origin":{"listId":"` + first.Lists[0].ID + `"},"createdAt":"x",` +
 		`"words":[{"display":"a","input":"a","annotation":""}],"records":[]},` +
 		`{"id":"g","name":"G","packId":"q","createdAt":"x","words":[{"display":"g","input":"g","annotation":""}],"records":[]}]`
-	s := open(t, connection, true)
+	s := open(t, connection)
 	check := func(id string) {
 		t.Helper()
 		var stored []struct {

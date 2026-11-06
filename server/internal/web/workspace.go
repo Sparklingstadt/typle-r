@@ -64,7 +64,7 @@ func (s *server) loadWorkspace(r *http.Request, owner string) (*store.Saved, *fa
 		return nil, broken(err, "workspace.read", "databaseUnavailable")
 	}
 	if result == nil {
-		// An account that has saved nothing has no lists, not the first list that /api/v1 starts with.
+		// An account that has saved nothing has no lists, not the initial lists.
 		result = &store.Saved{Lists: json.RawMessage("[]"), Devices: json.RawMessage("[]")}
 	}
 	return result, nil

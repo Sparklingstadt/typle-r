@@ -2,7 +2,6 @@ package workspace
 
 import (
 	"encoding/json"
-	"errors"
 	"os"
 	"path/filepath"
 	"slices"
@@ -248,88 +247,5 @@ func TestDecodeListOrigin(t *testing.T) {
 	encoded, err = Encode([]List{read(``)})
 	if err != nil || strings.Contains(string(encoded), `origin`) {
 		t.Fatalf("encoded = %s, %v", encoded, err)
-	}
-}
-
-// followedLibrary is a library with the followed pack f (lists f1, f2) and the pack q of its own (list g).
-func followedLibrary() *Workspace {
-	w := &Workspace{
-		Packs: []Pack{
-			{ID: "f", Name: "Go", Description: "D", Origin: &Origin{CatalogID: "go", Version: 1, Followed: true}, CreatedAt: packStamp},
-			{ID: "q", Name: "Mine", CreatedAt: packStamp},
-		},
-		Lists: []List{
-			{ID: "f1", Name: "基本", PackID: "f", Levels: []string{"基本"}, Words: packWordsOf("go"), Records: []Record{}, CreatedAt: packStamp,
-				Origin: &ListOrigin{ListID: "basic"}},
-			{ID: "g", Name: "G", PackID: "q", Words: packWordsOf("g"), Records: []Record{}, CreatedAt: packStamp},
-			{ID: "f2", Name: "応用", PackID: "f", Levels: []string{"応用"}, Words: packWordsOf("run"), Records: []Record{}, CreatedAt: packStamp,
-				Origin: &ListOrigin{ListID: "advanced"}},
-		},
-		Devices: []Device{},
-	}
-	viewLists(w)
-	return w
-}
-
-func TestEditsOfFollowedPacksAreRefused(t *testing.T) {
-	name := text("New")
-	f, q := "f", "q"
-	for label, change := range map[string]func(w *Workspace) error{
-		"update pack": func(w *Workspace) error { _, err := UpdatePack(w, "f", PackInput{Name: name}); return err },
-		"reorder pack": func(w *Workspace) error {
-			_, err := UpdatePack(w, "f", PackInput{ListOrder: &[]string{"f2", "f1"}})
-			return err
-		},
-		"create list": func(w *Workspace) error {
-			_, err := CreateList(w, ListInput{Name: name, PackID: &f, Words: packWordsOf("x")}, "n", packNow)
-			return err
-		},
-		"update list":   func(w *Workspace) error { _, err := UpdateList(w, "f1", ListInput{Name: name}); return err },
-		"move list out": func(w *Workspace) error { _, err := UpdateList(w, "f1", ListInput{PackID: &q}); return err },
-		"move list in":  func(w *Workspace) error { _, err := UpdateList(w, "g", ListInput{PackID: &f}); return err },
-		"delete list":   func(w *Workspace) error { return DeleteList(w, "f1") },
-		"copy list":     func(w *Workspace) error { _, err := CopyList(w, "f1", nil, "n", packNow); return err },
-	} {
-		w := followedLibrary()
-		before := followedLibrary()
-		var refused *Error
-		if err := change(w); !errors.As(err, &refused) || refused.Key != "packFollowed" {
-			t.Errorf("%s: %v", label, err)
-		}
-		unchanged(t, w, before)
-	}
-	// What is not found is still not found.
-	w := followedLibrary()
-	if _, err := UpdatePack(w, "missing", PackInput{Name: name}); err == nil || err.Error() != "packNotFound" {
-		t.Errorf("update missing pack: %v", err)
-	}
-	if err := DeleteList(w, "missing"); err == nil || err.Error() != "listNotFound" {
-		t.Errorf("delete missing list: %v", err)
-	}
-}
-
-func TestFollowedPacksCanBeDeletedCopiedAndPracticed(t *testing.T) {
-	w := followedLibrary()
-	pack, err := CopyPack(w, "f", nil, "c", []string{"c1", "c2"}, packNow)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if pack.Origin != nil || pack.Description != "D" {
-		t.Fatalf("copy = %+v", pack)
-	}
-	for _, list := range w.Lists {
-		if list.PackID == "c" && list.Origin != nil {
-			t.Fatalf("copied list = %+v", list)
-		}
-	}
-	valid(t, w)
-	if _, _, err := AddRecord(w, "f1", RecordInput{Time: float(3), Date: text("2026-10-26T00:00:00.000Z"), Mistakes: float(0), Accuracy: float(100)}, "r"); err != nil {
-		t.Fatal(err)
-	}
-	if err := DeletePack(w, "f"); err != nil {
-		t.Fatal(err)
-	}
-	if ids := packIDs(w); !slices.Equal(ids, []string{"c", "q"}) {
-		t.Fatalf("packs = %v", ids)
 	}
 }

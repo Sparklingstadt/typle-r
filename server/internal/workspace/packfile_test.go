@@ -2,13 +2,11 @@ package workspace
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
-	"time"
 )
 
 // The fixtures are shared with tests/packFile.test.cjs, so Go writes the same bytes as the app's encodePackFile.
@@ -44,8 +42,6 @@ func (f packFileFixture) workspace(t *testing.T) *Workspace {
 	return normalizedOnly(t, f.Library.Lists, []byte("[]"), f.Library.Packs)
 }
 
-var packNow = time.Date(2026, 10, 26, 0, 0, 0, 0, time.UTC)
-
 func TestEncodePackFileFixtures(t *testing.T) {
 	for name, fixture := range packFileFixtures(t) {
 		t.Run(name, func(t *testing.T) {
@@ -55,66 +51,6 @@ func TestEncodePackFileFixtures(t *testing.T) {
 			}
 			if string(got) != fixture.File {
 				t.Fatalf("EncodePackFile =\n%s\nwant\n%s", got, fixture.File)
-			}
-		})
-	}
-}
-
-// A file read back and imported encodes to the same file, under a numbered name.
-func TestPackFileRoundTrip(t *testing.T) {
-	for name, fixture := range packFileFixtures(t) {
-		t.Run(name, func(t *testing.T) {
-			w := fixture.workspace(t)
-			beforeLists, beforePacks := encodeBoth(t, w)
-			file, err := DecodePackFile([]byte(fixture.File))
-			if err != nil {
-				t.Fatal(err)
-			}
-			ids := make([]string, len(file.Lists))
-			for n := range ids {
-				ids[n] = fmt.Sprintf("i%d", n)
-			}
-			pack, err := ImportPack(w, file, "imported", ids, packNow)
-			if err != nil {
-				t.Fatal(err)
-			}
-			last := w.Packs[len(w.Packs)-1]
-			if pack != &w.Packs[len(w.Packs)-1] || last.ID != "imported" || last.Name != file.Pack.Name+"（2）" ||
-				last.CreatedAt != "2026-10-26T00:00:00.000Z" || last.Origin != nil {
-				t.Fatalf("pack = %+v", last)
-			}
-			added := w.Lists[len(w.Lists)-len(ids):]
-			for n, list := range added {
-				if list.ID != ids[n] || list.PackID != "imported" || len(list.Records) != 0 || list.Records == nil ||
-					list.CreatedAt != "2026-10-26T00:00:00.000Z" {
-					t.Fatalf("list %d = %+v", n, list)
-				}
-			}
-			original, err := marshal(file.Pack.Name)
-			if err != nil {
-				t.Fatal(err)
-			}
-			renamed, err := marshal(last.Name)
-			if err != nil {
-				t.Fatal(err)
-			}
-			want := strings.Replace(fixture.File, `"name": `+string(original), `"name": `+string(renamed), 1)
-			got, err := EncodePackFile(w, "imported")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if string(got) != want {
-				t.Fatalf("EncodePackFile =\n%s\nwant\n%s", got, want)
-			}
-			// What was there stays as it was.
-			kept := &Workspace{Lists: w.Lists[:len(w.Lists)-len(ids)], Packs: w.Packs[:len(w.Packs)-1]}
-			afterLists, afterPacks := encodeBoth(t, kept)
-			if string(afterLists) != string(beforeLists) || string(afterPacks) != string(beforePacks) {
-				t.Fatalf("library changed:\n%s\n%s", afterLists, afterPacks)
-			}
-			lists, packs := encodeBoth(t, w)
-			if err := CheckPacks(w.Packs, stored(t, lists)); err != nil {
-				t.Fatalf("CheckPacks: %v (%s)", err, packs)
 			}
 		})
 	}
@@ -261,18 +197,5 @@ func TestPackFileWriting(t *testing.T) {
 	for _, bad := range []string{`{"language":"xx"}`, `{"language":"ja","x":1}`, `{}`, `"ja"`, `[]`, `{"language":null}`} {
 		_, err := DecodePackFile([]byte(packFileText(list(bad), `{"name":"p"}`)))
 		wantKey(t, err, "packFileUnreadable")
-	}
-}
-
-// A copy of a pack keeps the marks of its lists.
-func TestCopyPackKeepsWriting(t *testing.T) {
-	fixture := packFileFixtures(t)["writing.json"]
-	w := fixture.workspace(t)
-	if _, err := CopyPack(w, fixture.PackID, nil, "copy", []string{"c1", "c2", "c3"}, packNow); err != nil {
-		t.Fatal(err)
-	}
-	got := w.Lists[len(w.Lists)-3:]
-	if got[0].Writing == nil || got[0].Writing.Language != "ja" || got[1].Writing != nil || got[2].Writing == nil || got[2].Writing.Language != "ko" {
-		t.Fatalf("copied = %+v", got)
 	}
 }

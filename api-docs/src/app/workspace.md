@@ -37,12 +37,12 @@
 - `lists`・`packs`・`devices` の `null`、`packs` だけの本文、パックより前の形（`profileId`・`profiles`）は `400 invalidWorkspace` です。
 - PostgreSQL の jsonb に保存できない文字（`\u0000`、対になっていないサロゲート）は、知らない項目にあっても `400 invalidWorkspace` です。
 - 同じパックのリストで難易度が重なると `400 levelsConflict`、自作のリスト（フォローした公式パックのリストを除く）が150件を超えると `400 listLimit`、フォローした公式パックが200個を超えると `400 followLimit`（どちらも保存済みの数より増えるときだけ）、ほかの検証の誤りは `400 invalidWorkspace` です。1つのリストに2つ以上の難易度があっても拒否せず、1つにまとめて保存します。
-- 検証の規則は `/api/v1` と同じです（[リストの検証](/v1/validation.md#リストの検証)）。
-- フォロー中の公式パックのリストは、送られた単語によらず単語を空にして保存します（v2.1.0 から。`/api/v1` の書き込みも同じ）。アプリは保存のときも単語を送りません。
+- 検証の規則は [リストの検証](./validation.md#リストの検証) にあります。
+- フォロー中の公式パックのリストは、送られた単語によらず単語を空にして保存します（v2.1.0 から）。アプリは保存のときも単語を送りません。
 
 ## 記録の追加と削除
 
-`POST /api/workspace/records`・`DELETE /api/workspace/records` は、練習画面の記録の追加と、記録画面の削除です（v1.2.0・v1.4.0 から）。`/api/v1` と同じ操作（`server/internal/operation` の `AddRecord`・`DeleteRecord`）で、`revision` を使わないため、別の画面でリストを編集していても拒否されません。同じ本文で送り直しても結果は同じです。
+`POST /api/workspace/records`・`DELETE /api/workspace/records` は、練習画面の記録の追加と、記録画面の削除です（v1.2.0・v1.4.0 から）。`server/internal/operation` の `AddRecord`・`DeleteRecord` で、`revision` を使わないため、別の画面でリストを編集していても拒否されません。同じ本文で送り直しても結果は同じです。
 
 | メソッド | 本文 | 応答 |
 |---|---|---|
@@ -50,7 +50,7 @@
 | `DELETE` | `{ "accountId", "listId", "recordId" }` | `200` と保存後のワークスペース。記録やリストがすでになくても `200` |
 
 - 本文のほかの項目と、`record` の知らない項目は `400 invalidRecord` です。`record.id` は必須です。
-- 追加先のリストがなければ `404 recordListDeleted`、記録の検証の誤りは `400` と検証のキー（[記録の検証](/v1/validation.md#記録の検証)）です。
+- 追加先のリストがなければ `404 recordListDeleted`、記録の検証の誤りは `400` と検証のキー（[記録の検証](./validation.md#記録の検証)）です。
 - 端末は `deviceId`（追加する時点で登録されている端末として保存）か、`device`（`{ "id", "name", "layout" }`。練習した時点の端末としてそのまま保存。アプリはこちらを送ります）のどちらかで指定します。
 
 ::: tip 機械で読める定義

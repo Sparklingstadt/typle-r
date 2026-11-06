@@ -4,8 +4,6 @@ Typle 本体（Web版と iPad・Mac・Android・Windows 版）が使う、アプ
 
 Web版は v2.14.0 から、ワークスペース・記録・共有・ギャラリー・管理画面を [GraphQL（`POST /api/graphql`）](./graphql.md) で読み書きします。各フィールドは下の REST のパスと同じ処理とエラーのキーを使い、REST のパスは iPad・Mac 版のために残しています。
 
-スクリプトや別のアプリから読み書きする手元専用の `/api/v1` は [API（Go）](/v1/) を見てください。2つは `internal/store`・`internal/workspace`・`internal/auth` を共有します。
-
 ## エンドポイント
 
 | メソッドとパス | ログイン | 内容 |
@@ -89,4 +87,4 @@ Cookie で書き込むリクエストは、`Origin` がアプリの origin（`AU
 | `server/internal/session` | Cookie・トークン・ログイン途中の状態の署名 |
 | `server/internal/auth` | GitHub の OAuth と FFPF ID のクライアント |
 | `server/internal/store` | `typle_workspaces`・`typle_records`・`typle_shared_packs`・`typle_admins` などの読み書き |
-| `server/internal/operation` | 記録の追加・変更・削除（`/api/v1` と共通） |
+| `server/internal/operation` | 記録の追加・削除 |

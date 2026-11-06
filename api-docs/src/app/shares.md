@@ -7,11 +7,24 @@
 | `GET /api/shares` | なし | `200 { "shares": [{ "id", "packId", "name", "updatedAt", "listed", "hidden" }] }`（新しく更新した順）。`listed` はギャラリーに載っているか、`hidden` は管理者に非公開にされたか |
 | `PUT /api/shares` | `{ "packId" }` または `{ "packId", "listed" }`（`listed` は真偽値。ほかの項目はなし。4KiB まで） | `200 { "id", "packId", "name", "updatedAt", "listed", "hidden" }`。共有中のパックは同じ `id` のまま中身を取り直す。ないパックは `404 packNotFound`、本文が不正なら `400 invalidWorkspace`。非公開にされた共有に `listed` を送ると `409 sharedPackHidden` |
 | `DELETE /api/shares?pack=<パックのID>` | なし（`Content-Type` は見ない。`Origin` は見る） | `204`。共有していないパックも `204`。`pack` がなければ `400 invalidWorkspace` |
-| `GET /api/shared?id=<共有のID>` | なし | `200` とパックのファイル（`typle-pack` 形式。[`GET /api/v1/packs/{p}/export`](/v1/read.md#get-api-v1-packs-p-export) と同じ形）。持ち主の情報は含まない。ない共有・非公開にされた共有・UUID でない `id` は `404 sharedPackNotFound` |
+| `GET /api/shared?id=<共有のID>` | なし | `200` とパックのファイル（[パックのファイル](#パックのファイル)）。持ち主の情報は含まない。ない共有・非公開にされた共有・UUID でない `id` は `404 sharedPackNotFound` |
 
 - `/api/shares` はログインが必要です。`/api/shared` はログイン不要で、すべての応答（エラーも）に `X-Robots-Tag: noindex` を付けます。共有をやめたら直ちに読めなくなるよう、キャッシュさせません（`Cache-Control: no-store`）。
-- パックを削除する保存（リストの移動で空になったパックを含む）は、同じトランザクションでその共有も消します。`/api/v1` の書き込みでパックがなくなったときも同じです。
+- パックを削除する保存（リストの移動で空になったパックを含む）は、同じトランザクションでその共有も消します。
 - `listed` を送らない `{ "packId" }` だけの `PUT` は、ギャラリーへの掲載を変えません（今までのクライアントと同じ）。`listed: true` は中身を取り直してから掲載し（すでに載っていれば載せた日時は変えません）、`false` は中身を取り直してから掲載を外します。
+
+## パックのファイル
+
+アプリの「ファイルに書き出す」と同じ形です。
+
+```json
+{
+  "format": "typle-pack",
+  "version": 1,
+  "pack": { "name": "Linux", "description": "よく使うコマンド", "category": "プログラミング", "tags": ["シェル"] },
+  "lists": [{ "name": "基本", "levels": ["初級"], "words": [{ "display": "ls", "input": "ls", "annotation": "一覧" }] }]
+}
+```
 
 ## ギャラリー
 

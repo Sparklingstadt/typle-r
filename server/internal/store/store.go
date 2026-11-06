@@ -1,6 +1,5 @@
 // Package store reads and writes accounts' workspaces in the app's database (the typle_workspaces table, and their
-// practice records in typle_records: see records.go and db/migrations). Unless it is opened writable, the connection is read-only: every transaction it starts is
-// READ ONLY.
+// practice records in typle_records: see records.go and db/migrations).
 package store
 
 import (
@@ -78,16 +77,7 @@ var ErrConflict = errors.New("workspace revision is stale")
 
 type Store struct{ pool *pgxpool.Pool }
 
-// Open connects to the database and checks that it answers. Only a writable store can Modify.
-func Open(ctx context.Context, connection string, writable bool) (*Store, error) {
-	return connect(ctx, connection, func(config *pgxpool.Config) {
-		if !writable {
-			config.ConnConfig.RuntimeParams["default_transaction_read_only"] = "on"
-		}
-	})
-}
-
-// OpenApp connects as the app's backend does, writable and with a small pool: a serverless instance serves one request
+// OpenApp connects with a small pool: a serverless instance serves one request
 // at a time, and the database allows few connections in all. Connections idle for 30 seconds are closed.
 func OpenApp(ctx context.Context, connection string) (*Store, error) {
 	return connect(ctx, connection, func(config *pgxpool.Config) {
@@ -301,7 +291,7 @@ type Saved struct {
 }
 
 // Change is what a save sets. A part that is not set (HasLists, HasPacks, HasDevices, HasInterests) stays as it is.
-// Interests are only the app's: Modify, which /api/v1 changes the workspace with, leaves them as they are. Packs are set
+// Interests are only the app's: Modify leaves them as they are. Packs are set
 // only with their lists, which are written without labels (workspace.Encode); lists set without packs are each put in
 // a pack of their own.
 type Change struct {

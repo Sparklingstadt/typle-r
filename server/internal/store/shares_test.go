@@ -54,7 +54,7 @@ func TestPutShare(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	w := saved(t, s, id)
 	pack := w.Packs[0].ID
 
@@ -78,8 +78,8 @@ func TestPutShare(t *testing.T) {
 	time.Sleep(10 * time.Millisecond)
 	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) {
 		name := "改名したパック"
-		_, err := workspace.UpdatePack(w, pack, workspace.PackInput{Name: &name})
-		return true, err
+		w.FindPack(pack).Name = name
+		return true, nil
 	}); err != nil {
 		t.Fatal(err)
 	}
@@ -106,7 +106,7 @@ func TestPutShareWithoutRow(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	if _, err := s.PutShare(ctx, id, "no-such-pack", nil); !isKey(err, "packNotFound") {
 		t.Fatalf("missing pack: %v", err)
 	}
@@ -124,7 +124,7 @@ func TestModifyWithoutRowDeletesShares(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	for _, name := range []string{"a", "b"} {
 		if _, err := s.Modify(ctx, id, createList(name)); err != nil {
 			t.Fatal(err)
@@ -143,7 +143,7 @@ func TestModifyWithoutRowDeletesShares(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) { return true, workspace.DeletePack(w, first) }); err != nil {
+	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) { deletePack(w, first); return true, nil }); err != nil {
 		t.Fatal(err)
 	}
 	if got := shareCount(t, s, id); !slices.Equal(got, []string{second}) {
@@ -153,7 +153,7 @@ func TestModifyWithoutRowDeletesShares(t *testing.T) {
 
 func TestSharedPackMissing(t *testing.T) {
 	connection, _ := database(t)
-	s := open(t, connection, false)
+	s := open(t, connection)
 	for _, id := range []string{"00000000-0000-4000-8000-000000000000", "not-a-uuid", ""} {
 		if data, err := s.SharedPack(context.Background(), id); data != nil || err != nil {
 			t.Errorf("SharedPack(%q) = %s, %v; want nil, nil", id, data, err)
@@ -165,7 +165,7 @@ func TestDeleteAndListShares(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id, other := owner(t, conn), owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	w := saved(t, s, id)
 	// The other account has the same packs, so the same pack ids.
 	if _, err := s.WriteRevision(ctx, other, 0, Change{Lists: w.Lists, Packs: w.Packs, HasLists: true, HasPacks: true}); err != nil {
@@ -199,7 +199,7 @@ func TestSavesDeleteSharesOfRemovedPacks(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	w := saved(t, s, id)
 	first, second, third := w.Packs[0].ID, w.Packs[1].ID, w.Packs[len(w.Packs)-1].ID
 	for _, pack := range []string{first, second, third} {
@@ -231,7 +231,7 @@ func TestSavesDeleteSharesOfRemovedPacks(t *testing.T) {
 	}
 
 	// So does deleting a pack through Modify.
-	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) { return true, workspace.DeletePack(w, second) }); err != nil {
+	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) { deletePack(w, second); return true, nil }); err != nil {
 		t.Fatal(err)
 	}
 	if packs := shareCount(t, s, id); !slices.Equal(packs, []string{third}) {
@@ -245,7 +245,7 @@ func TestWriteRevisionListsOnlyDeletesSharesOfDerivedPacks(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	// Lists as an app that does not know packs saves them: each becomes a pack of its own when read.
 	old, err := workspace.DecodeLists([]byte(`[{"id":"a","name":"A","createdAt":"2026-10-01T00:00:00.000Z","words":[{"display":"a","input":"a","annotation":""}],"records":[]},
 	  {"id":"b","name":"B","createdAt":"2026-10-01T00:00:00.000Z","words":[{"display":"b","input":"b","annotation":""}],"records":[]}]`))
@@ -287,7 +287,7 @@ func TestWriteRevisionDevicesOnlyKeepsShares(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	w := saved(t, s, id)
 	if _, err := s.PutShare(ctx, id, w.Packs[0].ID, nil); err != nil {
 		t.Fatal(err)
@@ -309,7 +309,7 @@ func TestListSharesNames(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	w := saved(t, s, id)
 	put, err := s.PutShare(ctx, id, w.Packs[0].ID, nil)
 	if err != nil {
@@ -328,7 +328,7 @@ func TestPutShareTooLarge(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	// A list whose pack file is past 1 MiB, saved as data merged from removed profiles may be.
 	lists := newLists(1)
 	lists[0].Words = nil
@@ -376,7 +376,7 @@ func TestPutShareListing(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	w := saved(t, s, id)
 	pack := w.Packs[0].ID
 	yes, no := true, false
@@ -416,7 +416,7 @@ func TestPutShareKeepsListing(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	pack := saved(t, s, id).Packs[0].ID
 	yes := true
 
@@ -427,8 +427,8 @@ func TestPutShareKeepsListing(t *testing.T) {
 	first := listedAt(t, conn, share.ID)
 	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) {
 		name := "改名"
-		_, err := workspace.UpdatePack(w, pack, workspace.PackInput{Name: &name})
-		return true, err
+		w.FindPack(pack).Name = name
+		return true, nil
 	}); err != nil {
 		t.Fatal(err)
 	}
@@ -445,7 +445,7 @@ func TestPutShareHidden(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	pack := saved(t, s, id).Packs[0].ID
 	yes, no := true, false
 
@@ -464,8 +464,8 @@ func TestPutShareHidden(t *testing.T) {
 
 	name := "改名"
 	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) {
-		_, err := workspace.UpdatePack(w, pack, workspace.PackInput{Name: &name})
-		return true, err
+		w.FindPack(pack).Name = name
+		return true, nil
 	}); err != nil {
 		t.Fatal(err)
 	}
@@ -498,7 +498,7 @@ func TestSharedPackHidden(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	share, err := s.PutShare(ctx, id, saved(t, s, id).Packs[0].ID, nil)
 	if err != nil {
 		t.Fatal(err)

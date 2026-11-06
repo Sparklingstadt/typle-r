@@ -3,9 +3,7 @@ package workspace
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"strings"
-	"time"
 )
 
 // A pack as a file (<pack name>.typle-pack.json) follows src/core/packFile.ts, and is written byte for byte as the app
@@ -217,47 +215,4 @@ func readPackFileList(item json.RawMessage) (PackFileList, bool) {
 		list.Words = append(list.Words, Word{Display: display, Input: input, Annotation: annotation, InputType: inputType})
 	}
 	return list, true
-}
-
-// ImportPack follows importPackFile and addPackFile (src/core/packFile.ts): the file's pack goes after the others as a
-// new pack without records, created now, and its lists after every list. Its lists are checked in order as a save
-// checks them, each against those before it, but for levels: several levels of a list are joined into one, and levels
-// that overlap are told apart (separateLevels); its name gets （2）, （3）… when a pack has it. listIDs has an id for each list of the file.
-func ImportPack(w *Workspace, file *PackFile, packID string, listIDs []string, now time.Time) (*Pack, error) {
-	if len(file.Lists) == 0 {
-		return nil, &Error{Key: "packFileUnreadable"}
-	}
-	if len(listIDs) != len(file.Lists) {
-		return nil, errors.New("one list id is needed for each list")
-	}
-	wanted := trimJS(file.Pack.Name)
-	if wanted == "" {
-		return nil, &Error{Key: "packNameRequired"}
-	}
-	if err := checkRoom(w, len(file.Lists)); err != nil {
-		return nil, err
-	}
-	inputs := make([]PackListInput, 0, len(file.Lists))
-	for _, list := range file.Lists {
-		input := PackListInput{Name: &list.Name, Writing: list.Writing, Words: list.Words}
-		if list.Levels != nil {
-			input.Levels = &list.Levels
-		}
-		inputs = append(inputs, input)
-	}
-	lists, err := newLists(packID, inputs, listIDs, now, true)
-	if err != nil {
-		return nil, err
-	}
-	taken := map[string]bool{}
-	for _, pack := range w.Packs {
-		taken[nameKey(pack.Name)] = true
-	}
-	pack := Pack{ID: packID, Name: unique(taken, wanted, numbered(wanted)), Description: trimJS(file.Pack.Description),
-		CreatedAt: FormatTime(now)}
-	pack.Category, pack.Tags = normalizeLabels(file.Pack.Category, file.Pack.Tags)
-	if err := checkPack(pack); err != nil {
-		return nil, err
-	}
-	return addPack(w, pack, lists), nil
 }

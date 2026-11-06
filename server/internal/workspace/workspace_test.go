@@ -304,3 +304,12 @@ func TestDecodeRecordMode(t *testing.T) {
 		t.Fatalf("written = %s", written)
 	}
 }
+
+func TestTrimJS(t *testing.T) {
+	cases := map[string]string{" a ": "a", "\ufeffa\ufeff": "a", "\u0085a\u0085": "\u0085a\u0085", "　a ": "a", "\t\v\f\r\n a": "a"}
+	for input, want := range cases {
+		if got := trimJS(input); got != want {
+			t.Errorf("trimJS(%q) = %q, want %q", input, got, want)
+		}
+	}
+}
