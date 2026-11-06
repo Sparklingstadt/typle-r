@@ -27,17 +27,6 @@
 
 メジャーの依存の更新（ESLint 10・TypeScript 7・`@types/node` 26・`cn` 0.5）は、1つずつ別の PR にします。範囲内の依存の更新は月に1回、1つの PR にまとめます。
 
-## 見つかった不具合
-
-リファクタリングの中で見つけ、動作を変えないために直していないものです。
-
-| 場所 | 内容 |
-|---|---|
-| `src/plugins/formats/delimited.ts`・`server/internal/workspace/delimited.go` | 1行に複数の誤りがあるとき、TS は `input_type` を先に、Go は空欄と長さを先に検査し、返すエラーのキーが違う |
-| 同上 | 単語が0個の書き出しで、TS は見出しのあとに空行が1つ付き、Go は付かない |
-| `src/lib/useHandwritingPad.ts` | Enter キーに `status` の確認がなく、判定ボタンが無効でも読み取りが走る |
-| `src/app/admin/stat-cards.tsx` | `toLocaleString()` がブラウザーのロケールを使い、アプリの言語の設定と合わないことがある |
-
 ## 進め方の約束
 
 - 1 PR に1項目。機能の変更と混ぜず、バージョンはパッチを上げます（`CLAUDE.md` の Release workflow）。
