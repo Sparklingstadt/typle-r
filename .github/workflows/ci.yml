@@ -92,7 +92,8 @@ jobs:
           go vet ./...
           go test ./...
       - run: npm run typecheck
-      - run: npm test
+      # The same tests as npm test, with the coverage of src in the log. There is no threshold yet.
+      - run: npm run test:coverage
       - run: npm run lint
       # Next.js reuses its build cache across runs; a key that misses the sources still restores the newest cache for
       # the same lockfile, and next build only reuses what is still valid.
