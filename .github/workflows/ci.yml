@@ -66,14 +66,14 @@ jobs:
           cache: npm
       - name: Test release safety checks
         run: node --test scripts/ci/release.test.cjs
-      # node_modules is restored whole when the lockfile, the Prisma schema (postinstall generates the client into
-      # node_modules) and the Node version are unchanged; otherwise npm ci installs it from the npm cache as before.
+      # node_modules is restored whole when the lockfile and the Node version are unchanged; otherwise npm ci installs
+      # it from the npm cache as before.
       - name: Cache node_modules
         id: node-modules-cache
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: node_modules
-          key: node-modules-${{ runner.os }}-node${{ steps.node.outputs.node-version }}-${{ hashFiles('package-lock.json', 'prisma/schema.prisma') }}
+          key: node-modules-${{ runner.os }}-node${{ steps.node.outputs.node-version }}-${{ hashFiles('package-lock.json') }}
       - if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: npm ci
       - run: npm run db:migrate
