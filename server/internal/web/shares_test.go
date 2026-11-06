@@ -366,9 +366,10 @@ func TestSharesRealDatabase(t *testing.T) {
 	h := newHarness(t, s, testBase)
 	name := "動物"
 	saved, err := s.Modify(context.Background(), owner, func(w *workspace.Workspace) (bool, error) {
-		_, err := workspace.CreateList(w, workspace.ListInput{Name: &name, Words: []workspace.Word{{Display: "cat", Input: "cat"}}},
-			workspace.NewID(), time.Now())
-		return true, err
+		id := workspace.NewID()
+		w.Packs = []workspace.Pack{{ID: "pack-" + id, Name: name, CreatedAt: "2026-10-21T00:00:00.000Z"}}
+		w.Lists = []workspace.List{{ID: id, Name: name, PackID: "pack-" + id, Words: []workspace.Word{{Display: "cat", Input: "cat"}}}}
+		return true, nil
 	})
 	if err != nil {
 		t.Fatal(err)

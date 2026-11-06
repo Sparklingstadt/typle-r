@@ -1,7 +1,7 @@
 # 練習記録の追加の共通 fixture
 
 `lists`・`devices` のワークスペースで、`listId` のリストに `input` の記録を追加した結果が `expected` です。
-記録の追加は Web（`/api/workspace/records`）・外部API（`POST /api/v1/lists/{listId}/records`）・ゲスト保存で同じ操作契約に従います。
+記録の追加は Web（`/api/workspace/records`）とゲスト保存で同じ操作契約に従います。
 TS は `tests/records.test.cjs`（`addRecord`）、Go は `server/internal/workspace/records_test.go`（`AddRecord`）が読みます。
 
 - 成功したときは `expected.added`（新しく追加したか）と `expected.record`（保存された記録）。
@@ -16,4 +16,3 @@ TS は `tests/records.test.cjs`（`addRecord`）、Go は `server/internal/works
 - 1つのリストの記録は10000件まで（`recordLimit`）。
 - `mode` は省くか `"recall"`（思い出して打った記録）か `"writing"`（Typle Handwriting の記録）だけ（省くと通常のタイピングの記録）。
   `null` を含むほかの値は `invalidRecord`。同じ `id` の再送でも、`mode` が正しくなければ拒否する。
-- `mode` 付きの記録はアプリだけが保存する。外部API（`/api/v1`）は `mode` を送ると、この操作の前に `400 invalidJson` で拒否する。

@@ -9,7 +9,7 @@ import (
 func TestSessionRevocations(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	id := owner(t, conn)
 	t.Cleanup(func() {
 		_, _ = conn.Exec(context.Background(), `DELETE FROM typle_session_revocations WHERE owner_id = $1`, id)

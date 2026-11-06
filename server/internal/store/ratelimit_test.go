@@ -22,7 +22,7 @@ func randomClient(t *testing.T, conn *pgx.Conn) []byte {
 func TestCountGalleryHit(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	client, other := randomClient(t, conn), randomClient(t, conn)
 
 	var end time.Time
@@ -61,7 +61,7 @@ func TestCountGalleryHit(t *testing.T) {
 func TestCountGalleryHitForgetsOldRows(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	old, recent, trigger := randomClient(t, conn), randomClient(t, conn), randomClient(t, conn)
 	if _, err := conn.Exec(ctx, `INSERT INTO typle_gallery_hits (action, client, window_start, hits) VALUES
 		('reports', $1, date_trunc('minute', now()) - interval '11 minutes', 5),

@@ -18,8 +18,8 @@ type recordAdded struct {
 	Record workspace.Record `json:"record"`
 }
 
-// records changes one practice record of the account's workspace at a time, with the operations /api/v1 uses
-// (server/internal/operation). Neither names a revision: a record is saved or deleted however the lists were changed
+// records changes one practice record of the account's workspace at a time, with the operations of
+// server/internal/operation. Neither names a revision: a record is saved or deleted however the lists were changed
 // meanwhile, and a request sent again does the same. Both answer with the workspace as now saved, as GET does.
 //
 //   - POST { accountId, listId, record } adds the record (workspace.RecordInput, which must have its id): 201 for a new

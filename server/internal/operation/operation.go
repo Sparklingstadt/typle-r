@@ -1,6 +1,5 @@
 // Package operation is the changes made to an account's workspace one operation at a time, checked and saved the same
-// way whichever handler receives them: /api/workspace's for the app's screens (server/internal/web) and /api/v1's for
-// other programs (server/internal/api). The guest's workspace, kept in the browser, follows the same rules in
+// way whichever handler receives them (server/internal/web). The guest's workspace, kept in the browser, follows the same rules in
 // src/core (see tests/fixtures/records).
 package operation
 
@@ -31,19 +30,6 @@ func AddRecord(ctx context.Context, writer Writer, owner, listID string, input w
 		return workspace.Record{}, false, err
 	}
 	return record, added, nil
-}
-
-// UpdateRecord changes a saved run and saves it (workspace.UpdateRecord), without a revision, as AddRecord does.
-func UpdateRecord(ctx context.Context, writer Writer, owner, listID, recordID string, change workspace.RecordChange) (record workspace.Record, err error) {
-	_, err = writer.Modify(ctx, owner, func(ws *workspace.Workspace) (bool, error) {
-		var err error
-		record, err = workspace.UpdateRecord(ws, listID, recordID, change)
-		return err == nil, err
-	})
-	if err != nil {
-		return workspace.Record{}, err
-	}
-	return record, nil
 }
 
 // DeleteRecord removes a saved run and saves it (workspace.DeleteRecord), without a revision, as AddRecord does. A run

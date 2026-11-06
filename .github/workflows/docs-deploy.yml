@@ -88,6 +88,6 @@ jobs:
         env:
           URL: ${{ steps.docs.outputs.url }}
         run: |
-          for page in / /app/ /v1/ /openapi.html; do
+          for page in / /app/ /openapi.html; do
             curl --fail --silent --show-error --location --retry 5 --retry-all-errors --max-time 60 "$URL$page" | grep -q 'Typle API' || { echo "Expected $URL$page to be the API documentation"; exit 1; }
           done

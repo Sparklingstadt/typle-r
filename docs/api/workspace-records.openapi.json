@@ -3,7 +3,7 @@
   "info": {
     "title": "Typle: practice record operations",
     "version": "1.6.0",
-    "description": "アプリが練習記録を1件ずつ変える /api/workspace/records の通信形式とエラーコードです（#174）。外部API（/api/v1）の記録の追加・削除と同じ操作（server/internal/operation）で、ゲスト保存も同じ規則に従います。Go は server/internal/web/records_test.go、TS は tests/recordSchema.test.cjs がこの定義と実装を照合します。エラーキーは画面のメッセージ（src/messages/*/errors.json）のキーです。 x-app-shows が false の応答はアプリが受け取ることのないもので、画面のメッセージを持たない。"
+    "description": "アプリが練習記録を1件ずつ変える /api/workspace/records の通信形式とエラーコードです（#174）。操作は server/internal/operation にあり、ゲスト保存も同じ規則に従います。Go は server/internal/web/records_test.go、TS は tests/recordSchema.test.cjs がこの定義と実装を照合します。エラーキーは画面のメッセージ（src/messages/*/errors.json）のキーです。 x-app-shows が false の応答はアプリが受け取ることのないもので、画面のメッセージを持たない。"
   },
   "paths": {
     "/api/workspace/records": {
@@ -389,7 +389,7 @@
           "mistakes",
           "accuracy"
         ],
-        "description": "id は /api/workspace/records では必須（再送を安全にするため）、/api/v1 では省略するとサーバーが決める。端末は deviceId か device のどちらか一方。",
+        "description": "id は必須（再送を安全にするため）。端末は deviceId か device のどちらか一方。",
         "properties": {
           "id": {
             "type": "string",
@@ -432,7 +432,7 @@
               "recall",
               "writing"
             ],
-            "description": "思い出して打った記録（recall）と手書きで書いた記録（Typle Handwriting、writing）だけが持つ。通常のタイピングの記録では省く。/api/workspace/records だけが受け付け、/api/v1 は 400 invalidJson にする。null を含むほかの値は 400 invalidRecord"
+            "description": "思い出して打った記録（recall）と手書きで書いた記録（Typle Handwriting、writing）だけが持つ。通常のタイピングの記録では省く。null を含むほかの値は 400 invalidRecord"
           }
         },
         "not": {

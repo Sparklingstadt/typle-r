@@ -19,8 +19,7 @@ const slugify = (title: string) => title.normalize('NFKD')
 export default defineUserConfig({
   lang: 'ja-JP',
   title: 'Typle API',
-  description: 'Typle のアプリのAPI（/api/*）と手元専用の API（/api/v1）の仕様',
-  // The Go API (/api/v1) listens on 8080 by default.
+  description: 'Typle のアプリのAPI（/api/*）の仕様',
   port: 8090,
   markdown: { slugify },
   bundler: viteBundler(),
@@ -34,24 +33,17 @@ export default defineUserConfig({
     contributors: false,
     navbar: [
       { text: 'アプリのAPI', link: '/app/' },
-      { text: 'API（Go）', link: '/v1/' },
       { text: 'OpenAPI', link: '/openapi.md' },
     ],
     sidebar: {
       '/app/': [
         {
           text: 'アプリのAPI（/api/*）',
-          children: ['/app/', '/app/workspace.md', '/app/shares.md', '/app/auth.md', '/app/admin.md', '/app/graphql.md'],
+          children: ['/app/', '/app/workspace.md', '/app/shares.md', '/app/auth.md', '/app/admin.md', '/app/graphql.md', '/app/validation.md'],
         },
       ],
       '/openapi': [
         { text: 'OpenAPI', children: ['/openapi.md'] },
-      ],
-      '/v1/': [
-        {
-          text: 'API（Go・/api/v1）',
-          children: ['/v1/', '/v1/common.md', '/v1/read.md', '/v1/write.md', '/v1/validation.md', '/v1/development.md'],
-        },
       ],
     },
     sidebarDepth: 2,

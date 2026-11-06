@@ -96,17 +96,6 @@ func (s *server) saveRequest(w http.ResponseWriter, r *http.Request, reported, i
 	return user, fields, true
 }
 
-// decodeRequest reads a save, as validateWorkspaceRequest does: an error is a request to refuse (400). The limits of validateLists (workspace.CheckLimits) and the
-// number of lists are not checked here: Store.WriteRevision checks them, before it touches the database, and answers
-// a *workspace.Error that is refused with a 400 all the same.
-func decodeRequest(body []byte) (revision int, change store.Change, err error) {
-	fields, err := parseObject(body)
-	if err != nil {
-		return 0, store.Change{}, err
-	}
-	return decodeFields(fields)
-}
-
 // The revision is judged before the lists, as in validateWorkspaceRequest. Saves of apps from before packs (lists
 // alone, with their labels) or with profiles (profileId, profiles) are no longer taken: they are invalid.
 func decodeFields(fields map[string]json.RawMessage) (revision int, change store.Change, err error) {
@@ -298,9 +287,8 @@ func (s *server) sameOrigin(r *http.Request) bool {
 // without asking first (CORS), so with the Origin it keeps other sites' pages out.
 //
 // The media type is compared as written, so Application/JSON is refused (TestPutForbidden, "other case"),
-// though media types are case-insensitive and /api/v1 accepts it (jsonContent in server/internal/api). This is on
-// purpose: the app always sends application/json, and the check is kept as it was decided. Accepting other cases
-// would not weaken the CORS check, as no case of application/json is a type a form may send without asking.
+// though media types are case-insensitive. This is on purpose: the app always sends application/json, and the check
+// is kept as it was decided. Accepting other cases would not weaken the CORS check, as no case of application/json is a type a form may send without asking.
 func jsonContent(r *http.Request) bool {
 	return strings.TrimSpace(strings.SplitN(r.Header.Get("Content-Type"), ";", 2)[0]) == "application/json"
 }

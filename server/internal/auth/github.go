@@ -1,15 +1,8 @@
-// Package auth is the server's side of GitHub sign-in, in two parts that do not share a policy.
-//
-// GitHub.Owner tells who an /api/v1 request is from by its bearer token. The token is checked with GitHub's GET /user,
-// and the account is github:<numeric user id>, the id the browser login (/api/auth/callback/github in server/internal/web)
-// gives an account. It holds no secret. Only fine-grained personal access tokens (github_pat_…) are accepted: one is made by its owner for a
-// purpose, while the OAuth and app tokens other services hold for a user (gho_, ghu_ …) would otherwise also open the
-// user's workspace. Verified tokens are cached and checks with GitHub are rate-limited.
+// Package auth is the server's side of sign-in.
 //
 // OAuth and GitHub.User are the browser login. OAuth sends the user to GitHub and trades the code that comes back for
 // the user's OAuth App token (gho_…), and holds the OAuth App's client secret to do so. GitHub.User then reads who that
-// token belongs to once, right after the exchange: it takes any token, with no prefix rule, cache or rate limit, which
-// belong to Owner alone. The token is not kept.
+// token belongs to once, right after the exchange, and the account is github:<numeric user id>. The token is not kept.
 //
 // FFPF (ffpf.go) is the other browser login, "Sign in with FFPF ID": an OpenID Connect client of ffpf-portal that
 // verifies the ID token itself and gives the account ffpf:<sub>. It shares nothing with the GitHub login but maxBodyLen.
@@ -17,14 +10,12 @@ package auth
 
 import (
 	"context"
-	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -35,20 +26,7 @@ var (
 	ErrUnavailable = errors.New("GitHub could not check the token")
 )
 
-// fineGrainedPrefix starts every fine-grained personal access token.
-const fineGrainedPrefix = "github_pat_"
-
-const (
-	// A verified token is trusted this long, so most requests need no call to GitHub. A revoked token can therefore
-	// still be used for up to this long.
-	cacheFor   = 5 * time.Minute
-	maxCached  = 1000
-	maxBodyLen = 1 << 20
-	// Tokens not in the cache are checked with GitHub at most this often, after a burst of maxChecks, so a flood of
-	// made-up tokens cannot make the server flood GitHub. Cached tokens are never held back.
-	checksPerSecond = 10
-	maxChecks       = 20
-)
+const maxBodyLen = 1 << 20
 
 // User is a GitHub account, as GET /user describes it.
 type User struct {
@@ -71,92 +49,20 @@ func (u User) DisplayName() string {
 	return u.Login
 }
 
-type cached struct {
-	owner   string
-	expires time.Time
-}
-
 type GitHub struct {
 	// BaseURL is GitHub's REST API, without a trailing slash.
 	BaseURL string
 	Client  *http.Client
-	now     func() time.Time
-
-	mu    sync.Mutex
-	cache map[[sha256.Size]byte]cached
-	// checks is how many checks can start now; it refills at checksPerSecond since checked.
-	checks  float64
-	checked time.Time
 }
 
 func NewGitHub() *GitHub {
-	return &GitHub{BaseURL: "https://api.github.com", Client: &http.Client{Timeout: 10 * time.Second}, now: time.Now}
-}
-
-// Owner returns the account the token belongs to.
-func (g *GitHub) Owner(ctx context.Context, token string) (string, error) {
-	// Another kind of token is refused without asking GitHub.
-	if !strings.HasPrefix(token, fineGrainedPrefix) {
-		return "", ErrInvalidToken
-	}
-	// Only a hash of the token is kept in memory.
-	key := sha256.Sum256([]byte(token))
-	if owner, ok := g.lookup(key); ok {
-		return owner, nil
-	}
-	if !g.allowCheck() {
-		return "", fmt.Errorf("%w: too many tokens to check", ErrUnavailable)
-	}
-	user, err := g.fetch(ctx, token)
-	if err != nil {
-		return "", err
-	}
-	owner := user.Account()
-	g.store(key, owner)
-	return owner, nil
+	return &GitHub{BaseURL: "https://api.github.com", Client: &http.Client{Timeout: 10 * time.Second}}
 }
 
 // User returns the account the token belongs to, for any kind of token: the login flow uses it with the OAuth App
 // token it has just been given. Unlike Owner it has no prefix rule, cache or limit on checks.
 func (g *GitHub) User(ctx context.Context, token string) (User, error) {
 	return g.fetch(ctx, token)
-}
-
-func (g *GitHub) lookup(key [sha256.Size]byte) (string, bool) {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	entry, ok := g.cache[key]
-	if !ok || !g.now().Before(entry.expires) {
-		return "", false
-	}
-	return entry.owner, true
-}
-
-func (g *GitHub) store(key [sha256.Size]byte, owner string) {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	if g.cache == nil || len(g.cache) >= maxCached {
-		g.cache = map[[sha256.Size]byte]cached{}
-	}
-	g.cache[key] = cached{owner: owner, expires: g.now().Add(cacheFor)}
-}
-
-// allowCheck takes one of the checks that may start now, or reports that none is left.
-func (g *GitHub) allowCheck() bool {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	now := g.now()
-	if g.checked.IsZero() {
-		g.checks = maxChecks
-	} else {
-		g.checks = min(maxChecks, g.checks+now.Sub(g.checked).Seconds()*checksPerSecond)
-	}
-	g.checked = now
-	if g.checks < 1 {
-		return false
-	}
-	g.checks--
-	return true
 }
 
 // fetch is GET /user for the token. ErrInvalidToken is GitHub refusing the token; anything else that goes wrong is
@@ -193,18 +99,4 @@ func (g *GitHub) fetch(ctx context.Context, token string) (User, error) {
 		return User{}, fmt.Errorf("%w: GitHub's answer has no user id", ErrUnavailable)
 	}
 	return User{ID: body.ID, Login: body.Login, Name: body.Name, AvatarURL: body.AvatarURL}, nil
-}
-
-// BearerToken reads `Authorization: Bearer <token>`. The scheme is case-insensitive (RFC 6750); an empty token, or
-// one with spaces or control characters, is no token.
-func BearerToken(header string) (string, bool) {
-	scheme, token, found := strings.Cut(header, " ")
-	if !found || !strings.EqualFold(scheme, "Bearer") {
-		return "", false
-	}
-	token = strings.TrimSpace(token)
-	if token == "" || strings.ContainsFunc(token, func(r rune) bool { return r <= ' ' || r == 0x7f }) {
-		return "", false
-	}
-	return token, true
 }

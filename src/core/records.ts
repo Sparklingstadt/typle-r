@@ -42,8 +42,7 @@ const MAX_RECORD_ID = 100
 // screens show it by its id.
 const DEFAULT_DEVICE_NAME = baseFormat.defaultDevice
 
-/** A practice run to add, as the app sends it to /api/workspace/records and other programs to
- * POST /api/v1/lists/{listId}/records. The device is either given as it was when the run was practised (`device`,
+/** A practice run to add, as the app sends it to /api/workspace/records. The device is either given as it was when the run was practised (`device`,
  * which the app sends, so the record keeps that name though the device is renamed or deleted meanwhile) or named by
  * its id (`deviceId`) and saved as it is registered then. */
 export type RecordInput = PracticeRecord & { deviceId?: string }

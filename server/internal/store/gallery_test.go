@@ -63,7 +63,7 @@ func galleryIDs(t *testing.T, s *Store, q GalleryQuery) []string {
 func TestGallerySearch(t *testing.T) {
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	mark := "検索" + id
 	byName := insertShare(t, conn, id, 1, galleryRow{pack: map[string]any{"name": "名前に" + mark}, listed: listedIn(0)})
 	byDescription := insertShare(t, conn, id, 2, galleryRow{pack: map[string]any{"name": "x", "description": "説明に" + mark}, listed: listedIn(0)})
@@ -90,7 +90,7 @@ func TestGallerySearch(t *testing.T) {
 func TestGalleryEscapesWildcards(t *testing.T) {
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	// Each wildcard has a plain pack that the search would also find if the character were not escaped.
 	listed := func(n int, name string) string {
 		return insertShare(t, conn, id, n, galleryRow{pack: map[string]any{"name": name}, listed: listedIn(0)})
@@ -122,7 +122,7 @@ func TestGalleryEscapesWildcards(t *testing.T) {
 func TestGalleryCategoryAndSort(t *testing.T) {
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	category := "カテゴリー" + id
 	old := insertShare(t, conn, id, 1, galleryRow{pack: map[string]any{"name": "old", "category": category}, listed: listedIn(-3 * time.Hour)})
 	middle := insertShare(t, conn, id, 2, galleryRow{pack: map[string]any{"name": "middle", "category": category}, listed: listedIn(-2 * time.Hour)})
@@ -150,7 +150,7 @@ func TestGalleryCategoryAndSort(t *testing.T) {
 func TestGalleryPaging(t *testing.T) {
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	category := "ページ" + id
 	for i := range GalleryPageSize + 1 {
 		insertShare(t, conn, id, i, galleryRow{pack: map[string]any{"name": fmt.Sprint("p", i), "category": category},
@@ -173,7 +173,7 @@ func TestGalleryPaging(t *testing.T) {
 func TestGalleryExcludes(t *testing.T) {
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	category := "除外" + id
 	shown := insertShare(t, conn, id, 1, galleryRow{pack: map[string]any{"name": "a", "category": category}, listed: listedIn(0)})
 	insertShare(t, conn, id, 2, galleryRow{pack: map[string]any{"name": "b", "category": category}})
@@ -187,13 +187,13 @@ func TestGalleryPackWithoutLabels(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	w := saved(t, s, id)
 	pack := w.Packs[0].ID
 	name := "ラベルなし" + id
 	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) {
-		_, err := workspace.UpdatePack(w, pack, workspace.PackInput{Name: &name})
-		return true, err
+		w.FindPack(pack).Name = name
+		return true, nil
 	}); err != nil {
 		t.Fatal(err)
 	}
@@ -238,7 +238,7 @@ func TestGalleryCategories(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	many, few, unlisted, hidden := "多い"+id, "少ない"+id, "未掲載"+id, "非公開"+id
 	n := 0
 	add := func(category string, listed, hide bool) {
@@ -298,7 +298,7 @@ func TestCountAddedOnlyListed(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	listed := insertShare(t, conn, id, 1, galleryRow{pack: map[string]any{"name": "a"}, listed: listedIn(0)})
 	unlisted := insertShare(t, conn, id, 2, galleryRow{pack: map[string]any{"name": "b"}})
 	hidden := insertShare(t, conn, id, 3, galleryRow{pack: map[string]any{"name": "c"}, listed: listedIn(0), hidden: listedIn(0)})
@@ -332,7 +332,7 @@ func TestReport(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	listed := insertShare(t, conn, id, 1, galleryRow{pack: map[string]any{"name": "a"}, listed: listedIn(0)})
 	unlisted := insertShare(t, conn, id, 2, galleryRow{pack: map[string]any{"name": "b"}})
 	hidden := insertShare(t, conn, id, 3, galleryRow{pack: map[string]any{"name": "c"}, listed: listedIn(0), hidden: listedIn(0)})
@@ -357,7 +357,7 @@ func TestReportsGoWithShare(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	w := saved(t, s, id)
 	pack := w.Packs[0].ID
 	yes := true
@@ -380,7 +380,7 @@ func TestAdminGallery(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	category := "管理" + id
 	pack := func(name string) map[string]any { return map[string]any{"name": name, "category": category} }
 	// Every share the test looks for has a report, so it ranks above the shares without one that other tests leave in
@@ -464,12 +464,12 @@ func TestSetHidden(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	w := saved(t, s, id)
 	name := "非公開" + id
 	if _, err := s.Modify(ctx, id, func(w *workspace.Workspace) (bool, error) {
-		_, err := workspace.UpdatePack(w, w.Packs[0].ID, workspace.PackInput{Name: &name})
-		return true, err
+		w.FindPack(w.Packs[0].ID).Name = name
+		return true, nil
 	}); err != nil {
 		t.Fatal(err)
 	}
@@ -524,7 +524,7 @@ func TestSetHiddenKeepsListing(t *testing.T) {
 	ctx := context.Background()
 	connection, conn := database(t)
 	id := owner(t, conn)
-	s := open(t, connection, true)
+	s := open(t, connection)
 	category := "掲載維持" + id
 	share := insertShare(t, conn, id, 1, galleryRow{pack: map[string]any{"name": "a", "category": category}, listed: listedIn(-time.Hour)})
 	before := listedAt(t, conn, share)

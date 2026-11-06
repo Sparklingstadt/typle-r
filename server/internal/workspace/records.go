@@ -42,7 +42,7 @@ type RecordInput struct {
 	WordCount *float64 `json:"wordCount"`
 	DeviceID  *string  `json:"deviceId"`
 	Device    *Device  `json:"device"`
-	// Mode is RecallMode, WritingMode or left out. /api/v1 does not accept it (see the api package's addRecord).
+	// Mode is RecallMode, WritingMode or left out.
 	Mode *string `json:"mode"`
 	// ModeNull is set when the request has "mode": null, which is refused like any other mode that is not RecallMode or WritingMode.
 	ModeNull bool `json:"-"`
@@ -185,86 +185,6 @@ func (l *List) FindRecord(id string) *Record {
 		}
 	}
 	return nil
-}
-
-// RecordChange is a change to a saved run, as a request gives it. A field left out (nil) is not changed; a deviceId of
-// "" takes the device off, as 未選択 does in the app. A record's id cannot be changed.
-type RecordChange struct {
-	Time      *float64 `json:"time"`
-	Date      *string  `json:"date"`
-	Mistakes  *float64 `json:"mistakes"`
-	Accuracy  *float64 `json:"accuracy"`
-	WordCount *float64 `json:"wordCount"`
-	DeviceID  *string  `json:"deviceId"`
-}
-
-// UpdateRecord changes a saved run with the checks of AddRecord. Fields Typle does not know stay.
-func UpdateRecord(w *Workspace, listID, recordID string, change RecordChange) (Record, error) {
-	at := index(w, listID)
-	if at < 0 {
-		return Record{}, missing()
-	}
-	saved := w.Lists[at].FindRecord(recordID)
-	if saved == nil {
-		return Record{}, recordMissing()
-	}
-	record := *saved
-	invalid := &Error{Key: "invalidRecord"}
-	if change.Time != nil {
-		if !validTime(change.Time) {
-			return Record{}, invalid
-		}
-		record.Time = *change.Time
-	}
-	if change.Date != nil {
-		date, ok := recordDate(*change.Date)
-		if !ok {
-			return Record{}, invalid
-		}
-		record.Date, record.At = FormatTime(date), date
-	}
-	if change.Mistakes != nil {
-		mistakes, ok := integer(change.Mistakes, 0)
-		if !ok {
-			return Record{}, invalid
-		}
-		record.Mistakes = &mistakes
-	}
-	if change.Accuracy != nil {
-		if !validAccuracy(change.Accuracy) {
-			return Record{}, invalid
-		}
-		accuracy := *change.Accuracy
-		record.Accuracy = &accuracy
-	}
-	if change.WordCount != nil {
-		wordCount, ok := integer(change.WordCount, 1)
-		if !ok {
-			return Record{}, invalid
-		}
-		record.WordCount = &wordCount
-	}
-	if change.DeviceID != nil {
-		device, err := changedDevice(w, *change.DeviceID)
-		if err != nil {
-			return Record{}, err
-		}
-		record.Device = device
-	}
-	*saved = record
-	return record, nil
-}
-
-// changedDevice is the device a run is changed to: the registered one with the id, or none for "".
-func changedDevice(w *Workspace, id string) (*Device, error) {
-	if id == "" {
-		return nil, nil
-	}
-	device, ok := findDevice(w, id)
-	if !ok {
-		return nil, deviceMissing()
-	}
-	return device, nil
 }
 
 // DeleteRecord removes a saved run, as removeRecord (src/core/records.ts) does for a record with an id.

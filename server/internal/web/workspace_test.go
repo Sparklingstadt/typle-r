@@ -1017,3 +1017,12 @@ func TestPutInterestsFlow(t *testing.T) {
 		t.Fatalf("reports = %v", h.reports)
 	}
 }
+
+// decodeRequest reads a save as the handler does, without the HTTP around it.
+func decodeRequest(body []byte) (revision int, change store.Change, err error) {
+	fields, err := parseObject(body)
+	if err != nil {
+		return 0, store.Change{}, err
+	}
+	return decodeFields(fields)
+}
