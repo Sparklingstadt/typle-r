@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cn } from "cn"
+import { cn } from "@/lib/utils"
 
 const pageWidths = { narrow: "max-w-4xl", medium: "max-w-5xl", wide: "max-w-6xl" }
 

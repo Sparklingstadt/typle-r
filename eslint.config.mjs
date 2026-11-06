@@ -33,6 +33,8 @@ export default defineConfig([
     rules: {
       'no-restricted-imports': ['error', { patterns: [
         { regex: '^(@/|(\\.\\./)+)plugins/storage(/|$)', message: 'Screens get the workspace and where it is saved from useWordLists, not from a storage plugin.' },
+        // components.json names @/lib/utils, so what shadcn adds and what is written by hand import cn alike.
+        { group: ['cn'], message: 'Import cn from @/lib/utils.' },
       ] }],
     },
   },
