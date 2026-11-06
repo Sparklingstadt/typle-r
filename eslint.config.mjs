@@ -2,7 +2,7 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 import nextVitals from 'eslint-config-next/core-web-vitals'
 
 // Packages that tie code to the UI, the framework or a storage backend.
-const frameworks = ['react', 'react-dom', 'next', 'next/*', 'next-intl', 'next-intl/*', '@prisma/*', '@sentry/*', 'pg']
+const frameworks = ['react', 'react-dom', 'next', 'next/*', 'next-intl', 'next-intl/*', '@sentry/*', 'pg']
 
 export default defineConfig([
   ...nextVitals,

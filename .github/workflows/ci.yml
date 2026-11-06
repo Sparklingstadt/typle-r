@@ -112,6 +112,10 @@ jobs:
       - if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: npm ci
       - run: npm run db:migrate
+      - name: Check migrations
+        env:
+          TYPLE_TEST_DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: node --test tests/migrate.test.cjs
       # The Go API (server/) is tested against the tables db:migrate just made. '1.25' is the newest
       # 1.25.x release, which satisfies go.mod.
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0

@@ -1,5 +1,5 @@
 // Package store reads and writes accounts' workspaces in the app's database (the typle_workspaces table, and their
-// practice records in typle_records: see records.go and prisma/schema.prisma). Unless it is opened writable, the connection is read-only: every transaction it starts is
+// practice records in typle_records: see records.go and db/migrations). Unless it is opened writable, the connection is read-only: every transaction it starts is
 // READ ONLY.
 package store
 

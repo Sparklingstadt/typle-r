@@ -96,13 +96,50 @@ verifyのDBは一時DBですが、deployから起動するVercel上のビルド�
 ビルドやデプロイが失敗することもあるため、migrationは旧アプリと互換性のある変更にします。
 DBの自動ロールバックは行いません。
 
-`npm run db:migrate` は、適用する前に DB の `_prisma_migrations` を読み、手元にない新しいマイグレーション
+`npm run db:migrate`（`scripts/migrate.cjs`）は `db/migrations` の SQL を名前の順に適用します。v2.36.19 までは `prisma migrate deploy` で適用していたため、
+履歴は今も同じ `_prisma_migrations` テーブルに、同じ形で残します。適用する前にこのテーブルを読み、手元にない新しいマイグレーション
 （手元の最新より後の名前で、適用済みのもの）があれば何も適用せずに失敗します（v2.5.8 から）。
 古いコミットを本番へデプロイすると、古いマイグレーションを未適用とみなして本番DBへ流そうとするためです
 （2026-10-31 に v0.99.4 のソースを手元からデプロイし、`0002_practice_devices` が本番DBで失敗して、
 後のデプロイが `P3009` で止まりました）。0027_schema にまとめた 0001〜0026 のような、手元にない古い記録は問題にしません。
 この確認は v2.5.8 以降のコードにしかないため、それより前のコミットは今も本番へデプロイしないでください。
 前のデプロイへ戻すときは、ビルドをしない Vercel の Instant Rollback を使うか、新しいバージョンの修正PRを出します。
+
+## マイグレーションの失敗
+
+マイグレーションは1本ごとに1つのトランザクションで、SQL とその記録を一緒に確定します。失敗すると DB はその1本の前の状態に戻り、記録も残りません。
+そのため `CREATE INDEX CONCURRENTLY` のようにトランザクションの中で実行できない SQL は書けません。
+
+本番では Vercel のビルドの `npm run db:migrate` が失敗し、デプロイが止まります。今の本番のアプリと DB はそのまま動き続けます。ログの1行目で原因を見分けます。
+
+| ログ | 意味 | 直し方 |
+|---|---|---|
+| `<名前> failed and was rolled back: …` | その SQL が本番のデータで失敗した。DB は変わっていない | SQL を直す。まだ適用されていないので、同じマイグレーションを直した新しいバージョンの PR を出す |
+| `The database has migrations this checkout does not have` | DB より古いコードをデプロイした。何も適用していない | 最新の main をデプロイする |
+| `The database records failed migrations` | `_prisma_migrations` に失敗の行がある（v2.36.19 までの Prisma の記録）。何も適用していない | 下の手順で記録を直す |
+| `This database has tables but no migration history` | 接続先が違う。何も適用していない | `DIRECT_URL`・`DATABASE_URL` を確かめる |
+| `Another migration is still running` | 別の実行が30秒たっても終わらない | 終わるのを待ち、失敗したジョブを再実行する |
+
+失敗の行を直す手順は次のとおりです（2026-10-31 の `0002_practice_devices` がこの例です）。本番の接続文字列は `vercel env pull --environment=production` で取り出します。
+
+1. 行を確かめます。`finished_at` が空で `rolled_back_at` も空の行が失敗の行です。
+
+   ```sql
+   SELECT migration_name, started_at, finished_at, rolled_back_at, logs FROM _prisma_migrations
+   WHERE finished_at IS NULL AND rolled_back_at IS NULL;
+   ```
+
+2. その SQL が DB を途中まで変えていないかを `logs` とテーブルの定義で確かめます。途中まで変えていたら、先に手で元に戻すか、残りを手で済ませます。
+3. 記録を直します。適用し直すなら `rolled_back_at` を入れ、手で最後まで済ませたなら `finished_at` を入れます。
+
+   ```sql
+   UPDATE _prisma_migrations SET rolled_back_at = now()
+   WHERE migration_name = '<名前>' AND finished_at IS NULL AND rolled_back_at IS NULL;
+   ```
+
+4. 失敗した deploy ジョブを再実行します。
+
+適用済みのマイグレーションのファイルは書き換えません。書き換えると、`db:migrate` が警告を出します（止まりはしません）。変更は新しいマイグレーションで行います。
 
 ## 失敗時
 

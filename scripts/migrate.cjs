@@ -1,13 +1,25 @@
-const { spawnSync } = require('node:child_process')
+const crypto = require('node:crypto')
 const fs = require('node:fs')
 const path = require('node:path')
-const cli = path.join(__dirname, '../node_modules/prisma/build/index.js')
-const migrations = path.join(__dirname, '../prisma/migrations')
+const root = path.join(__dirname, '..')
+const migrations = path.join(root, 'db/migrations')
 
-function run(args) {
-  const result = spawnSync(process.execPath, [cli, ...args], { stdio: 'inherit', env: process.env })
-  if (result.status !== 0) process.exit(result.status || 1)
-}
+// The history stays in the table Prisma Migrate made, with the same columns and checksums: production's records
+// (0001 to 0026 among them) need no change, and the table is what docs/release-workflow.md tells how to repair.
+const historyTable = `CREATE TABLE IF NOT EXISTS _prisma_migrations (
+  id varchar(36) PRIMARY KEY,
+  checksum varchar(64) NOT NULL,
+  finished_at timestamptz,
+  migration_name varchar(255) NOT NULL,
+  logs text,
+  rolled_back_at timestamptz,
+  started_at timestamptz NOT NULL DEFAULT now(),
+  applied_steps_count integer NOT NULL DEFAULT 0
+)`
+
+// The key Prisma Migrate locked, so that a run of either kind waits for the other.
+const lockKey = 72707369
+const lockWaitMs = 30_000
 
 /** The migrations this checkout has, by name. */
 function localMigrations(dir = migrations) {
@@ -24,56 +36,110 @@ function newerThanLocal(applied, local) {
   return applied.filter(name => latest === undefined || name > latest).sort()
 }
 
-/** The migrations the database records as applied, or none when it has no migration table yet. */
-async function appliedMigrations(connectionString) {
+/** The migrations of this checkout that are not applied yet, in the order they were made. */
+function pendingMigrations(applied, local) {
+  const done = new Set(applied)
+  return local.filter(name => !done.has(name)).sort()
+}
+
+/** The checksum of a migration's file, as Prisma Migrate recorded it. */
+function checksum(sql) {
+  return crypto.createHash('sha256').update(sql).digest('hex')
+}
+
+const isApplied = row => row.finished_at !== null && row.rolled_back_at === null
+const isFailed = row => row.finished_at === null && row.rolled_back_at === null
+
+/** Waits for the other runs to end. The lock goes with the connection. */
+async function lock(client) {
+  const deadline = Date.now() + lockWaitMs
+  for (;;) {
+    const { rows } = await client.query('SELECT pg_try_advisory_lock($1) AS locked', [lockKey])
+    if (rows[0].locked) return
+    if (Date.now() > deadline) throw new Error('Another migration is still running; no migration was applied.')
+    await new Promise(resolve => setTimeout(resolve, 500))
+  }
+}
+
+/** The rows of the history, made first in a new database. Any other database without a history is refused. */
+async function readHistory(client) {
+  const { rows: [{ exists }] } = await client.query("SELECT to_regclass('_prisma_migrations') IS NOT NULL AS exists")
+  if (!exists) {
+    const { rows: [{ tables }] } = await client.query(
+      'SELECT count(*)::int AS tables FROM information_schema.tables WHERE table_schema = current_schema()')
+    if (tables > 0) throw new Error('This database has tables but no migration history. Check that it is the right database; no migration was applied.')
+    await client.query(historyTable)
+  }
+  const { rows } = await client.query('SELECT migration_name, checksum, finished_at, rolled_back_at FROM _prisma_migrations')
+  return rows
+}
+
+/** A migration and its record are one transaction: a failure leaves the database as it was and records nothing. */
+async function apply(client, name, sql) {
+  try {
+    await client.query('BEGIN')
+    await client.query(sql)
+    await client.query(
+      `INSERT INTO _prisma_migrations (id, checksum, finished_at, migration_name, applied_steps_count)
+       VALUES ($1, $2, now(), $3, 1)`, [crypto.randomUUID(), checksum(sql), name])
+    await client.query('COMMIT')
+  } catch (error) {
+    await client.query('ROLLBACK').catch(() => {})
+    throw new Error(`${name} failed and was rolled back: ${error.message}`)
+  }
+}
+
+/** Applies the migrations of dir that the database of client does not have, and returns their names. */
+async function migrate(client, dir = migrations) {
+  await lock(client)
+  const history = await readHistory(client)
+  const local = localMigrations(dir)
+  // The code is older than the database, as when an old commit is deployed to production: what looks missing is old.
+  const newer = newerThanLocal(history.filter(isApplied).map(row => row.migration_name), local)
+  if (newer.length > 0) {
+    throw new Error(`The database has migrations this checkout does not have: ${newer.join(', ')}.\n` +
+      'This code is older than the database. Deploy the latest main instead; no migration was applied.')
+  }
+  const failed = history.filter(isFailed).map(row => row.migration_name).sort()
+  if (failed.length > 0) {
+    throw new Error(`The database records failed migrations: ${failed.join(', ')}.\n` +
+      'See "マイグレーションの失敗" in docs/release-workflow.md; no migration was applied.')
+  }
+  const read = name => fs.readFileSync(path.join(dir, name, 'migration.sql'), 'utf8')
+  for (const row of history.filter(isApplied)) {
+    if (local.includes(row.migration_name) && checksum(read(row.migration_name)) !== row.checksum) {
+      console.warn(`${row.migration_name} was changed after it was applied. A change belongs in a new migration.`)
+    }
+  }
+  const pending = pendingMigrations(history.filter(isApplied).map(row => row.migration_name), local)
+  for (const name of pending) {
+    await apply(client, name, read(name))
+    console.log(`Applied ${name}`)
+  }
+  return pending
+}
+
+async function main() {
+  require('@next/env').loadEnvConfig(root)
+  // A direct connection first: the lock needs one session, which a pooled connection may not keep.
+  const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL || process.env.POSTGRES_URL
+  if (!connectionString) throw new Error('Set DIRECT_URL or DATABASE_URL to the database to migrate.')
   const { Client } = require('pg')
   const client = new Client({ connectionString })
   await client.connect()
   try {
-    const { rows } = await client.query(
-      'SELECT migration_name FROM _prisma_migrations WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL')
-    return rows.map(row => row.migration_name)
-  } catch (error) {
-    if (error.code === '42P01') return [] // undefined_table: a new database
-    throw error
+    const applied = await migrate(client)
+    if (applied.length === 0) console.log('No migrations to apply.')
   } finally {
     await client.end()
   }
 }
 
-/**
- * Stops when the database already has a migration this checkout does not know: the code is older than the database,
- * as when an old commit is deployed to production. Prisma would apply the old migrations it thinks are missing instead.
- */
-async function refuseOlderCheckout() {
-  require('@next/env').loadEnvConfig(path.join(__dirname, '..'))
-  // The same variables, in the same order, as prisma.config.ts.
-  const url = process.env.DIRECT_URL || process.env.DATABASE_URL || process.env.POSTGRES_URL
-  if (!url) return // prisma migrate deploy reports the missing database itself
-  const newer = newerThanLocal(await appliedMigrations(url), localMigrations())
-  if (newer.length === 0) return
-  console.error(`The database has migrations this checkout does not have: ${newer.join(', ')}.`)
-  console.error('This code is older than the database. Deploy the latest main instead; no migration was applied.')
-  process.exit(1)
-}
-
-async function main() {
-  await refuseOlderCheckout()
-  if (process.argv.includes('--baseline')) {
-    // Compare the legacy database with the table of v0.3.x, then bring it up to date with 0027_schema, which changes
-    // only what is missing, and record that migration as applied.
-    run(['migrate', 'diff', '--from-config-datasource', '--to-schema', 'prisma/baseline.prisma', '--exit-code'])
-    run(['db', 'execute', '--file', 'prisma/migrations/0027_schema/migration.sql'])
-    run(['migrate', 'resolve', '--applied', '0027_schema'])
-  }
-  run(['migrate', 'deploy'])
-}
-
 if (require.main === module) {
   main().catch(error => {
-    console.error(`Check the database before migrating: ${error.message}`)
+    console.error(error.message)
     process.exit(1)
   })
 }
 
-module.exports = { localMigrations, newerThanLocal }
+module.exports = { checksum, localMigrations, migrate, newerThanLocal, pendingMigrations }

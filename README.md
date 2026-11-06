@@ -167,9 +167,9 @@ Vercel MarketplaceでNeonを接続し、サーバー用の環境変数を設定�
 - `AUTH_URL`: 本番URL。本番OAuth callbackは `<本番URL>/api/auth/callback/github`（v0.55.0 でも変わりません）。Go はこの値のオリジンだけを使います
 - `FFPF_ID_ISSUER`, `FFPF_ID_CLIENT_ID`, `FFPF_ID_CLIENT_SECRET`: FFPF ID（ffpf-portal）の issuer とクライアントの認証情報（任意。3つ揃えたときだけ FFPF ID のログインと `/admin` を使えます）。portal に登録する redirect URI は `<本番URL>/api/auth/callback/ffpf` です
 
-Go の関数（`api/index.go`）も同じ環境変数を読むため、Vercel の設定は増やしません。対象DBの環境変数を使って `npm run db:migrate` を実行してからデプロイします。Prisma はこのマイグレーション（`prisma/migrations` の SQL を `prisma migrate deploy` で適用する）にだけ使い、`prisma` CLI は devDependencies です。Prisma Client は生成せず、本番の依存にも入れません（アプリの DB の読み書きは Go の pgx）。DockerのDBからNeonへのデータコピーは自動ではありません。必要な場合はバックアップと復元を別途行います。本番への反映は検証済みのコミットからGitHub Actions内のVercel CLIで行います。
+Go の関数（`api/index.go`）も同じ環境変数を読むため、Vercel の設定は増やしません。対象DBの環境変数を使って `npm run db:migrate` を実行してからデプロイします。マイグレーションは `db/migrations` の SQL で、`scripts/migrate.cjs` が `pg` で適用します（v2.36.19 から Prisma は使いません。アプリの DB の読み書きは Go の pgx）。DockerのDBからNeonへのデータコピーは自動ではありません。必要な場合はバックアップと復元を別途行います。本番への反映は検証済みのコミットからGitHub Actions内のVercel CLIで行います。
 
-公式資料: [GitHub OAuth App](https://docs.github.com/ja/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps)、[Prisma](https://www.prisma.io/docs/orm/v7)、[PostgreSQL Docker image](https://hub.docker.com/_/postgres)。
+公式資料: [GitHub OAuth App](https://docs.github.com/ja/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps)、[PostgreSQL Docker image](https://hub.docker.com/_/postgres)。
 
 ### ギャラリーのレート制限
 
@@ -237,7 +237,7 @@ Tailwind 4の対象ブラウザーはSafari 16.4以上、Chrome 111以上、Fire
 
 ## 依存関係の監査
 
-2026-09-06の更新時点で `npm audit` の指摘は0件です。Prisma 7.10の開発ツールが固定する依存に対し、`@prisma/config` のdeepmerge-tsを8.0.2、Prisma内のmysql2を3.24.3へ限定的にoverrideしています。Prismaのマイグレーション・実DBテストを確認済みです（v2.36.3 から Prisma Client は使わず、`prisma` CLI だけを devDependencies に置いています）。Prisma本体が修正版を採用したらoverrideを見直してください。
+2026-11-06 の `npm audit` の指摘は13件（low 2・moderate 11）で、どれも開発用の ESLint と shadcn の依存（`minimatch`・`deepmerge`）です。本番の依存には入っていません。v2.36.19 で Prisma をなくし、そのための override もなくなりました。
 
 ## リポジトリの経緯
 
