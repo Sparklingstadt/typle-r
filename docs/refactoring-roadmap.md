@@ -51,7 +51,7 @@
 
 どれも半日以内で、機能の PR の合間に入れられます。
 
-- **#2 ページの外枠** — `src/app/(workspace)/play/page.tsx`・`src/app/home/page.tsx`・`src/app/admin/admin-dashboard.tsx` が旧 `components/Page/Page.tsx`・`components/PageContainer` を使っています（ほかの 17 ファイルは `ui/page-layout.tsx` の `PageMain`／`PageHeader`）。3ファイルを置き換え、旧 `Page`・`PageContainer` を消します。#264 を取り消した経緯（v2.31.2）があるので、クラスの集合が変わらないことを E2E で確かめます。
+- **#2 ページの外枠** — `src/app/(workspace)/play/page.tsx`・`src/app/home/page.tsx`・`src/app/admin/admin-dashboard.tsx` が旧 `components/Page/Page.tsx`・`components/PageContainer` を使っています（ほかの 17 ファイルは `ui/page-layout.tsx` の `PageMain`／`PageHeader`）。3ファイルと、相対パスで同じ部品を使っていた `src/components/WorkspaceGate.tsx` を置き換え、旧 `Page`・`PageContainer` を消します。旧 `Page` はカードで囲む別の枠（`w-11/12 max-w-7xl` + `Card` + `p-5 sm:p-8 lg:p-16`）で、`PageMain` と同じクラスの集合にはできなかったため、「クラスを変えない」のではなく、見た目をほかの画面の平らな枠にそろえる変更として行いました（v2.36.4）。
 - **#3 Prisma** — `@prisma/client`・`@prisma/adapter-pg` を import しているコードは `src` にも `scripts` にもなく、`scripts/migrate.cjs` が `prisma` の CLI と `pg` を使うだけです。`@prisma/client`・`@prisma/adapter-pg` を外し、`postinstall`・`prebuild` から `prisma generate` を外します。`prisma`・`pg` は移行のために残します。`scripts/generate-licenses.cjs` が作るライセンス一覧（`/about/licenses`）から Prisma が消えるので、`tests/licenses.test.cjs` を合わせます。本番の `db:migrate` の流れは変えません。
 - **#7 lint** — `eslint.config.mjs` の `globalIgnores` に `.claude/**` を足します。今は計画の文書が「`npm run lint` は使わず `npx eslint src tests` で」と案内しており、CI と手元で違う検査になっています。`tsconfig.json` は `.claude/worktrees` を読んでいないことを確認済みです。
 - **#12 `cn`** — `import { cn } from "cn"` が 20 か所、`from "@/lib/utils"`（`cn` を再 export）が 34 か所です。`ui/` は `"cn"`、画面は `@/lib/utils` に寄っているので、どちらかに決めて `no-restricted-imports` で固定します。

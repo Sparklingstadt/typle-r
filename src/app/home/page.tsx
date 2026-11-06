@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
-import Page from "@/components/Page/Page"
-import PageContainer from "@/components/PageContainer/PageContainer"
+import { PageMain } from "@/components/ui/page-layout"
 import { useWordLists } from "@/lib/useWordLists"
 import Dashboard from "@/components/Dashboard/Dashboard"
 
@@ -14,7 +13,7 @@ export default function Home() {
   const common = useTranslations("common")
   const { lists, storage, ready, error } = useWordLists()
   const count = lists.reduce((total, list) => total + list.records.length, 0)
-  return <Page><PageContainer>
+  return <PageMain width="wide">
     {error && <ErrorAlert className="mb-6">{error}</ErrorAlert>}
     {!ready ? <p>{common("loading")}</p> : count ? <Dashboard lists={lists} storage={storage} /> : <>
       <h1 className="text-3xl mb-4">{t("welcome.title")}</h1>
@@ -31,5 +30,5 @@ export default function Home() {
       guide: chunks => <Link className="underline" href="/guide">{chunks}</Link>,
       about: chunks => <Link className="underline" href="/about">{chunks}</Link>,
     })}</p>
-  </PageContainer></Page>
+  </PageMain>
 }
