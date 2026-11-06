@@ -1,6 +1,7 @@
 "use client"
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { useFormat } from '@/i18n/useFormat'
 import { ErrorAlert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -26,6 +27,7 @@ const reasonKeys = ['inappropriate', 'spam', 'personalInfo', 'other'] as const
 
 export default function GalleryList({ time, errorText }: { time: (value: string | null) => string; errorText: (key: unknown) => string }) {
   const t = useTranslations('admin.gallery')
+  const format = useFormat()
   const shares = useTranslations('admin.shares')
   const reasons = useTranslations('wordLists.report.reasons')
   const [state, setState] = useState<State>({ kind: 'loading' })
@@ -87,7 +89,7 @@ export default function GalleryList({ time, errorText }: { time: (value: string 
         <TableBody>{state.packs.map(pack => <TableRow key={pack.id}>
           <TableCell><a id={`admin-gallery-pack-${pack.id}`} className="underline" href={`/shared/${pack.id}`}>{pack.name || shares('unnamed')}</a></TableCell>
           <TableCell>{pack.category ?? ''}</TableCell>
-          <TableCell className="text-right tabular-nums">{pack.added.toLocaleString()}</TableCell>
+          <TableCell className="text-right tabular-nums">{format.number(pack.added)}</TableCell>
           <TableCell>{time(pack.listedAt)}</TableCell>
           <TableCell>
             <span className="tabular-nums">{t('reportCount', { count: pack.reports })}</span>

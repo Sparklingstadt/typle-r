@@ -49,6 +49,8 @@ export function useFormat() {
     const device = (value?: PracticeDevice) => !value ? t('noDevice')
       : value.layout ? t('deviceWithLayout', { name: deviceName(value), layout: value.layout }) : deviceName(value)
     return {
+      /** A count with the reader's grouping of digits. */
+      number: (value: number) => value.toLocaleString(locale),
       /** 今日, 昨日 or the date, with the year only when it is not this year. */
       day(value: Date, now = new Date()) {
         const kind = dayKind(value, now)

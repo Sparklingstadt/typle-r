@@ -1,6 +1,7 @@
 "use client"
 import { useId, type ComponentProps } from "react"
 import { useTranslations } from "next-intl"
+import { useFormat } from "@/i18n/useFormat"
 import { GripVertical, Plus } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -32,6 +33,7 @@ export default function WordsSection({ words, baseId, displayId, inputId, saving
   onImport: ComponentProps<typeof WordListImport>["onImport"]
 }) {
   const t = useTranslations("wordLists.editor")
+  const format = useFormat()
   const dragId = useId()
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -40,7 +42,7 @@ export default function WordsSection({ words, baseId, displayId, inputId, saving
   return <section aria-labelledby={`${baseId}-words`} className="md:overflow-hidden md:rounded-xl md:border md:bg-card">
     <div className="flex flex-wrap items-center gap-2 pb-3 md:px-6 md:py-4">
       <h2 id={`${baseId}-words`} className="text-base font-bold">{t("words")}</h2>
-      <Badge variant="secondary" className="tabular-nums">{words.length.toLocaleString()} / {MAX_WORDS.toLocaleString()}</Badge>
+      <Badge variant="secondary" className="tabular-nums">{format.number(words.length)} / {format.number(MAX_WORDS)}</Badge>
       <div className="ml-auto">
         <WordListImport disabled={saving} existingCount={filledCount} onImport={onImport} />
       </div>
