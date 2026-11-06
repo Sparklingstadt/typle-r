@@ -61,8 +61,8 @@ export function encodeWordCsv(words: Word[]) {
     if (word.input_type !== undefined && !isInputType(word.input_type)) throw new AppError('savedDataCorrupted')
   }
   return `\uFEFFinput,display,annotation${typed ? ',input_type' : ''}\r\n` + words.map(word =>
-    [word.input, word.display, word.annotation, ...(typed ? [word.input_type ?? ''] : [])].map(cell).join(",")
-  ).join("\r\n") + "\r\n"
+    [word.input, word.display, word.annotation, ...(typed ? [word.input_type ?? ''] : [])].map(cell).join(",") + "\r\n"
+  ).join("")
 }
 
 export const csvFormat = {
