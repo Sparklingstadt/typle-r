@@ -7,7 +7,7 @@ import { ErrorAlert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import PageContainer from '@/components/PageContainer/PageContainer'
+import { PageHeader, PageMain } from '@/components/ui/page-layout'
 import { GraphQLError, graphql } from '@/core/graphql'
 import { useFormat } from '@/i18n/useFormat'
 import GalleryList from './gallery-list'
@@ -94,82 +94,80 @@ export default function AdminDashboard() {
   const time = (value: string | null) => value
     ? t('dateTime', { date: format.numericDate(new Date(value)), time: format.clock(new Date(value)) }) : t('never')
 
-  return <PageContainer className="space-y-6">
-    <header className="flex flex-wrap items-center justify-between gap-4">
-      <div>
-        <h1 className="text-3xl font-bold">{t('title')}</h1>
-        <p className="text-muted-foreground">{t('description')}</p>
-      </div>
+  return <PageMain width="wide">
+    <PageHeader title={t('title')} description={t('description')}>
       {state.kind === 'ready' && <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm text-muted-foreground">{t('signedInAs', { email: state.answer.admin.email })}</span>
         <Button variant="outline" size="sm" onClick={() => void load()}><RefreshCw aria-hidden="true" />{t('refresh')}</Button>
         <Button variant="outline" size="sm" onClick={() => void signOut()}><LogOut aria-hidden="true" />{t('signOut')}</Button>
       </div>}
-    </header>
-    {signOutFailed && <ErrorAlert>{t('signOutFailed')}</ErrorAlert>}
+    </PageHeader>
+    <div className="space-y-6">
+      {signOutFailed && <ErrorAlert>{t('signOutFailed')}</ErrorAlert>}
 
-    {state.kind === 'loading' && <p role="status">{t('checking')}</p>}
+      {state.kind === 'loading' && <p role="status">{t('checking')}</p>}
 
-    {state.kind === 'failed' && <ErrorAlert action={<Button variant="outline" size="sm" onClick={() => void load()}>{t('retry')}</Button>}>{state.error}</ErrorAlert>}
+      {state.kind === 'failed' && <ErrorAlert action={<Button variant="outline" size="sm" onClick={() => void load()}>{t('retry')}</Button>}>{state.error}</ErrorAlert>}
 
-    {state.kind === 'signedOut' && <Card className="max-w-lg">
-      <CardHeader>
-        <CardTitle>{t('signIn.title')}</CardTitle>
-        <CardDescription>{t('signIn.description')}</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {(state.error || refused) && <ErrorAlert>{state.error ?? (refused && errors(refused))}</ErrorAlert>}
-        <Button asChild><a href="/api/auth/signin?admin=1"><LogIn aria-hidden="true" />{t('signIn.button')}</a></Button>
-      </CardContent>
-    </Card>}
-
-    {state.kind === 'ready' && <>
-      <section aria-label={t('stats.label')} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {stats.map(key => <Card key={key} className="gap-2 py-4">
-          <CardHeader className="px-4"><CardDescription>{t(`stats.${key}`)}</CardDescription></CardHeader>
-          <CardContent className="px-4 text-3xl font-bold tabular-nums">{state.answer.overview[key].toLocaleString()}</CardContent>
-        </Card>)}
-      </section>
-
-      <UserList time={time} errorText={errorText} />
-
-      <Card>
-        <CardHeader><CardTitle><h2>{t('shares.title')}</h2></CardTitle></CardHeader>
-        <CardContent>
-          {state.answer.overview.recentShares.length === 0 ? <p>{t('shares.empty')}</p> : <Table>
-            <TableHeader><TableRow>
-              <TableHead>{t('shares.name')}</TableHead>
-              <TableHead>{t('shares.owner')}</TableHead>
-              <TableHead>{t('updatedAt')}</TableHead>
-            </TableRow></TableHeader>
-            <TableBody>{state.answer.overview.recentShares.map(row => <TableRow key={row.id}>
-              <TableCell><a className="underline" href={`/shared/${row.id}`}>{row.name || t('shares.unnamed')}</a></TableCell>
-              <TableCell className="font-mono">{row.ownerId}</TableCell>
-              <TableCell>{time(row.updatedAt)}</TableCell>
-            </TableRow>)}</TableBody>
-          </Table>}
+      {state.kind === 'signedOut' && <Card className="max-w-lg">
+        <CardHeader>
+          <CardTitle>{t('signIn.title')}</CardTitle>
+          <CardDescription>{t('signIn.description')}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {(state.error || refused) && <ErrorAlert>{state.error ?? (refused && errors(refused))}</ErrorAlert>}
+          <Button asChild><a href="/api/auth/signin?admin=1"><LogIn aria-hidden="true" />{t('signIn.button')}</a></Button>
         </CardContent>
-      </Card>
+      </Card>}
 
-      <GalleryList time={time} errorText={errorText} />
+      {state.kind === 'ready' && <>
+        <section aria-label={t('stats.label')} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {stats.map(key => <Card key={key} className="gap-2 py-4">
+            <CardHeader className="px-4"><CardDescription>{t(`stats.${key}`)}</CardDescription></CardHeader>
+            <CardContent className="px-4 text-3xl font-bold tabular-nums">{state.answer.overview[key].toLocaleString()}</CardContent>
+          </Card>)}
+        </section>
 
-      <Card>
-        <CardHeader><CardTitle><h2>{t('admins.title')}</h2></CardTitle></CardHeader>
-        <CardContent><Table>
-          <TableHeader><TableRow>
-            <TableHead>{t('admins.email')}</TableHead>
-            <TableHead>{t('admins.ffpfSub')}</TableHead>
-            <TableHead>{t('admins.createdAt')}</TableHead>
-            <TableHead>{t('admins.lastSeenAt')}</TableHead>
-          </TableRow></TableHeader>
-          <TableBody>{state.answer.overview.admins.map(row => <TableRow key={row.email}>
-            <TableCell className="font-mono">{row.email}</TableCell>
-            <TableCell className="font-mono">{row.ffpfSub ?? t('admins.unbound')}</TableCell>
-            <TableCell>{time(row.createdAt)}</TableCell>
-            <TableCell>{time(row.lastSeenAt)}</TableCell>
-          </TableRow>)}</TableBody>
-        </Table></CardContent>
-      </Card>
-    </>}
-  </PageContainer>
+        <UserList time={time} errorText={errorText} />
+
+        <Card>
+          <CardHeader><CardTitle><h2>{t('shares.title')}</h2></CardTitle></CardHeader>
+          <CardContent>
+            {state.answer.overview.recentShares.length === 0 ? <p>{t('shares.empty')}</p> : <Table>
+              <TableHeader><TableRow>
+                <TableHead>{t('shares.name')}</TableHead>
+                <TableHead>{t('shares.owner')}</TableHead>
+                <TableHead>{t('updatedAt')}</TableHead>
+              </TableRow></TableHeader>
+              <TableBody>{state.answer.overview.recentShares.map(row => <TableRow key={row.id}>
+                <TableCell><a className="underline" href={`/shared/${row.id}`}>{row.name || t('shares.unnamed')}</a></TableCell>
+                <TableCell className="font-mono">{row.ownerId}</TableCell>
+                <TableCell>{time(row.updatedAt)}</TableCell>
+              </TableRow>)}</TableBody>
+            </Table>}
+          </CardContent>
+        </Card>
+
+        <GalleryList time={time} errorText={errorText} />
+
+        <Card>
+          <CardHeader><CardTitle><h2>{t('admins.title')}</h2></CardTitle></CardHeader>
+          <CardContent><Table>
+            <TableHeader><TableRow>
+              <TableHead>{t('admins.email')}</TableHead>
+              <TableHead>{t('admins.ffpfSub')}</TableHead>
+              <TableHead>{t('admins.createdAt')}</TableHead>
+              <TableHead>{t('admins.lastSeenAt')}</TableHead>
+            </TableRow></TableHeader>
+            <TableBody>{state.answer.overview.admins.map(row => <TableRow key={row.email}>
+              <TableCell className="font-mono">{row.email}</TableCell>
+              <TableCell className="font-mono">{row.ffpfSub ?? t('admins.unbound')}</TableCell>
+              <TableCell>{time(row.createdAt)}</TableCell>
+              <TableCell>{time(row.lastSeenAt)}</TableCell>
+            </TableRow>)}</TableBody>
+          </Table></CardContent>
+        </Card>
+      </>}
+    </div>
+  </PageMain>
 }
