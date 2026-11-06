@@ -1,6 +1,5 @@
-generator client {
-  provider = "prisma-client-js"
-}
+// Prisma is used only to run the SQL migrations in migrations/ (scripts/migrate.cjs). The app reads the database
+// from Go (server/) with pgx; no Prisma Client is generated.
 
 datasource db {
   provider = "postgresql"
