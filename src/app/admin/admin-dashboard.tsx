@@ -2,27 +2,20 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { LogIn, LogOut, RefreshCw } from 'lucide-react'
+import { LogOut, RefreshCw } from 'lucide-react'
 import { ErrorAlert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { PageHeader, PageMain } from '@/components/ui/page-layout'
 import { GraphQLError, graphql } from '@/core/graphql'
 import { useFormat } from '@/i18n/useFormat'
+import AdminList from './admin-list'
 import GalleryList from './gallery-list'
+import { stats, type Overview } from './overview'
+import RecentShares from './recent-shares'
+import SignInCard from './sign-in-card'
+import StatCards from './stat-cards'
 import UserList from './user-list'
 
-// The adminDashboard of /api/graphql (server/internal/web/graph/schema.graphqls, server/internal/store/admin.go).
-type Overview = {
-  workspaces: number
-  activeDay: number
-  activeWeek: number
-  activeMonth: number
-  sharedPacks: number
-  recentShares: { id: string; ownerId: string; name: string; updatedAt: string }[]
-  admins: { email: string; ffpfSub: string | null; createdAt: string; lastSeenAt: string | null }[]
-}
 type Answer = { admin: { email: string; sub: string }; overview: Overview }
 
 type State =
@@ -32,8 +25,6 @@ type State =
   | { kind: 'ready'; answer: Answer }
 
 type ErrorKey = Parameters<ReturnType<typeof useTranslations<'errors'>>>[0]
-
-const stats = ['workspaces', 'activeDay', 'activeWeek', 'activeMonth', 'sharedPacks'] as const
 
 const DASHBOARD = `query AdminDashboard { adminDashboard {
   admin { email sub }
@@ -109,64 +100,18 @@ export default function AdminDashboard() {
 
       {state.kind === 'failed' && <ErrorAlert action={<Button variant="outline" size="sm" onClick={() => void load()}>{t('retry')}</Button>}>{state.error}</ErrorAlert>}
 
-      {state.kind === 'signedOut' && <Card className="max-w-lg">
-        <CardHeader>
-          <CardTitle>{t('signIn.title')}</CardTitle>
-          <CardDescription>{t('signIn.description')}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {(state.error || refused) && <ErrorAlert>{state.error ?? (refused && errors(refused))}</ErrorAlert>}
-          <Button asChild><a href="/api/auth/signin?admin=1"><LogIn aria-hidden="true" />{t('signIn.button')}</a></Button>
-        </CardContent>
-      </Card>}
+      {state.kind === 'signedOut' && <SignInCard error={state.error} refused={refused && errors(refused)} />}
 
       {state.kind === 'ready' && <>
-        <section aria-label={t('stats.label')} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {stats.map(key => <Card key={key} className="gap-2 py-4">
-            <CardHeader className="px-4"><CardDescription>{t(`stats.${key}`)}</CardDescription></CardHeader>
-            <CardContent className="px-4 text-3xl font-bold tabular-nums">{state.answer.overview[key].toLocaleString()}</CardContent>
-          </Card>)}
-        </section>
+        <StatCards overview={state.answer.overview} />
 
         <UserList time={time} errorText={errorText} />
 
-        <Card>
-          <CardHeader><CardTitle><h2>{t('shares.title')}</h2></CardTitle></CardHeader>
-          <CardContent>
-            {state.answer.overview.recentShares.length === 0 ? <p>{t('shares.empty')}</p> : <Table>
-              <TableHeader><TableRow>
-                <TableHead>{t('shares.name')}</TableHead>
-                <TableHead>{t('shares.owner')}</TableHead>
-                <TableHead>{t('updatedAt')}</TableHead>
-              </TableRow></TableHeader>
-              <TableBody>{state.answer.overview.recentShares.map(row => <TableRow key={row.id}>
-                <TableCell><a className="underline" href={`/shared/${row.id}`}>{row.name || t('shares.unnamed')}</a></TableCell>
-                <TableCell className="font-mono">{row.ownerId}</TableCell>
-                <TableCell>{time(row.updatedAt)}</TableCell>
-              </TableRow>)}</TableBody>
-            </Table>}
-          </CardContent>
-        </Card>
+        <RecentShares shares={state.answer.overview.recentShares} time={time} />
 
         <GalleryList time={time} errorText={errorText} />
 
-        <Card>
-          <CardHeader><CardTitle><h2>{t('admins.title')}</h2></CardTitle></CardHeader>
-          <CardContent><Table>
-            <TableHeader><TableRow>
-              <TableHead>{t('admins.email')}</TableHead>
-              <TableHead>{t('admins.ffpfSub')}</TableHead>
-              <TableHead>{t('admins.createdAt')}</TableHead>
-              <TableHead>{t('admins.lastSeenAt')}</TableHead>
-            </TableRow></TableHeader>
-            <TableBody>{state.answer.overview.admins.map(row => <TableRow key={row.email}>
-              <TableCell className="font-mono">{row.email}</TableCell>
-              <TableCell className="font-mono">{row.ffpfSub ?? t('admins.unbound')}</TableCell>
-              <TableCell>{time(row.createdAt)}</TableCell>
-              <TableCell>{time(row.lastSeenAt)}</TableCell>
-            </TableRow>)}</TableBody>
-          </Table></CardContent>
-        </Card>
+        <AdminList admins={state.answer.overview.admins} time={time} />
       </>}
     </div>
   </PageMain>
