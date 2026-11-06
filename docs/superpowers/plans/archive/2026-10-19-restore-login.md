@@ -1,5 +1,7 @@
 # GitHubログインとクラウド保存を戻す Implementation Plan
 
+> この計画は実装済みの記録です。書かれている構成・パス・手順は当時のもので、今の構成は [README](../../../../README.md) を見てください。ここから作業を始めないでください。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** v0.36.0 で削除した GitHub ログイン（と開発用ログイン）とアカウントのクラウド保存を、v0.35.2 と同じ動きで戻す。共有リンク・APIトークン・`/api/v1` は戻さない。

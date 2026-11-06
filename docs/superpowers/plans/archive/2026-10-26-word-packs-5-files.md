@@ -1,5 +1,7 @@
 # 単語パック PR 5（パックのファイル・複製・公式パック・公開 API）Implementation Plan
 
+> この計画は実装済みの記録です。書かれている構成・パス・手順は当時のもので、今の構成は [README](../../../../README.md) を見てください。ここから作業を始めないでください。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** パックをファイルで書き出し・取り込みでき、丸ごと複製でき、公式パックのカタログから追加できるようにし、Go の公開 API（`/api/v1`）でもパックを扱えるようにする（v0.95.0）。

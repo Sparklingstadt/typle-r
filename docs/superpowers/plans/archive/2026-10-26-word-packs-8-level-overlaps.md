@@ -1,5 +1,7 @@
 # 単語パック 8: 難易度の重なりをなくす Implementation Plan
 
+> この計画は実装済みの記録です。書かれている構成・パス・手順は当時のもので、今の構成は [README](../../../../README.md) を見てください。ここから作業を始めないでください。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development. Steps use checkbox (`- [ ]`) syntax.
 
 **Goal:** 1 つのパックに、同じ難易度や途中まで同じ難易度のリストが並ばないようにする。

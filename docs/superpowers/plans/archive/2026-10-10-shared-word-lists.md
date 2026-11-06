@@ -1,5 +1,7 @@
 # 単語リストのリンク共有 Implementation Plan
 
+> この計画は実装済みの記録です。書かれている構成・パス・手順は当時のもので、今の構成は [README](../../../../README.md) を見てください。ここから作業を始めないでください。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** ログインユーザーが単語リストの共有を ON/OFF でき、`/shared/<shareId>` を開いた人（未ログイン可）がそのリストを独立したコピーとして自分のリストに追加できるようにする。

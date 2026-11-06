@@ -1,5 +1,7 @@
 # 単語パック PR 1（データ構造と移行）Implementation Plan
 
+> この計画は実装済みの記録です。書かれている構成・パス・手順は当時のもので、今の構成は [README](../../../../README.md) を見てください。ここから作業を始めないでください。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 保存データに単語パックを入れ、すべてのリストが必ず1つのパックに属するようにする。画面の見た目と動きは v0.90.0 のまま（v0.91.0）。

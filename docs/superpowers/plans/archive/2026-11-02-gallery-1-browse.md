@@ -1,5 +1,7 @@
 # ギャラリー 1: 一覧と検索 Implementation Plan
 
+> この計画は実装済みの記録です。書かれている構成・パス・手順は当時のもので、今の構成は [README](../../../../README.md) を見てください。ここから作業を始めないでください。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 共有リンクに「ギャラリーに載せる」を API として足し、だれでも `/gallery` で掲載中のパックを検索・絞り込み・並べ替えして `/shared/<id>` の下見と追加に進めるようにする。

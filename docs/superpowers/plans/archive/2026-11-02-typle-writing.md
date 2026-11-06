@@ -1,5 +1,7 @@
 # Typle Writing（typle-r 側）実装計画
 
+> この計画は実装済みの記録です。書かれている構成・パス・手順は当時のもので、今の構成は [README](../../../../README.md) を見てください。ここから作業を始めないでください。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 作者が印を付けたリストで、Web の「OS の手書き入力」による Writing の練習ができ、記録が `mode: 'writing'` として保存され、タイピングと分けて集計される。

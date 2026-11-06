@@ -1,5 +1,7 @@
 # API（Go）を Web と同じ機能にする Implementation Plan
 
+> この計画は実装済みの記録です。書かれている構成・パス・手順は当時のもので、今の構成は [README](../../../../README.md) を見てください。ここから作業を始めないでください。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Web アプリの機能（複製・CSV・端末の利用状況・リスト一覧・練習記録・ベスト記録・ダッシュボード）を Go の API に、アプリと同じ規則で加える。
