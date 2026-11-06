@@ -1160,7 +1160,7 @@ func TestWriteRevisionInterests(t *testing.T) {
 		t.Fatalf("ReadRevision = %+v, %v", read, err)
 	}
 	// Lists or devices alone leave the interests as they are.
-	if saved, err = s.WriteRevision(ctx, id, 2, Change{Lists: newLists(2), HasLists: true}); err != nil {
+	if _, err = s.WriteRevision(ctx, id, 2, Change{Lists: newLists(2), HasLists: true}); err != nil {
 		t.Fatal(err)
 	}
 	if saved, err = s.WriteRevision(ctx, id, 3, Change{Devices: []workspace.Device{{ID: "d1", Name: "自宅", Layout: "JIS"}}, HasDevices: true}); err != nil {

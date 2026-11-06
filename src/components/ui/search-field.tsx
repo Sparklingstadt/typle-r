@@ -1,6 +1,6 @@
 "use client"
 
-import { cn } from "cn"
+import { cn } from "@/lib/utils"
 import { Search, X } from "lucide-react"
 
 // A bordered search box with the icon inside the border. Height and outer margins come from `className`.

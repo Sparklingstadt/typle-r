@@ -90,10 +90,13 @@ jobs:
           unformatted=$(gofmt -l .)
           test -z "$unformatted" || { echo "Run gofmt -w on: $unformatted"; exit 1; }
           go vet ./...
+          go run honnef.co/go/tools/cmd/staticcheck@v0.7.0 ./...
           go test ./...
       - run: npm run typecheck
-      - run: npm test
+      # The same tests as npm test, with the coverage of src in the log. There is no threshold yet.
+      - run: npm run test:coverage
       - run: npm run lint
+      - run: npm run knip
       # Next.js reuses its build cache across runs; a key that misses the sources still restores the newest cache for
       # the same lockfile, and next build only reuses what is still valid.
       - name: Cache Next.js build

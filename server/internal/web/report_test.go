@@ -16,10 +16,9 @@ import (
 
 // recorder is a Sentry transport that keeps what would be sent.
 type recorder struct {
-	mu       sync.Mutex
-	events   []*sentry.Event
-	flushes  []time.Duration
-	complete bool
+	mu      sync.Mutex
+	events  []*sentry.Event
+	flushes []time.Duration
 }
 
 func (r *recorder) Configure(sentry.ClientOptions) {}

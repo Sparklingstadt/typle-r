@@ -1,0 +1,26 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "tests/*.test.cjs",
+    "tests/e2e/*.spec.ts",
+    "scripts/*.cjs",
+    "scripts/ci/*.cjs"
+  ],
+  "project": [
+    "src/**/*.{ts,tsx}",
+    "tests/**/*.{cjs,ts}",
+    "scripts/**/*.cjs"
+  ],
+  "ignoreDependencies": [
+    "shadcn",
+    "tw-animate-css",
+    "tailwindcss"
+  ],
+  "ignoreExportsUsedInFile": true,
+  "ignoreIssues": {
+    "src/components/ui/**": [
+      "exports",
+      "types"
+    ]
+  }
+}
