@@ -48,5 +48,313 @@
     "slug": "english-basics",
     "catalogId": "pack-english-basic-words",
     "description": "英語の基礎・中級の単語と構文、あわせて160個を打って覚えます。apple・water などの単語から、現在完了の文まで、日本語の意味が付いています。"
+  },
+  {
+    "slug": "macos-terminal-commands",
+    "catalogId": "pack-8f3cf116-1f9f-4579-a071-e600094b104d",
+    "description": "macOS のターミナル（zsh）で使うコマンド90個を打って覚えます。pwd・ls・ls -la などの基本から、コマンドごとに何をするかの説明が付いています。"
+  },
+  {
+    "slug": "gcloud-commands",
+    "catalogId": "pack-d6a056c2-9f2b-48ba-b4e6-1d851cc45f41",
+    "description": "Google Cloud CLI（gcloud）のコマンド35個を打って覚えます。gcloud init での初期設定や gcloud auth login での認証など、コマンドごとに何をするかの説明が付いています。"
+  },
+  {
+    "slug": "linux-system-basics",
+    "catalogId": "pack-04450fbe-2974-417c-9350-39802a5c650c",
+    "description": "/・/bin・/sbin などのディレクトリ構成をはじめ、Linux のシステムの仕組みにかかわる言葉140個を打って覚えます。それぞれ何の略か・何のためのものかの説明が付いています。"
+  },
+  {
+    "slug": "linux-shell-bash",
+    "catalogId": "pack-d3638812-0c0a-4f37-a413-d17404344c32",
+    "description": "$$・$!・$? などの特殊変数をはじめ、Linux のシェルと Bash の書き方76個を打って覚えます。それぞれ何を表すかの説明が付いています。"
+  },
+  {
+    "slug": "linux-commands-advanced",
+    "catalogId": "pack-3099bf52-7790-49b0-841d-5230d7d3dd68",
+    "description": "lsblk・blkid・mount など、Linux の応用コマンド131個を打って覚えます。コマンドごとに何の略か・何をするかの説明が付いています。"
+  },
+  {
+    "slug": "linux-command-options",
+    "catalogId": "pack-78aaf407-fd11-4b12-92bd-2f0bffaf3779",
+    "description": "ls -l・ls -a・ls -h のように、Linux のコマンドでよく使うオプション146個を打って覚えます。オプションごとに何が変わるかの説明が付いています。"
+  },
+  {
+    "slug": "vercel-cli-commands",
+    "catalogId": "pack-eba3ec64-7d45-4f41-9de1-200ba5e957d5",
+    "description": "Vercel CLI のコマンド34個を打って覚えます。vercel login での認証、vercel switch でのチームの切り替え、vercel link でのプロジェクトとの連携など、コマンドごとに説明が付いています。"
+  },
+  {
+    "slug": "arch-linux-commands",
+    "catalogId": "pack-arch-linux",
+    "description": "Arch Linux で使うコマンド96個を打って覚えます。pwd・ls -lah・cd などの基本から pacman でのパッケージ管理まで、コマンドごとに何をするかの説明が付いています。"
+  },
+  {
+    "slug": "arch-linux-commands-by-level",
+    "catalogId": "pack-arch-linux-beginner",
+    "description": "「Arch Linuxコマンド」と同じ96個を、初級・中級・上級の3つのリスト（32個ずつ）に分けたパックです。段階を追って少しずつ覚えたいときに向いています。",
+    "canonical": "arch-linux-commands"
+  },
+  {
+    "slug": "vim-commands-by-level",
+    "catalogId": "pack-vim-beginner",
+    "description": "「Vimコマンド」と同じ112個を、初級・中級・上級の3つのリストに分けたパックです。挿入から :w・:q での保存と終了まで、段階を追って覚えられます。",
+    "canonical": "vim-commands"
+  },
+  {
+    "slug": "java-syntax",
+    "catalogId": "pack-java-syntax-beginner",
+    "description": "Java の構文を、初級から上級までの4つのリスト（130個）で打って覚えます。class と main メソッド、System.out.println、コメント、三項演算子、if・else if などを、コードの形で練習できます。"
+  },
+  {
+    "slug": "un-countries-chinese",
+    "catalogId": "pack-un-member-states-chinese-193-lowercase",
+    "description": "国連加盟193か国の国名を、中国語（簡体字）とピンインで打って覚えます。阿富汗（アフガニスタン）から順に、国名ごとにピンインと日本語の国名が付いています。"
+  },
+  {
+    "slug": "un-countries-chinese-by-level",
+    "catalogId": "pack-un-member-states-chinese-193-lowercase-beginner-1",
+    "description": "国連加盟193か国の中国語の国名を、初級・中級・上級の5つのリストに分けたパックです。安哥拉（アンゴラ）から波斯尼亚和黑塞哥维那まで、ピンインと日本語が付いています。",
+    "canonical": "un-countries-chinese"
+  },
+  {
+    "slug": "postgresql-syntax",
+    "catalogId": "pack-postgresql-syntax-beginner",
+    "description": "PostgreSQL の SQL 構文を、初級から上級までの4つのリスト（152個）で打って覚えます。AS・IN・AND/OR などの条件から、CREATE TABLE と制約まで、SQL を書く形のまま練習できます。"
+  },
+  {
+    "slug": "prisma-syntax",
+    "catalogId": "pack-prisma-syntax-beginner",
+    "description": "Prisma ORM 7 と TypeScript の書き方64個を、初級・上級の2つのリストで打って覚えます。schema.prisma の generator・datasource・model から、prisma.$disconnect などのクライアントの操作まで練習できます。"
+  },
+  {
+    "slug": "jest-syntax",
+    "catalogId": "pack-jest-syntax-beginner",
+    "description": "Jest 30 のテストの書き方67個を、初級・上級の2つのリストで打って覚えます。test・describe・expect、test.skip、beforeEach などのフックを、コードの形で練習できます。"
+  },
+  {
+    "slug": "playwright-syntax",
+    "catalogId": "pack-playwright-syntax-beginner",
+    "description": "Playwright Test のテストの書き方70個を、初級・上級の2つのリストで打って覚えます。page.goto、getByRole、toBeVisible などを、TypeScript のコードの形で練習できます。"
+  },
+  {
+    "slug": "hono-methods",
+    "catalogId": "pack-hono-methods-beginner",
+    "description": "Hono（TypeScript）のメソッド36個を、初級・中級・上級の3つのリストで打って覚えます。app.get でのルート定義、c.req.query でのクエリの取得、c.req.parseBody でのフォームの読み取りなどを練習できます。"
+  },
+  {
+    "slug": "php-syntax",
+    "catalogId": "pack-php-syntax-beginner",
+    "description": "PHP 8.2 以降の構文41個を、初級・中級・上級の3つのリストで打って覚えます。declare(strict_types = 1)、switch・for・while、if・elseif・else、match 式などを、コードの形で練習できます。"
+  },
+  {
+    "slug": "rails-methods",
+    "catalogId": "pack-rails-methods-beginner",
+    "description": "Ruby on Rails 8 のメソッドと書き方44個を、初級・中級・上級の3つのリストで打って覚えます。ApplicationRecord のモデル、params.require、resources でのルーティングなどを練習できます。"
+  },
+  {
+    "slug": "express-methods",
+    "catalogId": "pack-express-methods-beginner",
+    "description": "Express 5 と TypeScript のメソッド35個を、初級・中級・上級の3つのリストで打って覚えます。app.get でのルート定義、app.listen でのサーバー起動、req.query の扱いなどを練習できます。"
+  },
+  {
+    "slug": "oracle-plsql-syntax",
+    "catalogId": "pack-oracle-plsql-syntax-beginner",
+    "description": "Oracle PL/SQL（19c 以降）の構文37個を、初級・中級・上級の3つのリストで打って覚えます。SET SERVEROUTPUT ON、DECLARE・BEGIN・END の匿名ブロック、DBMS_OUTPUT.PUT_LINE、変数と定数などを練習できます。"
+  },
+  {
+    "slug": "sql-server-tsql-syntax",
+    "catalogId": "pack-sql-server-tsql-syntax-beginner",
+    "description": "SQL Server（2022 以降）の T-SQL 構文45個を、初級・中級・上級の3つのリストで打って覚えます。GO によるバッチの区切り、OFFSET FETCH でのページング、CREATE TABLE と IDENTITY などを練習できます。"
+  },
+  {
+    "slug": "french-basics",
+    "catalogId": "pack-french-basics",
+    "description": "「Je suis étudiant.」のようなフランス語の基礎の単語と文80個を打って覚えます。é などのアクセント記号の付いた文字も含め、日本語の意味が付いています。"
+  },
+  {
+    "slug": "czech-basics",
+    "catalogId": "pack-czech-basics",
+    "description": "「Jsem student.」のようなチェコ語の基礎の単語と文80個を打って覚えます。ě・č・ř などの記号の付いた文字も含め、日本語の意味が付いています。"
+  },
+  {
+    "slug": "german-basics",
+    "catalogId": "pack-german-basics",
+    "description": "「Ich bin Student.」のようなドイツ語の基礎の単語と文80個を打って覚えます。ä・ö・ß などの文字も含め、日本語の意味が付いています。"
+  },
+  {
+    "slug": "spanish-basics",
+    "catalogId": "pack-spanish-basics",
+    "description": "「Soy estudiante.」のようなスペイン語の基礎の単語と文80個を打って覚えます。ñ やアクセント記号の付いた文字も含め、日本語の意味が付いています。"
+  },
+  {
+    "slug": "chinese-basics",
+    "catalogId": "pack-chinese-basics",
+    "description": "「我是学生。」のような中国語の基礎の単語と文80個を、ピンインで打って覚えます。声調記号付きのピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "russian-basics",
+    "catalogId": "pack-russian-basic-words",
+    "description": "ロシア語の基礎・中級の単語と構文、あわせて160個をキリル文字で打って覚えます。вода・книга などの単語から「Я живу здесь уже пять лет.」のような文まで、日本語の意味が付いています。"
+  },
+  {
+    "slug": "czech-intermediate",
+    "catalogId": "pack-czech-intermediate-words",
+    "description": "チェコ語の中級の単語と構文、あわせて80個を打って覚えます。zkušenost（経験）・názor（意見）などの単語から「Bydlím tady už pět let.」のような文まで、日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-chinese-words",
+    "catalogId": "pack-chinese-hsk6-words-1",
+    "description": "中国語 HSK6級レベルの単語80個を、ピンインで打って覚えます。安置・把关・颁布・衡量・忽略など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-1",
+    "catalogId": "pack-chinese-hsk6-handwriting-1-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語1）。癌症・边疆・裁判など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-2",
+    "catalogId": "pack-chinese-hsk6-handwriting-2-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語2）。承包・打架・动机など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-3",
+    "catalogId": "pack-chinese-hsk6-handwriting-3-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語3）。放大・干扰・故乡など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-4",
+    "catalogId": "pack-chinese-hsk6-handwriting-4-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語4）。花瓣・计较・杰出など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-5",
+    "catalogId": "pack-chinese-hsk6-handwriting-5-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語5）。君子・乐趣・落成など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-6",
+    "catalogId": "pack-chinese-hsk6-handwriting-6-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語6）。爱不释手・边界・裁缝など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-7",
+    "catalogId": "pack-chinese-hsk6-handwriting-7-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語7）。承办・打量・动静など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-8",
+    "catalogId": "pack-chinese-hsk6-handwriting-8-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語8）。放射・干预・顾问など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-9",
+    "catalogId": "pack-chinese-hsk6-handwriting-9-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語9）。华侨・记载・结晶など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-10",
+    "catalogId": "pack-chinese-hsk6-handwriting-10-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語10）。开除・雷达・落后など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-11",
+    "catalogId": "pack-chinese-hsk6-handwriting-11-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語11）。案件・沉重・发行など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-12",
+    "catalogId": "pack-chinese-hsk6-handwriting-12-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語12）。花蕾・举足轻重・沐浴など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-13",
+    "catalogId": "pack-chinese-hsk6-handwriting-13-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語13）。盆地・牵扯・请柬など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-14",
+    "catalogId": "pack-chinese-hsk6-handwriting-14-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語14）。拳头・人质・盛产など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-15",
+    "catalogId": "pack-chinese-hsk6-handwriting-15-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語15）。是非・收益・素食など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-16",
+    "catalogId": "pack-chinese-hsk6-handwriting-16-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語16）。题材・脱离・委托など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-17",
+    "catalogId": "pack-chinese-hsk6-handwriting-17-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語17）。物资・狭窄・雄厚など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-18",
+    "catalogId": "pack-chinese-hsk6-handwriting-18-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語18）。熏陶・遥控・隐患など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-19",
+    "catalogId": "pack-chinese-hsk6-handwriting-19-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語19）。原理・遭殃・正负など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-20",
+    "catalogId": "pack-chinese-hsk6-handwriting-20-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語20）。指甲・周边・铸造など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-21",
+    "catalogId": "pack-chinese-hsk6-handwriting-21-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語21）。版本・逮捕・雇佣など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-22",
+    "catalogId": "pack-chinese-hsk6-handwriting-22-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語22）。急于・茂密・迫不及待など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-23",
+    "catalogId": "pack-chinese-hsk6-handwriting-23-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語23）。渠道・盛行・司令など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-24",
+    "catalogId": "pack-chinese-hsk6-handwriting-24-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語24）。妥当・镶嵌・旋转など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "hsk6-handwriting-25",
+    "catalogId": "pack-chinese-hsk6-handwriting-25-words-1",
+    "description": "中国語 HSK6級の単語90個（15個ずつ6リスト）を、手書きやピンインで練習します（手書き単語25）。隐私・战略・忠诚など、単語ごとにピンインと日本語の意味が付いています。"
+  },
+  {
+    "slug": "korean-handwriting-beginner",
+    "catalogId": "pack-korean-handwriting-beginner-words-1",
+    "description": "韓国語の初級の単語90個を、手書きやローマ字で練習します。家族・人、食べ物・飲み物、場所・建物、時間・暦、動詞、形容詞の6つのテーマに分かれ、ローマ字と日本語の意味が付いています。"
+  },
+  {
+    "slug": "korean-handwriting-beginner-2",
+    "catalogId": "pack-korean-handwriting-beginner-2-words-1",
+    "description": "韓国語の初級（2）の単語90個を、手書きやローマ字で練習します。体、衣服・持ち物、動物、数・色、動詞、形容詞の6つのテーマに分かれ、ローマ字と日本語の意味が付いています。"
+  },
+  {
+    "slug": "korean-handwriting-beginner-3",
+    "catalogId": "pack-korean-handwriting-beginner-3-words-1",
+    "description": "韓国語の初級（3）の単語90個を、手書きやローマ字で練習します。家・家具、趣味・スポーツ、町・乗り物、食事・料理、動詞、形容詞の6つのテーマに分かれ、ローマ字と日本語の意味が付いています。"
+  },
+  {
+    "slug": "korean-handwriting-intermediate",
+    "catalogId": "pack-korean-handwriting-intermediate-words-1",
+    "description": "韓国語の中級の単語90個を、手書きやローマ字で練習します。体・健康、交通・旅行、自然・天気、仕事・学校、動詞、形容詞の6つのテーマに分かれ、ローマ字と日本語の意味が付いています。"
+  },
+  {
+    "slug": "korean-handwriting-advanced",
+    "catalogId": "pack-korean-handwriting-advanced-words-1",
+    "description": "韓国語の上級の単語90個を、手書きやローマ字で練習します。社会・政治、経済・産業、科学・環境、文化・歴史、動詞、形容詞の6つのテーマに分かれ、ローマ字と日本語の意味が付いています。"
   }
 ]

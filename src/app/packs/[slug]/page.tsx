@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = `${t("title", { name: page.entry.pack.name })} | Typle`
   return {
     title, description: page.description,
-    alternates: { canonical: `/packs/${page.slug}` },
+    alternates: { canonical: `/packs/${page.canonical ?? page.slug}` },
     openGraph: { title, description: page.description, type: "website", siteName: "Typle" },
   }
 }
