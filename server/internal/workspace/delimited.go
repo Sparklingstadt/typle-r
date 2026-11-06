@@ -166,14 +166,14 @@ func readWord(header []string, r delimitedRow) (Word, error) {
 		return ""
 	}
 	word := Word{Input: get("input"), Display: get("display"), Annotation: get("annotation"), InputType: get("input_type")}
+	if !validInputType(word.InputType) {
+		return Word{}, &Error{Key: "importInputTypeInvalid", Line: r.line}
+	}
 	if trimJS(word.Input) == "" || trimJS(word.Display) == "" {
 		return Word{}, &Error{Key: "importFieldRequired", Line: r.line}
 	}
 	if length(word.Input) > MaxWordText || length(word.Display) > MaxWordText || length(word.Annotation) > MaxAnnotation {
 		return Word{}, &Error{Key: "importFieldTooLong", Line: r.line}
-	}
-	if !validInputType(word.InputType) {
-		return Word{}, &Error{Key: "importInputTypeInvalid", Line: r.line}
 	}
 	return word, nil
 }
