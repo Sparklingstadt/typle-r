@@ -35,7 +35,7 @@ export function useHandwritingPad({ language, expected, onStart, onRead, onEscap
 
   useEffect(() => { callbacks.current = { onStart, onRead, onEscape } })
 
-  // The keys of the field: Enter judges, Esc starts again, and ⌘Z / Ctrl+Z takes back a stroke. Keys typed into a field
+  // The keys of the field: Enter judges, as the button does while the pad is ready, Esc starts again, and ⌘Z / Ctrl+Z takes back a stroke. Keys typed into a field
   // or on a focused button are left to them.
   const keys = useRef<(event: KeyboardEvent) => void>(() => {})
   useEffect(() => {
@@ -43,7 +43,7 @@ export function useHandwritingPad({ language, expected, onStart, onRead, onEscap
       if (event.defaultPrevented || event.isComposing) return
       const target = event.target as HTMLElement | null
       if (target?.closest('input, textarea, select, button, [role="radio"], [contenteditable="true"]')) return
-      if (event.key === 'Enter') { event.preventDefault(); void read(true) }
+      if (event.key === 'Enter') { event.preventDefault(); if (status === 'ready') void read(true) }
       else if (event.key === 'Escape') { event.preventDefault(); callbacks.current.onEscape() }
       else if (event.key.toLowerCase() === 'z' && (event.metaKey || event.ctrlKey) && !event.shiftKey) { event.preventDefault(); undo() }
     }
