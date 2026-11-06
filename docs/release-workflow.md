@@ -3,6 +3,7 @@
 必須順序: **PR作成 → マージ（squash merge か普通のマージ） → マージ後のverify → GitHub Release → Vercel本番デプロイ**。
 
 `.github/workflows/ci.yml` の `policy → verify → release → deploy` が順番を制御します。
+`verify` は、並列に動く `verify-node`（型・単体テスト・Lint・knip・APIの文書）・`verify-go`（Goの検査とDBテスト）・`verify-e2e`（ビルドとE2E）の結果をまとめるジョブです。3つがすべて成功したときだけ成功し、1つでも失敗かスキップなら失敗します。必須チェックは今までどおり`verify`です。
 PR・devへのpush・手動実行は検証のみで、公開はmainへのpushイベントに限定します。
 PR時のverifyに合格しても、マージ後のverifyは必ず再実行します。
 Releaseイベントで別のworkflowを起動する方式ではないため、GITHUB_TOKENで作ったReleaseから
