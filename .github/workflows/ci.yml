@@ -38,12 +38,49 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: node scripts/ci/release.cjs policy
 
-  verify:
+  # The checks run side by side in these three jobs, and verify below is their one result.
+  verify-node:
+    needs: policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        id: node
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Test release safety checks
+        run: node --test scripts/ci/release.test.cjs
+      # node_modules is restored whole when the lockfile and the Node version are unchanged; otherwise npm ci installs
+      # it from the npm cache as before.
+      - name: Cache node_modules
+        id: node-modules-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-node${{ steps.node.outputs.node-version }}-${{ hashFiles('package-lock.json') }}
+      - if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - run: npm run typecheck
+      # The same tests as npm test, with the coverage of src in the log. There is no threshold yet.
+      - run: npm run test:coverage
+      - run: npm run lint
+      - run: npm run knip
+      # The API documentation (api-docs/) is its own npm project, built and checked here and published by hand with
+      # docs-deploy.yml.
+      - name: Build API documentation
+        working-directory: api-docs
+        run: |
+          npm ci
+          npm run docs:build
+          npm run docs:check
+
+  verify-go:
     needs: policy
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      NEXT_TELEMETRY_DISABLED: '1'
       DATABASE_URL: postgresql://typle:ci-only-password@127.0.0.1:5432/typle
     services:
       postgres:
@@ -64,8 +101,6 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-      - name: Test release safety checks
-        run: node --test scripts/ci/release.test.cjs
       # node_modules is restored whole when the lockfile and the Node version are unchanged; otherwise npm ci installs
       # it from the npm cache as before.
       - name: Cache node_modules
@@ -92,11 +127,49 @@ jobs:
           go vet ./...
           go run honnef.co/go/tools/cmd/staticcheck@v0.7.0 ./...
           go test ./...
-      - run: npm run typecheck
-      # The same tests as npm test, with the coverage of src in the log. There is no threshold yet.
-      - run: npm run test:coverage
-      - run: npm run lint
-      - run: npm run knip
+
+  verify-e2e:
+    needs: policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      DATABASE_URL: postgresql://typle:ci-only-password@127.0.0.1:5432/typle
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: typle
+          POSTGRES_DB: typle
+          POSTGRES_PASSWORD: ci-only-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U typle -d typle"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        id: node
+        with:
+          node-version: '24'
+          cache: npm
+      # node_modules is restored whole when the lockfile and the Node version are unchanged; otherwise npm ci installs
+      # it from the npm cache as before.
+      - name: Cache node_modules
+        id: node-modules-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-node${{ steps.node.outputs.node-version }}-${{ hashFiles('package-lock.json') }}
+      - if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - run: npm run db:migrate
+      # The end-to-end tests start the Go server.
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
+        with:
+          go-version: '1.25'
+          cache-dependency-path: go.sum
       # Next.js reuses its build cache across runs; a key that misses the sources still restores the newest cache for
       # the same lockfile, and next build only reuses what is still valid.
       - name: Cache Next.js build
@@ -106,14 +179,6 @@ jobs:
           key: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**', 'public/**', 'next.config.mjs', 'postcss.config.mjs', 'tsconfig.json') }}
           restore-keys: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
       - run: npm run build
-      # The API documentation (api-docs/) is its own npm project, built and checked here and published by hand with
-      # docs-deploy.yml.
-      - name: Build API documentation
-        working-directory: api-docs
-        run: |
-          npm ci
-          npm run docs:build
-          npm run docs:check
       # The browser download is cached per Playwright version; the system packages it needs are installed every run.
       - name: Read Playwright version
         id: playwright
@@ -129,6 +194,18 @@ jobs:
       - if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
       - run: npm run test:e2e
+
+  # The required status check and the release both go by this job. It always runs and fails unless all three passed:
+  # a job skipped because one it needs failed would count as passed for a required check.
+  verify:
+    needs: [verify-node, verify-go, verify-e2e]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: test "$RESULTS" = 'success success success'
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
 
   release:
     needs: verify
