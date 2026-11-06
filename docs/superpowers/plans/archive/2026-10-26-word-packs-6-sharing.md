@@ -1,5 +1,7 @@
 # 単語パック PR 6（リンクで共有）Implementation Plan
 
+> この計画は実装済みの記録です。書かれている構成・パス・手順は当時のもので、今の構成は [README](../../../../README.md) を見てください。ここから作業を始めないでください。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** ログインした人がパックの共有リンクを作り、リンクを開いた人（ログインなしでも）がパックの中身を見て自分のパックに追加できるようにする（v0.96.0）。

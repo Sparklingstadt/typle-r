@@ -1,5 +1,7 @@
 # 単語パック PR 2（パックの画面と編集）Implementation Plan
 
+> この計画は実装済みの記録です。書かれている構成・パス・手順は当時のもので、今の構成は [README](../../../../README.md) を見てください。ここから作業を始めないでください。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Web の単語リストの管理画面をパック単位にし、パックの作成・編集（名前・説明・カテゴリ・タグ・リストの並べ替え）・削除と、リストのパック間の移動・難易度の編集をできるようにする（v0.92.0）。

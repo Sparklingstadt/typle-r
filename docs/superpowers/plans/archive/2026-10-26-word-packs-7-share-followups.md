@@ -1,5 +1,7 @@
 # 単語パック 7: 共有の後始末 Implementation Plan
 
+> この計画は実装済みの記録です。書かれている構成・パス・手順は当時のもので、今の構成は [README](../../../../README.md) を見てください。ここから作業を始めないでください。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** v0.96.0 の共有リンクで残った 4 点を直す: パックがなくなったリンクを消す・止められるようにする、共有の失敗理由を出す、コピーを読み上げる、公開 API に `X-Robots-Tag: noindex` を付ける。

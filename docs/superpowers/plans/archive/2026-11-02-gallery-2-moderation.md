@@ -1,10 +1,12 @@
 # ギャラリー 2: 載せる・通報・非公開化 Implementation Plan
 
+> この計画は実装済みの記録です。書かれている構成・パス・手順は当時のもので、今の構成は [README](../../../../README.md) を見てください。ここから作業を始めないでください。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 持ち主が共有ダイアログからパックをギャラリーに載せられ、閲覧者が `/shared/<id>` から通報でき、管理者が `/admin` で非公開にできるようにする。
 
-**Architecture:** PR 1（`docs/superpowers/plans/2026-11-02-gallery-1-browse.md`、v2.7.0）の列と表を使う。通報は `typle_gallery_reports` に理由だけを入れる。非公開は `typle_shared_packs.hidden_at` で、PR 1 の一覧・`/api/shared`・`PUT /api/shares` はすでにこれを見ている。画面の「載せる」スイッチはこの PR で初めて出す。
+**Architecture:** PR 1（`docs/superpowers/plans/archive/2026-11-02-gallery-1-browse.md`、v2.7.0）の列と表を使う。通報は `typle_gallery_reports` に理由だけを入れる。非公開は `typle_shared_packs.hidden_at` で、PR 1 の一覧・`/api/shared`・`PUT /api/shares` はすでにこれを見ている。画面の「載せる」スイッチはこの PR で初めて出す。
 
 **Tech Stack:** Go（`server/internal/store`・`web`、pgx）、PostgreSQL、Next.js 16 / React 19 / next-intl、node:test、Playwright
 

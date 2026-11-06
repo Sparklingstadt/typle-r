@@ -1,5 +1,7 @@
 # 公式パックのフォロー Implementation Plan
 
+> この計画は実装済みの記録です。書かれている構成・パス・手順は当時のもので、今の構成は [README](../../../../README.md) を見てください。ここから作業を始めないでください。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 公式パックを「コピーして追加」から「フォロー（公式の更新を読み込みのたびに反映、読み取り専用）」に変え、アカウントを空で始める。

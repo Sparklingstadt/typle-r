@@ -1,5 +1,7 @@
 # 関心 Implementation Plan
 
+> この計画は実装済みの記録です。書かれている構成・パス・手順は当時のもので、今の構成は [README](../../../../README.md) を見てください。ここから作業を始めないでください。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 設定に「関心」（親子のチップで複数選択）を足し、アカウント（ゲストはブラウザー）に保存し、公式パックのカタログで関心に合うパックを先に出す。
