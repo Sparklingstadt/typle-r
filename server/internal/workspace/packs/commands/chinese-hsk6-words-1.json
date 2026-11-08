@@ -9,6 +9,9 @@
   "levels": [
     "単語1"
   ],
+  "writing": {
+    "language": "zh-Hans"
+  },
   "words": [
     {
       "display": "安置",

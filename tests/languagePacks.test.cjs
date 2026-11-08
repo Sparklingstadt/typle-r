@@ -61,12 +61,12 @@ test('English and Russian each have one pack of basic and intermediate words and
   assert.ok(russian.words.some(word => word.input === 'Меня зовут Кен.'))
 })
 
-test('Czech intermediate and Chinese HSK 5 and 6 packs each hold two lists of 40 words', () => {
+test('Czech intermediate and Chinese HSK 5 and 6 packs each hold two lists of 40 words, the HSK lists marked for handwriting', () => {
   const { officialLibrary } = require('../src/plugins/packs/index.ts')
-  for (const [name, tag, ids, levels] of [
-    ['チェコ語：中級', 'チェコ語', ['czech-intermediate-words', 'czech-intermediate-syntax'], ['中級単語', '中級構文']],
-    ['中国語：HSK5級レベル単語', '中国語', ['chinese-hsk5-words-1', 'chinese-hsk5-words-2'], ['単語1', '単語2']],
-    ['中国語：HSK6級レベル単語', '中国語', ['chinese-hsk6-words-1', 'chinese-hsk6-words-2'], ['単語1', '単語2']],
+  for (const [name, tag, ids, levels, writing] of [
+    ['チェコ語：中級', 'チェコ語', ['czech-intermediate-words', 'czech-intermediate-syntax'], ['中級単語', '中級構文'], undefined],
+    ['中国語：HSK5級レベル単語', '中国語', ['chinese-hsk5-words-1', 'chinese-hsk5-words-2'], ['単語1', '単語2'], { language: 'zh-Hans' }],
+    ['中国語：HSK6級レベル単語', '中国語', ['chinese-hsk6-words-1', 'chinese-hsk6-words-2'], ['単語1', '単語2'], { language: 'zh-Hans' }],
   ]) {
     const pack = officialLibrary.packs.find(item => item.name === name)
     assert.ok(pack, name)
@@ -76,6 +76,8 @@ test('Czech intermediate and Chinese HSK 5 and 6 packs each hold two lists of 40
     assert.deepEqual(lists.map(list => list.id), ids)
     assert.deepEqual(lists.map(list => list.levels), levels.map(level => [level]))
     for (const list of lists) {
+      // The HSK word lists can be practised by typing or by handwriting; their runs are kept apart by mode.
+      assert.deepEqual(list.writing, writing, list.id)
       assert.equal(list.words.length, 40, list.id)
       assert.equal(new Set(list.words.map(word => word.input)).size, 40, list.id)
       assert.ok(list.words.every(word => word.input_type === 'word' && word.annotation.startsWith(`${word.input} / `)), list.id)
@@ -107,8 +109,8 @@ test('the twenty-five HSK 6 handwriting packs each hold six lists of 15 words, m
       assert.ok(list.words.every(word => word.input_type === 'word' && word.annotation.startsWith(`${word.input} / `)), list.id)
     }
   }
-  // No other official list is marked for handwriting.
-  assert.equal(officialLibrary.lists.filter(list => list.writing).length, 180)
+  // Besides these 150, only the 30 Korean handwriting lists and the 4 HSK 5 and 6 word lists are marked for handwriting.
+  assert.equal(officialLibrary.lists.filter(list => list.writing).length, 184)
 })
 
 test('the Korean beginner handwriting pack holds six themed lists of 15 words, marked for handwriting in Korean', () => {

@@ -37,7 +37,7 @@
   {
     "slug": "hsk5-chinese-words",
     "catalogId": "pack-chinese-hsk5-words-1",
-    "description": "中国語 HSK5級レベルの単語80個を、ピンインで打って覚えます。単語ごとに、ピンインと日本語の意味が付いています。"
+    "description": "中国語 HSK5級レベルの単語80個を、ピンインで打つか手書きで書いて覚えます。単語ごとに、ピンインと日本語の意味が付いています。"
   },
   {
     "slug": "korean-basics",
@@ -205,7 +205,7 @@
   {
     "slug": "hsk6-chinese-words",
     "catalogId": "pack-chinese-hsk6-words-1",
-    "description": "中国語 HSK6級レベルの単語80個を、ピンインで打って覚えます。安置・把关・颁布・衡量・忽略など、単語ごとにピンインと日本語の意味が付いています。"
+    "description": "中国語 HSK6級レベルの単語80個を、ピンインで打つか手書きで書いて覚えます。安置・把关・颁布・衡量・忽略など、単語ごとにピンインと日本語の意味が付いています。"
   },
   {
     "slug": "hsk6-handwriting-1",
