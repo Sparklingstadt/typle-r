@@ -5,8 +5,9 @@ loadEnvConfig(process.cwd())
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
-  // CI keeps 2 workers; locally Playwright's default uses half of the machine's cores.
-  workers: process.env.CI ? 2 : undefined,
+  // Every core by default (Playwright's own default is half of them): the tests run on the developer's machine since
+  // v2.38.1, where npm run verify waits for them. TYPLE_E2E_WORKERS sets another number or share, such as 4 or 50%.
+  workers: process.env.TYPLE_E2E_WORKERS || '100%',
   timeout: 60000,
   expect: { timeout: 15000 },
   retries: process.env.CI ? 1 : 0,
