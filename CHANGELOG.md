@@ -3,7 +3,7 @@
 Typle（Web 版と Go のバックエンド）のバージョンごとの変更です。新しい順に並べています。
 
 - v2.1.3 までは README に書いていた記録を、v2.5.5 でこのファイルへ移しました。文章は当時のままです。
-- それ以降の変更は、GitHub Actions がリリースごとに自動生成する [GitHub Releases](https://github.com/Sparklingstadt/typle-r/releases) を見てください。
+- それ以降の変更は、リリースごとに作る [GitHub Releases](https://github.com/Sparklingstadt/typle-r/releases) を見てください（Release notes は GitHub の自動生成です。v2.38.0 までは GitHub Actions が、v2.38.1 からは公開する人が手元で作ります）。
 - v0.2.0〜v0.8.0 の詳しい記録は [docs/release-notes](docs/release-notes) にもあります。
 - このファイルにないバージョン（v1.0.0〜v2.0.0 の間など）は、README に記録を書いていなかったものです。
 
