@@ -701,6 +701,9 @@ test('the pack filter leaves the records of that pack and offers only its lists'
   // Clearing the pack keeps the chosen list.
   await page.getByRole('button', { name: /^リストで絞り込む/ }).click()
   await page.getByRole('menuitemradio', { name: /^単独リスト/ }).click()
+  // Wait for the list to be in the URL: clearing the pack starts from the URL, and under load the next click can come
+  // before the list is in it.
+  await expect(page).toHaveURL(/\/records\?pack=solo&list=solo-list$/)
   await page.getByRole('button', { name: /^パックで絞り込む/ }).click()
   await page.getByRole('menuitemradio', { name: /^すべてのパック/ }).click()
   await expect(page).toHaveURL(/\/records\?list=solo-list$/)
