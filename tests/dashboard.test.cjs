@@ -3,7 +3,7 @@ process.env.TZ = 'Asia/Tokyo'
 require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
-const { summarize, nextLists, listTrends, speedScale, accuracyScale, durationParts, dayKind, startOfWeek } = require('../src/core/dashboard.ts')
+const { summarize, nextLists, listTrends, continueList, speedScale, accuracyScale, durationParts, dayKind, startOfWeek } = require('../src/core/dashboard.ts')
 
 // Sunday 2026-09-27 21:00 JST
 const now = new Date('2026-09-27T12:00:00Z')
@@ -151,4 +151,18 @@ test('writing records count towards the week and the streak like recall, but not
   assert.equal(trends.length, 1)
   assert.equal(trends[0].count, 2)
   assert.equal(trends[0].best.time, 10)
+})
+
+test('continueList picks the list practised last in any mode, with its normal best', () => {
+  const lists = [
+    list('a', [record('2026-09-25T01:00:00Z', 8), record('2026-09-20T01:00:00Z', 12)]),
+    list('b', [record('2026-09-24T01:00:00Z', 9), record('2026-09-26T01:00:00Z', 20, { mode: 'recall' })]),
+    { ...list('empty', [record('2026-09-27T01:00:00Z')]), words: [] },
+  ]
+  const next = continueList(lists)
+  assert.equal(next.list.id, 'b')
+  assert.equal(next.lastPracticed.toISOString(), '2026-09-26T01:00:00.000Z')
+  assert.equal(next.best.time, 9)
+  assert.equal(continueList([list('c', [record('2026-09-26T01:00:00Z', 5, { mode: 'writing' })])]).best, undefined)
+  assert.equal(continueList([list('d', [])]), null)
 })

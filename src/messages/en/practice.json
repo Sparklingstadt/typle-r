@@ -111,7 +111,22 @@
     "correctWords": "{count, plural, one {# word} other {# words}}",
     "mistakesWords": "{count, plural, one {# mistake} other {# mistakes}}",
     "shareOnX": "Share on X",
-    "shareText": "I typed “{name}” in {time} s with {accuracy}% accuracy on Typle"
+    "shareText": "I typed “{name}” in {time} s with {accuracy}% accuracy on Typle",
+    "reviewNote": "Reviews of missed words are not recorded.",
+    "reviewing": "{count, plural, one {Reviewing # missed word (not recorded)} other {Reviewing # missed words (not recorded)}}",
+    "missed": {
+      "tile": "Missed words",
+      "of": "/ {count}",
+      "title": "Missed words",
+      "none": "No missed words.",
+      "typed": "Typed {typed} at character {position}",
+      "wrote": "Wrote “{typed}”",
+      "revealed": "Answer revealed",
+      "skipped": "Skipped",
+      "space": "Space",
+      "count": "{count, plural, one {# time} other {# times}}",
+      "review": "{count, plural, one {Practice the # missed word} other {Practice the # missed words}}"
+    }
   },
   "best": {
     "label": "Top 5 best records",

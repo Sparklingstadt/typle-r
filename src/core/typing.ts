@@ -15,6 +15,32 @@ export type TypingSession = {
   pendingCyrillic?: string
   // The answer of the current word was revealed (recall mode); cleared when the next word starts.
   revealed?: boolean
+  // The words that went wrong in this run, in the order they were practised. Kept only for the result screen.
+  wordMistakes?: WordMistake[]
+}
+
+/**
+ * How a word of the run went wrong. `count` is its wrong keys (typing) or wrong answers (writing); `position` and
+ * `typed` are the first wrong key: the index of the character it should have been and the key pressed instead. A word can
+ * also be listed with no wrong key, when its answer was revealed (recall) or it was skipped (writing).
+ */
+export type WordMistake = { index: number; count: number; position?: number; typed?: string; revealed?: boolean; skipped?: boolean }
+
+// Adds to the entry of the current word, making it on its first mistake. The first wrong key stays as it was.
+export function noteMistake(session: TypingSession, change: { wrong?: { position?: number; typed: string }; revealed?: boolean; skipped?: boolean }): WordMistake[] {
+  const list = session.wordMistakes ?? []
+  const found = list.find(item => item.index === session.index)
+  const entry: WordMistake = found ? { ...found } : { index: session.index, count: 0 }
+  if (change.wrong) {
+    entry.count += 1
+    if (entry.typed === undefined) {
+      entry.typed = change.wrong.typed
+      if (change.wrong.position !== undefined) entry.position = change.wrong.position
+    }
+  }
+  if (change.revealed) entry.revealed = true
+  if (change.skipped) entry.skipped = true
+  return found ? list.map(item => item === found ? entry : item) : [...list, entry]
 }
 
 export function newSession(): TypingSession {
@@ -128,7 +154,8 @@ export function typeInput(current: TypingSession, words: { input: string }[], va
       continue
     }
     if (expected === undefined || (!cyrillicKey && !sharpSKey && !matchesCharacter(char, expected, options))) {
-      session = { ...session, attempts: session.attempts + 1, mistakes: session.mistakes + 1, missed: true }
+      const wordMistakes = noteMistake(session, { wrong: { position: Array.from(session.input).length, typed: char } })
+      session = { ...session, attempts: session.attempts + 1, mistakes: session.mistakes + 1, missed: true, wordMistakes }
       continue
     }
     const input = session.input + expected
@@ -152,6 +179,7 @@ export function revealAnswer(session: TypingSession, words: { input: string }[],
     attempts: resumed.attempts + remaining,
     mistakes: resumed.mistakes + remaining,
     revealed: true,
+    wordMistakes: noteMistake(resumed, { revealed: true }),
   }
 }
 

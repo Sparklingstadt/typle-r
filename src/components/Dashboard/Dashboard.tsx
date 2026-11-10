@@ -4,11 +4,12 @@ import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { Keyboard, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import ContinueCard from "@/components/Dashboard/ContinueCard"
 import NextLists from "@/components/Dashboard/NextLists"
 import TrendCard from "@/components/Dashboard/TrendCard"
 import WeekStats from "@/components/Dashboard/WeekStats"
 import { useFormat } from "@/i18n/useFormat"
-import { listTrends, nextLists, summarize, addDays, LOW_ACCURACY, STALE_DAYS } from "@/core/dashboard"
+import { continueList, listTrends, nextLists, summarize, addDays, LOW_ACCURACY, STALE_DAYS } from "@/core/dashboard"
 import type { SavedWordList } from "@/core/wordLists"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
 
@@ -28,6 +29,7 @@ export default function Dashboard({ lists, storage }: { lists: SavedWordList[]; 
   const format = useFormat()
   const [now] = useState(() => new Date())
   const summary = summarize(lists, now)
+  const next = continueList(lists)
   return <div className="flex flex-col gap-9 lg:gap-12">
     <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
       <div className="space-y-2">
@@ -35,10 +37,12 @@ export default function Dashboard({ lists, storage }: { lists: SavedWordList[]; 
         <p className="text-sm text-muted-foreground">{t(storage === 'browser' ? 'sourceGuest' : 'sourceAccount')}</p>
       </div>
       <nav aria-label={t('start')} className="flex flex-wrap gap-3">
-        <Button asChild><Link href="/play"><Keyboard aria-hidden="true" />{t('practice')}</Link></Button>
+        {/* With a list to go on with, its card holds the practice button. */}
+        {!next && <Button asChild><Link href="/play"><Keyboard aria-hidden="true" />{t('practice')}</Link></Button>}
         <Button asChild variant="outline"><Link href="/create"><Plus aria-hidden="true" />{t('create')}</Link></Button>
       </nav>
     </div>
+    {next && <ContinueCard item={next} now={now} />}
     <Section title={t('week.title')} description={t('week.description', { start: format.dateWithWeekday(summary.weekStart, now), end: format.dateWithWeekday(addDays(summary.weekStart, 6), now) })}>
       <WeekStats summary={summary} />
     </Section>

@@ -148,7 +148,7 @@
     "lead": "When you finish a practice, the record is saved automatically.",
     "complete": {
       "title": "Completion screen",
-      "p1": "Shows the time, accuracy and number of mistyped characters, speed, number of words, and device.",
+      "p1": "Shows the time, accuracy and number of mistyped characters, speed, number of missed words, and device. Below, the missed words are listed with the first character that went wrong. “Practice the missed words” runs just those words again as a review, which is not recorded.",
       "p2": "Accuracy is the share of typed characters that were correct. Deletions are not counted, but characters you retype after a correction are.",
       "p3": "When you beat your personal best, a badge and the difference from your previous best are shown.",
       "p4": "“Again” (<keys>Enter</keys>) lets you practice the same list right away. If saving fails, press “Try saving again”."

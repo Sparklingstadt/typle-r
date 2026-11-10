@@ -158,3 +158,20 @@ export function dayKind(date: Date, now = new Date()): DayKind {
   if (days === 1) return 'yesterday'
   return date.getFullYear() === now.getFullYear() ? 'thisYear' : 'otherYear'
 }
+
+export type ContinueList = { list: SavedWordList; lastPracticed: Date; best: StoredRecord | undefined }
+
+/**
+ * The list practised last, in any mode, to go on with from the home screen. Its best is the normal typing best, as on
+ * the rest of the home screen; a list practised only in recall or by handwriting has none. Lists without words cannot be
+ * practised.
+ */
+export function continueList(lists: SavedWordList[]): ContinueList | null {
+  let latest: { list: SavedWordList; record: StoredRecord } | null = null
+  for (const list of lists) {
+    if (!list.words.length) continue
+    for (const record of list.records) if (!latest || timeOf(record) > timeOf(latest.record)) latest = { list, record }
+  }
+  if (!latest) return null
+  return { list: latest.list, lastPracticed: new Date(timeOf(latest.record)), best: listBest(latest.list) }
+}

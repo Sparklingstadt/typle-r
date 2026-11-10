@@ -12,11 +12,11 @@ import { useTypingOptions } from './inputSettings'
 // change outside IME composition is checked against the word's display, a match moves on, and Enter counts a mistake.
 // For languages the app reads itself, the handwriting pad (HandwritingPad) reports its readings through write().
 // The record is saved with mode 'writing'. A new run remounts the screen, so there is no restart here.
-export function useWritingPractice(list: SavedWordList, addRecord: RecordSave, device?: PracticeDevice) {
+export function useWritingPractice(list: SavedWordList, addRecord: RecordSave, device?: PracticeDevice, recording = true) {
   // The list is the one chosen for this run, so the mark (and its language) stays even if it is removed meanwhile.
   const language = list.writing?.language ?? 'en'
   const words = list.words
-  const { session, practiceDevice, record, saveState, update, completed, pause, resume, retrySave } = useRecordSaving(list, addRecord, device, 'writing')
+  const { session, practiceDevice, record, saveState, update, completed, pause, resume, retrySave } = useRecordSaving(list, addRecord, device, 'writing', recording)
   const typingOptions = useTypingOptions()
   const [value, setValue] = useState('')
   // What the last counted mistake read as, shown so the writer sees what the recognition made of it.

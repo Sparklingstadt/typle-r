@@ -111,7 +111,22 @@
     "correctWords": "{count, plural, one {# mot} other {# mots}}",
     "mistakesWords": "{count, plural, one {# erreur} other {# erreurs}}",
     "shareOnX": "Partager sur X",
-    "shareText": "J’ai tapé « {name} » en {time} s avec {accuracy} % de précision sur Typle"
+    "shareText": "J’ai tapé « {name} » en {time} s avec {accuracy} % de précision sur Typle",
+    "reviewNote": "Les révisions des mots manqués ne sont pas enregistrées.",
+    "reviewing": "{count, plural, one {Révision de # mot manqué (non enregistrée)} other {Révision de # mots manqués (non enregistrée)}}",
+    "missed": {
+      "tile": "Mots manqués",
+      "of": "/ {count}",
+      "title": "Mots manqués",
+      "none": "Aucun mot manqué.",
+      "typed": "{typed} tapé au caractère {position}",
+      "wrote": "« {typed} » écrit",
+      "revealed": "Réponse affichée",
+      "skipped": "Passé",
+      "space": "Espace",
+      "count": "{count, plural, one {# fois} other {# fois}}",
+      "review": "{count, plural, one {Réviser le mot manqué} other {Réviser les # mots manqués}}"
+    }
   },
   "best": {
     "label": "Top 5 des meilleurs résultats",

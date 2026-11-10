@@ -104,3 +104,12 @@ test('two words with one skipped give 50 accuracy', () => {
   assert.equal(s.finishedAt, 3000)
   assert.deepEqual(sessionResult(s), { time: 2, mistakes: 1, accuracy: 50 })
 })
+
+test('a wrong answer and a skip are kept for the result screen', () => {
+  let s = judge(newSession(), ['xy'], 1000, true)
+  s = judge(s, ['zz'], 1100, true)
+  assert.deepEqual(s.wordMistakes, [{ index: 0, count: 2, typed: 'xy' }])
+  s = judge(s, ['ab'], 1200, true)
+  s = skipWord(s, words, 1300)
+  assert.deepEqual(s.wordMistakes[1], { index: 1, count: 0, skipped: true })
+})

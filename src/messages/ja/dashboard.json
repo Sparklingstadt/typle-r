@@ -62,5 +62,16 @@
     "label": "{label}（左右キーで各回の値を表示）",
     "date": "日時",
     "value": "値"
+  },
+  "continue": {
+    "label": "続きから",
+    "meta": "{count}語 · 最終練習 {day}",
+    "best": "ベスト 正確率 {accuracy}・{time} 秒",
+    "notRecorded": "未記録",
+    "samples": "最初の単語",
+    "more": "ほか {count} 語",
+    "practice": "練習する",
+    "practiceList": "{name} を練習する",
+    "other": "別のリストを選ぶ"
   }
 }

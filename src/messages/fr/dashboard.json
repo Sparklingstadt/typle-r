@@ -62,5 +62,16 @@
     "label": "{label} (flèches gauche et droite pour lire chaque valeur)",
     "date": "Date",
     "value": "Valeur"
+  },
+  "continue": {
+    "label": "Reprendre où vous en étiez",
+    "meta": "{count, plural, one {# mot} other {# mots}} · Dernier entraînement {day}",
+    "best": "Meilleur : précision {accuracy}, {time} s",
+    "notRecorded": "non enregistrée",
+    "samples": "Premiers mots",
+    "more": "{count, plural, one {# autre mot} other {# autres mots}}",
+    "practice": "S’entraîner",
+    "practiceList": "S’entraîner sur {name}",
+    "other": "Choisir une autre liste"
   }
 }

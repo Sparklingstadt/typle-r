@@ -55,7 +55,7 @@ export default function PracticeScreen({ wordLists, packs, listId, error, addRec
   const [asideOpen, setAsideOpen] = usePlayAsideOpen()
   const typingOptions = useTypingOptions()
   const [chosenMode, chooseRecall] = usePracticeMode()
-  const { list, selected, session, practiceDevice, practiceMode, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart: restartPractice, retrySave, pause, resume, reveal } = usePractice(wordLists, addRecord, device, listId, chosenMode)
+  const { list, review, selected, session, practiceDevice, practiceMode, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart: restartPractice, retrySave, pause, resume, reveal } = usePractice(wordLists, addRecord, device, listId, chosenMode)
   const [displayRun, setDisplayRun] = useState(0)
   // Typing or writing is decided when a list is chosen and on every restart; a run keeps its mode to the end.
   const [preferredWriting, setPreferredWriting] = useWritingMode()
@@ -101,6 +101,11 @@ export default function PracticeScreen({ wordLists, packs, listId, error, addRec
     setWritingChoice(writingChoiceFor(wordLists[index], preferred))
     restartPractice(index)
   }
+  // Practises again only the words missed in the run just finished, the same way (typing or writing). Not recorded.
+  function reviewMissed(missed: SavedWordList['words']) {
+    setDisplayRun(value => value + 1)
+    restartPractice(selected, missed)
+  }
   function chooseWriting(next: WritingChoice) {
     setPreferredWriting(next)
     if (next === 'normal') focusTypingNext()
@@ -143,12 +148,13 @@ export default function PracticeScreen({ wordLists, packs, listId, error, addRec
         {selectedList?.writing && <div className="flex justify-center border-b px-4 py-2">
           <ModeToggle options={WRITING_CHOICES} value={writingChoice} onChange={requestWriting} label={t('modeLabel')} labels={{ normal: t('modeTyping'), writing: t('modeWriting') }} />
         </div>}
+        {review && <p role="status" className="border-b bg-muted/50 px-4 py-2 text-center text-[13px] text-muted-foreground sm:px-6">{t('result.reviewing', { count: words.length })}</p>}
         {mode === 'writing' ? <WritingPractice key={`${list.id}:${displayRun}`} list={list} listName={practiceName(list)} records={selectedRecords} addRecord={addRecord} device={device}
-          statsVisible={statsVisible} onRun={setWritingRun} onRestart={() => restart()} onChooseList={openPicker} />
+          review={review} statsVisible={statsVisible} onRun={setWritingRun} onRestart={() => restart()} onReview={reviewMissed} onChooseList={openPicker} />
         : <>
         <PracticeProgress index={session.index} total={words.length} finished={finished} />
-        {finished ? <PracticeResult listName={practiceName(list)} wordCount={words.length} result={result} correct={session.attempts - session.mistakes} speed={typingSpeed(session, 0)}
-          device={practiceDevice} record={record} records={selectedRecords} mode={mode} saveState={saveState} onRestart={() => restart()} onRetry={retrySave} onChooseList={openPicker} />
+        {finished ? <PracticeResult listName={practiceName(list)} words={words} mistakes={session.wordMistakes} review={review} result={result} correct={session.attempts - session.mistakes} speed={typingSpeed(session, 0)}
+          device={practiceDevice} record={record} records={selectedRecords} mode={mode} saveState={saveState} onRestart={() => restart()} onReview={reviewMissed} onRetry={retrySave} onChooseList={openPicker} />
         : <>
           <WordPrompt key={`${list.id}:${session.index}:${displayRun}`} word={word} recall={recall} comparison={comparison} revealed={session.revealed} showResume={showResume}
             onReveal={reveal} onResume={() => input.current?.focus()} />
