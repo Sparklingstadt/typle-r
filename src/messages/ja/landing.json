@@ -44,5 +44,14 @@
     "title": "データの保存先",
     "text": "ログインしなくても、すべての機能を使えます。データはこのブラウザーに保存され、GitHub でログインすると端末間で同期できます。",
     "more": "<guide>使い方</guide> ／ <about>Typleについて</about>"
+  },
+  "try": {
+    "badge": "ここで打ってみる",
+    "progress": "{name}・{current} / {total} 語",
+    "label": "入力",
+    "hint": "上の単語を打つと、次の単語に進みます。ここで打った分は記録しません。",
+    "done": "{count, plural, other {#語}}打ちました。続きはこのパックの練習で、記録も残ります。",
+    "continue": "このパックで練習を続ける",
+    "starting": "準備しています…"
   }
 }

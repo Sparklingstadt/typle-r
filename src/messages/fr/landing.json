@@ -44,5 +44,14 @@
     "title": "Où sont gardées vos données",
     "text": "Toutes les fonctions marchent sans connexion. Vos données sont gardées dans ce navigateur, et une connexion avec GitHub les synchronise entre vos appareils.",
     "more": "<guide>Mode d’emploi</guide> / <about>À propos de Typle</about>"
+  },
+  "try": {
+    "badge": "Essayez ici",
+    "progress": "{name} · {current} / {total} mots",
+    "label": "Saisie",
+    "hint": "Tapez le mot ci-dessus pour passer au suivant. Rien de ce qui est tapé ici n’est enregistré.",
+    "done": "{count, plural, one {# mot tapé} other {# mots tapés}}. Continuez avec l’entraînement de ce pack, où vos résultats sont enregistrés.",
+    "continue": "Continuer avec ce pack",
+    "starting": "Préparation…"
   }
 }

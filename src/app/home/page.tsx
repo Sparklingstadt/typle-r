@@ -22,7 +22,7 @@ export default function Home() {
       <nav aria-label={t("welcome.navLabel")} className="flex gap-4 flex-wrap">
         <Button asChild><Link href="/play">{t("welcome.play")}</Link></Button>
         <Button asChild variant="outline"><Link href="/create">{t("welcome.create")}</Link></Button>
-        <Button asChild variant="outline"><Link href="/records">{t("welcome.records")}</Link></Button>
+        <Button asChild variant="link"><Link href="/records">{t("welcome.records")}</Link></Button>
       </nav>
     </>}
     <p className="mt-8">{t(storage === "account" ? "storageAccount" : "storage")}</p>

@@ -123,6 +123,12 @@ test('supporting pages, landing page and GitHub link', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1, name: '覚えたい言葉を、打って覚える。', exact: true })).toBeVisible()
   await expect(page.getByRole('link', { name: 'ログインせずに練習を始める' }).first()).toHaveAttribute('href', '/play')
   await expect(page.getByRole('link', { name: '公式パックを見る' })).toHaveAttribute('href', '/packs/catalog')
+  // A word of an official pack can be typed in the hero, and a finished word gives way to the next.
+  await expect(page.getByText('英語（基礎単語）・1 / 40 語')).toBeVisible()
+  await page.getByRole('textbox', { name: '入力' }).fill('apple')
+  await expect(page.getByText('英語（基礎単語）・2 / 40 語')).toBeVisible()
+  await expect(page.getByRole('textbox', { name: '入力' })).toHaveValue('')
+  await expect(page.getByText('1語打ちました。', { exact: false })).toBeVisible()
   await page.getByRole('link', { name: 'ホームへ', exact: true }).click()
   await expect(page).toHaveURL(/\/home$/)
   await expect(page.getByRole('link', { name: 'GitHub', exact: true })).toHaveAttribute('href', 'https://github.com/Sparklingstadt/typle-r')

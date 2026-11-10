@@ -44,5 +44,14 @@
     "title": "数据保存在哪里",
     "text": "无需登录即可使用全部功能。数据保存在此浏览器中，用 GitHub 登录后可以在多台设备之间同步。",
     "more": "<guide>使用方法</guide> ／ <about>关于 Typle</about>"
+  },
+  "try": {
+    "badge": "在这里试打",
+    "progress": "{name} · {current} / {total} 个词",
+    "label": "输入",
+    "hint": "输入上面的词即可进入下一个。在这里输入的内容不会被记录。",
+    "done": "已输入 {count} 个词。继续用这个单词包练习，就会留下记录。",
+    "continue": "继续用这个单词包练习",
+    "starting": "正在准备…"
   }
 }
