@@ -356,6 +356,47 @@ test('desktop sidebar fits 1280×768, stays in view while scrolling, and the ski
   expect(await page.evaluate(() => document.getElementById('main-content')?.contains(document.activeElement))).toBe(true)
 })
 
+test('the result lists the missed words, and practising only those is not recorded', async ({ page }) => {
+  await seed(page, [{ id: 'missed', name: 'Missed', createdAt: '2026-09-06', records: [], words: [
+    { display: 'apple', input: 'apple', annotation: 'apple / りんご' },
+    { display: 'water', input: 'water', annotation: '' },
+    { display: 'experience', input: 'experience', annotation: '経験' },
+  ] }])
+  await page.goto('/play')
+  const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
+  await input.pressSequentially('apple')
+  await input.pressSequentially('wx')
+  await input.pressSequentially('ater')
+  await input.pressSequentially('experao')
+  await input.pressSequentially('ience')
+  const result = page.getByLabel('練習結果', { exact: true })
+  await expect(result).toContainText('練習記録を保存しました。')
+  await expect(result.getByRole('term').filter({ hasText: '間違えた単語' }).locator('xpath=following-sibling::dd[1]')).toHaveText('2/ 3 語')
+  const missed = result.getByRole('region', { name: '間違えた単語', exact: true })
+  await expect(missed.getByRole('listitem')).toHaveCount(2)
+  await expect(missed.getByRole('listitem').nth(0)).toContainText('2文字目で x と打った')
+  await expect(missed.getByRole('listitem').nth(0)).toContainText('1回')
+  await expect(missed.getByRole('listitem').nth(1)).toContainText('経験')
+  await expect(missed.getByRole('listitem').nth(1)).toContainText('6文字目で a と打った')
+  await expect(missed.getByRole('listitem').nth(1)).toContainText('2回')
+  await expect(missed.locator('mark')).toHaveText(['a', 'i'])
+
+  await result.getByRole('button', { name: '間違えた 2 語だけ練習する', exact: true }).click()
+  await expect(page.getByRole('status').filter({ hasText: '間違えた 2 語のおさらい（記録しません）' })).toBeVisible()
+  await expect(page.getByRole('progressbar', { name: '単語の進捗' })).toHaveAttribute('aria-valuemax', '2')
+  await input.pressSequentially('water')
+  await input.pressSequentially('experience')
+  await expect(result).toContainText('間違えた単語のおさらいは記録しません。')
+  await expect(result).toContainText('間違えた単語はありません。')
+  await expect(result).not.toContainText('練習記録を保存しました。')
+  await expect(page.getByRole('table', { name: 'ベスト記録 上位5件', exact: true }).locator('tbody tr')).toHaveCount(1)
+
+  // もう一度 goes back to the whole list, recorded again.
+  await result.getByRole('button', { name: /もう一度/ }).click()
+  await expect(page.getByRole('progressbar', { name: '単語の進捗' })).toHaveAttribute('aria-valuemax', '3')
+  await expect(page.getByText('間違えた 2 語のおさらい（記録しません）')).toHaveCount(0)
+})
+
 test('best five records sort by accuracy then time and refresh after practice', async ({ page }) => {
   await seed(page, [
     { id: 'best', name: 'Best', createdAt: '2026-09-06', words: [{ display: 'a', input: 'a', annotation: 'ヒント' }, { display: 'b', input: 'b', annotation: '' }],

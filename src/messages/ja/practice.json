@@ -111,7 +111,22 @@
     "correctWords": "{count} 語",
     "mistakesWords": "ミス {count} 語",
     "shareOnX": "X でシェア",
-    "shareText": "Typle で「{name}」を {time} 秒・正確率 {accuracy}% で打ちました"
+    "shareText": "Typle で「{name}」を {time} 秒・正確率 {accuracy}% で打ちました",
+    "reviewNote": "間違えた単語のおさらいは記録しません。",
+    "reviewing": "間違えた {count} 語のおさらい（記録しません）",
+    "missed": {
+      "tile": "間違えた単語",
+      "of": "/ {count} 語",
+      "title": "間違えた単語",
+      "none": "間違えた単語はありません。",
+      "typed": "{position}文字目で {typed} と打った",
+      "wrote": "「{typed}」と書いた",
+      "revealed": "答えを見た",
+      "skipped": "飛ばした",
+      "space": "スペース",
+      "count": "{count}回",
+      "review": "間違えた {count} 語だけ練習する"
+    }
   },
   "best": {
     "label": "ベスト記録 上位5件",

@@ -11,8 +11,8 @@ export type SaveState = 'idle' | 'saving' | 'saved' | 'failed'
 
 // The session and its record, shared by typing (usePractice) and writing (useWritingPractice): the device and the mode
 // are taken as they are when the clock starts, and the finished run is saved once, with a retry that ignores answers for
-// an older run.
-export function useRecordSaving(list: SavedWordList | undefined, addRecord: RecordSave, device?: PracticeDevice, mode: PracticeMode = 'normal') {
+// an older run. A run that is not `recording` (a review of the words missed in the last run) finishes without a record.
+export function useRecordSaving(list: SavedWordList | undefined, addRecord: RecordSave, device?: PracticeDevice, mode: PracticeMode = 'normal', recording = true) {
   const [session, setSession] = useState(newSession)
   const [practiceDevice, setPracticeDevice] = useState<PracticeDevice | undefined>()
   // The mode a started run is practised in; a change from another tab only applies to the next run.
@@ -30,7 +30,7 @@ export function useRecordSaving(list: SavedWordList | undefined, addRecord: Reco
       setPracticeMode(runMode)
     }
     setSession(next)
-    if (next.finishedAt !== null && list) {
+    if (next.finishedAt !== null && list && recording) {
       const record = makeRecord(next, list.words.length, randomId(), snapshot, runMode)
       completedRecord.current = record
       setRecord(record)

@@ -23,21 +23,24 @@ export type WritingRun = { index: number; device?: PracticeDevice }
 // The body of the practice card in Typle Writing: the word as a model, a field the OS handwriting input writes into (or,
 // for languages the app reads itself, its own handwriting pad), 判定 and 飛ばす. Remounted (key) for every new run, so
 // each starts afresh.
-export default function WritingPractice({ list, listName, records, addRecord, device, statsVisible, onRun, onRestart, onChooseList }: {
+export default function WritingPractice({ list, listName, records, addRecord, device, review = false, statsVisible, onRun, onRestart, onReview, onChooseList }: {
   list: SavedWordList
   listName: string
   // The list's records; the result compares the run with its writing records only.
   records: SavedWordList['records']
   addRecord: RecordSave
   device?: PracticeDevice
+  // A review of words missed last time: practised like any run, but not recorded.
+  review?: boolean
   statsVisible: boolean
   // The run while it is going (after the first input, before the last word), null otherwise.
   onRun: (run: WritingRun | null) => void
   onRestart: () => void
+  onReview: (words: SavedWordList['words']) => void
   onChooseList: () => void
 }) {
   const t = useTranslations('practice')
-  const { session, word, finished, result, language, practiceDevice, record, saveState, input, value, read, change, submit, skip, startComposition, endComposition, startPad, write, pause, resume, retrySave } = useWritingPractice(list, addRecord, device)
+  const { session, word, finished, result, language, practiceDevice, record, saveState, input, value, read, change, submit, skip, startComposition, endComposition, startPad, write, pause, resume, retrySave } = useWritingPractice(list, addRecord, device, !review)
   const [preferredInput, setPreferredInput] = useWritingInput()
   const padAvailable = hasHandwritingModel(language)
   const writingInput: WritingInput = padAvailable ? preferredInput : 'field'
@@ -50,9 +53,9 @@ export default function WritingPractice({ list, listName, records, addRecord, de
   }, [onRun, running, session.index, practiceDevice])
 
   const progress = <PracticeProgress index={session.index} total={words.length} finished={finished} />
-  if (finished) return <>{progress}<PracticeResult mode="writing" listName={listName} wordCount={words.length} result={result} correct={session.attempts - session.mistakes}
+  if (finished) return <>{progress}<PracticeResult mode="writing" listName={listName} words={words} mistakes={session.wordMistakes} review={review} result={result} correct={session.attempts - session.mistakes}
     speed={typingSpeed(session, 0)} device={practiceDevice} record={record} records={records} saveState={saveState}
-    onRestart={onRestart} onRetry={retrySave} onChooseList={onChooseList} /></>
+    onRestart={onRestart} onReview={onReview} onRetry={retrySave} onChooseList={onChooseList} /></>
 
   return <>
     {progress}

@@ -62,5 +62,16 @@
     "label": "{label} (use the arrow keys to read each run)",
     "date": "Date",
     "value": "Value"
+  },
+  "continue": {
+    "label": "Pick up where you left off",
+    "meta": "{count, plural, one {# word} other {# words}} · Last practiced {day}",
+    "best": "Best: {accuracy} accuracy, {time} s",
+    "notRecorded": "not recorded",
+    "samples": "First words",
+    "more": "{count, plural, one {# more word} other {# more words}}",
+    "practice": "Practice",
+    "practiceList": "Practice {name}",
+    "other": "Choose another list"
   }
 }

@@ -62,5 +62,16 @@
     "label": "{label}（用左右方向键查看每次的数值）",
     "date": "日期时间",
     "value": "数值"
+  },
+  "continue": {
+    "label": "继续练习",
+    "meta": "{count} 个词 · 上次练习 {day}",
+    "best": "最佳：准确率 {accuracy}，{time} 秒",
+    "notRecorded": "未记录",
+    "samples": "开头的单词",
+    "more": "另有 {count} 个词",
+    "practice": "练习",
+    "practiceList": "练习 {name}",
+    "other": "选择其他列表"
   }
 }

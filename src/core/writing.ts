@@ -1,4 +1,4 @@
-import { cyrillicAlternatives, matchesCharacter, resumeSession, type TypingOptions, type TypingSession } from './typing'
+import { cyrillicAlternatives, matchesCharacter, noteMistake, resumeSession, type TypingOptions, type TypingSession } from './typing'
 import type { WritingLanguage } from './wordLists'
 
 const SPACELESS: readonly WritingLanguage[] = ['ja', 'zh-Hans', 'zh-Hant']
@@ -70,11 +70,12 @@ export function judgeWriting(
   }
   if (!explicit || !candidates.some(candidate => normalizeWriting(candidate, language) !== '')) return session
   const started = startWriting(session, now)
-  return { ...started, attempts: started.attempts + 1, mistakes: started.mistakes + 1, missed: true }
+  const typed = candidates.find(candidate => normalizeWriting(candidate, language) !== '') ?? ''
+  return { ...started, attempts: started.attempts + 1, mistakes: started.mistakes + 1, missed: true, wordMistakes: noteMistake(started, { wrong: { typed } }) }
 }
 
 export function skipWord(session: TypingSession, words: { display: string }[], now: number): TypingSession {
   if (session.finishedAt !== null || !words[session.index]) return session
   const started = startWriting(session, now)
-  return advance({ ...started, attempts: started.attempts + 1, mistakes: started.mistakes + 1, missed: false }, words, now)
+  return advance({ ...started, attempts: started.attempts + 1, mistakes: started.mistakes + 1, missed: false, wordMistakes: noteMistake(started, { skipped: true }) }, words, now)
 }

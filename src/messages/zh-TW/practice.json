@@ -111,7 +111,22 @@
     "correctWords": "{count} 個詞",
     "mistakesWords": "錯誤 {count} 個詞",
     "shareOnX": "分享到 X",
-    "shareText": "我在 Typle 上以 {time} 秒、{accuracy}% 的正確率打完了「{name}」"
+    "shareText": "我在 Typle 上以 {time} 秒、{accuracy}% 的正確率打完了「{name}」",
+    "reviewNote": "複習打錯的詞不會記錄。",
+    "reviewing": "複習打錯的 {count} 個詞（不記錄）",
+    "missed": {
+      "tile": "打錯的詞",
+      "of": "/ {count} 個詞",
+      "title": "打錯的詞",
+      "none": "沒有打錯的詞。",
+      "typed": "第 {position} 個字元打成了 {typed}",
+      "wrote": "寫成了「{typed}」",
+      "revealed": "看了答案",
+      "skipped": "略過",
+      "space": "空白鍵",
+      "count": "{count} 次",
+      "review": "只練習打錯的 {count} 個詞"
+    }
   },
   "best": {
     "label": "最佳紀錄前 5 名",

@@ -111,7 +111,22 @@
     "correctWords": "{count} 个词",
     "mistakesWords": "错误 {count} 个词",
     "shareOnX": "分享到 X",
-    "shareText": "我在 Typle 上用 {time} 秒、{accuracy}% 的正确率打完了“{name}”"
+    "shareText": "我在 Typle 上用 {time} 秒、{accuracy}% 的正确率打完了“{name}”",
+    "reviewNote": "复习打错的词不会记录。",
+    "reviewing": "复习打错的 {count} 个词（不记录）",
+    "missed": {
+      "tile": "打错的词",
+      "of": "/ {count} 个词",
+      "title": "打错的词",
+      "none": "没有打错的词。",
+      "typed": "第 {position} 个字符打成了 {typed}",
+      "wrote": "写成了“{typed}”",
+      "revealed": "看了答案",
+      "skipped": "跳过",
+      "space": "空格",
+      "count": "{count} 次",
+      "review": "只练习打错的 {count} 个词"
+    }
   },
   "best": {
     "label": "最佳记录前 5 名",

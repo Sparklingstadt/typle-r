@@ -341,3 +341,20 @@ test('concealCharacters hides untyped characters but keeps spaces', () => {
   const full = compareInput('cp -r', 'cp -r')
   assert.deepEqual(concealCharacters(full.characters, full.states), ['c', 'p', ' ', '-', 'r'])
 })
+
+test('wordMistakes keeps each wrong word once, with its first wrong key and every wrong key counted', () => {
+  const { revealAnswer } = require('../src/core/typing.ts')
+  const words = [{ input: 'ab' }, { input: 'cd' }, { input: 'ef' }]
+  let s = typeInput(newSession(), words, 'a', 1000)
+  s = typeInput(s, words, 'ax', 1100)
+  s = typeInput(s, words, 'ay', 1200)
+  s = typeInput(s, words, 'ab', 1300)
+  s = typeInput(s, words, 'c', 1400)
+  s = typeInput(s, words, 'cd', 1500)
+  assert.deepEqual(s.wordMistakes, [{ index: 0, count: 2, position: 1, typed: 'x' }])
+  s = revealAnswer(s, words, 1600)
+  assert.deepEqual(s.wordMistakes[1], { index: 2, count: 0, revealed: true })
+  s = typeInput(s, words, 'q', 1700)
+  assert.deepEqual(s.wordMistakes[1], { index: 2, count: 1, position: 0, typed: 'q', revealed: true })
+  assert.equal(newSession().wordMistakes, undefined)
+})

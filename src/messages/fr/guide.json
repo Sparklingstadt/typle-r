@@ -148,7 +148,7 @@
     "lead": "Quand vous terminez un entraînement, le résultat est enregistré automatiquement.",
     "complete": {
       "title": "Écran de fin",
-      "p1": "Affiche le temps, la précision et le nombre de caractères erronés, la vitesse, le nombre de mots et l’appareil.",
+      "p1": "Affiche le temps, la précision et le nombre de caractères erronés, la vitesse, le nombre de mots manqués et l’appareil. En dessous, les mots manqués sont listés avec le premier caractère erroné. « Réviser les mots manqués » reprend seulement ces mots, sans enregistrer cette révision.",
       "p2": "La précision est la part de caractères corrects parmi ceux saisis. Les suppressions ne sont pas comptées, mais les caractères retapés après une correction le sont.",
       "p3": "Quand vous battez votre record personnel, un badge et l’écart avec le record précédent s’affichent.",
       "p4": "« Encore » (<keys>Enter</keys>) relance aussitôt la même liste. Si l’enregistrement échoue, appuyez sur « Réessayer l’enregistrement »."

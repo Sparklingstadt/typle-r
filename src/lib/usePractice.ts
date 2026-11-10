@@ -10,8 +10,10 @@ import { useTypingOptions } from './inputSettings'
 
 export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, device?: PracticeDevice, initialListId?: string | null, mode: PracticeMode = 'normal') {
   const [list, setList] = useState<SavedWordList | undefined>(() => wordLists.find(item => item.id === initialListId) ?? wordLists[0])
+  // A review practises only some words of the list (those missed in the last run) and is not recorded.
+  const [review, setReview] = useState(false)
   const selected = wordLists.findIndex(item => item.id === list?.id)
-  const { session, practiceDevice, practiceMode, record, saveState, update, reset, completed, pause, resume, retrySave } = useRecordSaving(list, addRecord, device, mode)
+  const { session, practiceDevice, practiceMode, record, saveState, update, reset, completed, pause, resume, retrySave } = useRecordSaving(list, addRecord, device, mode, !review)
   const typingOptions = useTypingOptions()
   const [composition, setComposition] = useState<string | null>(null)
   const composing = useRef(false)
@@ -23,8 +25,11 @@ export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, d
 
   useEffect(() => { if (!finished) input.current?.focus() }, [finished, selected])
 
-  function restart(index = selected) {
-    setList(wordLists[index])
+  // `words` starts a review of those words of the list instead of the whole list.
+  function restart(index = selected, words?: SavedWordList['words']) {
+    const next = wordLists[index]
+    setList(next && words ? { ...next, words } : next)
+    setReview(words !== undefined)
     reset()
     setComposition(null)
     composing.current = false
@@ -62,5 +67,5 @@ export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, d
       if (!duplicate) enter(value)
     }
   }
-  return { list, selected, session, practiceDevice, practiceMode, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave, pause, resume, reveal }
+  return { list, review, selected, session, practiceDevice, practiceMode, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart, retrySave, pause, resume, reveal }
 }

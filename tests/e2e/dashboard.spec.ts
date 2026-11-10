@@ -32,6 +32,15 @@ test('dashboard summarizes practice, suggests lists and opens the chosen list', 
   await expect(page.getByText('このブラウザーに保存された記録から集計しています。')).toBeVisible()
   await expect(page.getByRole('navigation', { name: 'はじめる' }).getByRole('link', { name: '単語リストを作成', exact: true })).toHaveAttribute('href', '/create')
 
+  // The list practised last comes first, with its best and its first words; its card holds the practice button.
+  const resume = page.getByRole('region', { name: 'Recent', exact: true })
+  await expect(resume).toContainText('続きから')
+  await expect(resume).toContainText('ベスト 正確率 100%・4.00 秒')
+  await expect(resume.getByRole('list', { name: '最初の単語' }).getByRole('listitem')).toHaveText(['a', 'b'])
+  await expect(resume.getByRole('link', { name: 'Recent を練習する', exact: true })).toHaveAttribute('href', '/play?list=recent')
+  await expect(resume.getByRole('link', { name: '別のリストを選ぶ', exact: true })).toHaveAttribute('href', '/edit')
+  await expect(page.getByRole('navigation', { name: 'はじめる' }).getByRole('link', { name: '練習する', exact: true })).toHaveCount(0)
+
   const summary = page.getByRole('region', { name: '今週のまとめ', exact: true })
   await expect(summary.getByRole('definition').filter({ hasText: '今日も練習済み' })).toBeVisible()
   await expect(summary).toContainText('連続練習3日')
