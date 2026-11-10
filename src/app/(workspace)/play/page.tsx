@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { useWordLists } from "@/lib/useWordLists"
 import PracticeScreen from "@/components/Practice/PracticeScreen"
+import StarterPacks from "@/components/Practice/StarterPacks"
 
 // The same frame as PracticeScreen's <main>, so the page does not shift when the practice appears.
 function Loading() {
@@ -20,5 +21,7 @@ function PlayWorkspace() {
   const listId = useSearchParams().get('list')
   const { lists, packs, devices, accountId, ready, error, addRecord } = useWordLists()
   if (!ready) return <Loading />
+  // Following a starter pack mounts the practice afresh, on the pack's first list.
+  if (!packs.length) return <StarterPacks error={error} />
   return <PracticeScreen key={accountId} accountId={accountId ?? ""} devices={devices} wordLists={lists} packs={packs} listId={listId} error={error} addRecord={addRecord} />
 }

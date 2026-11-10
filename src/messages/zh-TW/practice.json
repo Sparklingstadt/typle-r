@@ -1,5 +1,12 @@
 {
   "empty": "還沒有單字包。請<catalog>追蹤官方單字包</catalog>，或<create>建立新的單字包</create>。",
+  "starter": {
+    "title": "想從哪個開始練習？",
+    "description": "還沒有單字包。選擇一個官方單字包，就會追蹤它並立即開始練習。之後可以取消追蹤。",
+    "first": "第一個清單：{list}",
+    "start": "從這個單字包開始",
+    "more": "<catalog>查看其他官方單字包</catalog> ／ <create>建立自己的單字包</create>"
+  },
   "stats": {
     "label": "本次練習數據",
     "elapsed": "用時",

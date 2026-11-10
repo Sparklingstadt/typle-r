@@ -1,5 +1,29 @@
 import { test, expect } from '@playwright/test'
 
+// The official data writes the ド of this name as ト and a combining dakuten.
+const LINUX_BASICS = 'Linuxコマンド：基本'.normalize('NFD')
+
+// With no pack, /play offers three official packs; choosing one follows it and starts its first list.
+test('a guest with no pack starts practice from a starter pack on /play', async ({ page }) => {
+  await page.goto('/play')
+  await expect(page.getByRole('heading', { level: 1, name: 'どれから練習しますか？' })).toBeVisible()
+  const cards = page.locator('li[data-catalog-id]')
+  await expect(cards).toHaveCount(3)
+  await expect(cards.getByRole('heading', { level: 2 })).toHaveText(['英語：基礎・中級', LINUX_BASICS, '中国語：HSK5級レベル単語'])
+  const linux = cards.filter({ has: page.getByRole('heading', { name: LINUX_BASICS, exact: true }) })
+  await expect(linux.getByText('1リスト・118語')).toBeVisible()
+  await expect(linux.getByRole('listitem').first()).toHaveText('pwd')
+  await expect(page.getByRole('link', { name: 'ほかの公式パックを見る' })).toHaveAttribute('href', '/packs/catalog')
+
+  await linux.getByRole('button', { name: 'このパックで始める' }).click()
+  await expect(page).toHaveURL(/\/play\?list=/)
+  await expect(page.getByRole('textbox', { name: '表示された文字を入力', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: new RegExp(`^単語リストを切り替える（現在: .*${LINUX_BASICS}`) })).toBeVisible()
+  await page.goto('/packs/catalog')
+  const entry = page.locator('li[data-catalog-id]', { has: page.getByRole('heading', { name: LINUX_BASICS, exact: true }) })
+  await expect(entry.getByRole('button', { name: 'フォロー中' })).toBeDisabled()
+})
+
 // A guest starts with no packs: the official ones are followed from the catalog.
 test('a guest follows an official pack from the catalog, practises it and unfollows it', async ({ page }) => {
   await page.goto('/edit')
@@ -53,8 +77,8 @@ test('a guest follows an official pack from the catalog, practises it and unfoll
 
 test('the practice screen points to the catalog when there are no packs', async ({ page }) => {
   await page.goto('/play')
-  await expect(page.getByText('まだパックがありません。公式パックをフォローするか、新しいパックを作りましょう')).toBeVisible()
-  await page.getByRole('link', { name: '公式パックをフォローする' }).click()
+  await expect(page.getByText('まだパックがありません。公式パックを選ぶと、フォローしてすぐに練習が始まります。フォローはあとで解除できます。')).toBeVisible()
+  await page.getByRole('link', { name: 'ほかの公式パックを見る' }).click()
   await expect(page).toHaveURL(/\/packs\/catalog$/)
 })
 

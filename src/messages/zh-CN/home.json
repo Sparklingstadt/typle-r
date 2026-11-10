@@ -1,7 +1,7 @@
 {
   "welcome": {
     "title": "用自己的单词，练习打字。",
-    "text": "可以先用示例开始练习，也可以创建一个想要记住的单词列表。",
+    "text": "可以先用官方单词包开始练习，也可以创建一个想要记住的单词列表。",
     "lists": "{count, plural, other {单词列表 # 个}}",
     "practices": "{count, plural, other {已完成练习 # 次}}",
     "navLabel": "开始使用",
