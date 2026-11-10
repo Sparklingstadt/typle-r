@@ -15,8 +15,9 @@ export async function loadMessages(locale: Locale): Promise<Messages> {
 }
 
 // Messages only server components read stay off the client, which receives the rest with every page.
-// The landing page (/) and a shared result (/result) are server components, so their messages stay on the server too.
+// The landing page (/) and a shared result (/result) are server components, so their messages stay on the server too,
+// except the landing page's word to try (landing.try), which is typed in the browser.
 // The admin dashboard's messages are given to its page alone (src/app/admin/page.tsx).
-export function clientMessages({ guide: _guide, landing: _landing, sharedResult: _sharedResult, metadata: _metadata, globalError: _globalError, admin: _admin, ...messages }: Messages) {
-  return messages
+export function clientMessages({ guide: _guide, landing, sharedResult: _sharedResult, metadata: _metadata, globalError: _globalError, admin: _admin, ...messages }: Messages) {
+  return { ...messages, landing: { try: landing.try } }
 }

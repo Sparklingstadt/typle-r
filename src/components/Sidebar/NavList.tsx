@@ -11,7 +11,7 @@ import { version } from "../../../package.json"
 const itemClass = (current: boolean) => cn(
   "relative flex h-10 items-center gap-3 xl:h-8 rounded-md px-3 text-sm outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-4 [&_svg]:shrink-0",
   current
-    ? "bg-accent font-medium text-foreground before:absolute before:inset-y-2.5 before:left-0 before:w-[3px] before:rounded-full before:bg-primary"
+    ? "bg-primary/10 font-medium text-primary before:absolute before:inset-y-2.5 before:left-0 before:w-[3px] before:rounded-full before:bg-primary"
     : "text-foreground/80 hover:bg-accent/60 hover:text-foreground [&_svg]:text-muted-foreground hover:[&_svg]:text-foreground"
 )
 

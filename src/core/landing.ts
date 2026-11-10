@@ -15,3 +15,13 @@ export function officialListCounts(lists: readonly { category?: string }[]): Off
   }
   return { programming, languages, total: lists.length }
 }
+
+/**
+ * A word's meaning, shown next to it: its annotation, without the word itself when the annotation starts with it
+ * ("apple / りんご" for "apple" gives "りんご").
+ */
+export function wordMeaning(display: string, annotation: string): string {
+  const note = annotation.trim()
+  const rest = display && note.startsWith(display) ? note.slice(display.length) : ''
+  return /^\s*\//.test(rest) ? rest.replace(/^\s*\/\s*/, '').trim() : note
+}

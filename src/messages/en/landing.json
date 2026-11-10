@@ -44,5 +44,14 @@
     "title": "Where your data is kept",
     "text": "Every feature works without logging in. Your data is kept in this browser, and logging in with GitHub syncs it across devices.",
     "more": "<guide>How to use</guide> / <about>About Typle</about>"
+  },
+  "try": {
+    "badge": "Try it here",
+    "progress": "{name} · {current} / {total} words",
+    "label": "Type here",
+    "hint": "Type the word above to move on to the next. Nothing typed here is recorded.",
+    "done": "{count, plural, one {# word} other {# words}} typed. Carry on with this pack's practice, where your records are kept.",
+    "continue": "Keep practicing this pack",
+    "starting": "Preparing…"
   }
 }

@@ -44,5 +44,14 @@
     "title": "資料儲存在哪裡",
     "text": "無需登入即可使用全部功能。資料儲存在此瀏覽器中，用 GitHub 登入後可以在多台裝置之間同步。",
     "more": "<guide>使用方式</guide> ／ <about>關於 Typle</about>"
+  },
+  "try": {
+    "badge": "在這裡試打",
+    "progress": "{name} · {current} / {total} 個詞",
+    "label": "輸入",
+    "hint": "輸入上面的詞即可進入下一個。在這裡輸入的內容不會被記錄。",
+    "done": "已輸入 {count} 個詞。繼續用這個單字包練習，就會留下記錄。",
+    "continue": "繼續用這個單字包練習",
+    "starting": "正在準備…"
   }
 }
