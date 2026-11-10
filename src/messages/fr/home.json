@@ -1,7 +1,7 @@
 {
   "welcome": {
     "title": "Entraînez-vous à taper avec vos propres mots.",
-    "text": "Commencez par vous entraîner avec l’exemple, ou créez une liste des mots que vous voulez retenir.",
+    "text": "Commencez par vous entraîner avec un pack officiel, ou créez une liste des mots que vous voulez retenir.",
     "lists": "{count, plural, one {# liste de mots} other {# listes de mots}}",
     "practices": "{count, plural, one {# entraînement terminé} other {# entraînements terminés}}",
     "navLabel": "Pour commencer",

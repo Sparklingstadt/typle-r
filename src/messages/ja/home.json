@@ -1,7 +1,7 @@
 {
   "welcome": {
     "title": "自分の単語で、タイピング練習。",
-    "text": "サンプルで練習を始めるか、覚えたい単語のリストを作成しましょう。",
+    "text": "公式パックで練習を始めるか、覚えたい単語のリストを作成しましょう。",
     "lists": "{count, plural, other {単語リスト # 件}}",
     "practices": "{count, plural, other {完了した練習 # 回}}",
     "navLabel": "はじめる",

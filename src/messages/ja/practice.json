@@ -1,5 +1,12 @@
 {
   "empty": "まだパックがありません。<catalog>公式パックをフォローする</catalog>か、<create>新しいパックを作り</create>ましょう",
+  "starter": {
+    "title": "どれから練習しますか？",
+    "description": "まだパックがありません。公式パックを選ぶと、フォローしてすぐに練習が始まります。フォローはあとで解除できます。",
+    "first": "最初のリスト：{list}",
+    "start": "このパックで始める",
+    "more": "<catalog>ほかの公式パックを見る</catalog> ／ <create>自分のパックを作る</create>"
+  },
   "stats": {
     "label": "練習中の記録",
     "elapsed": "経過",

@@ -1,7 +1,7 @@
 {
   "welcome": {
     "title": "Typing practice with your own words.",
-    "text": "Start practicing with a sample, or create a list of the words you want to learn.",
+    "text": "Start practicing with an official pack, or create a list of the words you want to learn.",
     "lists": "{count, plural, one {# word list} other {# word lists}}",
     "practices": "{count, plural, one {# practice completed} other {# practices completed}}",
     "navLabel": "Get started",

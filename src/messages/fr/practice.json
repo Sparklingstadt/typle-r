@@ -1,5 +1,12 @@
 {
   "empty": "Aucun pack pour l’instant. <catalog>Suivez un pack officiel</catalog> ou <create>créez-en un nouveau</create>.",
+  "starter": {
+    "title": "Par quoi voulez-vous commencer ?",
+    "description": "Aucun pack pour l’instant. Choisissez un pack officiel pour le suivre et commencer tout de suite. Vous pourrez ne plus le suivre plus tard.",
+    "first": "Première liste : {list}",
+    "start": "Commencer avec ce pack",
+    "more": "<catalog>Voir les autres packs officiels</catalog> / <create>Créer votre propre pack</create>"
+  },
   "stats": {
     "label": "Session en cours",
     "elapsed": "Écoulé",

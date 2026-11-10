@@ -104,3 +104,14 @@ test('applyCatalogChoices follows the packs switched on and unfollows the follow
   assert.deepEqual(applyCatalogChoices(next, [{ catalogId: second.catalogId, follow: true }, { catalogId: third.catalogId, follow: false }], ids, now), next)
   assert.deepEqual(applyCatalogChoices(initialLibrary, [], ids, now), initialLibrary)
 })
+
+test('the starter packs of /play are official packs with words, in their order', () => {
+  const { STARTER_CATALOG_IDS, starterPacks } = require('../src/plugins/packs/starters.ts')
+  const starters = starterPacks()
+  assert.deepEqual(starters.map(entry => entry.catalogId), [...STARTER_CATALOG_IDS])
+  assert.equal(new Set(STARTER_CATALOG_IDS).size, STARTER_CATALOG_IDS.length)
+  for (const entry of starters) {
+    assert.ok(entry.lists.length > 0, entry.catalogId)
+    assert.ok(entry.lists[0].words.length >= 3, entry.catalogId)
+  }
+})

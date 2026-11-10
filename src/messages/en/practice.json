@@ -1,5 +1,12 @@
 {
   "empty": "No packs yet. <catalog>Follow an official pack</catalog> or <create>create a new one</create>.",
+  "starter": {
+    "title": "What would you like to practice?",
+    "description": "No packs yet. Choose an official pack to follow it and start practicing right away. You can unfollow it later.",
+    "first": "First list: {list}",
+    "start": "Start with this pack",
+    "more": "<catalog>See other official packs</catalog> / <create>Create your own pack</create>"
+  },
   "stats": {
     "label": "Current run",
     "elapsed": "Elapsed",

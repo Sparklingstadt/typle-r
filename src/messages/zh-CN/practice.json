@@ -1,5 +1,12 @@
 {
   "empty": "还没有单词包。请<catalog>关注官方单词包</catalog>，或<create>创建新的单词包</create>。",
+  "starter": {
+    "title": "想从哪个开始练习？",
+    "description": "还没有单词包。选择一个官方单词包，就会关注它并立即开始练习。之后可以取消关注。",
+    "first": "第一个列表：{list}",
+    "start": "从这个单词包开始",
+    "more": "<catalog>查看其他官方单词包</catalog> ／ <create>创建自己的单词包</create>"
+  },
   "stats": {
     "label": "本次练习数据",
     "elapsed": "用时",
