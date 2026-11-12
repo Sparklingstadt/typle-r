@@ -1,5 +1,5 @@
 import { AppError } from './appError'
-import { GraphQLError, graphql } from './graphql'
+import { ApiError, api, withQuery } from './api'
 
 export const GALLERY_SORTS = ['new', 'popular'] as const
 export type GallerySort = typeof GALLERY_SORTS[number]
@@ -28,32 +28,24 @@ export function gallerySearchParams(query: GalleryQuery): URLSearchParams {
   return params
 }
 
-/** The variables of the `gallery` query for one page of the search. */
-export function galleryVariables(query: GalleryQuery, page: number) {
-  return { q: query.text, category: query.category, sort: query.sort.toUpperCase(), page }
+/** The URL of one page of the search on `/api/gallery`. */
+export function galleryPath(query: GalleryQuery, page: number) {
+  return withQuery('/api/gallery', { q: query.text, category: query.category, sort: query.sort, page })
 }
 
-const GALLERY = `query Gallery($q: String!, $category: String!, $sort: GallerySort!, $page: Int!) {
-  gallery(q: $q, category: $category, sort: $sort, page: $page) {
-    more packs { id name description category tags lists words added updatedAt }
-  }
-}`
-
-/** One page of the gallery, through `/api/graphql`. A search the server refuses is `invalidQuery`. */
+/** One page of the gallery, through `/api/gallery`. A search the server refuses is `invalidQuery`. */
 export async function fetchGalleryPage(query: GalleryQuery, page: number): Promise<GalleryPage> {
   try {
-    const { gallery } = await graphql<{ gallery: unknown }>(GALLERY, galleryVariables(query, page))
-    return decodeGalleryPage(gallery)
+    return decodeGalleryPage(await api(galleryPath(query, page)))
   } catch (reason) {
-    if (reason instanceof GraphQLError && reason.key === 'invalidQuery') throw new AppError('invalidQuery')
+    if (reason instanceof ApiError && reason.key === 'invalidQuery') throw new AppError('invalidQuery')
     throw reason
   }
 }
 
 /** The categories of the listed packs, the most packs first. */
 export async function fetchGalleryCategories(): Promise<GalleryCategory[]> {
-  const { galleryCategories } = await graphql<{ galleryCategories: unknown }>('query GalleryCategories { galleryCategories { name count } }')
-  return decodeGalleryCategories({ categories: galleryCategories })
+  return decodeGalleryCategories(await api('/api/gallery/categories'))
 }
 
 const invalid = () => new AppError('invalidServerData')

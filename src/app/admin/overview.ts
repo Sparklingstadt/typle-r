@@ -1,4 +1,4 @@
-// The adminDashboard of /api/graphql (server/internal/web/graph/schema.graphqls, server/internal/store/admin.go).
+// The overview of /api/admin/dashboard (server/internal/web/admin.go, server/internal/store/admin.go).
 export type Overview = {
   workspaces: number
   activeDay: number

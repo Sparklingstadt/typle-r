@@ -6,11 +6,11 @@ import { LogOut, RefreshCw } from 'lucide-react'
 import { ErrorAlert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { PageHeader, PageMain } from '@/components/ui/page-layout'
-import { GraphQLError, graphql } from '@/core/graphql'
+import { ApiError, api } from '@/core/api'
 import { useFormat } from '@/i18n/useFormat'
 import AdminList from './admin-list'
 import GalleryList from './gallery-list'
-import { stats, type Overview } from './overview'
+import type { Overview } from './overview'
 import RecentShares from './recent-shares'
 import SignInCard from './sign-in-card'
 import StatCards from './stat-cards'
@@ -25,11 +25,6 @@ type State =
   | { kind: 'ready'; answer: Answer }
 
 type ErrorKey = Parameters<ReturnType<typeof useTranslations<'errors'>>>[0]
-
-const DASHBOARD = `query AdminDashboard { adminDashboard {
-  admin { email sub }
-  overview { ${stats.join(' ')} recentShares { id ownerId name updatedAt } admins { email ffpfSub createdAt lastSeenAt } }
-} }`
 
 // The errors a login to the dashboard comes back with (/admin?error=…, server/internal/web/admin.go).
 const loginErrors = ['adminForbidden', 'adminUnavailable'] as const
@@ -52,10 +47,9 @@ export default function AdminDashboard() {
 
   const fetchDashboard = useCallback(async (): Promise<State> => {
     try {
-      const { adminDashboard } = await graphql<{ adminDashboard: Answer }>(DASHBOARD)
-      return { kind: 'ready', answer: adminDashboard }
+      return { kind: 'ready', answer: await api<Answer>('/api/admin/dashboard') }
     } catch (reason) {
-      if (!(reason instanceof GraphQLError)) return { kind: 'failed', error: t('loadFailed') }
+      if (!(reason instanceof ApiError)) return { kind: 'failed', error: t('loadFailed') }
       if (reason.status === 401) return { kind: 'signedOut' }
       if (reason.status === 403) return { kind: 'signedOut', error: errorText(reason.key) }
       return { kind: 'failed', error: errorText(reason.key) }

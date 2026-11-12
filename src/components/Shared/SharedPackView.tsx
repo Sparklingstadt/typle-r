@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import ReportDialog from '@/components/Gallery/ReportDialog'
 import SharedLists from '@/components/Shared/SharedLists'
 import { OpenPacks } from '@/components/Shared/SharedStates'
-import { graphql } from '@/core/graphql'
+import { api, withQuery } from '@/core/api'
 import { MAX_LISTS, ownListCount } from '@/core/listOverview'
 import { importPackFile, type PackFile } from '@/core/packFile'
 import { randomId } from '@/core/randomId'
@@ -37,7 +37,7 @@ export default function SharedPackView({ id, file }: { id: string; file: PackFil
       importPackFile({ packs, lists: lists.map(({ group: _group, category: _category, tags: _tags, ...rest }) => rest) }, file, ids)
       if (await updateLibrary(library => importPackFile(library, file, ids))) {
         // Counts the add for the gallery; the server decides whether the share is listed. Not awaited, and a failure is not shown.
-        graphql('mutation CountAdded($id: String!) { countAdded(id: $id) }', { id }, { keepalive: true }).catch(() => {})
+        api(withQuery('/api/gallery/added', { id }), { method: 'POST', keepalive: true }).catch(() => {})
         router.push(`/edit?pack=${encodeURIComponent(ids.pack)}`)
       }
     } catch (reason) {

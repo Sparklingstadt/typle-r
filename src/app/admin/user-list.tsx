@@ -7,17 +7,13 @@ import { ErrorAlert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { GraphQLError, graphql } from '@/core/graphql'
+import { ApiError, api, withQuery } from '@/core/api'
 
-// The adminUsers of /api/graphql (server/internal/web/graph/schema.graphqls, server/internal/store/admin.go).
+// The answer of /api/admin/users (server/internal/web/admin.go, server/internal/store/admin.go).
 type User = { ownerId: string; lists: number; packs: number; devices: number; shares: number; revision: number; updatedAt: string }
 type Page = { page: number; pageSize: number; total: number; users: User[] }
 
 type State = { kind: 'loading' } | { kind: 'failed'; error: string } | { kind: 'ready'; answer: Page }
-
-const USERS = `query AdminUsers($page: Int!) { adminUsers(page: $page) {
-  page pageSize total users { ownerId lists packs devices shares revision updatedAt }
-} }`
 
 // A GitHub account is github:<numeric user id>, and GitHub serves its avatar by that id. The local account (github:0) and
 // FFPF ID accounts (ffpf:<sub>) have none.
@@ -33,10 +29,9 @@ export default function UserList({ time, errorText }: { time: (value: string) =>
 
   const fetchPage = useCallback(async (number: number): Promise<State> => {
     try {
-      const { adminUsers } = await graphql<{ adminUsers: Page }>(USERS, { page: number })
-      return { kind: 'ready', answer: adminUsers }
+      return { kind: 'ready', answer: await api<Page>(withQuery('/api/admin/users', { page: number })) }
     } catch (reason) {
-      return { kind: 'failed', error: errorText(reason instanceof GraphQLError ? reason.key : null) }
+      return { kind: 'failed', error: errorText(reason instanceof ApiError ? reason.key : null) }
     }
   }, [errorText])
 

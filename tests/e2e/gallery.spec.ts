@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import { newAccountId, origin, signIn as signInAs, withDatabase } from './account'
-import { GRAPHQL, graphqlError, operationOf } from './graphql'
+import { API, apiError, endpointOf } from './api'
 const words = (...texts: string[]) => texts.map(text => ({ display: text, input: text, annotation: '' }))
 
 let accountId = ''
@@ -97,8 +97,8 @@ test('a failed count does not spoil the add', async ({ page, browser }) => {
   try {
     const view = await guest.newPage()
     let attempts = 0
-    await view.route(GRAPHQL, route => {
-      if (operationOf(route.request()) !== 'CountAdded') return route.continue()
+    await view.route(API, route => {
+      if (endpointOf(route.request()) !== 'POST /api/gallery/added') return route.fallback()
       attempts++
       return route.abort()
     })
@@ -122,7 +122,7 @@ test('a pack that is not in the gallery is not listed and its add is not counted
     await expect(view.getByText('見つかりませんでした')).toBeVisible()
     await expect(view.getByRole('main').getByRole('listitem')).toHaveCount(0)
 
-    const counted = view.waitForResponse(response => response.url().endsWith('/api/graphql') && operationOf(response.request()) === 'CountAdded')
+    const counted = view.waitForResponse(response => endpointOf(response.request()) === 'POST /api/gallery/added')
     await view.goto(`/shared/${id}`)
     await view.getByRole('button', { name: '自分のパックに追加' }).click()
     await expect(view).toHaveURL(/\/edit\?pack=/)
@@ -178,9 +178,9 @@ test('a report refused for too many requests says to try again later', async ({ 
   const guest = await browser.newContext({ baseURL: origin })
   try {
     const view = await guest.newPage()
-    await view.route(GRAPHQL, route => operationOf(route.request()) === 'ReportPack'
-      ? route.fulfill({ ...graphqlError('tooManyRequests', 429), headers: { 'Retry-After': '30' } })
-      : route.continue())
+    await view.route(API, route => endpointOf(route.request()) === 'POST /api/gallery/reports'
+      ? route.fulfill({ ...apiError('tooManyRequests', 429), headers: { 'Retry-After': '30' } })
+      : route.fallback())
     await view.goto(`/shared/${id}`)
     await view.getByRole('button', { name: '通報' }).click()
     const dialog = view.getByRole('dialog')
@@ -213,7 +213,7 @@ test('the owner puts a pack in the gallery from the share dialog and takes it ou
   const again = await openShare(page)
   await expect(again.getByRole('switch', { name: 'ギャラリーに載せる' })).toBeChecked()
   const [updated] = await Promise.all([
-    page.waitForResponse(r => r.url().endsWith('/api/graphql') && operationOf(r.request()) === 'SharePack'),
+    page.waitForResponse(r => endpointOf(r.request()) === 'PUT /api/shares'),
     again.getByRole('button', { name: '共有を更新' }).click(),
   ])
   expect(updated.status()).toBe(200)
@@ -256,7 +256,7 @@ test('a pack hidden by an administrator says so and cannot be put back by its ow
   await expect(dialog.getByRole('switch', { name: 'ギャラリーに載せる' })).toBeDisabled()
   await expect(dialog.getByText('管理者により非公開にされたため')).toBeVisible()
   const [updated] = await Promise.all([
-    page.waitForResponse(r => r.url().endsWith('/api/graphql') && operationOf(r.request()) === 'SharePack'),
+    page.waitForResponse(r => endpointOf(r.request()) === 'PUT /api/shares'),
     dialog.getByRole('button', { name: '共有を更新' }).click(),
   ])
   expect(updated.status()).toBe(200)
@@ -270,9 +270,9 @@ test('a pack hidden by an administrator says so and cannot be put back by its ow
 test('a failed change puts the switch back and says why', async ({ page }) => {
   await share(page, false)
   await page.goto('/edit')
-  await page.route(GRAPHQL, route => operationOf(route.request()) === 'SharePack'
-    ? route.fulfill(graphqlError('databaseUnavailable', 503))
-    : route.continue())
+  await page.route(API, route => endpointOf(route.request()) === 'PUT /api/shares'
+    ? route.fulfill(apiError('databaseUnavailable', 503))
+    : route.fallback())
   const dialog = await openShare(page)
   const toggle = dialog.getByRole('switch', { name: 'ギャラリーに載せる' })
   await toggle.click()
@@ -286,9 +286,9 @@ test('a failed change puts the switch back and says why', async ({ page }) => {
 test('a pack hidden while the dialog is open is shown as hidden after the refused change', async ({ page }) => {
   await share(page, false)
   await page.goto('/edit')
-  await page.route(GRAPHQL, route => operationOf(route.request()) === 'SharePack'
-    ? route.fulfill(graphqlError('sharedPackHidden', 409))
-    : route.continue())
+  await page.route(API, route => endpointOf(route.request()) === 'PUT /api/shares'
+    ? route.fulfill(apiError('sharedPackHidden', 409))
+    : route.fallback())
   const dialog = await openShare(page)
   await dialog.getByRole('switch', { name: 'ギャラリーに載せる' }).click()
   await expect(dialog.getByRole('alert')).toBeVisible()

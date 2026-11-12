@@ -1,8 +1,8 @@
 # GraphQL（/api/graphql）
 
-Web版がアカウントのデータと共有・ギャラリー・管理画面を読み書きする API です（v2.14.0 から）。スキーマは [`server/internal/web/graph/schema.graphqls`](https://github.com/Sparklingstadt/typle-r/blob/main/server/internal/web/graph/schema.graphqls) で、リゾルバーは `server/internal/web/graphql.go` です。
+iPad・Mac 版がアカウントのデータと共有・ギャラリーを読み書きする API です。Web版は v2.14.0〜v2.41.0 の間これを使い、v2.41.1 から REST のパスへ戻りました。スキーマは [`server/internal/web/graph/schema.graphqls`](https://github.com/Sparklingstadt/typle-r/blob/main/server/internal/web/graph/schema.graphqls) で、リゾルバーは `server/internal/web/graphql.go` です。
 
-同じことをする REST のパス（[ワークスペース](./workspace.md)・[共有とギャラリー](./shares.md)・[管理画面](./admin.md)）は残しており、iPad・Mac 版はそちらを使います。ログイン（[`/api/auth/*`](./auth.md)）と `/api/health` は REST だけです。
+同じことをする REST のパス（[ワークスペース](./workspace.md)・[共有とギャラリー](./shares.md)・[管理画面](./admin.md)）があり、Web版はそちらを使います。iPad・Mac 版が REST へ移ったら、この API は消します。ログイン（[`/api/auth/*`](./auth.md)）と `/api/health` は REST だけです。
 
 ## 操作
 
@@ -60,8 +60,6 @@ curl -X POST http://localhost:3000/api/graphql \
 - 取り消したログインの Cookie と、管理者でなくなったアカウントの管理者の Cookie は、REST と同じく応答で消します。
 - 実行する前に断るもの（上の「リクエスト」）は、REST と同じ `{ "error": "<キー>" }` と、そのステータスで返します。
 - 文法やスキーマに合わないクエリは `422` で、`extensions.code` は gqlgen のもの（`GRAPHQL_VALIDATION_FAILED` など）です。
-
-Web版のクライアントは `src/core/graphql.ts` で、エラーを `GraphQLError`（`key`・`status`）にします。
 
 ## スキーマを変えるとき
 
