@@ -166,3 +166,21 @@ test('continueList picks the list practised last in any mode, with its normal be
   assert.equal(continueList([list('c', [record('2026-09-26T01:00:00Z', 5, { mode: 'writing' })])]).best, undefined)
   assert.equal(continueList([list('d', [])]), null)
 })
+
+test('weak words count the latest ten normal and recall runs, by runs missed in, and leave out removed words and handwriting', () => {
+  const { weakWords, weakLists } = require('../src/core/dashboard.ts')
+  const words3 = [{ display: 'a', input: 'a', annotation: '' }, { display: 'b', input: 'b', annotation: '' }, { display: 'c', input: 'c', annotation: '' }]
+  const run = (day, missed, extra = {}) => record(`2026-09-${String(day).padStart(2, '0')}T01:00:00Z`, 10, { missed, ...extra })
+  const old = Array.from({ length: 10 }, (_, i) => run(i + 10, []))
+  const target = { ...list('w', [
+    run(1, [{ word: 'c', count: 9 }]), // older than the latest ten
+    ...old,
+    run(21, [{ word: 'b', count: 1 }, { word: 'gone', count: 5 }]),
+    run(22, [{ word: 'b', count: 1 }], { mode: 'recall' }),
+    run(23, [{ word: 'a', count: 4 }]),
+    run(24, [{ word: 'c', count: 7 }], { mode: 'writing' }),
+  ]), words: words3 }
+  assert.deepEqual(weakWords(target).map(({ word, runs, count }) => [word.input, runs, count]), [['b', 2, 2], ['a', 1, 4]])
+  const other = { ...list('o', [run(25, [{ word: 'a', count: 1 }])]), words: words3 }
+  assert.deepEqual(weakLists([other, list('none', [run(26, [])]), target]).map(item => item.list.id), ['w', 'o'])
+})

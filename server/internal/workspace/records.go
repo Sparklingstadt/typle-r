@@ -15,7 +15,45 @@ const (
 	defaultDeviceName = "デフォルト"
 	// Integers stay within JavaScript's safe integers, so the app reads them back exactly.
 	maxSafeInteger = 1<<53 - 1
+	// MaxMissedWords is MAX_MISSED_WORDS (src/core/records.ts): the most missed words a record keeps.
+	MaxMissedWords = 20
 )
+
+// MissedWord is a word that went wrong in a run (MissedWord in src/core/records.ts): the characters to type and its
+// mistakes, 1 or more.
+type MissedWord struct {
+	Word  string `json:"word"`
+	Count int    `json:"count"`
+}
+
+// decodeMissed reads a record's missed words as isMissedWords (src/core/records.ts) checks them. A null or empty list is
+// none (nil).
+func decodeMissed(raw json.RawMessage) ([]MissedWord, bool) {
+	if len(bytes.TrimSpace(raw)) == 0 || string(bytes.TrimSpace(raw)) == "null" {
+		return nil, true
+	}
+	var items []map[string]json.RawMessage
+	if json.Unmarshal(raw, &items) != nil || len(items) > MaxMissedWords {
+		return nil, false
+	}
+	missed := make([]MissedWord, 0, len(items))
+	for _, item := range items {
+		var word string
+		var count float64
+		if item == nil || len(item) != 2 || json.Unmarshal(item["word"], &word) != nil || json.Unmarshal(item["count"], &count) != nil {
+			return nil, false
+		}
+		whole, ok := integer(&count, 1)
+		if !ok || word == "" || length(word) > MaxWordText {
+			return nil, false
+		}
+		missed = append(missed, MissedWord{Word: word, Count: whole})
+	}
+	if len(missed) == 0 {
+		return nil, true
+	}
+	return missed, true
+}
 
 // The modes a run can be saved with: RecallMode for a run practised by recalling the words, WritingMode for a Typle
 // Handwriting run. A normal typing run has no mode (""), and the records of each mode are ranked apart.
@@ -46,6 +84,8 @@ type RecordInput struct {
 	Mode *string `json:"mode"`
 	// ModeNull is set when the request has "mode": null, which is refused like any other mode that is not RecallMode or WritingMode.
 	ModeNull bool `json:"-"`
+	// Missed is the run's missed words, read by decodeMissed so that a wrong one is an invalid record.
+	Missed json.RawMessage `json:"missed"`
 }
 
 // UnmarshalJSON reads the fields above and notes an explicit null mode, which a *string cannot tell from a left out one.
@@ -101,6 +141,10 @@ func AddRecord(w *Workspace, listID string, input RecordInput, newID string) (re
 	if !ok {
 		return Record{}, false, invalid
 	}
+	missed, ok := decodeMissed(input.Missed)
+	if !ok {
+		return Record{}, false, invalid
+	}
 	wordCount := len(list.Words)
 	if input.WordCount != nil {
 		if wordCount, ok = integer(input.WordCount, 1); !ok {
@@ -126,7 +170,7 @@ func AddRecord(w *Workspace, listID string, input RecordInput, newID string) (re
 	}
 	accuracy := *input.Accuracy
 	record = Record{ID: &id, Time: *input.Time, Date: FormatTime(date), Mistakes: &mistakes, Accuracy: &accuracy,
-		WordCount: &wordCount, Device: device, Mode: mode, At: date}
+		WordCount: &wordCount, Device: device, Mode: mode, Missed: missed, At: date}
 	list.Records = append(list.Records, record)
 	return record, true, nil
 }

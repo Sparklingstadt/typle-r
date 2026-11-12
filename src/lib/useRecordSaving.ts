@@ -31,7 +31,7 @@ export function useRecordSaving(list: SavedWordList | undefined, addRecord: Reco
     }
     setSession(next)
     if (next.finishedAt !== null && list && recording) {
-      const record = makeRecord(next, list.words.length, randomId(), snapshot, runMode)
+      const record = makeRecord(next, list.words, randomId(), snapshot, runMode)
       completedRecord.current = record
       setRecord(record)
       saveRecord(record)

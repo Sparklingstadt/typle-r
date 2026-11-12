@@ -16,3 +16,5 @@ TS は `tests/records.test.cjs`（`addRecord`）、Go は `server/internal/works
 - 1つのリストの記録は10000件まで（`recordLimit`）。
 - `mode` は省くか `"recall"`（思い出して打った記録）か `"writing"`（Typle Handwriting の記録）だけ（省くと通常のタイピングの記録）。
   `null` を含むほかの値は `invalidRecord`。同じ `id` の再送でも、`mode` が正しくなければ拒否する。
+- `missed`（v2.42.0 から）は、間違えた単語を `{ "word": 入力する文字, "count": 1以上の整数 }` で20語まで。ほかの項目や空の単語は `invalidRecord`。
+  空の配列と `null` は省いたのと同じで、保存しない。

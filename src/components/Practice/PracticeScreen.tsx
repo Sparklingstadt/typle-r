@@ -18,6 +18,7 @@ import { compareInput, simpleInputKeys, typingSpeed } from "@/core/typing"
 import { comparableRecords, recordsOfMode, type PracticeMode } from "@/core/records"
 import { practiceMode as writingChoiceFor, useWritingMode, type WritingChoice } from "@/lib/writingMode"
 import { currentMode } from "@/core/practiceView"
+import { weakWords } from "@/core/dashboard"
 import { useListChoosers } from "@/lib/useListChoosers"
 import type { WordPack } from "@/core/wordPacks"
 import { cn } from "@/lib/utils"
@@ -38,13 +39,21 @@ import WritingPractice, { type WritingRun } from "@/components/Practice/WritingP
 
 const WRITING_CHOICES = ['normal', 'writing'] as const
 
+// The weak words of the list in the URL, to practise on their own; none when the list has none (it is practised whole).
+function weakReview(wordLists: SavedWordList[], listId: string | null, weak: boolean) {
+  const list = weak ? wordLists.find(item => item.id === listId) : undefined
+  return list ? { words: weakWords(list).map(item => item.word), kind: 'weak' as const } : undefined
+}
+
 // The practice card, its list choosers and its confirmations. Remounted per account, so nothing carries over between them.
-export default function PracticeScreen({ wordLists, packs, listId, error, addRecord, devices, accountId }: {
+export default function PracticeScreen({ wordLists, packs, listId, weak = false, error, addRecord, devices, accountId }: {
   devices: PracticeDevice[]
   accountId: string
   wordLists: SavedWordList[]
   packs: WordPack[]
   listId: string | null
+  // Opened to practise only the weak words of the list (/play?list=<id>&review=weak).
+  weak?: boolean
   error: string
   addRecord: RecordSave
 }) {
@@ -55,7 +64,7 @@ export default function PracticeScreen({ wordLists, packs, listId, error, addRec
   const [asideOpen, setAsideOpen] = usePlayAsideOpen()
   const typingOptions = useTypingOptions()
   const [chosenMode, chooseRecall] = usePracticeMode()
-  const { list, review, selected, session, practiceDevice, practiceMode, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart: restartPractice, retrySave, pause, resume, reveal } = usePractice(wordLists, addRecord, device, listId, chosenMode)
+  const { list, review, selected, session, practiceDevice, practiceMode, composition, startComposition, endComposition, changeInput, record, saveState, input, word, finished, result, restart: restartPractice, retrySave, pause, resume, reveal } = usePractice(wordLists, addRecord, device, listId, chosenMode, weakReview(wordLists, listId, weak))
   const [displayRun, setDisplayRun] = useState(0)
   // Typing or writing is decided when a list is chosen and on every restart; a run keeps its mode to the end.
   const [preferredWriting, setPreferredWriting] = useWritingMode()
@@ -148,12 +157,12 @@ export default function PracticeScreen({ wordLists, packs, listId, error, addRec
         {selectedList?.writing && <div className="flex justify-center border-b px-4 py-2">
           <ModeToggle options={WRITING_CHOICES} value={writingChoice} onChange={requestWriting} label={t('modeLabel')} labels={{ normal: t('modeTyping'), writing: t('modeWriting') }} />
         </div>}
-        {review && <p role="status" className="border-b bg-muted/50 px-4 py-2 text-center text-[13px] text-muted-foreground sm:px-6">{t('result.reviewing', { count: words.length })}</p>}
+        {review && <p role="status" className="border-b bg-muted/50 px-4 py-2 text-center text-[13px] text-muted-foreground sm:px-6">{t(review === 'weak' ? 'result.reviewingWeak' : 'result.reviewing', { count: words.length })}</p>}
         {mode === 'writing' ? <WritingPractice key={`${list.id}:${displayRun}`} list={list} listName={practiceName(list)} records={selectedRecords} addRecord={addRecord} device={device}
-          review={review} statsVisible={statsVisible} onRun={setWritingRun} onRestart={() => restart()} onReview={reviewMissed} onChooseList={openPicker} />
+          review={review !== null} statsVisible={statsVisible} onRun={setWritingRun} onRestart={() => restart()} onReview={reviewMissed} onChooseList={openPicker} />
         : <>
         <PracticeProgress index={session.index} total={words.length} finished={finished} />
-        {finished ? <PracticeResult listName={practiceName(list)} words={words} mistakes={session.wordMistakes} review={review} result={result} correct={session.attempts - session.mistakes} speed={typingSpeed(session, 0)}
+        {finished ? <PracticeResult listName={practiceName(list)} words={words} mistakes={session.wordMistakes} review={review !== null} result={result} correct={session.attempts - session.mistakes} speed={typingSpeed(session, 0)}
           device={practiceDevice} record={record} records={selectedRecords} mode={mode} saveState={saveState} onRestart={() => restart()} onReview={reviewMissed} onRetry={retrySave} onChooseList={openPicker} />
         : <>
           <WordPrompt key={`${list.id}:${session.index}:${displayRun}`} word={word} recall={recall} comparison={comparison} revealed={session.revealed} showResume={showResume}

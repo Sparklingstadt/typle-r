@@ -433,6 +433,33 @@
               "writing"
             ],
             "description": "思い出して打った記録（recall）と手書きで書いた記録（Typle Handwriting、writing）だけが持つ。通常のタイピングの記録では省く。null を含むほかの値は 400 invalidRecord"
+          },
+          "missed": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "maxItems": 20,
+            "description": "v2.42.0 から。練習で間違えた単語（入力する文字と、1以上の間違えた回数）を20語まで。空の配列と null は省いたのと同じで保存しない。ほかの項目や空の単語は 400 invalidRecord",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "word",
+                "count"
+              ],
+              "properties": {
+                "word": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1000
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
           }
         },
         "not": {

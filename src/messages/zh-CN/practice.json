@@ -126,7 +126,8 @@
       "space": "空格",
       "count": "{count} 次",
       "review": "只练习打错的 {count} 个词"
-    }
+    },
+    "reviewingWeak": "复习 {count} 个薄弱单词（不记录）"
   },
   "best": {
     "label": "最佳记录前 5 名",

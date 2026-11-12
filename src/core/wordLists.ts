@@ -1,4 +1,5 @@
 import { AppError } from "./appError"
+import { isMissedWords, type MissedWord } from "./records"
 import { isDevice, type PracticeDevice } from "./devices"
 
 export type InputType = 'command' | 'code' | 'word'
@@ -50,7 +51,8 @@ export type WordList = {
     accuracy?: number,
     device?: PracticeDevice,
     wordCount?: number,
-    mode?: 'recall' | 'writing'
+    mode?: 'recall' | 'writing',
+    missed?: MissedWord[]
   }[],
   createdAt: string
 }
@@ -128,7 +130,8 @@ export function decodeLists(raw: string): SavedWordList[] {
           (record.id !== undefined && typeof record.id !== "string") ||
           (record.accuracy !== undefined && (!Number.isFinite(record.accuracy) || record.accuracy < 0 || record.accuracy > 100)) ||
           (record.mistakes !== undefined && (!Number.isInteger(record.mistakes) || record.mistakes < 0)) ||
-          (record.wordCount !== undefined && (!Number.isInteger(record.wordCount) || record.wordCount < 1)))) {
+          (record.wordCount !== undefined && (!Number.isInteger(record.wordCount) || record.wordCount < 1)) ||
+          (record.missed !== undefined && !isMissedWords(record.missed)))) {
       throw new AppError('savedDataCorrupted')
     }
     // A list of a followed pack (with an origin) is saved without its words, which the catalog gives back

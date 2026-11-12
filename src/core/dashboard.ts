@@ -1,4 +1,4 @@
-import { listBest, recordsOfMode, type TimeUnit } from './records'
+import { listBest, recordMode, recordsOfMode, type TimeUnit } from './records'
 import type { SavedWordList } from './wordLists'
 
 type StoredRecord = SavedWordList['records'][number]
@@ -174,4 +174,44 @@ export function continueList(lists: SavedWordList[]): ContinueList | null {
   }
   if (!latest) return null
   return { list: latest.list, lastPracticed: new Date(timeOf(latest.record)), best: listBest(latest.list) }
+}
+
+/** How many of a list's latest runs (normal and recall) its weak words are counted from. */
+export const WEAK_RUNS = 10
+const MAX_WEAK_LISTS = 3
+
+type Word = SavedWordList['words'][number]
+export type WeakWord = { word: Word; runs: number; count: number }
+export type WeakList = { list: SavedWordList; words: WeakWord[] }
+
+/**
+ * The words of a list missed in its latest WEAK_RUNS runs: most runs missed in first, then most mistakes, then the
+ * list's order. Handwriting runs are left out (a word not written is not a word mistyped), and so are words no longer
+ * in the list. A word that appears twice in the list is counted once, as the first.
+ */
+export function weakWords(list: SavedWordList): WeakWord[] {
+  const runs = newestFirst(list.records.filter(record => recordMode(record) !== 'writing')).slice(0, WEAK_RUNS)
+  const tally = new Map<string, { runs: number; count: number }>()
+  for (const record of runs) {
+    for (const missed of record.missed ?? []) {
+      const entry = tally.get(missed.word) ?? { runs: 0, count: 0 }
+      tally.set(missed.word, { runs: entry.runs + 1, count: entry.count + missed.count })
+    }
+  }
+  const seen = new Set<string>()
+  return list.words.flatMap((word, index) => {
+    const entry = tally.get(word.input)
+    if (!entry || seen.has(word.input)) return []
+    seen.add(word.input)
+    return [{ word, index, ...entry }]
+  }).sort((a, b) => b.runs - a.runs || b.count - a.count || a.index - b.index).map(({ word, runs, count }) => ({ word, runs, count }))
+}
+
+/** The lists with weak words for the home screen, most weak words first (then most mistakes), at most three. */
+export function weakLists(lists: SavedWordList[]): WeakList[] {
+  const total = (words: WeakWord[]) => words.reduce((sum, item) => sum + item.count, 0)
+  return lists.flatMap(list => {
+    const words = weakWords(list)
+    return words.length ? [{ list, words }] : []
+  }).sort((a, b) => b.words.length - a.words.length || total(b.words) - total(a.words)).slice(0, MAX_WEAK_LISTS)
 }

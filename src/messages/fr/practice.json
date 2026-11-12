@@ -126,7 +126,8 @@
       "space": "Espace",
       "count": "{count, plural, one {# fois} other {# fois}}",
       "review": "{count, plural, one {Réviser le mot manqué} other {Réviser les # mots manqués}}"
-    }
+    },
+    "reviewingWeak": "{count, plural, one {Révision de # mot difficile (non enregistrée)} other {Révision de # mots difficiles (non enregistrée)}}"
   },
   "best": {
     "label": "Top 5 des meilleurs résultats",

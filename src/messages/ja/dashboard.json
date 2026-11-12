@@ -73,5 +73,15 @@
     "practice": "練習する",
     "practiceList": "{name} を練習する",
     "other": "別のリストを選ぶ"
+  },
+  "weak": {
+    "title": "苦手な単語",
+    "description": "リストごとに、直近{runs}回の練習（Handwriting を除く）で間違えた単語を、間違えた回の多い順に表示します。",
+    "none": "まだ苦手な単語はありません。練習で間違えた単語がここに出ます。",
+    "wordsOf": "{name} の苦手な単語",
+    "runs": "{count}回",
+    "more": "ほか {count} 語",
+    "practice": "苦手な {count} 語だけ練習する",
+    "practiceList": "{name} の苦手な {count} 語だけ練習する"
   }
 }
