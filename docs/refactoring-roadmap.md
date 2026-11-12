@@ -19,9 +19,9 @@
 
 | # | 項目 | 決めること |
 |---|---|---|
-| 11 | iPad・Mac を REST へ戻し、GraphQL を消す | iPad・Mac 版をいつ REST へ戻すか。`/api/graphql` と gqlgen をいつ消すか |
+| 11 | GraphQL を消す | GraphQL を使う古い版の iPad・Mac 版が使われなくなったのを、いつ・どう確かめて消すか |
 
-- **#11 iPad・Mac** — Web は v2.41.1 で GraphQL から REST へ戻りました（`src/core/api.ts`）。iPad・Mac 版は 11/6 から GraphQL を使っているので、`/api/graphql` は残しています。iPad・Mac 版が REST へ戻れば、`server/internal/web/graphql.go`・`server/internal/web/graph`・gqlgen の依存を消せます。
+- **#11 iPad・Mac** — Web は v2.41.1 で GraphQL から REST へ戻りました（`src/core/api.ts`）。iPad・Mac 版も 11/13 に REST へ戻りました。`/api/graphql` は、11/6〜11/13 の GraphQL を使う版がまだ手元に残っているかもしれないので残しています。その版が使われなくなったら、`server/internal/web/graphql.go`・`server/internal/web/graph`・gqlgen の依存・`api-docs/src/app/graphql.md` を消します。
 
 メジャーの依存の更新（ESLint 10・TypeScript 7・`@types/node` 26・`cn` 0.5）は、1つずつ別の PR にします。範囲内の依存の更新は月に1回、1つの PR にまとめます。
 

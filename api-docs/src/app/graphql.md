@@ -1,8 +1,8 @@
 # GraphQL（/api/graphql）
 
-iPad・Mac 版がアカウントのデータと共有・ギャラリーを読み書きする API です。Web版は v2.14.0〜v2.41.0 の間これを使い、v2.41.1 から REST のパスへ戻りました。スキーマは [`server/internal/web/graph/schema.graphqls`](https://github.com/Sparklingstadt/typle-r/blob/main/server/internal/web/graph/schema.graphqls) で、リゾルバーは `server/internal/web/graphql.go` です。
+アカウントのデータと共有・ギャラリーを読み書きする、古い API です。Web版は v2.14.0〜v2.41.0 の間、iPad・Mac 版は 11/6〜11/13 の間これを使い、どちらも REST のパスへ戻りました。スキーマは [`server/internal/web/graph/schema.graphqls`](https://github.com/Sparklingstadt/typle-r/blob/main/server/internal/web/graph/schema.graphqls) で、リゾルバーは `server/internal/web/graphql.go` です。
 
-同じことをする REST のパス（[ワークスペース](./workspace.md)・[共有とギャラリー](./shares.md)・[管理画面](./admin.md)）があり、Web版はそちらを使います。iPad・Mac 版が REST へ移ったら、この API は消します。ログイン（[`/api/auth/*`](./auth.md)）と `/api/health` は REST だけです。
+同じことをする REST のパス（[ワークスペース](./workspace.md)・[共有とギャラリー](./shares.md)・[管理画面](./admin.md)）があり、Web版も iPad・Mac 版もそちらを使います。GraphQL を使う古い版の iPad・Mac 版が使われなくなったら、この API は消します。新しいクライアントでは使わないでください。ログイン（[`/api/auth/*`](./auth.md)）と `/api/health` は REST だけです。
 
 ## 操作
 
