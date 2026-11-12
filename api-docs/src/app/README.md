@@ -2,7 +2,7 @@
 
 Typle 本体（Web版と iPad・Mac・Android・Windows 版）が使う、アプリ自身のバックエンドです。Go の `server/internal/web` で、本番では Vercel の Go の関数（リポジトリ直下の `api/index.go` → `server/vercel`）として動きます。手元では `server/cmd/typle-web`（既定 `127.0.0.1:8081`）で起動し、`npm run dev` と E2E が使います。
 
-Web版は v2.41.1 から、ワークスペース・記録・共有・ギャラリー・管理画面を下の REST のパスで読み書きします（v2.14.0〜v2.41.0 は GraphQL）。[GraphQL（`POST /api/graphql`）](./graphql.md) は、それを使う iPad・Mac 版のために残しています。各フィールドは REST のパスと同じ処理とエラーのキーを使います。
+Web版は v2.41.1 から、ワークスペース・記録・共有・ギャラリー・管理画面を下の REST のパスで読み書きします（v2.14.0〜v2.41.0 は GraphQL）。iPad・Mac 版も 11/13 に REST へ戻りました。[GraphQL（`POST /api/graphql`）](./graphql.md) は、GraphQL を使う古い版の iPad・Mac 版のために、しばらく残しています。各フィールドは REST のパスと同じ処理とエラーのキーを使います。
 
 ## エンドポイント
 
@@ -32,7 +32,7 @@ Web版は v2.41.1 から、ワークスペース・記録・共有・ギャラ�
 | [`GET /api/admin/users`](./admin.md#get-api-admin-users) | 管理者 | ユーザーの一覧 |
 | [`GET /api/admin/gallery`](./admin.md#get-api-admin-gallery) | 管理者 | ギャラリーのパックと通報 |
 | [`POST /api/admin/gallery/hide`・`unhide`](./admin.md#post-api-admin-gallery-hide・post-api-admin-gallery-unhide) | 管理者 | パックを非公開にする・戻す |
-| [`POST /api/graphql`](./graphql.md) | 操作による | iPad・Mac 版が使う GraphQL。上のワークスペース・共有・ギャラリー・管理画面と同じことをする |
+| [`POST /api/graphql`](./graphql.md) | 操作による | 古い版の iPad・Mac 版が使う GraphQL（あとで消す）。上のワークスペース・共有・ギャラリー・管理画面と同じことをする |
 
 ## 共通事項
 
