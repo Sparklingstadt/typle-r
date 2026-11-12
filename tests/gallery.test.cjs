@@ -1,7 +1,7 @@
 require('./register.cjs')
 const { test } = require('node:test')
 const assert = require('node:assert/strict')
-const { galleryQueryOf, gallerySearchParams, galleryVariables, decodeGalleryPage, decodeGalleryCategories } = require('../src/core/gallery.ts')
+const { galleryQueryOf, gallerySearchParams, galleryPath, decodeGalleryPage, decodeGalleryCategories } = require('../src/core/gallery.ts')
 
 const pack = { id: 'x', name: 'Linux', lists: 2, words: 40, added: 3, updatedAt: '2026-10-01T00:00:00Z' }
 const invalid = error => error.key === 'invalidServerData'
@@ -24,9 +24,9 @@ test('conditions survive a round trip', () => {
   }
 })
 
-test('galleryVariables includes every condition and the page, with the sort as the GraphQL enum', () => {
-  assert.deepEqual(galleryVariables({ text: 'a', category: 'c', sort: 'popular' }, 2), { q: 'a', category: 'c', sort: 'POPULAR', page: 2 })
-  assert.deepEqual(galleryVariables({ text: '', category: '', sort: 'new' }, 1), { q: '', category: '', sort: 'NEW', page: 1 })
+test('galleryPath includes every condition and the page', () => {
+  assert.equal(galleryPath({ text: 'a', category: 'c', sort: 'popular' }, 2), '/api/gallery?q=a&category=c&sort=popular&page=2')
+  assert.equal(galleryPath({ text: '', category: '', sort: 'new' }, 1), '/api/gallery?q=&category=&sort=new&page=1')
 })
 
 test('decodeGalleryPage reads a pack whose description, category and tags are null as one without them', () => {

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { readFileSync } from 'node:fs'
-import { GRAPHQL, operationOf } from './graphql'
+import { API, endpointOf } from './api'
 import { openPacks } from './packRows'
 const key = 'typle-r:guest-workspace:v1'
 async function importWords(page: import('@playwright/test').Page, files: Parameters<import('@playwright/test').Locator['setInputFiles']>[0]) {
@@ -22,7 +22,7 @@ async function addDevice(page: import('@playwright/test').Page, name: string) {
 test('guest can create, import, export, edit, practice, manage devices and delete without cloud persistence', async ({ page }) => {
   const requests: string[] = []
   const errors: string[] = []
-  page.on('request', request => { if (/\/api\/(workspace|graphql)/.test(request.url())) requests.push(request.method()) })
+  page.on('request', request => { if (/\/api\/workspace/.test(request.url())) requests.push(request.method()) })
   page.on('pageerror', error => errors.push(error.message))
   await page.goto('/create')
   await importWords(page, { name: 'Guest.csv', mimeType: 'text/csv', buffer: Buffer.from('input,display,annotation\na,First,one\nb,Second,two') })
@@ -111,9 +111,9 @@ test('quota failure keeps draft and allows retry', async ({ page }) => {
 test('GitHub session uses a separate workspace and signing out restores guest data', async ({ page }) => {
   let loggedIn = false
   await page.route('**/api/auth/session', route => route.fulfill({ json: loggedIn ? { user: { id: 'github:123', name: 'Cloud' }, expires: '2099-01-01' } : {} }))
-  await page.route(GRAPHQL, route => operationOf(route.request()) === 'Workspace'
-    ? route.fulfill({ json: { data: { workspace: { accountId: 'github:123', revision: 1, lists: [], packs: null, devices: [], interests: [] } } } })
-    : route.continue())
+  await page.route(API, route => endpointOf(route.request()) === 'GET /api/workspace'
+    ? route.fulfill({ json: { accountId: 'github:123', revision: 1, lists: [], packs: null, devices: [], interests: [] } })
+    : route.fallback())
   await page.goto('/devices')
   await addDevice(page, 'Local only')
   await expect(page.getByRole('heading', { name: 'Local only', exact: true })).toBeVisible()

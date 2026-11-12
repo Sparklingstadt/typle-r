@@ -1,8 +1,7 @@
 import { test, expect } from '@playwright/test'
-import { GRAPHQL, graphqlError, operationOf } from './graphql'
+import { API, apiError, endpointOf } from './api'
 
-// The dashboard's own login and figures come from adminDashboard of /api/graphql (REST: /api/admin/dashboard,
-// server/internal/web/admin.go), whose cookie and typle_admins check are covered by the Go tests; here the page is
+// The dashboard's own login and figures come from /api/admin/dashboard (server/internal/web/admin.go), whose cookie and typle_admins check are covered by the Go tests; here the page is
 // checked against its answers.
 
 test('without the administrator cookie the dashboard offers the FFPF ID login', async ({ page, request }) => {
@@ -48,17 +47,17 @@ test('the administrator sees the figures and can sign out', async ({ page }) => 
     },
   }
   const pages: string[] = []
-  await page.route(GRAPHQL, route => {
-    const operation = operationOf(route.request())
-    if (operation === 'AdminDashboard') return route.fulfill({ json: { data: { adminDashboard: dashboard } } })
-    if (operation === 'AdminGallery') return route.fulfill({ json: { data: { adminGallery: [] } } })
-    if (operation !== 'AdminUsers') return route.continue()
-    const number = Number(route.request().postDataJSON().variables.page)
+  await page.route(API, route => {
+    const endpoint = endpointOf(route.request())
+    if (endpoint === 'GET /api/admin/dashboard') return route.fulfill({ json: dashboard })
+    if (endpoint === 'GET /api/admin/gallery') return route.fulfill({ json: { packs: [] } })
+    if (endpoint !== 'GET /api/admin/users') return route.fallback()
+    const number = Number(new URL(route.request().url()).searchParams.get('page'))
     pages.push(String(number))
     const users = number === 0
       ? Array.from({ length: 50 }, (_, i) => ({ ownerId: `github:${1000 + i}`, lists: 5, packs: 2, devices: 1, shares: 0, revision: 8, updatedAt: '2026-10-20T03:04:05Z' }))
       : [{ ownerId: 'github:9', lists: 1, packs: 1, devices: 0, shares: 3, revision: 1, updatedAt: '2026-10-01T00:00:00Z' }]
-    return route.fulfill({ json: { data: { adminUsers: { page: number, pageSize: 50, total: 51, users } } } })
+    return route.fulfill({ json: { page: number, pageSize: 50, total: 51, users } })
   })
   let signedOut = false
   await page.route('**/api/auth/admin/signout', route => { signedOut = true; return route.fulfill({ status: 204 }) })
@@ -98,23 +97,26 @@ const emptyUsers = { page: 0, pageSize: 50, total: 0, users: [] }
 const packA = '00000000-0000-4000-8000-0000000000a1'
 const packB = '00000000-0000-4000-8000-0000000000b2'
 
-// Answers the dashboard's GraphQL operations. A hide or unhide is recorded as { id } in hides or unhides and passed to
+// Answers the dashboard's requests. A hide or unhide is recorded as { id } in hides or unhides and passed to
 // onChange; with refused, a hide is refused with that error.
 async function mockAdmin(page: import('@playwright/test').Page, gallery: () => { packs: unknown[] }, hides: unknown[], unhides: unknown[],
   refused?: { key: string; status: number }, onChange: (hidden: boolean) => void = () => {}) {
-  await page.route(GRAPHQL, route => {
-    switch (operationOf(route.request())) {
-      case 'AdminDashboard': return route.fulfill({ json: { data: { adminDashboard: dashboardAnswer } } })
-      case 'AdminUsers': return route.fulfill({ json: { data: { adminUsers: emptyUsers } } })
-      case 'AdminGallery': return route.fulfill({ json: { data: { adminGallery: gallery().packs } } })
-      case 'SetPackHidden': {
-        const { id, hidden } = route.request().postDataJSON().variables as { id: string; hidden: boolean }
+  await page.route(API, route => {
+    const endpoint = endpointOf(route.request())
+    switch (endpoint) {
+      case 'GET /api/admin/dashboard': return route.fulfill({ json: dashboardAnswer })
+      case 'GET /api/admin/users': return route.fulfill({ json: emptyUsers })
+      case 'GET /api/admin/gallery': return route.fulfill({ json: gallery() })
+      case 'POST /api/admin/gallery/hide':
+      case 'POST /api/admin/gallery/unhide': {
+        const hidden = endpoint.endsWith('/hide')
+        const { id } = route.request().postDataJSON() as { id: string }
         ;(hidden ? hides : unhides).push({ id })
-        if (hidden && refused) return route.fulfill(graphqlError(refused.key, refused.status))
+        if (hidden && refused) return route.fulfill(apiError(refused.key, refused.status))
         onChange(hidden)
-        return route.fulfill({ json: { data: { setPackHidden: true } } })
+        return route.fulfill({ status: 204 })
       }
-      default: return route.continue()
+      default: return route.fallback()
     }
   })
 }

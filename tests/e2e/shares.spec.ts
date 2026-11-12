@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import { newAccountId, origin, signIn as signInAs, withDatabase } from './account'
-import { GRAPHQL, graphqlError, operationOf } from './graphql'
+import { API, apiError, endpointOf } from './api'
 const words = (...texts: string[]) => texts.map(text => ({ display: text, input: text, annotation: '' }))
 const row = (page: Page) => page.locator('li[data-pack-id="pack-shared-one"]')
 
@@ -195,12 +195,12 @@ test('deleting a shared pack never lists its share as one whose pack is gone', a
   await expect(row(page).getByText('共有中', { exact: true })).toBeVisible()
   // Holds the list read after the save, so a share list from before the delete would have time to show.
   let reads = 0
-  await page.route(GRAPHQL, async route => {
-    if (operationOf(route.request()) === 'Shares') {
+  await page.route(API, async route => {
+    if (endpointOf(route.request()) === 'GET /api/shares') {
       reads++
       await new Promise(resolve => setTimeout(resolve, 1500))
     }
-    await route.continue()
+    await route.fallback()
   })
   await page.evaluate(() => {
     const seen = window as unknown as { orphansSeen?: boolean }
@@ -208,7 +208,7 @@ test('deleting a shared pack never lists its share as one whose pack is gone', a
       .observe(document.body, { childList: true, subtree: true })
   })
 
-  const read = page.waitForResponse(response => response.url().endsWith('/api/graphql') && operationOf(response.request()) === 'Shares')
+  const read = page.waitForResponse(response => endpointOf(response.request()) === 'GET /api/shares')
   await row(page).getByRole('button', { name: 'Shared pack のパックの操作' }).click()
   await page.getByRole('menuitem', { name: '削除', exact: true }).click()
   await page.getByRole('alertdialog').getByRole('button', { name: '削除する' }).click()
@@ -222,18 +222,18 @@ test('deleting a shared pack never lists its share as one whose pack is gone', a
 test('a failed share says why', async ({ page }) => {
   await signIn(page)
   await page.goto('/edit')
-  await page.route(GRAPHQL, route => operationOf(route.request()) === 'SharePack'
-    ? route.fulfill(graphqlError('packNotFound', 404))
-    : route.continue())
+  await page.route(API, route => endpointOf(route.request()) === 'PUT /api/shares'
+    ? route.fulfill(apiError('packNotFound', 404))
+    : route.fallback())
   const dialog = await openShare(page)
   await dialog.getByRole('button', { name: 'リンクを作る' }).click()
   await expect(dialog.getByRole('alert')).toHaveText('このパックが見つかりません。ページを再読み込みしてください。')
 
   // A failed save's text is about keeping what was typed, which is not what happened here; the dialog says its own.
-  await page.unroute(GRAPHQL)
-  await page.route(GRAPHQL, route => operationOf(route.request()) === 'SharePack'
-    ? route.fulfill(graphqlError('workspaceSaveFailed', 503))
-    : route.continue())
+  await page.unroute(API)
+  await page.route(API, route => endpointOf(route.request()) === 'PUT /api/shares'
+    ? route.fulfill(apiError('workspaceSaveFailed', 503))
+    : route.fallback())
   await dialog.getByRole('button', { name: 'リンクを作る' }).click()
   await expect(dialog.getByRole('alert')).toHaveText('共有の操作ができませんでした。')
 })

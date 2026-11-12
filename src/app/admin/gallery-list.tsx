@@ -6,13 +6,13 @@ import { ErrorAlert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { GraphQLError, graphql } from '@/core/graphql'
+import { ApiError, api } from '@/core/api'
 
-// The adminGallery of /api/graphql (server/internal/web/graph/schema.graphqls, server/internal/store/gallery.go), the most reported packs first.
+// The packs of /api/admin/gallery (server/internal/web/admin.go, server/internal/store/gallery.go), the most reported first.
 type Pack = {
   id: string
   name: string
-  category: string | null
+  category?: string
   added: number
   listedAt: string | null
   hiddenAt: string | null
@@ -36,11 +36,10 @@ export default function GalleryList({ time, errorText }: { time: (value: string 
 
   const fetchPacks = useCallback(async (): Promise<State> => {
     try {
-      const { adminGallery } = await graphql<{ adminGallery: Pack[] }>(
-        'query AdminGallery { adminGallery { id name category added listedAt hiddenAt reports reasons } }')
-      return { kind: 'ready', packs: adminGallery }
+      const { packs } = await api<{ packs: Pack[] }>('/api/admin/gallery')
+      return { kind: 'ready', packs: packs.map(pack => ({ ...pack, reasons: pack.reasons ?? {} })) }
     } catch (reason) {
-      return { kind: 'failed', error: errorText(reason instanceof GraphQLError ? reason.key : null) }
+      return { kind: 'failed', error: errorText(reason instanceof ApiError ? reason.key : null) }
     }
   }, [errorText])
 
@@ -55,10 +54,9 @@ export default function GalleryList({ time, errorText }: { time: (value: string 
     setActionFailed(null)
     try {
       try {
-        await graphql('mutation SetPackHidden($id: String!, $hidden: Boolean!) { setPackHidden(id: $id, hidden: $hidden) }',
-          { id: pack.id, hidden: action === 'hide' })
+        await api(`/api/admin/gallery/${action}`, { method: 'POST', body: { id: pack.id } })
       } catch (reason) {
-        if (!(reason instanceof GraphQLError)) throw reason
+        if (!(reason instanceof ApiError)) throw reason
         // The owner may have stopped sharing meanwhile (404): show the server's reason and re-read the list.
         setActionFailed(errorText(reason.key))
       }

@@ -19,9 +19,9 @@
 
 | # | 項目 | 決めること |
 |---|---|---|
-| 11 | iPad・Mac を GraphQL へ移す | いつ移すか。`/api/workspace` をいつ消すか |
+| 11 | iPad・Mac を REST へ戻し、GraphQL を消す | iPad・Mac 版をいつ REST へ戻すか。`/api/graphql` と gqlgen をいつ消すか |
 
-- **#11 iPad・Mac** — Web は v2.14.0 から GraphQL、iPad・Mac は REST の `/api/workspace` を使っています。iPad・Mac が GraphQL へ移れば REST の HTTP の包み（`server/internal/web` の各ハンドラー）を減らせます。
+- **#11 iPad・Mac** — Web は v2.41.1 で GraphQL から REST へ戻りました（`src/core/api.ts`）。iPad・Mac 版は 11/6 から GraphQL を使っているので、`/api/graphql` は残しています。iPad・Mac 版が REST へ戻れば、`server/internal/web/graphql.go`・`server/internal/web/graph`・gqlgen の依存を消せます。
 
 メジャーの依存の更新（ESLint 10・TypeScript 7・`@types/node` 26・`cn` 0.5）は、1つずつ別の PR にします。範囲内の依存の更新は月に1回、1つの PR にまとめます。
 

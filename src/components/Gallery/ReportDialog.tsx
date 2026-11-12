@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { AppError, type ErrorKey } from '@/core/appError'
-import { GraphQLError, graphql } from '@/core/graphql'
+import { ApiError, api } from '@/core/api'
 import { useErrorText } from '@/i18n/useErrorText'
 
 const REASONS = ['inappropriate', 'spam', 'personalInfo', 'other'] as const
@@ -15,10 +15,10 @@ const REPORT_ERRORS = new Set<unknown>(['notInGallery', 'invalidReport', 'databa
 
 async function report(id: string, reason: Reason) {
   try {
-    await graphql('mutation ReportPack($id: String!, $reason: String!) { reportPack(id: $id, reason: $reason) }', { id, reason })
+    await api('/api/gallery/reports', { method: 'POST', body: { id, reason } })
   } catch (reason) {
-    if (reason instanceof GraphQLError && REPORT_ERRORS.has(reason.key)) throw new AppError(reason.key as ErrorKey)
-    throw reason instanceof GraphQLError ? new Error(`Report request failed: ${reason.status}`) : reason
+    if (reason instanceof ApiError && REPORT_ERRORS.has(reason.key)) throw new AppError(reason.key as ErrorKey)
+    throw reason instanceof ApiError ? new Error(`Report request failed: ${reason.status}`) : reason
   }
 }
 
