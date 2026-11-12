@@ -6,10 +6,11 @@ import { Keyboard, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import ContinueCard from "@/components/Dashboard/ContinueCard"
 import NextLists from "@/components/Dashboard/NextLists"
+import WeakWords from "@/components/Dashboard/WeakWords"
 import TrendCard from "@/components/Dashboard/TrendCard"
 import WeekStats from "@/components/Dashboard/WeekStats"
 import { useFormat } from "@/i18n/useFormat"
-import { continueList, listTrends, nextLists, summarize, addDays, LOW_ACCURACY, STALE_DAYS } from "@/core/dashboard"
+import { continueList, listTrends, nextLists, summarize, weakLists, WEAK_RUNS, addDays, LOW_ACCURACY, STALE_DAYS } from "@/core/dashboard"
 import type { SavedWordList } from "@/core/wordLists"
 import type { WorkspaceLocation } from "@/core/workspaceStore"
 
@@ -48,6 +49,9 @@ export default function Dashboard({ lists, storage }: { lists: SavedWordList[]; 
     </Section>
     <Section title={t('next.title')} description={t('next.description', { days: STALE_DAYS, accuracy: LOW_ACCURACY })}>
       <NextLists items={nextLists(lists, now)} now={now} />
+    </Section>
+    <Section title={t('weak.title')} description={t('weak.description', { runs: WEAK_RUNS })}>
+      <WeakWords items={weakLists(lists)} />
     </Section>
     <Section title={t('trends.title')} description={t('trends.description')}>
       <div className="grid items-start gap-4 xl:grid-cols-2">

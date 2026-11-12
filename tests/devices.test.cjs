@@ -64,7 +64,7 @@ test('device usage counts records by device id, including renamed snapshots', ()
 
 test('records snapshot the device and remain compatible with legacy data', () => {
   const source = { ...device }
-  const record = makeRecord({ startedAt: 1000, finishedAt: 2000, attempts: 1, mistakes: 0 }, 1, 'record', source)
+  const record = makeRecord({ startedAt: 1000, finishedAt: 2000, attempts: 1, mistakes: 0 }, [{ input: 'a' }], 'record', source)
   source.name = 'Renamed'
   assert.deepEqual(record.device, device)
   const list = { id: 'list', name: 'List', createdAt: '2026-09-27', words: [{ display: 'a', input: 'a', annotation: '' }], records: [record] }

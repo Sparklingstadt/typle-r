@@ -73,5 +73,15 @@
     "practice": "Practice",
     "practiceList": "Practice {name}",
     "other": "Choose another list"
+  },
+  "weak": {
+    "title": "Weak words",
+    "description": "For each list, the words missed in its last {runs} runs (not counting Handwriting), most often missed first.",
+    "none": "No weak words yet. Words you miss in practice show up here.",
+    "wordsOf": "Weak words of {name}",
+    "runs": "{count, plural, one {# run} other {# runs}}",
+    "more": "{count, plural, one {# more word} other {# more words}}",
+    "practice": "{count, plural, one {Practice the # weak word} other {Practice the # weak words}}",
+    "practiceList": "{count, plural, one {Practice the # weak word of {name}} other {Practice the # weak words of {name}}}"
   }
 }

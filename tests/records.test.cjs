@@ -9,7 +9,7 @@ test('completed records survive reload and editing; retry never duplicates', () 
   const list = { id: 'a', name: 'Test', words: [{ display: 'ab', input: 'ab', annotation: '' }], records: [], createdAt: '2026-09-06' }
   let s = typeInput(newSession(), list.words, 'a', 1000)
   s = typeInput(s, list.words, 'ab', 3000)
-  const record = makeRecord(s, 1, 'run-1')
+  const record = makeRecord(s, [{ input: 'a' }], 'run-1')
   const add = lists => addRecord({ lists, devices: [] }, 'a', record).document.lists
   let lists = add([list])
   lists = add(lists)
@@ -20,7 +20,7 @@ test('completed records survive reload and editing; retry never duplicates', () 
   assert.equal(restored[0].records[0].time, 2)
   assert.deepEqual(decodeLists(encodeLists(restored.map(l => ({ ...l, records: l.records.filter(r => r.id !== record.id) }))))[0].records, [])
   assert.throws(() => addRecord({ lists: [], devices: [] }, 'a', record), { key: 'recordListDeleted' })
-  assert.throws(() => makeRecord(newSession(), 1, 'incomplete'))
+  assert.throws(() => makeRecord(newSession(), [{ input: 'a' }], 'incomplete'))
 })
 
 const { recordRows, filterRows, groupByDay, recordTimeParts, secondsPerWord, formatAccuracy, NO_DEVICE } = require('../src/core/records.ts')
@@ -161,8 +161,8 @@ for (const file of fs.readdirSync(operationFixtures).filter(name => name.endsWit
 test('makeRecord marks a writing run; typing runs have no mode key', () => {
   const words = [{ display: 'ab', input: 'ab', annotation: '' }]
   const s = typeInput(typeInput(newSession(), words, 'a', 1000), words, 'ab', 3000)
-  assert.equal(makeRecord(s, 2, 'w1', undefined, 'writing').mode, 'writing')
-  assert.equal('mode' in makeRecord(s, 2, 'w2'), false)
+  assert.equal(makeRecord(s, [{ input: 'a' }, { input: 'b' }], 'w1', undefined, 'writing').mode, 'writing')
+  assert.equal('mode' in makeRecord(s, [{ input: 'a' }, { input: 'b' }], 'w2'), false)
   assert.equal(recordMode({ mode: 'writing' }), 'writing')
   assert.equal(recordMode({ mode: 'recall' }), 'recall')
   assert.equal(recordMode({}), 'normal')
@@ -206,9 +206,9 @@ test('addRecord keeps mode recall or writing and rejects other modes', () => {
 test('makeRecord marks only recall and writing runs with a mode', () => {
   const words = [{ display: 'ab', input: 'ab', annotation: '' }]
   const s = typeInput(typeInput(newSession(), words, 'a', 1000), words, 'ab', 3000)
-  assert.equal('mode' in makeRecord(s, 1, 'n1'), false)
-  assert.equal('mode' in makeRecord(s, 1, 'n2', undefined, 'normal'), false)
-  assert.equal(makeRecord(s, 1, 'r1', undefined, 'recall').mode, 'recall')
+  assert.equal('mode' in makeRecord(s, [{ input: 'a' }], 'n1'), false)
+  assert.equal('mode' in makeRecord(s, [{ input: 'a' }], 'n2', undefined, 'normal'), false)
+  assert.equal(makeRecord(s, [{ input: 'a' }], 'r1', undefined, 'recall').mode, 'recall')
 })
 
 test('saved records with an unknown mode are corrupted', () => {
@@ -216,4 +216,30 @@ test('saved records with an unknown mode are corrupted', () => {
     records: [{ id: 'r', time: 1, date: '2026-09-06T00:00:00.000Z', mode }] })
   assert.throws(() => decodeLists(encodeLists([list('x')])), { key: 'savedDataCorrupted' })
   assert.equal(decodeLists(encodeLists([list('recall')]))[0].records[0].mode, 'recall')
+})
+
+test('a finished run keeps its missed words by their text, most mistakes first, and they survive saving', () => {
+  const { missedWords, isMissedWords, MAX_MISSED_WORDS } = require('../src/core/records.ts')
+  const { revealAnswer } = require('../src/core/typing.ts')
+  const words = [{ input: 'ab' }, { input: 'cd' }, { input: 'ef' }]
+  let s = typeInput(newSession(), words, 'x', 1000)
+  s = typeInput(s, words, 'ab', 1100)
+  s = typeInput(s, words, 'cd', 1200)
+  s = revealAnswer(s, words, 1300)
+  s = typeInput(s, words, 'q', 1350)
+  s = typeInput(s, words, 'w', 1360)
+  s = typeInput(s, words, 'ef', 1400)
+  assert.deepEqual(missedWords(s, words), [{ word: 'ef', count: 2 }, { word: 'ab', count: 1 }])
+  const record = makeRecord(s, words, 'run-missed')
+  assert.deepEqual(record.missed, [{ word: 'ef', count: 2 }, { word: 'ab', count: 1 }])
+  const list = { id: 'm', name: 'M', words: words.map(word => ({ display: word.input, input: word.input, annotation: '' })), records: [], createdAt: '2026-09-06' }
+  const saved = addRecord({ lists: [list], devices: [] }, 'm', record).document.lists
+  assert.deepEqual(decodeLists(encodeLists(saved))[0].records[0].missed, record.missed)
+  assert.equal('missed' in makeRecord(typeInput(newSession(), [{ input: 'a' }], 'a', 1000), [{ input: 'a' }], 'clean'), false)
+  // A revealed word with no wrong key still counts once.
+  assert.deepEqual(missedWords({ wordMistakes: [{ index: 0, count: 0, revealed: true }] }, words), [{ word: 'ab', count: 1 }])
+  const many = { wordMistakes: Array.from({ length: 30 }, (_, index) => ({ index, count: 1 })) }
+  assert.equal(missedWords(many, Array.from({ length: 30 }, (_, i) => ({ input: `w${i}` }))).length, MAX_MISSED_WORDS)
+  assert.equal(isMissedWords([{ word: 'a', count: 1.5 }]), false)
+  assert.throws(() => decodeLists(JSON.stringify({ version: 1, lists: [{ ...list, records: [{ time: 1, date: '2026-09-06T00:00:00Z', missed: [{ word: 'a' }] }] }] })), { key: 'savedDataCorrupted' })
 })

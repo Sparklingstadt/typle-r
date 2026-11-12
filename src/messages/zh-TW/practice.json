@@ -126,7 +126,8 @@
       "space": "空白鍵",
       "count": "{count} 次",
       "review": "只練習打錯的 {count} 個詞"
-    }
+    },
+    "reviewingWeak": "複習 {count} 個不熟的單字（不記錄）"
   },
   "best": {
     "label": "最佳紀錄前 5 名",

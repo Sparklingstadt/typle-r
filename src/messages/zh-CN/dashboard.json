@@ -73,5 +73,15 @@
     "practice": "练习",
     "practiceList": "练习 {name}",
     "other": "选择其他列表"
+  },
+  "weak": {
+    "title": "薄弱单词",
+    "description": "按列表显示最近 {runs} 次练习（不含 Handwriting）中打错的词，打错次数多的在前。",
+    "none": "还没有薄弱单词。练习中打错的词会显示在这里。",
+    "wordsOf": "{name} 的薄弱单词",
+    "runs": "{count} 次",
+    "more": "另有 {count} 个词",
+    "practice": "只练习 {count} 个薄弱单词",
+    "practiceList": "只练习 {name} 的 {count} 个薄弱单词"
   }
 }

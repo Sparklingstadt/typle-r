@@ -126,7 +126,8 @@
       "space": "スペース",
       "count": "{count}回",
       "review": "間違えた {count} 語だけ練習する"
-    }
+    },
+    "reviewingWeak": "苦手な {count} 語のおさらい（記録しません）"
   },
   "best": {
     "label": "ベスト記録 上位5件",

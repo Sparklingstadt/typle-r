@@ -126,7 +126,8 @@
       "space": "Space",
       "count": "{count, plural, one {# time} other {# times}}",
       "review": "{count, plural, one {Practice the # missed word} other {Practice the # missed words}}"
-    }
+    },
+    "reviewingWeak": "{count, plural, one {Reviewing # weak word (not recorded)} other {Reviewing # weak words (not recorded)}}"
   },
   "best": {
     "label": "Top 5 best records",

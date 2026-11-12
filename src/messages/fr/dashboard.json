@@ -73,5 +73,15 @@
     "practice": "S’entraîner",
     "practiceList": "S’entraîner sur {name}",
     "other": "Choisir une autre liste"
+  },
+  "weak": {
+    "title": "Mots difficiles",
+    "description": "Pour chaque liste, les mots manqués lors des {runs} derniers entraînements (hors Handwriting), les plus souvent manqués d’abord.",
+    "none": "Pas encore de mots difficiles. Les mots manqués à l’entraînement apparaîtront ici.",
+    "wordsOf": "Mots difficiles de {name}",
+    "runs": "{count, plural, one {# fois} other {# fois}}",
+    "more": "{count, plural, one {# autre mot} other {# autres mots}}",
+    "practice": "{count, plural, one {Réviser le mot difficile} other {Réviser les # mots difficiles}}",
+    "practiceList": "{count, plural, one {Réviser le mot difficile de {name}} other {Réviser les # mots difficiles de {name}}}"
   }
 }

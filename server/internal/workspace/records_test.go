@@ -353,3 +353,23 @@ func TestRecordInputRefusesNullMode(t *testing.T) {
 		t.Fatal("unknown field accepted")
 	}
 }
+
+// Missed words saved with a record are read back as they were, as the account's records are stored and loaded.
+func TestStoredMissedWords(t *testing.T) {
+	lists := []byte(`[{"id":"l","name":"L","createdAt":"2026-10-01","words":[{"display":"ab","input":"ab","annotation":""}],
+		"records":[{"id":"r","time":1,"date":"2026-10-01T00:00:00.000Z","missed":[{"word":"ab","count":2}]}]}]`)
+	w, err := Decode(lists, []byte(`[]`), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := json.Marshal(w.Lists[0].Records[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	sameJSON(t, "record", got, []byte(`{"id":"r","time":1,"date":"2026-10-01T00:00:00.000Z","missed":[{"word":"ab","count":2}]}`))
+	broken := []byte(`[{"id":"l","name":"L","createdAt":"2026-10-01","words":[{"display":"ab","input":"ab","annotation":""}],
+		"records":[{"time":1,"date":"2026-10-01T00:00:00.000Z","missed":[{"word":"ab"}]}]}]`)
+	if _, err := Decode(broken, []byte(`[]`), nil); err == nil {
+		t.Fatal("a missed word without a count was read")
+	}
+}

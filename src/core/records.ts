@@ -16,6 +16,38 @@ export type PracticeRecord = {
   wordCount: number
   /** Only runs practised in recall mode or by handwriting carry it; a normal typing run has no `mode` key. */
   mode?: 'recall' | 'writing'
+  /** The words that went wrong in the run, most mistakes first; left out when none did (and in runs saved before v2.42.0). */
+  missed?: MissedWord[]
+}
+
+/**
+ * A word that went wrong in a run, by the characters to type (`input`): the list may be edited or reordered later, so
+ * the word is matched by its text, not its place. `count` is its mistakes, at least 1 (a revealed or skipped word with no
+ * wrong key counts once).
+ */
+export type MissedWord = { word: string; count: number }
+
+/** The most words a record keeps as missed, so that 10000 records of a list stay small. */
+export const MAX_MISSED_WORDS = 20
+// As the longest word a list may have (MaxWordText in server/internal/workspace).
+const MAX_MISSED_WORD = 1000
+
+/** Whether `value` is a record's `missed`: up to MAX_MISSED_WORDS words, each a non-empty text and a count of 1 or more. */
+export function isMissedWords(value: unknown): value is MissedWord[] {
+  return Array.isArray(value) && value.length <= MAX_MISSED_WORDS && value.every(item => item !== null && typeof item === 'object' &&
+    Object.keys(item).every(key => key === 'word' || key === 'count') &&
+    typeof item.word === 'string' && item.word.length > 0 && item.word.length <= MAX_MISSED_WORD &&
+    Number.isSafeInteger(item.count) && item.count >= 1)
+}
+
+/** The missed words of a finished run, to save with its record: most mistakes first, at most MAX_MISSED_WORDS. */
+export function missedWords(session: TypingSession, words: { input: string }[]): MissedWord[] {
+  const counts = new Map<string, number>()
+  for (const mistake of session.wordMistakes ?? []) {
+    const word = words[mistake.index]?.input
+    if (word) counts.set(word, (counts.get(word) ?? 0) + Math.max(1, mistake.count))
+  }
+  return [...counts].map(([word, count]) => ({ word, count })).sort((a, b) => b.count - a.count).slice(0, MAX_MISSED_WORDS)
 }
 
 /** How a run was practised: normal typing (no `mode`), recall (typed from memory) or writing (Typle Handwriting). */
@@ -31,9 +63,11 @@ export function recordsOfMode<T extends { mode?: string }>(records: T[], mode: P
   return records.filter(record => recordMode(record) === mode)
 }
 
-export function makeRecord(session: TypingSession, wordCount: number, id: string, device?: PracticeDevice, mode: PracticeMode = 'normal'): PracticeRecord {
+export function makeRecord(session: TypingSession, words: { input: string }[], id: string, device?: PracticeDevice, mode: PracticeMode = 'normal'): PracticeRecord {
   if (session.finishedAt === null || session.startedAt === null) throw new AppError('practiceIncomplete')
-  return { ...(device ? { device: { ...device } } : {}), ...(mode !== 'normal' ? { mode } : {}), ...sessionResult(session), id, wordCount, date: new Date(session.finishedAt).toISOString() }
+  const missed = missedWords(session, words)
+  return { ...(device ? { device: { ...device } } : {}), ...(mode !== 'normal' ? { mode } : {}), ...sessionResult(session), id, wordCount: words.length,
+    date: new Date(session.finishedAt).toISOString(), ...(missed.length ? { missed } : {}) }
 }
 
 export const MAX_RECORDS = 10000
@@ -63,7 +97,8 @@ export function addRecord<T extends { lists: SavedWordList[]; devices: PracticeD
   const year = date?.getUTCFullYear() ?? NaN
   if (!finite(input.time) || input.time < 0 || !finite(input.accuracy) || input.accuracy < 0 || input.accuracy > 100 ||
     !(year >= 0 && year <= 9999) || !integer(input.mistakes, 0) || (input.wordCount !== undefined && !integer(input.wordCount, 1)) ||
-    (input.mode !== undefined && input.mode !== 'recall' && input.mode !== 'writing') || typeof input.id !== 'string' || input.id.length > MAX_RECORD_ID || !/^[A-Za-z0-9_-]+$/.test(input.id)) throw new AppError('invalidRecord')
+    (input.mode !== undefined && input.mode !== 'recall' && input.mode !== 'writing') || typeof input.id !== 'string' || input.id.length > MAX_RECORD_ID || !/^[A-Za-z0-9_-]+$/.test(input.id) ||
+    (input.missed != null && !isMissedWords(input.missed))) throw new AppError('invalidRecord')
   const saved = list.records.find(item => item.id === input.id)
   if (saved) return { document, record: saved, added: false }
   if (list.records.length >= MAX_RECORDS) throw new AppError('recordLimit')
@@ -76,7 +111,9 @@ export function addRecord<T extends { lists: SavedWordList[]; devices: PracticeD
     if (!device) throw new AppError('deviceNotFound')
   }
   const record: PracticeRecord = { id: input.id, time: input.time, date: date!.toISOString(), mistakes: input.mistakes,
-    accuracy: input.accuracy, wordCount: input.wordCount ?? list.words.length, ...(input.mode !== undefined ? { mode: input.mode } : {}), ...(device ? { device: { ...device } } : {}) }
+    accuracy: input.accuracy, wordCount: input.wordCount ?? list.words.length, ...(input.mode !== undefined ? { mode: input.mode } : {}), ...(device ? { device: { ...device } } : {}),
+    // An empty list of missed words is the same as none, and is not kept.
+    ...(input.missed?.length ? { missed: input.missed.map(({ word, count }) => ({ word, count })) } : {}) }
   const lists = document.lists.map(item => item === list ? { ...item, records: [...item.records, record] } : item)
   return { document: { ...document, lists }, record, added: true }
 }

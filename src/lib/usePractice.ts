@@ -8,12 +8,19 @@ import type { PracticeMode } from '../core/records'
 import { useRecordSaving } from './useRecordSaving'
 import { useTypingOptions } from './inputSettings'
 
-export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, device?: PracticeDevice, initialListId?: string | null, mode: PracticeMode = 'normal') {
-  const [list, setList] = useState<SavedWordList | undefined>(() => wordLists.find(item => item.id === initialListId) ?? wordLists[0])
-  // A review practises only some words of the list (those missed in the last run) and is not recorded.
-  const [review, setReview] = useState(false)
+// What a review practises: the words missed in the run just finished, or the list's weak words (from the home screen).
+export type ReviewKind = 'missed' | 'weak'
+
+export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, device?: PracticeDevice, initialListId?: string | null, mode: PracticeMode = 'normal',
+  initialReview?: { words: SavedWordList['words']; kind: ReviewKind }) {
+  const [list, setList] = useState<SavedWordList | undefined>(() => {
+    const found = wordLists.find(item => item.id === initialListId) ?? wordLists[0]
+    return found && initialReview?.words.length ? { ...found, words: initialReview.words } : found
+  })
+  // A review practises only some words of the list and is not recorded.
+  const [review, setReview] = useState<ReviewKind | null>(() => initialReview?.words.length ? initialReview.kind : null)
   const selected = wordLists.findIndex(item => item.id === list?.id)
-  const { session, practiceDevice, practiceMode, record, saveState, update, reset, completed, pause, resume, retrySave } = useRecordSaving(list, addRecord, device, mode, !review)
+  const { session, practiceDevice, practiceMode, record, saveState, update, reset, completed, pause, resume, retrySave } = useRecordSaving(list, addRecord, device, mode, review === null)
   const typingOptions = useTypingOptions()
   const [composition, setComposition] = useState<string | null>(null)
   const composing = useRef(false)
@@ -26,10 +33,10 @@ export function usePractice(wordLists: SavedWordList[], addRecord: RecordSave, d
   useEffect(() => { if (!finished) input.current?.focus() }, [finished, selected])
 
   // `words` starts a review of those words of the list instead of the whole list.
-  function restart(index = selected, words?: SavedWordList['words']) {
+  function restart(index = selected, words?: SavedWordList['words'], kind: ReviewKind = 'missed') {
     const next = wordLists[index]
     setList(next && words ? { ...next, words } : next)
-    setReview(words !== undefined)
+    setReview(words !== undefined ? kind : null)
     reset()
     setComposition(null)
     composing.current = false

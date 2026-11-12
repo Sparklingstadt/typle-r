@@ -12,16 +12,19 @@ function Loading() {
   return <main className="mx-auto my-6 w-11/12 max-w-7xl pb-12 sm:my-8"><p>{common('loading')}</p></main>
 }
 
-// `?list=<id>` preselects a list, e.g. from the home dashboard. Reading it needs a Suspense boundary for prerendering.
+// `?list=<id>` preselects a list, e.g. from the home dashboard; with `&review=weak` only its weak words are practised.
+// Reading it needs a Suspense boundary for prerendering.
 export default function Play() {
   return <Suspense fallback={<Loading />}><PlayWorkspace /></Suspense>
 }
 
 function PlayWorkspace() {
-  const listId = useSearchParams().get('list')
+  const params = useSearchParams()
+  const listId = params.get('list')
+  const weak = params.get('review') === 'weak'
   const { lists, packs, devices, accountId, ready, error, addRecord } = useWordLists()
   if (!ready) return <Loading />
   // Following a starter pack mounts the practice afresh, on the pack's first list.
   if (!packs.length) return <StarterPacks error={error} />
-  return <PracticeScreen key={accountId} accountId={accountId ?? ""} devices={devices} wordLists={lists} packs={packs} listId={listId} error={error} addRecord={addRecord} />
+  return <PracticeScreen key={`${accountId}:${weak}`} accountId={accountId ?? ""} devices={devices} wordLists={lists} packs={packs} listId={listId} weak={weak} error={error} addRecord={addRecord} />
 }

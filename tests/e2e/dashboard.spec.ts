@@ -70,6 +70,54 @@ test('dashboard summarizes practice, suggests lists and opens the chosen list', 
   expect(errors).toEqual([])
 })
 
+test('weak words are listed per list from the latest runs, and their button practises only them, unrecorded', async ({ page }) => {
+  const now = Date.now()
+  const words = ['alpha', 'beta', 'gamma', 'delta'].map(input => ({ display: input, input, annotation: `${input} / 意味` }))
+  const record = (id: string, ago: number, missed?: { word: string; count: number }[], mode?: string) =>
+    ({ id, date: new Date(now - ago).toISOString(), time: 5, mistakes: 1, accuracy: 90, wordCount: 4, ...(missed ? { missed } : {}), ...(mode ? { mode } : {}) })
+  const lists = [{ id: 'weak', name: 'Weak', createdAt: '2026-09-01', words, records: [
+    record('w1', 3 * day, [{ word: 'beta', count: 1 }, { word: 'removed', count: 3 }]),
+    record('w2', 2 * day, [{ word: 'beta', count: 2 }, { word: 'gamma', count: 4 }]),
+    record('w3', day, [{ word: 'delta', count: 5 }], 'writing'),
+    record('w4', 60 * 1000),
+  ] }]
+  await page.addInitScript(([key, value]) => { if (!localStorage.getItem(key)) localStorage.setItem(key, value) }, [key, guestWorkspace(lists)])
+  await page.goto('/home')
+  const weak = page.getByRole('region', { name: '苦手な単語', exact: true })
+  const items = weak.getByRole('list', { name: 'Weak の苦手な単語' }).getByRole('listitem')
+  await expect(items).toHaveCount(2)
+  await expect(items.nth(0)).toContainText('beta')
+  await expect(items.nth(0)).toContainText('2回')
+  await expect(items.nth(1)).toContainText('gamma')
+  await expect(items.nth(1)).toContainText('意味')
+  await expect(weak).not.toContainText('delta')
+  await weak.getByRole('link', { name: 'Weak の苦手な 2 語だけ練習する', exact: true }).click()
+  await expect(page).toHaveURL(/\/play\?list=weak&review=weak$/)
+  await expect(page.getByRole('status').filter({ hasText: '苦手な 2 語のおさらい（記録しません）' })).toBeVisible()
+  await expect(page.getByRole('progressbar', { name: '単語の進捗' })).toHaveAttribute('aria-valuemax', '2')
+  const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
+  await input.pressSequentially('beta')
+  await input.pressSequentially('gamma')
+  await expect(page.getByLabel('練習結果', { exact: true })).toContainText('間違えた単語のおさらいは記録しません。')
+})
+
+test('a saved run keeps its missed words for the weak words', async ({ page }) => {
+  const words = [{ display: 'ab', input: 'ab', annotation: '' }, { display: 'cd', input: 'cd', annotation: '' }]
+  await page.addInitScript(([key, value]) => { if (!localStorage.getItem(key)) localStorage.setItem(key, value) },
+    [key, guestWorkspace([{ id: 'save', name: 'Save', createdAt: '2026-09-01', words, records: [] }])])
+  await page.goto('/play')
+  const input = page.getByRole('textbox', { name: '表示された文字を入力', exact: true })
+  await input.pressSequentially('ab')
+  await input.pressSequentially('cx')
+  await input.pressSequentially('d')
+  await expect(page.getByLabel('練習結果', { exact: true })).toContainText('練習記録を保存しました。')
+  await page.goto('/home')
+  const items = page.getByRole('list', { name: 'Save の苦手な単語' }).getByRole('listitem')
+  await expect(items).toHaveCount(1)
+  await expect(items.first()).toContainText('cd')
+  await expect(items.first()).toContainText('1回')
+})
+
 test('an unknown list parameter falls back to the first list', async ({ page }) => {
   await seedGuest(page)
   await page.goto('/play?list=missing')

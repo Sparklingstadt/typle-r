@@ -73,5 +73,15 @@
     "practice": "練習",
     "practiceList": "練習 {name}",
     "other": "選擇其他清單"
+  },
+  "weak": {
+    "title": "不熟的單字",
+    "description": "依清單顯示最近 {runs} 次練習（不含 Handwriting）中打錯的詞，打錯次數多的在前。",
+    "none": "還沒有不熟的單字。練習中打錯的詞會顯示在這裡。",
+    "wordsOf": "{name} 不熟的單字",
+    "runs": "{count} 次",
+    "more": "另有 {count} 個詞",
+    "practice": "只練習 {count} 個不熟的單字",
+    "practiceList": "只練習 {name} 的 {count} 個不熟的單字"
   }
 }
